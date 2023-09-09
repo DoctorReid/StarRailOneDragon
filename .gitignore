@@ -1,3 +1,4 @@
 .idea
 .env
 test.py
+.log
