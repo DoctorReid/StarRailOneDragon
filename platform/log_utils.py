@@ -11,7 +11,7 @@ def get_logger():
 
     formatter = logging.Formatter('[%(asctime)s] [%(funcName)s] [%(levelname)s]: %(message)s')
 
-    log_file_path = os.path.join(os_utils.join_dir_path_with_mk(os.getcwd(), '.log'), 'log.txt')
+    log_file_path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'log.txt')
     archive_handler = TimedRotatingFileHandler(log_file_path, when='midnight', interval=1, backupCount=3)
     archive_handler.setLevel(logging.DEBUG)  # 文件输出默认debug
     archive_handler.setFormatter(formatter)

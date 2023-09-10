@@ -1,0 +1,38 @@
+name: Compile po into mo
+
+on:
+  push:
+    branches:
+      - main
+      - dev_i18
+    paths:
+      - '**/*.po'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: pip install polib==1.2.0
+
+      - name: Compile PO files
+        run: |
+          python github/compile_po.py
+
+      - name: Commit changes
+        run: |
+          git config --global user.name ${{ secrets.GITHUB_USERNAME }}
+          git config --global user.email ${{ secrets.GITHUB_EMAIL }}
+          git config --global credential.helper store --file ~/.git-credentials
+          git add .
+          git commit -m "自动编译 PO 文件并提交代码 - $(date +%Y-%m-%d)"
+          git push
