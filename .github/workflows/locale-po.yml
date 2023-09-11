@@ -37,8 +37,12 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add data/locales/**/*.mo
-          git commit -m "#4 自动编译mo文件提交 $(date +%Y-%m-%d)"
-          git push
+          if ! git diff --quiet; then
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git add data/locales/**/*.mo
+            git commit -m "#4 自动编译mo文件提交 $(date +%Y-%m-%d)"
+            git push
+          else
+            echo "No file modifications"
+          fi
