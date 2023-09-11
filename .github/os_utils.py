@@ -32,35 +32,6 @@ def get_work_dir() -> str:
     :return: 项目根目录
     """
     dir_path = os.path.abspath(__file__)
-    for i in range(2):
+    for _ in range(2):
         dir_path = os.path.dirname(dir_path)
     return dir_path
-
-
-def get_env(key: str) -> str:
-    """
-    获取环境变量
-    :param key: key
-    :return: value
-    """
-    return os.environ.get(key)
-
-
-def get_env_def(key: str, dft: str) -> str:
-    """
-    获取环境变量 获取不到时使用默认值
-    :param key: key
-    :return: value
-    """
-    val = get_env(key)
-    if val is None:
-        return dft
-
-
-def is_debug() -> bool:
-    """
-    判断当前是否在debug模式
-    环境变量 DEBUG = 1
-    :return: 是否在debug模式
-    """
-    return '1' == get_env_def('DEBUG', '0')

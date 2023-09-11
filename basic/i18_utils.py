@@ -1,7 +1,7 @@
 import gettext
 
-from platform import os_utils
-from platform.log_utils import log
+from basic import os_utils
+from basic.log_utils import log
 
 
 def get_i18_func():

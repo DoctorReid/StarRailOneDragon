@@ -2,7 +2,7 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-from platform import os_utils
+from basic import os_utils
 
 
 def get_logger():

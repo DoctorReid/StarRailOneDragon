@@ -1,7 +1,8 @@
-import polib
 import os
 
-from platform import os_utils
+import polib
+
+import os_utils
 
 
 def compile_lang(lang: str):
@@ -23,3 +24,7 @@ def compile_po_files():
     :return:
     """
     compile_lang('cn')
+
+
+if __name__ == '__main__':
+    compile_po_files()
