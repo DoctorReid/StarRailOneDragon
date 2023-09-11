@@ -35,6 +35,15 @@ jobs:
         run: |
           python .github/compile_po.py
 
+      - name: Check for file modifications
+        run: |
+          if ! git diff --quiet; then
+            echo "Files have been modified"
+          else
+            echo "No file modifications"
+            exit 0
+          fi
+
       - name: Commit changes
         run: |
           git config user.name github-actions
