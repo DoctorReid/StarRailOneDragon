@@ -2,3 +2,4 @@
 .env
 test.py
 .log
+__pycache__
