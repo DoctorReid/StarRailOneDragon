@@ -45,3 +45,4 @@ jobs:
             git push
           else
             echo "No file modifications"
+          fi
