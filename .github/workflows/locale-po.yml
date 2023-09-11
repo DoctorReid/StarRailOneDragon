@@ -41,7 +41,7 @@ jobs:
             echo "Files have been modified"
           else
             echo "No file modifications"
-            echo "::set-output name=skip_steps::true"
+            echo "skip_steps=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Commit changes
