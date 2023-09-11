@@ -41,7 +41,7 @@ jobs:
             echo "Files have been modified"
           else
             echo "No file modifications"
-            exit 0
+            echo "::set-output name=skip_steps::true"
           fi
 
       - name: Commit changes
