@@ -1,2 +1,2 @@
-pywinauto==0.6.8
 polib==1.2.0
+pyautogui==0.9.54
