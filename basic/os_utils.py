@@ -1,7 +1,9 @@
 import os
 
+from PIL.Image import Image
 
-def join_dir_path_with_mk(path: str, *subs: str) -> str:
+
+def join_dir_path_with_mk(path: str, *subs) -> str:
     """
     拼接目录路径和子目录
     如果拼接后的目录不存在 则创建
@@ -64,3 +66,15 @@ def is_debug() -> bool:
     :return: 是否在debug模式
     """
     return '1' == get_env_def('DEBUG', '0')
+
+
+def save_image_under_work_dir(img: Image, file_name: str, *sub_dir_paths):
+    """
+    在项目目录下保存图片
+    :param img: 目标文件
+    :param file_name: 文件名称
+    :param sub_dir_paths: 文件所在的子目录路径 如果不存在 则创建
+    :return:
+    """
+    file_path = get_path_under_work_dir(*sub_dir_paths)
+    img.save(os.path.join(file_path, file_name))

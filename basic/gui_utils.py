@@ -1,6 +1,7 @@
 import os
 
 import pyautogui
+from PIL.Image import Image
 from pygetwindow import Win32Window
 
 
@@ -97,3 +98,31 @@ def cancel_shutdown_sys():
     :return:
     """
     os.system("shutdown -a")
+
+
+def screenshot_win(win: Win32Window) -> Image:
+    """
+    对屏幕截图 截取窗口所在区域 如果目标窗口被其他窗口覆盖 则会显示其他窗口内容
+    :param win: 窗口
+    :return:
+    """
+    if win is None:
+        return None
+    left = win.left
+    top = win.top
+    width = win.width
+    height = win.height
+    return pyautogui.screenshot(region=(left, top, width, height))
+
+
+def screenshot_win_by_name(window_name: str) -> Image:
+    """
+    对屏幕截图 截取名称对应窗口所在区域 如果目标窗口被其他窗口覆盖 则会显示其他窗口内容
+    :param window_name: 窗口名称
+    :return:
+    """
+    try:
+        win = get_win_by_name(window_name)
+        return screenshot_win(win)
+    except pyautogui.PyAutoGUIException:
+        return None
