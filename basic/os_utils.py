@@ -52,11 +52,11 @@ def get_env_def(key: str, dft: str) -> str:
     """
     获取环境变量 获取不到时使用默认值
     :param key: key
+    :param dft: 默认值
     :return: value
     """
     val = get_env(key)
-    if val is None:
-        return dft
+    return val if val is not None else dft
 
 
 def is_debug() -> bool:
