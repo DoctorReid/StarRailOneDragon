@@ -1,6 +1,5 @@
-# Github 工作流
-
-## 多语言编译
-配置文件 workflows/locale-po.yml
-
-修改多语言时，应使用 dev_locale 分支
+### 环境变量汇总
+|KEY|DEFAULT|备注|
+|---|---|---|
+|DEBUG|0|调试模式|
+|LANG|CN|语言 暂不支持其他|

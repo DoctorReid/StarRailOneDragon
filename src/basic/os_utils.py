@@ -34,7 +34,7 @@ def get_work_dir() -> str:
     :return: 项目根目录
     """
     dir_path = os.path.abspath(__file__)
-    for _ in range(2):
+    for _ in range(3):
         dir_path = os.path.dirname(dir_path)
     return dir_path
 
