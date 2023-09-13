@@ -4,3 +4,5 @@ test.py
 .log
 __pycache__
 .debug
+model/cnocr
+model/cnstd

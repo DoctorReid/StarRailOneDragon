@@ -1,5 +1,3 @@
-from typing import List
-
 import cv2
 import numpy as np
 from PIL.Image import Image
@@ -9,6 +7,9 @@ from basic.log_utils import log
 
 
 class CvImageMatcher(ImageMatcher):
+    """
+    https://cnocr.readthedocs.io/zh/latest/
+    """
 
     def __init__(self):
         self.templates = {}
@@ -67,7 +68,7 @@ class CvImageMatcher(ImageMatcher):
             if source_image.mode == 'RGBA':
                 source = cv2.cvtColor(np.array(source_image), cv2.COLOR_RGBA2BGRA)
             else:
-                source = cv2.cvtColor(source_image.convert('RGBA'), cv2.COLOR_RGBA2BGRA)
+                source = cv2.cvtColor(np.array(source_image.convert('RGBA')), cv2.COLOR_RGBA2BGRA)
         elif type(source_image) == str:
             source = cv2.imread(source_image)
         else:
