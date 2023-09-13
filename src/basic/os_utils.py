@@ -66,15 +66,3 @@ def is_debug() -> bool:
     :return: 是否在debug模式
     """
     return '1' == get_env_def('DEBUG', '0')
-
-
-def save_image_under_work_dir(img: Image, file_name: str, *sub_dir_paths):
-    """
-    在项目目录下保存图片
-    :param img: 目标文件
-    :param file_name: 文件名称
-    :param sub_dir_paths: 文件所在的子目录路径 如果不存在 则创建
-    :return:
-    """
-    file_path = get_path_under_work_dir(*sub_dir_paths)
-    img.save(os.path.join(file_path, file_name))

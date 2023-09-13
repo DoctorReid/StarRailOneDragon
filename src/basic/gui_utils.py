@@ -1,8 +1,11 @@
 import os
+from typing import Union
 
 import pyautogui
 from PIL.Image import Image
 from pygetwindow import Win32Window
+
+from src.basic import os_utils
 
 
 def get_win_by_name(window_name: str) -> Win32Window:
@@ -25,12 +28,9 @@ def active_win(win: Win32Window):
     切换到具体的窗口上
     :param win: 窗口
     :return: None
-    :raise PyAutoGUIException 找不到对应窗口
     """
-    if win is not None:
+    if win is not None and not win.isActive:
         win.activate()
-    else:
-        raise pyautogui.PyAutoGUIException
 
 
 def is_active_win(win: Win32Window) -> bool:
@@ -115,14 +115,26 @@ def screenshot_win(win: Win32Window) -> Image:
     return pyautogui.screenshot(region=(left, top, width, height))
 
 
-def screenshot_win_by_name(window_name: str) -> Image:
+def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> Image:
     """
-    对屏幕截图 截取名称对应窗口所在区域 如果目标窗口被其他窗口覆盖 则会显示其他窗口内容
-    :param window_name: 窗口名称
+    激活窗口然后对屏幕截图 截取窗口所在区域
+    :param win: 窗口名称 或 具体窗口
+    :param save_path: 保存路径
     :return:
     """
-    try:
-        win = get_win_by_name(window_name)
-        return screenshot_win(win)
-    except pyautogui.PyAutoGUIException:
+    if type(win) == str:
+        target = get_win_by_name(win)
+    elif type(win) == Win32Window:
+        target = win
+    else:
         return None
+
+    active_win(target)
+    left = target.left
+    top = target.top
+    width = target.width
+    height = target.height
+    img: Image = pyautogui.screenshot(region=(left, top, width, height))
+    if save_path is not None:
+        img.save(save_path)
+    return target
