@@ -1,11 +1,11 @@
 import os
 from typing import Union
 
+import cv2
+import numpy as np
 import pyautogui
 from PIL.Image import Image
 from pygetwindow import Win32Window
-
-from src.basic import os_utils
 
 
 def get_win_by_name(window_name: str) -> Win32Window:
@@ -100,22 +100,7 @@ def cancel_shutdown_sys():
     os.system("shutdown -a")
 
 
-def screenshot_win(win: Win32Window) -> Image:
-    """
-    对屏幕截图 截取窗口所在区域 如果目标窗口被其他窗口覆盖 则会显示其他窗口内容
-    :param win: 窗口
-    :return:
-    """
-    if win is None:
-        return None
-    left = win.left
-    top = win.top
-    width = win.width
-    height = win.height
-    return pyautogui.screenshot(region=(left, top, width, height))
-
-
-def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> Image:
+def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> cv2.typing.MatLike:
     """
     激活窗口然后对屏幕截图 截取窗口所在区域
     :param win: 窗口名称 或 具体窗口
@@ -135,6 +120,7 @@ def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> Image
     width = target.width
     height = target.height
     img: Image = pyautogui.screenshot(region=(left, top, width, height))
+    cv2_img = cv2.cvtColor(np.array(img if img.mode == 'RGBA' else img.convert('RGBA')), cv2.COLOR_RGBA2BGRA)
     if save_path is not None:
         img.save(save_path)
-    return target
+    return cv2_img

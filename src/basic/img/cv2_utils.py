@@ -1,0 +1,101 @@
+from typing import Union
+
+import cv2
+import numpy as np
+from PIL.Image import Image
+
+from basic.img import ImageLike, MatchResult, MatchResultList
+
+
+def read_image_with_alpha(file_path: str, show_result: bool = False):
+    """
+    读取图片 如果没有透明图层则加入
+    :param file_path: 图片路径
+    :param show_result: 是否显示结果
+    :return:
+    """
+    image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
+    channels = cv2.split(image)
+    if len(channels) != 4:
+        # 创建透明图层
+        alpha = np.ones(image.shape[:2], dtype=np.uint8) * 255
+        # 合并图像和透明图层
+        image = cv2.merge((image, alpha))
+    if show_result:
+        cv2.imshow('Result', image)
+    return image
+
+
+def convert_source(source_image: ImageLike, src_x_scale: float = 1, src_y_scale: float = 1):
+    """
+    将原图转化成适合使用的cv2格式，会转化成RGBA
+    :param source_image: 原图
+    :param src_x_scale: 原图缩放比例x
+    :param src_y_scale: 原图缩放比例y
+    :return: 转化图
+    """
+    source: cv2.typing.MatLike = None
+    if type(source_image) == Image:
+        if source_image.mode == 'RGBA':
+            source = cv2.cvtColor(np.array(source_image), cv2.COLOR_RGBA2BGRA)
+        else:
+            source = cv2.cvtColor(np.array(source_image.convert('RGBA')), cv2.COLOR_RGBA2BGRA)
+    elif type(source_image) == str:
+        source = cv2.imread(source_image)
+    else:
+        source = source_image
+    if src_x_scale != 1 or src_y_scale != 1:
+        source = cv2.resize(source, (0, 0), fx=src_x_scale, fy=src_y_scale)
+    return source
+
+
+def show_image(img: cv2.typing.MatLike,
+               rects: Union[MatchResult, MatchResultList] = None,
+               win_name='DEBUG'):
+    """
+    显示一张图片
+    :param img: 图片
+    :param rects: 需要画出来的框
+    :param win_name:
+    :return:
+    """
+    # 创建可调整大小的窗口
+    cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
+    # 设置窗口属性为不占用最顶层
+    cv2.setWindowProperty(win_name, cv2.WND_PROP_TOPMOST, 0)
+
+    to_show = img
+
+    if rects is not None:
+        to_show = img.copy()
+        if type(rects) == MatchResult:
+            cv2.rectangle(to_show, (rects.x, rects.y), (rects.x + rects.w, rects.y + rects.h), (255, 0, 0), 1)
+        elif type(rects) == MatchResultList:
+            for i in rects:
+                cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (255, 0, 0), 1)
+
+    cv2.imshow(win_name, to_show)
+    cv2.waitKey(0)
+
+
+def image_rotate(img: cv2.typing.MatLike, angle: int, show_result: bool = False):
+    """
+    对图片按中心进行旋转
+    :param img: 原图
+    :param angle: 逆时针旋转的角度
+    :param show_result: 显示结果
+    :return: 旋转后图片
+    """
+    height, width = img.shape[:2]
+    center = (width // 2, height // 2)
+
+    # 获取旋转矩阵
+    rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+
+    # 应用旋转矩阵来旋转图像
+    rotated_image = cv2.warpAffine(img, rotation_matrix, (width, height))
+
+    if show_result:
+        cv2.imshow('Result', rotated_image)
+
+    return rotated_image

@@ -1,6 +1,6 @@
 .idea
 .env
-test.py
+*test.py
 .log
 __pycache__
 .debug

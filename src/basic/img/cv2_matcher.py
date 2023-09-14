@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from PIL.Image import Image
 
-from basic.img import ImageMatcher, ImageLike, MatchResult, MatchResultList
+from basic.img import ImageMatcher, ImageLike, MatchResult, MatchResultList, cv2_utils
 from basic.log_utils import log
 
 
@@ -14,24 +14,6 @@ class CvImageMatcher(ImageMatcher):
     def __init__(self):
         self.templates = {}
 
-    def read_image_with_alpha(self, file_path: str, show_result: bool = False):
-        """
-        读取图片 如果没有透明图层则加入
-        :param file_path: 图片路径
-        :param show_result: 是否显示结果
-        :return:
-        """
-        image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
-        channels = cv2.split(image)
-        if len(channels) != 4:
-            # 创建透明图层
-            alpha = np.ones(image.shape[:2], dtype=np.uint8) * 255
-            # 合并图像和透明图层
-            image = cv2.merge((image, alpha))
-        if show_result:
-            cv2.imshow('Result', image)
-        return image
-
     def load_template(self, template_id: str, template_path: str, x_scale: float = 1, y_scale: float = 1):
         """
         加载需要匹配的模板到内存中 后续使用模板id匹配即可
@@ -41,13 +23,39 @@ class CvImageMatcher(ImageMatcher):
         :param y_scale: 读取后缩放比例y
         :return:
         """
-        res = self.read_image_with_alpha(template_path)
+        res = cv2_utils.read_image_with_alpha(template_path)
         if x_scale != 1 or y_scale != 1:
             res = cv2.resize(res, (0, 0), fx=x_scale, fy=y_scale)
 
         self.templates[template_id] = res
 
-    def match_template_by_id(self, source_image: ImageLike, template_id: str, threshold: float = 0,
+
+    def match_with_mask(self, source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold) -> MatchResultList:
+        """
+        在原图中 匹配模板。两者都需要是rgba格式。
+        模板会忽略透明图层
+        :param source: 原图
+        :param template: 模板
+        :param threshold: 阈值
+        :return: 所有匹配结果
+        """
+        tx, ty, _ = template.shape
+         # 创建掩码图像，将透明背景像素设置为零
+        mask = np.where(template[..., 3] > 0, 255, 0).astype(np.uint8)
+        # 进行模板匹配，忽略透明背景
+        result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+
+        match_result_list = MatchResultList()
+        # 获取匹配结果的位置
+        locations = np.where(result >= threshold)  # threshold是一个阈值，用于过滤低置信度的匹配结果
+
+        # 遍历所有匹配结果，并输出位置和置信度
+        for pt in zip(*locations[::-1]):
+            confidence = result[pt[1], pt[0]]  # 获取置信度
+            match_result_list.append(MatchResult(confidence, pt[0], pt[1], tx, ty))
+        return match_result_list
+
+    def match_template_by_id(self, source_image: ImageLike, template_id: str, threshold: float = 0.5,
                              src_x_scale: float = 1, src_y_scale: float = 1,
                              show_result: bool = False) -> MatchResultList:
         """
@@ -63,41 +71,45 @@ class CvImageMatcher(ImageMatcher):
         if template_id not in self.templates:
             log.error('未加载模板 %s' % template_id)
             return 0, 0, 0
-        source: cv2.typing.MatLike = None
-        if type(source_image) == Image:
-            if source_image.mode == 'RGBA':
-                source = cv2.cvtColor(np.array(source_image), cv2.COLOR_RGBA2BGRA)
-            else:
-                source = cv2.cvtColor(np.array(source_image.convert('RGBA')), cv2.COLOR_RGBA2BGRA)
-        elif type(source_image) == str:
-            source = cv2.imread(source_image)
-        else:
-            source = source_image
-        if src_x_scale != 1 or src_y_scale != 1:
-            source = cv2.resize(source, (0, 0), fx=src_x_scale, fy=src_y_scale)
-
-        template = self.templates[template_id]
-        tx, ty, _ = template.shape
-
-        # 创建掩码图像，将透明背景像素设置为零
-        mask = np.where(template[..., 3] > 0, 255, 0).astype(np.uint8)
-        # 进行模板匹配，忽略透明背景
-        result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
-
-        match_result_list = MatchResultList()
-        # 获取匹配结果的位置
-        locations = np.where(result >= threshold)  # threshold是一个阈值，用于过滤低置信度的匹配结果
-
-        # 遍历所有匹配结果，并输出位置和置信度
-        for pt in zip(*locations[::-1]):
-            confidence = result[pt[1], pt[0]]  # 获取置信度
-            match_result_list.append(MatchResult(confidence, pt[0], pt[1], tx, ty))
+        source: cv2.typing.MatLike = cv2_utils.convert_source(source_image, src_x_scale=src_x_scale, src_y_scale=src_y_scale)
+        template: cv2.typing.MatLike = self.templates[template_id]
+        match_result_list = self.match_with_mask(source, template, threshold)
 
         log.debug('模板[%s]匹配结果 %s', template_id, str(match_result_list))
 
-        if show_result:
+        if show_result and len(match_result_list) > 0:
             for i in match_result_list:
                 cv2.rectangle(source, (i.x, i.y), (i.x + i.w, i.y + i.h), (255, 0, 0), 1)
             cv2.imshow('Result', source)
         return match_result_list
+
+
+    def match_template_with_rotation(self, source_image: ImageLike, template_id: str, threshold: float = 0.5,
+                             src_x_scale: float = 1, src_y_scale: float = 1,
+                             show_result: bool = False) -> dict:
+        """
+        在原图中 对模板进行360度旋转匹配。方法耗时较长 注意原图尽量小一点
+        :param source_image: 原图
+        :param template_id: 模板id
+        :param threshold: 匹配阈值
+        :param src_x_scale: 原图缩放比例x
+        :param src_y_scale: 原图缩放比例y
+        :param show_result：是否在最后显示结果图片
+        :return: 每个选择角度的匹配结果
+        """
+        if template_id not in self.templates:
+            log.error('未加载模板 %s' % template_id)
+            return 0, 0, 0
+        source: cv2.typing.MatLike = cv2_utils.convert_source(source_image)
+        template: cv2.typing.MatLike = self.templates[template_id]
+
+        angle_result = {}
+        for i in range(360):
+            rt = cv2_utils.image_rotate(template, i)
+            result: MatchResultList = self.match_with_mask(source, rt, threshold)
+            if len(result) > 0:
+                angle_result[i] = result
+
+        return angle_result
+
 

@@ -39,6 +39,9 @@ class MatchResultList:
         else:
             raise StopIteration
 
+    def __len__(self):
+        return len(self.arr)
+
     def append(self, a: MatchResult, auto_merge: bool = True, merge_distance: float = 10):
         """
         添加匹配结果，如果开启合并，则保留置信度更高的结果
@@ -72,7 +75,7 @@ class ImageMatcher:
         """
         pass
 
-    def match_template_by_id(self, source_image: ImageLike, template_id: str, threshold: float = 0,
+    def match_template_by_id(self, source_image: ImageLike, template_id: str, threshold: float = 0.5,
                              src_x_scale: float = 1, src_y_scale: float = 1,
                              show_result: bool = False) -> MatchResultList:
         """
@@ -84,6 +87,21 @@ class ImageMatcher:
         :param src_y_scale: 原图缩放比例y
         :param show_result：是否在最后显示结果图片
         :return: 所有匹配结果
+        """
+        pass
+
+    def match_template_with_rotation(self, source_image: ImageLike, template_id: str, threshold: float = 0.5,
+                             src_x_scale: float = 1, src_y_scale: float = 1,
+                             show_result: bool = False) -> dict:
+        """
+        在原图中 对模板进行360度旋转匹配
+        :param source_image: 原图
+        :param template_id: 模板id
+        :param threshold: 匹配阈值
+        :param src_x_scale: 原图缩放比例x
+        :param src_y_scale: 原图缩放比例y
+        :param show_result：是否在最后显示结果图片
+        :return: 每个选择角度的匹配结果
         """
         pass
 
