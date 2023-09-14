@@ -5,6 +5,9 @@ from basic.img import OcrMatcher, ImageLike, MatchResultList, MatchResult
 
 
 class CnocrMatcher(OcrMatcher):
+    """
+    https://cnocr.readthedocs.io/zh/latest/
+    """
 
     def __init__(self,
                  det_model_name: str = 'ch_PP-OCRv2_det',

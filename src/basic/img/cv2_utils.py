@@ -59,11 +59,6 @@ def show_image(img: cv2.typing.MatLike,
     :param win_name:
     :return:
     """
-    # 创建可调整大小的窗口
-    cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
-    # 设置窗口属性为不占用最顶层
-    cv2.setWindowProperty(win_name, cv2.WND_PROP_TOPMOST, 0)
-
     to_show = img
 
     if rects is not None:
@@ -99,3 +94,13 @@ def image_rotate(img: cv2.typing.MatLike, angle: int, show_result: bool = False)
         cv2.imshow('Result', rotated_image)
 
     return rotated_image
+
+
+def convert_png_and_save(image_path: str, save_path: str):
+    """
+    将原图转化成png格式保存
+    :param image_path: 原图路径
+    :param save_path: 目标路径
+    """
+    img = read_image_with_alpha(image_path)
+    img.save(save_path)

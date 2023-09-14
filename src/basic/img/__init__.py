@@ -75,13 +75,13 @@ class ImageMatcher:
         """
         pass
 
-    def match_template_by_id(self, source_image: ImageLike, template_id: str, threshold: float = 0.5,
+    def match_template_by_id(self, source_image: ImageLike, template_image: str, threshold: float = 0.5,
                              src_x_scale: float = 1, src_y_scale: float = 1,
                              show_result: bool = False) -> MatchResultList:
         """
         在原图中 匹配模板
         :param source_image: 原图
-        :param template_id: 模板id
+        :param template_image: 模板id
         :param threshold: 匹配阈值
         :param src_x_scale: 原图缩放比例x
         :param src_y_scale: 原图缩放比例y
@@ -90,13 +90,13 @@ class ImageMatcher:
         """
         pass
 
-    def match_template_with_rotation(self, source_image: ImageLike, template_id: str, threshold: float = 0.5,
-                             src_x_scale: float = 1, src_y_scale: float = 1,
-                             show_result: bool = False) -> dict:
+    def match_template_with_rotation(self, source_image: ImageLike, template_image: str, threshold: float = 0.5,
+                                     src_x_scale: float = 1, src_y_scale: float = 1,
+                                     show_result: bool = False) -> dict:
         """
         在原图中 对模板进行360度旋转匹配
         :param source_image: 原图
-        :param template_id: 模板id
+        :param template_image: 模板id
         :param threshold: 匹配阈值
         :param src_x_scale: 原图缩放比例x
         :param src_y_scale: 原图缩放比例y

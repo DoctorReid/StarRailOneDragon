@@ -1,15 +1,11 @@
 import cv2
 import numpy as np
-from PIL.Image import Image
 
 from basic.img import ImageMatcher, ImageLike, MatchResult, MatchResultList, cv2_utils
 from basic.log_utils import log
 
 
 class CvImageMatcher(ImageMatcher):
-    """
-    https://cnocr.readthedocs.io/zh/latest/
-    """
 
     def __init__(self):
         self.templates = {}
@@ -29,7 +25,6 @@ class CvImageMatcher(ImageMatcher):
 
         self.templates[template_id] = res
 
-
     def match_with_mask(self, source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold) -> MatchResultList:
         """
         在原图中 匹配模板。两者都需要是rgba格式。
@@ -46,8 +41,7 @@ class CvImageMatcher(ImageMatcher):
         result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
 
         match_result_list = MatchResultList()
-        # 获取匹配结果的位置
-        locations = np.where(result >= threshold)  # threshold是一个阈值，用于过滤低置信度的匹配结果
+        locations = np.where(result >= threshold)  # 过滤低置信度的匹配结果
 
         # 遍历所有匹配结果，并输出位置和置信度
         for pt in zip(*locations[::-1]):
@@ -55,27 +49,40 @@ class CvImageMatcher(ImageMatcher):
             match_result_list.append(MatchResult(confidence, pt[0], pt[1], tx, ty))
         return match_result_list
 
-    def match_template_by_id(self, source_image: ImageLike, template_id: str, threshold: float = 0.5,
+    def convert_template(self, template_image: ImageLike):
+        """
+        获取对应模板
+        :param template_image: 模板
+        :return:
+        """
+        if type(template_image) == str:
+            if template_image not in self.templates:
+                return None
+            return self.templates[template_image]
+        else:
+            return template_image
+
+    def match_template_by_id(self, source_image: ImageLike, template_image: ImageLike, threshold: float = 0.5,
                              src_x_scale: float = 1, src_y_scale: float = 1,
                              show_result: bool = False) -> MatchResultList:
         """
         在原图中 匹配模板
         :param source_image: 原图
-        :param template_id: 模板id
+        :param template_image: 模板
         :param threshold: 匹配阈值
         :param src_x_scale: 原图缩放比例x
         :param src_y_scale: 原图缩放比例y
         :param show_result：是否在最后显示结果图片
         :return: 所有匹配结果
         """
-        if template_id not in self.templates:
-            log.error('未加载模板 %s' % template_id)
-            return 0, 0, 0
+        template: cv2.typing.MatLike = self.convert_template(template_image)
+        if template is None:
+            log.error('未加载模板 %s' % template_image)
+            return MatchResultList()
         source: cv2.typing.MatLike = cv2_utils.convert_source(source_image, src_x_scale=src_x_scale, src_y_scale=src_y_scale)
-        template: cv2.typing.MatLike = self.templates[template_id]
         match_result_list = self.match_with_mask(source, template, threshold)
 
-        log.debug('模板[%s]匹配结果 %s', template_id, str(match_result_list))
+        log.debug('模板[%s]匹配结果 %s', template_image, str(match_result_list))
 
         if show_result and len(match_result_list) > 0:
             for i in match_result_list:
@@ -83,25 +90,24 @@ class CvImageMatcher(ImageMatcher):
             cv2.imshow('Result', source)
         return match_result_list
 
-
-    def match_template_with_rotation(self, source_image: ImageLike, template_id: str, threshold: float = 0.5,
-                             src_x_scale: float = 1, src_y_scale: float = 1,
-                             show_result: bool = False) -> dict:
+    def match_template_with_rotation(self, source_image: ImageLike, template_image: str, threshold: float = 0.5,
+                                     src_x_scale: float = 1, src_y_scale: float = 1,
+                                     show_result: bool = False) -> dict:
         """
         在原图中 对模板进行360度旋转匹配。方法耗时较长 注意原图尽量小一点
         :param source_image: 原图
-        :param template_id: 模板id
+        :param template_image: 模板id
         :param threshold: 匹配阈值
         :param src_x_scale: 原图缩放比例x
         :param src_y_scale: 原图缩放比例y
         :param show_result：是否在最后显示结果图片
         :return: 每个选择角度的匹配结果
         """
-        if template_id not in self.templates:
-            log.error('未加载模板 %s' % template_id)
-            return 0, 0, 0
+        template: cv2.typing.MatLike = self.convert_template(template_image)
+        if template is None:
+            log.error('未加载模板 %s' % template_image)
+            return {}
         source: cv2.typing.MatLike = cv2_utils.convert_source(source_image)
-        template: cv2.typing.MatLike = self.templates[template_id]
 
         angle_result = {}
         for i in range(360):
@@ -111,5 +117,4 @@ class CvImageMatcher(ImageMatcher):
                 angle_result[i] = result
 
         return angle_result
-
 
