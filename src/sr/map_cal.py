@@ -57,16 +57,10 @@ class MapCalculator:
         :return:
         """
         if self.map_pos is not None:
+            # 截取圆圈的正方形
             lm = screen[self.map_pos.ly:self.map_pos.ry, self.map_pos.lx:self.map_pos.rx]
-            # 创建一个与图像大小相同的掩码图像，其中圆圈内的区域为白色（255），圆圈外的区域为黑色（0）
-            mask = np.zeros(lm.shape[:2], dtype=np.uint8)
-            center = (lm.shape[1] // 2, lm.shape[0] // 2)
-            radius = self.map_pos.r - 1
-            color = (255, 255, 255)  # 白色
-            thickness = -1  # 填充内部区域
-            cv2.circle(mask, center, radius, color, thickness)
-            # 使用掩码图像将原始图像的透明通道中的像素值设置为0，从而将圆圈外的区域变为透明
-            lm = cv2.bitwise_and(lm, lm, mask=mask)
+            # 将圆圈外的区域变透明
+            lm = cv2_utils.mark_area_as_transparent(lm, [lm.shape[1] // 2, lm.shape[0] // 2, self.map_pos.r - 1], outside=True)
         else:
             x, y = 60, 110  # 默认的小地图坐标
             x2, y2 = 240, 280

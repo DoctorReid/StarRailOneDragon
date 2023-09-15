@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 import cv2
 import numpy as np
@@ -104,3 +104,25 @@ def convert_png_and_save(image_path: str, save_path: str):
     """
     img = read_image_with_alpha(image_path)
     img.save(save_path)
+
+
+def mark_area_as_transparent(image: cv2.typing.MatLike, pos: List, outside: bool = False):
+    """
+    将图片的一个区域变成透明 然后返回新的图片
+    :param image: 原图
+    :param pos: 区域坐标 如果是矩形 传入 [x,y,w,h] 如果是圆形 传入 [x,y,r]。其他数组长度不处理
+    :param outside: 是否将区域外变成透明
+    :return: 新图
+    """
+    # 创建一个与图像大小相同的掩膜，用于指定要变成透明的区域
+    mask = np.zeros(image.shape[:2], dtype=np.uint8)
+    if len(pos) == 4:
+        x, y, w, h = pos[0], pos[1], pos[2], pos[3]
+        # 非零像素表示要变成透明的区域
+        cv2.rectangle(mask, (x, y), (x + w, y + h), 255, -1)
+    if len(pos) == 3:
+        x, y, r = pos[0], pos[1], pos[2]
+        # 非零像素表示要变成透明的区域
+        cv2.circle(mask, (x, y), r, 255, -1)
+    # 合并
+    return cv2.bitwise_and(image, image, mask=mask if outside else cv2.bitwise_not(mask))
