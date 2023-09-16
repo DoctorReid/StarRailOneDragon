@@ -1,7 +1,6 @@
 import cv2
-import numpy as np
 
-from basic.img import ImageMatcher, ImageLike, MatchResult, MatchResultList, cv2_utils
+from basic.img import ImageMatcher, ImageLike, MatchResultList, cv2_utils
 from basic.log_utils import log
 
 
@@ -24,30 +23,6 @@ class CvImageMatcher(ImageMatcher):
             res = cv2.resize(res, (0, 0), fx=x_scale, fy=y_scale)
 
         self.templates[template_id] = res
-
-    def match_with_mask(self, source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold) -> MatchResultList:
-        """
-        在原图中 匹配模板。两者都需要是rgba格式。
-        模板会忽略透明图层
-        :param source: 原图
-        :param template: 模板
-        :param threshold: 阈值
-        :return: 所有匹配结果
-        """
-        tx, ty, _ = template.shape
-         # 创建掩码图像，将透明背景像素设置为零
-        mask = np.where(template[..., 3] > 0, 255, 0).astype(np.uint8)
-        # 进行模板匹配，忽略透明背景
-        result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
-
-        match_result_list = MatchResultList()
-        locations = np.where(result >= threshold)  # 过滤低置信度的匹配结果
-
-        # 遍历所有匹配结果，并输出位置和置信度
-        for pt in zip(*locations[::-1]):
-            confidence = result[pt[1], pt[0]]  # 获取置信度
-            match_result_list.append(MatchResult(confidence, pt[0], pt[1], tx, ty))
-        return match_result_list
 
     def convert_template(self, template_image: ImageLike):
         """
@@ -80,7 +55,7 @@ class CvImageMatcher(ImageMatcher):
             log.error('未加载模板 %s' % template_image)
             return MatchResultList()
         source: cv2.typing.MatLike = cv2_utils.convert_source(source_image, src_x_scale=src_x_scale, src_y_scale=src_y_scale)
-        match_result_list = self.match_with_mask(source, template, threshold)
+        match_result_list = cv2_utils.match_with_mask(source, template, threshold)
 
         log.debug('模板[%s]匹配结果 %s', template_image, str(match_result_list))
 
@@ -112,7 +87,7 @@ class CvImageMatcher(ImageMatcher):
         angle_result = {}
         for i in range(360):
             rt = cv2_utils.image_rotate(template, i)
-            result: MatchResultList = self.match_with_mask(source, rt, threshold)
+            result: MatchResultList = cv2_utils.match_with_mask(source, rt, threshold)
             if len(result) > 0:
                 angle_result[i] = result
 

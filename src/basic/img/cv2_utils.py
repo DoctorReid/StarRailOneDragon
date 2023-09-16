@@ -126,3 +126,52 @@ def mark_area_as_transparent(image: cv2.typing.MatLike, pos: List, outside: bool
         cv2.circle(mask, (x, y), r, 255, -1)
     # 合并
     return cv2.bitwise_and(image, image, mask=mask if outside else cv2.bitwise_not(mask))
+
+
+def match_with_mask(source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold) -> MatchResultList:
+    """
+    在原图中 匹配模板。两者都需要是rgba格式。
+    模板会忽略透明图层
+    :param source: 原图
+    :param template: 模板
+    :param threshold: 阈值
+    :return: 所有匹配结果
+    """
+    ty, tx, _ = template.shape
+    # 创建掩码图像，将透明背景像素设置为零
+    mask = np.where(template[..., 3] > 0, 255, 0).astype(np.uint8)
+    # 进行模板匹配，忽略透明背景
+    result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+
+    match_result_list = MatchResultList()
+    locations = np.where(result >= threshold)  # 过滤低置信度的匹配结果
+
+    # 遍历所有匹配结果，并输出位置和置信度
+    for pt in zip(*locations[::-1]):
+        confidence = result[pt[1], pt[0]]  # 获取置信度
+        match_result_list.append(MatchResult(confidence, pt[0], pt[1], tx, ty))
+    return match_result_list
+
+
+def concat_vertically(img: cv2.typing.MatLike, next_img: cv2.typing.MatLike, decision_height: int = 200):
+    """
+    垂直拼接图片。
+    假设两张图片是通过垂直滚动得到的，即宽度一样，部分内容重叠
+    :param img: 图
+    :param next_img: 下一张图
+    :decision_height: 用第二张图的多少高度来判断重叠部分
+    :return:
+    """
+    # 截取一个横截面用来匹配
+    next_part = next_img[0: decision_height, :]
+    result = match_with_mask(img, next_part, 0.5)
+    # 找出置信度最高的结果
+    r = None
+    for i in result:
+        if r is None or i.confidence > r.confidence:
+            r = i
+    h, w, _ = img.shape
+    overlap_h = h - r.y
+    extra_part = next_img[overlap_h+1:,:]
+    # 垂直拼接两张图像
+    return cv2.vconcat([img, extra_part])

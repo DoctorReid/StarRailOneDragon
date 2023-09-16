@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from PIL.Image import Image
 
@@ -66,3 +67,12 @@ def is_debug() -> bool:
     :return: 是否在debug模式
     """
     return '1' == get_env_def('DEBUG', '0')
+
+
+def now_timestamp_str() -> str:
+    """
+    返回当前时间字符串
+    :return: 例如 20230915220515
+    """
+    current_time = datetime.now()
+    return current_time.strftime("%Y%m%d%H%M%S")

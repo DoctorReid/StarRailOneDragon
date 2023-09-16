@@ -1,5 +1,5 @@
 import os
-from typing import Union
+from typing import Union, List
 
 import cv2
 import numpy as np
@@ -8,10 +8,11 @@ from PIL.Image import Image
 from pygetwindow import Win32Window
 
 
-def get_win_by_name(window_name: str) -> Win32Window:
+def get_win_by_name(window_name: str, active: bool = False) -> Win32Window:
     """
     根据名称找到具体的窗口 需完全相等
     :param window_name: 窗口名称
+    :param active: 是否自动激活置顶窗口
     :return: Application
     :raise PyAutoGUIException
     """
@@ -19,6 +20,8 @@ def get_win_by_name(window_name: str) -> Win32Window:
     if len(windows) > 0:
         for win in windows:
             if win.title == window_name:
+                if active:
+                    active_win(win)
                 return win
     raise pyautogui.PyAutoGUIException
 
@@ -124,3 +127,15 @@ def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> cv2.t
     if save_path is not None:
         img.save(save_path)
     return cv2_img
+
+
+def scroll_with_mouse_press(pos: List, down_distance: int = 50, duration: float = 0.5):
+    """
+    按住鼠标左键进行画面拖动
+    :param pos: 位置
+    :param down_distance: 向下滑动的距离
+    :param duration: 拖动鼠标到目标位置，持续秒数
+    :return:
+    """
+    pyautogui.moveTo(pos[0], pos[1])  # 将鼠标移动到起始位置
+    pyautogui.dragTo(pos[0], pos[1] - down_distance, duration=duration)
