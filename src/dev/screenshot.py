@@ -69,4 +69,4 @@ def screenshot_map_vertically(save_each: bool = False, save_merge: bool = True, 
 
 
 if __name__ == '__main__':
-    screenshot_game(save_result=False, show_result=True)
+    screenshot_game(save_result=True, show_result=False)

@@ -5,3 +5,4 @@ __pycache__
 .debug
 model/cnocr
 model/cnstd
+config/game.yml

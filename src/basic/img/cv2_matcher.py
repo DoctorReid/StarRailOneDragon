@@ -55,7 +55,7 @@ class CvImageMatcher(ImageMatcher):
             log.error('未加载模板 %s' % template_image)
             return MatchResultList()
         source: cv2.typing.MatLike = cv2_utils.convert_source(source_image, src_x_scale=src_x_scale, src_y_scale=src_y_scale)
-        match_result_list = cv2_utils.match_with_mask(source, template, threshold)
+        match_result_list = cv2_utils.match_template(source, template, threshold)
 
         log.debug('模板[%s]匹配结果 %s', template_image, str(match_result_list))
 
@@ -87,7 +87,7 @@ class CvImageMatcher(ImageMatcher):
         angle_result = {}
         for i in range(360):
             rt = cv2_utils.image_rotate(template, i)
-            result: MatchResultList = cv2_utils.match_with_mask(source, rt, threshold)
+            result: MatchResultList = cv2_utils.match_template(source, rt, threshold)
             if len(result) > 0:
                 angle_result[i] = result
 

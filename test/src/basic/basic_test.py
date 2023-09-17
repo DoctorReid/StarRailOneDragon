@@ -1,6 +1,6 @@
 from PIL.Image import Image
 
-from basic import os_utils, gui_utils
+from basic import os_utils, gui_utils, config_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 
@@ -46,5 +46,19 @@ def _test_save_img():
     os_utils.save_image_under_work_dir(img, 'test.png', '.debug', 'images')
 
 
+def _test_async_config():
+    a = {'game': {'pos': 1}}
+    b = {'game2': {'pos2': 1}}
+    config_utils.deep_copy_missing_prop(a, b)
+    print(b)
+    config_utils.deep_del_extra_prop(a, b)
+    print(b)
+    config_utils.async_sample('game')
+
+
+def _test_save_config():
+    config_utils.save_config('game', {'little_map': {'x': 149, 'y': 196, 'r': 93}})
+
+
 if __name__ == '__main__':
-    _test_switch_window()
+    _test_save_config()

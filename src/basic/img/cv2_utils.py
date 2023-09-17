@@ -5,9 +5,10 @@ import numpy as np
 from PIL.Image import Image
 
 from basic.img import ImageLike, MatchResult, MatchResultList
+from basic.log_utils import log
 
 
-def read_image_with_alpha(file_path: str, show_result: bool = False):
+def read_image_with_alpha(file_path: str, show_result: bool = False) -> cv2.typing.MatLike:
     """
     读取图片 如果没有透明图层则加入
     :param file_path: 图片路径
@@ -51,12 +52,14 @@ def convert_source(source_image: ImageLike, src_x_scale: float = 1, src_y_scale:
 
 def show_image(img: cv2.typing.MatLike,
                rects: Union[MatchResult, MatchResultList] = None,
-               win_name='DEBUG'):
+               win_name='DEBUG',
+               wait=1):
     """
     显示一张图片
     :param img: 图片
     :param rects: 需要画出来的框
     :param win_name:
+    :param wait:
     :return:
     """
     to_show = img
@@ -70,7 +73,7 @@ def show_image(img: cv2.typing.MatLike,
                 cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (255, 0, 0), 1)
 
     cv2.imshow(win_name, to_show)
-    cv2.waitKey(0)
+    cv2.waitKey(wait)
 
 
 def image_rotate(img: cv2.typing.MatLike, angle: int, show_result: bool = False):
@@ -128,7 +131,8 @@ def mark_area_as_transparent(image: cv2.typing.MatLike, pos: List, outside: bool
     return cv2.bitwise_and(image, image, mask=mask if outside else cv2.bitwise_not(mask))
 
 
-def match_with_mask(source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold) -> MatchResultList:
+def match_template(source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold,
+                   ignore_source_alpha: bool = False, ignore_template_alpha: bool = False) -> MatchResultList:
     """
     在原图中 匹配模板。两者都需要是rgba格式。
     模板会忽略透明图层
@@ -153,6 +157,41 @@ def match_with_mask(source: cv2.typing.MatLike, template: cv2.typing.MatLike, th
     return match_result_list
 
 
+def find_max_circle(image, show_result: bool = False):
+    """
+    在图形中找到最大的圆
+    :param image: 原图
+    :param show_result: 是否显示结果
+    :return: 圆的坐标半径
+    """
+    # 对图像进行预处理
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1.2, 100, minRadius=160, maxRadius=200)
+
+    # 如果找到了圆
+    if circles is None:
+        log.debug('没找到圆')
+        return 0, 0, 0
+
+    circles = np.uint16(np.around(circles))
+    tx, ty, tr = 0, 0, 0
+
+    # 保留半径最大的圆
+    for circle in circles[0, :]:
+        if show_result:
+            cv2.circle(gray, (circle[0], circle[1]), circle[2], (0, 255, 0), 1)
+        if circle[2] > tr:
+            tx, ty, tr = circle[0], circle[1], circle[2]
+    log.debug('匹配圆结果: %d %d %d', tx, ty, tr)
+
+    if show_result:
+        to_show = image.copy()
+        cv2.circle(to_show, (tx, ty), tr, (0, 255, 0), 1)
+        show_image(to_show)
+        show_image(gray)
+    return tx, ty, tr
+
+
 def concat_vertically(img: cv2.typing.MatLike, next_img: cv2.typing.MatLike, decision_height: int = 200):
     """
     垂直拼接图片。
@@ -164,7 +203,7 @@ def concat_vertically(img: cv2.typing.MatLike, next_img: cv2.typing.MatLike, dec
     """
     # 截取一个横截面用来匹配
     next_part = next_img[0: decision_height, :]
-    result = match_with_mask(img, next_part, 0.5)
+    result = match_template(img, next_part, 0.5)
     # 找出置信度最高的结果
     r = None
     for i in result:
@@ -175,3 +214,68 @@ def concat_vertically(img: cv2.typing.MatLike, next_img: cv2.typing.MatLike, dec
     extra_part = next_img[overlap_h+1:,:]
     # 垂直拼接两张图像
     return cv2.vconcat([img, extra_part])
+
+
+def binary_with_white_alpha(image, show: bool = False):
+    """"""
+    # 提取透明通道
+    alpha_channel = image[:, :, 3]
+    # 将图像转换为灰度图
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if show:
+        show_image(gray)
+    # 将透明通道中的非零值设置为白色
+    gray[alpha_channel == 0] = 255
+    # 二值化模板图像
+    _, binary = cv2.threshold(gray, 70, 255, cv2.THRESH_BINARY)
+    if show:
+        show_image(binary)
+    return binary
+
+
+def show_overlap(source, template, x, y, template_scale: float = 1, win_name: str = 'DEBUG', wait: int = 0):
+    to_show_source = source.copy()
+
+    if template_scale != 1:
+        # 缩放后的宽度和高度
+        scaled_width = int(template.shape[1] * template_scale)
+        scaled_height = int(template.shape[0] * template_scale)
+
+        # 缩放小图
+        to_show_template = cv2.resize(template, (scaled_width, scaled_height))
+    else:
+        to_show_template = template
+
+    # 获取要覆盖图像的宽度和高度
+    overlay_height, overlay_width = to_show_template.shape[:2]
+
+    # 覆盖图在原图上的坐标
+    sx_start = int(x)
+    sy_start = int(y)
+    sx_end = sx_start + overlay_width
+    sy_end = sy_start + overlay_height
+
+    # 覆盖图要用的坐标
+    tx_start = 0
+    ty_start = 0
+    tx_end = to_show_template.shape[1]
+    ty_end = to_show_template.shape[0]
+
+    # 覆盖图缩放后可以超出了原图的范围
+    if sx_start < 0:
+        tx_start -= sx_start
+        sx_start = 0
+    if sx_end > to_show_source.shape[1]:
+        tx_end -= sx_end - to_show_source.shape[1]
+        sx_end = to_show_source.shape[1]
+
+    if sy_start < 0:
+        ty_start -= sy_start
+        sy_start = 0
+    if tx_end > to_show_source.shape[0]:
+        ty_end -= sy_end - to_show_source.shape[0]
+        sy_end = to_show_source.shape[0]
+
+    # 将覆盖图像放置到底图的指定位置
+    to_show_source[sy_start:sy_end, sx_start:sx_end] = to_show_template[ty_start:ty_end, tx_start:ty_end]
+    show_image(to_show_source, win_name=win_name, wait=wait)
