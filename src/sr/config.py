@@ -6,7 +6,7 @@ from basic.log_utils import log
 
 class ConfigHolder:
 
-    def __init__(self, to_load: List = ['game']):
+    def __init__(self, to_load: List = ['game', 'transport_pos']):
         self.config = {}
         for c in to_load:
             self.config[c] = config_utils.read_config(c)

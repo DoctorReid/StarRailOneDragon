@@ -1,14 +1,27 @@
 import dev
+import sr
 from basic import gui_utils
 from basic.img import MatchResultList, cv2_utils
 from basic.img.cnocr_matcher import CnocrMatcher
+from basic.img.cv2_matcher import CvImageMatcher
+from sr import constants
+from sr.config import ConfigHolder
+from sr.map_cal import MapCalculator
+
+
+im = CvImageMatcher()
+ch = ConfigHolder()
+mc = MapCalculator(im=im, config=ch)
 
 
 def _test_match_template():
-    source = cv2_utils.read_image_with_alpha(dev.get_test_image('m5.png'))
-    template = cv2_utils.read_image_with_alpha(dev.get_test_image('t3.png'))
-    result = cv2_utils.match_template(source, template, 0.5)
-    cv2_utils.show_image(source, result)
+    source = sr.read_map_image(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'usage')
+    template = sr.raed_template_image('transport_1')
+    cv2_utils.show_image(source, win_name='source')
+    cv2_utils.show_image(template, win_name='template')
+    result = cv2_utils.match_template(source, template, constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP, top_n=2)
+    print(result)
+    cv2_utils.show_image(source, result, wait=0)
 
 
 def _test_ocr():
@@ -30,6 +43,13 @@ def _test_rotate():
     cv2_utils.image_rotate(i, -90, show_result=True)
 
 
+def _test_match_template_with_rotation():
+    screen = dev.get_debug_image('1695022366133')
+    little_map = mc.cut_little_map(screen)
+    im = CvImageMatcher()
+    print(im.match_template_with_rotation(little_map, constants.TEMPLATE_ARROW))
+
+
 def _test_convert_png_and_save():
     i = dev.get_test_image('g.jiff')
     o = dev.get_test_image('game2.png')
@@ -37,7 +57,7 @@ def _test_convert_png_and_save():
 
 
 def _test_mark_area_as_transparent():
-    i = cv2_utils.read_image_with_alpha(dev.get_test_image('game_can_find_little_map.png'))
+    i = cv2_utils.read_image_with_alpha(dev.get_test_image('game1.png'))
     o = cv2_utils.mark_area_as_transparent(i, [0, 1080, 200, 100])
     cv2_utils.show_image(o)
 

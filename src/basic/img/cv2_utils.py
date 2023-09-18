@@ -1,7 +1,9 @@
+import math
 from typing import Union, List
 
 import cv2
 import numpy as np
+import os
 from PIL.Image import Image
 
 from basic.img import ImageLike, MatchResult, MatchResultList
@@ -15,11 +17,13 @@ def read_image_with_alpha(file_path: str, show_result: bool = False) -> cv2.typi
     :param show_result: 是否显示结果
     :return:
     """
+    if not os.path.exists(file_path):
+        return None
     image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
     channels = cv2.split(image)
     if len(channels) != 4:
         # 创建透明图层
-        alpha = np.ones(image.shape[:2], dtype=np.uint8) * 255
+        alpha = np.full_like(image.shape[:2], 255, dtype=np.uint8)
         # 合并图像和透明图层
         image = cv2.merge((image, alpha))
     if show_result:
@@ -109,7 +113,7 @@ def convert_png_and_save(image_path: str, save_path: str):
     img.save(save_path)
 
 
-def mark_area_as_transparent(image: cv2.typing.MatLike, pos: List, outside: bool = False):
+def mark_area_as_transparent(image: cv2.typing.MatLike, pos: Union[List, np.ndarray], outside: bool = False):
     """
     将图片的一个区域变成透明 然后返回新的图片
     :param image: 原图
@@ -119,19 +123,44 @@ def mark_area_as_transparent(image: cv2.typing.MatLike, pos: List, outside: bool
     """
     # 创建一个与图像大小相同的掩膜，用于指定要变成透明的区域
     mask = np.zeros(image.shape[:2], dtype=np.uint8)
-    if len(pos) == 4:
-        x, y, w, h = pos[0], pos[1], pos[2], pos[3]
-        # 非零像素表示要变成透明的区域
-        cv2.rectangle(mask, (x, y), (x + w, y + h), 255, -1)
-    if len(pos) == 3:
-        x, y, r = pos[0], pos[1], pos[2]
-        # 非零像素表示要变成透明的区域
-        cv2.circle(mask, (x, y), r, 255, -1)
+    if not type(pos) is np.ndarray:
+        pos = np.array([pos])
+    for p in pos:
+        if len(p) == 4:
+            x, y, w, h = p[0], p[1], p[2], p[3]
+            # 非零像素表示要变成透明的区域
+            cv2.rectangle(mask, (x, y), (x + w, y + h), 255, -1)
+        if len(p) == 3:
+            x, y, r = p[0], p[1], p[2]
+            # 非零像素表示要变成透明的区域
+            cv2.circle(mask, (x, y), r, 255, -1)
     # 合并
     return cv2.bitwise_and(image, image, mask=mask if outside else cv2.bitwise_not(mask))
 
 
+def mark_area_as_color(image: cv2.typing.MatLike, pos: List, color, new_image: bool = False):
+    """
+    将图片的一个区域变颜色 然后返回新的图片
+    :param image: 原图
+    :param pos: 区域坐标 如果是矩形 传入 [x,y,w,h] 如果是圆形 传入 [x,y,r]。其他数组长度不处理
+    :param new_image: 是否返回一张新的图
+    :return: 新图
+    """
+    to_paint = image.copy() if new_image else image
+    if not type(pos) is np.ndarray:
+        pos = np.array([pos])
+    for p in pos:
+        if len(p) == 4:
+            x, y, w, h = p[0], p[1], p[2], p[3]
+            cv2.rectangle(to_paint, pt1=(x, y), pt2=(x + w, y + h), color=color, thickness=-1)
+        if len(p) == 3:
+            x, y, r = p[0], p[1], p[2]
+            cv2.circle(to_paint, (x, y), r, color, -1)
+    return to_paint
+
+
 def match_template(source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold,
+                   ignore_inf: bool = False,
                    ignore_source_alpha: bool = False, ignore_template_alpha: bool = False) -> MatchResultList:
     """
     在原图中 匹配模板。两者都需要是rgba格式。
@@ -139,21 +168,29 @@ def match_template(source: cv2.typing.MatLike, template: cv2.typing.MatLike, thr
     :param source: 原图
     :param template: 模板
     :param threshold: 阈值
+    :param ignore_inf: 是否忽略无限大的结果
     :return: 所有匹配结果
     """
-    ty, tx, _ = template.shape
-    # 创建掩码图像，将透明背景像素设置为零
-    mask = np.where(template[..., 3] > 0, 255, 0).astype(np.uint8)
-    # 进行模板匹配，忽略透明背景
-    result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+    ty, tx = template.shape[1], template.shape[0]
+    if ignore_template_alpha:
+        # 创建掩码图像，将透明背景像素设置为零
+        mask = np.where(template[..., 3] > 0, 255, 0).astype(np.uint8)
+        # 进行模板匹配，忽略透明背景
+        result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+    else:
+        result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
 
     match_result_list = MatchResultList()
-    locations = np.where(result >= threshold)  # 过滤低置信度的匹配结果
+    filtered_locations = np.where(np.logical_and(
+        result >= threshold,
+        np.isfinite(result) if ignore_inf else np.ones_like(result))
+    )  # 过滤低置信度的匹配结果
 
     # 遍历所有匹配结果，并输出位置和置信度
-    for pt in zip(*locations[::-1]):
+    for pt in zip(*filtered_locations[::-1]):
         confidence = result[pt[1], pt[0]]  # 获取置信度
         match_result_list.append(MatchResult(confidence, pt[0], pt[1], tx, ty))
+
     return match_result_list
 
 
@@ -216,24 +253,32 @@ def concat_vertically(img: cv2.typing.MatLike, next_img: cv2.typing.MatLike, dec
     return cv2.vconcat([img, extra_part])
 
 
-def binary_with_white_alpha(image, show: bool = False):
+def is_same_image(i1, i2, threshold: float = 1) -> bool:
+    """
+    简单使用均方差判断两图是否一致
+    :param i1: 图1
+    :param i2: 图2
+    :param threshold: 低于阈值认为是相等
+    :return: 是否同一张图
+    """
+    return np.mean((i1 - i2) ** 2) < threshold
+
+
+
+def binary_with_white_alpha(image, thresh: int = 70):
     """"""
     # 提取透明通道
     alpha_channel = image[:, :, 3]
     # 将图像转换为灰度图
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    if show:
-        show_image(gray)
     # 将透明通道中的非零值设置为白色
     gray[alpha_channel == 0] = 255
     # 二值化模板图像
-    _, binary = cv2.threshold(gray, 70, 255, cv2.THRESH_BINARY)
-    if show:
-        show_image(binary)
+    _, binary = cv2.threshold(gray, thresh, 255, cv2.THRESH_BINARY)
     return binary
 
 
-def show_overlap(source, template, x, y, template_scale: float = 1, win_name: str = 'DEBUG', wait: int = 0):
+def show_overlap(source, template, x, y, template_scale: float = 1, win_name: str = 'DEBUG', wait: int = 1):
     to_show_source = source.copy()
 
     if template_scale != 1:

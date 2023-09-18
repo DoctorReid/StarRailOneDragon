@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Union, List
 
 import cv2
@@ -139,3 +140,16 @@ def scroll_with_mouse_press(pos: List, down_distance: int = 50, duration: float 
     """
     pyautogui.moveTo(pos[0], pos[1])  # 将鼠标移动到起始位置
     pyautogui.dragTo(pos[0], pos[1] - down_distance, duration=duration)
+
+
+def key_down(k: str, t: int, asyn: bool = False):
+    """
+
+    :param k:
+    :param t:
+    :param asyn:
+    :return:
+    """
+    pyautogui.keyDown(k)
+    time.sleep(t)
+    pyautogui.keyUp(k)

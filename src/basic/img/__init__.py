@@ -23,6 +23,7 @@ class MatchResultList:
 
     def __init__(self):
         self.arr: List[MatchResult] = []
+        self.max: MatchResult = None
 
     def __str__(self):
         return '[%s]' % ', '.join(str(i) for i in self.arr)
@@ -60,6 +61,9 @@ class MatchResultList:
                     return
 
         self.arr.append(a)
+        if self.max is None or a.confidence > self.max.confidence:
+            self.max = a
+
 
 
 class ImageMatcher:
@@ -75,9 +79,17 @@ class ImageMatcher:
         """
         pass
 
-    def match_template_by_id(self, source_image: ImageLike, template_image: str, threshold: float = 0.5,
-                             src_x_scale: float = 1, src_y_scale: float = 1,
-                             show_result: bool = False) -> MatchResultList:
+    def get_template(self, template_id: str):
+        """
+        获取对应的模板图片
+        :param template_id: 目标id
+        :return: 图片
+        """
+        pass
+
+    def match_template(self, source_image: ImageLike, template_image: str, threshold: float = 0.5,
+                       src_x_scale: float = 1, src_y_scale: float = 1,
+                       show_result: bool = False) -> MatchResultList:
         """
         在原图中 匹配模板
         :param source_image: 原图
@@ -90,16 +102,15 @@ class ImageMatcher:
         """
         pass
 
-    def match_template_with_rotation(self, source_image: ImageLike, template_image: str, threshold: float = 0.5,
-                                     src_x_scale: float = 1, src_y_scale: float = 1,
+    def match_template_with_rotation(self, source_image: ImageLike, template: Union[str, cv2.typing.MatLike],
+                                     threshold: float = 0.5, ignore_inf: bool = True,
                                      show_result: bool = False) -> dict:
         """
         在原图中 对模板进行360度旋转匹配
         :param source_image: 原图
-        :param template_image: 模板id
+        :param template: 模板
         :param threshold: 匹配阈值
-        :param src_x_scale: 原图缩放比例x
-        :param src_y_scale: 原图缩放比例y
+        :param ignore_inf: 是否忽略无限大的结果
         :param show_result：是否在最后显示结果图片
         :return: 每个选择角度的匹配结果
         """

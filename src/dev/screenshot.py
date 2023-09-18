@@ -1,10 +1,14 @@
+import time
+from typing import List
+
 import cv2
 import numpy as np
 import pyautogui
 
-from basic import gui_utils, os_utils
+import dev
+import sr
+from basic import gui_utils
 from basic.img import cv2_utils
-from dev import get_debug_image
 
 
 def screenshot_game(no_uid: bool = True, save_result: bool = True, show_result: bool = False):
@@ -12,6 +16,7 @@ def screenshot_game(no_uid: bool = True, save_result: bool = True, show_result: 
     对游戏窗口进行截图
     :param no_uid: 是否屏幕uid部分
     :param save_result: 是否显示结果
+    :param show_result: 是否显示截图
     :return:
     """
     win = gui_utils.get_win_by_name('崩坏：星穹铁道', active=True)
@@ -23,9 +28,7 @@ def screenshot_game(no_uid: bool = True, save_result: bool = True, show_result: 
     if show_result:
         cv2_utils.show_image(img)
     if save_result:
-        path = get_debug_image('%s.png' % os_utils.now_timestamp_str())
-        print(path)
-        print(cv2.imwrite(path, img))
+        dev.save_debug_image(img)
     return img
 
 
@@ -41,17 +44,20 @@ def screenshot_map_vertically(save_each: bool = False, save_merge: bool = True, 
     win = gui_utils.get_win_by_name('崩坏：星穹铁道', active=True)
     # 先拉取到最上方
     gui_utils.scroll_with_mouse_press([win.topleft.x + 1300, win.topleft.y + 500], down_distance=-1000, duration=1)
+    time.sleep(1)
     img = []
     # 每秒往下滚动一次截图
-    for i in range(3):
+    for i in range(10):
         no_uid = screenshot_game(no_uid=False, save_result=False)
         map_part = no_uid[250: 900, 200: 1400]
-        if len(img) == 0 or not np.array_equal(img[len(img) - 1], map_part):
+        if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], map_part):
             img.append(map_part)
             if save_each:
-                path = get_debug_image('%s.png' % os_utils.now_timestamp_str())
-                print(cv2.imwrite(path, map_part))
+                dev.save_debug_image(map_part)
             gui_utils.scroll_with_mouse_press([win.topleft.x + 1300, win.topleft.y + 500], down_distance=300)
+            time.sleep(1)
+        else:
+            break
 
     merge = img[0]
     for i in range(len(img)):
@@ -64,9 +70,53 @@ def screenshot_map_vertically(save_each: bool = False, save_merge: bool = True, 
         cv2_utils.show_image(merge)
 
     if save_merge:
-        path = get_debug_image('%s.png' % os_utils.now_timestamp_str())
-        print(cv2.imwrite(path, merge))
+        dev.save_debug_image(merge)
+
+
+def cut_icon_from_black_bg(icon: cv2.typing.MatLike, special_parts: List = []):
+    """
+    图标二值化后扣图
+    :param icon:
+    :param special_parts:
+    :return:
+    """
+    # 二值化
+    mask = cv2_utils.binary_with_white_alpha(icon)
+    # 变成透明
+    result = cv2.bitwise_and(icon, icon, mask=mask)
+    # 特殊处理
+    for i in special_parts:
+        result = cv2_utils.mark_area_as_transparent(result, i)
+    return result
+
+
+def convert_debug_transport(name: str, special_parts: List = [], save: bool = True):
+    t = dev.get_debug_image(name)
+    t2 = cut_icon_from_black_bg(t, special_parts=special_parts)
+    if save:
+        dev.save_debug_image(t2)
+    cv2_utils.show_image(t2, wait=0)
+
+
+def convert_origin_map(planet: str, region: str, save: bool = True) -> cv2.typing.MatLike:
+    """
+    将大地图转化成黑白图，黑色为可以走的部分
+    再将使用黑白图从原图中扣出细化的地图，用作后续匹配
+    :param planet: 星球名称
+    :param region: 对应区域
+    :param save: 是否保存
+    :return:
+    """
+    map = sr.read_map_image(planet, region)
+    bw, usage = extract_map_road_part(map, show=True)
+    if save:
+        sr.save_map_image(bw, planet, region, 'bw')
+        sr.save_map_image(usage, planet, region, 'usage')
+    return bw
+
+
+
 
 
 if __name__ == '__main__':
-    screenshot_game(save_result=True, show_result=False)
+    screenshot_game(no_uid=True)
