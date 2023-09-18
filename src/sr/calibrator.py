@@ -32,7 +32,8 @@ class Calibrator:
         pos = []
         large_map = sr.read_map_image(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'usage')
 
-        for i in ['s', 's', 's', 'q', 'q']:
+        k = 's'
+        for i in range(4):
             screen = gui_utils.screenshot_win(self.win)
             if save_screenshot:
                 dev.save_debug_image(screen)
@@ -40,12 +41,10 @@ class Calibrator:
             x, y = self.mc.cal_character_pos_by_match(little_map, large_map, show=True)
             print(x, y)
             pos.append((x, y))
-            gui_utils.key_down(i, 1)
+            gui_utils.key_down(k, 1)
             if i != 'q':
                 time.sleep(6)
 
-        for i in range(len(pos)):
-            if i == 0:
-                continue
-            dis = math.sqrt((pos[i][0] - pos[i-1][0])**2 + (pos[i][1] - pos[i-1][1])**2)
+        for i in range(len(pos) - 1):
+            dis = math.sqrt((pos[i+1][0] - pos[i][0])**2 + (pos[i+1][1] - pos[i][1])**2)
             print(dis)

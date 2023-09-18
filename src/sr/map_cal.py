@@ -137,7 +137,8 @@ class MapCalculator:
         :param show_match_result 显示匹配结果
         :return: 当前方向 正右方为0度
         """
-        angle_result = matcher.match_template_with_rotation(little_map, constants.TEMPLATE_ARROW, threshold)
+        angle_result = matcher.match_template_with_rotation(little_map, constants.TEMPLATE_ARROW, threshold,
+                                                            ignore_template_alpha=True)
         target: MatchResult = None
         angle: int = None  # 正上方为0度 逆时针旋转
         for k, v in angle_result.items():
@@ -165,8 +166,9 @@ class MapCalculator:
         :param show: 是否显示
         :return: 道路有关部分的掩码、提取后的图片、特殊点的匹配结果
         """
+
+        arrow_mask, angle = self.find_map_arrow_mask(map_image, angle=angle) if is_little_map else np.zeros(map_image.shape[:2], dtype=np.uint8)
         road_mask = self.find_map_road_mask(map_image, is_little_map=is_little_map, angle=angle)
-        arrow_mask = self.find_map_arrow_mask(map_image, angle=angle) if is_little_map else np.zeros(map_image.shape[:2], dtype=np.uint8)
         sp_mask, sp_match_result = self.find_map_special_point_mask(map_image,
                                                                     is_little_map=is_little_map)
         all_mask = cv2.bitwise_or(cv2.bitwise_or(road_mask, sp_mask), arrow_mask)
@@ -180,7 +182,9 @@ class MapCalculator:
             cv2_utils.show_image(usage, win_name='usage')
         return all_mask, usage, sp_match_result
 
-    def find_map_road_mask(self, map_image: cv2.typing.MatLike, is_little_map: bool = False, angle: int = -1) -> cv2.typing.MatLike:
+    def find_map_road_mask(self, map_image: cv2.typing.MatLike,
+                           is_little_map: bool = False,
+                           angle: int = -1) -> cv2.typing.MatLike:
         """
         在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
         :param map_image: 地图图片
@@ -192,6 +196,27 @@ class MapCalculator:
         lower_color = np.array([45, 45, 45, 255] if map_image.shape[2] == 4 else [45, 45, 45], dtype=np.uint8)
         upper_color = np.array([75, 75, 75, 255] if map_image.shape[2] == 4 else [75, 75, 75], dtype=np.uint8)
         road_mask = cv2.inRange(map_image, lower_color, upper_color)
+
+        # 对于小地图 要特殊扫描中心点附近的区块
+        if is_little_map:
+            radio_mask = np.zeros(map_image.shape[:2], dtype=np.uint8)  # 圈出雷达区的掩码
+            center = (map_image.shape[1] // 2, map_image.shape[0] // 2)  # 中心点坐标
+            radius = 55  # 扇形半径 这个半径内
+            color = 255  # 扇形颜色（BGR格式）
+            thickness = -1  # 扇形边框线宽度（负值表示填充扇形）
+            if angle != -1:  # 知道当前角度的话 画扇形
+                start_angle = angle - 45  # 扇形起始角度（以度为单位）
+                end_angle = angle + 45  # 扇形结束角度（以度为单位）
+                cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, end_angle, color, thickness)  # 画扇形
+            else:  # 圆形兜底
+                cv2.circle(radio_mask, center, radius, color, thickness)  # 画扇形
+            radio_map = cv2.bitwise_and(map_image, map_image, mask=radio_mask)
+            # cv2_utils.show_image(radio_map, win_name='radio_map')
+            lower_color = np.array([70, 70, 60, 255] if map_image.shape[2] == 4 else [70, 70, 60], dtype=np.uint8)
+            upper_color = np.array([150, 140, 100, 255] if map_image.shape[2] == 4 else [150, 140, 100], dtype=np.uint8)
+            road_radio_mask = cv2.inRange(radio_map, lower_color, upper_color)
+            # cv2_utils.show_image(road_radio_mask, win_name='road_radio_mask')
+            road_mask = cv2.bitwise_or(road_mask, road_radio_mask)
 
         # 找到多于500个像素点的连通块 这些才是真的路
         num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask, connectivity=8)
@@ -265,7 +290,8 @@ class MapCalculator:
         arrow_image = self.cut_little_map_arrow(little_map)
         target: MatchResult = None
         if angle == -1:
-            angle_result = self.im.match_template_with_rotation(arrow_image, constants.TEMPLATE_ARROW)
+            angle_result = self.im.match_template_with_rotation(arrow_image, constants.TEMPLATE_ARROW,
+                                                                ignore_template_alpha=True)
             angle: int = None  # 正上方为0度 逆时针旋转
             for k, v in angle_result.items():
                 for r in v:
@@ -274,7 +300,8 @@ class MapCalculator:
                         angle = k
         else:
             arrow_template = self.im.get_rotate_template(constants.TEMPLATE_ARROW, angle)
-            math_result_list = self.im.match_template(arrow_image, arrow_template, ignore_inf=True)
+            math_result_list = self.im.match_template(arrow_image, arrow_template, ignore_template_alpha=True,
+                                                      ignore_inf=True)
             for r in math_result_list:
                 if target is None or r.confidence > target.confidence:
                     target = r
@@ -291,19 +318,8 @@ class MapCalculator:
             arrow_mask[target.y:target.y+target.h, target.x:target.x+target.w] = arrow[:, :, 3]
             lm_mask[y - l:y + l, x - l:x + l] = arrow_mask
 
-            print(angle)
-            # 小地图的话 中心点附近扇形区域的道路会被覆盖上其它颜色 上面用颜色筛选不到 这里增加直接保留
-            center = (lm_mask.shape[1] // 2, lm_mask.shape[0] // 2)  # 中心点坐标
-            radius = 55  # 扇形半径 这个半径内
-            color = 255  # 扇形颜色（BGR格式）
-            thickness = -1  # 扇形边框线宽度（负值表示填充扇形）
-            if angle != -1:  # 知道当前角度的话 画扇形
-                start_angle = angle - 45  # 扇形起始角度（以度为单位）
-                end_angle = angle + 45  # 扇形结束角度（以度为单位）
-                cv2.ellipse(lm_mask, center, (radius, radius), 0, start_angle, end_angle, color, thickness)  # 画扇形
-            else:  # 圆形兜底
-                cv2.circle(lm_mask, center, radius, color, thickness)  # 画扇形
-        return lm_mask
+        log.debug('当前人物方向为 %d', angle)
+        return lm_mask, angle
 
     def cal_character_pos_by_feature(self, little_map: cv2.typing.MatLike, large_map: cv2.typing.MatLike, show: bool = False):
         """
@@ -313,7 +329,7 @@ class MapCalculator:
         :param show: 是否显示中间结果
         :return:
         """
-        little_map_bw, little_map_usage = self.auto_cut_map(little_map, is_little_map=True)
+        little_map_bw, little_map_usage, _ = self.auto_cut_map(little_map, is_little_map=True)
         source = cv2.cvtColor(large_map, cv2.COLOR_BGR2GRAY)
         template = cv2.cvtColor(little_map_usage, cv2.COLOR_BGR2GRAY)
         sift = cv2.ORB_create()
@@ -397,12 +413,14 @@ class MapCalculator:
         if show:
             cv2_utils.show_image(large_map_usage, win_name='large_map_usage')
             cv2_utils.show_image(little_map_usage, win_name='little_map_usage')
-        result = self.im.match_template(large_map_usage, little_map_usage, threshold=0.5, ignore_inf=True)
+        result = self.im.match_template(large_map_usage, little_map_usage, ignore_template_alpha=True,
+                                        threshold=0.45, ignore_inf=True)
 
         target = self.find_best_match_pos_in_large_map(large_map_usage, result, sp_match_result, show=show)
 
         if show:
-            cv2_utils.show_image(large_map_usage, target)
+            cv2_utils.show_image(large_map_usage, target, win_name='all')
+            cv2_utils.show_image(large_map_usage, target, win_name='target')
             # cv2_utils.show_overlap(large_map, little_map, result.x, result.y, win_name='cal_character_pos_by_match')
 
         return (offset_x + target.x, offset_y + target.y) if target is not None else (-1, -1)

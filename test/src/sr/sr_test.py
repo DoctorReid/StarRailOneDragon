@@ -90,7 +90,7 @@ def _test_find_map_arrow_mask():
 
 
 def _test_auto_cut_map():
-    screen = dev.get_test_image('game3')
+    screen = dev.get_test_image('game2')
     little_map = mc.cut_little_map(screen)
     cv2_utils.show_image(little_map, win_name='little_map')
     bw, usage, _ = mc.auto_cut_map(little_map, is_little_map=True, show=True)
@@ -103,7 +103,7 @@ def _test_cal_character_pos_by_match():
     :return:
     """
     large_map = sr.read_map_image(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'usage')
-    for i in range(4):
+    for i in range(6):
         screen = dev.get_test_image('game%d' % (i+1))
         little_map = mc.cut_little_map(screen)
         mc.cal_character_pos_by_match(little_map, large_map, show=True)
@@ -112,15 +112,19 @@ def _test_cal_character_pos_by_match():
         # cv2.waitKey(0)
 
 
-def _test_match_little_map2():
-    lm = cv2_utils.read_image_with_alpha(dev.get_test_image('game2.png'))
-    m = sr.read_map_image(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'bw')
-    print(mc.cal_character_pos(lm, m, show=True))
+def _test_cal_character_pos_by_match_2():
+    large_map = sr.read_map_image(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'usage')
+    screen = dev.get_test_image('game2')
+    little_map = mc.cut_little_map(screen)
+    # cv2_utils.show_image(little_map, win_name='little_map')
+    # bw, usage, _ = mc.auto_cut_map(little_map, is_little_map=True, show=True)
+    mc.cal_character_pos_by_match(little_map, large_map, show=True)
+    # mc.cal_character_pos_by_feature(little_map, large_map, show=True)
     cv2.waitKey(0)
 
 
 if __name__ == '__main__':
-    # _test_cal_character_pos_by_match()
+    # _test_cal_character_pos_by_match_2()
     win = gui_utils.get_win_by_name('崩坏：星穹铁道', active=True)
     time.sleep(1)
     calibrator = Calibrator(win, ch, mc)

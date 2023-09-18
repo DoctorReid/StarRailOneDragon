@@ -108,6 +108,7 @@ class CvImageMatcher(ImageMatcher):
             return cv2_utils.image_rotate(template, angle)
 
     def match_template_with_rotation(self, source: ImageLike, template: str, threshold: float = 0.5,
+                                     ignore_template_alpha: bool = False,
                                      ignore_inf: bool = True, show_result: bool = False) -> dict:
         """
         在原图中 对模板进行360度旋转匹配。方法耗时较长 注意原图尽量小一点
@@ -124,7 +125,7 @@ class CvImageMatcher(ImageMatcher):
         for i in range(360):
             rt = self.get_rotate_template(template, i)
             result: MatchResultList = cv2_utils.match_template(source, rt, threshold,
-                                                               ignore_template_alpha=True,
+                                                               ignore_template_alpha=ignore_template_alpha,
                                                                ignore_inf=ignore_inf)
             if len(result) > 0:
                 angle_result[i] = result
