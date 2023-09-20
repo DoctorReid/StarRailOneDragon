@@ -9,10 +9,9 @@ import dev
 import sr
 from basic import gui_utils
 from basic.img import cv2_utils
-from sr.image.cv2_matcher import CvImageMatcher
+from basic.img.cv2_matcher import CvImageMatcher
 from sr import constants
 from sr.config import ConfigHolder
-from sr.image.image_holder import ImageHolder
 from sr.map_cal import MapCalculator
 
 
@@ -29,7 +28,7 @@ def screenshot_game(no_uid: bool = True, save_result: bool = True, show_result: 
     pyautogui.moveTo(1, 1)
     img = gui_utils.screenshot_win(win)
     if no_uid:
-        cv2_utils.mark_area_as_color(img, [0, 1080, 200, 100], constants.COLOR_MAP_ROAD_BGR)
+        img = cv2_utils.mark_area_as_transparent(img, [0, 1080, 200, 100])
     if show_result:
         cv2_utils.show_image(img)
     if save_result:
@@ -112,49 +111,17 @@ def convert_origin_map(planet: str, region: str, save: bool = True) -> cv2.typin
     :param save: 是否保存
     :return:
     """
-    ih = ImageHolder()
     im = CvImageMatcher()
     ch = ConfigHolder()
     mc = MapCalculator(im=im, config=ch)
-    large_map = ih.get_large_map(planet, region, 'origin')
-    usage, mask, _ = mc.auto_cut_map(large_map, show=True)
+    map = sr.read_map_image(planet, region)
+    bw, usage, _ = mc.auto_cut_map(map, show=True)
     if save:
-        sr.save_map_image(mask, planet, region, 'mask')
+        sr.save_map_image(bw, planet, region, 'bw')
         sr.save_map_image(usage, planet, region, 'usage')
-
-
-def convert_arrow_color(arrow: cv2.typing.MatLike, save: bool = True):
-    alpha = arrow[:, :, 3]
-    alpha[np.where(alpha > 0)] = 255
-
-    arrow[:, :, 3] = alpha
-
-    # 按箭头颜色圈出
-    lower_color = np.array([210, 190, 0, 255])
-    upper_color = np.array([255, 240, 60, 255])
-    road_mask = cv2.inRange(arrow, lower_color, upper_color)
-
-    cv2_utils.show_image(road_mask, win_name='road_mask')
-    # 找到连通块 过滤旁边的噪点
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask, connectivity=8)
-    large_components = []
-    for label in range(1, num_labels):
-        if stats[label, cv2.CC_STAT_AREA] > 100:
-            large_components.append(label)
-
-    # 创建一个新的 只保留连通部分
-    mask = np.zeros(alpha.shape[:2], dtype=np.uint8)
-    for label in large_components:
-        mask[labels == label] = 255
-
-    new_arrow = np.zeros_like(arrow)
-    new_arrow[np.where(mask > 0)] = constants.COLOR_ARROW_BGRA
-    cv2_utils.show_image(new_arrow, win_name='new_arrow')
-    cv2.waitKey(0)
-    if save:
-        dev.save_debug_image(new_arrow)
+    return bw
 
 
 if __name__ == '__main__':
-    arrow = dev.get_debug_image('arrow4')
-    convert_arrow_color(arrow, save=True)
+    convert_origin_map(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, save=True)
+    cv2.waitKey(0)

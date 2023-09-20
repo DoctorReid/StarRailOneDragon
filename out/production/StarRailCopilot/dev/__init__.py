@@ -16,7 +16,7 @@ def get_debug_image_path(filename, suffix: str = '.png') -> str:
 
 
 def get_debug_image(filename, suffix: str = '.png') -> cv2.typing.MatLike:
-    return cv2_utils.read_image(get_debug_image_path(filename, suffix))
+    return cv2_utils.read_image_with_alpha(get_debug_image_path(filename, suffix))
 
 
 def get_test_image_dir():
@@ -28,7 +28,7 @@ def get_test_image_path(filename, suffix: str = '.png') -> str:
 
 
 def get_test_image(filename, suffix: str = '.png') -> cv2.typing.MatLike:
-    return cv2_utils.read_image(get_test_image_path(filename, suffix))
+    return cv2_utils.read_image_with_alpha(get_test_image_path(filename, suffix))
 
 
 def save_debug_image(image):

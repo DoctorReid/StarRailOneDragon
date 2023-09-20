@@ -64,6 +64,59 @@ class MatchResultList:
         if self.max is None or a.confidence > self.max.confidence:
             self.max = a
 
+
+
+class ImageMatcher:
+
+    def load_template(self, template_id: str, template_path: str, x_scale: float = 1, y_scale: float = 1):
+        """
+        加载需要匹配的模板到内存中 后续使用模板id匹配即可
+        :param template_id: 模板id
+        :param template_path: 模板路径
+        :param x_scale: 读取后缩放比例x
+        :param y_scale: 读取后缩放比例y
+        :return:
+        """
+        pass
+
+    def get_template(self, template_id: str):
+        """
+        获取对应的模板图片
+        :param template_id: 目标id
+        :return: 图片
+        """
+        pass
+
+    def match_template(self, source_image: ImageLike, template_image: str, threshold: float = 0.5,
+                       src_x_scale: float = 1, src_y_scale: float = 1,
+                       show_result: bool = False) -> MatchResultList:
+        """
+        在原图中 匹配模板
+        :param source_image: 原图
+        :param template_image: 模板id
+        :param threshold: 匹配阈值
+        :param src_x_scale: 原图缩放比例x
+        :param src_y_scale: 原图缩放比例y
+        :param show_result：是否在最后显示结果图片
+        :return: 所有匹配结果
+        """
+        pass
+
+    def match_template_with_rotation(self, source_image: ImageLike, template: Union[str, cv2.typing.MatLike],
+                                     threshold: float = 0.5, ignore_inf: bool = True,
+                                     show_result: bool = False) -> dict:
+        """
+        在原图中 对模板进行360度旋转匹配
+        :param source_image: 原图
+        :param template: 模板
+        :param threshold: 匹配阈值
+        :param ignore_inf: 是否忽略无限大的结果
+        :param show_result：是否在最后显示结果图片
+        :return: 每个选择角度的匹配结果
+        """
+        pass
+
+
 class OcrMatcher:
 
     def run_ocr(self, image: ImageLike, threshold: float = 0.5) -> dict:

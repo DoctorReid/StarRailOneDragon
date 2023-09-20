@@ -3,7 +3,7 @@ import sr
 from basic import gui_utils
 from basic.img import MatchResultList, cv2_utils
 from basic.img.cnocr_matcher import CnocrMatcher
-from sr.image.cv2_matcher import CvImageMatcher
+from basic.img.cv2_matcher import CvImageMatcher
 from sr import constants
 from sr.config import ConfigHolder
 from sr.map_cal import MapCalculator
@@ -39,7 +39,7 @@ def _test_ocr():
 
 
 def _test_rotate():
-    i = cv2_utils.read_image(dev.get_test_image('t3.png'))
+    i = cv2_utils.read_image_with_alpha(dev.get_test_image('t3.png'))
     cv2_utils.image_rotate(i, -90, show_result=True)
 
 
@@ -57,13 +57,13 @@ def _test_convert_png_and_save():
 
 
 def _test_mark_area_as_transparent():
-    i = cv2_utils.read_image(dev.get_test_image('game1.png'))
+    i = cv2_utils.read_image_with_alpha(dev.get_test_image('game1.png'))
     o = cv2_utils.mark_area_as_transparent(i, [0, 1080, 200, 100])
     cv2_utils.show_image(o)
 
 
 def _test_find_circle():
-    screen = cv2_utils.read_image(dev.get_test_image('game2.png'))
+    screen = cv2_utils.read_image_with_alpha(dev.get_test_image('game2.png'))
 
     # 左上角部分
     x, y = 0, 0

@@ -124,7 +124,7 @@ def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> cv2.t
     width = target.width
     height = target.height
     img: Image = pyautogui.screenshot(region=(left, top, width, height))
-    cv2_img = np.array(img)
+    cv2_img = cv2.cvtColor(np.array(img if img.mode == 'RGBA' else img.convert('RGBA')), cv2.COLOR_RGBA2BGRA)
     if save_path is not None:
         img.save(save_path)
     return cv2_img

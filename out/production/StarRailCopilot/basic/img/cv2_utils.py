@@ -10,9 +10,9 @@ from basic.img import ImageLike, MatchResult, MatchResultList
 from basic.log_utils import log
 
 
-def read_image(file_path: str) -> cv2.typing.MatLike:
+def read_image_with_alpha(file_path: str, show_result: bool = False) -> cv2.typing.MatLike:
     """
-    读取图片
+    读取图片 如果没有透明图层则加入
     :param file_path: 图片路径
     :param show_result: 是否显示结果
     :return:
@@ -20,6 +20,14 @@ def read_image(file_path: str) -> cv2.typing.MatLike:
     if not os.path.exists(file_path):
         return None
     image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
+    channels = cv2.split(image)
+    if len(channels) != 4:
+        # 创建透明图层
+        alpha = np.full_like(image.shape[:2], 255, dtype=np.uint8)
+        # 合并图像和透明图层
+        image = cv2.merge((image, alpha))
+    if show_result:
+        cv2.imshow('Result', image)
     return image
 
 
@@ -101,7 +109,7 @@ def convert_png_and_save(image_path: str, save_path: str):
     :param image_path: 原图路径
     :param save_path: 目标路径
     """
-    img = read_image(image_path)
+    img = read_image_with_alpha(image_path)
     img.save(save_path)
 
 
@@ -152,19 +160,25 @@ def mark_area_as_color(image: cv2.typing.MatLike, pos: List, color, new_image: b
 
 
 def match_template(source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold,
-                   mask: np.ndarray = None, ignore_inf: bool = False) -> MatchResultList:
+                   ignore_inf: bool = False,
+                   ignore_source_alpha: bool = False, ignore_template_alpha: bool = False) -> MatchResultList:
     """
-    在原图中匹配模板
+    在原图中 匹配模板。两者都需要是rgba格式。
+    模板会忽略透明图层
     :param source: 原图
     :param template: 模板
     :param threshold: 阈值
-    :param mask: 掩码
     :param ignore_inf: 是否忽略无限大的结果
     :return: 所有匹配结果
     """
     ty, tx = template.shape[1], template.shape[0]
-    # 进行模板匹配
-    result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+    if ignore_template_alpha:
+        # 创建掩码图像，将透明背景像素设置为零
+        mask = np.where(template[..., 3] > 0, 255, 0).astype(np.uint8)
+        # 进行模板匹配，忽略透明背景
+        result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
+    else:
+        result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED)
 
     match_result_list = MatchResultList()
     filtered_locations = np.where(np.logical_and(
@@ -295,18 +309,18 @@ def show_overlap(source, template, x, y, template_scale: float = 1, win_name: st
     # 覆盖图缩放后可以超出了原图的范围
     if sx_start < 0:
         tx_start -= sx_start
-        sx_start -= sx_start
+        sx_start = 0
     if sx_end > to_show_source.shape[1]:
         tx_end -= sx_end - to_show_source.shape[1]
-        sx_end -= sx_end - to_show_source.shape[1]
+        sx_end = to_show_source.shape[1]
 
     if sy_start < 0:
         ty_start -= sy_start
-        sy_start -= sy_start
-    if sx_end > to_show_source.shape[0]:
+        sy_start = 0
+    if tx_end > to_show_source.shape[0]:
         ty_end -= sy_end - to_show_source.shape[0]
-        sy_end -= sy_end - to_show_source.shape[0]
+        sy_end = to_show_source.shape[0]
 
     # 将覆盖图像放置到底图的指定位置
-    to_show_source[sy_start:sy_end, sx_start:sx_end] = to_show_template[ty_start:ty_end, tx_start:tx_end]
+    to_show_source[sy_start:sy_end, sx_start:sx_end] = to_show_template[ty_start:ty_end, tx_start:ty_end]
     show_image(to_show_source, win_name=win_name, wait=wait)

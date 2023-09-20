@@ -98,9 +98,6 @@ echo pip安装完成
 :pip-install-done
 echo pip版本 & !pip! --version
 
-rem 设置国内源
-!pip! config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-
 rem 检查 本地虚拟环境是否已经安装
 set venv_installed=0
 if exist !venv_path!\Scripts\python.exe (
@@ -112,16 +109,13 @@ if exist !venv_path!\Scripts\python.exe (
 
 rem 安装项目依赖
 echo 创建虚拟环境
-!pip! install virtualenv
+!pip! install virtualenv --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 !python! -m virtualenv !env_path!\venv
 
 :venv-done
 echo 虚拟环境已准备
 set python=!venv_path!\Scripts\python.exe
 set pip=!venv_path!\Scripts\pip.exe
-
-rem 设置国内源
-!pip! config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 rem 检查是否已经安装依赖
 for /f "tokens=1,2 delims= " %%a in ('dir /T:W /A:-D /O:-D /T:C /T:A /T:W requirements.txt ^| find " requirements.txt"') do set file_time=%%a%%b
@@ -131,7 +125,7 @@ set "file_time=%file_time::=%"
 if exist !env_path!\!file_time!.txt goto requirements-install-done
 
 echo 开始安装依赖包
-!pip! install -r requirements.txt
+!pip! install -r requirements.txt --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 echo 安装依赖包完成
 echo.>> !env_path!\!file_time!.txt
 

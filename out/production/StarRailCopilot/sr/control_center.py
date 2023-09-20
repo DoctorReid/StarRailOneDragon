@@ -1,7 +1,7 @@
 import time
 
 from basic.img import OcrMatcher
-from sr.image.cv2_matcher import CvImageMatcher
+from basic.img.cv2_matcher import CvImageMatcher
 from basic.log_utils import log
 from sr.config import ConfigHolder
 
