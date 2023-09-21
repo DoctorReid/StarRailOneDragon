@@ -117,10 +117,11 @@ def convert_origin_map(planet: str, region: str, save: bool = True) -> cv2.typin
     ch = ConfigHolder()
     mc = MapCalculator(im=im, config=ch)
     large_map = ih.get_large_map(planet, region, 'origin')
-    usage, mask, _ = mc.auto_cut_map(large_map, show=True)
+    gray, mask, _ = mc.auto_cut_map(large_map, show=True)
     if save:
         sr.save_map_image(mask, planet, region, 'mask')
-        sr.save_map_image(usage, planet, region, 'usage')
+        sr.save_map_image(gray, planet, region, 'gray')
+    cv2.waitKey(0)
 
 
 def convert_arrow_color(arrow: cv2.typing.MatLike, save: bool = True):
@@ -156,5 +157,4 @@ def convert_arrow_color(arrow: cv2.typing.MatLike, save: bool = True):
 
 
 if __name__ == '__main__':
-    arrow = dev.get_debug_image('arrow4')
-    convert_arrow_color(arrow, save=True)
+    convert_origin_map(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, save=True)
