@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 import cv2
 import numpy as np
@@ -43,3 +43,33 @@ class ImageMatcher:
         :return: 每个选择角度的匹配结果
         """
         pass
+
+
+class OcrMatcher:
+
+    def run_ocr(self, image: cv2.typing.MatLike, threshold: float = 0.5) -> dict:
+        """
+        对图片进行OCR 返回所有匹配结果
+        :param image: 图片
+        :param threshold: 匹配阈值
+        :return: {key_word: []}
+        """
+        pass
+
+    def match_words(self, image: cv2.typing.MatLike, words: List[str], threshold: float = 0.5) -> dict:
+        """
+        在图片中查找关键词 返回所有词对应的位置
+        :param image: 图片
+        :param words: 关键词
+        :param threshold: 匹配阈值
+        :return: {key_word: []}
+        """
+        all_match_result: dict = self.run_ocr(image, threshold)
+        match_key = set()
+        for k in all_match_result.keys():
+            for w in words:
+                if k.find(w) != -1:
+                    match_key.add(k)
+                    break
+
+        return {key: all_match_result[key] for key in match_key if key in all_match_result}

@@ -2,7 +2,7 @@ import dev
 import sr
 from basic import gui_utils
 from basic.img import MatchResultList, cv2_utils
-from basic.img.cnocr_matcher import CnocrMatcher
+from sr.image.cnocr_matcher import CnocrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr import constants
 from sr.config import ConfigHolder
@@ -48,12 +48,6 @@ def _test_match_template_with_rotation():
     little_map = mc.cut_little_map(screen)
     im = CvImageMatcher()
     print(im.match_template_with_rotation(little_map, constants.TEMPLATE_ARROW))
-
-
-def _test_convert_png_and_save():
-    i = dev.get_test_image('g.jiff')
-    o = dev.get_test_image('game2.png')
-    cv2_utils.convert_png_and_save(i, o)
 
 
 def _test_mark_area_as_transparent():

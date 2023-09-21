@@ -1,8 +1,6 @@
 import os
 from datetime import datetime
 
-from PIL.Image import Image
-
 
 def join_dir_path_with_mk(path: str, *subs) -> str:
     """

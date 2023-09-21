@@ -1,7 +1,8 @@
 from cnocr import CnOcr
 
 from basic import os_utils
-from basic.img import OcrMatcher, ImageLike, MatchResultList, MatchResult
+from basic.img import MatchResultList, MatchResult
+from sr.image import OcrMatcher
 
 
 class CnocrMatcher(OcrMatcher):

@@ -1,12 +1,10 @@
-import math
+import os
 from typing import Union, List
 
 import cv2
 import numpy as np
-import os
-from PIL.Image import Image
 
-from basic.img import ImageLike, MatchResult, MatchResultList
+from basic.img import MatchResult, MatchResultList
 from basic.log_utils import log
 
 
@@ -21,29 +19,6 @@ def read_image(file_path: str) -> cv2.typing.MatLike:
         return None
     image = cv2.imread(file_path, cv2.IMREAD_UNCHANGED)
     return image
-
-
-def convert_source(source_image: ImageLike, src_x_scale: float = 1, src_y_scale: float = 1):
-    """
-    将原图转化成适合使用的cv2格式，会转化成RGBA
-    :param source_image: 原图
-    :param src_x_scale: 原图缩放比例x
-    :param src_y_scale: 原图缩放比例y
-    :return: 转化图
-    """
-    source: cv2.typing.MatLike = None
-    if type(source_image) == Image:
-        if source_image.mode == 'RGBA':
-            source = cv2.cvtColor(np.array(source_image), cv2.COLOR_RGBA2BGRA)
-        else:
-            source = cv2.cvtColor(np.array(source_image.convert('RGBA')), cv2.COLOR_RGBA2BGRA)
-    elif type(source_image) == str:
-        source = cv2.imread(source_image)
-    else:
-        source = source_image
-    if src_x_scale != 1 or src_y_scale != 1:
-        source = cv2.resize(source, (0, 0), fx=src_x_scale, fy=src_y_scale)
-    return source
 
 
 def show_image(img: cv2.typing.MatLike,
@@ -93,16 +68,6 @@ def image_rotate(img: cv2.typing.MatLike, angle: int, show_result: bool = False)
         cv2.imshow('Result', rotated_image)
 
     return rotated_image
-
-
-def convert_png_and_save(image_path: str, save_path: str):
-    """
-    将原图转化成png格式保存
-    :param image_path: 原图路径
-    :param save_path: 目标路径
-    """
-    img = read_image(image_path)
-    img.save(save_path)
 
 
 def mark_area_as_transparent(image: cv2.typing.MatLike, pos: Union[List, np.ndarray], outside: bool = False):
