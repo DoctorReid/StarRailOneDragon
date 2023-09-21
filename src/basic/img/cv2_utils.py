@@ -303,7 +303,7 @@ def show_overlap(source, template, x, y, template_scale: float = 1, win_name: st
     if sy_start < 0:
         ty_start -= sy_start
         sy_start -= sy_start
-    if sx_end > to_show_source.shape[0]:
+    if sy_end > to_show_source.shape[0]:
         ty_end -= sy_end - to_show_source.shape[0]
         sy_end -= sy_end - to_show_source.shape[0]
 

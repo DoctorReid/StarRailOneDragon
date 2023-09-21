@@ -236,6 +236,7 @@ class MapCalculator:
         if is_little_map:
             arrow_mask = self.find_little_map_arrow_mask(map_image)
             radio_mask = self.find_little_map_radio_mask(map_image, angle)
+            cv2_utils.show_image(radio_mask, win_name='radio_mask')
             center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
             road_mask = cv2.bitwise_or(road_mask, center_mask)
 
@@ -286,11 +287,15 @@ class MapCalculator:
                 start_angle += 360
             if end_angle >= 360:
                 end_angle -= 360
-            if start_angle > end_angle:
-                temp_angle = start_angle
-                start_angle = end_angle
-                end_angle = temp_angle
-            cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, end_angle, color, thickness)  # 画扇形
+            # if start_angle > end_angle:
+            #     temp_angle = start_angle
+            #     start_angle = end_angle
+            #     end_angle = temp_angle
+            if start_angle <= end_angle:
+                cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, end_angle, color, thickness)  # 画扇形
+            else:
+                cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, 360, color, thickness)
+                cv2.ellipse(radio_mask, center, (radius, radius), 0, 0, end_angle, color, thickness)
         else:  # 圆形兜底
             cv2.circle(radio_mask, center, radius, color, thickness)  # 画扇形
         radio_map = cv2.bitwise_and(map_image, map_image, mask=radio_mask)
@@ -391,54 +396,51 @@ class MapCalculator:
                     mask[r.y:r.y+r.h, r.x:r.x+r.w] = cv2.bitwise_or(mask[r.y:r.y+r.h, r.x:r.x+r.w], alpha)
         return mask, sp_match_result
 
-    def cal_character_pos(self,
-                          little_map_usage: cv2.typing.MatLike, large_map_usage: cv2.typing.MatLike,
-                          little_map_bw: cv2.typing.MatLike = None, large_map_bw: cv2.typing.MatLike = None,
+    def cal_character_pos(self, large_map_gray: cv2.typing.MatLike, large_map_mask: cv2.typing.MatLike,
+                          little_map_gray: cv2.typing.MatLike, little_map_mask: cv2.typing.MatLike, little_map_sp: dict,
                           possible_pos: tuple = None, show: bool = False):
         """
         根据小地图 匹配大地图 判断当前的坐标 - 先用特征匹配 最后用图片匹配兜底
-        :param little_map_usage: 小地图图片
-        :param large_map_usage: 大地图图片
-        :param little_map_bw: 小地图掩码 传入掩码结果更准确
-        :param large_map_bw: 大地图掩码 传入掩码结果更准确
+        :param large_map_gray: 大地图图片
+        :param large_map_mask: 大地图掩码 传入掩码结果更准确
+        :param little_map_gray: 小地图图片
+        :param little_map_mask: 小地图掩码 传入掩码结果更准确
+        :param little_map_sp: 小地图特殊点
         :param possible_pos: 可能在大地图的位置 (x,y,d)。 (x,y) 是上次在的位置 d是移动的距离。传入后会优先在这附近匹配 效率更高；失败后再整个大地图匹配
         :param show: 是否显示结果
         :return:
         """
         x, y = self.cal_character_pos_by_feature(
-            little_map_usage, large_map_usage, little_map_bw, large_map_bw,
+            little_map_gray, large_map_gray, little_map_mask, large_map_mask,
             possible_pos=possible_pos, show=show)
 
         if x == -1:
             x, y = self.cal_character_pos_by_match(
-            little_map_usage, large_map_usage, little_map_bw, large_map_bw,
+            little_map_gray, large_map_gray, little_map_mask, large_map_mask,
             possible_pos=possible_pos, show=show)
 
         return x, y
 
-    def cal_character_pos_by_feature(self,
-                                     little_map_usage: cv2.typing.MatLike,
-                                     large_map_usage: cv2.typing.MatLike,
-                                     little_map_bw: cv2.typing.MatLike = None,
-                                     large_map_bw: cv2.typing.MatLike = None,
-                                     possible_pos: tuple = None,
-                                     show: bool = False):
+    def cal_character_pos_by_feature(self, large_map_gray: cv2.typing.MatLike, large_map_mask: cv2.typing.MatLike,
+                                     little_map_gray: cv2.typing.MatLike, little_map_mask: cv2.typing.MatLike, little_map_sp: dict,
+                                     possible_pos: tuple = None, show: bool = False):
         """
-        根据小地图 匹配大地图 判断当前的坐标 - 使用特征匹配
-        :param little_map_usage: 小地图图片
-        :param large_map_usage: 大地图图片
-        :param little_map_bw: 小地图掩码 传入掩码结果更准确
-        :param large_map_bw: 大地图掩码 传入掩码结果更准确
-        :param possible_pos: 可能在大地图的位置 (x,y,d)。 (x,y) 是上次在的位置 d是移动的距离。传入后会优先在这附近匹配 效率更高且更精准；失败后再整个大地图匹配
+        根据小地图 匹配大地图 判断当前的坐标 - 先用特征匹配 最后用图片匹配兜底
+        :param large_map_gray: 大地图图片
+        :param large_map_mask: 大地图掩码 传入掩码结果更准确
+        :param little_map_gray: 小地图图片
+        :param little_map_mask: 小地图掩码 传入掩码结果更准确
+        :param little_map_sp: 小地图特殊点
+        :param possible_pos: 可能在大地图的位置 (x,y,d)。 (x,y) 是上次在的位置 d是移动的距离。传入后会优先在这附近匹配 效率更高；失败后再整个大地图匹配
         :param show: 是否显示结果
         :return:
         """
         large_map_offset_x = 0
         large_map_offset_y = 0
-        large_map_offset_x2 = large_map_usage.shape[1]
-        large_map_offset_y2 = large_map_usage.shape[0]
+        large_map_offset_x2 = large_map_gray.shape[1]
+        large_map_offset_y2 = large_map_gray.shape[0]
         if possible_pos is not None:  # 传入了潜在位置 那就截取部分大地图再进行匹配
-            lr = little_map_usage.shape[0] // 2  # 小地图半径
+            lr = little_map_gray.shape[0] // 2  # 小地图半径
             x, y, r = int(possible_pos[0]), int(possible_pos[1]), int(possible_pos[2])
             ur = r + lr + lr // 2  # 潜在位置半径 = 移动距离 + 1.5倍的小地图半径
             large_map_offset_x = x - ur
@@ -449,26 +451,63 @@ class MapCalculator:
                 large_map_offset_x = 0
             if large_map_offset_y < 0:
                 large_map_offset_y = 0
-            if large_map_offset_x2 > large_map_usage.shape[1]:
-                large_map_offset_x2 = large_map_usage.shape[1]
-            if large_map_offset_y2 > large_map_usage.shape[0]:
-                large_map_offset_y2 = large_map_usage.shape[0]
+            if large_map_offset_x2 > large_map_gray.shape[1]:
+                large_map_offset_x2 = large_map_gray.shape[1]
+            if large_map_offset_y2 > large_map_gray.shape[0]:
+                large_map_offset_y2 = large_map_gray.shape[0]
 
-        source = large_map_usage[large_map_offset_y:large_map_offset_y2, large_map_offset_x:large_map_offset_x2]
-        source_mask = large_map_bw[large_map_offset_y:large_map_offset_y2, large_map_offset_x:large_map_offset_x2]
-        template = little_map_usage
-        template_mask = np.zeros_like(little_map_bw)
+        source = large_map_gray[large_map_offset_y:large_map_offset_y2, large_map_offset_x:large_map_offset_x2]
+        source_mask = large_map_mask[large_map_offset_y:large_map_offset_y2, large_map_offset_x:large_map_offset_x2]
+        template = little_map_gray
+        template_mask = np.zeros_like(little_map_mask)
 
         template_h, template_w = template.shape[1], template.shape[0]  # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
         template_cx, template_cy = template_w // 2, template_h // 2
-        template_r = math.floor(template_h / math.sqrt(2) / 2)
-        template_mask[template_cy - template_r:template_cy + template_r, template_cx - template_r:template_cx + template_r] = \
-            little_map_bw[template_cy - template_r:template_cy + template_r, template_cx - template_r:template_cx + template_r]
+        template_r = math.floor(template_h / math.sqrt(2) / 2) - 5
 
+        if len(little_map_sp) > 0:  # 有特殊点的时候 直接在原灰度图上匹配即可
+            template_mask[template_cy - template_r:template_cy + template_r, template_cx - template_r:template_cx + template_r] = \
+                little_map_mask[template_cy - template_r:template_cy + template_r, template_cx - template_r:template_cx + template_r]
+            offset_x, offset_y, scale = self.feature_match(source, source_mask, template, template_mask, show=show)
+        else:  # 无特殊点的时候 绘制边缘来匹配
+            if show:
+                cv2_utils.show_image(source, win_name='source_before_edge')
+                cv2_utils.show_image(template, win_name='template_before_edge')
+            source_edge = self.find_large_map_edge_mask(source_mask)
+            template_edge = self.find_large_map_edge_mask(little_map_mask)
+            template_mask[template_cy - template_r:template_cy + template_r, template_cx - template_r:template_cx + template_r] = 255
+            offset_x, offset_y, scale = self.feature_match(source_edge, None, template_edge, template_mask, show=show)
+
+        if offset_x is None:
+            if possible_pos is not None:  # 整张大地图试试
+                return self.cal_character_pos_by_feature(large_map_gray, large_map_mask, little_map_gray, little_map_mask, little_map_sp, show=show)
+            else:
+                return -1, -1
+
+        # 小地图缩放后的宽度和高度
+        scaled_width = int(template_w * scale)
+        scaled_height = int(template_h * scale)
+
+        # 大地图可能剪裁过 加上剪裁的offset
+        offset_x = large_map_offset_x + offset_x
+        offset_y = large_map_offset_y + offset_y
+
+        # 小地图缩放后中心点在大地图的位置 即人物坐标
+        center_x = offset_x + scaled_width // 2
+        center_y = offset_y + scaled_height // 2
+
+        if show:
+            cv2_utils.show_overlap(large_map_gray, little_map_gray, offset_x, offset_y, template_scale=scale, win_name='overlap')
+
+        return center_x, center_y
+
+    def feature_match(self, source, source_mask, template, template_mask,
+                      show: bool = True):
         # 在模板和原图中提取特征点和描述子
-        sift = cv2.SIFT_create()
-        kp1, des1 = sift.detectAndCompute(template, mask=template_mask)
-        kp2, des2 = sift.detectAndCompute(source, mask=source_mask)
+        feature_detector = cv2.SIFT_create()
+        # feature_detector = cv2.ORB_create()
+        kp1, des1 = feature_detector.detectAndCompute(template, mask=template_mask)
+        kp2, des2 = feature_detector.detectAndCompute(source, mask=source_mask)
 
         if show:
             cv2_utils.show_image(template_mask, win_name='template_mask')
@@ -477,8 +516,9 @@ class MapCalculator:
             template_with_keypoints = cv2.drawKeypoints(template, kp1, None)
             cv2_utils.show_image(template_with_keypoints, win_name='template_with_keypoints')
 
-        bf = cv2.BFMatcher()
-        matches = bf.knnMatch(des1, des2, k=2)
+        feature_matcher = cv2.FlannBasedMatcher()
+        # feature_matcher = cv2.BFMatcher()
+        matches = feature_matcher.knnMatch(des1, des2, k=2)
         # 应用比值测试，筛选匹配点
         good_matches = []
         for m, n in matches:
@@ -490,10 +530,7 @@ class MapCalculator:
             cv2_utils.show_image(all_result, win_name='all_match')
 
         if len(good_matches) < 4:  # 不足4个优秀匹配点时 不能使用RANSAC
-            if possible_pos is not None:  # 整张大地图试试
-                return self.cal_character_pos_by_feature(little_map_usage, large_map_usage, little_map_bw, large_map_bw, show=show)
-            else:
-                return -1, -1
+            return None, None, None
 
         # 提取匹配点的坐标
         src_pts = np.float32([kp1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 模板的
@@ -504,10 +541,7 @@ class MapCalculator:
         # 获取内点的索引 拿最高置信度的
         inlier_indices = np.where(mask.ravel() == 1)[0]
         if len(inlier_indices) == 0:  # mask 里没找到就算了 再用good_matches的结果也是很不准的
-            if possible_pos is not None:  # 整张大地图试试
-                return self.cal_character_pos_by_feature(little_map_usage, large_map_usage, little_map_bw, large_map_bw, show=show)
-            else:
-                return -1, -1
+            return None, None, None
 
         # 距离最短 置信度最高的结果
         best_match = None
@@ -527,53 +561,28 @@ class MapCalculator:
         offset_x = query_point[0] - train_point[0] * scale
         offset_y = query_point[1] - train_point[1] * scale
 
-        # 小地图缩放后的宽度和高度
-        scaled_width = int(template_w * scale)
-        scaled_height = int(template_h * scale)
+        return offset_x, offset_y, scale
 
-        # 大地图可能剪裁过 加上剪裁的offset
-        offset_x = large_map_offset_x + offset_x
-        offset_y = large_map_offset_y + offset_y
-
-        # 小地图缩放后中心点在大地图的位置 即人物坐标
-        center_x = offset_x + scaled_width // 2
-        center_y = offset_y + scaled_height // 2
-
-        if show:
-            cv2_utils.show_overlap(large_map_usage, little_map_usage, offset_x, offset_y, template_scale=scale, win_name='overlap')
-            if M is not None:
-                to_show_rect = source.copy()
-                corners = np.float32([[0, 0], [0, template_h - 1], [template_w - 1, template_h - 1], [template_w - 1, 0]]).reshape(-1, 1, 2)
-                # 将模板的四个角点坐标转换为原图中的位置
-                dst_corners = cv2.perspectiveTransform(corners, M)
-                cv2.polylines(to_show_rect, [np.int32(dst_corners)], True, (0, 255, 0), 2)
-                cv2_utils.show_image(to_show_rect, win_name='source_with_rectangle')
-
-        return center_x, center_y
-
-    def cal_character_pos_by_match(self,
-                                     little_map_usage: cv2.typing.MatLike,
-                                     large_map_usage: cv2.typing.MatLike,
-                                     little_map_bw: cv2.typing.MatLike = None,
-                                     large_map_bw: cv2.typing.MatLike = None,
-                                     possible_pos: tuple = None,
-                                     show: bool = False):
+    def cal_character_pos_by_match(self, large_map_gray: cv2.typing.MatLike, large_map_mask: cv2.typing.MatLike,
+                                     little_map_gray: cv2.typing.MatLike, little_map_mask: cv2.typing.MatLike, little_map_sp: dict,
+                                     possible_pos: tuple = None, show: bool = False):
         """
-        根据小地图 匹配大地图 判断当前的坐标 - 使用特征匹配
-        :param little_map_usage: 小地图图片
-        :param large_map_usage: 大地图图片
-        :param little_map_bw: 小地图掩码 传入掩码结果更准确
-        :param large_map_bw: 大地图掩码 传入掩码结果更准确
+        根据小地图 匹配大地图 判断当前的坐标 - 先用特征匹配 最后用图片匹配兜底
+        :param large_map_gray: 大地图图片
+        :param large_map_mask: 大地图掩码 传入掩码结果更准确
+        :param little_map_gray: 小地图图片
+        :param little_map_mask: 小地图掩码 传入掩码结果更准确
+        :param little_map_sp: 小地图特殊点
         :param possible_pos: 可能在大地图的位置 (x,y,d)。 (x,y) 是上次在的位置 d是移动的距离。传入后会优先在这附近匹配 效率更高；失败后再整个大地图匹配
         :param show: 是否显示结果
         :return:
         """
         large_map_offset_x = 0
         large_map_offset_y = 0
-        large_map_offset_x2 = large_map_usage.shape[1]
-        large_map_offset_y2 = large_map_usage.shape[0]
+        large_map_offset_x2 = large_map_gray.shape[1]
+        large_map_offset_y2 = large_map_gray.shape[0]
         if possible_pos is not None:  # 传入了潜在位置 那就截取部分大地图再进行匹配
-            lr = little_map_usage.shape[0] // 2  # 小地图半径
+            lr = little_map_gray.shape[0] // 2  # 小地图半径
             x, y, r = int(possible_pos[0]), int(possible_pos[1]), int(possible_pos[2])
             ur = r + lr + lr // 2  # 潜在位置半径 = 移动距离 + 1.5倍的小地图半径
             large_map_offset_x = x - ur
@@ -584,24 +593,24 @@ class MapCalculator:
                 large_map_offset_x = 0
             if large_map_offset_y < 0:
                 large_map_offset_y = 0
-            if large_map_offset_x2 > large_map_usage.shape[1]:
-                large_map_offset_x2 = large_map_usage.shape[1]
-            if large_map_offset_y2 > large_map_usage.shape[0]:
-                large_map_offset_y2 = large_map_usage.shape[0]
+            if large_map_offset_x2 > large_map_gray.shape[1]:
+                large_map_offset_x2 = large_map_gray.shape[1]
+            if large_map_offset_y2 > large_map_gray.shape[0]:
+                large_map_offset_y2 = large_map_gray.shape[0]
 
-        source = large_map_usage[large_map_offset_y:large_map_offset_y2, large_map_offset_x:large_map_offset_x2]
-        template = little_map_usage
+        source = large_map_gray[large_map_offset_y:large_map_offset_y2, large_map_offset_x:large_map_offset_x2]
+        template = little_map_gray
 
-        result = self.im.match_template(source, template, mask=little_map_bw, threshold=0.45,
+        result = self.im.match_template(source, template, mask=little_map_mask, threshold=0.45,
                                         ignore_template_alpha=False, ignore_inf=True)
 
         if len(result) == 0:
             if possible_pos is not None:  # 回到整个大地图找
-                return self.cal_character_pos_by_match(little_map_usage, large_map_usage, little_map_bw, large_map_bw, show=show)
+                return self.cal_character_pos_by_match(little_map_gray, large_map_gray, little_map_mask, large_map_mask, show=show)
             else:
                 return -1, -1
 
-        target = self.find_best_match_pos_in_large_map(large_map_usage, result, {}, show=show)
+        target = self.find_best_match_pos_in_large_map(large_map_gray, result, {}, show=show)
 
         offset_x = large_map_offset_x + target.x
         offset_y = large_map_offset_y + target.y
@@ -609,11 +618,11 @@ class MapCalculator:
         if show:
             cv2_utils.show_image(source, result, win_name='all')
             cv2_utils.show_image(source, target, win_name='target')
-            cv2_utils.show_overlap(large_map_usage, little_map_usage, offset_x, offset_y, win_name='cal_character_pos_by_match')
+            cv2_utils.show_overlap(large_map_gray, little_map_gray, offset_x, offset_y, win_name='cal_character_pos_by_match')
 
         return offset_x, offset_y
 
-    def find_best_match_pos_in_large_map(self, large_map_usage: cv2.typing.MatLike,
+    def find_best_match_pos_in_large_map(self, large_map_gray: cv2.typing.MatLike,
                                          match_result: MatchResultList,
                                          little_map_sp_match_result: dict,
                                          show: bool = False):
@@ -621,7 +630,7 @@ class MapCalculator:
         在小地图可能匹配的位置中，找出最佳位置。
         如果小地图中有特殊点，大地图中也要有。但小地图中容易匹配错，所以找到尽量多的特殊点即可。
         最后筛选匹配程度最高的结果
-        :param large_map_usage: 用于匹配的大地图 可能裁剪过
+        :param large_map_gray: 用于匹配的大地图 可能裁剪过
         :param match_result: 匹配结果
         :param little_map_sp_match_result: 小地图中特殊点的匹配结果
         :param show: 是否显示
@@ -633,7 +642,7 @@ class MapCalculator:
             sp_count = 0
             # 小地图中有特殊点 在大地图结果中需要全部找到
             if len(little_map_sp_match_result) > 0:
-                large_map_match_part = large_map_usage[r.y:r.y+r.h, r.x:r.x+r.w, :]
+                large_map_match_part = large_map_gray[r.y:r.y+r.h, r.x:r.x+r.w, :]
                 if show:
                     cv2_utils.show_image(large_map_match_part, win_name='large_map_match_part')
                 for sp_template_id in little_map_sp_match_result.keys():

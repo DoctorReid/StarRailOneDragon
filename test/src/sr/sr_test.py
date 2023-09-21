@@ -116,7 +116,7 @@ def _test_little_map_road_edge_mask():
 
 
 def _test_auto_cut_map():
-    for i in range(4):
+    for i in range(5):
         screen = dev.get_test_image('game%d' % (i+1))
         little_map = mc.cut_little_map(screen)
         cv2_utils.show_image(little_map, win_name='little_map')
@@ -127,15 +127,15 @@ def _test_auto_cut_map():
 def _test_cal_character_pos_by_match():
     large_map_usage = image_holder.get_large_map(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'gray')
     large_map_mask = image_holder.get_large_map(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'mask')
-    for i in range(4):
+    for i in range(5):
         screen = dev.get_test_image('game%d' % (i+1))
         little_map = mc.cut_little_map(screen)
-        little_map_usage, little_map_mask, _ = mc.auto_cut_map(little_map, is_little_map=True)
+        little_map_usage, little_map_mask, little_map_sp = mc.auto_cut_map(little_map, is_little_map=True)
         # mc.cal_character_pos_by_match(little_map, large_map_usage, show=True)
         # cv2.waitKey(0)
-        x, y = mc.cal_character_pos_by_feature(little_map_usage, large_map_usage,
-                                               little_map_mask, large_map_mask,
-                                               possible_pos=(280, 80, 0),
+        x, y = mc.cal_character_pos_by_feature(large_map_usage, large_map_mask,
+                                               little_map_usage, little_map_mask, little_map_sp,
+                                               possible_pos=(280, 100, 0),
                                                show=True)
         print(x,y)
         cv2.waitKey(0)
@@ -152,123 +152,19 @@ def _test_cal_character_pos_by_match_2():
         print(filename)
         screen = cv2_utils.read_image(os.path.join(dir, filename))
         little_map = mc.cut_little_map(screen)
-        little_map_usage, little_map_mask, _ = mc.auto_cut_map(little_map, is_little_map=True, show=True)
-        # mc.cal_character_pos_by_match(little_map, large_map_usage, show=True)
-        # cv2.waitKey(0)
-        x, y = mc.cal_character_pos(little_map_usage, large_map_usage,
-                                               little_map_mask, large_map_mask,
-                                    possible_pos=(284, 80, 0),
+        little_map_usage, little_map_mask, little_map_sp = mc.auto_cut_map(little_map, is_little_map=True, show=True)
+        x, y = mc.cal_character_pos_by_feature(large_map_usage, large_map_mask,
+                                               little_map_usage, little_map_mask, little_map_sp,
+                                               possible_pos=(280, 100, 0),
                                                show=True)
         print(x,y)
         cv2.waitKey(0)
+        cv2.destroyAllWindows()
     pass
 
-def _test_cal_character_pos_by_match_3():
-    """
-    使用道路边缘做匹配 效果不太好 先保留代码
-    :return:
-    """
-    large_map_origin = image_holder.get_large_map(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'origin')
-    large_map_usage, large_map_bw, _ = mc.auto_cut_map(large_map_origin)
-    large_map_edge_mask = mc.find_large_map_edge_mask(large_map_bw)
-    show = True
-    for i in range(4):
-        screen = dev.get_test_image('game%d' % (i+1))
-        little_map = mc.cut_little_map(screen)
-        little_map_usage, little_map_bw, _ = mc.auto_cut_map(little_map, is_little_map=True)
-        little_map_edge_mask = mc.find_large_map_edge_mask(little_map_bw)
-        cv2_utils.show_image(large_map_edge_mask, win_name='large_map_edge_mask')
-        cv2_utils.show_image(little_map_edge_mask, win_name='little_map_edge_mask')
-
-        source = large_map_usage
-        source_mask = large_map_usage
-        template = little_map_usage
-        template_mask = np.zeros_like(template)
-
-        template_h, template_w = template.shape[1], template.shape[0]  # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
-        template_cx, template_cy = template_w // 2, template_h // 2
-        template_r = math.floor(template_h / math.sqrt(2) / 2)
-        template_mask[template_cy - template_r:template_cy + template_r, template_cx - template_r:template_cx + template_r] = \
-            little_map_bw[template_cy - template_r:template_cy + template_r, template_cx - template_r:template_cx + template_r]
-
-        # 在模板和原图中提取特征点和描述子
-        sift = cv2.SIFT_create()
-        kp1, des1 = sift.detectAndCompute(little_map_edge_mask, mask=template_mask)
-        kp2, des2 = sift.detectAndCompute(large_map_edge_mask, mask=None)
-
-        bf = cv2.BFMatcher()
-        matches = bf.knnMatch(des1, des2, k=2)
-        # 应用比值测试，筛选匹配点
-        good_matches = []
-        for m, n in matches:
-            if m.distance < 0.75 * n.distance:
-                good_matches.append(m)
-
-        if show:
-            all_result = cv2.drawMatches(template, kp1, source, kp2, good_matches, None, flags=2)
-            cv2_utils.show_image(all_result, win_name='all_match')
-
-        if len(good_matches) < 4:  # 不足4个优秀匹配点时 不能使用RANSAC
-            return -1, -1
-
-        # 提取匹配点的坐标
-        src_pts = np.float32([kp1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 模板的
-        dst_pts = np.float32([kp2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 原图的
-
-        # 使用RANSAC算法估计模板位置和尺度
-        M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0, mask=source_mask)
-        # 获取内点的索引 拿最高置信度的
-        inlier_indices = np.where(mask.ravel() == 1)[0]
-        if len(inlier_indices) == 0:  # mask 里没找到就算了 再用good_matches的结果也是很不准的
-            return -1, -1
-
-        # 距离最短 置信度最高的结果
-        best_match = None
-        for i in range(len(good_matches)):
-            if mask[i] == 1 and (best_match is None or good_matches[i].distance < best_match.distance):
-                best_match = good_matches[i]
-
-        template_h, template_w = template.shape[1], template.shape[0]
-
-        query_point = kp2[best_match.trainIdx].pt  # 原图中的关键点坐标 (x, y)
-        train_point = kp1[best_match.queryIdx].pt  # 模板中的关键点坐标 (x, y)
-
-        # 获取最佳匹配的特征点的缩放比例 小地图在人物跑动时会缩放
-        query_scale = kp2[best_match.trainIdx].size
-        train_scale = kp1[best_match.queryIdx].size
-        scale = query_scale / train_scale
-
-        # 小地图缩放后偏移量
-        offset_x = query_point[0] - train_point[0] * scale
-        offset_y = query_point[1] - train_point[1] * scale
-
-        # 小地图缩放后的宽度和高度
-        scaled_width = int(template_w * scale)
-        scaled_height = int(template_h * scale)
-
-        # 大地图可能剪裁过 加上剪裁的offset
-        offset_x = offset_x
-        offset_y = offset_y
-
-        # 小地图缩放后中心点在大地图的位置 即人物坐标
-        center_x = offset_x + scaled_width // 2
-        center_y = offset_y + scaled_height // 2
-
-        if show:
-            cv2_utils.show_overlap(large_map_usage, little_map_usage, offset_x, offset_y, template_scale=scale, win_name='overlap')
-            if M is not None:
-                to_draw_rect = source.copy()
-                corners = np.float32([[0, 0], [0, template_h - 1], [template_w - 1, template_h - 1], [template_w - 1, 0]]).reshape(-1, 1, 2)
-                # 将模板的四个角点坐标转换为原图中的位置
-                dst_corners = cv2.perspectiveTransform(corners, M)
-                source_with_rectangle = cv2.polylines(to_draw_rect, [np.int32(dst_corners)], False, (0, 255, 0), 2)
-                cv2_utils.show_image(source_with_rectangle, win_name='source_with_rectangle')
-        print(center_x, center_y)
-        cv2.waitKey(0)
-
-
 if __name__ == '__main__':
-    _test_auto_cut_map()
+    _test_cal_character_pos_by_match_2()
+    cv2.waitKey(0)
     # win = gui_utils.get_win_by_name('崩坏：星穹铁道', active=True)
     # time.sleep(1)
     # calibrator = Calibrator(win, ch, mc)
