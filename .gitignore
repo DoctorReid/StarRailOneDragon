@@ -6,3 +6,4 @@ __pycache__
 model/cnocr
 model/cnstd
 config/game.yml
+out/
