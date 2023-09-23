@@ -9,6 +9,8 @@ class MatchResult:
         self.y = int(y)
         self.w = int(w)
         self.h = int(h)
+        self.cx = int(self.x + self.w // 2)
+        self.cy = int(self.y + self.h // 2)
 
     def __str__(self):
         return '(%.2f, %d, %d, %d, %d)' % (self.confidence, self.x, self.y, self.w, self.h)
