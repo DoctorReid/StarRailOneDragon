@@ -1,3 +1,4 @@
+import os
 import time
 from typing import List
 
@@ -5,13 +6,12 @@ import cv2
 import numpy as np
 import pyautogui
 
-import dev
 import sr
-from basic import gui_utils
+from basic import gui_utils, os_utils
 from basic.img import cv2_utils
-from sr.image.cv2_matcher import CvImageMatcher
-from sr import constants
+from sr import constants, dev
 from sr.config import ConfigHolder
+from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.map_cal import MapCalculator
 
@@ -117,10 +117,12 @@ def convert_origin_map(planet: str, region: str, save: bool = True) -> cv2.typin
     ch = ConfigHolder()
     mc = MapCalculator(im=im, config=ch)
     large_map = ih.get_large_map(planet, region, 'origin')
-    gray, mask, _ = mc.auto_cut_map(large_map, show=True)
+    lm = mc.analyse_large_map(large_map)
+    cv2_utils.show_image(lm.gray, win_name='gray')
+    cv2_utils.show_image(lm.mask, win_name='mask')
     if save:
-        sr.save_map_image(mask, planet, region, 'mask')
-        sr.save_map_image(gray, planet, region, 'gray')
+        sr.save_map_image(lm.gray, planet, region, 'gray')
+        sr.save_map_image(lm.mask, planet, region, 'mask')
     cv2.waitKey(0)
 
 
@@ -156,5 +158,26 @@ def convert_arrow_color(arrow: cv2.typing.MatLike, save: bool = True):
         dev.save_debug_image(new_arrow)
 
 
+def convert_template(template_id, save: bool = False):
+    """
+    把抠图后的图标灰度保存
+    :param template_id:
+    :param save:
+    :return:
+    """
+    ih = ImageHolder()
+    template = ih.get_template(template_id)
+    gray = cv2.cvtColor(template.origin, cv2.COLOR_BGRA2GRAY)
+    mask = np.where(template.origin[..., 3] > 0, 255, 0).astype(np.uint8)
+    cv2_utils.show_image(template.origin, win_name='origin')
+    cv2_utils.show_image(gray, win_name='gray')
+    cv2_utils.show_image(mask, win_name='mask', wait=0)
+    if save:
+        dir = os_utils.get_path_under_work_dir('images', 'template', template_id)
+        cv2.imwrite(os.path.join(dir, 'gray.png'), gray)
+        cv2.imwrite(os.path.join(dir, 'mask.png'), mask)
+
+
 if __name__ == '__main__':
-    convert_origin_map(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, save=True)
+    # convert_origin_map(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, save=True)
+    convert_template('exit_1', save=True)

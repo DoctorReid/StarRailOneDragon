@@ -20,6 +20,10 @@
 
 
 # template - 模板
+每个模板会有一个文件夹，文件夹中会有以下文件
+- origin.png - 对应模板的原图，经过了初步的抠图，有透明通道
+- gray.png - 灰度图，用于匹配
+- mask.png - 掩码，用于匹配
 
 ## arrow - 小地图上的箭头
 使用 25 * 25 尺寸，手工初步裁剪后可使用 dev.screenshot.convert_arrow_color 生成

@@ -21,5 +21,5 @@ COLOR_MAP_ROAD_GRAY = 0  # 地图上道路颜色
 COLOR_MAP_ROAD_BGR = (0, 0, 0)  # 地图上道路颜色
 COLOR_MAP_ROAD_BGRA = (0, 0, 0, 255)  # 地图上道路颜色
 COLOR_MAP_EDGE_BGR = (0, 255, 0)  # 地图上边的颜色
-COLOR_ARROW_BGRA = (255, 200, 0, 255)  # 小箭头颜色
+COLOR_ARROW_BGR = (255, 200, 0)  # 小箭头颜色
 COLOR_ARROW_ALPHA = (0, 0, 0, 0)  # 透明

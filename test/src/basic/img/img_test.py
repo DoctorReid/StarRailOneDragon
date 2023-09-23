@@ -45,7 +45,7 @@ def _test_rotate():
 
 def _test_match_template_with_rotation():
     screen = dev.get_debug_image('1695022366133')
-    little_map = mc.cut_little_map(screen)
+    little_map = mc.cut_mini_map(screen)
     im = CvImageMatcher()
     print(im.match_template_with_rotation(little_map, constants.TEMPLATE_ARROW))
 

@@ -37,7 +37,7 @@ class Calibrator:
             screen = gui_utils.screenshot_win(self.win)
             if save_screenshot:
                 dev.save_debug_image(screen)
-            little_map = self.mc.cut_little_map(screen)
+            little_map = self.mc.cut_mini_map(screen)
             x, y = self.mc.cal_character_pos_by_match(little_map, large_map, show=True)
             print(x, y)
             pos.append((x, y))

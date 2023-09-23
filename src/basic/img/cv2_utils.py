@@ -41,7 +41,7 @@ def show_image(img: cv2.typing.MatLike,
             cv2.rectangle(to_show, (rects.x, rects.y), (rects.x + rects.w, rects.y + rects.h), (255, 0, 0), 1)
         elif type(rects) == MatchResultList:
             for i in rects:
-                cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (255, 0, 0), 1)
+                cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (0, 0, 255), 1)
 
     cv2.imshow(win_name, to_show)
     cv2.waitKey(wait)
@@ -215,6 +215,19 @@ def is_same_image(i1, i2, threshold: float = 1) -> bool:
     return np.mean((i1 - i2) ** 2) < threshold
 
 
+def color_similarity_2d(image, color):
+    """
+    PhotoShop 魔棒功能的容差是一样的，颜色差值 = abs(max(RGB差值)) + abs(min(RGB差值))
+    感谢 https://github.com/LmeSzinc/StarRailCopilot/wiki/MinimapTracking
+    :param image:
+    :param color:
+    :return:
+    """
+    b, g, r, _ = cv2.split(cv2.subtract(image, (*color, 0)))
+    positive = cv2.max(cv2.max(r, g), b)
+    b, g, r, _ = cv2.split(cv2.subtract((*color, 0), image))
+    negative = cv2.max(cv2.max(r, g), b)
+    return cv2.subtract(255, cv2.add(positive, negative))
 
 def binary_with_white_alpha(image, thresh: int = 70):
     """"""
@@ -275,3 +288,96 @@ def show_overlap(source, template, x, y, template_scale: float = 1, win_name: st
     # 将覆盖图像放置到底图的指定位置
     to_show_source[sy_start:sy_end, sx_start:sx_end] = to_show_template[ty_start:ty_end, tx_start:tx_end]
     show_image(to_show_source, win_name=win_name, wait=wait)
+
+
+def feature_in_area(kps, desc, x: int = None, y: int = None, w: int = None, h: int = None):
+    """
+    只返回区域内的特征点
+    :param kps:
+    :param desc:
+    :param x:
+    :param y:
+    :param w:
+    :param h:
+    :return:
+    """
+    if x is None or y is None or w is None or h is None:
+        return kps, desc
+    r_kps = []
+    r_desc = []
+
+    for i in range(len(kps)):
+        kpx, kpy = kps[i].pt
+        if x <= kpx <= x + w and y <= kpy <= y + h:
+            r_kps.append(kps[i])
+            r_desc.append(desc[i])
+
+    return r_kps, r_desc
+
+def feature_match(source_kp, source_desc, template_kp, template_desc, source_mask):
+    feature_matcher = cv2.FlannBasedMatcher()
+    # feature_matcher = cv2.BFMatcher()
+    matches = feature_matcher.knnMatch(template_desc, source_desc, k=2)
+    # 应用比值测试，筛选匹配点
+    good_matches = []
+    for m, n in matches:
+        if m.distance < 0.75 * n.distance:
+            good_matches.append(m)
+
+    if len(good_matches) < 4:  # 不足4个优秀匹配点时 不能使用RANSAC
+        return good_matches, None, None, None
+
+    # 提取匹配点的坐标
+    template_points = np.float32([template_kp[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 模板的
+    source_points = np.float32([source_kp[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 原图的
+
+    # 使用RANSAC算法估计模板位置和尺度
+    _, mask = cv2.findHomography(template_points, source_points, cv2.RANSAC, 5.0, mask=source_mask)
+    # 获取内点的索引 拿最高置信度的
+    inlier_indices = np.where(mask.ravel() == 1)[0]
+    if len(inlier_indices) == 0:  # mask 里没找到就算了 再用good_matches的结果也是很不准的
+        return good_matches, None, None, None
+
+    # 距离最短 置信度最高的结果
+    best_match = None
+    for i in range(len(good_matches)):
+        if mask[i] == 1 and (best_match is None or good_matches[i].distance < best_match.distance):
+            best_match = good_matches[i]
+
+    query_point = source_kp[best_match.trainIdx].pt  # 原图中的关键点坐标 (x, y)
+    train_point = template_kp[best_match.queryIdx].pt  # 模板中的关键点坐标 (x, y)
+
+    # 获取最佳匹配的特征点的缩放比例 小地图在人物跑动时会缩放
+    query_scale = source_kp[best_match.trainIdx].size
+    train_scale = template_kp[best_match.queryIdx].size
+    scale = query_scale / train_scale
+
+    # 小地图缩放后偏移量
+    offset_x = query_point[0] - train_point[0] * scale
+    offset_y = query_point[1] - train_point[1] * scale
+
+    return good_matches, offset_x, offset_y, scale
+
+
+def calculate_overlap_area(rect1, rect2):
+    # rect1和rect2分别表示两个矩形的坐标信息 (x1, y1, x2, y2)
+    x1, y1, x2, y2 = rect1
+    x3, y3, x4, y4 = rect2
+
+    if x1 > x4 or x2 < x3 or y1 > y4 or y2 < y3:
+        # 两个矩形不相交，重叠面积为0
+        return 0
+    else:
+        # 计算重叠矩形的左上角坐标和右下角坐标
+        overlap_x1 = max(x1, x3)
+        overlap_y1 = max(y1, y3)
+        overlap_x2 = min(x2, x4)
+        overlap_y2 = min(y2, y4)
+
+        # 计算重叠矩形的宽度和高度
+        width = overlap_x2 - overlap_x1
+        height = overlap_y2 - overlap_y1
+
+        # 计算重叠矩形的面积
+        overlap_area = width * height
+        return overlap_area
