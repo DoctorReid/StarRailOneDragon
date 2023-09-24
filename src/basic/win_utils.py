@@ -105,7 +105,7 @@ def cancel_shutdown_sys():
     os.system("shutdown -a")
 
 
-def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> MatLike:
+def screenshot_win(win: Union[str, Win32Window]) -> MatLike:
     """
     激活窗口然后对屏幕截图 截取窗口所在区域
     :param win: 窗口名称 或 具体窗口
@@ -124,11 +124,20 @@ def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> MatLi
     top = target.top
     width = target.width
     height = target.height
+    return screenshot(left, top, width, height)
+
+
+def screenshot(left, top, width, height) -> MatLike:
+    """
+    对屏幕区域截图
+    :param left:
+    :param top:
+    :param width:
+    :param height:
+    :return:
+    """
     img: Image = pyautogui.screenshot(region=(left, top, width, height))
-    cv2_img = np.array(img)
-    if save_path is not None:
-        img.save(save_path)
-    return cv2_img
+    return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
 
 def scroll_with_mouse_press(pos: List, down_distance: int = 50, duration: float = 0.5):

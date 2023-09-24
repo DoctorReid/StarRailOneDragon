@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 from basic import win_utils
 from sr.control import GameController
 from sr.image import OcrMatcher
-from sr.win import Window
+from sr.win import Window, WinRect
 
 
 class PcController(GameController):
@@ -17,9 +17,6 @@ class PcController(GameController):
 
     def init(self):
         self.win.active()
-
-    def _is_scale(self):
-        return self.win.xs != 1 or self.win.xy != 1
 
     def esc(self) -> bool:
         pyautogui.press('esc')
@@ -46,6 +43,7 @@ class PcController(GameController):
         截图 如果分辨率和默认不一样则进行缩放
         :return: 截图
         """
-        pyautogui.moveTo(self.win.wx1 + 10, self.win.wy2 - 10)  # 移动到uid位置
-        img = win_utils.screenshot_win(self.win.win)
-        return cv2.resize(img, (img.shape[0] // self.win.ys, img.shape[1] // self.win.xs)) if self._is_scale() else img
+        rect: WinRect = self.win.get_win_rect()
+        pyautogui.moveTo(rect.x + 10, rect.y + rect.h - 10)  # 移动到uid位置
+        img = win_utils.screenshot(rect.x, rect.y, rect.w, rect.h)
+        return cv2.resize(img, (img.shape[0] // rect.ys, img.shape[1] // rect.xs)) if rect.is_scale() else img

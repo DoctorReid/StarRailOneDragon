@@ -1,22 +1,29 @@
+import ctypes
+from ctypes.wintypes import RECT
+
 from basic import win_utils
+
+
+class WinRect:
+
+    def __init__(self, x, y, w, h):
+        self.x = x
+        self.y = y
+
+        self.w = w
+        self.h = h
+
+        self.xs = 1  # 缩放比例 窗口宽度 / 1980
+        self.ys = 1  # 缩放比例 窗口高度 / 1080
+
+    def is_scale(self):
+        return self.xs != 1 or self.ys != 1
 
 
 class Window:
 
     def __init__(self, title: str):
         self.win = win_utils.get_win_by_name(title, active=False)
-        self.wx1 = self.win.left
-        self.wy1 = self.win.top
-        self.wx2 = self.win.right
-        self.wy2 = self.win.bottom
-        self.w = self.win.width
-        self.h = self.win.height
-
-        self.gcx = self.w // 2  # 游戏里的中心点
-        self.gcy = self.h // 2
-
-        self.xs = 1  # 缩放比例 窗口宽度 / 1980
-        self.ys = 1  # 缩放比例 窗口高度 / 1080
 
     def is_active(self):
         """
@@ -33,33 +40,51 @@ class Window:
         self.win.show()
         self.win.activate()
 
-    def game_pos(self, pos: tuple, inner: bool = True):
+    def get_win_rect(self):
+        """
+        获取游戏窗口信息
+        Win32Window 里是整个window的信息 参考源码获取里面client部分的
+        :return: 游戏窗口信息
+        """
+        client_rect = RECT()
+        ctypes.windll.user32.GetClientRect(self.win._hWnd, ctypes.byref(client_rect))
+        left_top_pos = ctypes.wintypes.POINT(client_rect.left, client_rect.top)
+        ctypes.windll.user32.ClientToScreen(self.win._hWnd, ctypes.byref(left_top_pos))
+        return WinRect(left_top_pos.x, left_top_pos.y, client_rect.right, client_rect.bottom)
+
+    def game_pos(self, pos: tuple, inner: bool = True, rect: WinRect = None):
         """
         获取在游戏中的坐标
         :param pos: 默认分辨率下的游戏窗口里的坐标
         :param inner: 是否需要在窗口内 需要时坐标超出窗口返回 (None, None)
+        :param rect: 窗口位置
         :return: 当前分辨率下的游戏窗口里坐标
         """
-        s_pos = (pos[0] * self.xs, pos[1] * self.ys)
-        return (None, None) if inner and not self._check_game_pos(s_pos) else s_pos
+        if rect is None:
+            rect = self.get_win_rect()
+        s_pos = (pos[0] * rect.xs, pos[1] * rect.ys)
+        return (None, None) if inner and not self._check_game_pos(s_pos, rect) else s_pos
 
-    def _check_game_pos(self, s_pos: tuple):
+    def _check_game_pos(self, s_pos: tuple, rect: WinRect = None):
         """
         判断游戏中坐标是否在游戏窗口内
         :param s_pos: 游戏中坐标 已经缩放
         :return: 是否在游戏窗口内
         """
-        return 0 <= s_pos[0] <= self.w and 0 <= s_pos[1] <= self.h
+        if rect is None:
+            rect = self.get_win_rect()
+        return 0 <= s_pos[0] <= rect.w and 0 <= s_pos[1] <= rect.h
 
-    def game2win_pos(self, pos: tuple, inner: bool = True):
+    def game2win_pos(self, pos: tuple, inner: bool = True, rect: WinRect = None):
         """
         获取在屏幕中的坐标
         :param pos: 默认分辨率下的游戏窗口里的坐标
         :param inner: 是否需要在屏幕内 需要时坐标超出屏幕返回 (None, None)
         :return: 当前分辨率下的屏幕中的坐标
         """
-        gp = self.game_pos(pos, inner=inner)
-
+        if rect is None:
+            rect = self.get_win_rect()
+        gp = self.game_pos(pos, inner=inner, rect=rect)
         # TODO 缺少一个屏幕边界判断 游戏窗口拖动后可能会超出整个屏幕
-        return (self.wx1 + gp[0], self.wx2 + gp[1]) if gp[0] is not None else (None, None)
+        return (rect.x + gp[0], rect.y + gp[1]) if gp[0] is not None else (None, None)
 
