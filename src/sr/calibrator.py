@@ -4,6 +4,8 @@ import time
 from pygetwindow import Win32Window
 
 import dev
+
+import basic.img.get
 import sr
 from basic import gui_utils
 from sr import constants
@@ -36,7 +38,7 @@ class Calibrator:
         for i in range(4):
             screen = gui_utils.screenshot_win(self.win)
             if save_screenshot:
-                dev.save_debug_image(screen)
+                basic.img.get.save_debug_image(screen)
             little_map = self.mc.cut_mini_map(screen)
             x, y = self.mc.cal_character_pos_by_match(little_map, large_map, show=True)
             print(x, y)

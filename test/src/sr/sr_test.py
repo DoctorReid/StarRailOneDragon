@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import pyautogui
 
+import basic.img.get
 import sr
 from basic import gui_utils
 from basic.img import cv2_utils
@@ -28,7 +29,7 @@ def _test_standard_little_map(show: bool = False):
     :param show:
     :return:
     """
-    screen = dev.get_test_image('game1')
+    screen = basic.img.get.get_test_image('game1')
     mc.cal_little_map_pos(screen)
     print(mc.map_pos)
     little_map = mc.cut_mini_map(screen)
@@ -49,11 +50,11 @@ def _test_cut_little_map(running: bool = False, save: bool = False):
     little_map = mc.cut_mini_map(image)
     cv2_utils.show_image(little_map)
     if save:
-        dev.save_debug_image(little_map)
+        basic.img.get.save_debug_image(little_map)
 
 
 def _test_little_map_arrow():
-    screen = dev.get_test_image('game4')
+    screen = basic.img.get.get_test_image('game4')
     little_map = mc.cut_mini_map(screen)
     arrow = mc.cut_little_map_arrow(little_map)
     cv2_utils.show_image(arrow, win_name='arrow')
@@ -66,7 +67,7 @@ def _test_little_map_arrow():
 
 def _test_little_map_radio_mask():
     for i in range(4):
-        screen = dev.get_test_image('game%d' % (i+1))
+        screen = basic.img.get.get_test_image('game%d' % (i + 1))
         little_map = mc.cut_mini_map(screen)
         cv2_utils.show_image(little_map, win_name='little_map')
         angle = mc.get_cv_angle_from_little_map(little_map)
@@ -75,7 +76,7 @@ def _test_little_map_radio_mask():
 
 
 def _test_find_map_road_mask():
-    screen = dev.get_test_image('game3')
+    screen = basic.img.get.get_test_image('game3')
     little_map = mc.cut_mini_map(screen)
     cv2_utils.show_image(little_map, win_name='little_map')
     arrow_mask = mc.find_little_map_arrow_mask(little_map)
@@ -84,7 +85,7 @@ def _test_find_map_road_mask():
 
 
 def _test_find_map_special_point_mask():
-    screen = dev.get_test_image('game3')
+    screen = basic.img.get.get_test_image('game3')
     little_map = mc.cut_mini_map(screen)
     cv2_utils.show_image(little_map, win_name='little_map')
     st = time.time()
@@ -94,7 +95,7 @@ def _test_find_map_special_point_mask():
 
 
 def _test_find_map_arrow_mask():
-    screen = dev.get_test_image('game2')
+    screen = basic.img.get.get_test_image('game2')
     little_map = mc.cut_mini_map(screen)
     cv2_utils.show_image(little_map, win_name='little_map')
     mask = mc.find_little_map_arrow_mask(little_map)
@@ -107,7 +108,7 @@ def _test_find_map_arrow_mask():
 
 def _test_little_map_road_edge_mask():
     for i in range(4):
-        screen = dev.get_test_image('game%d' % (i+1))
+        screen = basic.img.get.get_test_image('game%d' % (i + 1))
         little_map = mc.cut_mini_map(screen)
         mask = mc.find_little_map_edge_mask(little_map, None)
         cv2_utils.show_image(mask, win_name='mask')
@@ -117,7 +118,7 @@ def _test_little_map_road_edge_mask():
 
 def _test_auto_cut_map():
     for i in range(5):
-        screen = dev.get_test_image('game%d' % (i+1))
+        screen = basic.img.get.get_test_image('game%d' % (i + 1))
         little_map = mc.cut_mini_map(screen)
         cv2_utils.show_image(little_map, win_name='little_map')
         usage, bw, _ = mc.auto_cut_map(little_map, is_little_map=True, show=True)
@@ -128,7 +129,7 @@ def _test_cal_character_pos_by_match():
     lm = image_holder.get_large_map(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'origin')
     lm_info = mc.analyse_large_map(lm)
 
-    dir = sr.dev.get_debug_image_dir()
+    dir = basic.img.get.get_debug_image_dir()
     for filename in os.listdir(dir):
         screen = cv2_utils.read_image(os.path.join(dir, filename))
         # if filename != '1695046757045.png':

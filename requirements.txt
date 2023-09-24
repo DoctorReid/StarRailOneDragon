@@ -4,3 +4,4 @@ opencv-python==4.8.0.76
 whl//Polygon3-3.0.9-cp311-cp311-win_amd64.whl
 cnocr==2.2.3.2
 transitions==0.9.0
+keyboard==0.13.5

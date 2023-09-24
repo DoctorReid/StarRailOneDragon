@@ -1,6 +1,6 @@
 import time
 
-from sr.app import Context, get_context
+from sr.context import Context, get_context
 from sr.control import GameController
 from sr.image.sceenshot import large_map
 from sr.operation import Operation

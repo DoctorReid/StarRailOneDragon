@@ -4,13 +4,15 @@ from cv2.typing import MatLike
 
 from basic import win_utils
 from sr.control import GameController
+from sr.image import OcrMatcher
 from sr.win import Window
 
 
 class PcController(GameController):
 
-    def __init__(self, win: Window):
+    def __init__(self, win: Window, ocr: OcrMatcher):
         self.win: Window = win
+        self.ocr: OcrMatcher = ocr
         # TODO 新增线程监听窗口切换
 
     def init(self):

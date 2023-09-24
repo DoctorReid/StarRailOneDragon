@@ -1,4 +1,6 @@
 import dev
+
+import basic.img.get
 import sr
 from basic import gui_utils
 from basic.img import MatchResultList, cv2_utils
@@ -39,25 +41,25 @@ def _test_ocr():
 
 
 def _test_rotate():
-    i = cv2_utils.read_image(dev.get_test_image('t3.png'))
+    i = cv2_utils.read_image(basic.img.get.get_test_image('t3.png'))
     cv2_utils.image_rotate(i, -90, show_result=True)
 
 
 def _test_match_template_with_rotation():
-    screen = dev.get_debug_image('1695022366133')
+    screen = basic.img.get.get_debug_image('1695022366133')
     little_map = mc.cut_mini_map(screen)
     im = CvImageMatcher()
     print(im.match_template_with_rotation(little_map, constants.TEMPLATE_ARROW))
 
 
 def _test_mark_area_as_transparent():
-    i = cv2_utils.read_image(dev.get_test_image('game1.png'))
+    i = cv2_utils.read_image(basic.img.get.get_test_image('game1.png'))
     o = cv2_utils.mark_area_as_transparent(i, [0, 1080, 200, 100])
     cv2_utils.show_image(o)
 
 
 def _test_find_circle():
-    screen = cv2_utils.read_image(dev.get_test_image('game2.png'))
+    screen = cv2_utils.read_image(basic.img.get.get_test_image('game2.png'))
 
     # 左上角部分
     x, y = 0, 0

@@ -5,7 +5,8 @@ import pyautogui
 from cv2.typing import MatLike
 
 from basic import gui_utils
-from basic.img import save_debug_image, cv2_utils
+from basic.img import cv2_utils
+from basic.img.get import save_debug_image
 from sr import constants, save_map_image
 from sr.config import ConfigHolder
 from sr.image import OcrMatcher

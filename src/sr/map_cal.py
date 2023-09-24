@@ -3,6 +3,7 @@ import time
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from basic.img import MatchResult, cv2_utils, MatchResultList
 from basic.log_utils import log

@@ -1,6 +1,6 @@
 import time
 
-from sr.app import get_context, Context
+from sr.context import Context, get_context
 from sr.control import GameController
 from sr.operation import Operation
 

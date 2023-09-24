@@ -1,6 +1,6 @@
+import keyboard
 import pyautogui
 
-from basic import gui_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.config import ConfigHolder
@@ -23,6 +23,31 @@ class Context:
         self.map_cal: MapCalculator = None
         self.controller: GameController = None
         self.running: bool = False
+        self.press_event: dict = {}
+
+        keyboard.on_press(self.on_key_press)
+        self.register_key_press('f9', self.switch)
+
+    def register_key_press(self, key, callback):
+        if key not in self.press_event:
+            self.press_event[key] = []
+        self.press_event[key].append(callback)
+
+    def on_key_press(self, event):
+        k = event.name
+        if k in self.press_event:
+            log.debug('触发按键 %s', k)
+            for callback in self.press_event[k]:
+                callback()
+
+    def switch(self):
+        if self.running:
+
+            log.info('暂停运行')
+            self.running = False
+        else:
+            log.info('恢复运行')
+            self.running = True
 
 
 global_context: Context = None
@@ -33,7 +58,8 @@ def get_context() -> Context:
     if global_context is not None:
         return global_context
     try:
-        win = Window(gt('崩坏：星穹铁道'))
+        # win = Window(gt('崩坏：星穹铁道'))
+        win = Window(gt('Clash for Windows'))
     except pyautogui.PyAutoGUIException:
         log.error('未开打游戏')
         exit(1)
@@ -43,13 +69,5 @@ def get_context() -> Context:
     global_context.matcher = CvImageMatcher(global_context.image)
     global_context.ocr = OcrMatcher()
     global_context.map_cal = MapCalculator(im=global_context.image, config=global_context.config)
-    global_context.controller = PcController(win)
+    global_context.controller = PcController(win=win, ocr=global_context.ocr)
     return global_context
-
-
-if __name__ == '__main__':
-
-
-    ctx = get_context()
-
-

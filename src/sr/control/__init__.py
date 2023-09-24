@@ -1,13 +1,12 @@
-import cv2
 from cv2.typing import MatLike
 
-from basic.img import MatchResultList
-from sr.app import get_context, Context
+from sr.image import OcrMatcher
 
 
 class GameController:
 
     def __init__(self):
+        self.ocr: OcrMatcher = None
         pass
 
     def init(self):
@@ -27,9 +26,8 @@ class GameController:
         :param rect: 圈定区域 (x,y,w,h) 默认分辨率下的游戏窗口里的坐标
         :return:
         """
-        ctx: Context = get_context()
         x, y, w, h = word
-        km = ctx.ocr.match_words(screen if rect is None else screen[y:y+h, x:x+w])
+        km = self.ocr.match_words(screen if rect is None else screen[y:y+h, x:x+w])
         if len(km) == 0:
             return False
         for v in km.values():  # -> MatchResultList
