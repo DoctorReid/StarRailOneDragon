@@ -86,4 +86,5 @@ def get_planet_name(screen: MatLike, ocr: OcrMatcher) -> str:
     :param ocr: ocr
     :return: 星球名称
     """
+    result = ocr.run_ocr(screen[30:100, 90:250])
     return constants.PLANET_1_KZJ

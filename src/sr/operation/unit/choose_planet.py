@@ -1,6 +1,7 @@
 import time
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.context import Context, get_context
 from sr.control import GameController
 from sr.image.sceenshot import large_map
@@ -29,7 +30,9 @@ class ChoosePlanet(Operation):
                 return True
 
             if planet is not None:
-                ctrl.click_ocr(gt(''))
+                result = ctrl.click_ocr(screen, gt('星轨航图'), rect=(1560, 120, 140, 30))
+                if not result:
+                    log.error('当前左上方无星球信息 右方找不到星轨航图')
                 time.sleep(1)
                 continue
             else:

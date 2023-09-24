@@ -58,8 +58,8 @@ def get_context() -> Context:
     if global_context is not None:
         return global_context
     try:
-        # win = Window(gt('崩坏：星穹铁道'))
-        win = Window(gt('Clash for Windows'))
+        win = Window(gt('崩坏：星穹铁道'))
+        # win = Window(gt('Clash for Windows'))
     except pyautogui.PyAutoGUIException:
         log.error('未开打游戏')
         exit(1)

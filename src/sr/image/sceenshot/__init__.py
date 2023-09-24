@@ -12,8 +12,8 @@ def fill_uid_black(screen: MatLike, win: Window = None):
     :return: 没有UID的新图
     """
     img = screen.copy()
-    lt = (50, 950)
-    rb = (150, 1080)
+    lt = (30, 1030)
+    rb = (200, 1080)
     if win is None:
         cv2.rectangle(img, lt, rb, (0, 0, 0), -1)
     else:
