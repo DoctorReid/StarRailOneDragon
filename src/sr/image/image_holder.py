@@ -1,6 +1,7 @@
 import os
 
 import cv2
+from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import cv2_utils
@@ -31,7 +32,7 @@ class ImageHolder:
     def _get_key_for_map(self, planet: str, region: str, map_type: str) -> str:
         return '%s_%s_%s' % (planet, region, map_type)
 
-    def load_large_map(self, planet: str, region: str, map_type: str) -> cv2.typing.MatLike:
+    def load_large_map(self, planet: str, region: str, map_type: str) -> MatLike:
         """
         加载某张大地图到内存中
         :param planet: 星球名称
@@ -72,7 +73,7 @@ class ImageHolder:
         else:
             return self.large_map[key]
 
-    def load_template(self, template_id: str) -> cv2.typing.MatLike:
+    def load_template(self, template_id: str) -> MatLike:
         """
         加载某个模板到内存
         :param template_id: 模板id

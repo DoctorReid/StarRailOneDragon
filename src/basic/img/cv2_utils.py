@@ -3,12 +3,13 @@ from typing import Union, List
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from basic.img import MatchResult, MatchResultList
 from basic.log_utils import log
 
 
-def read_image(file_path: str) -> cv2.typing.MatLike:
+def read_image(file_path: str) -> MatLike:
     """
     读取图片
     :param file_path: 图片路径
@@ -21,7 +22,7 @@ def read_image(file_path: str) -> cv2.typing.MatLike:
     return image
 
 
-def show_image(img: cv2.typing.MatLike,
+def show_image(img: MatLike,
                rects: Union[MatchResult, MatchResultList] = None,
                win_name='DEBUG',
                wait=1):
@@ -47,7 +48,7 @@ def show_image(img: cv2.typing.MatLike,
     cv2.waitKey(wait)
 
 
-def image_rotate(img: cv2.typing.MatLike, angle: int, show_result: bool = False):
+def image_rotate(img: MatLike, angle: int, show_result: bool = False):
     """
     对图片按中心进行旋转
     :param img: 原图
@@ -70,7 +71,7 @@ def image_rotate(img: cv2.typing.MatLike, angle: int, show_result: bool = False)
     return rotated_image
 
 
-def mark_area_as_transparent(image: cv2.typing.MatLike, pos: Union[List, np.ndarray], outside: bool = False):
+def mark_area_as_transparent(image: MatLike, pos: Union[List, np.ndarray], outside: bool = False):
     """
     将图片的一个区域变成透明 然后返回新的图片
     :param image: 原图
@@ -95,7 +96,7 @@ def mark_area_as_transparent(image: cv2.typing.MatLike, pos: Union[List, np.ndar
     return cv2.bitwise_and(image, image, mask=mask if outside else cv2.bitwise_not(mask))
 
 
-def mark_area_as_color(image: cv2.typing.MatLike, pos: List, color, new_image: bool = False):
+def mark_area_as_color(image: MatLike, pos: List, color, new_image: bool = False):
     """
     将图片的一个区域变颜色 然后返回新的图片
     :param image: 原图
@@ -116,7 +117,7 @@ def mark_area_as_color(image: cv2.typing.MatLike, pos: List, color, new_image: b
     return to_paint
 
 
-def match_template(source: cv2.typing.MatLike, template: cv2.typing.MatLike, threshold,
+def match_template(source: MatLike, template: MatLike, threshold,
                    mask: np.ndarray = None, ignore_inf: bool = False) -> MatchResultList:
     """
     在原图中匹配模板
@@ -180,7 +181,7 @@ def find_max_circle(image, show_result: bool = False):
     return tx, ty, tr
 
 
-def concat_vertically(img: cv2.typing.MatLike, next_img: cv2.typing.MatLike, decision_height: int = 200):
+def concat_vertically(img: MatLike, next_img: MatLike, decision_height: int = 200):
     """
     垂直拼接图片。
     假设两张图片是通过垂直滚动得到的，即宽度一样，部分内容重叠

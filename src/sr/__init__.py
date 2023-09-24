@@ -17,7 +17,7 @@ def get_map_path(planet: str, region: str, mt: str = 'origin') -> str:
     return os.path.join(os_utils.get_path_under_work_dir('images', 'map', planet, region), '%s.png' % mt)
 
 
-def save_map_image(image: cv2.typing.MatLike, planet: str, region: str, mt: str = 'origin'):
+def save_map_image(image: MatLike, planet: str, region: str, mt: str = 'origin'):
     """
     保存某张地图
     :param image: 图片
@@ -30,7 +30,7 @@ def save_map_image(image: cv2.typing.MatLike, planet: str, region: str, mt: str 
     cv2.imwrite(path, image)
 
 
-def raed_template_image(name) -> cv2.typing.MatLike:
+def raed_template_image(name) -> MatLike:
     """
     读取某个目标
     :param name: 模板名称

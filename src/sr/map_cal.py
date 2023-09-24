@@ -34,13 +34,13 @@ class MiniMapInfo:
 
     def __init__(self):
         self.angle: int = -1  # 箭头方向
-        self.gray: cv2.typing.MatLike = None  # 灰度图
-        self.center_mask: cv2.typing.MatLike = None  # 中心正方形用于模板匹配
-        self.feature_mask: cv2.typing.MatLike = None  # 小地图圆形用于特征匹配
-        self.sp_mask: cv2.typing.MatLike = None  # 特殊点的掩码
+        self.gray: MatLike = None  # 灰度图
+        self.center_mask: MatLike = None  # 中心正方形用于模板匹配
+        self.feature_mask: MatLike = None  # 小地图圆形用于特征匹配
+        self.sp_mask: MatLike = None  # 特殊点的掩码
         self.sp_result: dict = None  # 匹配到的特殊点结果
-        self.road_mask: cv2.typing.MatLike = None  # 道路掩码
-        self.edge: cv2.typing.MatLike = None  # 道路边缘
+        self.road_mask: MatLike = None  # 道路掩码
+        self.edge: MatLike = None  # 道路边缘
         self.kps = None  # 特征点
         self.desc = None
 
@@ -48,9 +48,9 @@ class MiniMapInfo:
 class LargeMapInfo:
 
     def __init__(self):
-        self.gray: cv2.typing.MatLike = None  # 灰度图
-        self.mask: cv2.typing.MatLike = None  # 主体掩码用于特征匹配
-        self.edge: cv2.typing.MatLike = None  # 道路边缘
+        self.gray: MatLike = None  # 灰度图
+        self.mask: MatLike = None  # 主体掩码用于特征匹配
+        self.edge: MatLike = None  # 道路边缘
         self.kps = None
         self.desc = None
 
@@ -88,7 +88,7 @@ class MapCalculator:
         """
         return (x, y) if not self.scale else (x / self.x_scale, y / self.y_scale)
 
-    def cut_mini_map(self, screen: cv2.typing.MatLike):
+    def cut_mini_map(self, screen: MatLike):
         """
         从整个游戏窗口截图中 裁剪出小地图部分
         :param screen: 屏幕截图
@@ -104,7 +104,7 @@ class MapCalculator:
 
         return lm
 
-    def cal_little_map_pos(self, screen: cv2.typing.MatLike):
+    def cal_little_map_pos(self, screen: MatLike):
         """
         计算小地图的坐标
         通过截取屏幕左上方部分 找出最大的圆圈 就是小地图。
@@ -136,7 +136,7 @@ class MapCalculator:
         else:
             log.error('无法找到小地图的圆')
 
-    def cut_little_map_arrow(self, little_map: cv2.typing.MatLike):
+    def cut_little_map_arrow(self, little_map: MatLike):
         """
         裁剪出小地图里的方向箭头
         :param little_map: 小地图
@@ -152,7 +152,7 @@ class MapCalculator:
             cv_angle = 270 - arrow_angle if arrow_angle <= 270 else 360 - (arrow_angle - 270)
         return cv_angle
 
-    def get_angle_from_arrow_image(self, arrow_image: cv2.typing.MatLike):
+    def get_angle_from_arrow_image(self, arrow_image: MatLike):
         angle_result = self.im.match_template_with_rotation(arrow_image, constants.TEMPLATE_ARROW,
                                                             threshold=constants.THRESHOLD_ARROW_IN_LITTLE_MAP,
                                                             ignore_inf=True)
@@ -166,13 +166,13 @@ class MapCalculator:
         log.debug('当前小地图角度 %d', angle)
         return angle, target
 
-    def get_cv_angle_from_little_map(self, little_map: cv2.typing.MatLike):
+    def get_cv_angle_from_little_map(self, little_map: MatLike):
         arrow_image = self.cut_little_map_arrow(little_map)
         arrow_angle, _ = self.get_angle_from_arrow_image(arrow_image)
         cv_angle = self.get_cv_angle_from_arrow_angle(arrow_angle)
         return cv_angle
 
-    def get_direction_by_little_map(self, little_map: cv2.typing.MatLike,
+    def get_direction_by_little_map(self, little_map: MatLike,
                                     show_match_result: bool = False) -> int:
         """
         在整个游戏窗口的截图中，找到小地图部分，通过匹配箭头判断当前方向。
@@ -198,7 +198,7 @@ class MapCalculator:
 
         return convert_angle
 
-    def analyse_mini_map(self, mm: cv2.typing.MatLike):
+    def analyse_mini_map(self, mm: MatLike):
         """
         预处理 从小地图中提取出所有需要的信息
         :param mm: 小地图 左上角的一个正方形区域
@@ -230,7 +230,7 @@ class MapCalculator:
 
         return info
 
-    def analyse_large_map(self, large_map: cv2.typing.MatLike):
+    def analyse_large_map(self, large_map: MatLike):
         """
         预处理 从大地图中提取出所有需要的信息
         :param large_map:
@@ -247,7 +247,7 @@ class MapCalculator:
         info.kps, info.desc = self.feature_detector.detectAndCompute(info.gray, mask=info.mask)
         return info
 
-    def auto_cut_map(self, map_image: cv2.typing.MatLike,
+    def auto_cut_map(self, map_image: MatLike,
                      is_little_map: bool = False, angle: int = -1,
                      show: bool = False):
         """
@@ -270,7 +270,7 @@ class MapCalculator:
             cv2_utils.show_image(usage, win_name='usage')
         return usage, all_mask, sp_match_result
 
-    def merge_all_map_mask(self, gray_image: cv2.typing.MatLike,
+    def merge_all_map_mask(self, gray_image: MatLike,
                            road_mask, sp_mask):
         """
         :param gray_image:
@@ -284,10 +284,10 @@ class MapCalculator:
         usage[np.where(road_mask == 255)] = constants.COLOR_MAP_ROAD_GRAY
         return usage, all_mask
 
-    def find_map_road_mask(self, map_image: cv2.typing.MatLike,
-                           sp_mask: cv2.typing.MatLike = None,
+    def find_map_road_mask(self, map_image: MatLike,
+                           sp_mask: MatLike = None,
                            is_little_map: bool = False,
-                           angle: int = -1) -> cv2.typing.MatLike:
+                           angle: int = -1) -> MatLike:
         """
         在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
         :param map_image: 地图图片
@@ -338,7 +338,7 @@ class MapCalculator:
 
         return real_road_mask
 
-    def find_little_map_radio_mask(self, map_image: cv2.typing.MatLike, angle: int = -1):
+    def find_little_map_radio_mask(self, map_image: MatLike, angle: int = -1):
         """
         小地图中心雷达区的掩码
         :param map_image:
@@ -376,7 +376,7 @@ class MapCalculator:
         road_radio_mask = cv2.inRange(radio_map, lower_color, upper_color)
         return road_radio_mask
 
-    def find_little_map_arrow_mask(self, map_image: cv2.typing.MatLike):
+    def find_little_map_arrow_mask(self, map_image: MatLike):
         x, y = map_image.shape[1] // 2, map_image.shape[0] // 2
         r = constants.LITTLE_MAP_CENTER_ARROW_LEN
         # 匹配箭头效果不太好 暂时整块中心区域都标记了
@@ -390,7 +390,7 @@ class MapCalculator:
         arrow_mask[y-r:y+r, x-r:x+r] = constants.COLOR_WHITE_GRAY
         return arrow_mask
 
-    def find_little_map_edge_mask(self, map_image: cv2.typing.MatLike, road_mask: cv2.typing.MatLike):
+    def find_little_map_edge_mask(self, map_image: MatLike, road_mask: MatLike):
         """
         小地图道路边缘掩码 暂时不需要
         :param map_image:
@@ -406,7 +406,7 @@ class MapCalculator:
         expand_edge_mask = cv2.dilate(edge_mask, kernel, iterations=1)
         return expand_edge_mask
 
-    def find_edge_mask(self, road_mask: cv2.typing.MatLike):
+    def find_edge_mask(self, road_mask: MatLike):
         """
         大地图道路边缘掩码 暂时不需要
         :param road_mask:
@@ -422,7 +422,7 @@ class MapCalculator:
         cv2.drawContours(edge_mask, contours, -1, 255, 2)
         return edge_mask
 
-    def find_map_special_point_mask(self, gray_map_image: cv2.typing.MatLike,
+    def find_map_special_point_mask(self, gray_map_image: MatLike,
                                     is_little_map: bool = False):
         """
         在地图中 圈出传送点、商铺点等可点击交互的的特殊点

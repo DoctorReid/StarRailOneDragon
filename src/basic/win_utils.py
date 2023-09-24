@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import pyautogui
 from PIL.Image import Image
+from cv2.typing import MatLike
 from pygetwindow import Win32Window
 
 
@@ -104,7 +105,7 @@ def cancel_shutdown_sys():
     os.system("shutdown -a")
 
 
-def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> cv2.typing.MatLike:
+def screenshot_win(win: Union[str, Win32Window], save_path: str = None) -> MatLike:
     """
     激活窗口然后对屏幕截图 截取窗口所在区域
     :param win: 窗口名称 或 具体窗口

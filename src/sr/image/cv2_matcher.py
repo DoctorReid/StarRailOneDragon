@@ -2,6 +2,7 @@ from typing import Union
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from basic.img import MatchResultList, cv2_utils
 from basic.log_utils import log
@@ -22,7 +23,7 @@ class CvImageMatcher(ImageMatcher):
         """
         return self.ih.get_template(template_id)
 
-    def match_image(self, source: cv2.typing.MatLike, template: cv2.typing.MatLike,
+    def match_image(self, source: MatLike, template: MatLike,
                     threshold: float = 0.5, mask: np.ndarray = None,
                     ignore_inf: bool = True):
         """
@@ -37,7 +38,7 @@ class CvImageMatcher(ImageMatcher):
 
         return cv2_utils.match_template(source, template, threshold, mask=mask, ignore_inf=ignore_inf)
 
-    def match_template(self, source: cv2.typing.MatLike, template_id: str, template_type: str = None,
+    def match_template(self, source: MatLike, template_id: str, template_type: str = None,
                        threshold: float = 0.5,
                        mask: np.ndarray = None,
                        ignore_inf: bool = True) -> MatchResultList:
@@ -59,7 +60,7 @@ class CvImageMatcher(ImageMatcher):
         mask_usage = template.mask if mask is None else cv2.bitwise_or(template.mask, mask)
         return self.match_image(source, template.get(template_type), threshold, mask_usage, ignore_inf=ignore_inf)
 
-    def match_template_with_rotation(self, source: cv2.typing.MatLike, template_id: str, template_type: str = None,
+    def match_template_with_rotation(self, source: MatLike, template_id: str, template_type: str = None,
                                      threshold: float = 0.5,
                                      mask: np.ndarray = None,
                                      ignore_inf: bool = True) -> dict:

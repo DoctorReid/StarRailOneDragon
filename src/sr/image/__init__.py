@@ -2,13 +2,14 @@ from typing import Union, List
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike
 
 from basic.img import MatchResultList
 
 
 class ImageMatcher:
 
-    def match_template(self, source: cv2.typing.MatLike, template_id: str, template_type: str = 'origin',
+    def match_template(self, source: MatLike, template_id: str, template_type: str = 'origin',
                        threshold: float = 0.5,
                        mask: np.ndarray = None,
                        ignore_inf: bool = True) -> MatchResultList:
@@ -24,7 +25,7 @@ class ImageMatcher:
         """
         pass
 
-    def match_template_with_rotation(self, source: cv2.typing.MatLike, template_id: str,
+    def match_template_with_rotation(self, source: MatLike, template_id: str,
                                      threshold: float = 0.5,
                                      mask: np.ndarray = None,
                                      ignore_inf: bool = True) -> dict:
@@ -42,7 +43,7 @@ class ImageMatcher:
 
 class OcrMatcher:
 
-    def run_ocr(self, image: cv2.typing.MatLike, threshold: float = 0.5) -> dict:
+    def run_ocr(self, image: MatLike, threshold: float = 0.5) -> dict:
         """
         对图片进行OCR 返回所有匹配结果
         :param image: 图片
@@ -51,7 +52,7 @@ class OcrMatcher:
         """
         pass
 
-    def match_words(self, image: cv2.typing.MatLike, words: List[str], threshold: float = 0.5) -> dict:
+    def match_words(self, image: MatLike, words: List[str], threshold: float = 0.5) -> dict:
         """
         在图片中查找关键词 返回所有词对应的位置
         :param image: 图片
