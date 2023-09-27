@@ -18,11 +18,15 @@ COLOR_MAP_EDGE_BGR = (0, 255, 0)  # 地图上边的颜色
 COLOR_ARROW_BGR = (255, 200, 0)  # 小箭头颜色
 COLOR_ARROW_ALPHA = (0, 0, 0, 0)  # 透明
 
+
 class LabelValue:
 
     def __init__(self, id: str, cn: str):
         self.id = id  # id 用在找文件夹之类的
         self.cn = cn  # 中文 用在OCR
+
+    def __str__(self):
+        return '%s - %s' % (self.cn, self.id)
 
 
 R0_GJCX = LabelValue("gjcx", "共享")

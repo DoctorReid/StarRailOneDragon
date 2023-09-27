@@ -44,7 +44,6 @@ class Context:
 
     def switch(self):
         if self.running:
-
             log.info('暂停运行')
             self.running = False
         else:

@@ -1,5 +1,6 @@
 import time
 
+from basic.log_utils import log
 from sr.context import Context, get_context
 from sr.control import GameController
 from sr.image import OcrMatcher
@@ -24,11 +25,13 @@ class OpenMap(Operation):
         while ctx.running and try_times < 10:
             try_times += 1
             m = ctrl.open_map()
+            time.sleep(1)
             if not m:
-                time.sleep(0.5)
                 continue
             screen = ctrl.screenshot()
-            if large_map.get_planet(screen, ocr) is not None:  # 左上角找到星球名字的化 证明在在大地图页面了
+            planet = large_map.get_planet(screen, ocr)
+            log.info('当前大地图所处星球 %s', planet)
+            if planet is not None:  # 左上角找到星球名字的化 证明在在大地图页面了
                 return True
             ctrl.esc()
             time.sleep(1)
