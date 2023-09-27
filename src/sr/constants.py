@@ -1,12 +1,3 @@
-PLANET_1_KZJ = "kjzht"  # 空间站黑塔
-REGION_0_GJCX = "gjcx"
-REGION_1_ZKCD = "zkcd"
-REGION_2_JZCD = "jzcd"
-
-PLANET_2_YLL = "yll6"  # 雅利洛-VI
-
-PLANET_3_XZLF = "zxlf"  # 仙舟罗浮
-
 TEMPLATE_ARROW = "arrow"
 TEMPLATE_ARROW_LEN = 30  # 箭头的图片大小
 TEMPLATE_ARROW_R = TEMPLATE_ARROW_LEN // 2  # 箭头的图片半径
@@ -26,3 +17,40 @@ COLOR_MAP_ROAD_BGRA = (0, 0, 0, 255)  # 地图上道路颜色
 COLOR_MAP_EDGE_BGR = (0, 255, 0)  # 地图上边的颜色
 COLOR_ARROW_BGR = (255, 200, 0)  # 小箭头颜色
 COLOR_ARROW_ALPHA = (0, 0, 0, 0)  # 透明
+
+class LabelValue:
+
+    def __init__(self, id: str, cn: str):
+        self.id = id  # id 用在找文件夹之类的
+        self.cn = cn  # 中文 用在OCR
+
+
+R0_GJCX = LabelValue("gjcx", "共享")
+
+P1_KZJ = LabelValue("kjzht", "空间站")
+R1_01_ZKCD = LabelValue("zkcd", "主控舱段")
+R1_02_JZCD = LabelValue("jzcd", "基座舱段")
+R1_03_SRCD = LabelValue("srcd", "收容舱段")
+R1_04_ZYCD = LabelValue("zycd", "支援舱段")
+
+P2_YYL = LabelValue("yll6", "雅利洛")
+
+P3_XZLF = LabelValue("zxlf", "仙舟")
+
+
+def get_planet_region_by_cn(cn: str) -> LabelValue:
+    """
+    根据星球或区域的中文 获取对应常量
+    :param cn: 星球或区域的中文
+    :return: 常量
+    """
+    arr = [
+        R0_GJCX,
+        P1_KZJ, R1_01_ZKCD, R1_02_JZCD, R1_03_SRCD, R1_04_ZYCD,
+        P2_YYL,
+        P3_XZLF,
+    ]
+    for i in arr:
+        if i.cn == cn:
+            return i
+    return None

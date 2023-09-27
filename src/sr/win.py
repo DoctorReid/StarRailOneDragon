@@ -57,7 +57,7 @@ class Window:
         获取在游戏中的坐标
         :param pos: 默认分辨率下的游戏窗口里的坐标
         :param inner: 是否需要在窗口内 需要时坐标超出窗口返回 (None, None)
-        :param rect: 窗口位置
+        :param rect: 窗口位置信息
         :return: 当前分辨率下的游戏窗口里坐标
         """
         if rect is None:
@@ -69,6 +69,7 @@ class Window:
         """
         判断游戏中坐标是否在游戏窗口内
         :param s_pos: 游戏中坐标 已经缩放
+        :param rect: 窗口位置信息
         :return: 是否在游戏窗口内
         """
         if rect is None:
@@ -80,6 +81,7 @@ class Window:
         获取在屏幕中的坐标
         :param pos: 默认分辨率下的游戏窗口里的坐标
         :param inner: 是否需要在屏幕内 需要时坐标超出屏幕返回 (None, None)
+        :param rect: 窗口位置信息
         :return: 当前分辨率下的屏幕中的坐标
         """
         if rect is None:

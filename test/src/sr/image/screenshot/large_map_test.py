@@ -7,7 +7,7 @@ from sr.image.sceenshot import large_map
 def _test_get_planet_name(ctx: Context):
     screen = get_test_image('large_map_1')
     cv2_utils.show_image(screen[30:100, 90:250], win_name='cut', wait=0)
-    print(large_map.get_planet_name(screen, ctx.ocr))
+    print(large_map.get_planet(screen, ctx.ocr))
 
 
 if __name__ == '__main__':

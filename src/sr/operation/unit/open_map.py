@@ -1,33 +1,36 @@
 import time
 
-from sr.context import Context
+from sr.context import Context, get_context
+from sr.control import GameController
+from sr.image import OcrMatcher
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
 
 
 class OpenMap(Operation):
 
-    def __init__(self, ctx: Context):
+    def __init__(self):
         """
         通过按 esc 和 m 打开大地图
         """
-        self.ctx = ctx
-        self.ctrl = ctx.controller
-        self.ocr = ctx.ocr
+        pass
 
-    def exe(self) -> bool:
+    def execute(self) -> bool:
+        ctx: Context = get_context()
+        ctrl: GameController = ctx.controller
+        ocr: OcrMatcher = ctx.ocr
         try_times = 0
 
-        while self.ctx.running and try_times < 10:
+        while ctx.running and try_times < 10:
             try_times += 1
-            m = self.ctrl.open_map()
+            m = ctrl.open_map()
             if not m:
                 time.sleep(0.5)
                 continue
-            screen = self.ctrl.screenshot()
-            if large_map.get_planet_name(screen, self.ocr) is not None:  # 左上角找到星球名字的化 证明在在大地图页面了
+            screen = ctrl.screenshot()
+            if large_map.get_planet(screen, ocr) is not None:  # 左上角找到星球名字的化 证明在在大地图页面了
                 return True
-            self.ctrl.esc()
+            ctrl.esc()
             time.sleep(1)
 
         return False

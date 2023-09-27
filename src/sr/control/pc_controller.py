@@ -47,3 +47,13 @@ class PcController(GameController):
         pyautogui.moveTo(rect.x + 10, rect.y + rect.h - 10)  # 移动到uid位置
         img = win_utils.screenshot(rect.x, rect.y, rect.w, rect.h)
         return cv2.resize(img, (img.shape[0] // rect.ys, img.shape[1] // rect.xs)) if rect.is_scale() else img
+
+    def scroll(self, down: int, pos: tuple = None):
+        """
+        向下滚动
+        :param down: 负数时为相上滚动
+        :param pos: 滚动位置 默认分辨率下的游戏窗口里的坐标
+        :return:
+        """
+        win_pos = self.win.game2win_pos(pos) if pos is not None else (None, None)
+        pyautogui.scroll(down, x=win_pos[0], y=win_pos[1])

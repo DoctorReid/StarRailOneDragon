@@ -8,6 +8,7 @@ from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from sr import constants, save_map_image
 from sr.config import ConfigHolder
+from sr.constants import LabelValue
 from sr.image import OcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
@@ -78,7 +79,7 @@ def convert_origin_map(planet: str, region: str, save: bool = True) -> MatLike:
     cv2.waitKey(0)
 
 
-def get_planet_name(screen: MatLike, ocr: OcrMatcher) -> str:
+def get_planet(screen: MatLike, ocr: OcrMatcher) -> LabelValue:
     """
     从屏幕左上方 获取当前星球的名字
     :param screen: 屏幕截图
@@ -88,11 +89,11 @@ def get_planet_name(screen: MatLike, ocr: OcrMatcher) -> str:
     word: str
     result = ocr.run_ocr(screen[30:100, 90:250])
     for word in result.keys():
-        if word.find(gt('空间站')) > -1:
-            return constants.PLANET_1_KZJ
-        if word.find(gt('雅利洛')) > -1:
-            return constants.PLANET_2_YLL
-        if word.find(gt('仙舟')) > -1:
-            return constants.PLANET_3_XZLF
+        if word.find(gt(constants.P1_KZJ.cn)) > -1:
+            return constants.P1_KZJ
+        if word.find(gt(constants.P2_YYL.cn)) > -1:
+            return constants.P2_YYL
+        if word.find(gt(constants.P3_XZLF.cn)) > -1:
+            return constants.P3_XZLF
 
     return None
