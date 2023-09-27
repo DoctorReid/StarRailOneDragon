@@ -43,7 +43,7 @@ class ChoosePlanet(Operation):
                 result = self.open_choose_planet(screen, ctrl)
                 if not result:
                     log.error('当前左上方无星球信息 右方找不到星轨航图')
-                time.sleep(2)
+                time.sleep(1)
                 continue
             else:
                 log.info('当前在星际 准备选择 %s', self.planet.cn)
@@ -67,6 +67,7 @@ class ChoosePlanet(Operation):
         :param ctrl: 控制器
         :return: 找到星球
         """
+        # 二值化后更方便识别字体
         gray = cv2.cvtColor(screen, cv2.COLOR_RGB2GRAY)
-        _, mask = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
+        _, mask = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
         return ctrl.click_ocr(mask, gt(self.planet.cn), click_offset=(0, -100), press_time=1)

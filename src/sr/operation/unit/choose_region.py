@@ -1,5 +1,6 @@
 import time
 
+from basic.log_utils import log
 from sr.constants import LabelValue, get_planet_region_by_cn
 from sr.context import Context, get_context
 from sr.control import GameController
@@ -9,7 +10,7 @@ from sr.operation import Operation
 
 class ChooseRegion(Operation):
 
-    click_rect = (1480, 220, 1880, 1020)
+    click_rect = (1450, 200, 1700, 1000)
     scroll_pos = ((click_rect[0] + click_rect[2]) // 2, (click_rect[1] + click_rect[3]) // 2)
 
     def __init__(self, planet_cn: str, region_cn: str):
@@ -21,7 +22,7 @@ class ChooseRegion(Operation):
         """
         self.planet: LabelValue = get_planet_region_by_cn(planet_cn)
         self.region: LabelValue = get_planet_region_by_cn(region_cn)
-        self.scroll_distance = -200
+        self.scroll_distance = -300
 
     def execute(self) -> bool:
         ctx: Context = get_context()
@@ -37,16 +38,19 @@ class ChooseRegion(Operation):
 
             find = self.click_target_region(screen, ctrl)
             if not find:  # 向下滚动5次 再向上滚动5次
-                if try_times <= 5:
+                log.info('当前界面未发现 %s 准备滚动', self.region.cn)
+                if try_times < 5:
                     self.scroll_region_area(ctrl)
                 elif try_times == 5:
                     for _ in range(try_times):  # 回到原点
                         self.scroll_region_area(ctrl, -1)
                         time.sleep(0.5)
-                    self.scroll_region_area(ctrl)
+                    self.scroll_region_area(ctrl, -1)
                 else:
-                    self.scroll_region_area(ctrl)
+                    self.scroll_region_area(ctrl, -1)
                 time.sleep(1)
+            else:
+                return True
 
         return False
 
@@ -60,4 +64,5 @@ class ChooseRegion(Operation):
         :param d: 滚动距离 正向下 负向上
         :return:
         """
+        log.info(ChooseRegion.scroll_pos)
         ctrl.scroll(self.scroll_distance * d, pos=ChooseRegion.scroll_pos)

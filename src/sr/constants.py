@@ -38,6 +38,8 @@ R1_03_SRCD = LabelValue("srcd", "收容舱段")
 R1_04_ZYCD = LabelValue("zycd", "支援舱段")
 
 P2_YYL = LabelValue("yll6", "雅利洛")
+R2_01_XZQ = LabelValue("xzq", "行政区")
+R2_09_MDZ = LabelValue("mdz", "铆钉镇")
 
 P3_XZLF = LabelValue("zxlf", "罗浮")
 
@@ -51,7 +53,7 @@ def get_planet_region_by_cn(cn: str) -> LabelValue:
     arr = [
         R0_GJCX,
         P1_KZJ, R1_01_ZKCD, R1_02_JZCD, R1_03_SRCD, R1_04_ZYCD,
-        P2_YYL,
+        P2_YYL, R2_01_XZQ, R2_09_MDZ,
         P3_XZLF,
     ]
     for i in arr:
