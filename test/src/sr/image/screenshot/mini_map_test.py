@@ -58,4 +58,4 @@ def _test_get_angle_from_arrow(ctx: Context):
 
 if __name__ == '__main__':
     ctx = get_context('唯秘')
-    _test_get_angle_from_arrow(ctx)
+    _test_get_arrow_template(ctx)

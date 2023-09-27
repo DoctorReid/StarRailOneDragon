@@ -26,7 +26,9 @@
 - mask.png - 掩码，用于匹配
 
 ## arrow - 小地图上的箭头
-使用 25 * 25 尺寸，手工初步裁剪后可使用 dev.screenshot.convert_arrow_color 生成
+只有mask图片 在 空间站黑塔-支援舱段- 截图后 使用 mini_map.get_arrow_template 生成
+- arrow_all - 每5度一张小图(30*30)合成的大图 用于初步角度匹配
+- arrow_one - 正右方向的小箭头(50*50) 用于最后精准角度匹配
 
 ## transport_x - 地图上的传送点
 统一使用 50*50 尺寸，地图缩放到最大，找到深色背景色的传送点截取后，使用 dev.screenshot.cut_icon_from_black_bg 扣图即可。
