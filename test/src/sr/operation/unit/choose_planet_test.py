@@ -1,5 +1,4 @@
 import cv2
-import pyautogui
 
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
@@ -16,14 +15,18 @@ def _test_open_choose_planet(op: ChoosePlanet, ctx: Context):
     print(op.open_choose_planet(screen, ctx.controller))  # 应该是 true
 
 
-def _test_choose_planet(op: ChoosePlanet, ctx: Context):
+def _test_choose_planet():
     screen = get_test_image('choose_planet')
     print(op.choose_planet(screen, ctx.controller))  # 应该是 true
 
 
+def _test_whole_operation():
+    op.execute()
+
+
 if __name__ == '__main__':
-    # ctx = get_context('唯秘')
-    # op = ChoosePlanet(constants.P1_KZJ.cn)
-    # _test_open_choose_planet(op, ctx)
-    pyautogui.click()
-    pyautogui.scroll(100)
+    ctx = get_context()
+    ctx.running = True
+    ctx.controller.win.active()
+    op = ChoosePlanet(constants.P2_YYL.cn)
+    _test_whole_operation()

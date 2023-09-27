@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import pyautogui
 from cv2.typing import MatLike
@@ -26,16 +28,28 @@ class PcController(GameController):
         pyautogui.press('m')
         return True
 
-    def click(self, pos: tuple) -> bool:
+    def click(self, pos: tuple = None, duration: int = 0) -> bool:
         """
         点击位置
         :param pos: 游戏中的位置 (x,y)
+        :param duration: 大于0时长按若干秒
         :return: 不在窗口区域时不点击 返回False
         """
-        x, y = self.win.game2win_pos(pos)
-        if x is None or y is None:
-            return False
-        pyautogui.click(x, y)
+        if pos is not None:
+            x, y = self.win.game2win_pos(pos)
+            if x is None or y is None:
+                return False
+        else:
+            point: pyautogui.Point = pyautogui.position()
+            x, y = point.x, point.y
+
+        if duration > 0:
+            pyautogui.moveTo(x, y)
+            pyautogui.mouseDown()
+            time.sleep(duration)
+            pyautogui.mouseUp()
+        else:
+            pyautogui.click(x, y)
         return True
 
     def screenshot(self) -> MatLike:

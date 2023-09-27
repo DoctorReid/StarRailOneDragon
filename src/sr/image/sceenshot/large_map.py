@@ -6,6 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image
+from basic.log_utils import log
 from sr import constants, save_map_image
 from sr.config import ConfigHolder
 from sr.constants import LabelValue
@@ -87,7 +88,8 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> LabelValue:
     :return: 星球名称
     """
     word: str
-    result = ocr.run_ocr(screen[30:100, 90:250])
+    result = ocr.run_ocr(screen[30:100, 90:250], threshold=0.4)
+    log.debug('屏幕左上方获取星球结果 %s', result.keys())
     for word in result.keys():
         if word.find(gt(constants.P1_KZJ.cn)) > -1:
             return constants.P1_KZJ

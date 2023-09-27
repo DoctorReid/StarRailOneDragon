@@ -39,7 +39,7 @@ R1_04_ZYCD = LabelValue("zycd", "支援舱段")
 
 P2_YYL = LabelValue("yll6", "雅利洛")
 
-P3_XZLF = LabelValue("zxlf", "仙舟")
+P3_XZLF = LabelValue("zxlf", "罗浮")
 
 
 def get_planet_region_by_cn(cn: str) -> LabelValue:
