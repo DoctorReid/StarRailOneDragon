@@ -11,6 +11,7 @@ from sr import constants
 from sr.config import ConfigHolder
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import TemplateImage
+from sr.image.sceenshot import mini_map
 
 
 class LittleMapPos:
@@ -34,26 +35,28 @@ class LittleMapPos:
 class MiniMapInfo:
 
     def __init__(self):
+        self.center_arrow_mask: MatLike = None  # 小地图中心小箭头的掩码 用于判断方向
+        self.arrow_mask: MatLike = None  # 整张小地图的小箭头掩码 用于合成道路掩码
         self.angle: int = -1  # 箭头方向
-        self.gray: MatLike = None  # 灰度图
-        self.center_mask: MatLike = None  # 中心正方形用于模板匹配
-        self.feature_mask: MatLike = None  # 小地图圆形用于特征匹配
+        self.gray: MatLike = None  # 灰度图 用于特征检测
+        self.center_mask: MatLike = None  # 中心正方形 用于模板匹配
+        self.feature_mask: MatLike = None  # 小地图圆形 用于特征匹配
         self.sp_mask: MatLike = None  # 特殊点的掩码
         self.sp_result: dict = None  # 匹配到的特殊点结果
         self.road_mask: MatLike = None  # 道路掩码
-        self.edge: MatLike = None  # 道路边缘
-        self.kps = None  # 特征点
-        self.desc = None
+        self.edge: MatLike = None  # 道路边缘 用于模板匹配
+        self.kps = None  # 特征点 用于特征匹配
+        self.desc = None  # 描述子 用于特征匹配
 
 
 class LargeMapInfo:
 
     def __init__(self):
-        self.gray: MatLike = None  # 灰度图
-        self.mask: MatLike = None  # 主体掩码用于特征匹配
-        self.edge: MatLike = None  # 道路边缘
-        self.kps = None
-        self.desc = None
+        self.gray: MatLike = None  # 灰度图 用于特征检测
+        self.mask: MatLike = None  # 主体掩码 用于特征匹配
+        self.edge: MatLike = None  # 道路边缘 用于模板匹配
+        self.kps = None  # 特征点 用于特征匹配
+        self.desc = None  # 描述子 用于特征匹配
 
 
 class MapCalculator:
@@ -137,68 +140,6 @@ class MapCalculator:
         else:
             log.error('无法找到小地图的圆')
 
-    def cut_little_map_arrow(self, little_map: MatLike):
-        """
-        裁剪出小地图里的方向箭头
-        :param little_map: 小地图
-        :return:
-        """
-        l = constants.TEMPLATE_ARROW_LEN  # 箭头图片的宽高
-        x, y = little_map.shape[1] // 2, little_map.shape[0] // 2
-        return little_map[y - l:y + l, x - l:x + l]
-
-    def get_cv_angle_from_arrow_angle(self, arrow_angle):
-        cv_angle = None
-        if arrow_angle is not None:
-            cv_angle = 270 - arrow_angle if arrow_angle <= 270 else 360 - (arrow_angle - 270)
-        return cv_angle
-
-    def get_angle_from_arrow_image(self, arrow_image: MatLike):
-        angle_result = self.im.match_template_with_rotation(arrow_image, constants.TEMPLATE_ARROW,
-                                                            threshold=constants.THRESHOLD_ARROW_IN_LITTLE_MAP,
-                                                            ignore_inf=True)
-        target = None
-        angle: int = None  # 正上方为0度 逆时针旋转
-        for k, v in angle_result.items():
-            for r in v:
-                if target is None or r.confidence > target.confidence:
-                    target = r
-                    angle = k
-        log.debug('当前小地图角度 %d', angle)
-        return angle, target
-
-    def get_cv_angle_from_little_map(self, little_map: MatLike):
-        arrow_image = self.cut_little_map_arrow(little_map)
-        arrow_angle, _ = self.get_angle_from_arrow_image(arrow_image)
-        cv_angle = self.get_cv_angle_from_arrow_angle(arrow_angle)
-        return cv_angle
-
-    def get_direction_by_little_map(self, little_map: MatLike,
-                                    show_match_result: bool = False) -> int:
-        """
-        在整个游戏窗口的截图中，找到小地图部分，通过匹配箭头判断当前方向。
-        使用前需要先按一次w前进 确保人物方向与视角朝向一致
-        :param little_map: 小地图截图
-        :param show_match_result 显示匹配结果
-        :return: 当前方向 正右方为0度
-        """
-        angle_result = self.im.match_template_with_rotation(little_map, constants.TEMPLATE_ARROW)
-        target: MatchResult = None
-        angle: int = None  # 正上方为0度 逆时针旋转
-        for k, v in angle_result.items():
-            for r in v:
-                if target is None or r.confidence > target.confidence:
-                    target = r
-                    angle = k
-
-        convert_angle = self.get_cv_angle_from_arrow_angle(angle)
-
-        log.debug('当前小地图匹配方向 %d 置信度 %.2f' % (convert_angle, target.confidence) if convert_angle is not None else '当前小地图未匹配到方向')
-        if show_match_result:
-            cv2_utils.show_image(little_map, target)
-
-        return convert_angle
-
     def analyse_mini_map(self, mm: MatLike):
         """
         预处理 从小地图中提取出所有需要的信息
@@ -206,7 +147,10 @@ class MapCalculator:
         :return:
         """
         info = MiniMapInfo()
-        info.angle = self.get_cv_angle_from_little_map(mm)
+        info.center_arrow_mask, info.arrow_mask = mini_map.get_arrow_mask(mm)
+        all_template = self.im.get_template('arrow_all').mask
+        one_template = self.im.get_template('arrow_one').mask
+        info.angle = 360 - mini_map.get_angle_from_arrow(info.center_arrow_mask, all_template, one_template, self.im)  # 正右方向为0度 顺时针旋转为正度数
         info.gray = cv2.cvtColor(mm, cv2.COLOR_BGR2GRAY)
 
         # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
@@ -218,11 +162,11 @@ class MapCalculator:
 
         info.feature_mask = np.zeros_like(info.gray)
         cv2.circle(info.feature_mask, (cx, cy), h // 2 - 5, 255, -1)
-        ar = constants.TEMPLATE_ARROW_LEN // 2 # 小箭头
-        cv2.rectangle(info.feature_mask, (cx - ar, cy - ar), (cx + ar, cy + ar), 0, -1)  # 忽略小箭头部分
+        ar = constants.TEMPLATE_ARROW_R # 小箭头
+        cv2.rectangle(info.feature_mask, (cx - ar, cy - ar), (cx + ar, cy + ar), 0, -1)  # 特征提取忽略小箭头部分
 
         info.sp_mask, info.sp_result = self.find_map_special_point_mask(info.gray, is_little_map=True)
-        info.road_mask = self.find_map_road_mask(mm, sp_mask=info.sp_mask, is_little_map=True, angle=info.angle)
+        info.road_mask = self.find_map_road_mask(mm, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, is_little_map=True, angle=info.angle)
         info.gray, info.feature_mask = self.merge_all_map_mask(info.gray, info.road_mask, info.sp_mask)
 
         info.edge = self.find_edge_mask(info.road_mask)
@@ -248,29 +192,6 @@ class MapCalculator:
         info.kps, info.desc = self.feature_detector.detectAndCompute(info.gray, mask=info.mask)
         return info
 
-    def auto_cut_map(self, map_image: MatLike,
-                     is_little_map: bool = False, angle: int = -1,
-                     show: bool = False):
-        """
-        自动剪裁地图 - 在地图中 提取道路有关的部分 其余设置为透明
-        :param map_image: 原地图
-        :param is_little_map: 是否小地图 小地图部分会额外补偿中心点散发出来的扇形朝向部分
-        :param angle: 只有小地图上需要传入 表示当前朝向
-        :param show: 是否显示
-        :return: 道路有关部分的掩码、提取后的图片、特殊点的匹配结果
-        """
-        if angle == -1 and is_little_map:
-            angle = self.get_cv_angle_from_little_map(map_image)
-        sp_mask, sp_match_result = self.find_map_special_point_mask(map_image, is_little_map=is_little_map)
-        road_mask = self.find_map_road_mask(map_image, sp_mask, is_little_map=is_little_map, angle=angle)
-        usage, all_mask = self.merge_all_map_mask(map_image, road_mask, sp_mask)
-        if show:
-            cv2_utils.show_image(road_mask, win_name='road_mask')
-            cv2_utils.show_image(sp_mask, win_name='sp_mask')
-            cv2_utils.show_image(all_mask, win_name='all_mask')
-            cv2_utils.show_image(usage, win_name='usage')
-        return usage, all_mask, sp_match_result
-
     def merge_all_map_mask(self, gray_image: MatLike,
                            road_mask, sp_mask):
         """
@@ -287,12 +208,14 @@ class MapCalculator:
 
     def find_map_road_mask(self, map_image: MatLike,
                            sp_mask: MatLike = None,
+                           arrow_mask: MatLike = None,
                            is_little_map: bool = False,
                            angle: int = -1) -> MatLike:
         """
         在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
         :param map_image: 地图图片
         :param sp_mask: 特殊点的掩码 道路掩码应该排除这部分
+        :param arrow_mask: 小箭头的掩码 只有小地图有
         :param is_little_map: 是否小地图 小地图部分会额外补偿中心点散发出来的扇形朝向部分
         :param angle: 只有小地图上需要传入 表示当前朝向
         :return: 道路掩码图 能走的部分是白色255
@@ -304,7 +227,6 @@ class MapCalculator:
 
         # 对于小地图 要特殊扫描中心点附近的区块
         if is_little_map:
-            arrow_mask = self.find_little_map_arrow_mask(map_image)
             radio_mask = self.find_little_map_radio_mask(map_image, angle)
             cv2_utils.show_image(radio_mask, win_name='radio_mask')
             center_mask = cv2.bitwise_or(arrow_mask, radio_mask)

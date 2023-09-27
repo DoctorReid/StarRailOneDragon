@@ -5,12 +5,13 @@ import pyautogui
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
+from sr.app import Application
 from sr.context import Context, get_context
 from sr.control import GameController
 from sr.image.sceenshot import fill_uid_black
 
 
-class ScreenRecorder:
+class ScreenRecorder(Application):
     """
     开发用的截图工具
     按F10就截图一次
@@ -21,6 +22,9 @@ class ScreenRecorder:
         self.ctrl: GameController = ctx.controller
         ctx.register_key_press('f10', self.screenshot)
         ctx.register_key_press('f11', self.mouse_position)
+
+    def run(self):
+        pass
 
     def screenshot(self):
         log.info('截图完成')

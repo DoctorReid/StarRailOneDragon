@@ -1,13 +1,35 @@
-from typing import Union, List
+from typing import List
 
-import cv2
 import numpy as np
 from cv2.typing import MatLike
 
 from basic.img import MatchResultList
+from sr.image.image_holder import TemplateImage
 
 
 class ImageMatcher:
+
+    def get_template(self, template_id: str) -> TemplateImage:
+        """
+        获取对应模板图片
+        :param template_id: 模板id
+        :return: 模板图片
+        """
+        pass
+
+    def match_image(self, source: MatLike, template: MatLike,
+                    threshold: float = 0.5, mask: np.ndarray = None,
+                    ignore_inf: bool = True):
+        """
+        在原图中 匹配模板
+        :param source: 原图
+        :param template: 模板图片
+        :param threshold: 匹配阈值
+        :param mask: 掩码
+        :param ignore_inf: 是否忽略无限大的结果
+        :return: 所有匹配结果
+        """
+        pass
 
     def match_template(self, source: MatLike, template_id: str, template_type: str = 'origin',
                        threshold: float = 0.5,

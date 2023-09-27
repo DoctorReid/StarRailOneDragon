@@ -16,6 +16,7 @@ from sr.win import Window
 class Context:
 
     def __init__(self):
+        self.config: ConfigHolder = None
         self.map_cal: MapCalculator = None
         self.image: ImageHolder = None
         self.matcher: ImageMatcher = None
@@ -53,12 +54,12 @@ class Context:
 global_context: Context = None
 
 
-def get_context() -> Context:
+def get_context(win_title: str='崩坏：星穹铁道') -> Context:
     global global_context
     if global_context is not None:
         return global_context
     try:
-        win = Window(gt('崩坏：星穹铁道'))
+        win = Window(gt(win_title))
         # win = Window(gt('Clash for Windows'))
     except pyautogui.PyAutoGUIException:
         log.error('未开打游戏')

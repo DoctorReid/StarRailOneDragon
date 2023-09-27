@@ -29,6 +29,10 @@ def get_test_image_path(filename, suffix: str = '.png') -> str:
 
 
 def get_test_image(filename, suffix: str = '.png') -> MatLike:
+    """
+
+    :rtype: object
+    """
     return cv2_utils.read_image(get_test_image_path(filename, suffix))
 
 

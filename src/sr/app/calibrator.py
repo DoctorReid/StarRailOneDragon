@@ -1,34 +1,37 @@
 import math
 import time
 
-from pygetwindow import Win32Window
+from cv2.typing import MatLike
 
-import dev
-
-import basic.img.get
 import sr
-from basic import gui_utils
+from basic.log_utils import log
 from sr import constants
 from sr.config import ConfigHolder
+from sr.context import Context
+from sr.control import GameController
 from sr.map_cal import MapCalculator
 
 
 class Calibrator:
 
-    def __init__(self, win: Win32Window, ch: ConfigHolder, mc: MapCalculator):
-        self.win: Win32Window = win
-        self.ch: ConfigHolder = ch
-        self.mc: MapCalculator = mc
+    def __init__(self, ctx: Context):
+        self.ctrl: GameController = ctx.controller
+        self.config: ConfigHolder = ctx.config
+        self.mc: MapCalculator = ctx.map_cal
 
-    def check_all(self):
-        # TODO 后续确保当前位置在基座舱段
+    def run(self):
         self._check_little_map_pos()
 
-    def _check_little_map_pos(self):
-        screen = gui_utils.screenshot_win(self.win)
-        self.mc.cal_little_map_pos(screen)
-        self.ch.update_config('game', 'little_map',
-                              {'x': self.mc.map_pos.x, 'y': self.mc.map_pos.y, 'r': self.mc.map_pos.r})
+    def _check_little_map_pos(self, screenshot: MatLike = None):
+        # TODO 后续确保当前位置在基座舱段
+        log.info('[小地图定位校准] 开始')
+        if screenshot is None:
+            screenshot = self.ctrl.screenshot()
+        self.mc.cal_little_map_pos(screenshot)
+        self.config.update_config('game', 'little_map',
+                                  {'x': self.mc.map_pos.x, 'y': self.mc.map_pos.y, 'r': self.mc.map_pos.r})
+
+        log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', self.mc.map_pos.x, self.mc.map_pos.y, self.mc.map_pos.r)
 
     def _check_move_distance(self, save_screenshot: bool = False):
         pos = []

@@ -39,10 +39,10 @@ def show_image(img: MatLike,
     if rects is not None:
         to_show = img.copy()
         if type(rects) == MatchResult:
-            cv2.rectangle(to_show, (rects.x, rects.y), (rects.x + rects.w, rects.y + rects.h), (255, 0, 0), 1)
+            cv2.rectangle(to_show, (rects.x, rects.y), (rects.x + rects.w, rects.y + rects.h), (255, 255, 255), 1)
         elif type(rects) == MatchResultList:
             for i in rects:
-                cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (0, 0, 255), 1)
+                cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (255, 255, 255), 1)
 
     cv2.imshow(win_name, to_show)
     cv2.waitKey(wait)
@@ -224,9 +224,9 @@ def color_similarity_2d(image, color):
     :param color:
     :return:
     """
-    b, g, r, _ = cv2.split(cv2.subtract(image, (*color, 0)))
+    b, g, r = cv2.split(cv2.subtract(image, (*color, 0)))
     positive = cv2.max(cv2.max(r, g), b)
-    b, g, r, _ = cv2.split(cv2.subtract((*color, 0), image))
+    b, g, r = cv2.split(cv2.subtract((*color, 0), image))
     negative = cv2.max(cv2.max(r, g), b)
     return cv2.subtract(255, cv2.add(positive, negative))
 

@@ -15,7 +15,7 @@ class CvImageMatcher(ImageMatcher):
     def __init__(self, ih: ImageHolder = None):
         self.ih = ImageHolder() if ih is None else ih
 
-    def get_template(self, template_id: str):
+    def get_template(self, template_id: str) -> TemplateImage:
         """
         获取对应模板图片
         :param template_id: 模板id
@@ -35,7 +35,6 @@ class CvImageMatcher(ImageMatcher):
         :param ignore_inf: 是否忽略无限大的结果
         :return: 所有匹配结果
         """
-
         return cv2_utils.match_template(source, template, threshold, mask=mask, ignore_inf=ignore_inf)
 
     def match_template(self, source: MatLike, template_id: str, template_type: str = None,
