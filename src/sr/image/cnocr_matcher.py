@@ -1,11 +1,12 @@
 from cnocr import CnOcr
+from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import MatchResultList, MatchResult
 from sr.image import OcrMatcher
 
 
-class CnocrMatcher(OcrMatcher):
+class CnOcrMatcher(OcrMatcher):
     """
     https://cnocr.readthedocs.io/zh/latest/
     """
@@ -18,7 +19,7 @@ class CnocrMatcher(OcrMatcher):
                          det_root=os_utils.get_path_under_work_dir('model', 'cnocr'),
                          rec_root=os_utils.get_path_under_work_dir('model', 'cnstd'))
 
-    def run_ocr(self, image: ImageLike, threshold: float = 0.5) -> dict:
+    def run_ocr(self, image: MatLike, threshold: float = 0.5) -> dict:
         """
         对图片进行OCR 返回所有匹配结果
         :param image: 图片
@@ -28,7 +29,6 @@ class CnocrMatcher(OcrMatcher):
         scan_result: list = self.ocr.ocr(image)
         result_map: dict = {}
         for r in scan_result:
-            print(r)
             if r['score'] < threshold:
                 continue
             if r['text'] not in result_map:

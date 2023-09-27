@@ -51,7 +51,7 @@ def _test_get_angle_from_arrow(ctx: Context):
         cv2_utils.show_image(mm, win_name='mm')
         arrow, _ = mini_map.get_arrow_mask(mm)
         cv2_utils.show_image(arrow, win_name='arrow')
-        answer = mini_map.get_angle_from_arrow(arrow, all_template, one_template, ctx.matcher, show=True)
+        answer = mini_map.get_angle_from_arrow(arrow, all_template, one_template, ctx.im, show=True)
         print(answer)
         cv2.waitKey(0)
 

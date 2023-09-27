@@ -1,12 +1,11 @@
 import time
 
 import cv2
-import pyautogui
 from cv2.typing import MatLike
 
-from basic import gui_utils
+from basic.i18_utils import gt
 from basic.img import cv2_utils
-from basic.img.get import save_debug_image
+from basic.img.os import save_debug_image
 from sr import constants, save_map_image
 from sr.config import ConfigHolder
 from sr.image import OcrMatcher
@@ -86,5 +85,14 @@ def get_planet_name(screen: MatLike, ocr: OcrMatcher) -> str:
     :param ocr: ocr
     :return: 星球名称
     """
+    word: str
     result = ocr.run_ocr(screen[30:100, 90:250])
-    return constants.PLANET_1_KZJ
+    for word in result.keys():
+        if word.find(gt('空间站')) > -1:
+            return constants.PLANET_1_KZJ
+        if word.find(gt('雅利洛')) > -1:
+            return constants.PLANET_2_YLL
+        if word.find(gt('仙舟')) > -1:
+            return constants.PLANET_3_XZLF
+
+    return None

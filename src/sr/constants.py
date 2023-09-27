@@ -1,7 +1,11 @@
-PLANET_1_KZJ = "kjzht"
+PLANET_1_KZJ = "kjzht"  # 空间站黑塔
 REGION_0_GJCX = "gjcx"
 REGION_1_ZKCD = "zkcd"
 REGION_2_JZCD = "jzcd"
+
+PLANET_2_YLL = "yll6"  # 雅利洛-VI
+
+PLANET_3_XZLF = "zxlf"  # 仙舟罗浮
 
 TEMPLATE_ARROW = "arrow"
 TEMPLATE_ARROW_LEN = 30  # 箭头的图片大小

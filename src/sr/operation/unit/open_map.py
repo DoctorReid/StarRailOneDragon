@@ -1,41 +1,33 @@
 import time
 
-from sr.context import Context, get_context
-from sr.control import GameController
+from sr.context import Context
+from sr.image.sceenshot import large_map
 from sr.operation import Operation
 
 
 class OpenMap(Operation):
 
-    def __init__(self):
+    def __init__(self, ctx: Context):
         """
         通过按 esc 和 m 打开大地图
         """
-        pass
+        self.ctx = ctx
+        self.ctrl = ctx.controller
+        self.ocr = ctx.ocr
 
-    def inner_exe(self, goal: dict = None) -> bool:
-        ctx: Context = get_context()
-        ctrl: GameController = ctx.controller
+    def exe(self) -> bool:
         try_times = 0
 
-        while ctx.running and try_times < 10:
+        while self.ctx.running and try_times < 10:
             try_times += 1
-            m = ctrl.open_map()
+            m = self.ctrl.open_map()
             if not m:
                 time.sleep(0.5)
                 continue
-            screen = ctrl.screenshot()
-            if self.in_large_map(screen):
+            screen = self.ctrl.screenshot()
+            if large_map.get_planet_name(screen, self.ocr) is not None:  # 左上角找到星球名字的化 证明在在大地图页面了
                 return True
-            esc = ctrl.esc()
+            self.ctrl.esc()
             time.sleep(1)
 
-        return False
-
-    def in_large_map(self, screen):
-        """
-        判断是否在大地图页面了
-        :param screen:
-        :return:
-        """
         return False
