@@ -140,16 +140,33 @@ def screenshot(left, top, width, height) -> MatLike:
     return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
 
-def scroll_with_mouse_press(pos: List, down_distance: int = 50, duration: float = 0.5):
+def click(x: int = None, y: int = None, press_time: int = 0):
+    """
+    点击鼠标
+    :param x: 屏幕坐标
+    :param y: 屏幕坐标
+    :param press_time: 按住时间
+    :return:
+    """
+    if press_time > 0:
+        pyautogui.moveTo(x, y)
+        pyautogui.mouseDown()
+        time.sleep(press_time)
+        pyautogui.mouseUp()
+    else:
+        pyautogui.click(x, y)
+
+
+def drag_mouse(start: tuple, end: tuple, duration: float = 0.5):
     """
     按住鼠标左键进行画面拖动
-    :param pos: 位置
-    :param down_distance: 向下滑动的距离
+    :param start: 原位置
+    :param end: 拖动位置
     :param duration: 拖动鼠标到目标位置，持续秒数
     :return:
     """
-    pyautogui.moveTo(pos[0], pos[1])  # 将鼠标移动到起始位置
-    pyautogui.dragTo(pos[0], pos[1] - down_distance, duration=duration)
+    pyautogui.moveTo(start[0], start[1])  # 将鼠标移动到起始位置
+    pyautogui.dragTo(end[0], end[1], duration=duration)
 
 
 def key_down(k: str, t: int, asyn: bool = False):

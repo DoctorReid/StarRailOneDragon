@@ -1,15 +1,12 @@
 import time
 
 import cv2
-import pyautogui
 
 from basic.i18_utils import gt
-from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.constants import get_planet_region_by_cn
 from sr.context import Context, get_context
 from sr.control import GameController
-from sr.control.pc_controller import PcController
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
 

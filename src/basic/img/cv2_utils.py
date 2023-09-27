@@ -205,6 +205,27 @@ def concat_vertically(img: MatLike, next_img: MatLike, decision_height: int = 20
     return cv2.vconcat([img, extra_part])
 
 
+def concat_horizontally(img: MatLike, next_img: MatLike, decision_width: int = 200):
+    """
+    水平拼接图片。
+    假设两张图片是通过水平滚动得到的，即高度一样，部分内容重叠
+    :param img: 图
+    :param next_img: 下一张图
+    :param decision_width: 用第二张图的多少宽度来判断重叠部分
+    :return:
+    """
+    # 截取一个横截面用来匹配
+    next_part = next_img[:, 0: decision_width]
+    result = match_template(img, next_part, 0.5)
+    # 找出置信度最高的结果
+    r = result.max
+    h, w, _ = img.shape
+    overlap_w = w - r.x
+    extra_part = next_img[:, overlap_w+1:]
+    # 水平拼接两张图像
+    return cv2.hconcat([img, extra_part])
+
+
 def is_same_image(i1, i2, threshold: float = 1) -> bool:
     """
     简单使用均方差判断两图是否一致

@@ -24,16 +24,15 @@ class OpenMap(Operation):
 
         while ctx.running and try_times < 10:
             try_times += 1
-            m = ctrl.open_map()
-            time.sleep(1)
-            if not m:
-                continue
             screen = ctrl.screenshot()
             planet = large_map.get_planet(screen, ocr)
             log.info('当前大地图所处星球 %s', planet)
             if planet is not None:  # 左上角找到星球名字的化 证明在在大地图页面了
                 return True
-            ctrl.esc()
+            if try_times % 2 == 1:
+                ctrl.open_map()
+            else:
+                ctrl.esc()
             time.sleep(1)
 
         return False

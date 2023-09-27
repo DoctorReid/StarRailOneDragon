@@ -47,13 +47,13 @@ class GameController:
                 x += click_offset[0]
                 y += click_offset[1]
             log.debug('OCR识别 %s 成功 准备点击 (%d, %d)', word, x, y)
-            return self.click((x, y), duration=press_time)
+            return self.click((x, y), press_time=press_time)
 
-    def click(self, pos: tuple = None, duration: int = 0) -> bool:
+    def click(self, pos: tuple = None, press_time: int = 0) -> bool:
         """
         点击位置
         :param pos: 点击位置 (x,y) 默认分辨率下的游戏窗口里的坐标
-        :param duration: 大于0时长按若干秒
+        :param press_time: 大于0时长按若干秒
         :return: 不在窗口区域时不点击 返回False
         """
         pass
@@ -70,6 +70,16 @@ class GameController:
         向下滚动
         :param down: 负数时为相上滚动
         :param pos: 滚动位置 默认分辨率下的游戏窗口里的坐标
+        :return:
+        """
+        pass
+
+    def drag_to(self, end: tuple, start: tuple = None, duration: float = 0.5):
+        """
+        按住拖拽
+        :param end: 拖拽目的点
+        :param start: 拖拽开始点
+        :param duration: 拖拽持续时间
         :return:
         """
         pass

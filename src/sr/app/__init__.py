@@ -6,5 +6,5 @@ class Application:
     def __init__(self, ctx: Context):
         pass
 
-    def run(self):
+    def run(self) -> bool:
         pass

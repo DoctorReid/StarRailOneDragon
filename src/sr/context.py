@@ -70,6 +70,6 @@ def get_context(win_title: str='崩坏：星穹铁道') -> Context:
     global_context.ih = ImageHolder()
     global_context.im = CvImageMatcher(global_context.ih)
     global_context.ocr = CnOcrMatcher()
-    global_context.map_cal = MapCalculator(im=global_context.ih, config=global_context.config)
+    global_context.map_cal = MapCalculator(im=global_context.im, config=global_context.config)
     global_context.controller = PcController(win=win, ocr=global_context.ocr)
     return global_context

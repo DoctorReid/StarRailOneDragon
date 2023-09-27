@@ -28,11 +28,11 @@ class PcController(GameController):
         pyautogui.press('m')
         return True
 
-    def click(self, pos: tuple = None, duration: int = 0) -> bool:
+    def click(self, pos: tuple = None, press_time: int = 0) -> bool:
         """
         点击位置
         :param pos: 游戏中的位置 (x,y)
-        :param duration: 大于0时长按若干秒
+        :param press_time: 大于0时长按若干秒
         :return: 不在窗口区域时不点击 返回False
         """
         if pos is not None:
@@ -43,13 +43,7 @@ class PcController(GameController):
             point: pyautogui.Point = pyautogui.position()
             x, y = point.x, point.y
 
-        if duration > 0:
-            pyautogui.moveTo(x, y)
-            pyautogui.mouseDown()
-            time.sleep(duration)
-            pyautogui.mouseUp()
-        else:
-            pyautogui.click(x, y)
+        win_utils.click(x, y, press_time=press_time)
         return True
 
     def screenshot(self) -> MatLike:
@@ -72,3 +66,20 @@ class PcController(GameController):
         win_pos = self.win.game2win_pos(pos) if pos is not None else (None, None)
         pyautogui.moveTo(x=win_pos[0], y=win_pos[1])
         pyautogui.scroll(down, x=win_pos[0], y=win_pos[1])
+
+    def drag_to(self, end: tuple, start: tuple = None, duration: float = 0.5):
+        """
+        按住拖拽
+        :param end: 拖拽目的点
+        :param start: 拖拽开始点
+        :param duration: 拖拽持续时间
+        :return:
+        """
+        if start is None:
+            pos = pyautogui.position()
+            from_pos = (pos.x, pos.y)
+        else:
+            from_pos = self.win.game2win_pos(start)
+
+        to_pos = self.win.game2win_pos(end)
+        win_utils.drag_mouse(from_pos, to_pos, duration=duration)

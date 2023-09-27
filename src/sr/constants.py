@@ -21,8 +21,8 @@ COLOR_ARROW_ALPHA = (0, 0, 0, 0)  # 透明
 
 class LabelValue:
 
-    def __init__(self, id: str, cn: str):
-        self.id = id  # id 用在找文件夹之类的
+    def __init__(self, i: str, cn: str):
+        self.id = i  # id 用在找文件夹之类的
         self.cn = cn  # 中文 用在OCR
 
     def __str__(self):
