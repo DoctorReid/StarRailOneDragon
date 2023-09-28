@@ -169,6 +169,18 @@ def drag_mouse(start: tuple, end: tuple, duration: float = 0.5):
     pyautogui.dragTo(end[0], end[1], duration=duration)
 
 
+def move_mouse_in_place(dx: int, dy: int, duration: float = 0.5):
+    """
+    原地移动鼠标
+    :param dx: 偏移量
+    :param dy: 偏移量
+    :param duration: 时间
+    :return:
+    """
+    p = pyautogui.position()
+    pyautogui.moveTo(p.x + dx, p.y + dy, duration=duration)
+
+
 def key_down(k: str, t: int, asyn: bool = False):
     """
 

@@ -1,18 +1,23 @@
 import math
 import time
 
+import numpy as np
 from cv2.typing import MatLike
 
 import sr
 from basic.log_utils import log
 from sr import constants
+from sr.app import Application
 from sr.config import ConfigHolder
 from sr.context import Context
 from sr.control import GameController
 from sr.map_cal import MapCalculator
 
 
-class Calibrator:
+class Calibrator(Application):
+    """
+    首次运行需要的校准
+    """
 
     def __init__(self, ctx: Context):
         self.ctrl: GameController = ctx.controller
@@ -32,6 +37,25 @@ class Calibrator:
                                   {'x': self.mc.map_pos.x, 'y': self.mc.map_pos.y, 'r': self.mc.map_pos.r})
 
         log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', self.mc.map_pos.x, self.mc.map_pos.y, self.mc.map_pos.r)
+
+    def _check_turning_rate(self):
+        """
+        检测转向 需要找一个最容易检测到见箭头的位置
+        通过固定滑动距离 判断转动角度
+        反推转动角度所需的滑动距离
+        :return:
+        """
+        angle = None
+        turn_angle = []
+        for _ in range(10):
+            screen = self.ctrl.screenshot()
+            mm = self.mc.cut_mini_map(screen)
+            info = self.mc.analyse_mini_map(mm)
+            next_angle = info.angle
+            if angle is not None:
+                ta = next_angle - angle if next_angle >= angle else next_angle - angle + 360
+                turn_angle.append(ta)
+        print(np.mean(turn_angle))
 
     def _check_move_distance(self, save_screenshot: bool = False):
         pos = []
