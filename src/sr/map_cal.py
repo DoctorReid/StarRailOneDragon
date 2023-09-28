@@ -357,12 +357,12 @@ class MapCalculator:
         mask = np.zeros(gray_map_image.shape[:2], dtype=np.uint8)
         source_image = gray_map_image
         # 找出特殊点位置
-        for prefix in ['transport_', 'exit_']:
+        for prefix in ['mm_tp', 'mp_sp']:
             for i in range(100):
                 if i == 0:
                     continue
                 start_time = time.time()
-                template_id = prefix + str(i)
+                template_id = '%s_%02d' % (prefix, i)
                 template: TemplateImage = self.im.get_template(template_id)
                 if template is None:
                     break

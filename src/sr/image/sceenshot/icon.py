@@ -47,6 +47,27 @@ def convert_template(template_id, save: bool = False):
         cv2.imwrite(os.path.join(dir, 'mask.png'), mask)
 
 
+def init_icon_with_background(template_id: str):
+    """
+    将裁剪出来的图片 转化保留灰度图和对应掩码
+    :param template_id:
+    :return:
+    """
+    ih = ImageHolder()
+    template = ih.get_template(template_id)
+    gray = cv2.cvtColor(template.origin, cv2.COLOR_BGR2GRAY)
+    _, binary = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+    mask = cv2_utils.connection_erase(binary, threshold=5)
+    cv2_utils.show_image(template.origin, win_name='origin')
+    cv2_utils.show_image(gray, win_name='gray')
+    cv2_utils.show_image(mask, win_name='mask')
+
+    cv2.waitKey(0)
+
+    save_template_image(gray, template_id, 'gray')
+    save_template_image(mask, template_id, 'mask')
+
+
 def save_template_image(img: MatLike, template_id: str, tt: str):
     """
     保存模板图片
