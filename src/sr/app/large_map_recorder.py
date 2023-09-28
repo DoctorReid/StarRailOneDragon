@@ -3,15 +3,16 @@ import time
 import cv2
 
 from basic.img import cv2_utils
-from basic.img.os import save_debug_image
 from basic.log_utils import log
-from sr import constants, save_map_image
+from sr import constants
 from sr.app import Application
 from sr.constants import get_planet_region_by_cn
 from sr.context import Context, get_context
+from sr.image.sceenshot.large_map import save_large_map_image
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.open_map import OpenMap
+from sr.operation.unit.scale_large_map import ScaleLargeMap
 from sr.win import Window, WinRect
 
 
@@ -23,7 +24,7 @@ class LargeMapRecorder(Application):
 
     def __init__(self, ctx: Context, planet_cn: str, region_cn: str):
         self.ctx: Context = ctx
-        self.ops = [OpenMap(), ChoosePlanet(planet_cn), ChooseRegion(planet_cn, region_cn)] # TODO 缺少一个缩小地图操作
+        self.ops = [OpenMap(), ScaleLargeMap(-5), ChoosePlanet(planet_cn), ChooseRegion(planet_cn, region_cn)] # TODO 缺少一个缩小地图操作
         self.planet = get_planet_region_by_cn(planet_cn)
         self.region = get_planet_region_by_cn(region_cn)
 
@@ -101,9 +102,9 @@ class LargeMapRecorder(Application):
         lm = self.ctx.map_cal.analyse_large_map(origin)
         cv2_utils.show_image(lm.gray, win_name='gray')
         cv2_utils.show_image(lm.mask, win_name='mask')
-        save_map_image(origin, self.planet.id, self.region.id, 'origin')
-        save_map_image(lm.gray, self.planet.id, self.region.id, 'gray')
-        save_map_image(lm.mask, self.planet.id, self.region.id, 'mask')
+        save_large_map_image(origin, self.planet.id, self.region.id, 'origin')
+        save_large_map_image(lm.gray, self.planet.id, self.region.id, 'gray')
+        save_large_map_image(lm.mask, self.planet.id, self.region.id, 'mask')
 
 
 if __name__ == '__main__':

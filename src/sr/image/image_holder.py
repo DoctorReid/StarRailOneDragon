@@ -77,7 +77,6 @@ class ImageHolder:
         """
         加载某个模板到内存
         :param template_id: 模板id
-        :param template_type: 模板类型
         :return: 模板图片
         """
         dir_path = os.path.join(os_utils.get_path_under_work_dir('images', 'template'), template_id)

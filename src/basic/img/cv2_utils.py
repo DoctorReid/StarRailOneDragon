@@ -403,3 +403,25 @@ def calculate_overlap_area(rect1, rect2):
         # 计算重叠矩形的面积
         overlap_area = width * height
         return overlap_area
+
+
+def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = True) -> MatLike:
+    """
+    通过连通性检测 消除一些噪点
+    :param mask: 黑白图 掩码图
+    :param threshold: 小于多少连通时 认为是噪点
+    :param erase_white: 是否清除白色
+    :return: 消除噪点后的图
+    """
+    to_check_connection = mask if erase_white else cv2.bitwise_not(mask)
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(to_check_connection, connectivity=8)
+    large_components = []
+    for label in range(1, num_labels):
+        if stats[label, cv2.CC_STAT_AREA] < threshold:
+            large_components.append(label)
+
+    result = mask.copy()
+    for label in large_components:
+        result[labels == label] = 0 if erase_white else 255
+
+    return result

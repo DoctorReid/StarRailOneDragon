@@ -45,3 +45,16 @@ def convert_template(template_id, save: bool = False):
         dir = os_utils.get_path_under_work_dir('images', 'template', template_id)
         cv2.imwrite(os.path.join(dir, 'gray.png'), gray)
         cv2.imwrite(os.path.join(dir, 'mask.png'), mask)
+
+
+def save_template_image(img: MatLike, template_id: str, tt: str):
+    """
+    保存模板图片
+    :param img: 模板图片
+    :param template_id: 模板id
+    :param tt: 模板类型
+    :return:
+    """
+    path = os_utils.get_path_under_work_dir('images', 'template', template_id)
+    print(path)
+    print(cv2.imwrite(os.path.join(path, '%s.png' % tt), img))
