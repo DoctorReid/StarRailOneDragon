@@ -30,6 +30,8 @@ class ChooseRegion(Operation):
         try_times = 0
 
         while ctx.running and try_times < 10:
+            if not ctx.running:
+                return False
             try_times += 1
             screen = ctrl.screenshot()
             planet = large_map.get_planet(screen, ctx.ocr)
@@ -64,5 +66,4 @@ class ChooseRegion(Operation):
         :param d: 滚动距离 正向下 负向上
         :return:
         """
-        log.info(ChooseRegion.scroll_pos)
         ctrl.scroll(self.scroll_distance * d, pos=ChooseRegion.scroll_pos)

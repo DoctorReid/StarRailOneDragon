@@ -50,6 +50,8 @@ class LargeMapRecorder(Application):
         time.sleep(0.5)
         img = []
         for i in range(10):
+            if not self.ctx.running:
+                return False
             row_img = self.screenshot_horizontally(center)  # 对一行进行水平的截图
             cv2_utils.show_image(row_img, win_name='row %d' % i)
             if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], row_img):
@@ -81,6 +83,8 @@ class LargeMapRecorder(Application):
         img = []
         # 每秒往右拉一段距离截图
         for i in range(10):
+            if not self.ctx.running:
+                return
             screen = self.ctx.controller.screenshot()
             map_part = screen[200: 900, 200: 1400]
             if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], map_part):

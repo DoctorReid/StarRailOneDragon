@@ -2,6 +2,7 @@ import cv2
 
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
+from basic.log_utils import log
 from sr.context import get_context, Context
 from sr.image.sceenshot import large_map
 from sr.image.sceenshot.icon import save_template_image
@@ -21,10 +22,10 @@ def _test_cut_minus():
     save_template_image(cut, 'minus', 'origin')
     save_template_image(mask, 'minus', 'mask')
 
-    # cut, mask = large_map.cut_minus_or_plus(screen, minus=False)
-    # cv2.waitKey(0)
-    # save_template_image(cut, 'plus', 'origin')
-    # save_template_image(mask, 'plus', 'mask')
+    cut, mask = large_map.cut_minus_or_plus(screen, minus=False)
+    cv2.waitKey(0)
+    save_template_image(cut, 'plus', 'origin')
+    save_template_image(mask, 'plus', 'mask')
 
 
 if __name__ == '__main__':

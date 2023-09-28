@@ -1,6 +1,6 @@
 from PIL.Image import Image
 
-from basic import os_utils, gui_utils, config_utils
+from basic import os_utils, config_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 
@@ -61,4 +61,5 @@ def _test_save_config():
 
 
 if __name__ == '__main__':
-    _test_save_config()
+    log.info('test"')
+    # _test_save_config()

@@ -29,6 +29,8 @@ class ChoosePlanet(Operation):
         try_times = 0
 
         while ctx.running and try_times < 10:
+            if not ctx.running:
+                return False
             try_times += 1
             screen = ctrl.screenshot()
             planet = large_map.get_planet(screen, ctx.ocr)
