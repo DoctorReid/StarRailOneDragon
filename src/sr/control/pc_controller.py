@@ -1,11 +1,10 @@
-import time
-
 import cv2
 import pyautogui
 from cv2.typing import MatLike
 
 from basic import win_utils
 from basic.log_utils import log
+from sr.config import ConfigHolder
 from sr.control import GameController
 from sr.image import OcrMatcher
 from sr.win import Window, WinRect
@@ -13,10 +12,10 @@ from sr.win import Window, WinRect
 
 class PcController(GameController):
 
-    def __init__(self, win: Window, ocr: OcrMatcher):
+    def __init__(self, win: Window, ocr: OcrMatcher, config: ConfigHolder):
         self.win: Window = win
         self.ocr: OcrMatcher = ocr
-        # TODO 新增线程监听窗口切换
+        self.config: ConfigHolder = config
 
     def init(self):
         self.win.active()
@@ -85,3 +84,11 @@ class PcController(GameController):
 
         to_pos = self.win.game2win_pos(end)
         win_utils.drag_mouse(from_pos, to_pos, duration=duration)
+
+    def turn_by_distance(self, d: int):
+        """
+        横向转向 按距离转
+        :param d: 正数往右转 人物角度增加；负数往左转 人物角度减少
+        :return:
+        """
+        win_utils.drag_mouse()

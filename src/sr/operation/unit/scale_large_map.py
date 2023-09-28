@@ -13,24 +13,23 @@ class ScaleLargeMap(Operation):
 
     rect = (600, 960, 1040, 1020)
 
-    def __init__(self, scale: int):
+    def __init__(self, ctx: Context, scale: int):
         """
         默认在大地图页面 点击缩放按钮
         :param scale: 缩放次数。负数为缩小，正数为放大
         """
+        self.ctx = ctx
         self.scale: int = scale
 
     def execute(self) -> bool:
-        ctx: Context = get_context()
-
         try_times = 0
 
-        while ctx.running and try_times < 5:
-            if not ctx.running:
+        while self.ctx.running and try_times < 5:
+            if not self.ctx.running:
                 return False
             try_times += 1
-            screen = ctx.ctrl.screenshot()
-            if self.click_scale(screen, ctx):
+            screen = self.ctx.ctrl.screenshot()
+            if self.click_scale(screen, self.ctx):
                 return True
 
         return False

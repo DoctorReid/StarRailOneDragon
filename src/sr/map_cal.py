@@ -22,11 +22,11 @@ class LittleMapPos:
         self.y = int(y)
         self.r = int(r)
         # 矩形左上角
-        self.lx = self.x - self.r
-        self.ly = self.y - self.r
+        self.lx = self.x - self.r - 1
+        self.ly = self.y - self.r - 1
         # 矩形右下角
-        self.rx = self.x + self.r
-        self.ry = self.y + self.r
+        self.rx = self.x + self.r + 1
+        self.ry = self.y + self.r + 1
 
     def __str__(self):
         return "(%d, %d) %.2f" % (self.x, self.y, self.r)

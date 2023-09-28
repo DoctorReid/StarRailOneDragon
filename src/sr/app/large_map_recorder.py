@@ -2,12 +2,10 @@ import time
 
 import cv2
 
-import sr.constants.region
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr import constants
 from sr.app import Application
-from sr.constants import get_planet_region_by_cn
+from sr.constants.map import Region
 from sr.context import Context, get_context
 from sr.image.sceenshot.large_map import save_large_map_image
 from sr.operation.unit.choose_planet import ChoosePlanet
@@ -23,11 +21,11 @@ class LargeMapRecorder(Application):
     把整个大地图记录下来
     """
 
-    def __init__(self, ctx: Context, planet_cn: str, region_cn: str):
+    def __init__(self, ctx: Context, region: Region):
         self.ctx: Context = ctx
-        self.ops = [OpenMap(), ScaleLargeMap(-5), ChoosePlanet(planet_cn), ChooseRegion(planet_cn, region_cn)] # TODO 缺少一个缩小地图操作
-        self.planet = get_planet_region_by_cn(planet_cn)
-        self.region = get_planet_region_by_cn(region_cn)
+        self.ops = [OpenMap(), ScaleLargeMap(-5), ChoosePlanet(region.planet), ChooseRegion(region)]
+        self.planet = region.planet
+        self.region = region
 
     def run(self) -> bool:
         """

@@ -54,7 +54,6 @@ class Context:
 global_context: Context = None
 
 
-
 def get_context(win_title: str='崩坏：星穹铁道') -> Context:
     global global_context
     if global_context is not None:
@@ -71,5 +70,5 @@ def get_context(win_title: str='崩坏：星穹铁道') -> Context:
     global_context.im = CvImageMatcher(global_context.ih)
     global_context.ocr = CnOcrMatcher()
     global_context.map_cal = MapCalculator(im=global_context.im, config=global_context.config)
-    global_context.controller = PcController(win=win, ocr=global_context.ocr)
+    global_context.controller = PcController(win=win, ocr=global_context.ocr, config=global_context.config)
     return global_context

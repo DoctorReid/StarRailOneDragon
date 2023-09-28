@@ -1,7 +1,7 @@
 import time
 
 from basic.log_utils import log
-from sr.context import Context, get_context
+from sr.context import Context
 from sr.control import GameController
 from sr.image import OcrMatcher
 from sr.image.sceenshot import large_map
@@ -10,20 +10,19 @@ from sr.operation import Operation
 
 class OpenMap(Operation):
 
-    def __init__(self):
+    def __init__(self, ctx: Context):
         """
         通过按 esc 和 m 打开大地图
         """
-        pass
+        self.ctx = ctx
 
     def execute(self) -> bool:
-        ctx: Context = get_context()
-        ctrl: GameController = ctx.controller
-        ocr: OcrMatcher = ctx.ocr
+        ctrl: GameController = self.ctx.controller
+        ocr: OcrMatcher = self.ctx.ocr
         try_times = 0
 
-        while ctx.running and try_times < 10:
-            if not ctx.running:
+        while self.ctx.running and try_times < 10:
+            if not self.ctx.running:
                 return False
             try_times += 1
             screen = ctrl.screenshot()

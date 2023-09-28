@@ -1,6 +1,5 @@
 from cv2.typing import MatLike
 
-from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.image import OcrMatcher
 

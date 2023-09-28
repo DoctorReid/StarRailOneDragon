@@ -4,8 +4,8 @@ import cv2
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.constants import get_planet_region_by_cn
-from sr.context import Context, get_context
+from sr.constants.map import Planet
+from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
@@ -15,25 +15,26 @@ class ChoosePlanet(Operation):
 
     xght_rect = (1580, 120, 1750, 160)  # 星轨航图 所在坐标
 
-    def __init__(self, planet_cn: str):
+    def __init__(self, ctx: Context, planet: Planet):
         """
         在大地图页面 选择到对应的星球
         默认已经打开大地图了
-        :param planet_cn: 目标星球的中文
+        :param planet: 目标星球
         """
-        self.planet = get_planet_region_by_cn(planet_cn)
+        self.ctx = ctx
+        self.planet: Planet = planet
 
     def execute(self) -> bool:
-        ctx: Context = get_context()
-        ctrl: GameController = ctx.controller
+        ctrl: GameController = self.ctx.controller
         try_times = 0
 
-        while ctx.running and try_times < 10:
-            if not ctx.running:
+        while self.ctx.running and try_times < 10:
+            if not self.ctx.running:
                 return False
             try_times += 1
             screen = ctrl.screenshot()
-            planet = large_map.get_planet(screen, ctx.ocr)
+            # 根据左上角判断当前星球是否正确
+            planet = large_map.get_planet(screen, self.ctx.ocr)
             if planet is not None and planet.id == self.planet.id:
                 return True
 

@@ -1,9 +1,8 @@
 import time
 
 from basic.log_utils import log
-from sr import constants
 from sr.constants.map import Planet, Region
-from sr.context import Context, get_context
+from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
@@ -14,26 +13,26 @@ class ChooseRegion(Operation):
     click_rect = (1450, 200, 1700, 1000)
     scroll_pos = ((click_rect[0] + click_rect[2]) // 2, (click_rect[1] + click_rect[3]) // 2)
 
-    def __init__(self, planet_cn: str, region_cn: str):
+    def __init__(self, ctx: Context, region: Region):
         """
         默认已经打开了大地图 且选择了正确的星球。
         选择目标区域
         :param planet_cn: 星球中文名
         :param region_cn: 区域中文名
         """
-        self.planet: Planet = constants.map.get_planet_by_cn(planet_cn)
-        self.region: Region = constants.map.get_region_by_cn(region_cn, self.planet)
+        self.ctx = ctx
+        self.planet: Planet = region.planet
+        self.region: Region = region
         self.scroll_distance = -300
 
     def execute(self) -> bool:
-        ctx: Context = get_context()
-        ctrl: GameController = ctx.controller
+        ctrl: GameController = self.ctx.controller
         try_times = 0
 
-        while ctx.running and try_times < 10:
+        while self.ctx.running and try_times < 10:
             try_times += 1
             screen = ctrl.screenshot()
-            planet = large_map.get_planet(screen, ctx.ocr)
+            planet = large_map.get_planet(screen, self.ctx.ocr)
             if planet is None or planet != self.planet:
                 return False  # 目前不在目标大地图了
 
@@ -51,6 +50,7 @@ class ChooseRegion(Operation):
                     self.scroll_region_area(ctrl, -1)
                 time.sleep(1)
             else:
+                time.sleep(0.2)
                 return True
 
         return False

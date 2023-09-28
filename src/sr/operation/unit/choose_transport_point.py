@@ -36,6 +36,7 @@ class ChooseTransportPoint(Operation):
 
             # 先判断右边是不是出现传送了
             if self.check_and_click_transport(screen):
+                time.sleep(2)
                 return True
             else:
                 # 不是传送 或者不是目标传送点
