@@ -42,7 +42,7 @@ class CvImageMatcher(ImageMatcher):
                        mask: np.ndarray = None,
                        ignore_inf: bool = True) -> MatchResultList:
         """
-        在原图中 匹配模板
+        在原图中 匹配模板 如果模板图中有掩码图 会自动使用
         :param source: 原图
         :param template_id: 模板id
         :param template_type: 模板类型

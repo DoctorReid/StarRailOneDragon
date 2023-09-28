@@ -2,6 +2,7 @@ import time
 
 import cv2
 
+import sr.constants.region
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
@@ -113,5 +114,5 @@ class LargeMapRecorder(Application):
 
 if __name__ == '__main__':
     ctx = get_context()
-    app = LargeMapRecorder(ctx, constants.P1_KZJ.cn, constants.R1_01_ZKCD.cn)
+    app = LargeMapRecorder(ctx, sr.constants.region.P01_KZJ.cn, sr.constants.region.P01_R01_ZKCD.cn)
     app.run()

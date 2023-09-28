@@ -73,7 +73,7 @@ class ImageHolder:
         else:
             return self.large_map[key]
 
-    def load_template(self, template_id: str) -> MatLike:
+    def load_template(self, template_id: str) -> TemplateImage:
         """
         加载某个模板到内存
         :param template_id: 模板id

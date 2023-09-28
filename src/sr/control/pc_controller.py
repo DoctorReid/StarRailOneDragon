@@ -5,6 +5,7 @@ import pyautogui
 from cv2.typing import MatLike
 
 from basic import win_utils
+from basic.log_utils import log
 from sr.control import GameController
 from sr.image import OcrMatcher
 from sr.win import Window, WinRect
@@ -38,6 +39,7 @@ class PcController(GameController):
         if pos is not None:
             x, y = self.win.game2win_pos(pos)
             if x is None or y is None:
+                log.error('点击非游戏窗口区域 (%s)', pos)
                 return False
         else:
             point: pyautogui.Point = pyautogui.position()

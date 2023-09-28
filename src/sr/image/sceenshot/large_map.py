@@ -6,10 +6,10 @@ from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.i18_utils import gt
-from basic.img import cv2_utils
+from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
 from sr import constants
-from sr.constants import LabelValue
+from sr.constants.map import Planet, TransportPoint
 from sr.image import OcrMatcher
 
 
@@ -37,7 +37,7 @@ def save_large_map_image(image: MatLike, planet: str, region: str, mt: str = 'or
     cv2.imwrite(path, image)
 
 
-def get_planet(screen: MatLike, ocr: OcrMatcher) -> LabelValue:
+def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     """
     从屏幕左上方 获取当前星球的名字
     :param screen: 屏幕截图
@@ -48,12 +48,12 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> LabelValue:
     result = ocr.run_ocr(screen[30:100, 90:250], threshold=0.4)
     log.debug('屏幕左上方获取星球结果 %s', result.keys())
     for word in result.keys():
-        if word.find(gt(constants.P1_KZJ.cn)) > -1:
-            return constants.P1_KZJ
-        if word.find(gt(constants.P2_YYL.cn)) > -1:
-            return constants.P2_YYL
-        if word.find(gt(constants.P3_XZLF.cn)) > -1:
-            return constants.P3_XZLF
+        if word.find(gt(constants.map.P01_KZJ.cn)) > -1:
+            return constants.map.P01_KZJ
+        if word.find(gt(constants.map.P02_YYL.cn)) > -1:
+            return constants.map.P02_YYL
+        if word.find(gt(constants.map.P03_XZLF.cn)) > -1:
+            return constants.map.P03_XZLF
 
     return None
 
@@ -95,3 +95,16 @@ def cut_minus_or_plus(screen: MatLike, minus: bool = True) -> MatLike:
     cut = cv2.bitwise_and(cut, cut, mask=mask)
     cv2_utils.show_image(cut, win_name='cut')
     return cut, mask
+
+
+def find_target_transport_point(screen: MatLike, large_map: MatLike, tp: TransportPoint) -> MatchResult:
+    """
+    在当前截图中 找到对应传送点的位置
+    :param screen: 当前截图 在大地图界面 跟大地图模板一样的缩放比例
+    :param large_map: 所属大地图的模板图片
+    :param tp: 目标传送点
+    :return: 匹配结果
+    """
+    map_part = screen[200: 900, 200: 1400]
+
+    # 首先找到当前截图在大地图上的位置

@@ -425,3 +425,24 @@ def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = Tru
         result[labels == label] = 0 if erase_white else 255
 
     return result
+
+
+def crop_image(img, rect: tuple, copy: bool = False):
+    """
+    裁剪图片
+    :param img: 原图
+    :param rect: 裁剪区域 (x1, y1, x2, y2)
+    :param copy: 是否复制新图
+    :return: 裁剪后图片
+    """
+    x1, y1, x2, y2 = rect
+    if x1 < 0:
+        x1 = 0
+    if x2 > img.shape[1]:
+        x2 = img.shape[1]
+    if y1 < 0:
+        y1 = 0
+    if y2 > img.shape[0]:
+        y2 = img.shape[0]
+    crop = img[y1: y2, x1: x2]
+    return crop.copy() if copy else crop

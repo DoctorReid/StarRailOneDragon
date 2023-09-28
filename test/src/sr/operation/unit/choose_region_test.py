@@ -2,6 +2,7 @@ import time
 
 import cv2
 
+import sr.constants.region
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
 from sr import constants
@@ -31,5 +32,5 @@ def _test_whole_operation():
 
 if __name__ == '__main__':
     ctx = get_context()
-    op = ChooseRegion(constants.P2_YYL.cn, constants.R2_09_MDZ.cn)
+    op = ChooseRegion(sr.constants.region.P02_YYL.cn, sr.constants.region.P02_R09_MDZ.cn)
     _test_click_target_region()

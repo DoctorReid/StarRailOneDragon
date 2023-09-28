@@ -1,7 +1,8 @@
 import time
 
 from basic.log_utils import log
-from sr.constants import LabelValue, get_planet_region_by_cn
+from sr import constants
+from sr.constants.map import Planet, Region
 from sr.context import Context, get_context
 from sr.control import GameController
 from sr.image.sceenshot import large_map
@@ -20,8 +21,8 @@ class ChooseRegion(Operation):
         :param planet_cn: 星球中文名
         :param region_cn: 区域中文名
         """
-        self.planet: LabelValue = get_planet_region_by_cn(planet_cn)
-        self.region: LabelValue = get_planet_region_by_cn(region_cn)
+        self.planet: Planet = constants.map.get_planet_by_cn(planet_cn)
+        self.region: Region = constants.map.get_region_by_cn(region_cn, self.planet)
         self.scroll_distance = -300
 
     def execute(self) -> bool:
@@ -30,8 +31,6 @@ class ChooseRegion(Operation):
         try_times = 0
 
         while ctx.running and try_times < 10:
-            if not ctx.running:
-                return False
             try_times += 1
             screen = ctrl.screenshot()
             planet = large_map.get_planet(screen, ctx.ocr)
