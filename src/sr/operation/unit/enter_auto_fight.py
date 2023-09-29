@@ -33,15 +33,20 @@ class EnterAutoFight(Operation):
                 continue
 
             mm = mc.cut_mini_map(screen)
-            pos_list = mini_map.get_enemy_location(mm)
-            if len(pos_list) == 0:
-                log.info('附近已无怪')
+            # 根据小地图红点可能会搜索到障碍物后面的怪
+            # pos_list = mini_map.get_enemy_location(mm)
+            # if len(pos_list) == 0:
+            #     log.info('附近已无怪')
+            #     return True
+            #
+            # _, _, angle = mini_map.analyse_arrow_and_angle(mm, self.im)
+            # ctrl.move_towards((mm.shape[0] // 2, mm.shape[1] // 2), pos_list[0], angle)
+
+            if not mini_map.is_under_attack(mm):
+                log.info('警报解除 索敌结束')
                 return True
 
-            _, _, angle = mini_map.analyse_arrow_and_angle(mm, self.im)
-            ctrl.move_towards((mm.shape[0] // 2, mm.shape[1] // 2), pos_list[0], angle)
-
-            if last_attack_time is None or now_time - last_attack_time:
+            if last_attack_time is None or now_time - last_attack_time > attack_interval:
                 last_attack_time = now_time
                 ctrl.initiate_attack()
 

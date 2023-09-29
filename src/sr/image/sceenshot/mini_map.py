@@ -135,3 +135,12 @@ def get_enemy_location(mini_map: MatLike) -> List:
     :return: 敌人在小地图上的坐标
     """
     return []
+
+
+def is_under_attack(mini_map: MatLike) -> bool:
+    """
+    根据小地图边缘 判断是否被锁定
+    :param mini_map:
+    :return:
+    """
+    return False

@@ -19,5 +19,3 @@ def fill_uid_black(screen: MatLike, win: Window = None):
     else:
         cv2.rectangle(img, win.game_pos(lt), win.game_pos(rb), (0, 0, 0), -1)
     return img
-
-

@@ -134,9 +134,11 @@ class MoveDirectly(Operation):
         :param mini_map:
         :return: 是否有敌人
         """
-        pos_list = mini_map.get_enemy_location(mini_map)
-        if len(pos_list) == 0:
+        if not mini_map.is_under_attack(mini_map):
             return False
+        # pos_list = mini_map.get_enemy_location(mini_map)
+        # if len(pos_list) == 0:
+        #     return False
         fight = EnterAutoFight(self.ctx)
         fight.execute()
 
