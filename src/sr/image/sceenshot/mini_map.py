@@ -1,3 +1,5 @@
+from typing import List
+
 import cv2
 import numpy as np
 from cv2.typing import MatLike
@@ -80,7 +82,7 @@ def get_angle_from_arrow(arrow: MatLike, all_template: MatLike, one_template: Ma
     :param one_template: 模板 0度的模板
     :param im: 图片匹配器
     :param show: 显示结果
-    :return: 角度
+    :return: 角度 正右方向为0度 顺时针旋转为正度数
     """
     result = im.match_image(all_template, arrow, threshold=0.9)
     if len(result) == 0:
@@ -111,4 +113,25 @@ def get_angle_from_arrow(arrow: MatLike, all_template: MatLike, one_template: Ma
 
     if best_angle is not None and best_angle < 0:
         best_angle += 360
-    return best_angle
+    return 360 - best_angle
+
+
+def analyse_arrow_and_angle(mini_map: MatLike, im: ImageMatcher):
+    """
+    在小地图上获取小箭头掩码和角度
+    :param mini_map: 小地图图片
+    :return:
+    """
+    center_arrow_mask, arrow_mask = get_arrow_mask(mini_map)
+    all_template = im.get_template('arrow_all').mask
+    one_template = im.get_template('arrow_one').mask
+    angle = mini_map.get_angle_from_arrow(center_arrow_mask, all_template, one_template, im)  # 正右方向为0度 顺时针旋转为正度数
+    return center_arrow_mask, arrow_mask, angle
+
+def get_enemy_location(mini_map: MatLike) -> List:
+    """
+    在小地图上找红点敌人的位置
+    :param mini_map: 小地图截图
+    :return: 敌人在小地图上的坐标
+    """
+    return []

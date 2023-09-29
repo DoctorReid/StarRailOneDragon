@@ -62,35 +62,13 @@ class LargeMapInfo:
 class MapCalculator:
 
     def __init__(self, im: CvImageMatcher,
-                 screen_width: int = 1920, screen_height: int = 1080,
                  config: ConfigHolder = None):
         self.im = im
         self.feature_detector = cv2.SIFT_create()
-        self.x_scale = screen_width / 1920
-        self.y_scale = screen_height / 1080
-        self.scale: bool = self.x_scale != 1 or self.y_scale != 1
         self.map_pos: LittleMapPos = None
         if config is not None:
             lmc = config.get_config('game', 'little_map')
             self.map_pos = LittleMapPos(lmc['x'], lmc['y'], lmc['r'])
-
-    def get_game_pos(self, x, y):
-        """
-        将计算过程的坐标换算成游戏分辨率的坐标
-        :param x: 计算过程坐标
-        :param y: 计算过程坐标
-        :return: 游戏分辨率的坐标
-        """
-        return (x, y) if not self.scale else (x * self.x_scale, y * self.y_scale)
-
-    def get_cal_pos(self, x, y):
-        """
-        将游戏分辨率的坐标换算成计算过程的坐标
-        :param x: 游戏分辨率的坐标
-        :param y: 游戏分辨率的坐标
-        :return: 计算过程的坐标
-        """
-        return (x, y) if not self.scale else (x / self.x_scale, y / self.y_scale)
 
     def cut_mini_map(self, screen: MatLike):
         """
@@ -147,10 +125,7 @@ class MapCalculator:
         :return:
         """
         info = MiniMapInfo()
-        info.center_arrow_mask, info.arrow_mask = mini_map.get_arrow_mask(mm)
-        all_template = self.im.get_template('arrow_all').mask
-        one_template = self.im.get_template('arrow_one').mask
-        info.angle = 360 - mini_map.get_angle_from_arrow(info.center_arrow_mask, all_template, one_template, self.im)  # 正右方向为0度 顺时针旋转为正度数
+        info.center_arrow_mask, info.arrow_mask, info.angle = mini_map.analyse_arrow_and_angle(mm, self.im)
         info.gray = cv2.cvtColor(mm, cv2.COLOR_BGR2GRAY)
 
         # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
@@ -276,20 +251,7 @@ class MapCalculator:
         if angle != -1:  # 知道当前角度的话 画扇形
             start_angle = angle - 45  # 扇形起始角度（以度为单位）
             end_angle = angle + 45  # 扇形结束角度（以度为单位）
-            # 保证 0 <= start_angle < end_angle < 360
-            if start_angle < 0:
-                start_angle += 360
-            if end_angle >= 360:
-                end_angle -= 360
-            # if start_angle > end_angle:
-            #     temp_angle = start_angle
-            #     start_angle = end_angle
-            #     end_angle = temp_angle
-            if start_angle <= end_angle:
-                cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, end_angle, color, thickness)  # 画扇形
-            else:
-                cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, 360, color, thickness)
-                cv2.ellipse(radio_mask, center, (radius, radius), 0, 0, end_angle, color, thickness)
+            cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, end_angle, color, thickness)  # 画扇形
         else:  # 圆形兜底
             cv2.circle(radio_mask, center, radius, color, thickness)  # 画扇形
         radio_map = cv2.bitwise_and(map_image, map_image, mask=radio_mask)

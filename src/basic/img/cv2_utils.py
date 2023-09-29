@@ -1,3 +1,4 @@
+import math
 import os
 from typing import Union, List
 
@@ -446,3 +447,27 @@ def crop_image(img, rect: tuple, copy: bool = False):
         y2 = img.shape[0]
     crop = img[y1: y2, x1: x2]
     return crop.copy() if copy else crop
+
+
+def distance_between(pos1: tuple, pos2: tuple) -> float:
+    """
+    计算两点之间的距离
+    :param pos1:
+    :param pos2:
+    :return:
+    """
+    x1, y1 = pos1
+    x2, y2 = pos2
+    return math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
+
+
+def get_angle_by_pts(from_pos: tuple, to_pos: tuple) -> float:
+    """
+    计算两点形成向量的角度
+    :param from_pos: 起始点
+    :param to_pos: 结束点
+    :return: 角度
+    """
+    x1, y1 = from_pos
+    x2, y2 = to_pos
+    return math.degrees(math.atan((x2 - x1) / (y2 - y1)))

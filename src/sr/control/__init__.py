@@ -1,5 +1,6 @@
 from cv2.typing import MatLike
 
+from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.image import OcrMatcher
 
@@ -8,6 +9,7 @@ class GameController:
 
     def __init__(self):
         self.ocr: OcrMatcher = None
+        self.turn_dx: float = None
         pass
 
     def init(self):
@@ -79,6 +81,74 @@ class GameController:
         :param end: 拖拽目的点
         :param start: 拖拽开始点
         :param duration: 拖拽持续时间
+        :return:
+        """
+        pass
+
+    def turn_by_distance(self, d: int):
+        """
+        横向转向 按距离转
+        :param d: 正数往右转 人物角度增加；负数往左转 人物角度减少
+        :return:
+        """
+        pass
+
+    def turn_by_angle(self, angle: int):
+        self.turn_by_distance(self.turn_dx * angle)
+
+    def start_moving_forward(self):
+        """
+        开始往前走
+        :return:
+        """
+        pass
+
+    def stop_moving(self):
+        """
+        停止移动
+        :return:
+        """
+        pass
+
+    def move(self, direction: str, press_time):
+        """
+        往固定方向移动
+        :param direction: 方向 wsad
+        :param press_time: 持续秒数
+        :return:
+        """
+        pass
+
+    def cal_move_distance_by_time(self, seconds: float):
+        """
+        根据时间计算移动距离
+        :param seconds:
+        :return:
+        """
+        pass
+
+    def move_towards(self, pos1: tuple, pos2: tuple, angle: float):
+        """
+        朝目标点行走
+        :param pos1: 起始点
+        :param pos2: 目标点
+        :param angle: 当前角度
+        :return:
+        """
+        target_angle = cv2_utils.get_angle_by_pts(pos1, pos2)
+        # 保证计算的转动角度为正
+        delta_angle = target_angle - angle if target_angle >= angle else target_angle + 360 - angle
+        # 正方向转太远的话就用负方向转
+        if delta_angle > 180:
+            delta_angle -= 360
+        log.info('寻路中 目标点: %s 当前点: %s 转动朝向: %.2f度', pos1, pos2, delta_angle)
+
+        self.turn_by_angle(delta_angle)
+        self.start_moving_forward()
+
+    def initiate_attack(self):
+        """
+        主动发起攻击
         :return:
         """
         pass

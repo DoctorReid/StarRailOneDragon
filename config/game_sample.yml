@@ -3,3 +3,4 @@ little_map:
   x: 0
   y: 0
 walk_speed: 20
+turn_dx: 0

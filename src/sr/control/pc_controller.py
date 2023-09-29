@@ -16,6 +16,7 @@ class PcController(GameController):
         self.win: Window = win
         self.ocr: OcrMatcher = ocr
         self.config: ConfigHolder = config
+        self.turn_dx: float = config.get_config('game', 'turn_dx')
 
     def init(self):
         self.win.active()
@@ -91,4 +92,4 @@ class PcController(GameController):
         :param d: 正数往右转 人物角度增加；负数往左转 人物角度减少
         :return:
         """
-        win_utils.drag_mouse()
+        win_utils.move_mouse_in_place(d, 0)
