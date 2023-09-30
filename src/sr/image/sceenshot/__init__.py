@@ -19,3 +19,32 @@ def fill_uid_black(screen: MatLike, win: Window = None):
     else:
         cv2.rectangle(img, win.game_pos(lt), win.game_pos(rb), (0, 0, 0), -1)
     return img
+
+
+class MiniMapInfo:
+
+    def __init__(self):
+        self.origin: MatLike = None  # 原图
+        self.center_arrow_mask: MatLike = None  # 小地图中心小箭头的掩码 用于判断方向
+        self.arrow_mask: MatLike = None  # 整张小地图的小箭头掩码 用于合成道路掩码
+        self.angle: int = -1  # 箭头方向
+        self.gray: MatLike = None  # 灰度图 用于特征检测
+        self.center_mask: MatLike = None  # 中心正方形 用于模板匹配
+        self.feature_mask: MatLike = None  # 小地图圆形 用于特征匹配
+        self.sp_mask: MatLike = None  # 特殊点的掩码
+        self.sp_result: dict = None  # 匹配到的特殊点结果
+        self.road_mask: MatLike = None  # 道路掩码
+        self.edge: MatLike = None  # 道路边缘 用于模板匹配
+        self.kps = None  # 特征点 用于特征匹配
+        self.desc = None  # 描述子 用于特征匹配
+
+
+class LargeMapInfo:
+
+    def __init__(self):
+        self.origin: MatLike = None  # 原图
+        self.gray: MatLike = None  # 灰度图 用于特征检测
+        self.mask: MatLike = None  # 主体掩码 用于特征匹配
+        self.edge: MatLike = None  # 道路边缘 用于模板匹配
+        self.kps = None  # 特征点 用于特征匹配
+        self.desc = None  # 描述子 用于特征匹配

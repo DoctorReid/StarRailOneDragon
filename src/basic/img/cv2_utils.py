@@ -338,8 +338,8 @@ def feature_in_area(kps, desc, x: int = None, y: int = None, w: int = None, h: i
     return r_kps, r_desc
 
 def feature_match(source_kp, source_desc, template_kp, template_desc, source_mask):
-    feature_matcher = cv2.FlannBasedMatcher()
-    # feature_matcher = cv2.BFMatcher()
+    # feature_matcher = cv2.FlannBasedMatcher()
+    feature_matcher = cv2.BFMatcher()
     matches = feature_matcher.knnMatch(template_desc, source_desc, k=2)
     # 应用比值测试，筛选匹配点
     good_matches = []
@@ -466,8 +466,24 @@ def get_angle_by_pts(from_pos: tuple, to_pos: tuple) -> float:
     计算两点形成向量的角度
     :param from_pos: 起始点
     :param to_pos: 结束点
-    :return: 角度
+    :return: 角度 正右方为0 顺时针为正
     """
     x1, y1 = from_pos
     x2, y2 = to_pos
-    return math.degrees(math.atan((x2 - x1) / (y2 - y1)))
+    dx = x2 - x1
+    dy = y2 - y1
+    if dx == 0:
+        if dy > 0:
+            return 90
+        elif dy == 0:
+            return 0
+        else:
+            return 270
+    angle = math.degrees(math.atan((dy) / (dx)))
+    if angle > 0 and (dy < 0 and dx < 0):
+        angle += 180
+    elif angle < 0 and (dx < 0 and dy > 0):
+        angle += 180
+    elif angle < 0 and (dx > 0 and dy < 0):
+        angle += 360
+    return angle

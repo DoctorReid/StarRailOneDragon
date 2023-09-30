@@ -10,6 +10,8 @@ class GameController:
     def __init__(self):
         self.ocr: OcrMatcher = None
         self.turn_dx: float = None
+        self.walk_speed: float = None
+        self.is_moving: bool = False
         pass
 
     def init(self):
@@ -85,7 +87,7 @@ class GameController:
         """
         pass
 
-    def turn_by_distance(self, d: int):
+    def turn_by_distance(self, d: float):
         """
         横向转向 按距离转
         :param d: 正数往右转 人物角度增加；负数往左转 人物角度减少
@@ -93,7 +95,7 @@ class GameController:
         """
         pass
 
-    def turn_by_angle(self, angle: int):
+    def turn_by_angle(self, angle: float):
         self.turn_by_distance(self.turn_dx * angle)
 
     def start_moving_forward(self):
@@ -103,14 +105,14 @@ class GameController:
         """
         pass
 
-    def stop_moving(self):
+    def stop_moving_forward(self):
         """
-        停止移动
+        停止向前移动
         :return:
         """
         pass
 
-    def move(self, direction: str, press_time):
+    def move(self, direction: str, press_time: int = 0):
         """
         往固定方向移动
         :param direction: 方向 wsad
@@ -125,7 +127,7 @@ class GameController:
         :param seconds:
         :return:
         """
-        pass
+        return self.walk_speed * seconds
 
     def move_towards(self, pos1: tuple, pos2: tuple, angle: float):
         """
@@ -141,7 +143,7 @@ class GameController:
         # 正方向转太远的话就用负方向转
         if delta_angle > 180:
             delta_angle -= 360
-        log.info('寻路中 目标点: %s 当前点: %s 转动朝向: %.2f度', pos1, pos2, delta_angle)
+        log.info('寻路中 当前点: %s 目标点: %s 当前角度: %.2f度 目标角度: %.2f度 转动朝向: %.2f度', pos1, pos2, angle, target_angle, delta_angle)
 
         self.turn_by_angle(delta_angle)
         self.start_moving_forward()

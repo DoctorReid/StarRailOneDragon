@@ -3,11 +3,12 @@ import time
 from cv2.typing import MatLike
 
 from basic.img import cv2_utils
+from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.context import Context
 from sr.control import GameController
-from sr.image.sceenshot import mini_map
-from sr.map_cal import LargeMapInfo, MapCalculator, MiniMapInfo
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
+from sr.map_cal import MapCalculator
 from sr.operation import Operation
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 
@@ -19,16 +20,18 @@ class MoveDirectly(Operation):
     """
 
     def __init__(self, ctx: Context, large_map_info: LargeMapInfo,
-                 target: tuple, start: tuple = None):
+                 target: tuple, start: tuple = None, save_screenshot: bool = False):
         self.ctx = ctx
         self.lm_info = large_map_info
         self.target = target
         self.start = start
+        self.save_screenshot = save_screenshot
 
     def execute(self) -> bool:
         max_len: int = 5  # 最多存储多少个走过的坐标
         rec_pos_interval: float = 0.5  # 间隔多少秒记录一次坐标
         stuck_distance: float = 20  # 移动距离多少以内认为是被困
+        arrival_distance: float = 10  # 多少距离内认为是到达目的地
 
         pos = []
         if self.start is not None:
@@ -39,6 +42,8 @@ class MoveDirectly(Operation):
         no_pos_times = 0
 
         while True:
+            if not self.ctx.running:
+                return False
             last_pos = None if len(pos) == 0 else pos[len(pos) - 1]
 
             if len(pos) >= max_len and \
@@ -49,8 +54,12 @@ class MoveDirectly(Operation):
             else:
                 stuck_times = 0
 
+            if not self.ctx.controller.is_moving:
+                self.ctx.controller.move('w')
             now_time = time.time()
             screen = self.ctx.controller.screenshot()
+            if self.save_screenshot:
+                save_debug_image(screen)
             mm = self.ctx.map_cal.cut_mini_map(screen)
             if self.check_enemy_and_attack(mm):  # 处理完敌人 再重新开始下一轮寻路
                 last_rec_time = now_time
@@ -58,8 +67,7 @@ class MoveDirectly(Operation):
 
             mm_info = self.ctx.map_cal.analyse_mini_map(mm)
 
-            x, y, angle = self.get_pos_and_next_angle(mm_info, now_time,
-                                                      last_pos, last_rec_time)
+            x, y = self.get_pos(mm_info, now_time, last_pos, last_rec_time)
 
             if x is None or y is None:
                 log.error('无法判断当前人物坐标')
@@ -80,9 +88,11 @@ class MoveDirectly(Operation):
                     del pos[0]
                 last_rec_time = now_time
 
-            if cv2_utils.distance_between(next_pos, self.target):
+            if cv2_utils.distance_between(next_pos, self.target) < arrival_distance:
                 log.info('目标点已到达 %s', self.target)
+                self.ctx.controller.stop_moving_forward()
                 return True
+
 
     def get_rid_of_stuck(self, stuck_times: int):
         """
@@ -94,7 +104,7 @@ class MoveDirectly(Operation):
         log.info('尝试脱困第%d次', stuck_times)
         ctrl: GameController = self.ctx.controller
 
-        ctrl.stop_moving()
+        ctrl.stop_moving_forward()
 
         walk_sec = stuck_times if stuck_times <= 3 else stuck_times - 3  #
         turn = 'a' if stuck_times <= 3 else 'd'
@@ -105,8 +115,8 @@ class MoveDirectly(Operation):
         time.sleep(walk_sec)
         return walk_sec
 
-    def get_pos_and_next_angle(self, mm_info: MiniMapInfo, now_time: float,
-                               last_pos: tuple, last_rec_time: float):
+    def get_pos(self, mm_info: MiniMapInfo, now_time: float,
+                last_pos: tuple, last_rec_time: float):
         """
         获取当前位置、 下一步方向、 记录时间
         :param mm_info: 小地图信息
@@ -122,19 +132,20 @@ class MoveDirectly(Operation):
         lx, ly = last_pos
         r = ctrl.cal_move_distance_by_time(now_time - last_rec_time)
 
-        x, y = mc.cal_character_pos_with_scale(self.lm_info, mm_info, possible_pos=(lx, ly, r))
+        x, y = mc.cal_character_pos_with_scale(self.lm_info, mm_info, possible_pos=(lx, ly, r), retry_without_pos=False)
 
         log.debug('截图计算坐标耗时 %.4f s', time.time() - start_time)
+        log.info('计算当前坐标为 (%s, %s)', x, y)
 
-        return x, y, mm_info.angle
+        return x, y
 
-    def check_enemy_and_attack(self, mini_map: MatLike) -> bool:
+    def check_enemy_and_attack(self, mm: MatLike) -> bool:
         """
         从小地图检测敌人 如果有的话 进入索敌
-        :param mini_map:
+        :param mm:
         :return: 是否有敌人
         """
-        if not mini_map.is_under_attack(mini_map):
+        if not mini_map.is_under_attack(mm):
             return False
         # pos_list = mini_map.get_enemy_location(mini_map)
         # if len(pos_list) == 0:

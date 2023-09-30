@@ -1,3 +1,7 @@
+import math
+import time
+
+import ctypes
 import cv2
 import pyautogui
 from cv2.typing import MatLike
@@ -17,9 +21,12 @@ class PcController(GameController):
         self.ocr: OcrMatcher = ocr
         self.config: ConfigHolder = config
         self.turn_dx: float = config.get_config('game', 'turn_dx')
+        self.walk_speed: float = config.get_config('game', 'walk_speed')
+        self.is_moving: bool = False
 
     def init(self):
         self.win.active()
+        time.sleep(0.5)
 
     def esc(self) -> bool:
         pyautogui.press('esc')
@@ -86,10 +93,40 @@ class PcController(GameController):
         to_pos = self.win.game2win_pos(end)
         win_utils.drag_mouse(from_pos, to_pos, duration=duration)
 
-    def turn_by_distance(self, d: int):
+    def turn_by_distance(self, d: float):
         """
         横向转向 按距离转
         :param d: 正数往右转 人物角度增加；负数往左转 人物角度减少
         :return:
         """
-        win_utils.move_mouse_in_place(d, 0)
+        ctypes.windll.user32.mouse_event(0x0001, int(d), 0)
+
+    def move(self, direction: str, press_time: int = 0):
+        """
+        往固定方向移动
+        :param direction: 方向 wsad
+        :param press_time: 持续秒数
+        :return:
+        """
+        if direction not in ['w', 's', 'a', 'd']:
+            log.error('非法的方向移动 %s', direction)
+            return False
+        if press_time > 0:
+            self.is_moving = True
+            win_utils.key_down(direction, press_time)
+            self.is_moving = False
+        else:
+            pyautogui.press(direction)
+        return True
+
+    def start_moving_forward(self):
+        """
+        开始往前走
+        :return:
+        """
+        self.is_moving = True
+        pyautogui.keyDown('w')
+
+    def stop_moving_forward(self):
+        self.is_moving = False
+        pyautogui.keyUp('w')

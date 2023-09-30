@@ -28,7 +28,7 @@ class ScaleLargeMap(Operation):
             if not self.ctx.running:
                 return False
             try_times += 1
-            screen = self.ctx.ctrl.screenshot()
+            screen = self.ctx.controller.screenshot()
             if self.click_scale(screen, self.ctx):
                 return True
 

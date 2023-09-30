@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import cv2
 import numpy as np
@@ -10,7 +11,9 @@ from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
 from sr import constants
 from sr.constants.map import Planet, TransportPoint
-from sr.image import OcrMatcher
+from sr.image import OcrMatcher, TemplateImage
+from sr.image.image_holder import ImageHolder
+from sr.image.sceenshot import LargeMapInfo
 
 
 def get_map_path(planet: str, region: str, mt: str = 'origin') -> str:
@@ -108,3 +111,54 @@ def find_target_transport_point(screen: MatLike, large_map: MatLike, tp: Transpo
     map_part = screen[200: 900, 200: 1400]
 
     # 首先找到当前截图在大地图上的位置
+
+
+def get_sp_mask_by_template_match(lm_info: LargeMapInfo, ih: ImageHolder,
+                                  template_type: str = 'origin',
+                                  template_list: List = None,
+                                  show: bool = False):
+    """
+    在地图中 圈出传送点、商铺点等可点击交互的的特殊点
+    使用模板匹配
+    :param lm_info: 大地图
+    :param ih: 图片加载器
+    :param template_type: 模板类型
+    :param template_list: 限定种类的特殊点
+    :param show: 是否展示结果
+    :return: 特殊点组成的掩码图 特殊点是白色255、特殊点的匹配结果
+    """
+    sp_match_result = {}
+    source = lm_info.origin if template_type == 'origin' else lm_info.gray
+    sp_mask = np.zeros(source.shape[:2], dtype=np.uint8)
+    # 找出特殊点位置
+    for prefix in ['mm_tp', 'mm_sp']:
+        for i in range(100):
+            if i == 0:
+                continue
+            template_id = '%s_%02d' % (prefix, i)
+            if template_list is not None and template_id not in template_list:
+                continue
+            ti: TemplateImage = ih.get_template(template_id)
+            if ti is None:
+                break
+            template = ti.get(template_type)
+            template_mask = ti.mask
+
+            match_result = cv2_utils.match_template(
+                source, template, mask=template_mask,
+                threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP,
+                ignore_inf=True)
+
+            if len(match_result) > 0:
+                sp_match_result[template_id] = match_result
+            for r in match_result:
+                sp_mask[r.y:r.y+r.h, r.x:r.x+r.w] = cv2.bitwise_or(sp_mask[r.y:r.y+r.h, r.x:r.x+r.w], template_mask)
+
+            if show:
+                cv2_utils.show_image(source, win_name='source_%s' % template_id)
+                cv2_utils.show_image(template, win_name='template_%s' % template)
+                cv2_utils.show_image(source, match_result, win_name='all_match_%s' % template_id)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+
+    return sp_mask, sp_match_result

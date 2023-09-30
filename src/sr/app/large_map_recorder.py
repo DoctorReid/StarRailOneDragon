@@ -4,6 +4,7 @@ import cv2
 
 from basic.img import cv2_utils
 from basic.log_utils import log
+from sr import constants
 from sr.app import Application
 from sr.constants.map import Region
 from sr.context import Context, get_context
@@ -23,7 +24,7 @@ class LargeMapRecorder(Application):
 
     def __init__(self, ctx: Context, region: Region):
         self.ctx: Context = ctx
-        self.ops = [OpenMap(), ScaleLargeMap(-5), ChoosePlanet(region.planet), ChooseRegion(region)]
+        self.ops = [OpenMap(ctx), ScaleLargeMap(ctx, -5), ChoosePlanet(ctx, region.planet), ChooseRegion(ctx, region)]
         self.planet = region.planet
         self.region = region
 
@@ -40,6 +41,8 @@ class LargeMapRecorder(Application):
             if not r:
                 log.error('前置打开地图失败')
                 return False
+            else:
+                log.info('完成步骤')
 
         win: Window = self.ctx.controller.win
         rect: WinRect = win.get_win_rect()
@@ -112,5 +115,5 @@ class LargeMapRecorder(Application):
 
 if __name__ == '__main__':
     ctx = get_context()
-    app = LargeMapRecorder(ctx, sr.constants.region.P01_KZJ.cn, sr.constants.region.P01_R01_ZKCD.cn)
+    app = LargeMapRecorder(ctx, constants.map.P01_R03_SRCD)
     app.run()

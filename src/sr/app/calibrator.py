@@ -1,16 +1,19 @@
 import math
 import time
 
+import cv2
 import numpy as np
 from cv2.typing import MatLike
 
 import sr
+from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
 from sr.config import ConfigHolder
 from sr.context import Context
 from sr.control import GameController
+from sr.image.sceenshot import mini_map
 from sr.map_cal import MapCalculator
 
 
@@ -20,12 +23,16 @@ class Calibrator(Application):
     """
 
     def __init__(self, ctx: Context):
+        self.ctx: Context = ctx
         self.ctrl: GameController = ctx.controller
         self.config: ConfigHolder = ctx.config
         self.mc: MapCalculator = ctx.map_cal
 
     def run(self):
-        self._check_little_map_pos()
+        self.ctx.running = True
+        self.ctrl.init()
+        screen = self.ctrl.screenshot()
+        self._check_little_map_pos(screen)
 
     def _check_little_map_pos(self, screenshot: MatLike = None):
         # TODO 后续确保当前位置在基座舱段
@@ -45,17 +52,28 @@ class Calibrator(Application):
         反推转动角度所需的滑动距离
         :return:
         """
+        turn_distance = 1000
+
         angle = None
         turn_angle = []
-        for _ in range(10):
+        for _ in range(5):
+            self.ctrl.move('w')
+            time.sleep(1)
             screen = self.ctrl.screenshot()
             mm = self.mc.cut_mini_map(screen)
-            info = self.mc.analyse_mini_map(mm)
-            next_angle = info.angle
+            center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
+            cv2_utils.show_image(center_arrow_mask, win_name='center_arrow_mask')
+            cv2_utils.show_image(arrow_mask, win_name='arrow_mask')
             if angle is not None:
                 ta = next_angle - angle if next_angle >= angle else next_angle - angle + 360
                 turn_angle.append(ta)
-        print(np.mean(turn_angle))
+            angle = next_angle
+            self.ctrl.turn_by_distance(turn_distance)
+            time.sleep(0.5)
+        avg_turn_angle = np.mean(turn_angle)
+        print(avg_turn_angle)
+        self.config.update_config('game', 'turn_dx', float(turn_distance / avg_turn_angle))
+        # cv2.waitKey(0)
 
     def _check_move_distance(self, save_screenshot: bool = False):
         pos = []

@@ -31,8 +31,10 @@ class OpenMap(Operation):
             if planet is not None:  # 左上角找到星球名字的化 证明在在大地图页面了
                 return True
             if try_times % 2 == 1:
+                log.info('尝试打开地图')
                 ctrl.open_map()
             else:
+                log.info('尝试返回上级页面')
                 ctrl.esc()
             time.sleep(1)
 

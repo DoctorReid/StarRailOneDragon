@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import cv2_utils
+from sr.constants.map import Region
 
 
 class TemplateImage:
@@ -29,21 +30,20 @@ class ImageHolder:
         self.large_map = {}
         self.template = {}
 
-    def _get_key_for_map(self, planet: str, region: str, map_type: str) -> str:
-        return '%s_%s_%s' % (planet, region, map_type)
+    def _get_key_for_map(self, region: Region, map_type: str) -> str:
+        return '%s_%s_%s' % (region.planet.id, region.id, map_type)
 
-    def load_large_map(self, planet: str, region: str, map_type: str) -> MatLike:
+    def load_large_map(self, region: Region, map_type: str) -> MatLike:
         """
         加载某张大地图到内存中
-        :param planet: 星球名称
         :param region: 对应区域
         :param map_type: 地图类型
         :return: 地图图片
         """
-        file_path = os.path.join(os_utils.get_path_under_work_dir('images', 'map', planet, region), '%s.png' % map_type)
+        file_path = os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, region.id), '%s.png' % map_type)
         image = cv2_utils.read_image(file_path)
         if image is not None:
-            self.large_map[self._get_key_for_map(planet, region, map_type)] = image
+            self.large_map[self._get_key_for_map(region, map_type)] = image
         return image
 
     def pop_large_map(self, planet: str, region: str, map_type: str):
@@ -58,18 +58,17 @@ class ImageHolder:
         if key in self.large_map:
             del self.large_map[key]
 
-    def get_large_map(self, planet: str, region: str, map_type: str):
+    def get_large_map(self, region: Region, map_type: str):
         """
         获取某张大地图
-        :param planet: 星球名称
-        :param region: 对应区域
+        :param region: 区域
         :param map_type: 地图类型
         :return: 地图图片
         """
-        key = self._get_key_for_map(planet, region, map_type)
+        key = self._get_key_for_map(region, map_type)
         if key not in self.large_map:
             # 尝试加载一次
-            return self.load_large_map(planet, region, map_type)
+            return self.load_large_map(region, map_type)
         else:
             return self.large_map[key]
 

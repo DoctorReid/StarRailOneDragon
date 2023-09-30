@@ -4,9 +4,11 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic.img import cv2_utils
+from basic.img import cv2_utils, MatchResultList, MatchResult
 from sr import constants
-from sr.image import ImageMatcher
+from sr.image import ImageMatcher, TemplateImage
+from sr.image.image_holder import ImageHolder
+from sr.image.sceenshot import MiniMapInfo
 
 
 def extract_arrow(mini_map: MatLike):
@@ -120,13 +122,162 @@ def analyse_arrow_and_angle(mini_map: MatLike, im: ImageMatcher):
     """
     在小地图上获取小箭头掩码和角度
     :param mini_map: 小地图图片
+    :param im: 图片匹配器
     :return:
     """
     center_arrow_mask, arrow_mask = get_arrow_mask(mini_map)
     all_template = im.get_template('arrow_all').mask
     one_template = im.get_template('arrow_one').mask
-    angle = mini_map.get_angle_from_arrow(center_arrow_mask, all_template, one_template, im)  # 正右方向为0度 顺时针旋转为正度数
+    angle = get_angle_from_arrow(center_arrow_mask, all_template, one_template, im)  # 正右方向为0度 顺时针旋转为正度数
     return center_arrow_mask, arrow_mask, angle
+
+
+def get_edge_mask_by_hsv(mm: MatLike, arrow_mask: MatLike):
+    """
+    背景亮的時候效果很差
+    将小地图转化成HSV格式，然后根据亮度扣出前景
+    最后用Canny画出边缘
+    :param mm: 小地图截图
+    :param arrow_mask: 小箭头掩码 传入时忽略掉这部分
+    :return:
+    """
+    hsv = cv2.cvtColor(mm, cv2.COLOR_BGR2HSV)
+    hsv_mask = cv2.threshold(hsv[:, :, 2], 180, 255, cv2.THRESH_BINARY)[1]
+    if arrow_mask is not None:
+        hsv_mask = cv2.bitwise_and(hsv_mask, hsv_mask, mask=cv2.bitwise_not(arrow_mask))
+
+    # 膨胀一下 粗点的边缘可以抹平一些取色上的误差 后续模板匹配更准确
+    kernel = np.ones((3, 3), np.uint8)
+    return cv2.dilate(hsv_mask, kernel, iterations=1)
+
+def find_map_special_point_mask(gray_map_image: MatLike,
+                                is_little_map: bool = False):
+    """
+    在地图中 圈出传送点、商铺点等可点击交互的的特殊点
+    :param gray_map_image: 灰度地图
+    :param is_little_map: 是否小地图
+    :return: 特殊点组成的掩码图 特殊点是白色255、特殊点的匹配结果
+    """
+    sp_match_result = {}
+    mask = np.zeros(gray_map_image.shape[:2], dtype=np.uint8)
+    source_image = gray_map_image
+    # 找出特殊点位置
+    for prefix in ['mm_tp', 'mm_sp']:
+        for i in range(100):
+            if i == 0:
+                continue
+            start_time = time.time()
+            template_id = '%s_%02d' % (prefix, i)
+            template: TemplateImage = self.im.get_template(template_id)
+            if template is None:
+                break
+            alpha = template.mask
+
+            match_result = self.im.match_template(
+                source_image, template_id, template_type='gray',
+                threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LITTLE_MAP_CENTER if is_little_map else constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP,
+                ignore_inf=True)
+
+            if is_little_map:
+                cx, cy = source_image.shape[1] // 2, source_image.shape[0] // 2
+                cr = constants.TEMPLATE_ARROW_LEN // 2
+                cx1, cy1 = cx - cr, cy - cr
+                cx2, cy2 = cx + cr, cy + cr
+                real_match_result = MatchResultList()
+                for r in match_result:
+                    rx1, ry1 = r.x, r.y
+                    rx2, ry2 = r.x + r.w, r.y + r.h
+                    overlap = cv2_utils.calculate_overlap_area((cx1, cy1, cx2, cy2), (rx1, ry1, rx2, ry2))
+                    total = r.w * r.h
+                    threshold = (constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP - constants.THRESHOLD_SP_TEMPLATE_IN_LITTLE_MAP_CENTER) * (1.0 - overlap / total) + constants.THRESHOLD_SP_TEMPLATE_IN_LITTLE_MAP_CENTER
+                    if r.confidence > threshold:
+                        real_match_result.append(r)
+
+                match_result = real_match_result
+
+            if len(match_result) > 0:
+                sp_match_result[template_id] = match_result
+            for r in match_result:
+                mask[r.y:r.y+r.h, r.x:r.x+r.w] = cv2.bitwise_or(mask[r.y:r.y+r.h, r.x:r.x+r.w], alpha)
+            log.debug('特殊点匹配一次 %.4f s', time.time() - start_time)
+    return mask, sp_match_result
+
+
+def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, ih: ImageHolder,
+                                 template_type: str = 'origin',
+                                 template_list: List = None,
+                                 show: bool = False):
+    """
+    在小地图上找到特殊点
+    使用特征匹配 每个模板最多只能找到一个
+    :param mm_info: 小地图信息
+    :param ih: 图片加载器
+    :param template_type: 模板类型
+    :param template_list: 限定种类的特殊点
+    :param show: 是否展示结果
+    :return:
+    """
+    feature_detector = cv2.SIFT_create()
+    source = mm_info.origin if template_type == 'origin' else mm_info.gray
+    source_mask = mm_info.center_mask
+    source_kps, source_desc = feature_detector.detectAndCompute(source, mask=source_mask)
+
+    sp_mask = np.zeros_like(mm_info.gray)
+    sp_match_result = {}
+    for prefix in ['mm_tp', 'mm_sp']:
+        for i in range(100):
+            if i == 0:
+                continue
+
+            template_id = '%s_%02d' % (prefix, i)
+            if template_list is not None and template_id not in template_list:
+                continue
+
+            match_result_list = MatchResultList()
+            t: TemplateImage = ih.get_template(template_id)
+            if t is None:
+                break
+            template = t.get(template_type)
+            template_mask = t.mask
+
+            # TODO 后续预处理
+            template_kps, template_desc = feature_detector.detectAndCompute(template, mask=template_mask)
+
+            good_matches, offset_x, offset_y, scale = cv2_utils.feature_match(
+                source_kps, source_desc,
+                template_kps, template_desc,
+                source_mask=source_mask)
+
+            if offset_x is not None:
+                mr = MatchResult(1, offset_x, offset_y, template.shape[1], template.shape[0], scale=scale)
+                match_result_list.append(mr)
+                sp_match_result[template_id] = match_result_list
+
+                # 缩放后的宽度和高度
+                sw = int(template.shape[1] * scale)
+                sh = int(template.shape[0] * scale)
+                one_sp_maks = cv2.resize(template_mask, (sw, sh))
+                sp_mask[mr.y:mr.y + sh, mr.x:mr.x + sw] = cv2.bitwise_or(sp_mask[mr.y:mr.y + sh, mr.x:mr.x + sw], one_sp_maks)
+
+            if show:
+                cv2_utils.show_image(source, win_name='source')
+                cv2_utils.show_image(source_mask, win_name='source_mask')
+                source_with_keypoints = cv2.drawKeypoints(source, source_kps, None)
+                cv2_utils.show_image(source_with_keypoints, win_name='source_with_keypoints_%s' % template_id)
+                template_with_keypoints = cv2.drawKeypoints(template, template_kps, None)
+                cv2_utils.show_image(
+                    cv2.bitwise_and(template_with_keypoints, template_with_keypoints, mask=template_mask),
+                    win_name='template_with_keypoints_%s' % template_id)
+                all_result = cv2.drawMatches(template, template_kps, source, source_kps, good_matches, None, flags=2)
+                cv2_utils.show_image(all_result, win_name='all_match_%s' % template_id)
+
+                if offset_x is not None:
+                    cv2_utils.show_overlap(source, template, offset_x, offset_y, template_scale=scale, win_name='overlap_%s' % template_id)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+
+    return sp_mask, sp_match_result
+
 
 def get_enemy_location(mini_map: MatLike) -> List:
     """

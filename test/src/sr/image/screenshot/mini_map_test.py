@@ -1,14 +1,21 @@
 import os
 
 import cv2
+import numpy as np
+from cv2.typing import MatLike
 
 from basic.img import cv2_utils
-from basic.img.os import get_debug_image_dir, get_test_image, save_debug_image
-from sr.context import get_context, Context
+from basic.img.os import get_debug_image_dir, get_test_image, save_debug_image, get_debug_image
+from sr import constants
+from sr.config import ConfigHolder
+from sr.constants.map import Region
+from sr.image.cv2_matcher import CvImageMatcher
+from sr.image.image_holder import ImageHolder, TemplateImage
 from sr.image.sceenshot import mini_map
+from sr.map_cal import MapCalculator
 
 
-def _test_extract_arrow(ctx: Context):
+def _test_extract_arrow():
     dir = get_debug_image_dir()
     for filename in os.listdir(dir):
         screen = cv2_utils.read_image(os.path.join(dir, filename))
@@ -27,7 +34,7 @@ def _test_extract_arrow(ctx: Context):
         cv2.destroyAllWindows()
 
 
-def _test_get_arrow_template(ctx: Context):
+def _test_get_arrow_template():
     screen = get_test_image('mm_arrow')
     mm = ctx.map_cal.cut_mini_map(screen)
     one_template, all_template = mini_map.get_arrow_template(mm)
@@ -38,16 +45,16 @@ def _test_get_arrow_template(ctx: Context):
     cv2.waitKey(0)
 
 
-def _test_get_angle_from_arrow(ctx: Context):
+def _test_get_angle_from_arrow():
     screen = get_test_image('mm_arrow')
-    mm = ctx.map_cal.cut_mini_map(screen)
+    mm = mc.cut_mini_map(screen)
     one_template, all_template = mini_map.get_arrow_template(mm)
     dir = get_debug_image_dir()
     for filename in os.listdir(dir):
         # if not filename.startswith('1695658291971'):
         #     continue
         screen = cv2_utils.read_image(os.path.join(dir, filename))
-        mm = ctx.map_cal.cut_mini_map(screen)
+        mm = mc.cut_mini_map(screen)
         cv2_utils.show_image(mm, win_name='mm')
         arrow, _ = mini_map.get_arrow_mask(mm)
         cv2_utils.show_image(arrow, win_name='arrow')
@@ -56,6 +63,55 @@ def _test_get_angle_from_arrow(ctx: Context):
         cv2.waitKey(0)
 
 
+def _test_edge():
+    screen: MatLike = get_debug_image('c')
+    mm = mc.cut_mini_map(screen)
+    info = mc.analyse_mini_map(mm)
+
+    gray = cv2.cvtColor(mm, cv2.COLOR_BGR2GRAY)
+    cv2_utils.show_image(gray, win_name='gray')
+
+    template_origin = mini_map.get_edge_mask_by_hsv(mm, info.arrow_mask)
+
+    region: Region = constants.map.P01_R02_JZCD
+    lm = ih.get_large_map(region, 'mask')
+    lm_mask = cv2.Canny(lm, threshold1=200, threshold2=230)
+
+    kernel = np.ones((3, 3), np.uint8)
+    source = cv2.dilate(lm_mask, kernel, iterations=1)
+    source = mc.find_edge_mask(lm)
+    cv2_utils.show_image(source, win_name='source')
+
+    # mc.feature_match(lm_mask, None, hsv_mask, info.center_mask, show=True)
+
+    for i in [1.00, 1.05, 1.10, 1.15, 1.20, 1.25]:
+        height = int(template_origin.shape[0] * i)
+        width = int(template_origin.shape[1] * i)
+        template = cv2.resize(template_origin, (height, width))
+        template_mask = cv2.resize(info.center_mask, (height, width))
+        cv2_utils.show_image(template, win_name='template')
+        result = cv2_utils.match_template(source, template, mask=template_mask, threshold=0.4, ignore_inf=True)
+        if len(result) == 0:
+            continue
+        cv2_utils.show_image(lm_mask, result, win_name='match_template')
+        print(result.max)
+        cv2_utils.show_overlap(source, template, result.max.x, result.max.y, win_name='ovelap')
+        cv2.waitKey(0)
+
+    cv2.waitKey(0)
+
+
+def _test_get_sp_mask_by_feature_match():
+    screen: MatLike = get_debug_image('d')
+    mm = mc.cut_mini_map(screen)
+    info = mc.analyse_mini_map(mm)
+
+    mini_map.get_sp_mask_by_feature_match(info, ih, template_list=['mm_tp_01'], show=True)
+
+
 if __name__ == '__main__':
-    ctx = get_context('唯秘')
-    _test_get_arrow_template(ctx)
+    config = ConfigHolder()
+    ih = ImageHolder()
+    im = CvImageMatcher(ih)
+    mc = MapCalculator(im=im, config=config)
+    _test_edge()

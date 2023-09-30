@@ -21,7 +21,7 @@ class EnterAutoFight(Operation):
 
         ctrl: GameController = self.ctx.controller
         mc: MapCalculator = self.ctx.map_cal
-        ctrl.stop_moving()
+        ctrl.stop_moving_forward()
         last_attack_time = None
         while True:
             screen = ctrl.screenshot()
