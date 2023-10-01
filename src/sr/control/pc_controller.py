@@ -15,6 +15,9 @@ from sr.win import Window, WinRect
 
 class PcController(GameController):
 
+    MOUSEEVENTF_LEFTDOWN = 0x0002
+    MOUSEEVENTF_LEFTUP = 0x0004
+
     def __init__(self, win: Window, ocr: OcrMatcher):
         self.win: Window = win
         self.ocr: OcrMatcher = ocr
@@ -129,3 +132,11 @@ class PcController(GameController):
     def stop_moving_forward(self):
         self.is_moving = False
         pyautogui.keyUp('w')
+
+    def initiate_attack(self):
+        """
+        主动发起攻击
+        :return:
+        """
+        ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+        ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)

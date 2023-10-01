@@ -338,6 +338,8 @@ def feature_in_area(kps, desc, x: int = None, y: int = None, w: int = None, h: i
     return r_kps, r_desc
 
 def feature_match(source_kp, source_desc, template_kp, template_desc, source_mask):
+    if len(source_kp) == 0 or len(template_kp) == 0:
+        return None, None, None, None
     # feature_matcher = cv2.FlannBasedMatcher()
     feature_matcher = cv2.BFMatcher()
     matches = feature_matcher.knnMatch(template_desc, source_desc, k=2)
@@ -445,6 +447,9 @@ def crop_image(img, rect: tuple, copy: bool = False):
         y1 = 0
     if y2 > img.shape[0]:
         y2 = img.shape[0]
+
+    x1, y1 = int(x1), int(y1)
+    x2, y2 = int(x2), int(y2)
     crop = img[y1: y2, x1: x2]
     return crop.copy() if copy else crop
 

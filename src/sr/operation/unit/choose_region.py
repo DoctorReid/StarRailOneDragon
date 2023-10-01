@@ -10,7 +10,7 @@ from sr.operation import Operation
 
 class ChooseRegion(Operation):
 
-    click_rect = (1450, 200, 1700, 1000)
+    click_rect = (1480, 200, 1700, 1000)
     scroll_pos = ((click_rect[0] + click_rect[2]) // 2, (click_rect[1] + click_rect[3]) // 2)
     scroll_distance = -300
 
@@ -44,6 +44,7 @@ class ChooseRegion(Operation):
             else:
                 self.scroll_region_area(-1)
             time.sleep(1)
+            return Operation.RETRY
         else:
             time.sleep(0.2)
             return Operation.SUCCESS

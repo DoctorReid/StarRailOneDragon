@@ -15,15 +15,15 @@ from sr.operation import Operation
 class ChooseTransportPoint(Operation):
 
     map_rect = (200, 200, 1400, 900)  # 大地图界面裁剪地图区域 应该需要比 大地图录制的区域小一点
-    tp_btn_rect = (1450, 200, 1700, 1000)  # 右侧显示传送按钮的区域
-    tp_name_rect = (1450, 200, 1700, 1000)  # 右侧显示传送点名称的区域
-    empty_map_pos = (150, 150)  # 地图空白区域 用于取消选择传送点
+    tp_btn_rect = (1500, 800, 1800, 1000)  # 右侧显示传送按钮的区域
+    tp_name_rect = (1480, 120, 1640, 170)  # 右侧显示传送点名称的区域
+    empty_map_pos = (1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
     drag_distance = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
         super().__init__(ctx, 10)
         self.tp: TransportPoint = tp
-        self.large_map = self.ctx.ih.get_large_map(self.tp.planet.id, self.tp.region.id, 'origin')
+        self.large_map = self.ctx.ih.get_large_map(self.tp.region, 'origin')
 
     def run(self) -> int:
         mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
@@ -72,18 +72,20 @@ class ChooseTransportPoint(Operation):
         :return: 是否点击传送
         """
         tp_btn_part = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_btn_rect)
-        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')])
+        cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
+        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')], threshold=0.4)
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
             tp_name_part = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
-            tp_name_ocr = self.ctx.ocr.match_words(tp_name_part, [gt(self.tp.cn)])
+            tp_name_ocr = self.ctx.ocr.match_words(tp_name_part, [gt(self.tp.cn)], threshold=0.4)
+            cv2_utils.show_image(tp_name_part, win_name='tp_name_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
                 tx = ChooseTransportPoint.tp_btn_rect[0]
                 ty = ChooseTransportPoint.tp_btn_rect[1]
-                for r in tp_btn_ocr:
-                    tx += r.cx
-                    ty += r.cy
+                for r in tp_btn_ocr.values():
+                    tx += r.max.cx
+                    ty += r.max.cy
                     break
                 return self.ctx.controller.click((tx, ty))
         return False
@@ -109,7 +111,7 @@ class ChooseTransportPoint(Operation):
         x1, y1 = offset.x, offset.y
         x2, y2 = x1 + offset.w, y1 + offset.h
         # 目标点坐标
-        x, y = self.tp.pos
+        x, y = self.tp.lm_pos
 
         dx, dy = 0, 0
         if x > x2:
@@ -154,6 +156,7 @@ class ChooseTransportPoint(Operation):
         self.drag(dx, dy)
 
     def drag(self, dx: int, dy: int):
-        fx, fy = constants.STANDARD_CENTER_POS
+        fx, fy = ChooseTransportPoint.empty_map_pos
         tx, ty = fx + ChooseTransportPoint.drag_distance * dx, fy + ChooseTransportPoint.drag_distance * dy
+        log.info('当前未找到传送点 即将拖动地图 %s -> %s', (fx, fy), (tx, ty))
         self.ctx.controller.drag_to(end=(tx, ty), start=(fx, fy), duration=1)

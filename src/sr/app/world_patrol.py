@@ -42,7 +42,7 @@ class WorldPatrolRecord(ConfigHolder):
             self.dt = self.data['dt']
             self.finished = self.data['finished']
 
-        if self.restart or (self.dt is not None and self.dt < self.current_dt):  # 重新开始
+        if self.restart or (self.dt is not None and self.dt < self.current_dt) or self.dt is None:  # 重新开始
             self.dt = self.current_dt
             self.finished = []
 
@@ -81,6 +81,12 @@ class WorldPatrol(Operation):
         except StopIteration:
             log.info('所有线路执行完毕')
             return Operation.SUCCESS
+
+        self.run_one_route(route_id)
+
+        return Operation.WAIT
+
+    def run_one_route(self, route_id):
         route: WorldPatrolRoute = WorldPatrolRoute(route_id)
         log.info('准备执行线路 %s %s %s %s', route_id, route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
         if route_id in self.record.finished:
@@ -97,14 +103,12 @@ class WorldPatrol(Operation):
             ops.append(MoveDirectly(self.ctx, lm_info, target=(p[0], p[1]), start=last_pos))
 
         for op in ops:
-            op_result: bool = op.execute()
+            op_result: int = op.execute()
             if not op_result:
                 log.error('指令执行失败 即将跳过本次路线 %s', route_id)
                 break
 
         self.save_record(route_id)
-
-        return Operation.WAIT
 
     def save_record(self, route_id):
         """

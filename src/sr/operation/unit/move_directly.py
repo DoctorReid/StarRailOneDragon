@@ -37,7 +37,7 @@ class MoveDirectly(Operation):
         self.last_rec_time = time.time()  # 上一次记录坐标的时间
         self.no_pos_times = 0
 
-    def execute(self) -> bool:
+    def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
 
         if len(self.pos) >= MoveDirectly.max_len and \
@@ -75,6 +75,14 @@ class MoveDirectly(Operation):
 
         next_pos = (x, y)
         self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
+        time.sleep(0.5)
+        # screen = self.ctx.controller.screenshot()
+        # self.ctx.controller.stop_moving_forward()
+        # mm = self.ctx.map_cal.cut_mini_map(screen)
+        # mm_info = self.ctx.map_cal.analyse_mini_map(mm)
+        # print(mm_info.angle)
+        # cv2_utils.show_image(screen, win_name='screen', wait=0)
+        # return Operation.SUCCESS
 
         if now_time - self.last_rec_time > self.rec_pos_interval:
             self.pos.append(next_pos)
@@ -86,6 +94,8 @@ class MoveDirectly(Operation):
             log.info('目标点已到达 %s', self.target)
             self.ctx.controller.stop_moving_forward()
             return Operation.SUCCESS
+
+        return Operation.WAIT
 
     def get_rid_of_stuck(self, stuck_times: int):
         """

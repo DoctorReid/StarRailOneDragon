@@ -328,7 +328,7 @@ class MapCalculator:
             source_edge = lm.edge[lm_offset_y:lm_offset_y2, lm_offset_x:lm_offset_x2]
             target: MatchResult = None
             template_scale = None
-            for scale in [1.20, 1.25]:
+            for scale in [1, 1.05, 1.10, 1.15, 1.20, 1.25]:
                 if scale > 1:
                     dest_size = (int(template_w * scale), int(template_h * scale))
                     template_edge = cv2.resize(mm.edge, dest_size)

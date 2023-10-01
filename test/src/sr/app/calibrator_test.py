@@ -3,9 +3,9 @@ from sr.app.calibrator import Calibrator
 from sr.context import get_context
 
 
-def _test_check_little_map_pos():
+def _test_check_mini_map_pos():
     screen = get_test_image('mm_arrow')
-    app._check_littlbe_map_pos(screen)
+    app._check_mini_map_pos(screen)
 
 
 def _test_check_turning_rate():

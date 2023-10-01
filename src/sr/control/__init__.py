@@ -38,6 +38,7 @@ class GameController:
         """
         if rect is not None:
             x1, y1, x2, y2 = rect
+            # cv2_utils.show_image(screen[y1:y2, x1:x2], win_name='ocr_part')
         km = self.ocr.match_words(screen if rect is None else screen[y1:y2, x1:x2], words=[word], threshold=threshold)
         if len(km) == 0:
             return False

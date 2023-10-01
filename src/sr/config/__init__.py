@@ -27,4 +27,6 @@ class ConfigHolder:
         return self.data[prop] if prop in self.data else None
 
     def update(self, key: str, value):
+        if self.data is None:
+            self.data = {}
         self.data[key] = value

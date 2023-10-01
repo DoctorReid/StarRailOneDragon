@@ -50,3 +50,4 @@ class EnterAutoFight(Operation):
         if now_time - self.last_attack_time > EnterAutoFight.attack_interval:
             self.last_attack_time = now_time
             ctrl.initiate_attack()
+        return Operation.WAIT

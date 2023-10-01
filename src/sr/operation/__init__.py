@@ -26,7 +26,7 @@ class Operation:
         """
         循环执系列动作直到完成为止
         """
-        result: bool = False
+        result: int = Operation.RETRY
         while self.op_round < self.try_times:
             if not self.ctx.running:
                 time.sleep(1)
@@ -47,7 +47,7 @@ class Operation:
                 self.op_round -= 1
                 continue
             else:
-                log.error('动作执行返回结果错误 %d', result)
+                log.error('动作执行返回结果错误 %s', result)
                 result = False
                 break
         self.ctx.unregister(self)

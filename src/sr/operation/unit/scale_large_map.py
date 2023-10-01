@@ -46,6 +46,9 @@ class ScaleLargeMap(Operation):
         x1, y1, x2, y2 = ScaleLargeMap.rect
         source = screen[y1:y2, x1:x2]
         result = self.ctx.im.match_template(source, template_id, template_type='origin')
+        if result.max is not None:
+            result.max.x += x1
+            result.max.y += y1
         return result.max
 
     def on_resume(self):

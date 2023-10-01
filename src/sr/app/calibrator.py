@@ -30,9 +30,9 @@ class Calibrator(Application):
         self.ctx.running = True
         self.ctrl.init()
         screen = self.ctrl.screenshot()
-        self._check_little_map_pos(screen)
+        self._check_mini_map_pos(screen)
 
-    def _check_little_map_pos(self, screenshot: MatLike = None):
+    def _check_mini_map_pos(self, screenshot: MatLike = None):
         # TODO 后续确保当前位置在基座舱段
         log.info('[小地图定位校准] 开始')
         if screenshot is None:
@@ -73,7 +73,9 @@ class Calibrator(Application):
             time.sleep(0.5)
         avg_turn_angle = np.mean(turn_angle)
         print(avg_turn_angle)
-        self.config.update_config('game', 'turn_dx', float(turn_distance / avg_turn_angle))
+        config: GameConfig = get_game_config()
+        config.update('turn_dx', float(turn_distance / avg_turn_angle))
+        config.write_config()
         # cv2.waitKey(0)
 
     def _check_move_distance(self, save_screenshot: bool = False):

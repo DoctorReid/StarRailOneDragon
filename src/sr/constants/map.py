@@ -100,6 +100,6 @@ def get_tp_by_cn(planet_cn: str, region_cn: str, tp_cn: str) -> TransportPoint:
             continue
         if i.region.cn != region_cn:
             continue
-        if i.id != tp_cn:
+        if i.cn != tp_cn:
             continue
         return i
