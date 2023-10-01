@@ -11,6 +11,7 @@ from sr.operation.unit.scale_large_map import ScaleLargeMap
 class Transport(Operation):
 
     def __init__(self, ctx: Context, tp: TransportPoint, first: bool = True):
+        super().__init__(ctx, 1)
         self.tp: TransportPoint = tp
         self.region: Region = self.tp.region
         self.planet: Planet = self.region.planet
@@ -24,9 +25,9 @@ class Transport(Operation):
         self.ops.append(ChooseRegion(ctx, tp.region))
         self.ops.append(ChooseTransportPoint(ctx, tp))
 
-    def execute(self) -> bool:
+    def run(self) -> int:
         for op in self.ops:
             r = op.execute()
             if not r:
-                return False
-        return True
+                return Operation.FAIL
+        return Operation.SUCCESS

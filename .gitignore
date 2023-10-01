@@ -7,3 +7,4 @@ model/cnocr
 model/cnstd
 config/game.yml
 out/
+config/world_patrol/record.yml

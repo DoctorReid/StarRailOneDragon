@@ -71,7 +71,8 @@ def get_region_by_cn(cn: str, planet: Planet = None) -> Region:
 
 class TransportPoint:
 
-    def __init__(self, cn: str, region: Region, template_id: str, lm_pos: tuple):
+    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple):
+        self.id: str = id  # 英文 用在找图
         self.cn: str = cn  # 中文 用在OCR
         self.region: Region = region  # 所属区域
         self.planet: Planet = region.planet  # 所属星球
@@ -82,4 +83,23 @@ class TransportPoint:
         return '%s - %s' % (self.cn, self.id)
 
 
-P01_R01_TP01_HTBGS = TransportPoint('黑塔办公室', P01_R01_ZKCD, 'mm_tp_03', None)
+P01_R01_TP01_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_03', None)
+P01_R02_TP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_01', (644.3733488387657, 129.73816947897126))
+P01_R03_TP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD, 'mm_tp_01', (377.78668267527456, 350.0337457282807))
+
+
+def get_tp_by_cn(planet_cn: str, region_cn: str, tp_cn: str) -> TransportPoint:
+    arr = [
+        P01_R01_TP01_HTBGS,
+        P01_R02_TP01_JKS,
+        P01_R03_TP01_KZZXW
+    ]
+
+    for i in arr:
+        if i.planet.cn != planet_cn:
+            continue
+        if i.region.cn != region_cn:
+            continue
+        if i.id != tp_cn:
+            continue
+        return i

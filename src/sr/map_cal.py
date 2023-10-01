@@ -153,8 +153,9 @@ class MapCalculator:
         :return: 道路掩码图 能走的部分是白色255
         """
         # 按道路颜色圈出
-        lower_color = np.array([45, 45, 45, 255] if map_image.shape[2] == 4 else [45, 45, 45], dtype=np.uint8)
-        upper_color = np.array([70, 70, 70, 255] if map_image.shape[2] == 4 else [70, 70, 70], dtype=np.uint8)
+        lower_color = np.array([45, 45, 45], dtype=np.uint8)
+        # 大地图颜色比较简单
+        upper_color = np.array([70, 70, 70] if is_little_map else [90, 90, 90], dtype=np.uint8)
         road_mask = cv2.inRange(map_image, lower_color, upper_color)
 
         # 对于小地图 要特殊扫描中心点附近的区块

@@ -24,6 +24,8 @@ class Context:
         self.controller: GameController = None
         self.running: bool = False
         self.press_event: dict = {}
+        self.pause_callback: dict = {}
+        self.resume_callback: dict = {}
 
         keyboard.on_press(self.on_key_press)
         self.register_key_press('f9', self.switch)
@@ -47,6 +49,18 @@ class Context:
         else:
             log.info('恢复运行')
             self.running = True
+
+    def register_pause(self, obj,
+                       pause_callback,
+                       resume_callback):
+        self.pause_callback[id(obj)] = pause_callback
+        self.resume_callback[id(obj)] = resume_callback
+
+    def unregister(self, obj):
+        if id(obj) in self.pause_callback:
+            del self.pause_callback[id(obj)]
+        if id(obj) in self.resume_callback:
+            del self.resume_callback[id(obj)]
 
 
 global_context: Context = None

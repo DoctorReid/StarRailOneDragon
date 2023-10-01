@@ -19,81 +19,73 @@ class MoveDirectly(Operation):
     从当前位置 朝目标点直线前行
     有简单的脱困功能
     """
+    max_len: int = 5  # 最多存储多少个走过的坐标
+    rec_pos_interval: float = 0.5  # 间隔多少秒记录一次坐标
+    stuck_distance: float = 20  # 移动距离多少以内认为是被困
+    arrival_distance: float = 10  # 多少距离内认为是到达目的地
 
     def __init__(self, ctx: Context, large_map_info: LargeMapInfo,
                  target: tuple, start: tuple = None, save_screenshot: bool = False):
-        self.ctx = ctx
+        super().__init__(ctx)
         self.lm_info = large_map_info
         self.target = target
-        self.start = start
         self.save_screenshot = save_screenshot
+        self.pos = []
+        if start is not None:
+            self.pos.append(start)
+        self.stuck_times = 0  # 被困次数
+        self.last_rec_time = time.time()  # 上一次记录坐标的时间
+        self.no_pos_times = 0
 
     def execute(self) -> bool:
-        max_len: int = 5  # 最多存储多少个走过的坐标
-        rec_pos_interval: float = 0.5  # 间隔多少秒记录一次坐标
-        stuck_distance: float = 20  # 移动距离多少以内认为是被困
-        arrival_distance: float = 10  # 多少距离内认为是到达目的地
+        last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
 
-        pos = []
-        if self.start is not None:
-            pos.append(self.start)
+        if len(self.pos) >= MoveDirectly.max_len and \
+                cv2_utils.distance_between(self.pos[0], self.pos[len(self.pos) - 1]) < MoveDirectly.stuck_distance:
+            self.stuck_times += 1
+            walk_sec = self.get_rid_of_stuck(self.stuck_times)
+            self.last_rec_time += walk_sec * 2
+        else:
+            self.stuck_times = 0
 
-        stuck_times = 0  # 被困次数
-        last_rec_time = time.time()  # 上一次记录坐标的时间
-        no_pos_times = 0
+        if not self.ctx.controller.is_moving:
+            self.ctx.controller.move('w')
+        now_time = time.time()
+        screen = self.ctx.controller.screenshot()
+        if self.save_screenshot:
+            save_debug_image(screen)
+        mm = self.ctx.map_cal.cut_mini_map(screen)
+        if self.check_enemy_and_attack(mm):  # 处理完敌人 再重新开始下一轮寻路
+            self.last_rec_time = now_time
+            return Operation.WAIT
 
-        while True:
-            if not self.ctx.running:
-                return False
-            last_pos = None if len(pos) == 0 else pos[len(pos) - 1]
+        mm_info = self.ctx.map_cal.analyse_mini_map(mm)
 
-            if len(pos) >= max_len and \
-                    cv2_utils.distance_between(pos[0], pos[len(pos) - 1]) < stuck_distance:
-                stuck_times += 1
-                walk_sec = self.get_rid_of_stuck(stuck_times)
-                last_rec_time += walk_sec * 2
-            else:
-                stuck_times = 0
+        x, y = self.get_pos(mm_info, now_time, last_pos, self.last_rec_time)
 
-            if not self.ctx.controller.is_moving:
-                self.ctx.controller.move('w')
-            now_time = time.time()
-            screen = self.ctx.controller.screenshot()
-            if self.save_screenshot:
-                save_debug_image(screen)
-            mm = self.ctx.map_cal.cut_mini_map(screen)
-            if self.check_enemy_and_attack(mm):  # 处理完敌人 再重新开始下一轮寻路
-                last_rec_time = now_time
-                continue
+        if x is None or y is None:
+            log.error('无法判断当前人物坐标')
+            self.no_pos_times += 1
+            if self.no_pos_times >= 10:
+                log.error('持续无法判断当前人物坐标 退出本次移动')
+                return Operation.FAIL
+            return Operation.WAIT
+        else:
+            self.no_pos_times = 0
 
-            mm_info = self.ctx.map_cal.analyse_mini_map(mm)
+        next_pos = (x, y)
+        self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
 
-            x, y = self.get_pos(mm_info, now_time, last_pos, last_rec_time)
+        if now_time - self.last_rec_time > self.rec_pos_interval:
+            self.pos.append(next_pos)
+            if len(self.pos) > MoveDirectly.max_len:
+                del self.pos[0]
+            self.last_rec_time = now_time
 
-            if x is None or y is None:
-                log.error('无法判断当前人物坐标')
-                no_pos_times += 1
-                if no_pos_times >= 10:
-                    log.error('持续无法判断当前人物坐标 退出本次移动')
-                    return False
-                continue
-            else:
-                no_pos_times = 0
-
-            next_pos = (x, y)
-            self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
-
-            if now_time - last_rec_time > rec_pos_interval:
-                pos.append(next_pos)
-                if len(pos) > max_len:
-                    del pos[0]
-                last_rec_time = now_time
-
-            if cv2_utils.distance_between(next_pos, self.target) < arrival_distance:
-                log.info('目标点已到达 %s', self.target)
-                self.ctx.controller.stop_moving_forward()
-                return True
-
+        if cv2_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
+            log.info('目标点已到达 %s', self.target)
+            self.ctx.controller.stop_moving_forward()
+            return Operation.SUCCESS
 
     def get_rid_of_stuck(self, stuck_times: int):
         """
@@ -155,3 +147,10 @@ class MoveDirectly(Operation):
         fight.execute()
 
         return True
+
+    def on_pause(self):
+        self.ctx.controller.stop_moving_forward()
+        super().on_pause()
+
+    def on_resume(self):
+        self.last_rec_time = time.time()

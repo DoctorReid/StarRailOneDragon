@@ -21,50 +21,48 @@ class ChooseTransportPoint(Operation):
     drag_distance = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
+        super().__init__(ctx, 10)
         self.tp: TransportPoint = tp
-        self.ctx: Context = ctx
+        self.large_map = self.ctx.ih.get_large_map(self.tp.planet.id, self.tp.region.id, 'origin')
 
-    def execute(self) -> bool:
-        try_times = 0
-
-        large_map = self.ctx.ih.get_large_map(self.tp.planet.id, self.tp.region.id, 'origin')
+    def run(self) -> int:
         mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
 
-        while self.ctx.running and try_times < 10:
-            try_times += 1
-            screen = self.ctx.controller.screenshot()
+        screen = self.ctx.controller.screenshot()
 
-            # 先判断右边是不是出现传送了
-            if self.check_and_click_transport(screen):
-                time.sleep(2)
-                return True
-            else:
-                # 不是传送 或者不是目标传送点
-                self.ctx.controller.click(ChooseTransportPoint.empty_map_pos)
-                time.sleep(0.5)
+        # 先判断右边是不是出现传送了
+        if self.check_and_click_transport(screen):
+            time.sleep(2)
+            return Operation.SUCCESS
+        else:
+            # 不是传送 或者不是目标传送点
+            self.ctx.controller.click(ChooseTransportPoint.empty_map_pos)
+            time.sleep(0.5)
 
-            screen_map = screen[my1: my2, mx1: mx2]
-            offset: MatchResult = self.get_map_offset(screen_map, large_map)
-            if offset is None:
-                log.error('匹配大地图失败')
+        screen_map = screen[my1: my2, mx1: mx2]
+        offset: MatchResult = self.get_map_offset(screen_map)
+        if offset is None:
+            log.error('匹配大地图失败')
+            self.random_drag()
+            time.sleep(0.5)
+            return Operation.RETRY
+
+        dx, dy = self.get_map_next_drag(offset)
+
+        if dx == 0 and dy == 0:  # 当前就能找传送点
+            target: MatchResult = self.get_tp_pos(screen_map, offset)
+            if target is None:  # 没找到的话 随机滑动一下
                 self.random_drag()
-                time.sleep(0.5)
-                continue
+            else:
+                x = target.cx + mx1
+                y = target.cy + my1
+                self.ctx.controller.click((x, y))
 
-            dx, dy = self.get_map_next_drag(offset)
+        if dx != 0 or dy != 0:
+            self.drag(dx, dy)
+            time.sleep(0.5)
 
-            if dx == 0 and dy == 0:  # 当前就能找传送点
-                target: MatchResult = self.get_tp_pos(screen_map, offset)
-                if target is None:  # 没找到的话 随机滑动一下
-                    self.random_drag()
-                else:
-                    x = target.cx + mx1
-                    y = target.cy + my1
-                    self.ctx.controller.click((x, y))
-
-            if dx != 0 or dy != 0:
-                self.drag(dx, dy)
-                time.sleep(0.5)
+        return Operation.RETRY
 
     def check_and_click_transport(self, screen: MatLike):
         """
@@ -91,14 +89,13 @@ class ChooseTransportPoint(Operation):
         return False
 
 
-    def get_map_offset(self, screen_map: MatLike, large_map: MatLike) -> MatchResult:
+    def get_map_offset(self, screen_map: MatLike) -> MatchResult:
         """
         在完整大地图中获取当前界面地图的偏移量
         :param screen_map: 屏幕上的地图部分
-        :param large_map: 完整的大地图图片
         :return: 匹配结果 里面就有偏移量
         """
-        result: MatchResultList = self.ctx.im.match_image(large_map, screen_map)
+        result: MatchResultList = self.ctx.im.match_image(self.large_map, screen_map)
         return result.max
 
     def get_map_next_drag(self, offset: MatchResult):

@@ -4,47 +4,53 @@ import yaml
 from basic import os_utils
 
 
-def get_config_file_path(name: str):
+def get_config_file_path(name: str, sub_dir: str = None):
     """
     获取配置文件完整路径
     :param name: 配置名
+    :param sub_dir: 子目录
     :return: 完整路径
     """
-    return os.path.join(os_utils.get_path_under_work_dir('config'), '%s.yml' % name)
+    dir_path = os_utils.get_path_under_work_dir('config') if sub_dir is None else os_utils.get_path_under_work_dir('config', sub_dir)
+    return os.path.join(dir_path, '%s.yml' % name)
 
 
-def get_sample_config_file_path(name: str):
+def get_sample_config_file_path(name: str, sub_dir: str = None):
     """
     获取样例配置文件的完整路径
     :param name: 配置名
+    :param sub_dir: 子目录
     :return: 完整路径
     """
-    return get_config_file_path('%s_sample' % name)
+    return get_config_file_path('%s_sample' % name, sub_dir=sub_dir)
 
 
-def read_config(name: str):
+def read_config(name: str, sample: bool = True, sub_dir: str = None):
     """
     读取具体的配置 如果不存在 读取默认配置
     :param name: 配置名
+    :param sample: 找不到时是否找同目录下的sample
+    :param sub_dir: 子目录
     :return: 配置内容
     """
-    path = get_config_file_path(name)
+    path = get_config_file_path(name, sub_dir=sub_dir)
     data = None
     if os.path.exists(path):
-        with open(path, 'r') as file:
+        with open(path, 'r', encoding='utf-8') as file:
             data = yaml.safe_load(file)
-    if data is None:
-        data = read_sample_config(name)
+    if data is None and sample:
+        data = read_sample_config(name, sub_dir=sub_dir)
     return data
 
 
-def read_sample_config(name: str):
+def read_sample_config(name: str, sub_dir: str = None):
     """
     读取样例配置
     :param name: 配置名
+    :param sub_dir: 子目录
     :return: 配置内容
     """
-    path = get_sample_config_file_path(name)
+    path = get_sample_config_file_path(name, sub_dir=sub_dir)
     if os.path.exists(path):
         with open(path, 'r') as file:
             return yaml.safe_load(file)
@@ -52,14 +58,15 @@ def read_sample_config(name: str):
         return None
 
 
-def save_config(name: str, data: dict):
+def save_config(name: str, data: dict, sub_dir: str = None):
     """
     保存配置
     :param name: 配置模块
     :param data: 值
+    :param sub_dir: 子目录
     :return:
     """
-    path = get_config_file_path(name)
+    path = get_config_file_path(name, sub_dir=sub_dir)
     with open(path, 'w') as file:
         yaml.dump(data, file)
 

@@ -2,6 +2,7 @@ import time
 
 from cv2.typing import MatLike
 
+from basic.img import MatchResult
 from basic.log_utils import log
 from sr.context import Context, get_context
 from sr.control import GameController
@@ -18,36 +19,35 @@ class ScaleLargeMap(Operation):
         默认在大地图页面 点击缩放按钮
         :param scale: 缩放次数。负数为缩小，正数为放大
         """
-        self.ctx = ctx
+        super().__init__(ctx, 5)
         self.scale: int = scale
+        self.click_times = 0
+        self.pos = None
 
-    def execute(self) -> bool:
-        try_times = 0
+    def run(self) -> int:
+        if self.pos is None:
+            self.pos = self.get_click_pos()
 
-        while self.ctx.running and try_times < 5:
-            if not self.ctx.running:
-                return False
-            try_times += 1
-            screen = self.ctx.controller.screenshot()
-            if self.click_scale(screen, self.ctx):
-                return True
+        if self.pos is not None:
+            log.info('准备缩放地图 点击 (%d, %d) %s', self.pos.x, self.pos.y,
+                     self.ctx.controller.click((self.pos.x, self.pos.y)))
+            time.sleep(0.5)
+            self.click_times += 1
+            if self.click_times == abs(self.scale):
+                return Operation.SUCCESS
+            else:
+                return Operation.WAIT
+        else:
+            return Operation.RETRY
 
-        return False
-
-    def click_scale(self, screen: MatLike, ctx: Context) -> bool:
-        ctrl: GameController = ctx.controller
-        im: ImageMatcher = ctx.im
+    def get_click_pos(self) -> MatchResult:
+        screen = self.ctx.controller.screenshot()
         template_id = 'plus' if self.scale > 0 else 'minus'
         x1, y1, x2, y2 = ScaleLargeMap.rect
         source = screen[y1:y2, x1:x2]
-        result = im.match_template(source, template_id, template_type='origin')
-        if len(result) > 0:
-            for _ in range(abs(self.scale)):
-                if not ctx.running:
-                    return False
-                x, y = result.max.x + x1, result.max.y + y1
-                log.info('准备缩放地图 点击 (%d, %d) %s', x, y, ctrl.click((x, y)))
-                time.sleep(0.5)
-            return True
+        result = self.ctx.im.match_template(source, template_id, template_type='origin')
+        return result.max
 
-        return False
+    def on_resume(self):
+        self.pos = self.get_click_pos()
+        super().on_resume()
