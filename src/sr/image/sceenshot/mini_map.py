@@ -6,6 +6,7 @@ from cv2.typing import MatLike
 
 from basic.img import cv2_utils, MatchResultList, MatchResult
 from sr import constants
+from sr.config.game_config import MiniMapPos
 from sr.image import ImageMatcher, TemplateImage
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import MiniMapInfo
@@ -288,10 +289,37 @@ def get_enemy_location(mini_map: MatLike) -> List:
     return []
 
 
-def is_under_attack(mini_map: MatLike) -> bool:
+def is_under_attack(mini_map: MatLike, mm_pos: MiniMapPos, show: bool = True) -> bool:
     """
     根据小地图边缘 判断是否被锁定
-    :param mini_map:
-    :return:
+    红色色道应该有一个圆
+    :param mini_map: 小地图截图
+    :param mm_pos: 小地图
+    :return: 是否被锁定
     """
-    return False
+    w, h = mini_map.shape[1], mini_map.shape[0]
+    cx, cy = mini_map.shape[1] // 2, mini_map.shape[0] // 2
+    r = mm_pos.r
+
+    circle_mask = np.zeros(mini_map.shape[:2], dtype=np.uint8)
+    cv2.circle(circle_mask, (cx, cy), r, 255, 3)
+
+    circle_part = cv2.bitwise_and(mini_map, mini_map, mask=circle_mask)
+    _, red = cv2.threshold(circle_part[:, :, 2], 200, 255, cv2.THRESH_BINARY)
+
+    circles = cv2.HoughCircles(red, cv2.HOUGH_GRADIENT, 0.3, 100, param1=10, param2=10,
+                               minRadius=mm_pos.r - 10, maxRadius=mm_pos.r + 10)
+    find: bool = circles is not None
+
+    if show:
+        cv2_utils.show_image(circle_part, win_name='circle_part')
+        cv2_utils.show_image(red, win_name='red')
+        find_circle = np.zeros(mini_map.shape[:2], dtype=np.uint8)
+        if circles is not None:
+            # 将检测到的圆形绘制在原始图像上
+            circles = np.round(circles[0, :]).astype("int")
+            for (x, y, r) in circles:
+                cv2.circle(find_circle, (x, y), r, 255, 1)
+        cv2_utils.show_image(find_circle, win_name='find_circle')
+
+    return find

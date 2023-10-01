@@ -7,40 +7,18 @@ from cv2.typing import MatLike
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import constants
-from sr.config import ConfigHolder
-from sr.image.cv2_matcher import CvImageMatcher
+from sr.config.game_config import MiniMapPos, get_game_config
+from sr.image import ImageMatcher
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map
-
-
-class LittleMapPos:
-
-    def __init__(self, x, y, r):
-        # 原点
-        self.x = int(x)
-        self.y = int(y)
-        self.r = int(r)
-        # 矩形左上角
-        self.lx = self.x - self.r - 1
-        self.ly = self.y - self.r - 1
-        # 矩形右下角
-        self.rx = self.x + self.r + 1
-        self.ry = self.y + self.r + 1
-
-    def __str__(self):
-        return "(%d, %d) %.2f" % (self.x, self.y, self.r)
 
 
 class MapCalculator:
 
     def __init__(self,
-                 im: CvImageMatcher,
-                 config: ConfigHolder = None):
+                 im: ImageMatcher):
         self.im = im
         self.feature_detector = cv2.SIFT_create()
-        self.map_pos: LittleMapPos = None
-        if config is not None:
-            lmc = config.get_config('game', 'little_map')
-            self.map_pos = LittleMapPos(lmc['x'], lmc['y'], lmc['r'])
+        self.mm_pos: MiniMapPos = get_game_config().mini_map_pos
 
     def cut_mini_map(self, screen: MatLike):
         """
@@ -48,9 +26,9 @@ class MapCalculator:
         :param screen: 屏幕截图
         :return:
         """
-        if self.map_pos is not None:
+        if self.mm_pos is not None:
             # 截取圆圈的正方形
-            lm = screen[self.map_pos.ly:self.map_pos.ry, self.map_pos.lx:self.map_pos.rx]
+            lm = screen[self.mm_pos.ly:self.mm_pos.ry, self.mm_pos.lx:self.mm_pos.rx]
         else:
             x, y = 60, 110  # 默认的小地图坐标
             x2, y2 = 240, 280
@@ -85,8 +63,8 @@ class MapCalculator:
                 if circle[2] > tr:
                     tx, ty, tr = circle[0], circle[1], circle[2]
 
-            self.map_pos = LittleMapPos(tx, ty, tr)
-            log.debug('计算小地图所在坐标为 %s', self.map_pos)
+            self.mm_pos = MiniMapPos(tx, ty, tr)
+            log.debug('计算小地图所在坐标为 %s', self.mm_pos)
         else:
             log.error('无法找到小地图的圆')
 

@@ -1,14 +1,13 @@
-import math
+import ctypes
 import time
 
-import ctypes
 import cv2
 import pyautogui
 from cv2.typing import MatLike
 
 from basic import win_utils
 from basic.log_utils import log
-from sr.config import ConfigHolder
+from sr.config.game_config import GameConfig, get_game_config
 from sr.control import GameController
 from sr.image import OcrMatcher
 from sr.win import Window, WinRect
@@ -16,12 +15,12 @@ from sr.win import Window, WinRect
 
 class PcController(GameController):
 
-    def __init__(self, win: Window, ocr: OcrMatcher, config: ConfigHolder):
+    def __init__(self, win: Window, ocr: OcrMatcher):
         self.win: Window = win
         self.ocr: OcrMatcher = ocr
-        self.config: ConfigHolder = config
-        self.turn_dx: float = config.get_config('game', 'turn_dx')
-        self.walk_speed: float = config.get_config('game', 'walk_speed')
+        config: GameConfig = get_game_config()
+        self.turn_dx: float = config.get('turn_dx')
+        self.walk_speed: float = config.get('walk_speed')
         self.is_moving: bool = False
 
     def init(self):

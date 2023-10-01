@@ -3,7 +3,6 @@ import pyautogui
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.config import ConfigHolder
 from sr.control import GameController
 from sr.control.pc_controller import PcController
 from sr.image import ImageMatcher, OcrMatcher
@@ -17,7 +16,6 @@ from sr.win import Window
 class Context:
 
     def __init__(self):
-        self.config: ConfigHolder = None
         self.map_cal: MapCalculator = None
         self.ih: ImageHolder = None
         self.im: ImageMatcher = None
@@ -65,10 +63,9 @@ def get_context(win_title: str='崩坏：星穹铁道') -> Context:
         log.error('未开打游戏')
         exit(1)
     global_context = Context()
-    global_context.config = ConfigHolder()
     global_context.ih = ImageHolder()
     global_context.im = CvImageMatcher(global_context.ih)
     global_context.ocr = CnOcrMatcher()
-    global_context.map_cal = MapCalculator(im=global_context.im, config=global_context.config)
-    global_context.controller = PcController(win=win, ocr=global_context.ocr, config=global_context.config)
+    global_context.map_cal = MapCalculator(im=global_context.im)
+    global_context.controller = PcController(win=win, ocr=global_context.ocr)
     return global_context

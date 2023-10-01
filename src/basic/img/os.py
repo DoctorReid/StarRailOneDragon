@@ -20,20 +20,23 @@ def get_debug_image(filename, suffix: str = '.png') -> MatLike:
     return cv2_utils.read_image(get_debug_image_path(filename, suffix))
 
 
-def get_test_image_dir():
-    return os_utils.get_path_under_work_dir('test', 'resources', 'images')
+def get_test_image_dir(sub_dir: str = None):
+    if sub_dir is None:
+        return os_utils.get_path_under_work_dir('test', 'resources', 'images')
+    else:
+        return os_utils.get_path_under_work_dir('test', 'resources', 'images', sub_dir)
 
 
-def get_test_image_path(filename, suffix: str = '.png') -> str:
-    return os.path.join(get_test_image_dir(), filename + suffix)
+def get_test_image_path(filename, suffix: str = '.png', sub_dir: str = None) -> str:
+    return os.path.join(get_test_image_dir(sub_dir=sub_dir), filename + suffix)
 
 
-def get_test_image(filename, suffix: str = '.png') -> MatLike:
+def get_test_image(filename, suffix: str = '.png', sub_dir: str = None) -> MatLike:
     """
 
     :rtype: object
     """
-    return cv2_utils.read_image(get_test_image_path(filename, suffix))
+    return cv2_utils.read_image(get_test_image_path(filename, suffix, sub_dir))
 
 
 def save_debug_image(image):

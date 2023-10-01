@@ -1,13 +1,11 @@
 import os
-import time
 
 import cv2
 import numpy as np
 
 from basic.img import cv2_utils
-from basic.img.os import get_test_image, get_debug_image_dir, get_debug_image
+from basic.img.os import get_test_image, get_debug_image_dir
 from sr import constants
-from sr.config import ConfigHolder
 from sr.constants.map import Region
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
@@ -15,8 +13,7 @@ from sr.map_cal import MapCalculator
 
 image_holder = ImageHolder()
 im = CvImageMatcher()
-ch = ConfigHolder()
-mc = MapCalculator(im=im, config=ch)
+mc = MapCalculator(im=im)
 
 
 def _test_analyse_mini_map():

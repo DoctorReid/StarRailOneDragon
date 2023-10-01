@@ -1,7 +1,6 @@
 import math
 import time
 
-import cv2
 import numpy as np
 from cv2.typing import MatLike
 
@@ -10,7 +9,7 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
-from sr.config import ConfigHolder
+from sr.config.game_config import GameConfig, get_game_config
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map
@@ -25,7 +24,6 @@ class Calibrator(Application):
     def __init__(self, ctx: Context):
         self.ctx: Context = ctx
         self.ctrl: GameController = ctx.controller
-        self.config: ConfigHolder = ctx.config
         self.mc: MapCalculator = ctx.map_cal
 
     def run(self):
@@ -40,10 +38,13 @@ class Calibrator(Application):
         if screenshot is None:
             screenshot = self.ctrl.screenshot()
         self.mc.cal_little_map_pos(screenshot)
-        self.config.update_config('game', 'little_map',
-                                  {'x': self.mc.map_pos.x, 'y': self.mc.map_pos.y, 'r': self.mc.map_pos.r})
+        config: GameConfig = get_game_config()
+        config.update('x', self.mc.mm_pos.x)
+        config.update('y', self.mc.mm_pos.y)
+        config.update('r', self.mc.mm_pos.r)
+        config.write_config()
 
-        log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', self.mc.map_pos.x, self.mc.map_pos.y, self.mc.map_pos.r)
+        log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', self.mc.mm_pos.x, self.mc.mm_pos.y, self.mc.mm_pos.r)
 
     def _check_turning_rate(self):
         """

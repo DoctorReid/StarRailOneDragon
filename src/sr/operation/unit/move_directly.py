@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
+from sr.config.game_config import get_game_config
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
@@ -145,7 +146,7 @@ class MoveDirectly(Operation):
         :param mm:
         :return: 是否有敌人
         """
-        if not mini_map.is_under_attack(mm):
+        if not mini_map.is_under_attack(mm, get_game_config().mini_map_pos):
             return False
         # pos_list = mini_map.get_enemy_location(mini_map)
         # if len(pos_list) == 0:

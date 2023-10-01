@@ -7,10 +7,10 @@ from cv2.typing import MatLike
 from basic.img import cv2_utils
 from basic.img.os import get_debug_image_dir, get_test_image, save_debug_image, get_debug_image
 from sr import constants
-from sr.config import ConfigHolder
+from sr.config.game_config import get_game_config
 from sr.constants.map import Region
 from sr.image.cv2_matcher import CvImageMatcher
-from sr.image.image_holder import ImageHolder, TemplateImage
+from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map
 from sr.map_cal import MapCalculator
 
@@ -109,9 +109,15 @@ def _test_get_sp_mask_by_feature_match():
     mini_map.get_sp_mask_by_feature_match(info, ih, template_list=['mm_tp_01'], show=True)
 
 
+def _test_is_under_attack():
+    for i in range(2):
+        screen = get_test_image('%d' % (i + 1), sub_dir='under_attack')
+        mm = mc.cut_mini_map(screen)
+        print(mini_map.is_under_attack(mm, get_game_config().mini_map_pos, show=True))
+        cv2.waitKey(0)
+
 if __name__ == '__main__':
-    config = ConfigHolder()
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    mc = MapCalculator(im=im, config=config)
-    _test_edge()
+    mc = MapCalculator(im=im)
+    _test_is_under_attack()

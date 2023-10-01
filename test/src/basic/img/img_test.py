@@ -1,19 +1,15 @@
-import dev
-
 import basic.img.get
+
 import sr
 from basic import gui_utils
 from basic.img import MatchResultList, cv2_utils
+from sr import constants
 from sr.image.cnocr_matcher import CnocrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
-from sr import constants
-from sr.config import ConfigHolder
 from sr.map_cal import MapCalculator
 
-
 im = CvImageMatcher()
-ch = ConfigHolder()
-mc = MapCalculator(im=im, config=ch)
+mc = MapCalculator(im=im)
 
 
 def _test_match_template():
