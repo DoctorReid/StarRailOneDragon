@@ -1,7 +1,7 @@
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
-from sr.image import OcrMatcher
+from sr.image import OcrMatcher, ImageMatcher
 
 IN_WORLD = 1
 ENTERING_BATTLE = 2
@@ -10,24 +10,24 @@ ENDING_BATTLE_SUCCESS = 4
 ENDING_BATTLE_FAIL = 5
 
 
-def get_battle_status(screen: MatLike, ocr: OcrMatcher):
+def get_battle_status(screen: MatLike, im: ImageMatcher):
     """
     判断当天屏幕的战斗状态
     :param screen: 屏幕截图
-    :param ocr: ocr
+    :param im: 图片匹配器
     :return: 状态
     """
-    if is_tab_at_right_bottom(screen, ocr):
+    if is_character_icon_at_right_top(screen, im):
         return IN_WORLD
 
 
-def is_tab_at_right_bottom(screen: MatLike, ocr: OcrMatcher):
+def is_character_icon_at_right_top(screen: MatLike, im: ImageMatcher):
     """
-    右下角是否有轮盘
+    右上角是否有角色的图标
     :param screen: 屏幕截图
-    :param ocr: ocr
-    :return: 右下角是否有轮盘
+    :param im: 图片匹配器
+    :return: 右上角是否有角色的图标
     """
-    part = screen[1030:, 1750:]
-    result = ocr.match_words(part, words=[gt('轮盘')])
-    return len(result) > 0
+    part = screen[0:90, 1800:1900]
+    result = im.match_template(part, 'ui_icon_01', threshold=0.7)
+    return result.max is not None
