@@ -1,6 +1,6 @@
 mini_map:
-  r: 0
-  x: 0
-  y: 0
+  r: 93
+  x: 139
+  y: 152
 walk_speed: 20
 turn_dx: 0

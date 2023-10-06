@@ -39,9 +39,11 @@ class Calibrator(Application):
             screenshot = self.ctrl.screenshot()
         self.mc.cal_little_map_pos(screenshot)
         config: GameConfig = get_game_config()
-        config.update('x', self.mc.mm_pos.x)
-        config.update('y', self.mc.mm_pos.y)
-        config.update('r', self.mc.mm_pos.r)
+        config.update('mini_map', {
+            'x': self.mc.mm_pos.x,
+            'y': self.mc.mm_pos.y,
+            'r': self.mc.mm_pos.r
+        })
         config.write_config()
 
         log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', self.mc.mm_pos.x, self.mc.mm_pos.y, self.mc.mm_pos.r)
