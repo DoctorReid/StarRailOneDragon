@@ -8,6 +8,7 @@ set env_path=.\.env
 set venv_path=!env_path!\venv
 
 echo 安装启动途中 如遇杀毒软件提醒 选择信任即可
+echo 部分内容需要梯子 请自行开启
 
 rem 检查 系统是否已安装 Python 3.11
 set sys_py311=0
@@ -130,12 +131,9 @@ echo 安装依赖包完成
 echo.>> !env_path!\!file_time!.txt
 
 :requirements-install-done
-echo 依赖包已准备
+echo 依赖包已准备完毕
 
-:start
-echo 准备启动......
-echo 如果失败 可手动删除 .env 文件夹后重试
-rem !python! Honkai_Star_Rail.py
+echo 环境安装已完成
 
 endlocal
 pause

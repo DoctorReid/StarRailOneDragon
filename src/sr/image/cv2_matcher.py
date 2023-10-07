@@ -40,6 +40,7 @@ class CvImageMatcher(ImageMatcher):
     def match_template(self, source: MatLike, template_id: str, template_type: str = None,
                        threshold: float = 0.5,
                        mask: np.ndarray = None,
+                       ignore_template_mask: bool = False,
                        ignore_inf: bool = True) -> MatchResultList:
         """
         在原图中 匹配模板 如果模板图中有掩码图 会自动使用
@@ -47,7 +48,8 @@ class CvImageMatcher(ImageMatcher):
         :param template_id: 模板id
         :param template_type: 模板类型
         :param threshold: 匹配阈值
-        :param mask: 掩码
+        :param mask: 额外使用的掩码 与原模板掩码叠加
+        :param ignore_template_mask: 是否忽略模板自身的掩码
         :param ignore_inf: 是否忽略无限大的结果
         :return: 所有匹配结果
         """
@@ -56,7 +58,11 @@ class CvImageMatcher(ImageMatcher):
             log.error('未加载模板 %s' % template_id)
             return MatchResultList()
 
-        mask_usage = template.mask if mask is None else cv2.bitwise_or(template.mask, mask)
+        mask_usage = None
+        if not ignore_template_mask:
+            mask_usage = cv2.bitwise_or(mask_usage, template.mask) if mask_usage is not None else template.mask
+        if mask is not None:
+            mask_usage = cv2.bitwise_or(mask_usage, mask) if mask_usage is not None else mask
         return self.match_image(source, template.get(template_type), threshold, mask_usage, ignore_inf=ignore_inf)
 
     def match_template_with_rotation(self, source: MatLike, template_id: str, template_type: str = None,

@@ -121,7 +121,7 @@ def mark_area_as_color(image: MatLike, pos: List, color, new_image: bool = False
 def match_template(source: MatLike, template: MatLike, threshold,
                    mask: np.ndarray = None, ignore_inf: bool = False) -> MatchResultList:
     """
-    在原图中匹配模板
+    在原图中匹配模板 注意无法从负偏移量开始匹配 即需要保证目标模板不会在原图边缘位置导致匹配不到
     :param source: 原图
     :param template: 模板
     :param threshold: 阈值
@@ -129,7 +129,7 @@ def match_template(source: MatLike, template: MatLike, threshold,
     :param ignore_inf: 是否忽略无限大的结果
     :return: 所有匹配结果
     """
-    ty, tx = template.shape[1], template.shape[0]
+    tx, ty = template.shape[1], template.shape[0]
     # 进行模板匹配
     result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
 

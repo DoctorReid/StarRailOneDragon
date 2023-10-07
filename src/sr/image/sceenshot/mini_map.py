@@ -294,11 +294,11 @@ def is_under_attack(mini_map: MatLike, mm_pos: MiniMapPos, show: bool = True) ->
     根据小地图边缘 判断是否被锁定
     红色色道应该有一个圆
     :param mini_map: 小地图截图
-    :param mm_pos: 小地图
+    :param mm_pos: 小地图坐标信息
     :return: 是否被锁定
     """
     w, h = mini_map.shape[1], mini_map.shape[0]
-    cx, cy = mini_map.shape[1] // 2, mini_map.shape[0] // 2
+    cx, cy = w // 2, h // 2
     r = mm_pos.r
 
     circle_mask = np.zeros(mini_map.shape[:2], dtype=np.uint8)

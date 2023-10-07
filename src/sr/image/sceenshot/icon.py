@@ -41,9 +41,9 @@ def convert_template(template_id, save: bool = False):
         cv2.imwrite(os.path.join(dir, 'mask.png'), mask)
 
 
-def init_tp_with_background(template_id: str):
+def init_tp_with_background(template_id: str, noise_threshold: int = 0):
     """
-    对传送点进行抠图
+    对传送点进行抠图 尽量多截取一点黑色背景
     将裁剪出来的图片 转化保留灰度图和对应掩码
     如果原图有透明通道 会转化成无透明通道的
     最后结果图都会转化到 51*51 并居中
@@ -52,12 +52,15 @@ def init_tp_with_background(template_id: str):
     :return:
     """
     raw = _read_template_image(template_id)
+    if raw.shape[2] == 4:
+        raw = cv2.cvtColor(raw, cv2.COLOR_BGRA2BGR)
     gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
-    _, binary = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
-    mask = cv2_utils.connection_erase(binary, threshold=30)
+    _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+    if noise_threshold > 0:
+        mask = cv2_utils.connection_erase(mask, threshold=noise_threshold)
 
     # 背景统一使用道路颜色 因为地图上传送点附近大概率都是道路 这样更方便匹配
-    final_origin, final_mask = convert_to_standard(raw, mask, d=51, bg_color=constants.COLOR_MAP_ROAD_BGR)
+    final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=51, bg_color=constants.COLOR_MAP_ROAD_BGR)
 
     show_and_save(template_id, final_origin, final_mask)
 
@@ -84,10 +87,10 @@ def init_sp_with_background(template_id: str, noise_threshold: int = 0):
     cv2_utils.show_image(gray, win_name='gray')
     black = cv2.inRange(gray, 0, 20)
 
-    l1, r1, t1, b1 = get_four_conner(black)
+    l1, r1, t1, b1 = get_four_corner(black)
     print(l1, r1, t1, b1)
     # 找特殊点主体部分的几个角 可能会覆盖到菱形
-    l2, r2, t2, b2 = get_four_conner(front_binary)
+    l2, r2, t2, b2 = get_four_corner(front_binary)
     print(l2, r2, t2, b2)
     l = l1 if l1[0] < l2[0] else l2
     r = r1 if r1[0] > r2[0] else r2
@@ -105,7 +108,7 @@ def init_sp_with_background(template_id: str, noise_threshold: int = 0):
     mask = cv2_utils.connection_erase(binary, threshold=noise_threshold)
     mask = cv2_utils.connection_erase(mask, threshold=noise_threshold, erase_white=False)
 
-    final_origin, final_mask = convert_to_standard(raw, mask, d=51, bg_color=constants.COLOR_MAP_ROAD_BGR)
+    final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=51, bg_color=constants.COLOR_MAP_ROAD_BGR)
 
     show_and_save(template_id, final_origin, final_mask)
 
@@ -123,11 +126,23 @@ def init_ui_icon(template_id: str, noise_threshold: int = 0):
     :return:
     """
     raw = _read_template_image(template_id)
-    mask = cv2.inRange(raw, (200, 200, 200), (255, 255, 255))
+    gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+    if noise_threshold > 0:
+        mask = cv2_utils.connection_erase(mask, threshold=noise_threshold)
     final_origin, final_mask = convert_to_standard(raw, mask, d=65, bg_color=(0, 0, 0))
     show_and_save(template_id, final_origin, final_mask)
 
-def get_four_conner(bw):
+
+def init_battle_ctrl_icon(template_id: str, noise_threshold: int = 0):
+    raw = _read_template_image(template_id)
+    gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+    final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=35, bg_color=(0, 0, 0))
+    show_and_save(template_id, final_origin, final_mask)
+
+
+def get_four_corner(bw):
     """
     获取四个方向最远的白色像素点的位置
     :param bw: 黑白图
@@ -140,12 +155,14 @@ def get_four_conner(bw):
     bottom = (white[1][np.argmax(white[0])], white[0][np.argmax(white[0])])
     return left, right, top, bottom
 
-def convert_to_standard(origin, mask, d: int = 51, bg_color=None):
+
+def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_color=None):
     """
-    转化成 50*50 并居中
+    转化成 目标尺寸并居中
     :param origin:
     :param mask:
-    :param d: 图标正方形的边长
+    :param width: 目标尺寸宽度
+    :param height: 目标尺寸高度
     :param bg_color: 背景色
     :return:
     """
@@ -176,14 +193,15 @@ def convert_to_standard(origin, mask, d: int = 51, bg_color=None):
     x1, y1 = cx - min_x, cy - min_y
     x2, y2 = max_x - cx, max_y - cy
 
-    c = d // 2
+    ccx = width // 2
+    ccy = height // 2
 
     # 移动到 50*50 居中
-    final_mask = np.zeros((d, d), dtype=np.uint8)
-    final_mask[c-y1:c+y2, c-x1:c+x2] = mask[min_y:max_y, min_x:max_x]
+    final_mask = np.zeros((height, width), dtype=np.uint8)
+    final_mask[ccy-y1:ccy+y2, ccx-x1:ccx+x2] = mask[min_y:max_y, min_x:max_x]
 
-    final_origin = np.zeros((d, d, 3), dtype=np.uint8)
-    final_origin[c-y1:c+y2, c-x1:c+x2, :] = origin[min_y:max_y, min_x:max_x, :]
+    final_origin = np.zeros((height, width, 3), dtype=np.uint8)
+    final_origin[ccy-y1:ccy+y2, ccx-x1:ccx+x2, :] = origin[min_y:max_y, min_x:max_x, :]
     final_origin = cv2.bitwise_and(final_origin, final_origin, mask=final_mask)
 
     if bg_color is not None:  # 部分图标可以背景统一使用颜色

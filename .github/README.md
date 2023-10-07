@@ -3,7 +3,7 @@
 
 期望自动化完成星铁中所有内容
 
-期望一期锄大地功能在10月份完工 [目前进度](https://github.com/DoctorReid/StarRailProxy/milestone/1)
+期望一期锄大地功能在10月份完工 [目前进度](https://github.com/DoctorReid/StarRailProxy/milestone/2)
 
 ## 使用指南
 还没写
