@@ -115,5 +115,5 @@ class LargeMapRecorder(Application):
 
 if __name__ == '__main__':
     ctx = get_context()
-    app = LargeMapRecorder(ctx, constants.map.P01_R03_SRCD)
+    app = LargeMapRecorder(ctx, constants.map.P01_R02_JZCD)
     app.run()

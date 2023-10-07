@@ -41,7 +41,7 @@ class ChoosePlanet(Operation):
             return Operation.RETRY
         else:
             log.info('当前在星际 准备选择 %s', self.planet.cn)
-            self.choose_planet(screen, ctrl)
+            self.choose_planet(screen)
             time.sleep(1)
             return Operation.RETRY
 
