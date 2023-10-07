@@ -7,6 +7,7 @@ from sr.control import GameController
 from sr.image.sceenshot import mini_map, battle
 from sr.map_cal import MapCalculator
 from sr.operation import Operation
+from sr.operation.unit.enable_auto_fight import EnableAutoFight
 
 
 class EnterAutoFight(Operation):
@@ -16,7 +17,7 @@ class EnterAutoFight(Operation):
     attack_interval = 1  # 发起攻击的间隔
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, 100)
+        super().__init__(ctx)
         self.last_attack_time = time.time()
         self.ctx.controller.stop_moving_forward()
         log.info('检测到警报 索敌开始')
@@ -28,8 +29,10 @@ class EnterAutoFight(Operation):
         screen = ctrl.screenshot()
 
         now_time = time.time()
-        screen_status = battle.get_battle_status(screen, self.ctx.ocr)
+        screen_status = battle.get_battle_status(screen, self.ctx.im)
         if screen_status != battle.IN_WORLD:
+            eaf = EnableAutoFight(self.ctx)
+            eaf.execute()
             time.sleep(0.5)  # 战斗部分
             return Operation.WAIT
 
@@ -43,7 +46,7 @@ class EnterAutoFight(Operation):
         # _, _, angle = mini_map.analyse_arrow_and_angle(mm, self.im)
         # ctrl.move_towards((mm.shape[0] // 2, mm.shape[1] // 2), pos_list[0], angle)
 
-        if not mini_map.is_under_attack(mm, get_game_config().mini_map_pos):
+        if not mini_map.is_under_attack(mm, get_game_config().mini_map_pos):  # TODO 在线路末尾可能漏怪
             log.info('警报解除 索敌结束')
             return Operation.SUCCESS
 
