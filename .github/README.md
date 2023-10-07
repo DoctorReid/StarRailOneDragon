@@ -25,4 +25,4 @@ This software is open source, free of charge and for learning and exchange purpo
 点赞以下灵感来源
 - [崩坏：星穹铁道 模拟宇宙自动化](https://github.com/CHNZYX/Auto_Simulated_Universe)
 - [崩铁速溶茶](https://github.com/LmeSzinc/StarRailCopilot)
-- [Auto_Star_Rail](https://github.com/Night-stars-1/Auto_Star_Rail)
+- [崩坏：星穹铁道自动锄大地](https://github.com/Starry-Wind/StarRailAssistant)

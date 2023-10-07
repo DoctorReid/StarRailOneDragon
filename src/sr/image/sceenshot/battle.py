@@ -24,6 +24,10 @@ def get_battle_status(screen: MatLike, im: ImageMatcher):
     """
     if is_character_icon_at_right_top(screen, im):
         return IN_WORLD
+    if match_battle_ctrl(screen, im, 'battle_ctrl_02', is_on=True) is not None or \
+            match_battle_ctrl(screen, im, 'battle_ctrl_02', is_on=False) is not None:
+        return BATTLING
+
     return UNKNOWN
 
 
