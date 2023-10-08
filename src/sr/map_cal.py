@@ -111,7 +111,7 @@ class MapCalculator:
         info.origin = lm
         gray = cv2.cvtColor(lm, cv2.COLOR_BGRA2GRAY)
 
-        sp_mask, _ = large_map.get_sp_mask_by_template_match(info, self.im.ih)
+        sp_mask, _ = large_map.get_sp_mask_by_template_match(info, self.im)
         road_mask = self.find_map_road_mask(lm, sp_mask)
         info.gray, info.mask = self.merge_all_map_mask(gray, road_mask, sp_mask)
         info.edge = self.find_edge_mask(info.mask)

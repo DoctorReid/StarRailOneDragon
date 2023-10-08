@@ -7,37 +7,12 @@ from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.i18_utils import gt
-from basic.img import cv2_utils, MatchResult
+from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
-from sr.constants.map import Planet, TransportPoint
-from sr.image import OcrMatcher, TemplateImage
-from sr.image.image_holder import ImageHolder
+from sr.constants.map import Planet, Region
+from sr.image import OcrMatcher, TemplateImage, ImageMatcher
 from sr.image.sceenshot import LargeMapInfo
-
-
-def get_map_path(planet: str, region: str, mt: str = 'origin') -> str:
-    """
-    获取某张地图路径
-    :param planet: 星球名称
-    :param region: 对应区域
-    :param mt: 地图类型
-    :return: 图片路径
-    """
-    return os.path.join(os_utils.get_path_under_work_dir('images', 'map', planet, region), '%s.png' % mt)
-
-
-def save_large_map_image(image: MatLike, planet: str, region: str, mt: str = 'origin'):
-    """
-    保存某张地图
-    :param image: 图片
-    :param planet: 星球名称
-    :param region: 对应区域
-    :param mt: 地图类型
-    :return:
-    """
-    path = get_map_path(planet, region, mt)
-    cv2.imwrite(path, image)
 
 
 def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
@@ -100,20 +75,7 @@ def cut_minus_or_plus(screen: MatLike, minus: bool = True) -> MatLike:
     return cut, mask
 
 
-def find_target_transport_point(screen: MatLike, large_map: MatLike, tp: TransportPoint) -> MatchResult:
-    """
-    在当前截图中 找到对应传送点的位置
-    :param screen: 当前截图 在大地图界面 跟大地图模板一样的缩放比例
-    :param large_map: 所属大地图的模板图片
-    :param tp: 目标传送点
-    :return: 匹配结果
-    """
-    map_part = screen[200: 900, 200: 1400]
-
-    # 首先找到当前截图在大地图上的位置
-
-
-def get_sp_mask_by_template_match(lm_info: LargeMapInfo, ih: ImageHolder,
+def get_sp_mask_by_template_match(lm_info: LargeMapInfo, im: ImageMatcher,
                                   template_type: str = 'origin',
                                   template_list: List = None,
                                   show: bool = False):
@@ -121,7 +83,7 @@ def get_sp_mask_by_template_match(lm_info: LargeMapInfo, ih: ImageHolder,
     在地图中 圈出传送点、商铺点等可点击交互的的特殊点
     使用模板匹配
     :param lm_info: 大地图
-    :param ih: 图片加载器
+    :param im: 图片匹配器
     :param template_type: 模板类型
     :param template_list: 限定种类的特殊点
     :param show: 是否展示结果
@@ -138,13 +100,13 @@ def get_sp_mask_by_template_match(lm_info: LargeMapInfo, ih: ImageHolder,
             template_id = '%s_%02d' % (prefix, i)
             if template_list is not None and template_id not in template_list:
                 continue
-            ti: TemplateImage = ih.get_template(template_id)
+            ti: TemplateImage = im.get_template(template_id)
             if ti is None:
                 break
             template = ti.get(template_type)
             template_mask = ti.mask
 
-            match_result = cv2_utils.match_template(
+            match_result = im.match_image(
                 source, template, mask=template_mask,
                 threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP,
                 ignore_inf=True)
@@ -162,3 +124,25 @@ def get_sp_mask_by_template_match(lm_info: LargeMapInfo, ih: ImageHolder,
                 cv2.destroyAllWindows()
 
     return sp_mask, sp_match_result
+
+
+def get_map_path(region: Region, mt: str = 'origin') -> str:
+    """
+    获取某张地图路径
+    :param region: 对应区域
+    :param mt: 地图类型
+    :return: 图片路径
+    """
+    return os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, '%s_%d' % (region.id, region.level)), '%s.png' % mt)
+
+
+def save_large_map_image(image: MatLike, region: Region, mt: str = 'origin'):
+    """
+    保存某张地图
+    :param image: 图片
+    :param region: 区域
+    :param mt: 地图类型
+    :return:
+    """
+    path = get_map_path(region, mt)
+    cv2.imwrite(path, image)

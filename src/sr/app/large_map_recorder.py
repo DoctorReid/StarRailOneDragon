@@ -8,6 +8,7 @@ from sr import constants
 from sr.app import Application
 from sr.constants.map import Region
 from sr.context import Context, get_context
+from sr.image.sceenshot import large_map
 from sr.image.sceenshot.large_map import save_large_map_image
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
@@ -108,12 +109,12 @@ class LargeMapRecorder(Application):
         lm = self.ctx.map_cal.analyse_large_map(origin)
         cv2_utils.show_image(lm.gray, win_name='gray')
         cv2_utils.show_image(lm.mask, win_name='mask')
-        save_large_map_image(origin, self.planet.id, self.region.id, 'origin')
-        save_large_map_image(lm.gray, self.planet.id, self.region.id, 'gray')
-        save_large_map_image(lm.mask, self.planet.id, self.region.id, 'mask')
+        large_map.save_large_map_image(origin, self.region, 'origin')
+        large_map.save_large_map_image(lm.gray, self.region, 'gray')
+        large_map.save_large_map_image(lm.mask, self.region, 'mask')
 
 
 if __name__ == '__main__':
     ctx = get_context()
-    app = LargeMapRecorder(ctx, constants.map.P01_R02_JZCD)
+    app = LargeMapRecorder(ctx, constants.map.P01_R03_SRCD_L2)
     app.run()

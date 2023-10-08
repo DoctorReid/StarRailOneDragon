@@ -1,6 +1,5 @@
 import os
 
-import cv2
 from cv2.typing import MatLike
 
 from basic import os_utils
@@ -24,6 +23,7 @@ class TemplateImage:
         if t == 'mask':
             return self.mask
 
+
 class ImageHolder:
 
     def __init__(self):
@@ -40,21 +40,20 @@ class ImageHolder:
         :param map_type: 地图类型
         :return: 地图图片
         """
-        file_path = os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, region.id), '%s.png' % map_type)
+        file_path = os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, '%s_%d' % (region.id, region.level)), '%s.png' % map_type)
         image = cv2_utils.read_image(file_path)
         if image is not None:
             self.large_map[self._get_key_for_map(region, map_type)] = image
         return image
 
-    def pop_large_map(self, planet: str, region: str, map_type: str):
+    def pop_large_map(self, region: Region, map_type: str):
         """
         将某张地图从内存中删除
-        :param planet: 星球名称
         :param region: 对应区域
         :param map_type: 地图类型
         :return:
         """
-        key = self._get_key_for_map(planet, region, map_type)
+        key = self._get_key_for_map(region, map_type)
         if key in self.large_map:
             del self.large_map[key]
 

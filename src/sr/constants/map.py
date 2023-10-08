@@ -28,10 +28,11 @@ def get_planet_by_cn(cn: str) -> Planet:
 
 class Region:
 
-    def __init__(self, i: str, cn: str, planet: Planet):
+    def __init__(self, i: str, cn: str, planet: Planet, level: int = 0):
         self.id: str = i  # id 用在找文件夹之类的
         self.cn: str = cn  # 中文 用在OCR
         self.planet: Planet = planet
+        self.level: int = level
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -41,29 +42,34 @@ R0_GJCX = Region("gjcx", "观景车厢", None)
 
 P01_R01_ZKCD = Region("zkcd", "主控舱段", P01_KZJ)
 P01_R02_JZCD = Region("jzcd", "基座舱段", P01_KZJ)
-P01_R03_SRCD = Region("srcd", "收容舱段", P01_KZJ)
+P01_R03_SRCD_L1 = Region("srcd", "收容舱段", P01_KZJ, 1)
+P01_R03_SRCD_L2 = Region("srcd", "收容舱段", P01_KZJ, 2)
+P01_R03_SRCD_LB1 = Region("srcd", "收容舱段", P01_KZJ, -1)
 P01_R04_ZYCD = Region("zycd", "支援舱段", P01_KZJ)
 
 P02_R01_XZQ = Region("xzq", "行政区", P02_YYL)
 P02_R09_MDZ = Region("mdz", "铆钉镇", P02_YYL)
 
 
-def get_region_by_cn(cn: str, planet: Planet = None) -> Region:
+def get_region_by_cn(cn: str, planet: Planet = None, level: int = 0) -> Region:
     """
     根据区域的中文 获取对应常量
     :param cn: 区域的中文
     :param planet: 所属星球 传入后会判断 为以后可能重名准备
+    :param level: 层数
     :return: 常量
     """
     arr = [
         R0_GJCX,
-        P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD, P01_R04_ZYCD,
+        P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_LB1, P01_R04_ZYCD,
         P02_R01_XZQ, P02_R09_MDZ,
     ]
     for i in arr:
         if i.cn != cn:
             continue
         if planet is not None and i.planet != planet:
+            continue
+        if level is not None and i.level != level:
             continue
         return i
     return None
@@ -85,7 +91,7 @@ class TransportPoint:
 
 P01_R01_TP01_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_03', None)
 P01_R02_TP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_01', (644.3733488387657, 129.73816947897126))
-P01_R03_TP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD, 'mm_tp_01', (377.78668267527456, 350.0337457282807))
+P01_R03_TP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_01', (377.78668267527456, 350.0337457282807))
 
 
 def get_tp_by_cn(planet_cn: str, region_cn: str, tp_cn: str) -> TransportPoint:
