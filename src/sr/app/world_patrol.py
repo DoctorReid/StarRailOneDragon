@@ -1,12 +1,11 @@
 import os
 from typing import List
 
-from basic import config_utils, os_utils
+from basic import os_utils
 from basic.log_utils import log
 from sr import constants
-from sr.app import Application
 from sr.config import ConfigHolder
-from sr.constants.map import TransportPoint
+from sr.constants.map import TransportPoint, region_with_another_floor
 from sr.context import Context
 from sr.operation import Operation
 from sr.operation.combine.transport import Transport
@@ -23,8 +22,8 @@ class WorldPatrolRoute(ConfigHolder):
     def init(self):
         self.init_from_data(**self.data)
 
-    def init_from_data(self, planet: str, region: str, tp: str, route: List):
-        self.tp: TransportPoint = constants.map.get_tp_by_cn(planet, region, tp)
+    def init_from_data(self, planet: str, region: str, tp: str, level: int, route: List):
+        self.tp: TransportPoint = constants.map.get_tp_by_cn(planet, region, level, tp)
         self.route_list = route
 
 
@@ -83,6 +82,7 @@ class WorldPatrol(Operation):
             return Operation.SUCCESS
 
         self.run_one_route(route_id)
+        self.first = False
 
         return Operation.WAIT
 
@@ -91,22 +91,33 @@ class WorldPatrol(Operation):
         log.info('准备执行线路 %s %s %s %s', route_id, route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
         if route_id in self.record.finished:
             log.info('线路 %s 之前已执行 跳过', route_id)
-            return Operation.WAIT
+            return
 
-        ops = []
-        lm = self.ctx.ih.get_large_map(route.tp.region, map_type='origin')
+        log.info('准备传送 %s %s %s', route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
+        op = Transport(self.ctx, route.tp, self.first)
+        if not op.execute():
+            log.error('传送失败 即将跳过本次路线 %s', route_id)
+            return
+        else:
+            log.info('传送完成 开始寻路')
+
+        last_region = route.tp.region
+        lm = self.ctx.ih.get_large_map(last_region, map_type='origin')
         lm_info = self.ctx.map_cal.analyse_large_map(lm)
-
-        ops.append(Transport(self.ctx, route.tp, self.first))
         last_pos = route.tp.lm_pos
         for p in route.route_list:
-            ops.append(MoveDirectly(self.ctx, lm_info, target=(p[0], p[1]), start=last_pos))
+            target_pos = (p[0], p[1])
+            op = MoveDirectly(self.ctx, lm_info, target=target_pos, start=last_pos)
+            if not op.execute():
+                log.error('寻路失败 出发点 %s 目标点 %s 即将跳过本次路线 %s', route_id)
+                return
 
-        for op in ops:
-            op_result: int = op.execute()
-            if not op_result:
-                log.error('指令执行失败 即将跳过本次路线 %s', route_id)
-                break
+            if len(p) > 2:  # 需要切换层数
+                last_region = region_with_another_floor(last_region, p[2])
+                lm = self.ctx.ih.get_large_map(last_region, map_type='origin')
+                lm_info = self.ctx.map_cal.analyse_large_map(lm)
+
+            last_pos = target_pos
 
         self.save_record(route_id)
 

@@ -95,7 +95,7 @@ P01_R02_TP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_01', 
 P01_R03_TP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_01', (377.78668267527456, 350.0337457282807))
 
 
-def get_tp_by_cn(planet_cn: str, region_cn: str, tp_cn: str) -> TransportPoint:
+def get_tp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
     arr = [
         P01_R01_TP01_HTBGS,
         P01_R02_TP01_JKS,
@@ -107,6 +107,18 @@ def get_tp_by_cn(planet_cn: str, region_cn: str, tp_cn: str) -> TransportPoint:
             continue
         if i.region.cn != region_cn:
             continue
+        if i.region.level != level:
+            continue
         if i.cn != tp_cn:
             continue
         return i
+
+
+def region_with_another_floor(region: Region, level: int) -> Region:
+    """
+    切换层数
+    :param region:
+    :param level:
+    :return:
+    """
+    return get_region_by_cn(region.cn, region.planet, level)

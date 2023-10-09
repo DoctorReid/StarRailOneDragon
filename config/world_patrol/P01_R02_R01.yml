@@ -1,5 +1,6 @@
 planet: '空间站'
 region: '基座舱段'
+level: 0
 tp: '监控室'
 route:
   - [645, 250]
