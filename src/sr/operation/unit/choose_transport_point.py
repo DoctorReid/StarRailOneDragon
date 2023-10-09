@@ -71,13 +71,13 @@ class ChooseTransportPoint(Operation):
         :return: 是否点击传送
         """
         tp_btn_part = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_btn_rect)
-        cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
+        # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
         tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')], threshold=0.4)
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
             tp_name_part = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
             tp_name_ocr = self.ctx.ocr.match_words(tp_name_part, [gt(self.tp.cn)], threshold=0.4)
-            cv2_utils.show_image(tp_name_part, win_name='tp_name_part')
+            # cv2_utils.show_image(tp_name_part, win_name='tp_name_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
                 tx = ChooseTransportPoint.tp_btn_rect[0]

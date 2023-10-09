@@ -21,4 +21,4 @@ def _test_whole_app():
 if __name__ == '__main__':
     ctx = get_context()
     app = Calibrator(ctx)
-    _test_check_mini_map_pos()
+    _test_check_turning_rate()

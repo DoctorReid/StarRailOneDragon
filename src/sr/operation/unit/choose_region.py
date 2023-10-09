@@ -33,7 +33,9 @@ class ChooseRegion(Operation):
             return Operation.FAIL  # 目前不在目标大地图了
 
         # 判断当前选择区域是否目标区域
-        if large_map.get_active_region_name(screen, self.ctx.ocr) != gt(self.region.cn):
+        current_region = large_map.get_active_region_name(screen, self.ctx.ocr)
+        log.info('当前选择区域 %s', current_region)
+        if current_region != gt(self.region.cn):
             find = self.click_target_region(screen)
             if not find:  # 向下滚动5次 再向上滚动5次
                 log.info('当前界面未发现 %s 准备滚动', self.region.cn)
@@ -55,11 +57,13 @@ class ChooseRegion(Operation):
         # 需要选择层数
         if self.region.level != 0:
             level_str = large_map.get_active_level(screen, self.ctx.ocr)
+            log.info('当前层数 %s', level_str)
             if level_str is None:
                 log.error('未找到当前选择的层数')
             target_level_str = gt('%d层' % self.region.level)
             if target_level_str != level_str:
                 cl = self.click_target_level(screen, target_level_str)
+                time.sleep(0.5)
                 if not cl:
                     log.error('未成功点击层数')
                     return Operation.RETRY
@@ -94,5 +98,4 @@ class ChooseRegion(Operation):
         :return:
         """
         part = cv2_utils.crop_image(screen, large_map.LEVEL_LIST_PART)
-        cv2_utils.show_image(part, win_name='level')
-        return self.ctx.controller.click_ocr(part, target_level_str)
+        return self.ctx.controller.click_ocr(part, target_level_str, click_offset=large_map.LEVEL_LIST_PART[:2])

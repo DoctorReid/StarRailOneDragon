@@ -90,9 +90,9 @@ class TransportPoint:
         return '%s - %s' % (self.cn, self.id)
 
 
-P01_R01_TP01_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_03', None)
-P01_R02_TP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_01', (644.3733488387657, 129.73816947897126))
-P01_R03_TP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_01', (377.78668267527456, 350.0337457282807))
+P01_R01_TP01_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_04', None)
+P01_R02_TP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_03', (644.3733488387657, 129.73816947897126))
+P01_R03_TP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_03', (377.78668267527456, 350.0337457282807))
 
 
 def get_tp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:

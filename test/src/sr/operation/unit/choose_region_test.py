@@ -37,13 +37,13 @@ def _test_click_target_level():
 
 def _test_whole_operation():
     ctx.running = True
-    ctx.controller.win.active()
+    ctx.controller.init()
     op.execute()
 
 
 if __name__ == '__main__':
     real_game = True
-    ctx = get_context('美图秀秀')
-    region: Region = constants.map.P01_R04_ZYCD_L1
+    ctx = get_context()
+    region: Region = constants.map.P01_R03_SRCD_LB1
     op = ChooseRegion(ctx, region)
-    _test_click_target_level()
+    _test_whole_operation()

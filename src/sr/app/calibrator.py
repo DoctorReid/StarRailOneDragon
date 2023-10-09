@@ -65,6 +65,7 @@ class Calibrator(Application):
             screen = self.ctrl.screenshot()
             mm = self.mc.cut_mini_map(screen)
             center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
+            log.info('当前角度 %d', next_angle)
             cv2_utils.show_image(center_arrow_mask, win_name='center_arrow_mask')
             cv2_utils.show_image(arrow_mask, win_name='arrow_mask')
             if angle is not None:
