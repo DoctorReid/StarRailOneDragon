@@ -10,7 +10,7 @@ from sr.context import get_context
 from sr.operation.unit.choose_region import ChooseRegion
 
 
-def _test_click_target_region(real_game: bool = False):
+def _test_click_target_region():
     if real_game:
         ctx.running = True
         ctx.controller.init()
@@ -29,6 +29,12 @@ def _test_scroll_region_area():
     op.scroll_region_area(ctx.controller, -1)
 
 
+def _test_click_target_level():
+    screen = get_test_image('large_map_2')
+    print(op.click_target_level(screen))
+    cv2.waitKey(0)
+
+
 def _test_whole_operation():
     ctx.running = True
     ctx.controller.win.active()
@@ -36,7 +42,8 @@ def _test_whole_operation():
 
 
 if __name__ == '__main__':
-    ctx = get_context()
-    region: Region = constants.map.P01_R02_JZCD
+    real_game = True
+    ctx = get_context('美图秀秀')
+    region: Region = constants.map.P01_R04_ZYCD_L1
     op = ChooseRegion(ctx, region)
-    _test_click_target_region(real_game=True)
+    _test_click_target_level()

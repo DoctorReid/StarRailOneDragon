@@ -26,8 +26,6 @@ class ChooseTransportPoint(Operation):
         self.large_map = self.ctx.ih.get_large_map(self.tp.region, 'origin')
 
     def run(self) -> int:
-        mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
-
         screen = self.ctx.controller.screenshot()
 
         # 先判断右边是不是出现传送了
@@ -39,6 +37,7 @@ class ChooseTransportPoint(Operation):
             self.ctx.controller.click(ChooseTransportPoint.empty_map_pos)
             time.sleep(0.5)
 
+        mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
         screen_map = screen[my1: my2, mx1: mx2]
         offset: MatchResult = self.get_map_offset(screen_map)
         if offset is None:

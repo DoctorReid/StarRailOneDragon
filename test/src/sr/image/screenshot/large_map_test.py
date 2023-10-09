@@ -37,5 +37,18 @@ def _test_get_sp_mask_by_template_match():
     cv2_utils.show_image(sp_mask, win_name='sp_mask', wait=0)
 
 
+def _test_get_active_region_name():
+    ocr = CnOcrMatcher()
+    screen = get_test_image('large_map_2')
+    print(large_map.get_active_region_name(screen, ocr))
+
+
+def _test_get_active_level():
+    ocr = CnOcrMatcher()
+    screen = get_test_image('large_map_2')
+    level_str = large_map.get_active_level(screen, ocr)
+    print(level_str)
+
+
 if __name__ == '__main__':
-    _test_get_sp_mask_by_template_match()
+    _test_get_active_level()

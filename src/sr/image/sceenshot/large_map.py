@@ -15,6 +15,11 @@ from sr.image import OcrMatcher, TemplateImage, ImageMatcher
 from sr.image.sceenshot import LargeMapInfo
 
 
+REGION_LIST_PART = (1480, 200, 1700, 1000)
+REGION_LIST_PART_CENTER = ((REGION_LIST_PART[0] + REGION_LIST_PART[2]) // 2, (REGION_LIST_PART[1] + REGION_LIST_PART[3]) // 2)
+LEVEL_LIST_PART = (30, 730, 100, 1000)
+
+
 def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     """
     从屏幕左上方 获取当前星球的名字
@@ -146,3 +151,39 @@ def save_large_map_image(image: MatLike, region: Region, mt: str = 'origin'):
     """
     path = get_map_path(region, mt)
     cv2.imwrite(path, image)
+
+
+def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
+    """
+    在大地图界面 获取右边列表当前选择的区域 白色字体
+    :param screen: 大地图界面截图
+    :param ocr: ocr
+    :return: 当前选择区域
+    """
+    lower = 240
+    upper = 255
+    part = cv2_utils.crop_image(screen, REGION_LIST_PART)
+    bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
+    km = ocr.run_ocr(bw)
+    if len(km) > 0:
+        return km.popitem()[0]
+    else:
+        return None
+
+
+def get_active_level(screen: MatLike, ocr: OcrMatcher) -> str:
+    """
+    在大地图界面 获取左下方当前选择的层数 黑色字体
+    :param screen: 大地图界面截图
+    :param ocr: ocr
+    :return: 当前选择区域
+    """
+    lower = 50
+    upper = 70
+    part = cv2_utils.crop_image(screen, LEVEL_LIST_PART)
+    bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
+    km = ocr.run_ocr(bw)
+    if len(km) > 0:
+        return km.popitem()[0]
+    else:
+        return None
