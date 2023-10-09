@@ -178,8 +178,8 @@ def get_active_level(screen: MatLike, ocr: OcrMatcher) -> str:
     :param ocr: ocr
     :return: 当前选择区域
     """
-    lower = 50
-    upper = 70
+    lower = 40
+    upper = 80
     part = cv2_utils.crop_image(screen, LEVEL_LIST_PART)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
     km = ocr.run_ocr(bw)
