@@ -1,0 +1,6 @@
+planet: '空间站'
+region: '收容舱段'
+level: 1
+tp: '毁灭之蕾'
+route:
+  - [311, 400, -1]

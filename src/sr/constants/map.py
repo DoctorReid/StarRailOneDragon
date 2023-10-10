@@ -62,7 +62,7 @@ def get_region_by_cn(cn: str, planet: Planet = None, level: int = 0) -> Region:
     """
     arr = [
         R0_GJCX,
-        P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_LB1, P01_R04_ZYCD,
+        P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_LB1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2,
         P02_R01_XZQ, P02_R09_MDZ,
     ]
     for i in arr:
@@ -93,13 +93,14 @@ class TransportPoint:
 P01_R01_TP01_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_04', None)
 P01_R02_TP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_03', (644.3733488387657, 129.73816947897126))
 P01_R03_TP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_03', (377.78668267527456, 350.0337457282807))
+P01_R03_TP01_HMZL = TransportPoint('hmzl', '毁灭之蕾', P01_R03_SRCD_L1, 'mm_tp_07', (311, 316))
 
 
 def get_tp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
     arr = [
         P01_R01_TP01_HTBGS,
         P01_R02_TP01_JKS,
-        P01_R03_TP01_KZZXW
+        P01_R03_TP01_KZZXW, P01_R03_TP01_HMZL
     ]
 
     for i in arr:

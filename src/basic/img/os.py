@@ -6,6 +6,7 @@ from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import cv2_utils
+from basic.log_utils import log
 
 
 def get_debug_image_dir():
@@ -41,5 +42,5 @@ def get_test_image(filename, suffix: str = '.png', sub_dir: str = None) -> MatLi
 
 def save_debug_image(image):
     path = get_debug_image_path(str(int(round(time.time() * 1000))))
-    print(path)
-    print(cv2.imwrite(path, image))
+    log.debug('临时图片保存 %s', path)
+    cv2.imwrite(path, image)

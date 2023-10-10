@@ -9,7 +9,8 @@ def _test_read_yaml():
 def _test_run_one_route():
     ctx.running = True
     ctx.controller.init()
-    app.run_one_route('P01_R02_R01')
+    # app.run_one_route('P01_R02_R01')
+    app.run_one_route('P01_R03_R01')
 
 
 if __name__ == '__main__':

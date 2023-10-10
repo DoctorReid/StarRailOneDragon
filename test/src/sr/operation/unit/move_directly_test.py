@@ -17,5 +17,5 @@ if __name__ == '__main__':
     large_map = ctx.ih.get_large_map(r, map_type='origin')
     lm_info = ctx.map_cal.analyse_large_map(large_map)
 
-    op = MoveDirectly(ctx, lm_info, target=(650, 200), start=tp.lm_pos, save_screenshot=False)
+    op = MoveDirectly(ctx, lm_info, target=(650, 200), start=tp.lm_pos, save_screenshot=True)
     _test_whole_op()

@@ -24,18 +24,18 @@ def _print_tp_pos(tp: TransportPoint):
 
 
 def _test_cal_character_pos():
-    region: Region = constants.map.P01_R03_SRCD_L1
+    region: Region = constants.map.P01_R02_JZCD
 
     lm = ih.get_large_map(region, map_type='origin')
     lm_info = mc.analyse_large_map(lm)
 
-    for x in ['1696773964057', '1696773991417', '1696774015238']:
+    for x in ['1696949790746']:
         screen = get_debug_image(x)
         mm = mc.cut_mini_map(screen)
         mm_info = mc.analyse_mini_map(mm)
 
         t1 = time.time()
-        mc.cal_character_pos(lm_info, mm_info, show=True)
+        mc.cal_character_pos(lm_info, mm_info, show=True, possible_pos=(645, 130, 0))
         print('cal_character_pos 耗时 %.6f' % (time.time() - t1))
         cv2.waitKey(0)
 

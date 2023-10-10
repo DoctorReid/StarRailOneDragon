@@ -74,6 +74,12 @@ class MoveDirectly(Operation):
             self.no_pos_times = 0
 
         next_pos = (x, y)
+
+        if cv2_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
+            log.info('目标点已到达 %s', self.target)
+            self.ctx.controller.stop_moving_forward()
+            return Operation.SUCCESS
+
         self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
         time.sleep(0.5)
         # screen = self.ctx.controller.screenshot()
@@ -89,11 +95,6 @@ class MoveDirectly(Operation):
             if len(self.pos) > MoveDirectly.max_len:
                 del self.pos[0]
             self.last_rec_time = now_time
-
-        if cv2_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
-            log.info('目标点已到达 %s', self.target)
-            self.ctx.controller.stop_moving_forward()
-            return Operation.SUCCESS
 
         return Operation.WAIT
 
