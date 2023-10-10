@@ -1,5 +1,6 @@
 import math
 import os
+import time
 from typing import Union, List
 
 import cv2
@@ -340,6 +341,7 @@ def feature_in_area(kps, desc, x: int = None, y: int = None, w: int = None, h: i
 def feature_match(source_kp, source_desc, template_kp, template_desc, source_mask):
     if len(source_kp) == 0 or len(template_kp) == 0:
         return None, None, None, None
+
     # feature_matcher = cv2.FlannBasedMatcher()
     feature_matcher = cv2.BFMatcher()
     matches = feature_matcher.knnMatch(template_desc, source_desc, k=2)
@@ -492,3 +494,13 @@ def get_angle_by_pts(from_pos: tuple, to_pos: tuple) -> float:
     elif angle < 0 and (dx > 0 and dy < 0):
         angle += 360
     return angle
+
+
+def in_rect(point: tuple, rect: tuple) -> bool:
+    """
+    点是否在矩阵内
+    :param point:
+    :param rect:
+    :return:
+    """
+    return rect[0] <= point[0] <= rect[2] and rect[1] <= point[1] <= rect[3]

@@ -222,6 +222,7 @@ def show_and_save(template_id, origin, mask):
     save_template_image(gray, template_id, 'gray')
     save_template_image(mask, template_id, 'mask')
 
+
 def save_template_image(img: MatLike, template_id: str, tt: str):
     """
     保存模板图片
@@ -233,3 +234,10 @@ def save_template_image(img: MatLike, template_id: str, tt: str):
     path = os_utils.get_path_under_work_dir('images', 'template', template_id)
     print(path)
     print(cv2.imwrite(os.path.join(path, '%s.png' % tt), img))
+
+
+def init_template_feature():
+    """
+    初始化所有模板的特征值
+    :return:
+    """

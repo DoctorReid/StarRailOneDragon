@@ -135,7 +135,7 @@ class MoveDirectly(Operation):
         lx, ly = last_pos
         r = ctrl.cal_move_distance_by_time(now_time - last_rec_time)
 
-        x, y = mc.cal_character_pos_with_scale(self.lm_info, mm_info, possible_pos=(lx, ly, r), retry_without_pos=False)
+        x, y = mc.cal_character_pos(self.lm_info, mm_info, possible_pos=(lx, ly, r), retry_without_pos=False)
 
         log.debug('截图计算坐标耗时 %.4f s', time.time() - start_time)
         log.info('计算当前坐标为 (%s, %s)', x, y)

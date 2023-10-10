@@ -135,7 +135,7 @@ def analyse_arrow_and_angle(mini_map: MatLike, im: ImageMatcher):
 
 def get_edge_mask_by_hsv(mm: MatLike, arrow_mask: MatLike):
     """
-    背景亮的時候效果很差
+    废弃了 背景亮的時候效果很差
     将小地图转化成HSV格式，然后根据亮度扣出前景
     最后用Canny画出边缘
     :param mm: 小地图截图

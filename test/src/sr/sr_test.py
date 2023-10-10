@@ -99,9 +99,9 @@ def _test_cal_character_pos_by_match():
         mm_info = mc.analyse_mini_map(mm)
         cv2_utils.show_image(mm_info.gray, win_name='mini_map_gray')
         cv2_utils.show_image(mm_info.feature_mask, win_name='feature_mask')
-        x, y = mc.cal_character_pos_with_scale(lm_info, mm_info,
-                                               possible_pos=(643, 130, 16),
-                                               show=True)
+        x, y = mc.cal_character_pos(lm_info, mm_info,
+                                    possible_pos=(643, 130, 16),
+                                    show=True)
         print(x,y)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
