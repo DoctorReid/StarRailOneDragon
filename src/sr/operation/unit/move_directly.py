@@ -3,6 +3,7 @@ import time
 from cv2.typing import MatLike
 
 import basic.cal_utils
+from basic import os_utils
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -76,6 +77,8 @@ class MoveDirectly(Operation):
 
         if x is None or y is None:
             log.error('无法判断当前人物坐标')
+            if os_utils.is_debug():
+                save_debug_image(screen)
             self.no_pos_times += 1
             if self.no_pos_times >= 10:
                 log.error('持续无法判断当前人物坐标 退出本次移动')

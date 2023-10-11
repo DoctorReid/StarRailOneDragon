@@ -102,20 +102,18 @@ class WorldPatrol(Operation):
             log.info('传送完成 开始寻路')
 
         last_region = route.tp.region
-        lm = self.ctx.ih.get_large_map(last_region, map_type='origin')
-        lm_info = self.ctx.map_cal.analyse_large_map(lm)
+        lm_info = self.ctx.map_cal.analyse_large_map(last_region)
         last_pos = route.tp.lm_pos
         for p in route.route_list:
             target_pos = (p[0], p[1])
-            op = MoveDirectly(self.ctx, lm_info, target=target_pos, start=last_pos)
+            op = MoveDirectly(self.ctx, lm_info, region=last_region, target=target_pos, start=last_pos)
             if not op.execute():
                 log.error('寻路失败 出发点 %s 目标点 %s 即将跳过本次路线 %s', route_id)
                 return
 
             if len(p) > 2:  # 需要切换层数
                 last_region = region_with_another_floor(last_region, p[2])
-                lm = self.ctx.ih.get_large_map(last_region, map_type='origin')
-                lm_info = self.ctx.map_cal.analyse_large_map(lm)
+                lm_info = self.ctx.map_cal.analyse_large_map(last_region)
 
             last_pos = target_pos
 

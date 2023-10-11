@@ -172,6 +172,7 @@ class MapCalculator:
         road_mask_2 = cv2.inRange(map_image, lower_color, upper_color)
 
         road_mask = cv2.bitwise_or(road_mask_1, road_mask_2)
+        road_mask = road_mask_1
 
         # 对于小地图 要特殊扫描中心点附近的区块
         if is_mini_map:
@@ -474,11 +475,9 @@ class MapCalculator:
                 cv2_utils.show_image(template, win_name='template_match_template')
                 cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
                 # cv2_utils.show_image(cv2.bitwise_and(template, template_mask), win_name='template_match_template')
+                cv2.waitKey(0)
 
-            if len(result) == 0:
-                return None
-
-            if result is not None:
+            if result.max is not None:
                 target = result.max
                 target_scale = scale
                 break  # 节省点时间 其中一个缩放匹配到就可以了 也不用太精准
