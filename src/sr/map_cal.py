@@ -7,11 +7,14 @@ import numpy as np
 from cv2.typing import MatLike
 
 import basic.cal_utils
+from basic import cal_utils
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.config.game_config import MiniMapPos, get_game_config
+from sr.constants.map import Region
 from sr.image import ImageMatcher
+from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map
 
 
@@ -19,7 +22,8 @@ class MapCalculator:
 
     def __init__(self,
                  im: ImageMatcher):
-        self.im = im
+        self.im: ImageMatcher = im
+        self.ih: ImageHolder = im.ih
         self.feature_detector = cv2.SIFT_create()
         self.mm_pos: MiniMapPos = get_game_config().mini_map_pos
 
@@ -93,6 +97,7 @@ class MapCalculator:
 
         info.circle_mask = np.zeros_like(info.gray)
         cv2.circle(info.circle_mask, (cx, cy), h // 2 - 5, 255, -1)  # 忽略一点圆的边缘
+        info.circle_mask = cv2.bitwise_xor(info.circle_mask, info.arrow_mask)
 
         info.sp_mask, info.sp_result = mini_map.get_sp_mask_by_feature_match(info, self.im, sp_types)
         info.road_mask = self.find_map_road_mask(mm, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, is_mini_map=True, angle=info.angle)
@@ -100,17 +105,19 @@ class MapCalculator:
 
         info.edge = cv2.bitwise_and(self.find_edge_mask(info.feature_mask), self.find_mini_map_edge_mask(mm))
 
-        info.kps, info.desc = self.feature_detector.detectAndCompute(info.gray, mask=info.feature_mask)
+        info.kps, info.desc = self.feature_detector.detectAndCompute(info.gray, mask=info.sp_mask)
 
         return info
 
-    def analyse_large_map(self, lm: MatLike):
+    def analyse_large_map(self, region: Region):
         """
         预处理 从大地图中提取出所有需要的信息
-        :param lm:
+        :param region: 区域
         :return:
         """
         info = LargeMapInfo()
+        info.region = region
+        lm = self.ih.get_large_map(region, map_type='origin')
         info.origin = lm
         gray = cv2.cvtColor(lm, cv2.COLOR_BGRA2GRAY)
 
@@ -292,9 +299,14 @@ class MapCalculator:
         """
         log.debug("准备计算当前位置 大地图区域 %s", lm_rect)
 
-        if mm.sp_result is not None and len(mm.sp_result) > 0:  # 有特殊点的时候 直接在原灰度图上匹配即可
-            result: MatchResult = self.cal_character_pos_by_feature_match(lm, mm, lm_rect=lm_rect, show=show)
-        else:  # 无特殊点的时候 绘制边缘来匹配
+        result: MatchResult = None
+
+        if mm.sp_result is not None and len(mm.sp_result) > 0:  # 有特殊点的时候 使用特殊点倒推位置
+            result = self.cal_character_pos_by_sp_result(lm, mm, lm_rect=lm_rect, show=show)
+            if result is None:  # 倒推位置失败 使用特征匹配
+                result = self.cal_character_pos_by_feature_match(lm, mm, lm_rect=lm_rect, show=show)
+
+        if result is None:  # 特征匹配失败 或者无特殊点的时候 使用模板匹配
             result: MatchResult = self.cal_character_pos_by_template_match(lm, mm, lm_rect=lm_rect, running=running, show=show)
 
             # 发现直接用小地图中心去模板匹配就差不多了 汗 只是速度会慢一点
@@ -322,7 +334,7 @@ class MapCalculator:
 
         offset_x = result.x
         offset_y = result.y
-        scale = result.scale
+        scale = result.template_scale
         # 小地图缩放后中心点在大地图的位置 即人物坐标
         center_x = offset_x + result.w // 2
         center_y = offset_y + result.h // 2
@@ -394,7 +406,7 @@ class MapCalculator:
 
         source_mask = lm_info.mask
 
-        good_matches, offset_x, offset_y, scale = cv2_utils.feature_match(
+        good_matches, offset_x, offset_y, template_scale = cv2_utils.feature_match(
             source_kps, source_desc,
             template_kps, template_desc,
             source_mask)
@@ -414,10 +426,11 @@ class MapCalculator:
             template_w = mm_info.gray.shape[1]
             template_h = mm_info.gray.shape[0]
             # 小地图缩放后的宽度和高度
-            scaled_width = int(template_w * scale)
-            scaled_height = int(template_h * scale)
+            scaled_width = int(template_w * template_scale)
+            scaled_height = int(template_h * template_scale)
 
-            return MatchResult(1, offset_x, offset_y, scaled_width, scaled_height, scale=scale)
+            return MatchResult(1, offset_x, offset_y, scaled_width, scaled_height,
+                               template_scale=template_scale)
         else:
             return None
 
@@ -442,8 +455,9 @@ class MapCalculator:
         target: MatchResult = None
         target_scale = None
         scale_arr = [1.25, 1.20, 1.15, 1.10, 1.05, 1] if running else [1, 1.05, 1.10, 1.15, 1.20, 1.25]
+        # 使用道路掩码
         origin_template_mask = cv2_utils.dilate(mm_info.road_mask, 10)
-        origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.center_mask)
+        origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.circle_mask)
         for scale in scale_arr:
             if scale > 1:
                 dest_size = (int(template_w * scale), int(template_h * scale))
@@ -474,3 +488,69 @@ class MapCalculator:
             return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target_scale)
         else:
             return None
+
+    def cal_character_pos_by_sp_result(self,
+                                       lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+                                       lm_rect: tuple = None,
+                                       show: bool = False) -> MatchResult:
+        """
+        根据特殊点 在大地图上匹配小地图的位置
+        :param lm_info: 大地图信息
+        :param mm_info: 小地图信息
+        :param lm_rect: 圈定的大地图区域 传入后更准确
+        :param show: 是否显示调试结果
+        :return:
+        """
+        mm_height, mm_width = mm_info.gray.shape[:2]
+
+        lm_sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
+
+        cal_pos_list = []
+
+        for template_id, v in mm_info.sp_result.items():
+            lm_sp = lm_sp_map.get(template_id) if template_id in lm_sp_map else []
+            if len(lm_sp) == 0:
+                continue
+            for r in v:
+                # 特殊点是按照大地图缩放比例获取的 因为可以反向将小地图缩放回人物静止时的大小
+                mm_scale = 1 / r.template_scale
+                x = r.x / r.template_scale
+                y = r.y / r.template_scale
+                # 特殊点中心在小地图上的位置
+                cx = int(x + r.w // 2)
+                cy = int(y + r.h // 2)
+
+                # 通过大地图上相同的特殊点 反推小地图在大地图上的偏移量
+                for sp in lm_sp:
+                    cal_x = sp.lm_pos[0] - cx
+                    cal_y = sp.lm_pos[1] - cy
+                    cal_pos_list.append(MatchResult(1, cal_x, cal_y, mm_width, mm_height, template_scale=mm_scale))
+
+        if len(cal_pos_list) == 0:
+            return None
+
+        # 如果小地图上有个多个特殊点 则合并临近的结果 越多相同结果代表置信度越高
+        merge_pos_list = []
+        for pos_1 in cal_pos_list:
+            merge = False
+            for pos_2 in merge_pos_list:
+                if cal_utils.distance_between((pos_1.x, pos_1.y), (pos_2.x, pos_2.y)) < 10:
+                    merge = True
+                    pos_2.confidence += 1
+
+            if not merge:
+                merge_pos_list.append(pos_1)
+
+        # 找出合并个数最多的 如果有合并个数一样的 则放弃本次结果
+        target_pos = None
+        same_confidence = False
+        for pos in merge_pos_list:
+            if target_pos is None:
+                target_pos = pos
+            elif pos.confidence > target_pos.confidence:
+                target_pos = pos
+                same_confidence = False
+            elif pos.confidence == target_pos.confidence:
+                same_confidence = True
+
+        return None if same_confidence else target_pos

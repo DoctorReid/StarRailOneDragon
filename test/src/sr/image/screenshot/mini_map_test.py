@@ -102,11 +102,12 @@ def _test_edge():
 
 
 def _test_get_sp_mask_by_feature_match():
-    screen: MatLike = get_debug_image('d')
+    screen: MatLike = get_debug_image('1696773991417')
     mm = mc.cut_mini_map(screen)
     info = mc.analyse_mini_map(mm)
 
-    mini_map.get_sp_mask_by_feature_match(info, ih, template_list=['mm_tp_01'], show=True)
+    mini_map.get_sp_mask_by_feature_match(info, im, show=True)
+    cv2.waitKey(0)
 
 
 def _test_is_under_attack():
@@ -120,4 +121,4 @@ if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
     mc = MapCalculator(im=im)
-    _test_is_under_attack()
+    _test_get_sp_mask_by_feature_match()

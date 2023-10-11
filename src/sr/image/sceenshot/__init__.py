@@ -1,6 +1,7 @@
 import cv2
 from cv2.typing import MatLike
 
+from sr.constants.map import Region
 from sr.win import Window
 
 
@@ -43,6 +44,7 @@ class MiniMapInfo:
 class LargeMapInfo:
 
     def __init__(self):
+        self.region: Region = None  # 区域
         self.origin: MatLike = None  # 原图
         self.gray: MatLike = None  # 灰度图 用于特征检测
         self.mask: MatLike = None  # 主体掩码 用于特征匹配

@@ -219,7 +219,7 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
     """
     feature_detector = cv2.SIFT_create()
     source = mm_info.origin
-    source_mask = mm_info.center_mask
+    source_mask = mm_info.circle_mask
     source_kps, source_desc = feature_detector.detectAndCompute(source, mask=source_mask)
 
     sp_mask = np.zeros_like(mm_info.gray)
@@ -249,7 +249,7 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
                 source_mask=source_mask)
 
             if offset_x is not None:
-                mr = MatchResult(1, offset_x, offset_y, template.shape[1], template.shape[0], scale=scale)
+                mr = MatchResult(1, offset_x, offset_y, template.shape[1], template.shape[0], template_scale=scale)  #
                 match_result_list.append(mr)
                 sp_match_result[template_id] = match_result_list
 

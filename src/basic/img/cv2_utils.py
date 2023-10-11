@@ -301,16 +301,16 @@ def feature_match(source_kp, source_desc, template_kp, template_desc, source_mas
     query_point = source_kp[best_match.trainIdx].pt  # 原图中的关键点坐标 (x, y)
     train_point = template_kp[best_match.queryIdx].pt  # 模板中的关键点坐标 (x, y)
 
-    # 获取最佳匹配的特征点的缩放比例 小地图在人物跑动时会缩放
+    # 获取最佳匹配的特征点的缩放比例
     query_scale = source_kp[best_match.trainIdx].size
     train_scale = template_kp[best_match.queryIdx].size
-    scale = query_scale / train_scale
+    template_scale = query_scale / train_scale
 
-    # 小地图缩放后偏移量
-    offset_x = query_point[0] - train_point[0] * scale
-    offset_y = query_point[1] - train_point[1] * scale
+    # 模板图缩放后在原图上的偏移量
+    offset_x = query_point[0] - train_point[0] * template_scale
+    offset_y = query_point[1] - train_point[1] * template_scale
 
-    return good_matches, offset_x, offset_y, scale
+    return good_matches, offset_x, offset_y, template_scale
 
 
 def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = True) -> MatLike:

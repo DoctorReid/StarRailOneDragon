@@ -159,17 +159,19 @@ region_2_sp = {
 }
 
 
-def get_sp_type_in_rect(region: Region, rect: tuple) -> Set:
+def get_sp_type_in_rect(region: Region, rect: tuple) -> dict:
     """
-    获取区域特定矩形内的特殊点种类
+    获取区域特定矩形内的特殊点 按种类分组
     :param region: 区域
-    :param rect: 矩形
-    :return: 特殊点种类
+    :param rect: 矩形 为空时返回全部
+    :return: 特殊点
     """
     sp_list = region_2_sp.get(region.get_pr_id())
-    sp_type_set = set()
+    sp_map = {}
     for sp in sp_list:
         if rect is None or cal_utils.in_rect(sp.lm_pos, rect):
-            sp_type_set.add(sp.template_id)
+            if sp.template_id not in sp_map:
+                sp_map[sp.template_id] = []
+            sp_map[sp.template_id].append(sp)
 
-    return sp_type_set
+    return sp_map

@@ -26,20 +26,19 @@ def _print_tp_pos(tp: TransportPoint):
 def _test_cal_character_pos():
     region: Region = constants.map.P01_R03_SRCD_L1
 
-    lm = ih.get_large_map(region, map_type='origin')
-    lm_info = mc.analyse_large_map(lm)
+    lm_info = mc.analyse_large_map(region)
 
     for x in ['1696773964057', '1696773991417', '1696774015238']:
         screen = get_debug_image(x)
         mm = mc.cut_mini_map(screen)
         t1 = time.time()
-        possible_pos = None
+        possible_pos = (311, 316, 100)
         lm_rect = mc.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
         if lm_rect is not None:
-            cv2_utils.show_image(cv2_utils.crop_image(lm, lm_rect), win_name='large_map_rect')
-        sp_types = constants.map.get_sp_type_in_rect(region, lm_rect)
-        mm_info = mc.analyse_mini_map(mm, sp_types)
-        mc.cal_character_pos(lm_info, mm_info, lm_rect=lm_rect, show=True)
+            cv2_utils.show_image(cv2_utils.crop_image(lm_info.origin, lm_rect), win_name='large_map_rect')
+        sp_map = constants.map.get_sp_type_in_rect(region, lm_rect)
+        mm_info = mc.analyse_mini_map(mm, sp_map.keys())
+        mc.cal_character_pos(lm_info, mm_info, lm_rect=lm_rect, show=True, retry_without_rect=False)
         print('cal_character_pos 耗时 %.6f' % (time.time() - t1))
         cv2.waitKey(0)
 
