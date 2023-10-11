@@ -22,6 +22,6 @@ def _test_whole_operation():
 
 if __name__ == '__main__':
     ctx = get_context()
-    tp: TransportPoint = constants.map.P01_R02_TP01_JKS
+    tp: TransportPoint = constants.map.P01_R02_SP01_JKS
     op = ChooseTransportPoint(ctx, tp)
     _test_whole_operation()

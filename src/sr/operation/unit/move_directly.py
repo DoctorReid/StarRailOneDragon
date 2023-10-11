@@ -2,10 +2,13 @@ import time
 
 from cv2.typing import MatLike
 
+import basic.cal_utils
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
+from sr import constants
 from sr.config.game_config import get_game_config
+from sr.constants.map import Region
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
@@ -25,9 +28,12 @@ class MoveDirectly(Operation):
     arrival_distance: float = 10  # 多少距离内认为是到达目的地
 
     def __init__(self, ctx: Context, large_map_info: LargeMapInfo,
-                 target: tuple, start: tuple = None, save_screenshot: bool = False):
+                 region: Region,
+                 target: tuple, start: tuple = None,
+                 save_screenshot: bool = False):
         super().__init__(ctx)
         self.lm_info = large_map_info
+        self.region: Region = region
         self.target = target
         self.save_screenshot = save_screenshot
         self.pos = []
@@ -41,7 +47,7 @@ class MoveDirectly(Operation):
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
 
         if len(self.pos) >= MoveDirectly.max_len and \
-                cv2_utils.distance_between(self.pos[0], self.pos[len(self.pos) - 1]) < MoveDirectly.stuck_distance:
+                basic.cal_utils.distance_between(self.pos[0], self.pos[len(self.pos) - 1]) < MoveDirectly.stuck_distance:
             self.stuck_times += 1
             walk_sec = self.get_rid_of_stuck(self.stuck_times)
             self.last_rec_time += walk_sec * 2
@@ -59,9 +65,14 @@ class MoveDirectly(Operation):
             self.last_rec_time = now_time
             return Operation.WAIT
 
-        mm_info = self.ctx.map_cal.analyse_mini_map(mm)
+        lx, ly = last_pos
+        move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time)
+        possible_pos = (lx, ly, move_distance)
+        lm_rect = self.ctx.map_cal.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
+        sp_type_list = constants.map.get_sp_type_in_rect(self.region, lm_rect)
+        mm_info = self.ctx.map_cal.analyse_mini_map(mm, sp_type_list)
 
-        x, y = self.get_pos(mm_info, now_time, last_pos, self.last_rec_time)
+        x, y = self.get_pos(mm_info, lm_rect)
 
         if x is None or y is None:
             log.error('无法判断当前人物坐标')
@@ -75,7 +86,7 @@ class MoveDirectly(Operation):
 
         next_pos = (x, y)
 
-        if cv2_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
+        if basic.cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             log.info('目标点已到达 %s', self.target)
             self.ctx.controller.stop_moving_forward()
             return Operation.SUCCESS
@@ -119,24 +130,16 @@ class MoveDirectly(Operation):
         time.sleep(walk_sec)
         return walk_sec
 
-    def get_pos(self, mm_info: MiniMapInfo, now_time: float,
-                last_pos: tuple, last_rec_time: float):
+    def get_pos(self, mm_info: MiniMapInfo, lm_rect: tuple):
         """
         获取当前位置、 下一步方向、 记录时间
         :param mm_info: 小地图信息
-        :param now_time: 现在时间
-        :param last_pos: 上一次的位置
-        :param last_rec_time: 上一次记录坐标的时间
+        :param lm_rect: 大地图区域
         :return:
         """
         start_time = time.time()
-        ctrl: GameController = self.ctx.controller
-        mc: MapCalculator = self.ctx.map_cal
 
-        lx, ly = last_pos
-        r = ctrl.cal_move_distance_by_time(now_time - last_rec_time)
-
-        x, y = mc.cal_character_pos(self.lm_info, mm_info, possible_pos=(lx, ly, r), retry_without_pos=False)
+        x, y = self.ctx.map_cal.cal_character_pos(self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False)
 
         log.debug('截图计算坐标耗时 %.4f s', time.time() - start_time)
         log.info('计算当前坐标为 (%s, %s)', x, y)

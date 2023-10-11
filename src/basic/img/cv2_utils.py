@@ -1,6 +1,4 @@
-import math
 import os
-import time
 from typing import Union, List
 
 import cv2
@@ -148,41 +146,6 @@ def match_template(source: MatLike, template: MatLike, threshold,
     return match_result_list
 
 
-def find_max_circle(image, show_result: bool = False):
-    """
-    在图形中找到最大的圆
-    :param image: 原图
-    :param show_result: 是否显示结果
-    :return: 圆的坐标半径
-    """
-    # 对图像进行预处理
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1.2, 100, minRadius=160, maxRadius=200)
-
-    # 如果找到了圆
-    if circles is None:
-        log.debug('没找到圆')
-        return 0, 0, 0
-
-    circles = np.uint16(np.around(circles))
-    tx, ty, tr = 0, 0, 0
-
-    # 保留半径最大的圆
-    for circle in circles[0, :]:
-        if show_result:
-            cv2.circle(gray, (circle[0], circle[1]), circle[2], (0, 255, 0), 1)
-        if circle[2] > tr:
-            tx, ty, tr = circle[0], circle[1], circle[2]
-    log.debug('匹配圆结果: %d %d %d', tx, ty, tr)
-
-    if show_result:
-        to_show = image.copy()
-        cv2.circle(to_show, (tx, ty), tr, (0, 255, 0), 1)
-        show_image(to_show)
-        show_image(gray)
-    return tx, ty, tr
-
-
 def concat_vertically(img: MatLike, next_img: MatLike, decision_height: int = 200):
     """
     垂直拼接图片。
@@ -253,18 +216,6 @@ def color_similarity_2d(image, color):
     negative = cv2.max(cv2.max(r, g), b)
     return cv2.subtract(255, cv2.add(positive, negative))
 
-def binary_with_white_alpha(image, thresh: int = 70):
-    """"""
-    # 提取透明通道
-    alpha_channel = image[:, :, 3]
-    # 将图像转换为灰度图
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # 将透明通道中的非零值设置为白色
-    gray[alpha_channel == 0] = 255
-    # 二值化模板图像
-    _, binary = cv2.threshold(gray, thresh, 255, cv2.THRESH_BINARY)
-    return binary
-
 
 def show_overlap(source, template, x, y, template_scale: float = 1, win_name: str = 'DEBUG', wait: int = 1):
     to_show_source = source.copy()
@@ -314,30 +265,6 @@ def show_overlap(source, template, x, y, template_scale: float = 1, win_name: st
     show_image(to_show_source, win_name=win_name, wait=wait)
 
 
-def feature_in_area(kps, desc, x: int = None, y: int = None, w: int = None, h: int = None):
-    """
-    只返回区域内的特征点
-    :param kps:
-    :param desc:
-    :param x:
-    :param y:
-    :param w:
-    :param h:
-    :return:
-    """
-    if x is None or y is None or w is None or h is None:
-        return kps, desc
-    r_kps = []
-    r_desc = []
-
-    for i in range(len(kps)):
-        kpx, kpy = kps[i].pt
-        if x <= kpx <= x + w and y <= kpy <= y + h:
-            r_kps.append(kps[i])
-            r_desc.append(desc[i])
-
-    return r_kps, r_desc
-
 def feature_match(source_kp, source_desc, template_kp, template_desc, source_mask):
     if len(source_kp) == 0 or len(template_kp) == 0:
         return None, None, None, None
@@ -386,30 +313,6 @@ def feature_match(source_kp, source_desc, template_kp, template_desc, source_mas
     return good_matches, offset_x, offset_y, scale
 
 
-def calculate_overlap_area(rect1, rect2):
-    # rect1和rect2分别表示两个矩形的坐标信息 (x1, y1, x2, y2)
-    x1, y1, x2, y2 = rect1
-    x3, y3, x4, y4 = rect2
-
-    if x1 > x4 or x2 < x3 or y1 > y4 or y2 < y3:
-        # 两个矩形不相交，重叠面积为0
-        return 0
-    else:
-        # 计算重叠矩形的左上角坐标和右下角坐标
-        overlap_x1 = max(x1, x3)
-        overlap_y1 = max(y1, y3)
-        overlap_x2 = min(x2, x4)
-        overlap_y2 = min(y2, y4)
-
-        # 计算重叠矩形的宽度和高度
-        width = overlap_x2 - overlap_x1
-        height = overlap_y2 - overlap_y1
-
-        # 计算重叠矩形的面积
-        overlap_area = width * height
-        return overlap_area
-
-
 def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = True) -> MatLike:
     """
     通过连通性检测 消除一些噪点
@@ -454,53 +357,3 @@ def crop_image(img, rect: tuple, copy: bool = False):
     x2, y2 = int(x2), int(y2)
     crop = img[y1: y2, x1: x2]
     return crop.copy() if copy else crop
-
-
-def distance_between(pos1: tuple, pos2: tuple) -> float:
-    """
-    计算两点之间的距离
-    :param pos1:
-    :param pos2:
-    :return:
-    """
-    x1, y1 = pos1
-    x2, y2 = pos2
-    return math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
-
-
-def get_angle_by_pts(from_pos: tuple, to_pos: tuple) -> float:
-    """
-    计算两点形成向量的角度
-    :param from_pos: 起始点
-    :param to_pos: 结束点
-    :return: 角度 正右方为0 顺时针为正
-    """
-    x1, y1 = from_pos
-    x2, y2 = to_pos
-    dx = x2 - x1
-    dy = y2 - y1
-    if dx == 0:
-        if dy > 0:
-            return 90
-        elif dy == 0:
-            return 0
-        else:
-            return 270
-    angle = math.degrees(math.atan((dy) / (dx)))
-    if angle > 0 and (dy < 0 and dx < 0):
-        angle += 180
-    elif angle < 0 and (dx < 0 and dy > 0):
-        angle += 180
-    elif angle < 0 and (dx > 0 and dy < 0):
-        angle += 360
-    return angle
-
-
-def in_rect(point: tuple, rect: tuple) -> bool:
-    """
-    点是否在矩阵内
-    :param point:
-    :param rect:
-    :return:
-    """
-    return rect[0] <= point[0] <= rect[2] and rect[1] <= point[1] <= rect[3]

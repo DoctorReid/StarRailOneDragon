@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Set
 
 import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+import basic.cal_utils
 from basic.img import cv2_utils, MatchResultList, MatchResult
 from sr import constants
 from sr.config.game_config import MiniMapPos
@@ -188,7 +189,7 @@ def find_map_special_point_mask(gray_map_image: MatLike,
                 for r in match_result:
                     rx1, ry1 = r.x, r.y
                     rx2, ry2 = r.x + r.w, r.y + r.h
-                    overlap = cv2_utils.calculate_overlap_area((cx1, cy1, cx2, cy2), (rx1, ry1, rx2, ry2))
+                    overlap = basic.cal_utils.calculate_overlap_area((cx1, cy1, cx2, cy2), (rx1, ry1, rx2, ry2))
                     total = r.w * r.h
                     threshold = (constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP - constants.THRESHOLD_SP_TEMPLATE_IN_LITTLE_MAP_CENTER) * (1.0 - overlap / total) + constants.THRESHOLD_SP_TEMPLATE_IN_LITTLE_MAP_CENTER
                     if r.confidence > threshold:
@@ -204,22 +205,20 @@ def find_map_special_point_mask(gray_map_image: MatLike,
     return mask, sp_match_result
 
 
-def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, ih: ImageHolder,
-                                 template_type: str = 'origin',
-                                 template_list: List = None,
+def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
+                                 sp_types: Set = None,
                                  show: bool = False):
     """
     在小地图上找到特殊点
     使用特征匹配 每个模板最多只能找到一个
     :param mm_info: 小地图信息
-    :param ih: 图片加载器
-    :param template_type: 模板类型
-    :param template_list: 限定种类的特殊点
+    :param im: 图片匹配器
+    :param sp_types: 限定种类的特殊点
     :param show: 是否展示结果
     :return:
     """
     feature_detector = cv2.SIFT_create()
-    source = mm_info.origin if template_type == 'origin' else mm_info.gray
+    source = mm_info.origin
     source_mask = mm_info.center_mask
     source_kps, source_desc = feature_detector.detectAndCompute(source, mask=source_mask)
 
@@ -231,14 +230,14 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, ih: ImageHolder,
                 continue
 
             template_id = '%s_%02d' % (prefix, i)
-            if template_list is not None and template_id not in template_list:
+            t: TemplateImage = im.get_template(template_id)
+            if t is None:
+                break
+            if sp_types is not None and template_id not in sp_types:
                 continue
 
             match_result_list = MatchResultList()
-            t: TemplateImage = ih.get_template(template_id)
-            if t is None:
-                break
-            template = t.get(template_type)
+            template = t.origin
             template_mask = t.mask
 
             # TODO 后续预处理

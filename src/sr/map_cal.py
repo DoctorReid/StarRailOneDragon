@@ -1,10 +1,12 @@
 import math
 import time
+from typing import List, Set
 
 import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+import basic.cal_utils
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import constants
@@ -69,10 +71,11 @@ class MapCalculator:
         else:
             log.error('无法找到小地图的圆')
 
-    def analyse_mini_map(self, mm: MatLike):
+    def analyse_mini_map(self, mm: MatLike, sp_types: Set = None):
         """
         预处理 从小地图中提取出所有需要的信息
         :param mm: 小地图 左上角的一个正方形区域
+        :param sp_types: 特殊点种类
         :return:
         """
         info = MiniMapInfo()
@@ -93,7 +96,7 @@ class MapCalculator:
         ar = constants.TEMPLATE_ARROW_R  # 小箭头
         cv2.rectangle(info.feature_mask, (cx - ar, cy - ar), (cx + ar, cy + ar), 0, -1)  # 特征提取忽略小箭头部分
 
-        info.sp_mask, info.sp_result = mini_map.get_sp_mask_by_feature_match(info, self.im.ih)
+        info.sp_mask, info.sp_result = mini_map.get_sp_mask_by_feature_match(info, self.im, sp_types)
         info.road_mask = self.find_map_road_mask(mm, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, is_little_map=True, angle=info.angle)
         info.gray, info.feature_mask = self.merge_all_map_mask(info.gray, info.road_mask, info.sp_mask)
 
@@ -113,7 +116,7 @@ class MapCalculator:
         info.origin = lm
         gray = cv2.cvtColor(lm, cv2.COLOR_BGRA2GRAY)
 
-        sp_mask, _ = large_map.get_sp_mask_by_template_match(info, self.im)
+        sp_mask, info.sp_result = large_map.get_sp_mask_by_template_match(info, self.im)
         road_mask = self.find_map_road_mask(lm, sp_mask)
         info.gray, info.mask = self.merge_all_map_mask(gray, road_mask, sp_mask)
         info.edge = self.find_edge_mask(info.mask)
@@ -270,26 +273,21 @@ class MapCalculator:
         cv2.drawContours(edge_mask, contours, -1, 255, 2)
         return edge_mask
 
-
-
     def cal_character_pos(self, lm: LargeMapInfo, mm: MiniMapInfo,
-                          possible_pos: tuple = None, show: bool = False,
-                          retry_without_pos: bool = True,
+                          lm_rect: tuple = None, show: bool = False,
+                          retry_without_rect: bool = True,
                           running: bool = False):
         """
         根据小地图 匹配大地图 判断当前的坐标 - 先用特征匹配 最后用图片匹配兜底
         :param lm
         :param mm
-        :param possible_pos: 可能在大地图的位置 (x,y,d)。 (x,y) 是上次在的位置 d是移动的距离
-        :param retry_without_pos: 失败时是否去除可能点进行全图搜索
+        :param lm_rect: 大地图特定区域
+        :param retry_without_rect: 失败时是否去除特定区域进行全图搜索
         :param show: 是否显示结果
         :param running: 角色是否在移动 移动时候小地图会缩小
         :return:
         """
-        log.debug("准备计算当前位置 前一个位置为 %s", possible_pos)
-        lm_rect = self.get_large_map_rect_by_pos(lm.gray.shape, mm.gray.shape, possible_pos)
-
-        template_h, template_w = mm.gray.shape[1], mm.gray.shape[0]
+        log.debug("准备计算当前位置 大地图区域 %s", lm_rect)
 
         if mm.sp_result is not None and len(mm.sp_result) > 0:  # 有特殊点的时候 直接在原灰度图上匹配即可
             result: MatchResult = self.cal_character_pos_by_feature_match(lm, mm, lm_rect=lm_rect, show=show)
@@ -314,8 +312,8 @@ class MapCalculator:
 
 
         if result is None:
-            if possible_pos is not None and retry_without_pos:  # 整张大地图试试
-                return self.cal_character_pos(lm, mm, show=show)
+            if lm_rect is not None and retry_without_rect:  # 整张大地图试试
+                return self.cal_character_pos(lm, mm, running=running, show=show)
             else:
                 return None, None
 
@@ -332,7 +330,6 @@ class MapCalculator:
         log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f', center_x, center_y, scale)
 
         return center_x, center_y
-
 
     def get_large_map_rect_by_pos(self, lm_shape, mm_shape, possible_pos: tuple = None):
         """
@@ -357,7 +354,7 @@ class MapCalculator:
                 lm_offset_x2 = lm_shape[1]
             if lm_offset_y2 > lm_shape[0]:
                 lm_offset_y2 = lm_shape[0]
-            return (lm_offset_x, lm_offset_y, lm_offset_x2, lm_offset_y2)
+            return lm_offset_x, lm_offset_y, lm_offset_x2, lm_offset_y2
         else:
             return None
 
@@ -383,7 +380,7 @@ class MapCalculator:
             for i in range(len(source_kps)):
                 p: cv2.KeyPoint = source_kps[i]
                 d = source_desc[i]
-                if cv2_utils.in_rect(p.pt, lm_rect):
+                if basic.cal_utils.in_rect(p.pt, lm_rect):
                     kps.append(p)
                     desc.append(d)
             source_kps = kps

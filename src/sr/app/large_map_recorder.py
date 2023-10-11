@@ -9,7 +9,6 @@ from sr.app import Application
 from sr.constants.map import Region
 from sr.context import Context, get_context
 from sr.image.sceenshot import large_map
-from sr.image.sceenshot.large_map import save_large_map_image
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.open_map import OpenMap
@@ -112,9 +111,15 @@ class LargeMapRecorder(Application):
         large_map.save_large_map_image(origin, self.region, 'origin')
         large_map.save_large_map_image(lm.gray, self.region, 'gray')
         large_map.save_large_map_image(lm.mask, self.region, 'mask')
+        for k, v in lm.sp_result.items():
+            for vs in v:
+                log.info('地图特殊点坐标 %s (%d, %d)', k, vs.cx, vs.cy)
 
 
 if __name__ == '__main__':
-    ctx = get_context()
-    app = LargeMapRecorder(ctx, constants.map.P01_R03_SRCD_L2)
-    app.run()
+    ctx = get_context('唯秘')
+    r = constants.map.P01_R03_SRCD_L2
+    app = LargeMapRecorder(ctx, r)
+    # app.run()
+    lm = ctx.ih.get_large_map(r, map_type='origin')
+    app.convert_and_save(lm)

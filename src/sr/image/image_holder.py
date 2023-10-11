@@ -31,7 +31,7 @@ class ImageHolder:
         self.template = {}
 
     def _get_key_for_map(self, region: Region, map_type: str) -> str:
-        return '%s_%s_%s' % (region.planet.id, region.id, map_type)
+        return '%s_%s_%s' % (region.planet.id, region.get_rl_id(), map_type)
 
     def load_large_map(self, region: Region, map_type: str) -> MatLike:
         """
@@ -40,7 +40,7 @@ class ImageHolder:
         :param map_type: 地图类型
         :return: 地图图片
         """
-        file_path = os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, '%s_%d' % (region.id, region.level)), '%s.png' % map_type)
+        file_path = os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, region.get_rl_id()), '%s.png' % map_type)
         image = cv2_utils.read_image(file_path)
         if image is not None:
             self.large_map[self._get_key_for_map(region, map_type)] = image
@@ -57,7 +57,7 @@ class ImageHolder:
         if key in self.large_map:
             del self.large_map[key]
 
-    def get_large_map(self, region: Region, map_type: str):
+    def get_large_map(self, region: Region, map_type: str = 'origin'):
         """
         获取某张大地图
         :param region: 区域

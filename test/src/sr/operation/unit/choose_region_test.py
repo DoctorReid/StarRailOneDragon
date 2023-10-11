@@ -44,6 +44,6 @@ def _test_whole_operation():
 if __name__ == '__main__':
     real_game = True
     ctx = get_context()
-    region: Region = constants.map.P01_R03_SRCD_LB1
+    region: Region = constants.map.P01_R03_SRCD_B1
     op = ChooseRegion(ctx, region)
     _test_whole_operation()

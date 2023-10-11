@@ -1,5 +1,6 @@
 from cv2.typing import MatLike
 
+import basic.cal_utils
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.image import OcrMatcher
@@ -138,7 +139,7 @@ class GameController:
         :param angle: 当前角度
         :return:
         """
-        target_angle = cv2_utils.get_angle_by_pts(pos1, pos2)
+        target_angle = basic.cal_utils.get_angle_by_pts(pos1, pos2)
         # 保证计算的转动角度为正
         delta_angle = target_angle - angle if target_angle >= angle else target_angle + 360 - angle
         # 正方向转太远的话就用负方向转

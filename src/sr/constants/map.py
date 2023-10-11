@@ -1,3 +1,8 @@
+from typing import Set
+
+from basic import cal_utils
+
+
 class Planet:
 
     def __init__(self, i: str, cn: str):
@@ -37,14 +42,28 @@ class Region:
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
 
+    def get_pr_id(self):
+        return '%s-%s' % (self.planet.id, self.id)
+
+    def get_rl_id(self):
+        """
+        :return 区域id + 楼层id 用于文件夹
+        """
+        if self.level == 0:
+            return '%s' % self.id
+        elif self.level > 0:
+            return '%s-l%d' % (self.id, self.level)
+        elif self.level < 0:
+            return '%s-b%d' % (self.id, abs(self.level))
+
 
 R0_GJCX = Region("gjcx", "观景车厢", None)
 
 P01_R01_ZKCD = Region("zkcd", "主控舱段", P01_KZJ)
 P01_R02_JZCD = Region("jzcd", "基座舱段", P01_KZJ)
+P01_R03_SRCD_B1 = Region("srcd", "收容舱段", P01_KZJ, -1)
 P01_R03_SRCD_L1 = Region("srcd", "收容舱段", P01_KZJ, 1)
 P01_R03_SRCD_L2 = Region("srcd", "收容舱段", P01_KZJ, 2)
-P01_R03_SRCD_LB1 = Region("srcd", "收容舱段", P01_KZJ, -1)
 P01_R04_ZYCD_L1 = Region("zycd", "支援舱段", P01_KZJ, 1)
 P01_R04_ZYCD_L2 = Region("zycd", "支援舱段", P01_KZJ, 2)
 
@@ -62,7 +81,7 @@ def get_region_by_cn(cn: str, planet: Planet = None, level: int = 0) -> Region:
     """
     arr = [
         R0_GJCX,
-        P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_LB1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2,
+        P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2,
         P02_R01_XZQ, P02_R09_MDZ,
     ]
     for i in arr:
@@ -90,17 +109,25 @@ class TransportPoint:
         return '%s - %s' % (self.cn, self.id)
 
 
-P01_R01_TP01_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_04', None)
-P01_R02_TP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_03', (644.3733488387657, 129.73816947897126))
-P01_R03_TP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_03', (377.78668267527456, 350.0337457282807))
-P01_R03_TP01_HMZL = TransportPoint('hmzl', '毁灭之蕾', P01_R03_SRCD_L1, 'mm_tp_07', (311, 316))
+P01_R01_SP01_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_04', None)
+
+P01_R02_SP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_03', (644, 130))
+
+# 空间站黑塔 - 收容舱段
+P01_R03_SP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_03', (365, 360))
+P01_R03_SP02 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_tp_03', (619, 331))
+P01_R03_SP03 = TransportPoint('', '', P01_R03_SRCD_L2, 'mm_tp_03', (758, 424))
+P01_R03_SP04 = TransportPoint('', '', P01_R03_SRCD_L2, 'mm_tp_03', (1033, 495))
+P01_R03_SP05_HMZL = TransportPoint('hmzl', '毁灭之蕾', P01_R03_SRCD_L1, 'mm_tp_07', (309, 310))
+P01_R03_SP06 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_tp_09', (840, 352))
+P01_R03_SP07 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_sp_02', (600, 349))
 
 
-def get_tp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
+def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
     arr = [
-        P01_R01_TP01_HTBGS,
-        P01_R02_TP01_JKS,
-        P01_R03_TP01_KZZXW, P01_R03_TP01_HMZL
+        P01_R01_SP01_HTBGS,
+        P01_R02_SP01_JKS,
+        P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07
     ]
 
     for i in arr:
@@ -123,3 +150,26 @@ def region_with_another_floor(region: Region, level: int) -> Region:
     :return:
     """
     return get_region_by_cn(region.cn, region.planet, level)
+
+
+region_2_sp = {
+    P01_R01_ZKCD.get_pr_id(): [P01_R01_SP01_HTBGS],
+    P01_R02_JZCD.get_pr_id(): [P01_R02_SP01_JKS],
+    P01_R03_SRCD_L1.get_pr_id(): [P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07]
+}
+
+
+def get_sp_type_in_rect(region: Region, rect: tuple) -> Set:
+    """
+    获取区域特定矩形内的特殊点种类
+    :param region: 区域
+    :param rect: 矩形
+    :return: 特殊点种类
+    """
+    sp_list = region_2_sp.get(region.get_pr_id())
+    sp_type_set = set()
+    for sp in sp_list:
+        if rect is None or cal_utils.in_rect(sp.lm_pos, rect):
+            sp_type_set.add(sp.template_id)
+
+    return sp_type_set

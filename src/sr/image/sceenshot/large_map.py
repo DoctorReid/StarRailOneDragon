@@ -138,7 +138,7 @@ def get_map_path(region: Region, mt: str = 'origin') -> str:
     :param mt: 地图类型
     :return: 图片路径
     """
-    return os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, '%s_%d' % (region.id, region.level)), '%s.png' % mt)
+    return os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, region.get_rl_id()), '%s.png' % mt)
 
 
 def save_large_map_image(image: MatLike, region: Region, mt: str = 'origin'):

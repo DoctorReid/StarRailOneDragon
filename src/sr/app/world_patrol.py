@@ -23,7 +23,7 @@ class WorldPatrolRoute(ConfigHolder):
         self.init_from_data(**self.data)
 
     def init_from_data(self, planet: str, region: str, tp: str, level: int, route: List):
-        self.tp: TransportPoint = constants.map.get_tp_by_cn(planet, region, level, tp)
+        self.tp: TransportPoint = constants.map.get_sp_by_cn(planet, region, level, tp)
         self.route_list = route
 
 

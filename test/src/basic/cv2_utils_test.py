@@ -1,11 +1,12 @@
 import cv2
 import numpy as np
 
+import basic.cal_utils
 from basic.img import cv2_utils
 
 
 def _test_get_angle_by_pts():
-    angle = cv2_utils.get_angle_by_pts((0, 0), (1, 1))
+    angle = basic.cal_utils.get_angle_by_pts((0, 0), (1, 1))
     print(angle)
     assert abs(45 - angle) < 1e-5
 
