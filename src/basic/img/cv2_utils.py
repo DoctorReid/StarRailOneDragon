@@ -357,3 +357,14 @@ def crop_image(img, rect: tuple, copy: bool = False):
     x2, y2 = int(x2), int(y2)
     crop = img[y1: y2, x1: x2]
     return crop.copy() if copy else crop
+
+
+def dilate(img, k):
+    """
+    膨胀一下 适合掩码图
+    :param img:
+    :param k:
+    :return:
+    """
+    kernel = np.ones((k, k), np.uint8)
+    return cv2.dilate(src=img, kernel=kernel, iterations=1)

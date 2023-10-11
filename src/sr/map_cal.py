@@ -91,13 +91,11 @@ class MapCalculator:
         info.center_mask[cy - r:cy + r, cx - r:cx + r] = 255
         info.center_mask = cv2.bitwise_xor(info.center_mask, info.arrow_mask)
 
-        info.feature_mask = np.zeros_like(info.gray)
-        cv2.circle(info.feature_mask, (cx, cy), h // 2 - 5, 255, -1)  # 忽略一点圆的边缘
-        ar = constants.TEMPLATE_ARROW_R  # 小箭头
-        cv2.rectangle(info.feature_mask, (cx - ar, cy - ar), (cx + ar, cy + ar), 0, -1)  # 特征提取忽略小箭头部分
+        info.circle_mask = np.zeros_like(info.gray)
+        cv2.circle(info.circle_mask, (cx, cy), h // 2 - 5, 255, -1)  # 忽略一点圆的边缘
 
         info.sp_mask, info.sp_result = mini_map.get_sp_mask_by_feature_match(info, self.im, sp_types)
-        info.road_mask = self.find_map_road_mask(mm, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, is_little_map=True, angle=info.angle)
+        info.road_mask = self.find_map_road_mask(mm, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, is_mini_map=True, angle=info.angle)
         info.gray, info.feature_mask = self.merge_all_map_mask(info.gray, info.road_mask, info.sp_mask)
 
         info.edge = cv2.bitwise_and(self.find_edge_mask(info.feature_mask), self.find_mini_map_edge_mask(mm))
@@ -146,26 +144,31 @@ class MapCalculator:
     def find_map_road_mask(self, map_image: MatLike,
                            sp_mask: MatLike = None,
                            arrow_mask: MatLike = None,
-                           is_little_map: bool = False,
+                           is_mini_map: bool = False,
                            angle: int = -1) -> MatLike:
         """
         在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
         :param map_image: 地图图片
         :param sp_mask: 特殊点的掩码 道路掩码应该排除这部分
         :param arrow_mask: 小箭头的掩码 只有小地图有
-        :param is_little_map: 是否小地图 小地图部分会额外补偿中心点散发出来的扇形朝向部分
+        :param is_mini_map: 是否小地图 小地图部分会额外补偿中心点散发出来的扇形朝向部分
         :param angle: 只有小地图上需要传入 表示当前朝向
         :return: 道路掩码图 能走的部分是白色255
         """
-        # 按道路颜色圈出
+        # 按道路颜色圈出 当前层的颜色
         lower_color = np.array([45, 45, 45], dtype=np.uint8)
-        # 大地图颜色比较简单
         upper_color = np.array([65, 65, 65], dtype=np.uint8)
-        road_mask = cv2.inRange(map_image, lower_color, upper_color)
+        road_mask_1 = cv2.inRange(map_image, lower_color, upper_color)
+        # 按道路颜色圈出 其他层的颜色
+        lower_color = np.array([125, 125, 125], dtype=np.uint8)
+        upper_color = np.array([135, 135, 135], dtype=np.uint8)
+        road_mask_2 = cv2.inRange(map_image, lower_color, upper_color)
+
+        road_mask = cv2.bitwise_or(road_mask_1, road_mask_2)
 
         # 对于小地图 要特殊扫描中心点附近的区块
-        if is_little_map:
-            radio_mask = self.find_little_map_radio_mask(map_image, angle)
+        if is_mini_map:
+            radio_mask = self.find_mini_map_radio_mask(map_image, angle)
             # cv2_utils.show_image(radio_mask, win_name='radio_mask')
             center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
             road_mask = cv2.bitwise_or(road_mask, center_mask)
@@ -199,7 +202,7 @@ class MapCalculator:
 
         return real_road_mask
 
-    def find_little_map_radio_mask(self, map_image: MatLike, angle: int = -1):
+    def find_mini_map_radio_mask(self, map_image: MatLike, angle: int = -1):
         """
         小地图中心雷达区的掩码
         :param map_image:
@@ -327,7 +330,7 @@ class MapCalculator:
         if show:
             cv2_utils.show_overlap(lm.origin, mm.origin, offset_x, offset_y, template_scale=scale, win_name='overlap')
 
-        log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f', center_x, center_y, scale)
+        log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f 置信度 %.2f', center_x, center_y, scale, result.confidence)
 
         return center_x, center_y
 
@@ -439,14 +442,16 @@ class MapCalculator:
         target: MatchResult = None
         target_scale = None
         scale_arr = [1.25, 1.20, 1.15, 1.10, 1.05, 1] if running else [1, 1.05, 1.10, 1.15, 1.20, 1.25]
+        origin_template_mask = cv2_utils.dilate(mm_info.road_mask, 10)
+        origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.center_mask)
         for scale in scale_arr:
             if scale > 1:
                 dest_size = (int(template_w * scale), int(template_h * scale))
                 template = cv2.resize(mm_info.origin, dest_size)
-                template_mask = cv2.resize(mm_info.center_mask, dest_size)
+                template_mask = cv2.resize(origin_template_mask, dest_size)
             else:
                 template = mm_info.origin
-                template_mask = mm_info.center_mask
+                template_mask = origin_template_mask
 
             result = self.im.match_image(source, template, mask=template_mask, threshold=0.4, ignore_inf=True)
 

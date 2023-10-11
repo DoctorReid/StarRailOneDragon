@@ -42,7 +42,7 @@ def _test_little_map_radio_mask():
         little_map = mc.cut_mini_map(screen)
         cv2_utils.show_image(little_map, win_name='little_map')
         angle = mc.get_cv_angle_from_little_map(little_map)
-        mask = mc.find_little_map_radio_mask(little_map, angle)
+        mask = mc.find_mini_map_radio_mask(little_map, angle)
         cv2_utils.show_image(mask, win_name='mask', wait=0)
 
 
@@ -52,7 +52,7 @@ def _test_find_map_road_mask():
     cv2_utils.show_image(little_map, win_name='little_map')
     arrow_mask = mc.find_little_map_arrow_mask(little_map)
     cv2_utils.show_image(arrow_mask, win_name='arrow_mask')
-    cv2_utils.show_image(mc.find_map_road_mask(little_map, is_little_map=True), win_name='mask', wait=0)
+    cv2_utils.show_image(mc.find_map_road_mask(little_map, is_mini_map=True), win_name='mask', wait=0)
 
 
 def _test_find_map_arrow_mask():

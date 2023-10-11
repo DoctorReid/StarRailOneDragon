@@ -30,6 +30,7 @@ class MiniMapInfo:
         self.angle: int = -1  # 箭头方向
         self.gray: MatLike = None  # 灰度图 用于特征检测
         self.center_mask: MatLike = None  # 中心正方形 用于模板匹配
+        self.circle_mask: MatLike = None  # 小地图圆形
         self.feature_mask: MatLike = None  # 小地图圆形 用于特征匹配
         self.sp_mask: MatLike = None  # 特殊点的掩码
         self.sp_result: dict = None  # 匹配到的特殊点结果

@@ -33,7 +33,7 @@ def _test_cal_character_pos():
         screen = get_debug_image(x)
         mm = mc.cut_mini_map(screen)
         t1 = time.time()
-        possible_pos = (303, 403, 20)
+        possible_pos = None
         lm_rect = mc.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
         if lm_rect is not None:
             cv2_utils.show_image(cv2_utils.crop_image(lm, lm_rect), win_name='large_map_rect')
