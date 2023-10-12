@@ -4,7 +4,6 @@ from cv2.typing import MatLike
 
 import basic.cal_utils
 from basic import os_utils
-from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import constants
@@ -13,7 +12,6 @@ from sr.constants.map import Region
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
-from sr.map_cal import MapCalculator
 from sr.operation import Operation
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 
@@ -78,10 +76,11 @@ class MoveDirectly(Operation):
         if x is None or y is None:
             log.error('无法判断当前人物坐标')
             if os_utils.is_debug():
-                save_debug_image(screen)
+                save_debug_image(mm)
             self.no_pos_times += 1
             if self.no_pos_times >= 10:
                 log.error('持续无法判断当前人物坐标 退出本次移动')
+                self.ctx.controller.stop_moving_forward()
                 return Operation.FAIL
             return Operation.WAIT
         else:
@@ -96,13 +95,6 @@ class MoveDirectly(Operation):
 
         self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
         time.sleep(0.5)
-        # screen = self.ctx.controller.screenshot()
-        # self.ctx.controller.stop_moving_forward()
-        # mm = self.ctx.map_cal.cut_mini_map(screen)
-        # mm_info = self.ctx.map_cal.analyse_mini_map(mm)
-        # print(mm_info.angle)
-        # cv2_utils.show_image(screen, win_name='screen', wait=0)
-        # return Operation.SUCCESS
 
         if now_time - self.last_rec_time > self.rec_pos_interval:
             self.pos.append(next_pos)

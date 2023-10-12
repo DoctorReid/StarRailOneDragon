@@ -17,7 +17,7 @@ class EnableAutoFight(Operation):
     def run(self) -> int:
         screen = self.ctx.controller.screenshot()
         bs = battle.get_battle_status(screen, self.ctx.im)
-        if battle.IN_WORLD == bs:  # 非战斗状态
+        if battle.BATTLING != bs:  # 非战斗状态
             return Operation.SUCCESS
 
         if not battle.is_auto_battle_on(screen, self.ctx.im):

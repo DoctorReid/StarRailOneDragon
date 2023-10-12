@@ -25,7 +25,8 @@ def _print_tp_pos(tp: TransportPoint):
 
 
 def _test_cal_character_pos():
-    r_list = [constants.map.P01_R03_SRCD_L1] #, constants.map.P01_R03_SRCD_B1]
+    r_list = [#constants.map.P01_R03_SRCD_L1,
+              constants.map.P01_R03_SRCD_B1]
     lm_info_list = []
     for r in r_list:
         lm_info_list.append(mc.analyse_large_map(r))
@@ -33,6 +34,8 @@ def _test_cal_character_pos():
     dir = get_debug_image_dir()
     for x in os.listdir(dir):
         if not x.endswith('.png'):
+            continue
+        if not x.startswith('1697036262088'):
             continue
         screen = cv2_utils.read_image(os.path.join(dir, x))
         mm = mc.cut_mini_map(screen)
@@ -44,7 +47,7 @@ def _test_cal_character_pos():
                 cv2_utils.show_image(cv2_utils.crop_image(lm_info.origin, lm_rect), win_name='large_map_rect')
             sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
             mm_info = mc.analyse_mini_map(mm, sp_map.keys())
-            mc.cal_character_pos(lm_info, mm_info, lm_rect=lm_rect, show=True, retry_without_rect=False)
+            mc.cal_character_pos(lm_info, mm_info, lm_rect=lm_rect, show=True, retry_without_rect=False, running=True)
             print('cal_character_pos 耗时 %.6f' % (time.time() - t1))
             cv2.waitKey(0)
 

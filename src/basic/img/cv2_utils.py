@@ -368,3 +368,60 @@ def dilate(img, k):
     """
     kernel = np.ones((k, k), np.uint8)
     return cv2.dilate(src=img, kernel=kernel, iterations=1)
+
+
+def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_color=None):
+    """
+    转化成 目标尺寸并居中
+    :param origin:
+    :param mask:
+    :param width: 目标尺寸宽度
+    :param height: 目标尺寸高度
+    :param bg_color: 背景色
+    :return:
+    """
+    bw = np.where(mask == 255)
+    white_pixel_coordinates = list(zip(bw[1], bw[0]))
+
+    # 找到最大最小坐标值
+    max_x = max(white_pixel_coordinates, key=lambda i: i[0])[0]
+    max_y = max(white_pixel_coordinates, key=lambda i: i[1])[1]
+
+    min_x = min(white_pixel_coordinates, key=lambda i: i[0])[0]
+    min_y = min(white_pixel_coordinates, key=lambda i: i[1])[1]
+
+    # 稍微扩大一下范围
+    if max_x < mask.shape[1]:
+        max_x += min(5, mask.shape[1] - max_x)
+    if max_y < mask.shape[0]:
+        max_y += min(5, mask.shape[0] - max_y)
+    if min_x > 0:
+        min_x -= min(5, min_x)
+    if min_y > 0:
+        min_y -= min(5, min_y)
+
+    cx = (min_x + max_x) // 2
+    cy = (min_y + max_y) // 2
+
+    x1, y1 = cx - min_x, cy - min_y
+    x2, y2 = max_x - cx, max_y - cy
+
+    ccx = width // 2
+    ccy = height // 2
+
+    # 移动到 50*50 居中
+    final_mask = np.zeros((height, width), dtype=np.uint8)
+    final_mask[ccy-y1:ccy+y2, ccx-x1:ccx+x2] = mask[min_y:max_y, min_x:max_x]
+
+    if len(origin.shape) > 2:
+        final_origin = np.zeros((height, width, 3), dtype=np.uint8)
+        final_origin[ccy-y1:ccy+y2, ccx-x1:ccx+x2, :] = origin[min_y:max_y, min_x:max_x, :]
+    else:
+        final_origin = np.zeros((height, width), dtype=np.uint8)
+        final_origin[ccy - y1:ccy + y2, ccx - x1:ccx + x2] = origin[min_y:max_y, min_x:max_x]
+    final_origin = cv2.bitwise_and(final_origin, final_origin, mask=final_mask)
+
+    if bg_color is not None:  # 部分图标可以背景统一使用颜色
+        final_origin[np.where(final_mask == 0)] = bg_color
+
+    return final_origin, final_mask

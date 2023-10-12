@@ -56,6 +56,17 @@ class Region:
         elif self.level < 0:
             return '%s-b%d' % (self.id, abs(self.level))
 
+    def get_prl_id(self):
+        """
+        :return 星球id + 区域id + 楼层id 用于文件夹
+        """
+        if self.level == 0:
+            return '%s-%s' % (self.planet.id, self.id)
+        elif self.level > 0:
+            return '%s-%s-l%d' % (self.planet.id, self.id, self.level)
+        elif self.level < 0:
+            return '%s-%s-b%d' % (self.planet.id, self.id, abs(self.level))
+
 
 R0_GJCX = Region("gjcx", "观景车厢", None)
 

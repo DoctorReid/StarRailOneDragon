@@ -15,6 +15,7 @@ from sr.win import Window, WinRect
 
 class PcController(GameController):
 
+    MOUSEEVENTF_MOVE = 0x0001
     MOUSEEVENTF_LEFTDOWN = 0x0002
     MOUSEEVENTF_LEFTUP = 0x0004
 
@@ -101,7 +102,7 @@ class PcController(GameController):
         :param d: 正数往右转 人物角度增加；负数往左转 人物角度减少
         :return:
         """
-        ctypes.windll.user32.mouse_event(0x0001, int(d), 0)
+        ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_MOVE, int(d), 0)
 
     def move(self, direction: str, press_time: int = 0):
         """
