@@ -91,6 +91,8 @@ def get_angle_from_arrow(arrow: MatLike,
 
     if precise_angle is not None and precise_angle < 0:
         precise_angle += 360
+    if precise_angle is not None and precise_angle > 360:
+        precise_angle -= 360
     return 360 - precise_angle
 
 

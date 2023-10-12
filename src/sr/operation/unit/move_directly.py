@@ -26,12 +26,16 @@ class MoveDirectly(Operation):
     stuck_distance: float = 20  # 移动距离多少以内认为是被困
     arrival_distance: float = 10  # 多少距离内认为是到达目的地
 
-    def __init__(self, ctx: Context, large_map_info: LargeMapInfo,
+    def __init__(self, ctx: Context,
+                 large_map_info: LargeMapInfo,
                  region: Region,
-                 target: tuple, start: tuple = None,
+                 target: tuple,
+                 next_lm_info: LargeMapInfo = None,
+                 start: tuple = None,
                  save_screenshot: bool = False):
         super().__init__(ctx)
-        self.lm_info = large_map_info
+        self.lm_info: LargeMapInfo = large_map_info
+        self.next_lm_info: LargeMapInfo = next_lm_info
         self.region: Region = region
         self.target = target
         self.save_screenshot = save_screenshot
@@ -135,6 +139,8 @@ class MoveDirectly(Operation):
         start_time = time.time()
 
         x, y = self.ctx.map_cal.cal_character_pos(self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False)
+        if x is None and self.next_lm_info is not None:
+            x, y = self.ctx.map_cal.cal_character_pos(self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False)
 
         log.debug('截图计算坐标耗时 %.4f s', time.time() - start_time)
         log.info('计算当前坐标为 (%s, %s)', x, y)

@@ -65,7 +65,7 @@ class Calibrator(Application):
             screen = self.ctrl.screenshot()
             mm = self.mc.cut_mini_map(screen)
             center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
-            log.info('当前角度 %d', next_angle)
+            log.info('当前角度 %.2f', next_angle)
             cv2_utils.show_image(center_arrow_mask, win_name='center_arrow_mask')
             cv2_utils.show_image(arrow_mask, win_name='arrow_mask')
             if angle is not None:
@@ -73,7 +73,7 @@ class Calibrator(Application):
                 turn_angle.append(ta)
             angle = next_angle
             self.ctrl.turn_by_distance(turn_distance)
-            time.sleep(0.5)
+            time.sleep(1)
         avg_turn_angle = np.mean(turn_angle)
         print(avg_turn_angle)
         config: GameConfig = get_game_config()
