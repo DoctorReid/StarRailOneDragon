@@ -34,33 +34,20 @@ def _test_extract_arrow():
         cv2.destroyAllWindows()
 
 
-def _test_get_arrow_template():
-    screen = get_test_image('mm_arrow')
-    mm = ctx.map_cal.cut_mini_map(screen)
-    one_template, all_template = mini_map.get_arrow_template(mm)
-    cv2_utils.show_image(one_template, win_name='one')
-    cv2_utils.show_image(all_template, win_name='all')
-    save_debug_image(one_template)
-    save_debug_image(all_template) # 最后复制到 images/template/arrow_one,arrow_all中 只保存mask即可
+def _test_get_arrow_mask():
+    screen = get_debug_image('1697036916493')
+    mm = mc.cut_mini_map(screen)
+    m, wm = mini_map.get_arrow_mask(mm)
+    cv2_utils.show_image(m, win_name='m')
+    cv2_utils.show_image(wm, win_name='wm')
     cv2.waitKey(0)
 
 
-def _test_get_angle_from_arrow():
-    screen = get_test_image('mm_arrow')
+def _test_analyse_arrow_and_angle():
+    screen = get_debug_image('1697036916493')
     mm = mc.cut_mini_map(screen)
-    one_template, all_template = mini_map.get_arrow_template(mm)
-    dir = get_debug_image_dir()
-    for filename in os.listdir(dir):
-        # if not filename.startswith('1695658291971'):
-        #     continue
-        screen = cv2_utils.read_image(os.path.join(dir, filename))
-        mm = mc.cut_mini_map(screen)
-        cv2_utils.show_image(mm, win_name='mm')
-        arrow, _ = mini_map.get_arrow_mask(mm)
-        cv2_utils.show_image(arrow, win_name='arrow')
-        answer = mini_map.get_angle_from_arrow(arrow, all_template, one_template, ctx.im, show=True)
-        print(answer)
-        cv2.waitKey(0)
+    _, _, angle = mini_map.analyse_arrow_and_angle(mm, im)
+    print(angle)
 
 
 def _test_edge():
@@ -117,8 +104,36 @@ def _test_is_under_attack():
         print(mini_map.is_under_attack(mm, get_game_config().mini_map_pos, show=True))
         cv2.waitKey(0)
 
+
+def _test_radio_mask():
+    screen = get_debug_image('1697036262088')
+    mm = mc.cut_mini_map(screen)
+    road = np.zeros_like(mm, dtype=np.uint8)
+    road[:,:] = [65,65,65]
+    ans = cv2.subtract(mm, road)
+    cv2_utils.show_image(ans, win_name='ans')
+    cv2.waitKey(0)
+
+
+def _test_get_enemy_road_mask():
+    pass
+
+
+def _test_cut_mini_map():
+    screen = get_test_image('mm_arrow', sub_dir='mini_map')
+    mm = mc.cut_mini_map(screen)
+    save_debug_image(mm)
+    # dir = get_debug_image_dir()
+    # for x in os.listdir(dir):
+    #     if not x.endswith('.png'):
+    #         continue
+    #     screen = cv2_utils.read_image(os.path.join(dir, x))
+    #     mm = mc.cut_mini_map(screen)
+    #     save_debug_image(mm)
+
+
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
     mc = MapCalculator(im=im)
-    _test_get_sp_mask_by_feature_match()
+    _test_cut_mini_map()

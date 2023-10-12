@@ -1,5 +1,3 @@
-from typing import List
-
 import cv2
 import os
 import numpy as np
@@ -7,8 +5,11 @@ from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import cv2_utils
+from basic.img.cv2_utils import convert_to_standard
 from sr import constants
 from sr.image.image_holder import ImageHolder
+from sr.image.sceenshot import mini_map
+from sr.image.sceenshot.mini_map import get_arrow_mask
 
 
 def _read_template_image(template_id):
@@ -156,60 +157,6 @@ def get_four_corner(bw):
     return left, right, top, bottom
 
 
-def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_color=None):
-    """
-    转化成 目标尺寸并居中
-    :param origin:
-    :param mask:
-    :param width: 目标尺寸宽度
-    :param height: 目标尺寸高度
-    :param bg_color: 背景色
-    :return:
-    """
-    bw = np.where(mask == 255)
-    white_pixel_coordinates = list(zip(bw[1], bw[0]))
-
-    # 找到最大最小坐标值
-    max_x = max(white_pixel_coordinates, key=lambda i: i[0])[0]
-    max_y = max(white_pixel_coordinates, key=lambda i: i[1])[1]
-
-    min_x = min(white_pixel_coordinates, key=lambda i: i[0])[0]
-    min_y = min(white_pixel_coordinates, key=lambda i: i[1])[1]
-    print(min_x, min_y, max_x, max_y)
-
-    # 稍微扩大一下范围
-    if max_x < mask.shape[1]:
-        max_x += min(5, mask.shape[1] - max_x)
-    if max_y < mask.shape[0]:
-        max_y += min(5, mask.shape[0] - max_y)
-    if min_x > 0:
-        min_x -= min(5, min_x)
-    if min_y > 0:
-        min_y -= min(5, min_y)
-
-    cx = (min_x + max_x) // 2
-    cy = (min_y + max_y) // 2
-
-    x1, y1 = cx - min_x, cy - min_y
-    x2, y2 = max_x - cx, max_y - cy
-
-    ccx = width // 2
-    ccy = height // 2
-
-    # 移动到 50*50 居中
-    final_mask = np.zeros((height, width), dtype=np.uint8)
-    final_mask[ccy-y1:ccy+y2, ccx-x1:ccx+x2] = mask[min_y:max_y, min_x:max_x]
-
-    final_origin = np.zeros((height, width, 3), dtype=np.uint8)
-    final_origin[ccy-y1:ccy+y2, ccx-x1:ccx+x2, :] = origin[min_y:max_y, min_x:max_x, :]
-    final_origin = cv2.bitwise_and(final_origin, final_origin, mask=final_mask)
-
-    if bg_color is not None:  # 部分图标可以背景统一使用颜色
-        final_origin[np.where(final_mask == 0)] = bg_color
-
-    return final_origin, final_mask
-
-
 def show_and_save(template_id, origin, mask):
     gray = cv2.cvtColor(origin, cv2.COLOR_BGR2GRAY)
     cv2_utils.show_image(origin, win_name='origin')
@@ -241,3 +188,39 @@ def init_template_feature():
     初始化所有模板的特征值
     :return:
     """
+    pass
+
+
+def init_arrow_template(mm: MatLike):
+    """
+    找一个传送点下来朝正右方的地方 截取小箭头的template 推荐位置 空间站黑塔-支援舱段-
+    :param mm: 小地图
+    :return: 模板
+    """
+    bw, _ = mini_map.get_arrow_mask(mm)
+    d0 = bw.shape[0]
+    rough_template = np.zeros((11 * d0, 11 * d0), dtype=np.uint8)
+    for i in range(11):
+        for j in range(11):
+            offset_x = j * d0
+            offset_y = i * d0
+            angle = ((i * 11) + j) * 3
+            if angle < 360:
+                rough_template[offset_y:offset_y+d0, offset_x:offset_x+d0] = cv2_utils.image_rotate(bw, angle)
+
+    precise_template = np.zeros((11 * d0, 11 * d0), dtype=np.uint8)
+    for i in range(11):
+        for j in range(11):
+            offset_x = j * d0
+            offset_y = i * d0
+            angle = ((i * 11) + j - 60) / 10.0
+            print(angle)
+            precise_template[offset_y:offset_y + d0, offset_x:offset_x + d0] = cv2_utils.image_rotate(bw, angle)
+
+    # 稍微扩大一下模板 方便匹配
+    cv2_utils.show_image(rough_template, win_name='rough_template')
+    cv2_utils.show_image(precise_template, win_name='precise_template')
+    cv2.waitKey(0)
+
+    save_template_image(rough_template, 'arrow_rough', 'mask')
+    save_template_image(precise_template, 'arrow_precise', 'mask')
