@@ -53,7 +53,7 @@ class Calibrator(Application):
         反推转动角度所需的滑动距离
         :return:
         """
-        turn_distance = 1000
+        turn_distance = 500
 
         angle = self._get_current_angle()
         turn_angle = []
@@ -67,44 +67,14 @@ class Calibrator(Application):
             angle = next_angle
 
         avg_turn_angle = np.mean(turn_angle)
-        print(avg_turn_angle)
+        log.info('平均旋转角度 %.4f', avg_turn_angle)
+        ans = float(turn_distance / avg_turn_angle)
+        log.info('每度移动距离 %.8f', ans)
         config: GameConfig = get_game_config()
-        config.update('turn_dx', float(turn_distance / avg_turn_angle))
+        config.update('turn_dx', ans)
         config.write_config()
         # cv2.waitKey(0)
-
-    def _check_turning_rate_2(self):
-        ang = [1, 1, 3]
-        multi = 1
-        lst_ang = self._get_current_angle()
-        for i in ang:
-            ang_list = []
-            for j in range(i):
-                self.ctrl.turn_by_angle_2(100, multi=multi, fine=3 // i)
-                time.sleep(0.2)
-                now_ang = self._get_current_angle()
-                sub = lst_ang - now_ang
-                while sub < 0:
-                    sub += 360
-                ang_list.append(sub)
-                lst_ang = now_ang
-            ang_list = np.array(ang_list)
-            # 十/3次转身的角度
-            print(ang_list)
-            ax = 0
-            ay = 0
-            for j in ang_list:
-                if abs(j - np.median(ang_list)) <= 5:
-                    ax += 100
-                    ay += j
-            multi *= ax / ay
-        multi += 1e-9
-        try:
-            if not abs(multi) <= 2:
-                multi = 1
-        except:
-            multi = 1
-        print(str(multi + len(ang) - 1))
+        return ans
 
     def _get_current_angle(self):
         self.ctrl.move('w')

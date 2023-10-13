@@ -211,7 +211,9 @@ def init_arrow_template(mm: MatLike):
     :return: 模板
     """
     bw, _ = mini_map.get_arrow_mask(mm)
-    d0 = bw.shape[0]
+    d0 = constants.TEMPLATE_ARROW_LEN_PLUS
+    # 稍微放大一下 更好地匹配到边缘的结果
+    _, bw = cv2_utils.convert_to_standard(bw, bw, width=d0, height=d0)
     rough_template = np.zeros((11 * d0, 11 * d0), dtype=np.uint8)
     for i in range(11):
         for j in range(11):

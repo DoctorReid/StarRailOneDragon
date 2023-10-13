@@ -54,7 +54,7 @@ class MoveDirectly(Operation):
                 basic.cal_utils.distance_between(self.pos[0], self.pos[len(self.pos) - 1]) < MoveDirectly.stuck_distance:
             self.stuck_times += 1
             walk_sec = self.get_rid_of_stuck(self.stuck_times)
-            self.last_rec_time += walk_sec * 2
+            self.last_rec_time += walk_sec * 3
         else:
             self.stuck_times = 0
 
@@ -122,13 +122,14 @@ class MoveDirectly(Operation):
 
         ctrl.stop_moving_forward()
 
-        walk_sec = stuck_times if stuck_times <= 3 else stuck_times - 3  #
+        walk_sec = (stuck_times if stuck_times <= 3 else stuck_times - 3) * 0.5
         turn = 'a' if stuck_times <= 3 else 'd'
 
         ctrl.move('s', walk_sec)
         ctrl.move(turn, walk_sec)
+        ctrl.move('w', walk_sec)
         ctrl.start_moving_forward()
-        time.sleep(walk_sec)
+        time.sleep(1)
         return walk_sec
 
     def get_pos(self, mm_info: MiniMapInfo, lm_rect: tuple):
@@ -166,8 +167,9 @@ class MoveDirectly(Operation):
         return True
 
     def on_pause(self):
-        self.ctx.controller.stop_moving_forward()
         super().on_pause()
+        self.ctx.controller.stop_moving_forward()
 
     def on_resume(self):
+        super().on_resume()
         self.last_rec_time = time.time()

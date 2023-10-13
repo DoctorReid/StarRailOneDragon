@@ -31,6 +31,11 @@ def get_angle_by_pts(from_pos: tuple, to_pos: tuple) -> float:
             return 0
         else:
             return 270
+    if dy == 0:
+        if dx >= 0:
+            return 0
+        else:
+            return 180
     angle = math.degrees(math.atan((dy) / (dx)))
     if angle > 0 and (dy < 0 and dx < 0):
         angle += 180

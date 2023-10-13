@@ -11,8 +11,7 @@ def _test_check_mini_map_pos():
 def _test_check_turning_rate():
     ctx.running = True
     ctx.controller.init()
-    app._check_turning_rate()
-
+    ans = app._check_turning_rate()
 
 def _test_whole_app():
     app.run()

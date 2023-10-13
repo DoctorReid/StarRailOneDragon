@@ -118,7 +118,7 @@ def get_angle_from_arrow(arrow: MatLike,
     if show:
         cv2_utils.show_image(rough_template, result.max, win_name="rough_template_match")
 
-    d = constants.TEMPLATE_ARROW_LEN
+    d = constants.TEMPLATE_ARROW_LEN_PLUS
 
     row = result.max.cy // d
     col = result.max.cx // d
@@ -268,7 +268,7 @@ def get_track_road_mask(mm: MatLike) -> MatLike:
     return cv2.inRange(mm, lower_color, upper_color)
 
 
-def is_under_attack(mini_map: MatLike, mm_pos: MiniMapPos, show: bool = True) -> bool:
+def is_under_attack(mini_map: MatLike, mm_pos: MiniMapPos, show: bool = False) -> bool:
     """
     根据小地图边缘 判断是否被锁定
     红色色道应该有一个圆

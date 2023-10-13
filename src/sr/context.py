@@ -43,9 +43,13 @@ class Context:
         if self.running:
             log.info('暂停运行')
             self.running = False
+            for obj_id, callback in self.pause_callback.items():
+                callback()
         else:
             log.info('恢复运行')
             self.running = True
+            for obj_id, callback in self.resume_callback.items():
+                callback()
 
     def register_pause(self, obj,
                        pause_callback,
