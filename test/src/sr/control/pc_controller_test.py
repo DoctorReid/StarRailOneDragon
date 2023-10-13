@@ -4,9 +4,10 @@ from sr.context import Context, get_context
 
 
 def _test_turn_by_distance():
-    print(pyautogui.position())
-    ctx.controller.turn_by_distance(600)
-    print(pyautogui.position())
+    x1 = pyautogui.position().x
+    ctx.controller.turn_by_distance(100)
+    x2 = pyautogui.position().x
+    print(x2 - x1)
 
 
 def _test_move_towards():
@@ -15,5 +16,5 @@ def _test_move_towards():
 
 
 if __name__ == '__main__':
-    ctx: Context = get_context()
-    _test_move_towards()
+    ctx: Context = get_context('唯秘')
+    _test_turn_by_distance()

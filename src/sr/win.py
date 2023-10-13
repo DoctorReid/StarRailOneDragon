@@ -90,3 +90,5 @@ class Window:
         # TODO 缺少一个屏幕边界判断 游戏窗口拖动后可能会超出整个屏幕
         return (rect.x + gp[0], rect.y + gp[1]) if gp[0] is not None else (None, None)
 
+    def get_dpi(self):
+        return ctypes.windll.user32.GetDpiForWindow(self.win._hWnd)

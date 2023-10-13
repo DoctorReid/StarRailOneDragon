@@ -60,6 +60,7 @@ class MoveDirectly(Operation):
 
         if not self.ctx.controller.is_moving:
             self.ctx.controller.move('w')
+            time.sleep(0.5)  # 等待人物转过来再截图
         now_time = time.time()
         screen = self.ctx.controller.screenshot()
         if self.save_screenshot:
