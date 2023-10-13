@@ -98,4 +98,5 @@ class ChooseRegion(Operation):
         :return:
         """
         part = cv2_utils.crop_image(screen, large_map.LEVEL_LIST_PART)
-        return self.ctx.controller.click_ocr(part, target_level_str, click_offset=large_map.LEVEL_LIST_PART[:2])
+        return self.ctx.controller.click_ocr(part, target_level_str, click_offset=large_map.LEVEL_LIST_PART[:2],
+                                             same_word=True)

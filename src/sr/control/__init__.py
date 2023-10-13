@@ -25,7 +25,7 @@ class GameController:
         pass
 
     def click_ocr(self, screen: MatLike, word: str, threshold: float = 0.5, rect: tuple = None, click_offset: tuple = None,
-                  press_time: int = 0,
+                  press_time: int = 0, same_word: bool = False,
                   ) -> bool:
         """
         在屏幕中点击关键词所在位置 多个关键词时随机点击一个
@@ -35,12 +35,14 @@ class GameController:
         :param rect: 圈定区域 (x,y,w,h) 默认分辨率下的游戏窗口里的坐标
         :param click_offset: 在匹配结果后 偏移多少进行点击
         :param press_time: 持续按的时间
+        :param same_word: 要求整个词一样
         :return:
         """
         if rect is not None:
             x1, y1, x2, y2 = rect
             # cv2_utils.show_image(screen[y1:y2, x1:x2], win_name='ocr_part')
-        km = self.ocr.match_words(screen if rect is None else screen[y1:y2, x1:x2], words=[word], threshold=threshold)
+        km = self.ocr.match_words(screen if rect is None else screen[y1:y2, x1:x2],
+                                  words=[word], threshold=threshold, same_word=same_word)
         if len(km) == 0:
             return False
         for v in km.values():

@@ -98,19 +98,22 @@ class OcrMatcher:
         """
         pass
 
-    def match_words(self, image: MatLike, words: List[str], threshold: float = 0.5) -> dict:
+    def match_words(self, image: MatLike, words: List[str], threshold: float = 0.5, same_word: bool = False) -> dict:
         """
         在图片中查找关键词 返回所有词对应的位置
         :param image: 图片
         :param words: 关键词
         :param threshold: 匹配阈值
+        :param same_word: 要求整个词一样
         :return: {key_word: []}
         """
         all_match_result: dict = self.run_ocr(image, threshold)
         match_key = set()
         for k in all_match_result.keys():
             for w in words:
-                if k.find(w) != -1:
+                if same_word and k == w:
+                    match_key.add(k)
+                elif not same_word and k.find(w) != -1:
                     match_key.add(k)
                     break
 

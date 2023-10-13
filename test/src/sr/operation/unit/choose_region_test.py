@@ -30,8 +30,8 @@ def _test_scroll_region_area():
 
 
 def _test_click_target_level():
-    screen = get_test_image('large_map_2')
-    print(op.click_target_level(screen))
+    screen = get_test_image('level', sub_dir='large_map')
+    print(op.click_target_level(screen, '-1层'))
     cv2.waitKey(0)
 
 
@@ -43,7 +43,7 @@ def _test_whole_operation():
 
 if __name__ == '__main__':
     real_game = True
-    ctx = get_context()
+    ctx = get_context('唯秘')
     region: Region = constants.map.P01_R03_SRCD_B1
     op = ChooseRegion(ctx, region)
-    _test_whole_operation()
+    _test_click_target_level()
