@@ -7,6 +7,7 @@ from sr import constants
 from sr.config import ConfigHolder
 from sr.constants.map import TransportPoint, region_with_another_floor
 from sr.context import Context
+from sr.image.sceenshot import large_map
 from sr.operation import Operation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.move_directly import MoveDirectly
@@ -102,13 +103,13 @@ class WorldPatrol(Operation):
             log.info('传送完成 开始寻路')
 
         last_region = route.tp.region
-        lm_info = self.ctx.map_cal.analyse_large_map(last_region)
+        lm_info = large_map.analyse_large_map(last_region, self.ctx.ih)
         last_pos = route.tp.lm_pos
         for p in route.route_list:
             target_pos = (p[0], p[1])
             if len(p) > 2:  # 需要切换层数
                 next_region = region_with_another_floor(last_region, p[2])
-                next_lm_info = self.ctx.map_cal.analyse_large_map(next_region)
+                next_lm_info = large_map.analyse_large_map(next_region, self.ctx.ih)
             op = MoveDirectly(self.ctx, lm_info, region=last_region, target=target_pos, start=last_pos)
             if not op.execute():
                 log.error('寻路失败 即将跳过本次路线 %s', route_id)

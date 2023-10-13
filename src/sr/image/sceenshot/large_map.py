@@ -12,6 +12,7 @@ from basic.log_utils import log
 from sr import constants
 from sr.constants.map import Planet, Region
 from sr.image import OcrMatcher, TemplateImage, ImageMatcher, get_large_map_dir_path
+from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo
 
 REGION_LIST_PART = (1480, 200, 1700, 1000)
@@ -307,4 +308,60 @@ def get_edge_mask(road_mask: MatLike):
     edge_mask = np.zeros_like(road_mask)
     # 绘制轮廓
     cv2.drawContours(edge_mask, contours, -1, 255, 2)
+    return edge_mask
+
+
+def get_large_map_rect_by_pos(lm_shape, mm_shape, possible_pos: tuple = None):
+    """
+    :param lm_shape: 大地图尺寸
+    :param mm_shape: 小地图尺寸
+    :param possible_pos: 可能在大地图的位置 (x,y,d)。 (x,y) 是上次在的位置 d是移动的距离
+    :return:
+    """
+    if possible_pos is not None:  # 传入了潜在位置 那就截取部分大地图再进行匹配
+        lr = mm_shape[0] // 2  # 小地图半径
+        x, y, r = int(possible_pos[0]), int(possible_pos[1]), int(possible_pos[2])
+        ur = r + lr + lr // 2  # 潜在位置半径 = 移动距离 + 1.5倍的小地图半径
+        lm_offset_x = x - ur
+        lm_offset_y = y - ur
+        lm_offset_x2 = x + ur
+        lm_offset_y2 = y + ur
+        if lm_offset_x < 0:  # 防止越界
+            lm_offset_x = 0
+        if lm_offset_y < 0:
+            lm_offset_y = 0
+        if lm_offset_x2 > lm_shape[1]:
+            lm_offset_x2 = lm_shape[1]
+        if lm_offset_y2 > lm_shape[0]:
+            lm_offset_y2 = lm_shape[0]
+        return lm_offset_x, lm_offset_y, lm_offset_x2, lm_offset_y2
+    else:
+        return None
+
+
+def analyse_large_map(region: Region, ih: ImageHolder):
+    """
+    预处理 从大地图中提取出所有需要的信息
+    :param region: 区域
+    :param ih: 图片加载器
+    :return:
+    """
+    info = ih.get_large_map(region)
+    info.edge = get_road_edge_mask(info.mask)
+    return info
+
+
+def get_road_edge_mask(road_mask: MatLike):
+    """
+    大地图道路边缘掩码 暂时不需要
+    :param road_mask:
+    :return:
+    """
+    # 查找轮廓
+    contours, hierarchy = cv2.findContours(road_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # 创建空白图像作为绘制轮廓的画布
+    edge_mask = np.zeros_like(road_mask)
+    # 绘制轮廓
+    cv2.drawContours(edge_mask, contours, -1, 255, 1)
+
     return edge_mask

@@ -6,10 +6,8 @@ from basic.img import MatchResultList, cv2_utils
 from sr import constants
 from sr.image.cnocr_matcher import CnocrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
-from sr.map_cal import MapCalculator
 
 im = CvImageMatcher()
-mc = MapCalculator(im=im)
 
 
 def _test_match_template():
@@ -39,13 +37,6 @@ def _test_ocr():
 def _test_rotate():
     i = cv2_utils.read_image(basic.img.get.get_test_image('t3.png'))
     cv2_utils.image_rotate(i, -90, show_result=True)
-
-
-def _test_match_template_with_rotation():
-    screen = basic.img.get.get_debug_image('1695022366133')
-    little_map = mc.cut_mini_map(screen)
-    im = CvImageMatcher()
-    print(im.match_template_with_rotation(little_map, constants.TEMPLATE_ARROW))
 
 
 def _test_mark_area_as_transparent():

@@ -6,10 +6,56 @@ import numpy as np
 from cv2.typing import MatLike
 
 from basic.img import cv2_utils, MatchResultList, MatchResult
+from basic.log_utils import log
 from sr import constants
-from sr.config.game_config import MiniMapPos
+from sr.config.game_config import MiniMapPos, get_game_config
 from sr.image import ImageMatcher, TemplateImage
 from sr.image.sceenshot import MiniMapInfo
+
+
+def cal_little_map_pos(screen: MatLike) -> MiniMapPos:
+    """
+    计算小地图的坐标
+    通过截取屏幕左上方部分 找出最大的圆圈 就是小地图。
+    部分场景无法准确识别 所以使用一次校准后续读取配置使用。
+    最容易匹配地点在【空间站黑塔】【基座舱段】【接待中心】传送点
+    :param screen: 屏幕截图
+    """
+    # 左上角部分
+    x, y = 0, 0
+    x2, y2 = 340, 380
+    image = screen[y:y2, x:x2]
+
+    # 对图像进行预处理
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1.2, 100, minRadius=80, maxRadius=100)  # 小地图大概的圆半径
+
+    # 如果找到了圆
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        tx, ty, tr = 0, 0, 0
+
+        # 保留半径最大的圆
+        for circle in circles[0, :]:
+            if circle[2] > tr:
+                tx, ty, tr = circle[0], circle[1], circle[2]
+
+        mm_pos = MiniMapPos(tx, ty, tr)
+        log.debug('计算小地图所在坐标为 %s', mm_pos)
+        return mm_pos
+    else:
+        log.error('无法找到小地图的圆')
+
+
+def cut_mini_map(screen: MatLike, mm_pos: MiniMapPos = None):
+    """
+    从整个游戏窗口截图中 裁剪出小地图部分
+    :param screen: 屏幕截图
+    :return:
+    """
+    if mm_pos is None:
+        mm_pos = get_game_config().mini_map_pos
+    return screen[mm_pos.ly:mm_pos.ry, mm_pos.lx:mm_pos.rx]
 
 
 def extract_arrow(mini_map: MatLike):
@@ -206,8 +252,8 @@ def get_enemy_road_mask(mm: MatLike) -> MatLike:
     :param mm: 小地图截图
     :return: 敌人在小地图上的坐标
     """
-    lower_color = np.array([45, 45, 100], dtype=np.uint8)
-    upper_color = np.array([65, 65, 255], dtype=np.uint8)
+    lower_color = np.array([45, 45, 80], dtype=np.uint8)
+    upper_color = np.array([60, 60, 255], dtype=np.uint8)
     return cv2.inRange(mm, lower_color, upper_color)
 
 
@@ -262,20 +308,21 @@ def get_mini_map_scale_list(running: bool):
     return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05]
 
 
-def analyse_mini_map( mm: MatLike, im: ImageMatcher, sp_types: Set = None) -> MiniMapInfo:
+def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) -> MiniMapInfo:
     """
     预处理 从小地图中提取出所有需要的信息
-    :param mm: 小地图 左上角的一个正方形区域
+    :param origin: 小地图 左上角的一个正方形区域
+    :param im: 图片匹配器
     :param sp_types: 特殊点种类
     :return:
     """
     info = MiniMapInfo()
-    info.origin = mm
-    info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(mm, im)
-    info.gray = cv2.cvtColor(mm, cv2.COLOR_BGR2GRAY)
+    info.origin = origin
+    info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin, im)
+    info.gray = cv2.cvtColor(origin, cv2.COLOR_BGR2GRAY)
 
     # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
-    h, w = mm.shape[1], mm.shape[0]
+    h, w = origin.shape[1], origin.shape[0]
     cx, cy = w // 2, h // 2
     r = math.floor(h / math.sqrt(2) / 2) - 8
     info.center_mask = np.zeros_like(info.gray)
@@ -287,10 +334,10 @@ def analyse_mini_map( mm: MatLike, im: ImageMatcher, sp_types: Set = None) -> Mi
     info.circle_mask = cv2.bitwise_xor(info.circle_mask, info.arrow_mask)
 
     info.sp_mask, info.sp_result = get_sp_mask_by_feature_match(info, im, sp_types)
-    info.road_mask = get_mini_map_road_mask(mm, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, angle=info.angle)
+    info.road_mask = get_mini_map_road_mask(origin, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, angle=info.angle)
     info.gray, info.feature_mask = merge_all_map_mask(info.gray, info.road_mask, info.sp_mask)
 
-    info.edge = find_mini_map_edge_mask(mm, info.road_mask)
+    info.edge = find_mini_map_edge_mask(origin, info.road_mask)
 
     # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map
     info.kps, info.desc = cv2_utils.feature_detect_and_compute(info.gray, mask=info.sp_mask)
@@ -298,13 +345,13 @@ def analyse_mini_map( mm: MatLike, im: ImageMatcher, sp_types: Set = None) -> Mi
     return info
 
 
-def get_mini_map_road_mask(map_image: MatLike,
-                       sp_mask: MatLike = None,
-                       arrow_mask: MatLike = None,
-                       angle: int = -1) -> MatLike:
+def get_mini_map_road_mask(origin: MatLike,
+                           sp_mask: MatLike = None,
+                           arrow_mask: MatLike = None,
+                           angle: int = -1) -> MatLike:
     """
     在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
-    :param map_image: 地图图片
+    :param origin: 地图图片
     :param sp_mask: 特殊点的掩码 道路掩码应该排除这部分
     :param arrow_mask: 小箭头的掩码 只有小地图有
     :param angle: 只有小地图上需要传入 表示当前朝向
@@ -315,21 +362,25 @@ def get_mini_map_road_mask(map_image: MatLike,
     u1 = 65
     lower_color = np.array([l1, l1, l1], dtype=np.uint8)
     upper_color = np.array([u1, u1, u1], dtype=np.uint8)
-    road_mask_1 = cv2.inRange(map_image, lower_color, upper_color)
+    road_mask_1 = cv2.inRange(origin, lower_color, upper_color)
     # 按道路颜色圈出 其他层的颜色
     l2 = 60
     u2 = 75
     lower_color = np.array([l2, l2, l2], dtype=np.uint8)
     upper_color = np.array([u2, u2, u2], dtype=np.uint8)
-    road_mask_2 = cv2.inRange(map_image, lower_color, upper_color)
+    road_mask_2 = cv2.inRange(origin, lower_color, upper_color)
 
     road_mask = cv2.bitwise_or(road_mask_1, road_mask_2)
 
     # 对于小地图 要特殊扫描中心点附近的区块
-    radio_mask = get_mini_map_radio_mask(map_image, angle)
+    radio_mask = get_mini_map_radio_mask(origin, angle)
     # cv2_utils.show_image(radio_mask, win_name='radio_mask')
     center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
     road_mask = cv2.bitwise_or(road_mask, center_mask)
+
+    # 特殊处理敌人红点
+    enemy_mask = get_enemy_road_mask(origin)
+    road_mask = cv2.bitwise_or(road_mask, enemy_mask)
 
     # 合并特殊点进行连通性检测
     to_check_connection = cv2.bitwise_or(road_mask, sp_mask) if sp_mask is not None else road_mask
@@ -348,9 +399,9 @@ def get_mini_map_road_mask(map_image: MatLike,
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(to_check_connection, connectivity=4)
     large_components = []
     for label in range(1, num_labels):
-        if stats[label, cv2.CC_STAT_AREA] > 0:
+        if stats[label, cv2.CC_STAT_AREA] > 200:
             large_components.append(label)
-    real_road_mask = np.zeros(map_image.shape[:2], dtype=np.uint8)
+    real_road_mask = np.zeros(origin.shape[:2], dtype=np.uint8)
     for label in large_components:
         real_road_mask[labels == label] = 255
 
@@ -381,9 +432,18 @@ def get_mini_map_radio_mask(map_image: MatLike, angle: int = -1):
         cv2.circle(radio_mask, center, radius, color, thickness)  # 画扇形
     radio_map = cv2.bitwise_and(map_image, map_image, mask=radio_mask)
     # cv2_utils.show_image(radio_map, win_name='radio_map')
-    lower_color = np.array([70, 70, 60], dtype=np.uint8)
-    upper_color = np.array([130, 130, 100], dtype=np.uint8)
-    road_radio_mask = cv2.inRange(radio_map, lower_color, upper_color)
+    # 当前层数的
+    lower_color = np.array([70, 70, 45], dtype=np.uint8)
+    upper_color = np.array([130, 130, 65], dtype=np.uint8)
+    road_radio_mask_1 = cv2.inRange(radio_map, lower_color, upper_color)
+
+    # 其他层数的
+    lower_color = np.array([70, 70, 70], dtype=np.uint8)
+    upper_color = np.array([130, 130, 85], dtype=np.uint8)
+    road_radio_mask_2 = cv2.inRange(radio_map, lower_color, upper_color)
+
+    road_radio_mask = cv2.bitwise_or(road_radio_mask_1, road_radio_mask_2)
+
     return road_radio_mask
 
 
@@ -407,32 +467,27 @@ def merge_all_map_mask(gray_image: MatLike,
     return usage, all_mask
 
 
-def find_mini_map_edge_mask(mm: MatLike, road_mask: MatLike):
+def find_mini_map_edge_mask(origin: MatLike, road_mask: MatLike):
     """
     小地图道路边缘掩码 暂时不需要
-    :param mm: 小地图图片
+    :param origin: 小地图图片
     :param road_mask: 道路掩码
     :return:
     """
-    lower_color = np.array([180, 180, 180], dtype=np.uint8)
+    lower_color = np.array([170, 170, 170], dtype=np.uint8)
     upper_color = np.array([230, 230, 230], dtype=np.uint8)
-    edge_mask_1 = cv2.inRange(mm, lower_color, upper_color)
+    edge_mask_1 = cv2.inRange(origin, lower_color, upper_color)
     lower_color = np.array([100, 100, 100], dtype=np.uint8)
-    upper_color = np.array([110, 110, 110], dtype=np.uint8)
-    edge_mask_2 = cv2.inRange(mm, lower_color, upper_color)
+    upper_color = np.array([130, 130, 130], dtype=np.uint8)
+    edge_mask_2 = cv2.inRange(origin, lower_color, upper_color)
 
-    edge_mask = cv2.bitwise_or(edge_mask_1, edge_mask_2)
+    color_edge_mask = cv2.bitwise_or(edge_mask_1, edge_mask_2)
     # 稍微膨胀一下
-    kernel = np.ones((5, 5), np.uint8)
-    expand_edge_mask = cv2.dilate(edge_mask, kernel, iterations=1)
+    color_edge_mask = cv2.dilate(color_edge_mask, np.ones((5, 5), np.uint8), iterations=1)
 
-    # 查找轮廓
-    contours, hierarchy = cv2.findContours(road_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    # 创建空白图像作为绘制轮廓的画布
-    edge_mask = np.zeros_like(road_mask)
-    # 绘制轮廓
-    cv2.drawContours(edge_mask, contours, -1, 255, 2)
+    road_edge_mask = cv2.Canny(road_mask, threshold1=200, threshold2=230)
+    color_edge_mask = cv2.dilate(color_edge_mask, np.ones((2, 2), np.uint8), iterations=1)
 
-    final_edge_mask = cv2.bitwise_and(expand_edge_mask, edge_mask)
+    final_edge_mask = cv2.bitwise_and(color_edge_mask, road_edge_mask)
 
     return final_edge_mask

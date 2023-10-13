@@ -5,7 +5,6 @@ from sr.config.game_config import get_game_config
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, battle
-from sr.map_cal import MapCalculator
 from sr.operation import Operation
 from sr.operation.unit.enable_auto_fight import EnableAutoFight
 
@@ -24,7 +23,6 @@ class EnterAutoFight(Operation):
 
     def run(self) -> int:
         ctrl: GameController = self.ctx.controller
-        mc: MapCalculator = self.ctx.map_cal
 
         screen = ctrl.screenshot()
 
@@ -36,7 +34,7 @@ class EnterAutoFight(Operation):
             time.sleep(0.5)  # 战斗部分
             return Operation.WAIT
 
-        mm = mc.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen)
         # 根据小地图红点可能会搜索到障碍物后面的怪
         # pos_list = mini_map.get_enemy_location(mm)
         # if len(pos_list) == 0:

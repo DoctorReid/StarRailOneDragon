@@ -9,18 +9,15 @@ from sr.image import ImageMatcher, OcrMatcher
 from sr.image.cnocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
-from sr.map_cal import MapCalculator
 from sr.win import Window
 
 
 class Context:
 
     def __init__(self):
-        self.map_cal: MapCalculator = None
         self.ih: ImageHolder = None
         self.im: ImageMatcher = None
         self.ocr: OcrMatcher = None
-        self.map_cal: MapCalculator = None
         self.controller: GameController = None
         self.running: bool = False
         self.press_event: dict = {}
@@ -80,6 +77,5 @@ def get_context(win_title: str='崩坏：星穹铁道') -> Context:
     global_context.ih = ImageHolder()
     global_context.im = CvImageMatcher(global_context.ih)
     global_context.ocr = CnOcrMatcher()
-    global_context.map_cal = MapCalculator(im=global_context.im)
     global_context.controller = PcController(win=win, ocr=global_context.ocr)
     return global_context

@@ -9,11 +9,10 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
-from sr.config.game_config import GameConfig, get_game_config
+from sr.config.game_config import GameConfig, get_game_config, MiniMapPos
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map
-from sr.map_cal import MapCalculator
 
 
 class Calibrator(Application):
@@ -24,7 +23,6 @@ class Calibrator(Application):
     def __init__(self, ctx: Context):
         self.ctx: Context = ctx
         self.ctrl: GameController = ctx.controller
-        self.mc: MapCalculator = ctx.map_cal
 
     def run(self):
         self.ctx.running = True
@@ -37,16 +35,16 @@ class Calibrator(Application):
         log.info('[小地图定位校准] 开始')
         if screenshot is None:
             screenshot = self.ctrl.screenshot()
-        self.mc.cal_little_map_pos(screenshot)
+        mm_pos: MiniMapPos = mini_map.cal_little_map_pos(screenshot)
         config: GameConfig = get_game_config()
         config.update('mini_map', {
-            'x': self.mc.mm_pos.x,
-            'y': self.mc.mm_pos.y,
-            'r': self.mc.mm_pos.r
+            'x': mm_pos.x,
+            'y': mm_pos.y,
+            'r': mm_pos.r
         })
         config.write_config()
 
-        log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', self.mc.mm_pos.x, self.mc.mm_pos.y, self.mc.mm_pos.r)
+        log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', mm_pos.x, mm_pos.y, mm_pos.r)
 
     def _check_turning_rate(self):
         """
@@ -63,7 +61,7 @@ class Calibrator(Application):
             self.ctrl.move('w')
             time.sleep(1)
             screen = self.ctrl.screenshot()
-            mm = self.mc.cut_mini_map(screen)
+            mm = mini_map.cut_mini_map(screen)
             center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
             log.info('当前角度 %.2f', next_angle)
             cv2_utils.show_image(center_arrow_mask, win_name='center_arrow_mask')
@@ -90,7 +88,7 @@ class Calibrator(Application):
             screen = gui_utils.screenshot_win(self.win)
             if save_screenshot:
                 basic.img.get.save_debug_image(screen)
-            little_map = self.mc.cut_mini_map(screen)
+            little_map = mini_map.cut_mini_map(screen)
             x, y = self.mc.cal_character_pos_by_match(little_map, large_map, show=True)
             print(x, y)
             pos.append((x, y))

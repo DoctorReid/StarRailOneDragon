@@ -6,12 +6,13 @@ import basic.cal_utils
 from basic import os_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
-from sr import constants
+from sr import constants, cal_pos
 from sr.config.game_config import get_game_config
 from sr.constants.map import Region
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
+from sr.image.sceenshot.large_map import get_large_map_rect_by_pos
 from sr.operation import Operation
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 
@@ -63,7 +64,7 @@ class MoveDirectly(Operation):
         screen = self.ctx.controller.screenshot()
         if self.save_screenshot:
             save_debug_image(screen)
-        mm = self.ctx.map_cal.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen)
         if self.check_enemy_and_attack(mm):  # 处理完敌人 再重新开始下一轮寻路
             self.last_rec_time = now_time
             return Operation.WAIT
@@ -71,7 +72,7 @@ class MoveDirectly(Operation):
         lx, ly = last_pos
         move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time)
         possible_pos = (lx, ly, move_distance)
-        lm_rect = self.ctx.map_cal.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
+        lm_rect = get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
         sp_map = constants.map.get_sp_type_in_rect(self.region, lm_rect)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
 
@@ -138,9 +139,9 @@ class MoveDirectly(Operation):
         """
         start_time = time.time()
 
-        x, y = self.ctx.map_cal.cal_character_pos(self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
+        x, y = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
         if x is None and self.next_lm_info is not None:
-            x, y = self.ctx.map_cal.cal_character_pos(self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
+            x, y = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
 
         log.debug('截图计算坐标耗时 %.4f s', time.time() - start_time)
         log.info('计算当前坐标为 (%s, %s)', x, y)

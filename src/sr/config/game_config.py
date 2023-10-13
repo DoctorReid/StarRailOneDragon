@@ -1,5 +1,6 @@
 from sr.config import ConfigHolder
 
+
 class MiniMapPos:
 
     def __init__(self, x, y, r):
@@ -17,6 +18,7 @@ class MiniMapPos:
     def __str__(self):
         return "(%d, %d) %.2f" % (self.x, self.y, self.r)
 
+
 class GameConfig(ConfigHolder):
 
     def __init__(self):
@@ -31,7 +33,7 @@ class GameConfig(ConfigHolder):
 _game_config = None
 
 
-def get_game_config():
+def get_game_config() -> GameConfig:
     global _game_config
     if _game_config is None:
         _game_config = GameConfig()
