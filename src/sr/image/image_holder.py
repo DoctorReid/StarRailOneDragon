@@ -1,30 +1,12 @@
 import os
 
 import cv2
-from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import cv2_utils
 from sr.constants.map import Region
-
-
-class TemplateImage:
-
-    def __init__(self):
-
-        self.origin = None  # 原图 GBRA
-        self.gray = None  # 灰度图
-        self.mask = None  # 掩码
-        self.kps = None  # 特征点
-        self.desc = None  # 描述符
-
-    def get(self, t: str):
-        if t is None or t == 'origin':
-            return self.origin
-        if t == 'gray':
-            return self.gray
-        if t == 'mask':
-            return self.mask
+from sr.image import TemplateImage, get_large_map_dir_path
+from sr.image.sceenshot import LargeMapInfo
 
 
 class ImageHolder:
@@ -33,21 +15,28 @@ class ImageHolder:
         self.large_map = {}
         self.template = {}
 
-    def _get_key_for_map(self, region: Region, map_type: str) -> str:
-        return '%s_%s_%s' % (region.planet.id, region.get_rl_id(), map_type)
-
-    def load_large_map(self, region: Region, map_type: str) -> MatLike:
+    def load_large_map(self, region: Region) -> LargeMapInfo:
         """
         加载某张大地图到内存中
         :param region: 对应区域
-        :param map_type: 地图类型
         :return: 地图图片
         """
-        file_path = os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, region.get_rl_id()), '%s.png' % map_type)
-        image = cv2_utils.read_image(file_path)
-        if image is not None:
-            self.large_map[self._get_key_for_map(region, map_type)] = image
-        return image
+        dir_path = get_large_map_dir_path(region)
+        info = LargeMapInfo()
+        info.region = region
+        info.origin = cv2_utils.read_image(os.path.join(dir_path, 'origin.png'))
+        info.gray = cv2_utils.read_image(os.path.join(dir_path, 'gray.png'))
+        info.mask = cv2_utils.read_image(os.path.join(dir_path, 'mask.png'))
+        feature_path = os.path.join(dir_path, 'features.xml')
+        if os.path.exists(feature_path):
+            file_storage = cv2.FileStorage(feature_path, cv2.FILE_STORAGE_READ)
+            # 读取特征点和描述符
+            info.kps = cv2_utils.feature_keypoints_from_np(file_storage.getNode("keypoints").mat())
+            info.desc = file_storage.getNode("descriptors").mat()
+            # 释放文件存储对象
+            file_storage.release()
+        self.large_map[region.get_prl_id()] = info
+        return info
 
     def pop_large_map(self, region: Region, map_type: str):
         """
@@ -56,23 +45,21 @@ class ImageHolder:
         :param map_type: 地图类型
         :return:
         """
-        key = self._get_key_for_map(region, map_type)
+        key = region.get_prl_id()
         if key in self.large_map:
             del self.large_map[key]
 
-    def get_large_map(self, region: Region, map_type: str = 'origin'):
+    def get_large_map(self, region: Region) -> LargeMapInfo:
         """
         获取某张大地图
         :param region: 区域
-        :param map_type: 地图类型
         :return: 地图图片
         """
-        key = self._get_key_for_map(region, map_type)
-        if key not in self.large_map:
+        if region.get_prl_id() not in self.large_map:
             # 尝试加载一次
-            return self.load_large_map(region, map_type)
+            return self.load_large_map(region)
         else:
-            return self.large_map[key]
+            return self.large_map[region.get_prl_id()]
 
     def load_template(self, template_id: str) -> TemplateImage:
         """

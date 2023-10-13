@@ -329,16 +329,18 @@ def feature_match(source_kp, source_desc, template_kp, template_desc, source_mas
     return good_matches, offset_x, offset_y, template_scale
 
 
-def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = True) -> MatLike:
+def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = True,
+                     connectivity: int = 8) -> MatLike:
     """
     通过连通性检测 消除一些噪点
     :param mask: 黑白图 掩码图
     :param threshold: 小于多少连通时 认为是噪点
     :param erase_white: 是否清除白色
+    :param connectivity: 连通性检测方向 4 or 8
     :return: 消除噪点后的图
     """
     to_check_connection = mask if erase_white else cv2.bitwise_not(mask)
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(to_check_connection, connectivity=8)
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(to_check_connection, connectivity=connectivity)
     large_components = []
     for label in range(1, num_labels):
         if stats[label, cv2.CC_STAT_AREA] < threshold:

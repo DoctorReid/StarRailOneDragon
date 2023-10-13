@@ -9,6 +9,7 @@ from basic.log_utils import log
 from sr import constants
 from sr.constants.map import TransportPoint
 from sr.context import Context
+from sr.image.sceenshot import LargeMapInfo
 from sr.operation import Operation
 
 
@@ -23,7 +24,7 @@ class ChooseTransportPoint(Operation):
     def __init__(self, ctx: Context, tp: TransportPoint):
         super().__init__(ctx, 10)
         self.tp: TransportPoint = tp
-        self.large_map = self.ctx.ih.get_large_map(self.tp.region, 'origin')
+        self.lm_info: LargeMapInfo = self.ctx.ih.get_large_map(self.tp.region)
 
     def run(self) -> int:
         screen = self.ctx.controller.screenshot()
@@ -89,14 +90,13 @@ class ChooseTransportPoint(Operation):
                 return self.ctx.controller.click((tx, ty))
         return False
 
-
     def get_map_offset(self, screen_map: MatLike) -> MatchResult:
         """
         在完整大地图中获取当前界面地图的偏移量
         :param screen_map: 屏幕上的地图部分
         :return: 匹配结果 里面就有偏移量
         """
-        result: MatchResultList = self.ctx.im.match_image(self.large_map, screen_map)
+        result: MatchResultList = self.ctx.im.match_image(self.lm_info.origin, screen_map)
         return result.max
 
     def get_map_next_drag(self, offset: MatchResult):

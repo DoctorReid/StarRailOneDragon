@@ -73,7 +73,7 @@ class MoveDirectly(Operation):
         possible_pos = (lx, ly, move_distance)
         lm_rect = self.ctx.map_cal.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
         sp_map = constants.map.get_sp_type_in_rect(self.region, lm_rect)
-        mm_info = self.ctx.map_cal.analyse_mini_map(mm, sp_map.keys())
+        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
 
         x, y = self.get_pos(mm_info, lm_rect)
 

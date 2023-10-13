@@ -120,9 +120,17 @@ class TransportPoint:
         return '%s - %s' % (self.cn, self.id)
 
 
-P01_R01_SP01_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_04', None)
+P01_R01_SP01 = TransportPoint('', '', P01_R01_ZKCD, 'mm_tp_03', (529, 231))
+P01_R01_SP02 = TransportPoint('', '', P01_R01_ZKCD, 'mm_tp_03', (592, 691))
+P01_R01_SP03_HTBGS = TransportPoint('htbgs', '黑塔办公室', P01_R01_ZKCD, 'mm_tp_04', (245, 796))
+P01_R01_SP04 = TransportPoint('', '', P01_R01_ZKCD, 'mm_sp_01', (228, 744))
+P01_R01_SP05 = TransportPoint('', '', P01_R01_ZKCD, 'mm_sp_02', (562, 837))
+P01_R01_SP06 = TransportPoint('', '', P01_R01_ZKCD, 'mm_sp_04', (535, 628))
 
-P01_R02_SP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_03', (644, 130))
+P01_R02_SP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_03', (635, 143))
+P01_R02_SP02 = TransportPoint('', '', P01_R02_JZCD, 'mm_tp_03', (493, 500))
+P01_R02_SP03 = TransportPoint('', '', P01_R02_JZCD, 'mm_tp_06', (540, 938))
+P01_R02_SP04 = TransportPoint('', '', P01_R02_JZCD, 'mm_tp_06', (556, 986))
 
 # 空间站黑塔 - 收容舱段
 P01_R03_SP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_03', (365, 360))
@@ -136,8 +144,8 @@ P01_R03_SP07 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_sp_02', (600, 349))
 
 def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
     arr = [
-        P01_R01_SP01_HTBGS,
-        P01_R02_SP01_JKS,
+        P01_R01_SP01, P01_R01_SP02, P01_R01_SP03_HTBGS, P01_R01_SP04, P01_R01_SP04, P01_R01_SP05, P01_R01_SP06,
+        P01_R02_SP01_JKS, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04,
         P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07
     ]
 
@@ -164,7 +172,7 @@ def region_with_another_floor(region: Region, level: int) -> Region:
 
 
 region_2_sp = {
-    P01_R01_ZKCD.get_pr_id(): [P01_R01_SP01_HTBGS],
+    P01_R01_ZKCD.get_pr_id(): [P01_R01_SP03_HTBGS],
     P01_R02_JZCD.get_pr_id(): [P01_R02_SP01_JKS],
     P01_R03_SRCD_L1.get_pr_id(): [P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07]
 }

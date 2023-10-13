@@ -6,8 +6,8 @@ from cv2.typing import MatLike
 
 from basic.img import MatchResultList, cv2_utils
 from basic.log_utils import log
-from sr.image import ImageMatcher
-from sr.image.image_holder import ImageHolder, TemplateImage
+from sr.image import ImageMatcher, TemplateImage
+from sr.image.image_holder import ImageHolder
 
 
 class CvImageMatcher(ImageMatcher):

@@ -50,48 +50,10 @@ def _test_analyse_arrow_and_angle():
     print(angle)
 
 
-def _test_edge():
-    screen: MatLike = get_debug_image('c')
-    mm = mc.cut_mini_map(screen)
-    info = mc.analyse_mini_map(mm)
-
-    gray = cv2.cvtColor(mm, cv2.COLOR_BGR2GRAY)
-    cv2_utils.show_image(gray, win_name='gray')
-
-    template_origin = mini_map.get_edge_mask_by_hsv(mm, info.arrow_mask)
-
-    region: Region = constants.map.P01_R02_JZCD
-    lm = ih.get_large_map(region, 'mask')
-    lm_mask = cv2.Canny(lm, threshold1=200, threshold2=230)
-
-    kernel = np.ones((3, 3), np.uint8)
-    source = cv2.dilate(lm_mask, kernel, iterations=1)
-    source = mc.find_edge_mask(lm)
-    cv2_utils.show_image(source, win_name='source')
-
-    # mc.feature_match(lm_mask, None, hsv_mask, info.center_mask, show=True)
-
-    for i in [1.00, 1.05, 1.10, 1.15, 1.20, 1.25]:
-        height = int(template_origin.shape[0] * i)
-        width = int(template_origin.shape[1] * i)
-        template = cv2.resize(template_origin, (height, width))
-        template_mask = cv2.resize(info.center_mask, (height, width))
-        cv2_utils.show_image(template, win_name='template')
-        result = cv2_utils.match_template(source, template, mask=template_mask, threshold=0.4, ignore_inf=True)
-        if len(result) == 0:
-            continue
-        cv2_utils.show_image(lm_mask, result, win_name='match_template')
-        print(result.max)
-        cv2_utils.show_overlap(source, template, result.max.x, result.max.y, win_name='ovelap')
-        cv2.waitKey(0)
-
-    cv2.waitKey(0)
-
-
 def _test_get_sp_mask_by_feature_match():
     screen: MatLike = get_debug_image('1696773991417')
     mm = mc.cut_mini_map(screen)
-    info = mc.analyse_mini_map(mm)
+    info = mini_map.analyse_mini_map(mm, im)
 
     mini_map.get_sp_mask_by_feature_match(info, im, show=True)
     cv2.waitKey(0)

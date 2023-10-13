@@ -10,7 +10,7 @@ from sr import constants
 from sr.constants.map import Region
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
-from sr.image.sceenshot import LargeMapInfo
+from sr.image.sceenshot import LargeMapInfo, mini_map
 from sr.map_cal import MapCalculator
 
 
@@ -44,7 +44,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     possible_pos = (*c.pos, 0)
     lm_rect = mc.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
-    mm_info = mc.analyse_mini_map(mm, sp_map.keys())
+    mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()))
     log.debug('analyse_mini_map 耗时 %.6f', (time.time() - t1))
     x, y = mc.cal_character_pos(lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
     log.debug('cal_character_pos 耗时 %.6f', (time.time() - t1))

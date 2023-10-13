@@ -1,3 +1,4 @@
+import os
 import time
 
 import cv2
@@ -8,7 +9,7 @@ from sr import constants
 from sr.app import Application
 from sr.constants.map import Region
 from sr.context import Context, get_context
-from sr.image.sceenshot import large_map
+from sr.image.sceenshot import large_map, LargeMapInfo
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.open_map import OpenMap
@@ -73,8 +74,7 @@ class LargeMapRecorder(Application):
                 merge = cv2_utils.concat_vertically(merge, img[i])
 
         cv2_utils.show_image(merge, win_name='final')
-        self.convert_and_save(merge)
-        cv2.waitKey(0)
+        large_map.init_large_map(self.region, merge, self.ctx.im, save=True)
 
     def screenshot_horizontally(self, center):
         """
@@ -104,22 +104,9 @@ class LargeMapRecorder(Application):
                 merge = cv2_utils.concat_horizontally(merge, img[i])
         return merge
 
-    def convert_and_save(self, origin):
-        lm = self.ctx.map_cal.analyse_large_map(origin)
-        cv2_utils.show_image(lm.gray, win_name='gray')
-        cv2_utils.show_image(lm.mask, win_name='mask')
-        large_map.save_large_map_image(origin, self.region, 'origin')
-        large_map.save_large_map_image(lm.gray, self.region, 'gray')
-        large_map.save_large_map_image(lm.mask, self.region, 'mask')
-        for k, v in lm.sp_result.items():
-            for vs in v:
-                log.info('地图特殊点坐标 %s (%d, %d)', k, vs.cx, vs.cy)
-
 
 if __name__ == '__main__':
     ctx = get_context('唯秘')
     r = constants.map.P01_R03_SRCD_L2
     app = LargeMapRecorder(ctx, r)
-    # app.run()
-    lm = ctx.ih.get_large_map(r, map_type='origin')
-    app.convert_and_save(lm)
+    app.run()

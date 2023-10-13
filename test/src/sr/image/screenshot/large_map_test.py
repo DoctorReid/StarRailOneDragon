@@ -2,7 +2,11 @@ import cv2
 
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
+from sr import constants
+from sr.constants.map import Region
+from sr.image import ImageMatcher
 from sr.image.cnocr_matcher import CnOcrMatcher
+from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import large_map, LargeMapInfo
 from sr.image.sceenshot.icon import save_template_image
@@ -53,5 +57,12 @@ def _test_get_active_level():
     cv2.waitKey(0)
 
 
+def _test_init_large_map(region: Region):
+    ih: ImageHolder = ImageHolder()
+    im: ImageMatcher = CvImageMatcher(ih)
+    large_map.init_large_map(region, ih.get_large_map(region).origin, im, save=True)
+
+
 if __name__ == '__main__':
-    _test_get_active_level()
+    for r in [constants.map.P01_R03_SRCD_B1, constants.map.P01_R03_SRCD_L1, constants.map.P01_R03_SRCD_L2]:
+        _test_init_large_map(r)

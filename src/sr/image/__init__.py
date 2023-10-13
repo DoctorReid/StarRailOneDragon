@@ -3,8 +3,30 @@ from typing import List
 import numpy as np
 from cv2.typing import MatLike
 
+from basic import os_utils
 from basic.img import MatchResultList
-from sr.image.image_holder import TemplateImage
+from sr.constants.map import Region
+
+
+class TemplateImage:
+
+    def __init__(self):
+
+        self.origin = None  # 原图
+        self.gray = None  # 灰度图
+        self.mask = None  # 掩码
+        self.kps = None  # 特征点
+        self.desc = None  # 描述符
+
+    def get(self, t: str):
+        if t is None or t == 'origin':
+            return self.origin
+        if t == 'gray':
+            return self.gray
+        if t == 'mask':
+            return self.mask
+
+
 
 
 class ImageMatcher:
@@ -93,3 +115,7 @@ class OcrMatcher:
                     break
 
         return {key: all_match_result[key] for key in match_key if key in all_match_result}
+
+
+def get_large_map_dir_path(region: Region):
+    return os_utils.get_path_under_work_dir('images', 'map', region.planet.id, region.get_rl_id())
