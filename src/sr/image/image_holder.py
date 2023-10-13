@@ -1,5 +1,6 @@
 import os
 
+import cv2
 from cv2.typing import MatLike
 
 from basic import os_utils
@@ -14,6 +15,8 @@ class TemplateImage:
         self.origin = None  # 原图 GBRA
         self.gray = None  # 灰度图
         self.mask = None  # 掩码
+        self.kps = None  # 特征点
+        self.desc = None  # 描述符
 
     def get(self, t: str):
         if t is None or t == 'origin':
@@ -84,6 +87,18 @@ class ImageHolder:
         template.origin = cv2_utils.read_image(os.path.join(dir_path, 'origin.png'))
         template.gray = cv2_utils.read_image(os.path.join(dir_path, 'gray.png'))
         template.mask = cv2_utils.read_image(os.path.join(dir_path, 'mask.png'))
+
+        feature_path = os.path.join(dir_path, 'features.xml')
+        if os.path.exists(feature_path):
+            file_storage = cv2.FileStorage(feature_path, cv2.FILE_STORAGE_READ)
+            # 读取特征点和描述符
+            template.kps = cv2_utils.feature_keypoints_from_np(file_storage.getNode("keypoints").mat())
+            template.desc = file_storage.getNode("descriptors").mat()
+            # 释放文件存储对象
+            file_storage.release()
+        else:
+            if template.origin is not None and template.mask is not None:
+                template.kps, template.desc = cv2_utils.feature_detect_and_compute(template.origin, template.mask)
         self.template[template_id] = template
         return template
 

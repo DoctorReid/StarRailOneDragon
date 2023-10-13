@@ -63,8 +63,8 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        if c.region != constants.map.P01_R03_SRCD_B1 or c.num != 7:
-            continue
+        # if c.region != constants.map.P01_R03_SRCD_B1 or c.num != 7:
+        #     continue
         if c.region.get_prl_id() not in lm_info_map:
             lm_info_map[c.region.get_prl_id()] = mc.analyse_large_map(c.region)
         if test_one(c, lm_info_map[c.region.get_prl_id()], True):

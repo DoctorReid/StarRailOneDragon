@@ -22,6 +22,7 @@ def _read_template_image(template_id):
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
     return img
 
+
 def convert_template(template_id, save: bool = False):
     """
     把抠图后的图标灰度保存
@@ -168,6 +169,7 @@ def show_and_save(template_id, origin, mask):
     save_template_image(origin, template_id, 'origin')
     save_template_image(gray, template_id, 'gray')
     save_template_image(mask, template_id, 'mask')
+    init_template_feature(template_id)
 
 
 def save_template_image(img: MatLike, template_id: str, tt: str):
@@ -183,12 +185,23 @@ def save_template_image(img: MatLike, template_id: str, tt: str):
     print(cv2.imwrite(os.path.join(path, '%s.png' % tt), img))
 
 
-def init_template_feature():
+def init_template_feature(template_id: str) -> bool:
     """
-    初始化所有模板的特征值
+    初始化模板的特征值
     :return:
     """
-    pass
+    ih = ImageHolder()
+    template = ih.get_template(template_id)
+    if template is None:
+        return False
+    keypoints, descriptors = cv2_utils.feature_detect_and_compute(template.origin, template.mask)
+    dir_path = os_utils.get_path_under_work_dir('images', 'template', template_id)
+    file_storage = cv2.FileStorage(os.path.join(dir_path, 'features.xml'), cv2.FILE_STORAGE_WRITE)
+    # 保存特征点和描述符
+    file_storage.write("keypoints", cv2_utils.feature_keypoints_to_np(keypoints))
+    file_storage.write("descriptors", descriptors)
+    file_storage.release()
+    return True
 
 
 def init_arrow_template(mm: MatLike):
@@ -214,7 +227,6 @@ def init_arrow_template(mm: MatLike):
             offset_x = j * d0
             offset_y = i * d0
             angle = ((i * 11) + j - 60) / 10.0
-            print(angle)
             precise_template[offset_y:offset_y + d0, offset_x:offset_x + d0] = cv2_utils.image_rotate(bw, angle)
 
     # 稍微扩大一下模板 方便匹配

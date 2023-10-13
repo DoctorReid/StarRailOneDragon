@@ -201,7 +201,7 @@ class MapCalculator:
         num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(to_check_connection, connectivity=4)
         large_components = []
         for label in range(1, num_labels):
-            if stats[label, cv2.CC_STAT_AREA] > 500:
+            if stats[label, cv2.CC_STAT_AREA] > 0:
                 large_components.append(label)
         real_road_mask = np.zeros(map_image.shape[:2], dtype=np.uint8)
         for label in large_components:

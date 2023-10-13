@@ -35,13 +35,13 @@ def _test_cal_character_pos():
     for x in os.listdir(dir):
         if not x.endswith('.png'):
             continue
-        if not x.startswith('1697036262088'):
+        print(x)
+        if not x.startswith('1697127097077'):
             continue
-        screen = cv2_utils.read_image(os.path.join(dir, x))
-        mm = mc.cut_mini_map(screen)
+        mm = cv2_utils.read_image(os.path.join(dir, x))
         for lm_info in lm_info_list:
             t1 = time.time()
-            possible_pos = (311, 435, 0)
+            possible_pos = (205, 310, 0)
             lm_rect = mc.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
             if lm_rect is not None:
                 cv2_utils.show_image(cv2_utils.crop_image(lm_info.origin, lm_rect), win_name='large_map_rect')

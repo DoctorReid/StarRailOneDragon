@@ -9,6 +9,9 @@ from basic.img import MatchResult, MatchResultList
 from basic.log_utils import log
 
 
+feature_detector = cv2.SIFT_create()
+
+
 def read_image(file_path: str) -> MatLike:
     """
     读取图片
@@ -263,6 +266,19 @@ def show_overlap(source, template, x, y, template_scale: float = 1, win_name: st
     # 将覆盖图像放置到底图的指定位置
     to_show_source[sy_start:sy_end, sx_start:sx_end] = to_show_template[ty_start:ty_end, tx_start:tx_end]
     show_image(to_show_source, win_name=win_name, wait=wait)
+
+
+def feature_detect_and_compute(img: MatLike, mask: MatLike = None):
+    return feature_detector.detectAndCompute(img, mask=mask)
+
+
+def feature_keypoints_to_np(keypoints):
+    return np.array([(kp.pt[0], kp.pt[1], kp.size, kp.angle, kp.response, kp.octave, kp.class_id) for kp in keypoints])
+
+
+def feature_keypoints_from_np(np_arr):
+    return np.array([cv2.KeyPoint(x=kp[0], y=kp[1], size=kp[2], angle=kp[3],
+                                  response=kp[4], octave=int(kp[5]), class_id=int(kp[6])) for kp in np_arr])
 
 
 def feature_match(source_kp, source_desc, template_kp, template_desc, source_mask):

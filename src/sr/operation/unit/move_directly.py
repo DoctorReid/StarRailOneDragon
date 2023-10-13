@@ -138,9 +138,9 @@ class MoveDirectly(Operation):
         """
         start_time = time.time()
 
-        x, y = self.ctx.map_cal.cal_character_pos(self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False)
+        x, y = self.ctx.map_cal.cal_character_pos(self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
         if x is None and self.next_lm_info is not None:
-            x, y = self.ctx.map_cal.cal_character_pos(self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False)
+            x, y = self.ctx.map_cal.cal_character_pos(self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
 
         log.debug('截图计算坐标耗时 %.4f s', time.time() - start_time)
         log.info('计算当前坐标为 (%s, %s)', x, y)

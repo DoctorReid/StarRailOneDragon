@@ -139,10 +139,9 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
     :param show: 是否展示结果
     :return:
     """
-    feature_detector = cv2.SIFT_create()
     source = mm_info.origin
     source_mask = mm_info.circle_mask
-    source_kps, source_desc = feature_detector.detectAndCompute(source, mask=source_mask)
+    source_kps, source_desc = cv2_utils.feature_detect_and_compute(source, mask=source_mask)
 
     sp_mask = np.zeros_like(mm_info.gray)
     sp_match_result = {}
@@ -162,8 +161,7 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
             template = t.origin
             template_mask = t.mask
 
-            # TODO 后续预处理
-            template_kps, template_desc = feature_detector.detectAndCompute(template, mask=template_mask)
+            template_kps, template_desc = t.kps, t.desc
 
             good_matches, offset_x, offset_y, scale = cv2_utils.feature_match(
                 source_kps, source_desc,
