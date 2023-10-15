@@ -158,3 +158,12 @@ class GameController:
         :return:
         """
         pass
+
+    def interactive(self, pos: tuple, wait: int = 0) -> bool:
+        """
+        交互
+        :param pos: 如果是模拟器的话 需要传入交互内容的坐标
+        :param wait: 交互成功后等待秒数
+        :return:
+        """
+        pass

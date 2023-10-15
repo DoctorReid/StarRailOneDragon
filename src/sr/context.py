@@ -15,6 +15,7 @@ from sr.win import Window
 class Context:
 
     def __init__(self):
+        self.platform: str = 'PC'
         self.ih: ImageHolder = None
         self.im: ImageMatcher = None
         self.ocr: OcrMatcher = None

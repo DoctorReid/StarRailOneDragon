@@ -131,7 +131,7 @@ class MoveDirectly(Operation):
 
         ctrl.stop_moving_forward()
 
-        walk_sec = (stuck_times // 3 if stuck_times // 3 != 0 else 3) * 0.25
+        walk_sec = (stuck_times % 3 if stuck_times % 3 != 0 else 3) * 0.25
 
         if stuck_times <= 3:
             ctrl.move('a', walk_sec)

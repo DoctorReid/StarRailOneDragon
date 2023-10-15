@@ -26,6 +26,7 @@ class PcController(GameController):
         self.turn_dx: float = config.get('turn_dx')
         self.walk_speed: float = config.get('walk_speed')
         self.is_moving: bool = False
+        self.f = config.get('interactive')
 
     def init(self):
         self.win.active()
@@ -155,3 +156,14 @@ class PcController(GameController):
         time.sleep(1)
         if x != y:
             self.turn_by_angle_2(x - y)
+
+    def interactive(self, pos: tuple, wait: int = 0) -> bool:
+        """
+        交互
+        :param pos: 如果是模拟器的话 需要传入交互内容的坐标
+        :param wait: 交互成功后等待秒数
+        :return:
+        """
+        pyautogui.press(self.f)
+        time.sleep(wait)
+        return True

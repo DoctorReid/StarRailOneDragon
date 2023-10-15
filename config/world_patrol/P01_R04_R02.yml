@@ -1,0 +1,14 @@
+planet: '空间站'
+region: '支援舱段'
+level: 2
+tp: '存护之蕾'
+route:
+  - op: 'move'
+    data: [486, 351]
+  - op: 'interactive'
+    data: '配控装置'
+  - op: 'wait'
+    data: 'in_world'
+  - op: 'move'
+    data: [472, 240]
+  - op: 'patrol'

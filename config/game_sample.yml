@@ -4,3 +4,4 @@ mini_map:
   y: 152
 walk_speed: 20
 turn_dx: 0
+interactive: 'f'

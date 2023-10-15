@@ -275,32 +275,45 @@ def get_track_road_mask(mm: MatLike) -> MatLike:
     return cv2.inRange(mm, lower_color, upper_color)
 
 
-def is_under_attack(mini_map: MatLike, mm_pos: MiniMapPos, show: bool = False) -> bool:
+def is_under_attack(mm: MatLike, mm_pos: MiniMapPos, show: bool = False) -> bool:
     """
     根据小地图边缘 判断是否被锁定
     红色色道应该有一个圆
-    :param mini_map: 小地图截图
+    :param mm: 小地图截图
     :param mm_pos: 小地图坐标信息
     :return: 是否被锁定
     """
-    w, h = mini_map.shape[1], mini_map.shape[0]
+    w, h = mm.shape[1], mm.shape[0]
     cx, cy = w // 2, h // 2
     r = mm_pos.r
 
-    circle_mask = np.zeros(mini_map.shape[:2], dtype=np.uint8)
+    circle_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
     cv2.circle(circle_mask, (cx, cy), r, 255, 3)
 
-    circle_part = cv2.bitwise_and(mini_map, mini_map, mask=circle_mask)
-    _, red = cv2.threshold(circle_part[:, :, 2], 200, 255, cv2.THRESH_BINARY)
+    circle_part = cv2.bitwise_and(mm, mm, mask=circle_mask)
 
-    circles = cv2.HoughCircles(red, cv2.HOUGH_GRADIENT, 0.3, 100, param1=10, param2=10,
+    # 提取红色部分
+    lower_color = np.array([0, 0, 200], dtype=np.uint8)
+    upper_color = np.array([100, 100, 255], dtype=np.uint8)
+    red = cv2.inRange(circle_part, lower_color, upper_color)
+
+    # 提取橙色部分
+    lower_color = np.array([0, 150, 200], dtype=np.uint8)
+    upper_color = np.array([100, 180, 255], dtype=np.uint8)
+    orange = cv2.inRange(circle_part, lower_color, upper_color)
+
+    mask = cv2.bitwise_or(red, orange)
+
+    circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT, 0.3, 100, param1=10, param2=10,
                                minRadius=mm_pos.r - 10, maxRadius=mm_pos.r + 10)
     find: bool = circles is not None
 
     if show:
         cv2_utils.show_image(circle_part, win_name='circle_part')
         cv2_utils.show_image(red, win_name='red')
-        find_circle = np.zeros(mini_map.shape[:2], dtype=np.uint8)
+        cv2_utils.show_image(orange, win_name='orange')
+        cv2_utils.show_image(mask, win_name='mask')
+        find_circle = np.zeros(mm.shape[:2], dtype=np.uint8)
         if circles is not None:
             # 将检测到的圆形绘制在原始图像上
             circles = np.round(circles[0, :]).astype("int")

@@ -91,20 +91,23 @@ def _test_cut_mini_map():
     #     save_debug_image(mm)
 
 
-def _test_with_enemy_in_main_road():
-    mm = get_test_image('mm_arrow', sub_dir='mini_map')
-    print(mini_map.with_enemy_in_main_road(mm))  # False
+def _test_is_under_attack():
+    mm_pos = get_game_config().mini_map_pos
+
     mm = get_test_image('under_1', sub_dir='battle')
-    mm = mini_map.cut_mini_map(mm)
-    print(mini_map.with_enemy_in_main_road(mm))  # True
+    print(mini_map.is_under_attack(mm, mm_pos=mm_pos, show=True))  # True
+    cv2.waitKey(0)
+
     mm = get_test_image('under_2', sub_dir='battle')
-    mm = mini_map.cut_mini_map(mm)
-    print(mini_map.with_enemy_in_main_road(mm))  # True
+    print(mini_map.is_under_attack(mm, mm_pos=mm_pos, show=True))  # True
+    cv2.waitKey(0)
 
-
+    mm = get_test_image('under_3', sub_dir='battle')
+    print(mini_map.is_under_attack(mm, mm_pos=mm_pos, show=True))  # False
+    cv2.waitKey(0)
 
 
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    _test_with_enemy_in_main_road()
+    _test_is_under_attack()

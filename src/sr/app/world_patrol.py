@@ -11,7 +11,9 @@ from sr.image.sceenshot import large_map, LargeMapInfo
 from sr.operation import Operation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
+from sr.operation.unit.interactive import Interactive
 from sr.operation.unit.move_directly import MoveDirectly
+from sr.operation.unit.wait_in_world import WaitInWorld
 
 
 class WorldPatrolRoute(ConfigHolder):
@@ -108,7 +110,7 @@ class WorldPatrol(Operation):
         current_pos = route.tp.lm_pos
         for route_item in route.route_list:
             if route_item['op'] == 'move':
-                result, next_pos, next_lm_info = self.move(route_item, lm_info, current_pos)
+                result, next_pos, next_lm_info = self.move(route_item['data'], lm_info, current_pos)
                 if not result:
                     log.error('寻路失败 即将跳过本次路线 %s', route_id)
                     return
@@ -118,6 +120,19 @@ class WorldPatrol(Operation):
                     lm_info = next_lm_info
             elif route_item['op'] == 'patrol':
                 self.patrol()
+            elif route_item['op'] == 'interactive':
+                result = self.interactive(route_item['data'])
+                if not result:
+                    log.error('交互失败 即将跳过本次路线 %s', route_id)
+                    return
+            elif route_item['op'] == 'wait':
+                result = self.wait(route_item['data'])
+                if not result:
+                    log.error('等待失败 即将跳过本次路线 %s', route_id)
+                    return
+            else:
+                log.error('错误的锄大地指令 %s 即将跳过本次路线 %s', route_item['op'], route_id)
+                return
 
         self.save_record(route_id)
 
@@ -130,8 +145,14 @@ class WorldPatrol(Operation):
         self.record.finished.append(route_id)
         self.record.save()
 
-    def move(self, route_item, lm_info: LargeMapInfo, current_pos):
-        p = route_item['data']
+    def move(self, p, lm_info: LargeMapInfo, current_pos):
+        """
+        移动到某个点
+        :param p:
+        :param lm_info:
+        :param current_pos:
+        :return:
+        """
         target_pos = (p[0], p[1])
         next_lm_info = None
         if len(p) > 2:  # 需要切换层数
@@ -145,5 +166,33 @@ class WorldPatrol(Operation):
         return result, target_pos, next_lm_info
 
     def patrol(self) -> bool:
+        """
+        攻击附近的怪物
+        :return:
+        """
         op = EnterAutoFight(self.ctx)
+        return op.execute()
+
+    def interactive(self, cn: str) -> bool:
+        """
+        交互
+        :param cn:
+        :return:
+        """
+        op = Interactive(self.ctx, cn, wait=2)
+        return op.execute()
+
+    def wait(self, wait_type: str) -> bool:
+        """
+        等待
+        :param wait_type: 等待类型
+        :return:
+        """
+        op: Operation = None
+        if wait_type == 'in_world':
+            op = WaitInWorld(self.ctx)
+        else:
+            log.error('错误的wait类型 %s', wait_type)
+            return False
+
         return op.execute()
