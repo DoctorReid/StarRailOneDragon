@@ -50,7 +50,7 @@ class LargeMapRecorder(Application):
 
         center = (rect.w // 2, rect.h // 2)
         self.ctx.controller.drag_to(end=(rect.w, rect.h), start=center, duration=1)  # 先拉到左上角
-        time.sleep(0.5)
+        time.sleep(1)
         img = []
         for i in range(10):
             if not self.ctx.running:
@@ -60,9 +60,9 @@ class LargeMapRecorder(Application):
             if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], row_img):
                 img.append(row_img)
                 self.ctx.controller.drag_to(end=(center[0], center[1] - 200), start=center, duration=1)  # 往下拉一段
-                time.sleep(0.5)
+                time.sleep(1)
                 self.ctx.controller.drag_to(end=(rect.w, center[1]), start=center, duration=1)  # 往左拉到尽头
-                time.sleep(0.5)
+                time.sleep(1)
             else:
                 break
 
@@ -71,7 +71,7 @@ class LargeMapRecorder(Application):
             if i == 0:
                 merge = img[i]
             else:
-                merge = cv2_utils.concat_vertically(merge, img[i])
+                merge = cv2_utils.concat_vertically(merge, img[i], decision_height=large_map.CUT_MAP_RECT[3] - large_map.CUT_MAP_RECT[1] - 300)
 
         cv2_utils.show_image(merge, win_name='final')
         large_map.init_large_map(self.region, merge, self.ctx.im, save=True)
@@ -102,13 +102,13 @@ class LargeMapRecorder(Application):
             if i == 0:
                 merge = img[i]
             else:
-                merge = cv2_utils.concat_horizontally(merge, img[i], decision_width=large_map.CUT_MAP_RECT[2] - large_map.CUT_MAP_RECT[0] - 300)
+                merge = cv2_utils.concat_horizontally(merge, img[i], decision_width=400)
         return merge
 
 
 if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
-    r = constants.map.P02_R02
+    r = constants.map.P02_R07
     app = LargeMapRecorder(ctx, r)
     app.run()

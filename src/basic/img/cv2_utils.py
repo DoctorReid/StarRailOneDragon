@@ -155,7 +155,7 @@ def concat_vertically(img: MatLike, next_img: MatLike, decision_height: int = 20
     假设两张图片是通过垂直滚动得到的，即宽度一样，部分内容重叠
     :param img: 图
     :param next_img: 下一张图
-    :decision_height: 用第二张图的多少高度来判断重叠部分
+    :param decision_height: 用第二张图的多少高度来判断重叠部分
     :return:
     """
     # 截取一个横截面用来匹配
@@ -182,13 +182,15 @@ def concat_horizontally(img: MatLike, next_img: MatLike, decision_width: int = 2
     :param decision_width: 用第二张图的多少宽度来判断重叠部分
     :return:
     """
-    # 截取一个横截面用来匹配
-    next_part = next_img[:, 0: decision_width]
-    result = match_template(img, next_part, 0.5)
+    # 截取一个横截面用来匹配 要用中心部分 四周空白较多容易误判
+    cx = next_img.shape[1] // 2
+    next_part = next_img[:, cx - decision_width:cx + decision_width]
+    show_image(next_part, win_name='next_part')
+    result = match_template(img, next_part, 0.8)
     # 找出置信度最高的结果
     r = result.max
     h, w, _ = img.shape
-    overlap_w = w - r.x
+    overlap_w = w - r.x + cx - decision_width
     extra_part = next_img[:, overlap_w+1:]
     # 水平拼接两张图像
     return cv2.hconcat([img, extra_part])
@@ -343,6 +345,7 @@ def crop_image(img, rect: tuple, copy: bool = False):
     x1, y1 = int(x1), int(y1)
     x2, y2 = int(x2), int(y2)
     crop = img[y1: y2, x1: x2]
+    print(x1, y1, x2, y2)
     return crop.copy() if copy else crop
 
 

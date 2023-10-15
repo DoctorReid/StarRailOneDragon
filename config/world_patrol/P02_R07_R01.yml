@@ -1,0 +1,14 @@
+planet: '雅利洛'
+region: '永冬岭'
+level: 0
+tp: '古战场'
+route:
+  - op: 'move'
+    data: [486, 785]
+  - op: 'move'
+    data: [485, 663]
+  - op: 'move'
+    data: [462, 609]
+  - op: 'move'
+    data: [482, 539]
+  - op: 'patrol'
