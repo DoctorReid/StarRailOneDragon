@@ -1,0 +1,12 @@
+planet: '雅利洛'
+region: '永冬岭'
+level: 0
+tp: '睿治之径'
+route:
+  - op: 'move'
+    data: [560, 533]
+  - op: 'move'
+    data: [627, 539]
+  - op: 'move'
+    data: [653, 557]
+  - op: 'patrol'

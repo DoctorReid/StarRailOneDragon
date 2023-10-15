@@ -161,7 +161,7 @@ P02_R02_SP06 = TransportPoint('lk', '玲可', P02_R02, 'mm_sp_03', (1032, 342))
 # 雅利洛 - 永冬岭
 P02_R07_SP01 = TransportPoint('gzc', '古战场', P02_R07, 'mm_tp_03', (366, 776))
 P02_R07_SP02 = TransportPoint('zwpt', '造物平台', P02_R07, 'mm_tp_03', (784, 571))
-P02_R07_SP03 = TransportPoint('rzzj', '睿智之径', P02_R07, 'mm_tp_09', (585, 663))
+P02_R07_SP03 = TransportPoint('rzzj', '睿治之径', P02_R07, 'mm_tp_09', (585, 663))
 P02_R07_SP04 = TransportPoint('cxhl', '残响回廊', P02_R07, 'mm_sp_02', (338, 793))
 
 

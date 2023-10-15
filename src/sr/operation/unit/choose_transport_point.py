@@ -18,7 +18,7 @@ from sr.operation import Operation
 class ChooseTransportPoint(Operation):
 
     map_rect = (200, 200, 1400, 900)  # 大地图界面裁剪地图区域 应该需要比 大地图录制的区域小一点
-    tp_name_rect = (1480, 120, 1740, 170)  # 右侧显示传送点名称的区域
+    tp_name_rect = (1485, 120, 1800, 170)  # 右侧显示传送点名称的区域
     drag_distance = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
@@ -84,8 +84,11 @@ class ChooseTransportPoint(Operation):
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
             tp_name_part = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
-            tp_name_ocr = self.ctx.ocr.match_words(tp_name_part, [gt(self.tp.cn)], threshold=0.4)
-            cv2_utils.show_image(tp_name_part, win_name='tp_name_part')
+            lower_color = np.array([120, 170, 190], dtype=np.uint8)
+            upper_color = np.array([255, 255, 255], dtype=np.uint8)
+            gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
+            tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.cn)], threshold=0.4)
+            # cv2_utils.show_image(gold_part, win_name='gold_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
                 tx = large_map.TP_BTN_RECT[0]
