@@ -141,12 +141,19 @@ P01_R03_SP05_HMZL = TransportPoint('hmzl', '毁灭之蕾', P01_R03_SRCD_L1, 'mm_
 P01_R03_SP06 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_tp_09', (840, 352))
 P01_R03_SP07 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_sp_02', (600, 349))
 
+# 空间站黑塔 - 支援舱段
+P01_R04_SP01 = TransportPoint('dls', '电力室', P01_R04_ZYCD_L2, 'mm_tp_03', (155, 380))
+P01_R04_SP02 = TransportPoint('bjkf', '备件库房', P01_R04_ZYCD_L2, 'mm_tp_03', (424, 206))
+P01_R04_SP03 = TransportPoint('yt', '月台', P01_R04_ZYCD_L2, 'mm_tp_03', (155, 380))
+P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (457, 288))
+P01_R04_SP05 = TransportPoint('tkdt', '太空电梯', P01_R04_ZYCD_L2, 'mm_sp_02', (105, 345))
 
 def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
     arr = [
         P01_R01_SP01, P01_R01_SP02, P01_R01_SP03_HTBGS, P01_R01_SP04, P01_R01_SP04, P01_R01_SP05, P01_R01_SP06,
         P01_R02_SP01_JKS, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04,
-        P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07
+        P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07,
+        P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05
     ]
 
     for i in arr:
@@ -174,7 +181,8 @@ def region_with_another_floor(region: Region, level: int) -> Region:
 region_2_sp = {
     P01_R01_ZKCD.get_pr_id(): [P01_R01_SP03_HTBGS],
     P01_R02_JZCD.get_pr_id(): [P01_R02_SP01_JKS],
-    P01_R03_SRCD_L1.get_pr_id(): [P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07]
+    P01_R03_SRCD_L1.get_pr_id(): [P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07],
+    P01_R04_ZYCD_L1.get_pr_id(): [P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05]
 }
 
 

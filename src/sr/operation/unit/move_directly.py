@@ -52,8 +52,14 @@ class MoveDirectly(Operation):
         if len(self.pos) >= MoveDirectly.max_len and \
                 basic.cal_utils.distance_between(self.pos[0], self.pos[len(self.pos) - 1]) < MoveDirectly.stuck_distance:
             self.stuck_times += 1
-            walk_sec = self.get_rid_of_stuck(self.stuck_times)
-            self.last_rec_time += walk_sec * 3
+            if self.stuck_times > 12:
+                log.error('脱困失败')
+                if os_utils.is_debug():
+                    screen = self.ctx.controller.screenshot()
+                    save_debug_image(screen)
+                return Operation.FAIL
+            walk_sec = self.get_rid_of_stuck(self.stuck_times, last_pos)
+            self.last_rec_time += walk_sec
         else:
             self.stuck_times = 0
 
@@ -109,11 +115,15 @@ class MoveDirectly(Operation):
 
         return Operation.WAIT
 
-    def get_rid_of_stuck(self, stuck_times: int):
+    def get_rid_of_stuck(self, stuck_times: int, last_pos: tuple):
         """
         尝试脱困 使用往回走 再左右移 再往前走的方法
-        前3秒尝试往左 后三秒尝试往右
+        1-3次 往左 然后直走
+        4-6次 往右 然后直走
+        7-9次 往后再往左 然后直走
+        10-12次 往后再往右 然后直走
         :param stuck_times: 判断困住多少次了 次数越多 往回走距离越大
+        :param last_pos: 上一次位置 也就是被困的位置
         :return:
         """
         log.info('尝试脱困第%d次', stuck_times)
@@ -121,15 +131,32 @@ class MoveDirectly(Operation):
 
         ctrl.stop_moving_forward()
 
-        walk_sec = (stuck_times if stuck_times <= 3 else stuck_times - 3) * 0.5
-        turn = 'a' if stuck_times <= 3 else 'd'
+        walk_sec = (stuck_times // 3 if stuck_times // 3 != 0 else 3) * 0.25
 
-        ctrl.move('s', walk_sec)
-        ctrl.move(turn, walk_sec)
-        ctrl.move('w', walk_sec)
-        ctrl.start_moving_forward()
-        time.sleep(1)
-        return walk_sec
+        if stuck_times <= 3:
+            ctrl.move('a', walk_sec)
+            ctrl.start_moving_forward()
+            return walk_sec
+        elif stuck_times <= 6:
+            ctrl.move('d', walk_sec)
+            ctrl.start_moving_forward()
+            return walk_sec
+        elif stuck_times <= 9:
+            ctrl.move('s', walk_sec)
+            ctrl.move('a', walk_sec)
+            ctrl.move('w', walk_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            return walk_sec * 3
+        elif stuck_times <= 12:
+            ctrl.move('s', walk_sec)
+            ctrl.move('d', walk_sec)
+            ctrl.move('w', walk_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            return walk_sec * 3
+
+        return 0
 
     def get_pos(self, mm_info: MiniMapInfo, lm_rect: tuple):
         """

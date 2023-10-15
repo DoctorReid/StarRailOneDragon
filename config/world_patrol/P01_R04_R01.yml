@@ -1,0 +1,16 @@
+planet: '空间站'
+region: '支援舱段'
+level: 2
+tp: '电力室'
+route:
+  - op: 'move'
+    data: [265, 343]
+  - op: 'move'
+    data: [272, 284]
+  - op: 'move'
+    data: [435, 278]
+  - op: 'move'
+    data: [435, 197]
+  - op: 'move'
+    data: [567, 197]
+  - op: 'patrol'

@@ -106,7 +106,8 @@ class LargeMapRecorder(Application):
 
 
 if __name__ == '__main__':
-    ctx = get_context('唯秘')
-    r = constants.map.P01_R03_SRCD_L2
+    # 执行前先传送到别的地图
+    ctx = get_context()
+    r = constants.map.P01_R04_ZYCD_L2
     app = LargeMapRecorder(ctx, r)
     app.run()

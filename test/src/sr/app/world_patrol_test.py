@@ -10,7 +10,7 @@ def _test_run_one_route():
     ctx.running = True
     ctx.controller.init()
     app.first = False
-    app.run_one_route('P01_R03_R03')
+    app.run_one_route('P01_R04_R01')
 
 
 if __name__ == '__main__':
