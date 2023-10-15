@@ -11,16 +11,14 @@ from basic.log_utils import log
 from sr import constants
 from sr.constants.map import TransportPoint
 from sr.context import Context
-from sr.image.sceenshot import LargeMapInfo
+from sr.image.sceenshot import LargeMapInfo, large_map
 from sr.operation import Operation
 
 
 class ChooseTransportPoint(Operation):
 
     map_rect = (200, 200, 1400, 900)  # 大地图界面裁剪地图区域 应该需要比 大地图录制的区域小一点
-    tp_btn_rect = (1500, 800, 1800, 1000)  # 右侧显示传送按钮的区域
     tp_name_rect = (1480, 120, 1740, 170)  # 右侧显示传送点名称的区域
-    empty_map_pos = (1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
     drag_distance = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
@@ -42,7 +40,7 @@ class ChooseTransportPoint(Operation):
             return Operation.SUCCESS
 
         # 目标点中文 不是传送 或者不是目标传送点 点击一下地图空白位置
-        self.ctx.controller.click(ChooseTransportPoint.empty_map_pos)
+        self.ctx.controller.click(large_map.EMPTY_MAP_POS)
         time.sleep(0.5)
 
         mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
@@ -80,7 +78,7 @@ class ChooseTransportPoint(Operation):
         :param screen: 屏幕截图
         :return: 是否点击传送
         """
-        tp_btn_part = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_btn_rect)
+        tp_btn_part = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
         tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')], threshold=0.4)
         if len(tp_btn_ocr) > 0:
@@ -90,8 +88,8 @@ class ChooseTransportPoint(Operation):
             cv2_utils.show_image(tp_name_part, win_name='tp_name_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
-                tx = ChooseTransportPoint.tp_btn_rect[0]
-                ty = ChooseTransportPoint.tp_btn_rect[1]
+                tx = large_map.TP_BTN_RECT[0]
+                ty = large_map.TP_BTN_RECT[1]
                 for r in tp_btn_ocr.values():
                     tx += r.max.cx
                     ty += r.max.cy
@@ -164,7 +162,7 @@ class ChooseTransportPoint(Operation):
         self.drag(dx, dy)
 
     def drag(self, dx: int, dy: int):
-        fx, fy = ChooseTransportPoint.empty_map_pos
+        fx, fy = large_map.EMPTY_MAP_POS
         tx, ty = fx + ChooseTransportPoint.drag_distance * dx, fy + ChooseTransportPoint.drag_distance * dy
         log.info('当前未找到传送点 即将拖动地图 %s -> %s', (fx, fy), (tx, ty))
         self.ctx.controller.drag_to(end=(tx, ty), start=(fx, fy), duration=1)

@@ -1,0 +1,20 @@
+planet: '雅利洛'
+region: '城郊雪原'
+level: 0
+tp: '回忆之蕾'
+route:
+  - op: 'move'
+    data: [1067, 477]
+  - op: 'move'
+    data: [1013, 583]
+  - op: 'move'
+    data: [953, 495]
+  - op: 'move'
+    data: [1025, 287]
+  - op: 'move'
+    data: [843, 281]
+  - op: 'move'
+    data: [711, 326]
+  - op: 'move'
+    data: [674, 236]
+  - op: 'patrol'

@@ -32,6 +32,9 @@ class ChooseRegion(Operation):
         if planet is None or planet != self.planet:
             return Operation.FAIL  # 目前不在目标大地图了
 
+        if self.check_tp_and_cancel(screen):
+            return Operation.WAIT
+
         # 判断当前选择区域是否目标区域
         current_region = large_map.get_active_region_name(screen, self.ctx.ocr)
         log.info('当前选择区域 %s', current_region)
@@ -80,7 +83,7 @@ class ChooseRegion(Operation):
         :param screen:
         :return:
         """
-        return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_PART)
+        return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT)
 
     def scroll_region_area(self, d: int = 1):
         """
@@ -100,3 +103,16 @@ class ChooseRegion(Operation):
         part = cv2_utils.crop_image(screen, large_map.LEVEL_LIST_PART)
         return self.ctx.controller.click_ocr(part, target_level_str, click_offset=large_map.LEVEL_LIST_PART[:2],
                                              same_word=True)
+
+    def check_tp_and_cancel(self, screen) -> bool:
+        """
+        检测右边是否出现传送 有的话 点一下空白位置取消
+        :param screen:
+        :return:
+        """
+        tp_btn_part = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
+        # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
+        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')], threshold=0.4)
+        if len(tp_btn_ocr) > 0:
+            return self.ctx.controller.click(large_map.EMPTY_MAP_POS)
+        return False

@@ -15,8 +15,11 @@ from sr.image import OcrMatcher, TemplateImage, ImageMatcher, get_large_map_dir_
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo
 
-REGION_LIST_PART = (1480, 200, 1700, 1000)
-REGION_LIST_PART_CENTER = ((REGION_LIST_PART[0] + REGION_LIST_PART[2]) // 2, (REGION_LIST_PART[1] + REGION_LIST_PART[3]) // 2)
+CUT_MAP_RECT = (200, 200, 1300, 900)  # 截取大地图的区域
+EMPTY_MAP_POS = (1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
+TP_BTN_RECT = (1500, 800, 1800, 1000)  # 右侧显示传送按钮的区域
+REGION_LIST_RECT = (1480, 200, 1700, 1000)
+REGION_LIST_PART_CENTER = ((REGION_LIST_RECT[0] + REGION_LIST_RECT[2]) // 2, (REGION_LIST_RECT[1] + REGION_LIST_RECT[3]) // 2)
 LEVEL_LIST_PART = (30, 730, 100, 1000)
 
 
@@ -162,7 +165,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     """
     lower = 240
     upper = 255
-    part = cv2_utils.crop_image(screen, REGION_LIST_PART)
+    part = cv2_utils.crop_image(screen, REGION_LIST_RECT)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
     km = ocr.run_ocr(bw)
     if len(km) > 0:

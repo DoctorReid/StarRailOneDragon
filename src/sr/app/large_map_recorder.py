@@ -88,11 +88,12 @@ class LargeMapRecorder(Application):
             if not self.ctx.running:
                 return
             screen = self.ctx.controller.screenshot()
-            map_part = screen[200: 900, 200: 1400]
+            map_part = cv2_utils.crop_image(screen, large_map.CUT_MAP_RECT)
+            cv2_utils.show_image(map_part, win_name='screenshot_horizontally_map_part')
             if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], map_part):
                 img.append(map_part)
                 self.ctx.controller.drag_to(end=(center[0] - 200, center[1]), start=center, duration=1)  # 往右拉一段
-                time.sleep(0.5)
+                time.sleep(1)
             else:
                 break
 
@@ -101,13 +102,13 @@ class LargeMapRecorder(Application):
             if i == 0:
                 merge = img[i]
             else:
-                merge = cv2_utils.concat_horizontally(merge, img[i])
+                merge = cv2_utils.concat_horizontally(merge, img[i], decision_width=large_map.CUT_MAP_RECT[2] - large_map.CUT_MAP_RECT[0] - 300)
         return merge
 
 
 if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
-    r = constants.map.P01_R04_ZYCD_L2
+    r = constants.map.P02_R02
     app = LargeMapRecorder(ctx, r)
     app.run()
