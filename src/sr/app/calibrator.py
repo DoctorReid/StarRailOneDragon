@@ -1,18 +1,18 @@
-import math
 import time
 
 import numpy as np
 from cv2.typing import MatLike
 
-import sr
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
 from sr.config.game_config import GameConfig, get_game_config, MiniMapPos
-from sr.context import Context
+from sr.constants.map import TransportPoint
+from sr.context import Context, get_context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map
+from sr.operation.combine.transport import Transport
 
 
 class Calibrator(Application):
@@ -25,15 +25,18 @@ class Calibrator(Application):
         self.ctrl: GameController = ctx.controller
 
     def run(self):
-        self.ctx.running = True
-        self.ctrl.init()
-        screen = self.ctrl.screenshot()
-        self._check_mini_map_pos(screen)
+        self._check_mini_map_pos()
+        self._check_turning_rate()
 
     def _check_mini_map_pos(self, screenshot: MatLike = None):
-        # TODO 后续确保当前位置在基座舱段
         log.info('[小地图定位校准] 开始')
         if screenshot is None:
+            tp: TransportPoint = constants.map.P01_R04_SP03
+            op = Transport(self.ctx, tp, True)
+            if not op.execute():
+                log.error('传送到支援舱段失败 小地图定位校准 失败')
+                return False
+
             screenshot = self.ctrl.screenshot()
         mm_pos: MiniMapPos = mini_map.cal_little_map_pos(screenshot)
         config: GameConfig = get_game_config()
@@ -45,19 +48,28 @@ class Calibrator(Application):
         config.write_config()
 
         log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', mm_pos.x, mm_pos.y, mm_pos.r)
+        return True
 
-    def _check_turning_rate(self):
+    def _check_turning_rate(self, tp: bool = True):
         """
         检测转向 需要找一个最容易检测到见箭头的位置
         通过固定滑动距离 判断转动角度
         反推转动角度所需的滑动距离
+        :param tp: 是否需要传送
         :return:
         """
+        log.info('[转向校准] 开始')
+        if tp:
+            p: TransportPoint = constants.map.P01_R01_SP03_HTBGS
+            op = Transport(self.ctx, p, False)
+            if not op.execute():
+                log.error('传送到黑塔办公室失败 转向校准 失败')
+                return False
         turn_distance = 500
 
         angle = self._get_current_angle()
         turn_angle = []
-        for _ in range(5):
+        for _ in range(10):
             self.ctrl.turn_by_distance(turn_distance)
             time.sleep(1)
             next_angle = self._get_current_angle()
@@ -73,6 +85,7 @@ class Calibrator(Application):
         config: GameConfig = get_game_config()
         config.update('turn_dx', ans)
         config.write_config()
+        log.info('[转向校准] 完成')
         # cv2.waitKey(0)
         return ans
 
@@ -87,23 +100,10 @@ class Calibrator(Application):
         log.info('当前角度 %.2f', next_angle)
         return next_angle
 
-    def _check_move_distance(self, save_screenshot: bool = False):
-        pos = []
-        large_map = sr.read_map_image(constants.PLANET_1_KZJ, constants.REGION_2_JZCD, 'usage')
 
-        k = 's'
-        for i in range(4):
-            screen = gui_utils.screenshot_win(self.win)
-            if save_screenshot:
-                basic.img.get.save_debug_image(screen)
-            little_map = mini_map.cut_mini_map(screen)
-            x, y = self.mc.cal_character_pos_by_match(little_map, large_map, show=True)
-            print(x, y)
-            pos.append((x, y))
-            gui_utils.key_down(k, 1)
-            if i != 'q':
-                time.sleep(6)
-
-        for i in range(len(pos) - 1):
-            dis = math.sqrt((pos[i+1][0] - pos[i][0])**2 + (pos[i+1][1] - pos[i][1])**2)
-            print(dis)
+if __name__ == '__main__':
+    ctx = get_context()
+    ctx.running = True
+    ctx.controller.init()
+    app = Calibrator(ctx)
+    app.execute()

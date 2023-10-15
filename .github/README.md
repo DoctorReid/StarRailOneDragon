@@ -5,6 +5,8 @@
 
 期望一期锄大地功能在10月份完工 [目前进度](https://github.com/DoctorReid/StarRailProxy/milestone/2)
 
+元旦前完成二期模拟宇宙
+
 ## 使用指南
 还没写
 

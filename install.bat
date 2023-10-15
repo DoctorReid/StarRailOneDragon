@@ -133,7 +133,7 @@ echo.>> !env_path!\!file_time!.txt
 :requirements-install-done
 echo 依赖包已准备完毕
 
-echo 环境安装已完成
+echo 环境安装已完成 可执行 run.bat 开始脚本
 
 endlocal
 pause

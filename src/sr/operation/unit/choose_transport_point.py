@@ -19,7 +19,7 @@ class ChooseTransportPoint(Operation):
 
     map_rect = (200, 200, 1400, 900)  # 大地图界面裁剪地图区域 应该需要比 大地图录制的区域小一点
     tp_btn_rect = (1500, 800, 1800, 1000)  # 右侧显示传送按钮的区域
-    tp_name_rect = (1480, 120, 1640, 170)  # 右侧显示传送点名称的区域
+    tp_name_rect = (1480, 120, 1740, 170)  # 右侧显示传送点名称的区域
     empty_map_pos = (1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
     drag_distance = -200
 
@@ -87,7 +87,7 @@ class ChooseTransportPoint(Operation):
             # 看看是否目标传送点
             tp_name_part = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
             tp_name_ocr = self.ctx.ocr.match_words(tp_name_part, [gt(self.tp.cn)], threshold=0.4)
-            # cv2_utils.show_image(tp_name_part, win_name='tp_name_part')
+            cv2_utils.show_image(tp_name_part, win_name='tp_name_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
                 tx = ChooseTransportPoint.tp_btn_rect[0]

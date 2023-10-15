@@ -6,7 +6,7 @@ from basic.log_utils import log
 from sr import constants
 from sr.config import ConfigHolder
 from sr.constants.map import TransportPoint, region_with_another_floor
-from sr.context import Context
+from sr.context import Context, get_context
 from sr.image.sceenshot import large_map, LargeMapInfo
 from sr.operation import Operation
 from sr.operation.combine.transport import Transport
@@ -196,3 +196,11 @@ class WorldPatrol(Operation):
             return False
 
         return op.execute()
+
+
+if __name__ == '__main__':
+    ctx = get_context()
+    ctx.running = True
+    ctx.controller.init()
+    app = WorldPatrol(ctx)
+    app.execute()

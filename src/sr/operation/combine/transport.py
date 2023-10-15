@@ -6,6 +6,7 @@ from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.choose_transport_point import ChooseTransportPoint
 from sr.operation.unit.open_map import OpenMap
 from sr.operation.unit.scale_large_map import ScaleLargeMap
+from sr.operation.unit.wait_in_world import WaitInWorld
 
 
 class Transport(Operation):
@@ -24,6 +25,7 @@ class Transport(Operation):
         self.ops.append(ChoosePlanet(ctx, tp.region.planet))
         self.ops.append(ChooseRegion(ctx, tp.region))
         self.ops.append(ChooseTransportPoint(ctx, tp))
+        self.ops.append(WaitInWorld(ctx))
 
     def run(self) -> int:
         for op in self.ops:
