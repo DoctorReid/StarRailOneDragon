@@ -67,6 +67,9 @@ class Region:
         elif self.level < 0:
             return '%s-%s-b%d' % (self.planet.id, self.id, abs(self.level))
 
+    def another_floor(self):
+        return self.level != 0
+
 
 R0_GJCX = Region("gjcx", "观景车厢", None)
 

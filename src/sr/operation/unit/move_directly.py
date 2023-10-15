@@ -79,10 +79,8 @@ class MoveDirectly(Operation):
         move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time)
         possible_pos = (lx, ly, move_distance)
         lm_rect = get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
-        sp_map = constants.map.get_sp_type_in_rect(self.region, lm_rect)
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
 
-        x, y = self.get_pos(mm_info, lm_rect)
+        x, y = self.get_pos(mm, lm_rect)
 
         if x is None or y is None:
             log.error('无法判断当前人物坐标')
@@ -158,20 +156,24 @@ class MoveDirectly(Operation):
 
         return 0
 
-    def get_pos(self, mm_info: MiniMapInfo, lm_rect: tuple):
+    def get_pos(self, mm: MatLike, lm_rect: tuple):
         """
         获取当前位置、 下一步方向、 记录时间
-        :param mm_info: 小地图信息
+        :param mm: 小地图截图
         :param lm_rect: 大地图区域
         :return:
         """
         start_time = time.time()
 
+        sp_map = constants.map.get_sp_type_in_rect(self.region, lm_rect)
+        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()),
+                                            another_floor=self.region.another_floor())
+
         x, y = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
         if x is None and self.next_lm_info is not None:
             x, y = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
 
-        log.debug('截图计算坐标耗时 %.4f s', time.time() - start_time)
+        log.debug('计算坐标耗时 %.4f s', time.time() - start_time)
         log.info('计算当前坐标为 (%s, %s)', x, y)
 
         return x, y
