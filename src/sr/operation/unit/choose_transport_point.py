@@ -1,6 +1,8 @@
 import random
 import time
 
+import cv2
+import numpy as np
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
@@ -29,17 +31,23 @@ class ChooseTransportPoint(Operation):
     def run(self) -> int:
         screen = self.ctx.controller.screenshot()
 
+        # 判断地图中间是否有目标点中文可选
+        if self.check_and_click_sp_cn(screen):
+            time.sleep(0.5)
+            return Operation.WAIT
+
         # 先判断右边是不是出现传送了
         if self.check_and_click_transport(screen):
             time.sleep(2)
             return Operation.SUCCESS
-        else:
-            # 不是传送 或者不是目标传送点
-            self.ctx.controller.click(ChooseTransportPoint.empty_map_pos)
-            time.sleep(0.5)
+
+        # 目标点中文 不是传送 或者不是目标传送点 点击一下地图空白位置
+        self.ctx.controller.click(ChooseTransportPoint.empty_map_pos)
+        time.sleep(0.5)
 
         mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
         screen_map = screen[my1: my2, mx1: mx2]
+
         offset: MatchResult = self.get_map_offset(screen_map)
         if offset is None:
             log.error('匹配大地图失败')
@@ -57,6 +65,7 @@ class ChooseTransportPoint(Operation):
                 x = target.cx + mx1
                 y = target.cy + my1
                 self.ctx.controller.click((x, y))
+                time.sleep(0.5)
 
         if dx != 0 or dy != 0:
             self.drag(dx, dy)
@@ -159,3 +168,28 @@ class ChooseTransportPoint(Operation):
         tx, ty = fx + ChooseTransportPoint.drag_distance * dx, fy + ChooseTransportPoint.drag_distance * dy
         log.info('当前未找到传送点 即将拖动地图 %s -> %s', (fx, fy), (tx, ty))
         self.ctx.controller.drag_to(end=(tx, ty), start=(fx, fy), duration=1)
+
+    def check_and_click_sp_cn(self, screen) -> bool:
+        """
+        判断地图中间是否有目标点中文可选 两个特殊点重叠的时候会出现
+        发现的话进行点击
+        :param screen: 屏幕截图
+        :return:
+        """
+        mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
+        screen_map = screen[my1: my2, mx1: mx2]
+
+        l = 200
+        u = 255
+        lower_color = np.array([l, l, l], dtype=np.uint8)
+        upper_color = np.array([u, u, u], dtype=np.uint8)
+        white_part = cv2.inRange(screen_map, lower_color, upper_color)  # 提取白色部分方便匹配
+
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.cn)])
+
+        for r in ocr_result.values():
+            tx = r.max.cx + mx1
+            ty = r.max.cy + my1
+            return self.ctx.controller.click((tx, ty))
+
+        return False

@@ -12,7 +12,7 @@ from sr.image.sceenshot import mini_map
 from sr.image.sceenshot.mini_map import get_arrow_mask
 
 
-def _read_template_image(template_id):
+def _read_template_raw_image(template_id):
     dir_path = os.path.join(os_utils.get_path_under_work_dir('images', 'template'), template_id)
     if not os.path.exists(dir_path):
         return None
@@ -53,7 +53,7 @@ def init_tp_with_background(template_id: str, noise_threshold: int = 0):
     :param template_id:
     :return:
     """
-    raw = _read_template_image(template_id)
+    raw = _read_template_raw_image(template_id)
     if raw.shape[2] == 4:
         raw = cv2.cvtColor(raw, cv2.COLOR_BGRA2BGR)
     gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
@@ -78,7 +78,7 @@ def init_sp_with_background(template_id: str, noise_threshold: int = 0):
     :param noise_threshold: 连通块小于多少时认为是噪点 视情况调整
     :return:
     """
-    raw = _read_template_image(template_id)
+    raw = _read_template_raw_image(template_id)
     sim = cv2_utils.color_similarity_2d(raw, (160, 210, 240))  # 前景颜色 特殊点主体部分
     cv2_utils.show_image(sim, win_name='sim')
     front_binary = cv2.inRange(sim, 180, 255)
@@ -127,7 +127,7 @@ def init_ui_icon(template_id: str, noise_threshold: int = 0):
     :param noise_threshold: 连通块小于多少时认为是噪点 视情况调整
     :return:
     """
-    raw = _read_template_image(template_id)
+    raw = _read_template_raw_image(template_id)
     gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
     _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
     if noise_threshold > 0:
@@ -137,7 +137,7 @@ def init_ui_icon(template_id: str, noise_threshold: int = 0):
 
 
 def init_battle_ctrl_icon(template_id: str, noise_threshold: int = 0):
-    raw = _read_template_image(template_id)
+    raw = _read_template_raw_image(template_id)
     gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
     _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
     final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=35, bg_color=(0, 0, 0))
@@ -238,3 +238,20 @@ def init_arrow_template(mm: MatLike):
 
     save_template_image(rough_template, 'arrow_rough', 'mask')
     save_template_image(precise_template, 'arrow_precise', 'mask')
+
+
+def init_battle_lock():
+    """
+    初始化界面的锁定怪物图标
+    需要找个怪兽锁定后截图 扣取红色的部分
+    :return:
+    """
+    raw = _read_template_raw_image('battle_lock')
+    b, g, r = cv2.split(raw)
+    mask = np.zeros((raw.shape[0], raw.shape[1]), dtype=np.uint8)
+    mask[np.where(r > 230)] = 255
+
+    origin = cv2.bitwise_and(raw, raw, mask=mask)
+    cv2_utils.show_image(origin, win_name='origin')
+    cv2.waitKey(0)
+

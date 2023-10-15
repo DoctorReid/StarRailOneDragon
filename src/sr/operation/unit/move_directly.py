@@ -28,16 +28,15 @@ class MoveDirectly(Operation):
     arrival_distance: float = 10  # 多少距离内认为是到达目的地
 
     def __init__(self, ctx: Context,
-                 large_map_info: LargeMapInfo,
-                 region: Region,
+                 lm_info: LargeMapInfo,
                  target: tuple,
                  next_lm_info: LargeMapInfo = None,
                  start: tuple = None,
                  save_screenshot: bool = False):
         super().__init__(ctx)
-        self.lm_info: LargeMapInfo = large_map_info
+        self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
-        self.region: Region = region
+        self.region: Region = lm_info.region
         self.target = target
         self.save_screenshot = save_screenshot
         self.pos = []
@@ -67,7 +66,7 @@ class MoveDirectly(Operation):
             save_debug_image(screen)
         mm = mini_map.cut_mini_map(screen)
         if self.check_enemy_and_attack(mm):  # 处理完敌人 再重新开始下一轮寻路
-            self.last_rec_time = now_time
+            self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
             return Operation.WAIT
 
         lx, ly = last_pos

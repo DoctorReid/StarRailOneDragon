@@ -3,4 +3,6 @@ region: '基座舱段'
 level: 0
 tp: '监控室'
 route:
-  - [645, 250]
+  - op: 'move'
+    data: [645, 250]
+  - op: 'patrol'

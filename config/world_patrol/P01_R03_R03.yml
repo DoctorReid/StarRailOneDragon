@@ -1,0 +1,15 @@
+planet: '空间站'
+region: '收容舱段'
+level: 1
+tp: '中庭'
+route:
+  - op: 'move'
+    data: [690, 299]
+  - op: 'patrol'
+  - op: 'move'
+    data: [705, 374]
+  - op: 'move'
+    data: [689, 441]
+  - op: 'move'
+    data: [671, 432]
+  - op: 'patrol'

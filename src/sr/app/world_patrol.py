@@ -7,9 +7,10 @@ from sr import constants
 from sr.config import ConfigHolder
 from sr.constants.map import TransportPoint, region_with_another_floor
 from sr.context import Context
-from sr.image.sceenshot import large_map
+from sr.image.sceenshot import large_map, LargeMapInfo
 from sr.operation import Operation
 from sr.operation.combine.transport import Transport
+from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.move_directly import MoveDirectly
 
 
@@ -104,22 +105,19 @@ class WorldPatrol(Operation):
 
         last_region = route.tp.region
         lm_info = large_map.analyse_large_map(last_region, self.ctx.ih)
-        last_pos = route.tp.lm_pos
-        for p in route.route_list:
-            target_pos = (p[0], p[1])
-            if len(p) > 2:  # 需要切换层数
-                next_region = region_with_another_floor(last_region, p[2])
-                next_lm_info = large_map.analyse_large_map(next_region, self.ctx.ih)
-            op = MoveDirectly(self.ctx, lm_info, region=last_region, target=target_pos, start=last_pos)
-            if not op.execute():
-                log.error('寻路失败 即将跳过本次路线 %s', route_id)
-                return
+        current_pos = route.tp.lm_pos
+        for route_item in route.route_list:
+            if route_item['op'] == 'move':
+                result, next_pos, next_lm_info = self.move(route_item, lm_info, current_pos)
+                if not result:
+                    log.error('寻路失败 即将跳过本次路线 %s', route_id)
+                    return
 
-            if len(p) > 2:  # 需要切换层数
-                last_region = next_region
-                lm_info = next_lm_info
-
-            last_pos = target_pos
+                current_pos = next_pos
+                if next_lm_info is not None:
+                    lm_info = next_lm_info
+            elif route_item['op'] == 'patrol':
+                self.patrol()
 
         self.save_record(route_id)
 
@@ -131,3 +129,21 @@ class WorldPatrol(Operation):
         """
         self.record.finished.append(route_id)
         self.record.save()
+
+    def move(self, route_item, lm_info: LargeMapInfo, current_pos):
+        p = route_item['data']
+        target_pos = (p[0], p[1])
+        next_lm_info = None
+        if len(p) > 2:  # 需要切换层数
+            next_region = region_with_another_floor(lm_info.region, p[2])
+            next_lm_info = large_map.analyse_large_map(next_region, self.ctx.ih)
+        op = MoveDirectly(self.ctx, lm_info, next_lm_info=next_lm_info,
+                          target=target_pos, start=current_pos)
+
+        result = op.execute()
+
+        return result, target_pos, next_lm_info
+
+    def patrol(self) -> bool:
+        op = EnterAutoFight(self.ctx)
+        return op.execute()

@@ -91,7 +91,20 @@ def _test_cut_mini_map():
     #     save_debug_image(mm)
 
 
+def _test_with_enemy_in_main_road():
+    mm = get_test_image('mm_arrow', sub_dir='mini_map')
+    print(mini_map.with_enemy_in_main_road(mm))  # False
+    mm = get_test_image('under_1', sub_dir='battle')
+    mm = mini_map.cut_mini_map(mm)
+    print(mini_map.with_enemy_in_main_road(mm))  # True
+    mm = get_test_image('under_2', sub_dir='battle')
+    mm = mini_map.cut_mini_map(mm)
+    print(mini_map.with_enemy_in_main_road(mm))  # True
+
+
+
+
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    _test_cut_mini_map()
+    _test_with_enemy_in_main_road()

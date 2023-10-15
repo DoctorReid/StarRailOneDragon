@@ -223,8 +223,15 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
                 # 缩放后的宽度和高度
                 sw = int(template.shape[1] * scale)
                 sh = int(template.shape[0] * scale)
-                one_sp_maks = cv2.resize(template_mask, (sw, sh))
-                sp_mask[mr.y:mr.y + sh, mr.x:mr.x + sw] = cv2.bitwise_or(sp_mask[mr.y:mr.y + sh, mr.x:mr.x + sw], one_sp_maks)
+                one_sp_mask = cv2.resize(template_mask, (sw, sh))
+
+                rect1, rect2 = cv2_utils.get_overlap_rect(sp_mask, one_sp_mask, mr.x, mr.y)
+                sx_start, sy_start, sx_end, sy_end = rect1
+                tx_start, ty_start, tx_end, ty_end = rect2
+                sp_mask[sy_start:sy_end, sx_start:sx_end] = cv2.bitwise_or(
+                    sp_mask[sy_start:sy_end, sx_start:sx_end],
+                    one_sp_mask[ty_start:ty_end, tx_start:tx_end]
+                )
 
             if show:
                 cv2_utils.show_image(source, win_name='source')
@@ -302,6 +309,30 @@ def is_under_attack(mini_map: MatLike, mm_pos: MiniMapPos, show: bool = False) -
         cv2_utils.show_image(find_circle, win_name='find_circle')
 
     return find
+
+
+def with_enemy_in_main_road(mm: MatLike):
+    """
+    小地图当前楼层上是否有怪物
+    只靠红色提取效果不太行 背景太杂了
+    :param mm:
+    :return:
+    """
+    b, g, r = cv2.split(mm)
+    red_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
+    red_mask[np.where(r > 230)] = 255
+
+    mm_pos = get_game_config().mini_map_pos
+    circle_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
+    cx = mm.shape[1] // 2
+    cy = mm.shape[0] // 2
+    r = mm_pos.r - 10
+    cv2.circle(circle_mask, (cx, cy), r, 255, -1)
+
+    mask = cv2.bitwise_and(red_mask, circle_mask)
+    cv2_utils.show_image(mm, win_name='mm')
+    cv2_utils.show_image(mask, wait=0)
+    return np.sum(mask == 255) > 10
 
 
 def get_mini_map_scale_list(running: bool):

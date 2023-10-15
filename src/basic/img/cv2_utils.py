@@ -233,38 +233,7 @@ def show_overlap(source, template, x, y, template_scale: float = 1, win_name: st
     else:
         to_show_template = template
 
-    # 获取要覆盖图像的宽度和高度
-    overlay_height, overlay_width = to_show_template.shape[:2]
-
-    # 覆盖图在原图上的坐标
-    sx_start = int(x)
-    sy_start = int(y)
-    sx_end = sx_start + overlay_width
-    sy_end = sy_start + overlay_height
-
-    # 覆盖图要用的坐标
-    tx_start = 0
-    ty_start = 0
-    tx_end = to_show_template.shape[1]
-    ty_end = to_show_template.shape[0]
-
-    # 覆盖图缩放后可以超出了原图的范围
-    if sx_start < 0:
-        tx_start -= sx_start
-        sx_start -= sx_start
-    if sx_end > to_show_source.shape[1]:
-        tx_end -= sx_end - to_show_source.shape[1]
-        sx_end -= sx_end - to_show_source.shape[1]
-
-    if sy_start < 0:
-        ty_start -= sy_start
-        sy_start -= sy_start
-    if sy_end > to_show_source.shape[0]:
-        ty_end -= sy_end - to_show_source.shape[0]
-        sy_end -= sy_end - to_show_source.shape[0]
-
-    # 将覆盖图像放置到底图的指定位置
-    to_show_source[sy_start:sy_end, sx_start:sx_end] = to_show_template[ty_start:ty_end, tx_start:tx_end]
+    source_overlap_template(to_show_source, to_show_template, x, y)
     show_image(to_show_source, win_name=win_name, wait=wait)
 
 
@@ -443,3 +412,67 @@ def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_colo
         final_origin[np.where(final_mask == 0)] = bg_color
 
     return final_origin, final_mask
+
+
+def source_overlap_template(source, template, x, y, copy_img: bool = False):
+    """
+    在原图上覆盖模板图
+    :param source: 原图
+    :param template: 模板图 缩放后
+    :param x: 偏移量
+    :param y: 偏移量
+    :param copy_img: 是否复制新图片
+    :return:
+    """
+    to_overlap_source = source.copy() if copy_img else source
+
+    rect1, rect2 = get_overlap_rect(source, template, x, y)
+    sx_start, sy_start, sx_end, sy_end = rect1
+    tx_start, ty_start, tx_end, ty_end = rect2
+
+    # 将覆盖图像放置到底图的指定位置
+    to_overlap_source[sy_start:sy_end, sx_start:sx_end] = template[ty_start:ty_end, tx_start:tx_end]
+
+    return to_overlap_source
+
+
+def get_overlap_rect(source, template, x, y):
+    """
+    根据模板图在原图上的偏移量 计算出覆盖区域
+    :param source: 原图
+    :param template: 模板图 缩放后
+    :param x: 偏移量
+    :param y: 偏移量
+    :return:
+    """
+    # 获取要覆盖图像的宽度和高度
+    overlay_height, overlay_width = template.shape[:2]
+
+    # 覆盖图在原图上的坐标
+    sx_start = int(x)
+    sy_start = int(y)
+    sx_end = sx_start + overlay_width
+    sy_end = sy_start + overlay_height
+
+    # 覆盖图要用的坐标
+    tx_start = 0
+    ty_start = 0
+    tx_end = overlay_width
+    ty_end = overlay_height
+
+    # 覆盖图缩放后可以超出了原图的范围
+    if sx_start < 0:
+        tx_start -= sx_start
+        sx_start -= sx_start
+    if sx_end > source.shape[1]:
+        tx_end -= sx_end - source.shape[1]
+        sx_end -= sx_end - source.shape[1]
+
+    if sy_start < 0:
+        ty_start -= sy_start
+        sy_start -= sy_start
+    if sy_end > source.shape[0]:
+        ty_end -= sy_end - source.shape[0]
+        sy_end -= sy_end - source.shape[0]
+
+    return (sx_start, sy_start, sx_end, sy_end), (tx_start, ty_start, tx_end, ty_end)
