@@ -27,6 +27,7 @@ class CnOcrMatcher(OcrMatcher):
         :return: {key_word: []}
         """
         scan_result: list = self.ocr.ocr(image)
+        print(scan_result)
         result_map: dict = {}
         for r in scan_result:
             if r['score'] < threshold:

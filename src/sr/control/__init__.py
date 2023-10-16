@@ -133,7 +133,7 @@ class GameController:
         """
         return self.walk_speed * seconds
 
-    def move_towards(self, pos1: tuple, pos2: tuple, angle: float):
+    def move_towards(self, pos1: tuple, pos2: tuple, angle: float) -> bool:
         """
         朝目标点行走
         :param pos1: 起始点
@@ -141,6 +141,9 @@ class GameController:
         :param angle: 当前角度
         :return:
         """
+        if angle is None:
+            log.error('当前角度为空 无法判断移动方向')
+            return False
         target_angle = basic.cal_utils.get_angle_by_pts(pos1, pos2)
         # 保证计算的转动角度为正
         delta_angle = target_angle - angle if target_angle >= angle else target_angle + 360 - angle
@@ -151,6 +154,7 @@ class GameController:
 
         self.turn_by_angle(delta_angle)
         self.start_moving_forward()
+        return True
 
     def initiate_attack(self):
         """

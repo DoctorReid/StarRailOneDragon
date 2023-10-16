@@ -5,7 +5,9 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+from basic import os_utils
 from basic.img import cv2_utils, MatchResultList, MatchResult
+from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import constants
 from sr.config.game_config import MiniMapPos, get_game_config
@@ -366,6 +368,8 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
     info = MiniMapInfo()
     info.origin = origin
     info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin, im)
+    if info.angle is None and os_utils.is_debug():
+        save_debug_image(origin, prefix='none_angle_')
     info.gray = cv2.cvtColor(origin, cv2.COLOR_BGR2GRAY)
 
     # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
@@ -478,7 +482,7 @@ def get_mini_map_radio_mask(mm: MatLike, angle: int = -1, another_floor: bool = 
     radius = 55  # 扇形半径 这个半径内
     color = 255  # 扇形颜色（BGR格式）
     thickness = -1  # 扇形边框线宽度（负值表示填充扇形）
-    if angle != -1:  # 知道当前角度的话 画扇形
+    if angle != -1 and angle is not None:  # 知道当前角度的话 画扇形
         start_angle = angle - 45  # 扇形起始角度（以度为单位）
         end_angle = angle + 45  # 扇形结束角度（以度为单位）
         cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, end_angle, color, thickness)  # 画扇形

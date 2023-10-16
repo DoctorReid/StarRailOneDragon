@@ -83,6 +83,7 @@ P01_R04_ZYCD_L2 = Region("zycd", "支援舱段", P01_KZJ, 2)
 
 P02_R01_XZQ = Region("xzq", "行政区", P02_YYL)
 P02_R02 = Region("cjxy", "城郊雪原", P02_YYL)
+P02_R03 = Region("bytl", "边缘通路", P02_YYL)
 P02_R07 = Region("ydl", "永冬岭", P02_YYL)
 P02_R09_MDZ = Region("mdz", "铆钉镇", P02_YYL)
 
@@ -98,7 +99,7 @@ def get_region_by_cn(cn: str, planet: Planet = None, level: int = 0) -> Region:
     arr = [
         R0_GJCX,
         P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2,
-        P02_R01_XZQ, P02_R02, P02_R07, P02_R09_MDZ,
+        P02_R01_XZQ, P02_R02, P02_R03, P02_R07, P02_R09_MDZ,
     ]
     for i in arr:
         if i.cn != cn:
@@ -161,6 +162,14 @@ P02_R02_SP04 = TransportPoint('hyzl', '回忆之蕾', P02_R02, 'mm_tp_08', (1098
 P02_R02_SP05 = TransportPoint('xzq', '行政区', P02_R02, 'mm_sp_02', (444, 109))
 P02_R02_SP06 = TransportPoint('lk', '玲可', P02_R02, 'mm_sp_03', (1032, 342))
 
+# 雅利洛 - 边缘通路
+P02_R03_SP01 = TransportPoint('hcgc', '候车广场', P02_R03, 'mm_tp_03', (598, 832))
+P02_R03_SP02 = TransportPoint('xxgc', '休闲广场', P02_R03, 'mm_tp_03', (690, 480))
+P02_R03_SP03 = TransportPoint('gdjz', '歌德', P02_R03, 'mm_tp_03', (811, 259))
+P02_R03_SP04 = TransportPoint('hgzx', '幻光之形', P02_R03, 'mm_tp_06', (450, 840))
+P02_R03_SP05 = TransportPoint('frzl', '丰饶之蕾', P02_R03, 'mm_tp_07', (659, 509))
+P02_R03_SP06 = TransportPoint('ytzl', '以太之蕾', P02_R03, 'mm_tp_08', (596, 194))
+
 # 雅利洛 - 永冬岭
 P02_R07_SP01 = TransportPoint('gzc', '古战场', P02_R07, 'mm_tp_03', (366, 776))
 P02_R07_SP02 = TransportPoint('zwpt', '造物平台', P02_R07, 'mm_tp_03', (784, 571))
@@ -175,6 +184,7 @@ def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> Tran
         P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07,
         P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05,
         P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06,
+        P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06,
         P02_R07_SP01, P02_R07_SP02, P02_R07_SP03, P02_R07_SP04,
     ]
 
@@ -206,6 +216,7 @@ region_2_sp = {
     P01_R03_SRCD_L1.get_pr_id(): [P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07],
     P01_R04_ZYCD_L1.get_pr_id(): [P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05],
     P02_R02.get_pr_id(): [P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06],
+    P02_R03.get_pr_id(): [P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06],
     P02_R07.get_pr_id(): [P02_R07_SP01, P02_R07_SP02, P02_R07_SP03, P02_R07_SP04]
 }
 

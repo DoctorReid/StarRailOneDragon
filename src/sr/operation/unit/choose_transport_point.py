@@ -43,8 +43,12 @@ class ChooseTransportPoint(Operation):
         self.ctx.controller.click(large_map.EMPTY_MAP_POS)
         time.sleep(0.5)
 
-        mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
-        screen_map = screen[my1: my2, mx1: mx2]
+        mx1, my1, mx2, my2 = large_map.CUT_MAP_RECT
+        mx1 += 10
+        my1 += 10
+        mx2 -= 10
+        my2 -= 10
+        screen_map = screen[my1: my2, mx1: mx2]  # 这里要截取比录制地图小一点 以免边缘部分匹配不到
 
         offset: MatchResult = self.get_map_offset(screen_map)
         if offset is None:
@@ -57,6 +61,7 @@ class ChooseTransportPoint(Operation):
 
         if dx == 0 and dy == 0:  # 当前就能找传送点
             target: MatchResult = self.get_tp_pos(screen_map, offset)
+            cv2_utils.show_image(screen_map, target, win_name='2')
             if target is None:  # 没找到的话 随机滑动一下
                 self.random_drag()
             else:
@@ -88,7 +93,7 @@ class ChooseTransportPoint(Operation):
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
             tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.cn)], threshold=0.4)
-            # cv2_utils.show_image(gold_part, win_name='gold_part')
+            cv2_utils.show_image(gold_part, win_name='gold_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
                 tx = large_map.TP_BTN_RECT[0]
@@ -145,6 +150,7 @@ class ChooseTransportPoint(Operation):
             sm_offset_y = self.tp.lm_pos[1] - offset.y
             crop_screen_map = cv2_utils.crop_image(screen_map, (sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100))
             result: MatchResultList = self.ctx.im.match_template(crop_screen_map, self.tp.template_id, threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
+            cv2_utils.show_image(crop_screen_map, result)
 
             if result.max is not None:
                 return MatchResult(result.max.confidence,

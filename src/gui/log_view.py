@@ -2,6 +2,7 @@ import logging
 
 import flet as ft
 
+from basic import os_utils
 from basic.log_utils import log
 
 
@@ -10,6 +11,7 @@ class GuiHandler(logging.Handler):
         super().__init__()
         self.list_view = list_view
         self.sp = sp
+        self.setLevel(logging.DEBUG if os_utils.is_debug() else logging.INFO)
 
     def emit(self, record):
         if self.list_view.page is not None:

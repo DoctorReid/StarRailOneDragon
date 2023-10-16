@@ -63,15 +63,16 @@ def is_fast_battle_on(screen: MatLike, im: ImageMatcher):
     return is_battle_ctrl_on(screen, im, 'battle_ctrl_03')
 
 
-def is_battle_ctrl_on(screen: MatLike, im: ImageMatcher, template_id: str) -> bool:
+def is_battle_ctrl_on(screen: MatLike, im: ImageMatcher, template_id: str, is_on: bool = True) -> bool:
     """
     判断右上角图标是否点亮
     :param screen: 屏幕截图
     :param im: 图片匹配器
     :param template_id: 模板id
+    :param is_on: 是否激活
     :return: 右上角图标是否点亮
     """
-    r = match_battle_ctrl(screen, im, template_id, is_on=True)
+    r = match_battle_ctrl(screen, im, template_id, is_on=is_on)
     return r is not None
 
 

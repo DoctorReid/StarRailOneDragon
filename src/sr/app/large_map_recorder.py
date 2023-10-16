@@ -24,7 +24,7 @@ class LargeMapRecorder(Application):
     """
 
     def __init__(self, ctx: Context, region: Region):
-        self.ctx: Context = ctx
+        super().__init__(ctx)
         self.ops = [OpenMap(ctx), ScaleLargeMap(ctx, -5), ChoosePlanet(ctx, region.planet), ChooseRegion(ctx, region)]
         self.planet = region.planet
         self.region = region
@@ -109,6 +109,7 @@ class LargeMapRecorder(Application):
 if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
-    r = constants.map.P02_R07
+    ctx.init_all(renew=True)
+    r = constants.map.P02_R03
     app = LargeMapRecorder(ctx, r)
     app.run()

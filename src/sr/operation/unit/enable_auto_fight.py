@@ -1,5 +1,7 @@
 import time
 
+from basic import os_utils
+from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import battle
@@ -31,6 +33,8 @@ class EnableAutoFight(Operation):
 
         if not battle.is_fast_battle_on(screen, self.ctx.im):
             log.info('检测到未启动二倍速战斗')
+            if os_utils.is_debug():
+                save_debug_image(screen)
             r = battle.match_battle_ctrl(screen, self.ctx.im, 'battle_ctrl_03', is_on=False)
             if r is not None:
                 log.info('启动二倍速战斗')

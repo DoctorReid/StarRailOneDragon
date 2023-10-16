@@ -324,7 +324,7 @@ def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = Tru
     return result
 
 
-def crop_image(img, rect: tuple, copy: bool = False):
+def crop_image(img, rect: tuple, copy: bool = False):  # TODO 这里会改变了矩形区域
     """
     裁剪图片
     :param img: 原图

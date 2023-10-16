@@ -19,7 +19,6 @@ class Operation:
         self.try_times: int = try_times
         self.op_round: int = 0
         self.ctx: Context = ctx
-        self.round_running: bool = False
         ctx.register_pause(self, self.on_pause, self.on_resume)
 
     def execute(self) -> bool:
@@ -31,13 +30,10 @@ class Operation:
             if self.ctx.running == 0:
                 return False
             elif self.ctx.running == 2:
-                self.round_running = False
                 time.sleep(1)
                 continue
-            self.round_running = True
             self.op_round += 1
             result = self.run()
-            self.round_running = False
             if result == Operation.RETRY:
                 continue
             elif result == Operation.SUCCESS:
@@ -60,8 +56,7 @@ class Operation:
         pass
 
     def on_pause(self):
-        while self.round_running:
-            time.sleep(1)
+        pass
 
     def on_resume(self):
         pass

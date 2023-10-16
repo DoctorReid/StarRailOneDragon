@@ -45,7 +45,7 @@ def get_test_cal_pos_image(num: int, prl_id: str, suffix: str = '.png') -> MatLi
     return cv2_utils.read_image(img_path)
 
 
-def save_debug_image(image):
-    path = get_debug_image_path(str(int(round(time.time() * 1000))))
+def save_debug_image(image, prefix: str = ''):
+    path = get_debug_image_path(prefix + str(int(round(time.time() * 1000))))
     log.debug('临时图片保存 %s', path)
     cv2.imwrite(path, image)
