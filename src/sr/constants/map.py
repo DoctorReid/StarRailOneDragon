@@ -17,6 +17,7 @@ P01_KZJ = Planet("kjzht", "空间站")
 P02_YYL = Planet("yll6", "雅利洛")
 P03_XZLF = Planet("zxlf", "罗浮")
 
+PLANET_LIST = [P01_KZJ, P02_YYL, P03_XZLF]
 
 def get_planet_by_cn(cn: str) -> Planet:
     """
@@ -24,8 +25,7 @@ def get_planet_by_cn(cn: str) -> Planet:
     :param cn: 星球中文
     :return: 常量
     """
-    arr = [P01_KZJ, P02_YYL, P03_XZLF]
-    for i in arr:
+    for i in PLANET_LIST:
         if i.cn == cn:
             return i
     return None

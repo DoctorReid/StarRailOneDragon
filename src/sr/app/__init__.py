@@ -1,22 +1,26 @@
+from basic.log_utils import log
 from sr.context import Context
+from sr.operation import Operation
 
 
-class Application:
+class Application(Operation):
 
     def __init__(self, ctx: Context):
-        self.ctx = ctx
-        self.ctx.register_pause(self, self.on_pause, self.on_resume)
+        super().__init__(ctx)
 
     def execute(self) -> bool:
-        result = self.run()
-        self.ctx.unregister(self)
+        if not self.ctx.start_running():
+            self.ctx.stop_running()
+            return False
+        log.info('加载工具中')
+        if not self.ctx.init_all(renew=True):
+            self.ctx.stop_running()
+            return False
+        log.info('加载工具完毕')
+        self.init_app()
+        result: bool = super().execute()
+        self.ctx.stop_running()
         return result
 
-    def run(self) -> bool:
-        pass
-
-    def on_pause(self):
-        pass
-
-    def on_resume(self):
+    def init_app(self):
         pass

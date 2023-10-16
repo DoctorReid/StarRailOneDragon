@@ -28,7 +28,9 @@ class Operation:
         """
         result: int = Operation.RETRY
         while self.op_round < self.try_times:
-            if not self.ctx.running:
+            if self.ctx.running == 0:
+                return False
+            elif self.ctx.running == 2:
                 self.round_running = False
                 time.sleep(1)
                 continue
@@ -59,9 +61,7 @@ class Operation:
 
     def on_pause(self):
         while self.round_running:
-            print('waiting')
             time.sleep(1)
 
     def on_resume(self):
-        print('resume')
         pass

@@ -1,5 +1,6 @@
 import keyboard
 import pyautogui
+from sentry_sdk.integrations import threading
 
 from basic.i18_utils import gt
 from basic.log_utils import log
@@ -16,17 +17,20 @@ class Context:
 
     def __init__(self):
         self.platform: str = 'PC'
-        self.ih: ImageHolder = None
+        self.ih: ImageHolder = ImageHolder()
         self.im: ImageMatcher = None
         self.ocr: OcrMatcher = None
         self.controller: GameController = None
-        self.running: bool = False
+        self.running: int = 0  # 0-停止 1-运行 2-暂停
         self.press_event: dict = {}
         self.pause_callback: dict = {}
         self.resume_callback: dict = {}
+        self.stop_callback: dict = {}
 
         keyboard.on_press(self.on_key_press)
         self.register_key_press('f9', self.switch)
+
+        self.init_status: int = 0
 
     def register_key_press(self, key, callback):
         if key not in self.press_event:
@@ -40,17 +44,39 @@ class Context:
             for callback in self.press_event[k]:
                 callback()
 
+    def start_running(self) -> bool:
+        if self.running != 0:
+            log.error('不处于停止状态 当前状态(%d) 启动失败', self.running)
+            return False
+
+        self.running = 1
+        return True
+
+    def stop_running(self):
+        if self.running == 0:
+            return
+
+        self.running = 0
+        t = threading.Thread(target=self.after_stop)
+        t.start()
+
+    def after_stop(self):
+        for obj_id, callback in self.stop_callback.items():
+            callback()
+
     def switch(self):
-        if self.running:
+        if self.running == 1:
             log.info('暂停运行')
-            self.running = False
+            self.running = 2
             for obj_id, callback in self.pause_callback.items():
                 callback()
-        else:
+        elif self.running == 2:
             log.info('恢复运行')
-            self.running = True
+            self.running = 1
             for obj_id, callback in self.resume_callback.items():
                 callback()
+        else:
+            log.error('不处于运行状态 当前状态(%d) 启动失败', self.running)
 
     def register_pause(self, obj,
                        pause_callback,
@@ -58,29 +84,53 @@ class Context:
         self.pause_callback[id(obj)] = pause_callback
         self.resume_callback[id(obj)] = resume_callback
 
+    def register_stop(self, obj, stop_callback):
+        self.stop_callback[id(obj)] = stop_callback
+
     def unregister(self, obj):
         if id(obj) in self.pause_callback:
             del self.pause_callback[id(obj)]
         if id(obj) in self.resume_callback:
             del self.resume_callback[id(obj)]
 
+    def init_controller(self, renew: bool = False) -> bool:
+        if renew:
+            self.controller = None
+        try:
+            if self.controller is None:
+                if self.platform == 'PC':
+                    win = Window(gt('崩坏：星穹铁道'))
+                    self.controller = PcController(win=win, ocr=self.ocr)
+        except pyautogui.PyAutoGUIException:
+            log.error('未开打游戏')
+            return False
+        return True
 
-global_context: Context = None
+    def init_image_matcher(self, renew: bool = False) -> bool:
+        if renew:
+            self.im = None
+        if self.im is None:
+            self.im = CvImageMatcher(self.ih)
+        return True
+
+    def init_ocr_matcher(self, renew: bool = False) -> bool:
+        if renew:
+            self.ocr = None
+        if self.ocr is None:
+            self.ocr = CnOcrMatcher()
+        return True
+
+    def init_all(self, renew: bool = False) -> bool:
+        result: bool = True
+        result = result and self.init_image_matcher(renew)
+        result = result and self.init_ocr_matcher(renew)
+        result = result and self.init_controller(renew)
+        return result
 
 
-def get_context(win_title: str='崩坏：星穹铁道') -> Context:
+global_context: Context = Context()
+
+
+def get_context() -> Context:
     global global_context
-    if global_context is not None:
-        return global_context
-    try:
-        win = Window(gt(win_title))
-        # win = Window(gt('Clash for Windows'))
-    except pyautogui.PyAutoGUIException:
-        log.error('未开打游戏')
-        exit(1)
-    global_context = Context()
-    global_context.ih = ImageHolder()
-    global_context.im = CvImageMatcher(global_context.ih)
-    global_context.ocr = CnOcrMatcher()
-    global_context.controller = PcController(win=win, ocr=global_context.ocr)
     return global_context

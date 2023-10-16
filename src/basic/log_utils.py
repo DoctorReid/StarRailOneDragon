@@ -6,7 +6,7 @@ from basic import os_utils
 
 
 def get_logger():
-    logger = logging.getLogger()
+    logger = logging.getLogger('StarRailAutoProxy')
     logger.handlers.clear()
     logger.setLevel(logging.DEBUG)
 

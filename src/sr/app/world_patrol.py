@@ -4,6 +4,7 @@ from typing import List
 from basic import os_utils
 from basic.log_utils import log
 from sr import constants
+from sr.app import Application
 from sr.config import ConfigHolder
 from sr.constants.map import TransportPoint, region_with_another_floor
 from sr.context import Context, get_context
@@ -55,14 +56,21 @@ class WorldPatrolRecord(ConfigHolder):
         self.write_config()
 
 
-class WorldPatrol(Operation):
+class WorldPatrol(Application):
 
     def __init__(self, ctx: Context, restart: bool = False):
         super().__init__(ctx)
         self.route_list = []
+        self.first: bool = True
+        self.restart: bool = restart
+        self.record: WorldPatrolRecord = None
+        self.route_iterator = iter(self.route_list)
 
-        dir = os_utils.get_path_under_work_dir('config', 'world_patrol')
-        for filename in os.listdir(dir):
+    def init_app(self):
+        self.route_list = []
+
+        dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol')
+        for filename in os.listdir(dir_path):
             if filename == 'record.yml':
                 continue
             idx = filename.find('.yml')
@@ -71,10 +79,8 @@ class WorldPatrol(Operation):
             self.route_list.append(filename[0:idx])
 
         log.info('共加载 %d 条线路', len(self.route_list))
-
-        self.record = WorldPatrolRecord(os_utils.get_dt(), restart=restart)
+        self.record = WorldPatrolRecord(os_utils.get_dt(), restart=self.restart)
         log.info('之前已完成线路 %d 条', len(self.record.finished))
-        self.first: bool = True
 
         self.route_iterator = iter(self.route_list)
 
