@@ -19,6 +19,7 @@ P03_XZLF = Planet("zxlf", "罗浮")
 
 PLANET_LIST = [P01_KZJ, P02_YYL, P03_XZLF]
 
+
 def get_planet_by_cn(cn: str) -> Planet:
     """
     根据星球的中文 获取对应常量
@@ -87,8 +88,14 @@ P02_R03 = Region("bytl", "边缘通路", P02_YYL)
 P02_R07 = Region("ydl", "永冬岭", P02_YYL)
 P02_R09_MDZ = Region("mdz", "铆钉镇", P02_YYL)
 
+PLANET_2_REGION = {
+    P01_KZJ.id: [P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2],
+    P02_YYL.id: [P02_R01_XZQ, P02_R02, P02_R03, P02_R07, P02_R09_MDZ],
+    P03_XZLF.id: []
+}
 
-def get_region_by_cn(cn: str, planet: Planet = None, level: int = 0) -> Region:
+
+def get_region_by_cn(cn: str, planet: Planet, level: int = 0) -> Region:
     """
     根据区域的中文 获取对应常量
     :param cn: 区域的中文
@@ -96,15 +103,8 @@ def get_region_by_cn(cn: str, planet: Planet = None, level: int = 0) -> Region:
     :param level: 层数
     :return: 常量
     """
-    arr = [
-        R0_GJCX,
-        P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2,
-        P02_R01_XZQ, P02_R02, P02_R03, P02_R07, P02_R09_MDZ,
-    ]
-    for i in arr:
+    for i in PLANET_2_REGION[planet.id]:
         if i.cn != cn:
-            continue
-        if planet is not None and i.planet != planet:
             continue
         if level is not None and i.level != level:
             continue
@@ -210,7 +210,7 @@ def region_with_another_floor(region: Region, level: int) -> Region:
     return get_region_by_cn(region.cn, region.planet, level)
 
 
-region_2_sp = {
+REGION_2_SP = {
     P01_R01_ZKCD.get_pr_id(): [P01_R01_SP03_HTBGS],
     P01_R02_JZCD.get_pr_id(): [P01_R02_SP01_JKS],
     P01_R03_SRCD_L1.get_pr_id(): [P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07],
@@ -228,7 +228,7 @@ def get_sp_type_in_rect(region: Region, rect: tuple) -> dict:
     :param rect: 矩形 为空时返回全部
     :return: 特殊点
     """
-    sp_list = region_2_sp.get(region.get_pr_id())
+    sp_list = REGION_2_SP.get(region.get_pr_id())
     sp_map = {}
     for sp in sp_list:
         if rect is None or cal_utils.in_rect(sp.lm_pos, rect):

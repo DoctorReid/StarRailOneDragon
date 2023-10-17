@@ -6,7 +6,6 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.constants.map import Planet
 from sr.context import Context
-from sr.control import GameController
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
 

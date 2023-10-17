@@ -2,20 +2,13 @@ import flet as ft
 from flet_core import alignment
 
 from basic.i18_utils import gt
-from gui import world_patrol_view, log_view, calibrator_view
+from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view
 from sr.context import get_context
 
 
 def run_app(page: ft.Page):
     ctx = get_context()
-
-    title_container = ft.Container(
-        content=ft.Text(value=gt('崩坏：星穹铁道 自动代理器'), color="blue"),
-        padding=5,
-        alignment=alignment.center
-    )
-
-    page.add(title_container)
+    page.title = gt('崩坏：星穹铁道 自动代理器')
 
     display_part = ft.Container(padding=5, content=world_patrol_view.get(page, ctx))
 
@@ -24,6 +17,8 @@ def run_app(page: ft.Page):
             display_part.content = world_patrol_view.get(page, ctx)
         elif e.control.selected_index == 1:
             display_part.content = calibrator_view.get(page, ctx)
+        elif e.control.selected_index == 2:
+            display_part.content = world_patrol_draft_route_view.get(page, ctx).component
         else:
             display_part.content = None
         display_part.update()

@@ -184,6 +184,7 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
     else:
         return None
 
+
 def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                    lm_rect: tuple = None,
                                    show: bool = False) -> MatchResult:
@@ -419,6 +420,7 @@ def cal_character_pos_by_edge_mask(im: ImageMatcher,
         return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target_scale)
     else:
         return None
+
 
 def merge_road_mask(road_mask, edge_mask):
     mask = np.full(road_mask.shape, fill_value=127, dtype=np.uint8)

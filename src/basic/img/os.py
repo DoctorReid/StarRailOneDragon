@@ -13,6 +13,10 @@ def get_debug_image_dir():
     return os_utils.get_path_under_work_dir('.debug', 'images')
 
 
+def get_debug_world_patrol_dir():
+    return os_utils.get_path_under_work_dir('.debug', 'world_patrol')
+
+
 def get_debug_image_path(filename, suffix: str = '.png') -> str:
     return os.path.join(get_debug_image_dir(), filename + suffix)
 
