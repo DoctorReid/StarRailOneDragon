@@ -1,0 +1,14 @@
+planet: '雅利洛'
+region: '残响回廊'
+level: 0
+tp: '筑城领域'
+route:
+  - op: 'move'
+    data: [771, 399]
+  - op: 'move'
+    data: [802, 397]
+  - op: 'move'
+    data: [800, 249]
+  - op: 'move'
+    data: [769, 248]
+  - op: 'patrol'

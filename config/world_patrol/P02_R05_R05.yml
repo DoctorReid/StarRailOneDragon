@@ -1,0 +1,18 @@
+planet: '雅利洛'
+region: '残响回廊'
+level: 0
+tp: '古战场前线'
+route:
+  - op: 'move'
+    data: [490, 1232]
+  - op: 'move'
+    data: [488, 1176]
+  - op: 'move'
+    data: [373, 1176]
+  - op: 'move'
+    data: [319, 1190]
+  - op: 'move'
+    data: [265, 1190]
+  - op: 'move'
+    data: [263, 1304]
+  - op: 'patrol'

@@ -1,0 +1,18 @@
+planet: '雅利洛'
+region: '残响回廊'
+level: 0
+tp: '鸣雷之形'
+route:
+  - op: 'move'
+    data: [525, 610]
+  - op: 'move'
+    data: [550, 612]
+  - op: 'move'
+    data: [556, 540]
+  - op: 'move'
+    data: [658, 546]
+  - op: 'move'
+    data: [740, 627]
+  - op: 'move'
+    data: [701, 662]
+  - op: 'patrol'

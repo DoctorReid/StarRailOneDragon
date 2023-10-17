@@ -1,0 +1,8 @@
+planet: '雅利洛'
+region: '残响回廊'
+level: 0
+tp: '作战指挥室'
+route:
+  - op: 'move'
+    data: [482, 930]
+  - op: 'patrol'
