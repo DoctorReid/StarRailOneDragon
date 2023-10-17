@@ -42,7 +42,7 @@ class Interactive(Operation):
         u = 255
         lower_color = np.array([l, l, l], dtype=np.uint8)
         upper_color = np.array([u, u, u], dtype=np.uint8)
-        white_part = cv2.inRange(cv2_utils.crop_image(screen, Interactive.rect), lower_color, upper_color)  # 提取白色部分方便匹配
+        white_part = cv2.inRange(cv2_utils.crop_image(screen, Interactive.rect)[0], lower_color, upper_color)  # 提取白色部分方便匹配
         # cv2_utils.show_image(white_part, wait=0)
 
         ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.cn)])

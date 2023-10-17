@@ -149,7 +149,7 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
     """
     template_w = mm_info.gray.shape[1]
     template_h = mm_info.gray.shape[0]
-    source = lm_info.origin if lm_rect is None else cv2_utils.crop_image(lm_info.origin, lm_rect)
+    source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     target: MatchResult = None
     target_scale = None
     # 使用道路掩码
@@ -270,7 +270,7 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     """
     template_w = mm_info.gray.shape[1]
     template_h = mm_info.gray.shape[0]
-    source = lm_info.gray if lm_rect is None else cv2_utils.crop_image(lm_info.gray, lm_rect)
+    source, lm_rect = cv2_utils.crop_image(lm_info.gray, lm_rect)
     target: MatchResult = None
     target_scale = None
     # 使用道路掩码
@@ -327,7 +327,7 @@ def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
     template_w = mm_info.gray.shape[1]
     template_h = mm_info.gray.shape[0]
     source = merge_road_mask(lm_info.mask, lm_info.edge)
-    source = source if lm_rect is None else cv2_utils.crop_image(source, lm_rect)
+    source, lm_rect = cv2_utils.crop_image(source, lm_rect)
     target: MatchResult = None
     target_scale = None
     # 使用道路掩码
@@ -383,7 +383,7 @@ def cal_character_pos_by_edge_mask(im: ImageMatcher,
     """
     template_w = mm_info.gray.shape[1]
     template_h = mm_info.gray.shape[0]
-    source = lm_info.edge if lm_rect is None else cv2_utils.crop_image(lm_info.edge, lm_rect)
+    source, lm_rect = cv2_utils.crop_image(lm_info.edge, lm_rect)
     target: MatchResult = None
     target_scale = None
     # 使用道路掩码

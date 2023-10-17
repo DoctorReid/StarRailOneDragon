@@ -88,7 +88,7 @@ class LargeMapRecorder(Application):
             if not self.ctx.running:
                 return
             screen = self.ctx.controller.screenshot()
-            map_part = cv2_utils.crop_image(screen, large_map.CUT_MAP_RECT)
+            map_part, _ = cv2_utils.crop_image(screen, large_map.CUT_MAP_RECT)
             cv2_utils.show_image(map_part, win_name='screenshot_horizontally_map_part')
             if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], map_part):
                 img.append(map_part)

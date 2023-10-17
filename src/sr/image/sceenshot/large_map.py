@@ -165,7 +165,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     """
     lower = 240
     upper = 255
-    part = cv2_utils.crop_image(screen, REGION_LIST_RECT)
+    part, _ = cv2_utils.crop_image(screen, REGION_LIST_RECT)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
     km = ocr.run_ocr(bw)
     if len(km) > 0:
@@ -183,7 +183,7 @@ def get_active_level(screen: MatLike, ocr: OcrMatcher) -> str:
     """
     lower = 40
     upper = 80
-    part = cv2_utils.crop_image(screen, LEVEL_LIST_PART)
+    part, _ = cv2_utils.crop_image(screen, LEVEL_LIST_PART)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
     km = ocr.run_ocr(bw)
     if len(km) > 0:

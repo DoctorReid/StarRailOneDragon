@@ -83,12 +83,12 @@ class ChooseTransportPoint(Operation):
         :param screen: 屏幕截图
         :return: 是否点击传送
         """
-        tp_btn_part = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
+        tp_btn_part, _ = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
         tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')], threshold=0.4)
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
-            tp_name_part = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
+            tp_name_part, _ = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
             lower_color = np.array([120, 170, 190], dtype=np.uint8)
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
@@ -148,14 +148,15 @@ class ChooseTransportPoint(Operation):
         if self.tp.lm_pos is not None:
             sm_offset_x = self.tp.lm_pos[0] - offset.x
             sm_offset_y = self.tp.lm_pos[1] - offset.y
-            crop_screen_map = cv2_utils.crop_image(screen_map, (sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100))
+            sp_rect = (sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100)
+            crop_screen_map, sp_rect = cv2_utils.crop_image(screen_map, sp_rect)
             result: MatchResultList = self.ctx.im.match_template(crop_screen_map, self.tp.template_id, threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
             cv2_utils.show_image(crop_screen_map, result)
 
             if result.max is not None:
                 return MatchResult(result.max.confidence,
-                                   result.max.x + sm_offset_x - 100,
-                                   result.max.y + sm_offset_y - 100,
+                                   result.max.x + sp_rect[0],
+                                   result.max.y + sp_rect[1],
                                    result.max.w,
                                    result.max.h
                                    )

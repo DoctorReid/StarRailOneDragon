@@ -50,7 +50,7 @@ def _test_get_active_region_name():
 def _test_get_active_level():
     ocr = CnOcrMatcher()
     screen = get_test_image('level', sub_dir='large_map')
-    part = cv2_utils.crop_image(screen, large_map.LEVEL_LIST_PART)
+    part, _ = cv2_utils.crop_image(screen, large_map.LEVEL_LIST_PART)
     cv2_utils.show_image(part, win_name='part')
     level_str = large_map.get_active_level(screen, ocr)
     print(level_str)

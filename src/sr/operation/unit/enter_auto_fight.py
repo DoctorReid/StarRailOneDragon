@@ -51,10 +51,10 @@ class EnterAutoFight(Operation):
                 log.info('警报解除 索敌结束')
                 return Operation.SUCCESS
         else:
-            log.info('检测到警报 尝试攻击')
             self.last_alert_time = now_time
 
         if now_time - self.last_attack_time > EnterAutoFight.attack_interval:
+            log.info('检测到警报 尝试攻击')
             self.last_attack_time = now_time
             ctrl.initiate_attack()
         return Operation.WAIT

@@ -324,7 +324,7 @@ def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = Tru
     return result
 
 
-def crop_image(img, rect: tuple, copy: bool = False):  # TODO 这里会改变了矩形区域
+def crop_image(img, rect: tuple = None, copy: bool = False):
     """
     裁剪图片
     :param img: 原图
@@ -332,6 +332,9 @@ def crop_image(img, rect: tuple, copy: bool = False):  # TODO 这里会改变了
     :param copy: 是否复制新图
     :return: 裁剪后图片
     """
+    if rect is None:
+        return (img.copy() if copy else img), None
+
     x1, y1, x2, y2 = rect
     if x1 < 0:
         x1 = 0
@@ -345,7 +348,7 @@ def crop_image(img, rect: tuple, copy: bool = False):  # TODO 这里会改变了
     x1, y1 = int(x1), int(y1)
     x2, y2 = int(x2), int(y2)
     crop = img[y1: y2, x1: x2]
-    return crop.copy() if copy else crop
+    return (crop.copy() if copy else crop), (x1, y1, x2, y2)
 
 
 def dilate(img, k):

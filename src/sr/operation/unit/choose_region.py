@@ -100,7 +100,7 @@ class ChooseRegion(Operation):
         :param target_level_str: 层数
         :return:
         """
-        part = cv2_utils.crop_image(screen, large_map.LEVEL_LIST_PART)
+        part, _ = cv2_utils.crop_image(screen, large_map.LEVEL_LIST_PART)
         return self.ctx.controller.click_ocr(part, target_level_str, click_offset=large_map.LEVEL_LIST_PART[:2],
                                              same_word=True)
 
@@ -110,7 +110,7 @@ class ChooseRegion(Operation):
         :param screen:
         :return:
         """
-        tp_btn_part = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
+        tp_btn_part, _ = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
         tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')], threshold=0.4)
         if len(tp_btn_ocr) > 0:
