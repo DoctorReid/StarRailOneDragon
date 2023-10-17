@@ -33,12 +33,12 @@ class CalibratorView:
             ft.Container(content=ctrl_row)
         ], horizontal_alignment=CrossAxisAlignment.CENTER)
 
-        self.whole = ft.Column(spacing=0, horizontal_alignment=CrossAxisAlignment.CENTER,
-                               expand=True,
-                               controls=[
-                                   ft.Container(expand=True),
-                                   ft.Container(content=progress_col, expand=True, alignment=ft.alignment.bottom_center),
-                               ])
+        self.component = ft.Column(
+            spacing=0, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
+            controls=[
+                ft.Container(expand=True),
+                ft.Container(content=progress_col, expand=True, alignment=ft.alignment.bottom_center),
+            ])
 
     def start(self, e):
         self.running_status.value = gt('运行中')
@@ -106,4 +106,4 @@ def get(page: ft.Page, ctx: Context):
     global gv
     if gv is None:
         gv = CalibratorView(page, ctx)
-    return gv.whole
+    return gv

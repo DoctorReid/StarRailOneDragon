@@ -1,8 +1,11 @@
 import flet as ft
+import os
+
 from flet_core import CrossAxisAlignment, MainAxisAlignment
 from sentry_sdk.integrations import threading
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.app.world_patrol import WorldPatrol
 from sr.context import Context
 
@@ -25,20 +28,23 @@ class WorldPatrolView:
             ft.Container(content=self.stop_btn),
         ], alignment=MainAxisAlignment.CENTER)
 
+        self.shutdown_check = ft.Checkbox(label=gt("结束后关机"), value=False, on_change=self.on_shutdown_changed)
+
         self.running = ft.ProgressRing(width=16, height=16, stroke_width=2, visible=False)
         self.running_status = ft.Text(value=gt('未开始'))
         progress_col = ft.Column(controls=[
             ft.Container(content=self.running, height=20),
             ft.Container(content=self.running_status),
-            ft.Container(content=ctrl_row)
+            ft.Container(content=ctrl_row),
+            ft.Container(content=self.shutdown_check)
         ], horizontal_alignment=CrossAxisAlignment.CENTER)
 
-        self.whole = ft.Column(spacing=0, horizontal_alignment=CrossAxisAlignment.CENTER,
-                               expand=True,
-                               controls=[
-                                   ft.Container(expand=True),
-                                   ft.Container(content=progress_col, expand=True, alignment=ft.alignment.bottom_center),
-                               ])
+        self.component = ft.Column(
+            spacing=0, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
+            controls=[
+                ft.Container(expand=True),
+                ft.Container(content=progress_col, expand=True, alignment=ft.alignment.bottom_center),
+            ])
 
     def start(self, e):
         self.running_status.value = gt('运行中')
@@ -98,6 +104,16 @@ class WorldPatrolView:
 
         self.ctx.unregister(self)
 
+        if self.shutdown_check.value:
+            log.info('执行完毕 准备关机')
+            os.system("shutdown /s /t 60")
+
+    def on_shutdown_changed(self, e):
+        if not self.shutdown_check.value:
+            log.info('已取消关机计划')
+            os.system("shutdown /a")
+
+
 
 wpv: WorldPatrolView = None
 
@@ -106,4 +122,4 @@ def get(page: ft.Page, ctx: Context):
     global wpv
     if wpv is None:
         wpv = WorldPatrolView(page, ctx)
-    return wpv.whole
+    return wpv
