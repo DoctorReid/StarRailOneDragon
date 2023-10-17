@@ -85,12 +85,14 @@ P01_R04_ZYCD_L2 = Region("zycd", "支援舱段", P01_KZJ, 2)
 P02_R01_XZQ = Region("xzq", "行政区", P02_YYL)
 P02_R02 = Region("cjxy", "城郊雪原", P02_YYL)
 P02_R03 = Region("bytl", "边缘通路", P02_YYL)
+P02_R05 = Region("cxhl", "残响回廊", P02_YYL)
 P02_R07 = Region("ydl", "永冬岭", P02_YYL)
 P02_R09_MDZ = Region("mdz", "铆钉镇", P02_YYL)
+P02_R10 = Region("dkq", "大矿区", P02_YYL)
 
 PLANET_2_REGION = {
     P01_KZJ.id: [P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2],
-    P02_YYL.id: [P02_R01_XZQ, P02_R02, P02_R03, P02_R07, P02_R09_MDZ],
+    P02_YYL.id: [P02_R01_XZQ, P02_R02, P02_R03, P02_R05, P02_R07, P02_R09_MDZ, P02_R10],
     P03_XZLF.id: []
 }
 
@@ -170,11 +172,33 @@ P02_R03_SP04 = TransportPoint('hgzx', '幻光之形', P02_R03, 'mm_tp_06', (450,
 P02_R03_SP05 = TransportPoint('frzl', '丰饶之蕾', P02_R03, 'mm_tp_07', (659, 509))
 P02_R03_SP06 = TransportPoint('ytzl', '以太之蕾', P02_R03, 'mm_tp_08', (596, 194))
 
+# 雅利洛 - 残响回廊
+P02_R05_SP01 = TransportPoint('zcly', '筑城领域', P02_R05, 'mm_tp_03', (770, 442))
+P02_R05_SP02 = TransportPoint('zcly', '污染广场', P02_R05, 'mm_tp_03', (381, 655))
+P02_R05_SP03 = TransportPoint('zzzhs', '作战指挥室', P02_R05, 'mm_tp_03', (495, 856))
+P02_R05_SP04 = TransportPoint('gzcqx', '古战场前线', P02_R05, 'mm_tp_03', (570, 1243))
+P02_R05_SP05 = TransportPoint('mlzx', '鸣雷之形', P02_R05, 'mm_tp_06', (526, 640))
+P02_R05_SP06 = TransportPoint('sjzx', '霜晶之形', P02_R05, 'mm_tp_06', (681, 1231))
+P02_R05_SP07 = TransportPoint('pbzj', '漂泊之径', P02_R05, 'mm_tp_09', (654, 242))
+P02_R05_SP08 = TransportPoint('twjq', '铁卫禁区', P02_R05, 'mm_sp02', (389, 626))
+P02_R05_SP09 = TransportPoint('ydl', '永冬岭', P02_R05, 'mm_sp02', (733, 1280))  # 这里旁边站着一个传送到造物之柱的士兵
+
 # 雅利洛 - 永冬岭
 P02_R07_SP01 = TransportPoint('gzc', '古战场', P02_R07, 'mm_tp_03', (366, 776))
 P02_R07_SP02 = TransportPoint('zwpt', '造物平台', P02_R07, 'mm_tp_03', (784, 571))
 P02_R07_SP03 = TransportPoint('rzzj', '睿治之径', P02_R07, 'mm_tp_09', (585, 663))
 P02_R07_SP04 = TransportPoint('cxhl', '残响回廊', P02_R07, 'mm_sp_02', (338, 793))
+
+# 雅利洛 - 大矿区
+P02_R10_SP01 = TransportPoint('rk', '入口', P02_R10, 'mm_tp_03', (333, 166))
+P02_R10_SP02 = TransportPoint('llzbns', '流浪者避难所', P02_R10, 'mm_tp_03', (778, 349))
+P02_R10_SP03 = TransportPoint('fkd', '俯瞰点', P02_R10, 'mm_tp_03', (565, 641))
+P02_R10_SP04 = TransportPoint('zkd', '主矿道', P02_R10, 'mm_tp_03', (530, 757))
+P02_R10_SP05 = TransportPoint('fmzx', '锋芒之形', P02_R10, 'mm_tp_06', (561, 536))
+P02_R10_SP06 = TransportPoint('fzzx', '燔灼之形', P02_R10, 'mm_tp_06', (836, 630))
+P02_R10_SP07 = TransportPoint('xwzl', '虚无之蕾', P02_R10, 'mm_tp_07', (295, 243))
+P02_R10_SP08 = TransportPoint('czzl', '藏珍之蕾', P02_R10, 'mm_tp_08', (554, 686))
+P02_R10_SP09 = TransportPoint('pyz', '磐岩镇', P02_R10, 'mm_sp_02', (351, 144))
 
 
 def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
