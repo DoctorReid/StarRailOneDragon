@@ -11,7 +11,7 @@ from sr.config.game_config import get_game_config
 from sr.constants.map import Region
 from sr.context import Context
 from sr.control import GameController
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, battle
 from sr.image.sceenshot.large_map import get_large_map_rect_by_pos
 from sr.operation import Operation
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
@@ -66,6 +66,12 @@ class MoveDirectly(Operation):
             time.sleep(0.5)  # 等待人物转过来再截图
         now_time = time.time()
         screen = self.screenshot()
+
+        if battle.IN_WORLD != battle.get_battle_status(screen, self.ctx.im):  # 可能被怪攻击了
+            fight = EnterAutoFight(self.ctx)
+            fight.execute()
+            return Operation.WAIT
+
         mm = mini_map.cut_mini_map(screen)
         if self.check_enemy_and_attack(mm):  # 处理完敌人 再重新开始下一轮寻路
             self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间

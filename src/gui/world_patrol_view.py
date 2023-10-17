@@ -66,7 +66,7 @@ class WorldPatrolView:
         self.start_btn.visible = False
         self.pause_btn.visible = False
         self.resume_btn.visible = True
-        self.stop_btn.disabled = True
+        self.stop_btn.disabled = False
         self.page.update()
 
     def pause(self, e):

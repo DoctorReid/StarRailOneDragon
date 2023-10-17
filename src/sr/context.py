@@ -50,6 +50,7 @@ class Context:
             return False
 
         self.running = 1
+        self.controller.init()
         return True
 
     def stop_running(self):

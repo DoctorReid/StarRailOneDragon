@@ -4,7 +4,7 @@ level: 0
 tp: '歌德'
 route:
   - op: 'move'
-    data: [745, 261]
+    data: [750, 261]
   - op: 'move'
     data: [683, 326]
   - op: 'move'

@@ -44,9 +44,9 @@ class Operation:
             except Exception as e:
                 if self.last_screenshot is not None:
                     file_name = save_debug_image(self.last_screenshot, prefix=self.__class__.__name__)
-                    log.error('指令执行出错 %s 相关截图保存至 %s', e, file_name)
+                    log.error('指令执行出错 相关截图保存至 %s', file_name, exc_info=True)
                 else:
-                    log.error('指令执行出错 %s', e)
+                    log.error('指令执行出错', exc_info=True)
                 result = Operation.RETRY
 
             if result == Operation.RETRY:

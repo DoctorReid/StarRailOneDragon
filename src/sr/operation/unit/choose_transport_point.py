@@ -61,7 +61,6 @@ class ChooseTransportPoint(Operation):
 
         if dx == 0 and dy == 0:  # 当前就能找传送点
             target: MatchResult = self.get_tp_pos(screen_map, offset)
-            cv2_utils.show_image(screen_map, target, win_name='2')
             if target is None:  # 没找到的话 随机滑动一下
                 self.random_drag()
             else:
@@ -93,7 +92,7 @@ class ChooseTransportPoint(Operation):
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
             tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.cn)], threshold=0.4)
-            cv2_utils.show_image(gold_part, win_name='gold_part')
+            # cv2_utils.show_image(gold_part, win_name='gold_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
                 tx = large_map.TP_BTN_RECT[0]
@@ -151,7 +150,6 @@ class ChooseTransportPoint(Operation):
             sp_rect = (sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100)
             crop_screen_map, sp_rect = cv2_utils.crop_image(screen_map, sp_rect)
             result: MatchResultList = self.ctx.im.match_template(crop_screen_map, self.tp.template_id, threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
-            cv2_utils.show_image(crop_screen_map, result)
 
             if result.max is not None:
                 return MatchResult(result.max.confidence,
