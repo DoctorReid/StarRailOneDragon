@@ -1,12 +1,8 @@
 import time
 
-from cv2.typing import MatLike
-
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.context import Context, get_context
-from sr.control import GameController
-from sr.image import ImageMatcher
+from sr.context import Context
 from sr.operation import Operation
 
 
@@ -41,7 +37,7 @@ class ScaleLargeMap(Operation):
             return Operation.RETRY
 
     def get_click_pos(self) -> MatchResult:
-        screen = self.ctx.controller.screenshot()
+        screen = self.screenshot()
         template_id = 'plus' if self.scale > 0 else 'minus'
         x1, y1, x2, y2 = ScaleLargeMap.rect
         source = screen[y1:y2, x1:x2]

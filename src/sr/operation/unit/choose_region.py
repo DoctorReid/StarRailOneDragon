@@ -25,8 +25,7 @@ class ChooseRegion(Operation):
         self.region: Region = region
 
     def run(self) -> int:
-        ctrl: GameController = self.ctx.controller
-        screen = ctrl.screenshot()
+        screen = self.screenshot()
 
         planet = large_map.get_planet(screen, self.ctx.ocr)
         if planet is None or planet != self.planet:

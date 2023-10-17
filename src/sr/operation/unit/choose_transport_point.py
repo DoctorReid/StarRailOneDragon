@@ -27,7 +27,7 @@ class ChooseTransportPoint(Operation):
         self.lm_info: LargeMapInfo = self.ctx.ih.get_large_map(self.tp.region)
 
     def run(self) -> int:
-        screen = self.ctx.controller.screenshot()
+        screen = self.screenshot()
 
         # 判断地图中间是否有目标点中文可选
         if self.check_and_click_sp_cn(screen):

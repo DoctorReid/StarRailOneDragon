@@ -36,7 +36,7 @@ class Calibrator(Application):
                 log.error('传送到支援舱段失败 小地图定位校准 失败')
                 return False
 
-            screenshot = self.ctx.controller.screenshot()
+            screenshot = self.screenshot()
         mm_pos: MiniMapPos = mini_map.cal_little_map_pos(screenshot)
         config: GameConfig = get_game_config()
         config.update('mini_map', {
@@ -91,7 +91,7 @@ class Calibrator(Application):
     def _get_current_angle(self):
         self.ctx.controller.move('w')
         time.sleep(1)
-        screen = self.ctx.controller.screenshot()
+        screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
         cv2_utils.show_image(center_arrow_mask, win_name='center_arrow_mask')

@@ -25,8 +25,7 @@ class ChoosePlanet(Operation):
         self.planet: Planet = planet
 
     def run(self) -> int:
-        ctrl: GameController = self.ctx.controller
-        screen = ctrl.screenshot()
+        screen = self.screenshot()
         # 根据左上角判断当前星球是否正确
         planet = large_map.get_planet(screen, self.ctx.ocr)
         if planet is not None and planet.id == self.planet.id:

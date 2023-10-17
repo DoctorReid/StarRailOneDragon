@@ -24,7 +24,7 @@ class EnterAutoFight(Operation):
     def run(self) -> int:
         ctrl: GameController = self.ctx.controller
 
-        screen = ctrl.screenshot()
+        screen = self.screenshot()
 
         now_time = time.time()
         screen_status = battle.get_battle_status(screen, self.ctx.im)

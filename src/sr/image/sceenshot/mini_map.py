@@ -368,8 +368,6 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
     info = MiniMapInfo()
     info.origin = origin
     info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin, im)
-    if info.angle is None and os_utils.is_debug():
-        save_debug_image(origin, prefix='none_angle_')
     info.gray = cv2.cvtColor(origin, cv2.COLOR_BGR2GRAY)
 
     # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
@@ -400,7 +398,7 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
 def get_mini_map_road_mask(origin: MatLike,
                            sp_mask: MatLike = None,
                            arrow_mask: MatLike = None,
-                           angle: int = -1,
+                           angle: int = None,
                            another_floor: bool = True) -> MatLike:
     """
     在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
@@ -469,7 +467,7 @@ def get_mini_map_road_mask(origin: MatLike,
     return real_road_mask
 
 
-def get_mini_map_radio_mask(mm: MatLike, angle: int = -1, another_floor: bool = True):
+def get_mini_map_radio_mask(mm: MatLike, angle: int = None, another_floor: bool = True):
     """
     小地图中心雷达区的掩码
     :param mm: 小地图图片
@@ -482,7 +480,7 @@ def get_mini_map_radio_mask(mm: MatLike, angle: int = -1, another_floor: bool = 
     radius = 55  # 扇形半径 这个半径内
     color = 255  # 扇形颜色（BGR格式）
     thickness = -1  # 扇形边框线宽度（负值表示填充扇形）
-    if angle != -1 and angle is not None:  # 知道当前角度的话 画扇形
+    if angle is not None:  # 知道当前角度的话 画扇形
         start_angle = angle - 45  # 扇形起始角度（以度为单位）
         end_angle = angle + 45  # 扇形结束角度（以度为单位）
         cv2.ellipse(radio_mask, center, (radius, radius), 0, start_angle, end_angle, color, thickness)  # 画扇形

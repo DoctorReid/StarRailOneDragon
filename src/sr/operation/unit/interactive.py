@@ -29,7 +29,7 @@ class Interactive(Operation):
 
     def run(self):
         time.sleep(0.5)  # 稍微等待一下 可能交互按钮还没有出来
-        screen = self.ctx.controller.screenshot()
+        screen = self.screenshot()
         return self.check_on_screen(screen)
 
     def check_on_screen(self, screen: MatLike):
@@ -49,7 +49,7 @@ class Interactive(Operation):
 
         if len(ocr_result) == 0:  # 目前没有交互按钮 尝试左右挪动触发交互
             move = 'wasd'
-            self.ctx.controller.move(move[self.try_times % 4])
+            self.ctx.controller.move(move[self.op_round % 4])
             return Operation.RETRY
         else:
             for r in ocr_result.values():

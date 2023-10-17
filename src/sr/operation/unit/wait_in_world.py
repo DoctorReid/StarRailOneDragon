@@ -19,7 +19,7 @@ class WaitInWorld(Operation):
         super().__init__(ctx, try_times=wait)
 
     def run(self) -> int:
-        screen = self.ctx.controller.screenshot()
+        screen = self.screenshot()
         if battle.IN_WORLD == battle.get_battle_status(screen, self.ctx.im):
             return Operation.SUCCESS
 

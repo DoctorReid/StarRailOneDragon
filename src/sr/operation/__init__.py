@@ -1,5 +1,8 @@
 import time
 
+from cv2.typing import MatLike
+
+from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.context import Context
 
@@ -15,11 +18,12 @@ class Operation:
     WAIT = 2  # 等待 本轮不计入
     FAIL = -1  # 失败
 
-    def __init__(self, ctx: Context, try_times: int = 1):
+    def __init__(self, ctx: Context, try_times: int = 2):
         self.try_times: int = try_times
         self.op_round: int = 0
         self.ctx: Context = ctx
         ctx.register_pause(self, self.on_pause, self.on_resume)
+        self.last_screenshot: MatLike = None
 
     def execute(self) -> bool:
         """
@@ -32,8 +36,19 @@ class Operation:
             elif self.ctx.running == 2:
                 time.sleep(1)
                 continue
+
             self.op_round += 1
-            result = self.run()
+            try:
+                self.last_screenshot = None
+                result = self.run()
+            except Exception as e:
+                if self.last_screenshot is not None:
+                    file_name = save_debug_image(self.last_screenshot, prefix=self.__class__.__name__)
+                    log.error('指令执行出错 %s 相关截图保存至 %s', e, file_name)
+                else:
+                    log.error('指令执行出错 %s', e)
+                result = Operation.RETRY
+
             if result == Operation.RETRY:
                 continue
             elif result == Operation.SUCCESS:
@@ -60,3 +75,11 @@ class Operation:
 
     def on_resume(self):
         pass
+
+    def screenshot(self):
+        """
+        包装一层截图 会在内存中保存上一张截图 方便出错时候保存
+        :return:
+        """
+        self.last_screenshot = self.ctx.controller.screenshot()
+        return self.last_screenshot

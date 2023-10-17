@@ -20,7 +20,7 @@ class OpenMap(Operation):
         ctrl: GameController = self.ctx.controller
         ocr: OcrMatcher = self.ctx.ocr
 
-        screen = ctrl.screenshot()
+        screen = self.screenshot()
         planet = large_map.get_planet(screen, ocr)
         log.info('当前大地图所处星球 %s', planet)
         if planet is not None:  # 左上角找到星球名字的化 证明在在大地图页面了

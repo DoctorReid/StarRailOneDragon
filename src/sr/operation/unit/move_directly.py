@@ -31,14 +31,12 @@ class MoveDirectly(Operation):
                  lm_info: LargeMapInfo,
                  target: tuple,
                  next_lm_info: LargeMapInfo = None,
-                 start: tuple = None,
-                 save_screenshot: bool = False):
+                 start: tuple = None):
         super().__init__(ctx)
         self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
         self.region: Region = lm_info.region
         self.target = target
-        self.save_screenshot = save_screenshot
         self.pos = []
         if start is not None:
             self.pos.append(start)
@@ -55,8 +53,8 @@ class MoveDirectly(Operation):
             if self.stuck_times > 12:
                 log.error('脱困失败')
                 if os_utils.is_debug():
-                    screen = self.ctx.controller.screenshot()
-                    save_debug_image(screen)
+                    screen = self.screenshot()
+                    save_debug_image(screen, prefix=self.__class__.__name__ + "_stuck")
                 return Operation.FAIL
             walk_sec = self.get_rid_of_stuck(self.stuck_times, last_pos)
             self.last_rec_time += walk_sec
@@ -67,9 +65,7 @@ class MoveDirectly(Operation):
             self.ctx.controller.move('w')
             time.sleep(0.5)  # 等待人物转过来再截图
         now_time = time.time()
-        screen = self.ctx.controller.screenshot()
-        if self.save_screenshot:
-            save_debug_image(screen)
+        screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         if self.check_enemy_and_attack(mm):  # 处理完敌人 再重新开始下一轮寻路
             self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
