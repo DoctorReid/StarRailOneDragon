@@ -1,0 +1,38 @@
+planet: '雅利洛'
+region: '大矿区'
+level: 0
+tp: '俯瞰点'
+route:
+  - op: 'move'
+    data: [616, 657]
+  - op: 'move'
+    data: [679, 642]
+  - op: 'move'
+    data: [694, 574]
+  - op: 'move'
+    data: [770, 565]
+  - op: 'move'
+    data: [768, 638]
+  - op: 'move'
+    data: [732, 688]
+  - op: 'move'
+    data: [662, 715]
+  - op: 'move'
+    data: [642, 742]
+  - op: 'move'
+    data: [555, 720]
+  - op: 'move'
+    data: [492, 728]
+  - op: 'move'
+    data: [397, 682]
+  - op: 'move'
+    data: [376, 622]
+  - op: 'move'
+    data: [413, 611]
+  - op: 'move'
+    data: [467, 665]
+  - op: 'move'
+    data: [497, 662]
+  - op: 'move'
+    data: [521, 628]
+  - op: 'patrol'
