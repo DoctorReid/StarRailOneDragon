@@ -33,8 +33,8 @@ class ChoosePlanet(Operation):
         if planet is not None:  # 在大地图
             log.info('当前在大地图 准备选择 星轨航图')
             result = self.open_choose_planet(screen)
-            if not result:
-                log.error('当前左上方无星球信息 右方找不到星轨航图')
+            if not result:  # 当前左上方无星球信息 右方找不到星轨航图 可能被传送点卡住了
+                self.ctx.controller.click(large_map.EMPTY_MAP_POS)
             time.sleep(1)
             return Operation.RETRY
         else:
