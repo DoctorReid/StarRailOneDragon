@@ -29,6 +29,10 @@ class Context:
 
         keyboard.on_press(self.on_key_press)
         self.register_key_press('f9', self.switch)
+        self.register_key_press('f10', self.stop_running)
+        self.register_key_press('f11', self.screenshot)
+        if self.platform == 'PC':
+            self.register_key_press('f12', self.stop_running)
 
         self.init_status: int = 0
 
@@ -100,7 +104,8 @@ class Context:
         try:
             if self.controller is None:
                 if self.platform == 'PC':
-                    win = Window(gt('崩坏：星穹铁道'))
+                    # win = Window(gt('崩坏：星穹铁道'))
+                    win = Window(gt('唯秘'))
                     self.controller = PcController(win=win, ocr=self.ocr)
         except pyautogui.PyAutoGUIException:
             log.error('未开打游戏')
@@ -127,6 +132,14 @@ class Context:
         result = result and self.init_ocr_matcher(renew)
         result = result and self.init_controller(renew)
         return result
+
+    def mouse_position(self):
+        rect = self.controller.win.get_win_rect()
+        pos = pyautogui.position()
+        print(pos.x - rect.x, pos.y - rect.y)
+
+    def screenshot(self):
+        self.controller.screenshot()
 
 
 global_context: Context = Context()

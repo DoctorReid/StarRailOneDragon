@@ -18,9 +18,10 @@ class ScreenRecorder(Application):
     """
 
     def __init__(self, ctx: Context):
+        super().__init__(ctx)
         self.ctrl: GameController = ctx.controller
-        ctx.register_key_press('f10', self.screenshot)
-        ctx.register_key_press('f11', self.mouse_position)
+        ctx.register_key_press('f11', self.screenshot)
+        ctx.register_key_press('f12', self.mouse_position)
 
     def run(self):
         pass

@@ -9,14 +9,17 @@ class Application(Operation):
         super().__init__(ctx)
 
     def execute(self) -> bool:
-        if not self.ctx.start_running():
-            self.ctx.stop_running()
+        if self.ctx.running != 0:
+            log.info('请先结束其他运行中的功能 再启动')
             return False
         log.info('加载工具中')
         if not self.ctx.init_all(renew=True):
             self.ctx.stop_running()
             return False
         log.info('加载工具完毕')
+        if not self.ctx.start_running():
+            self.ctx.stop_running()
+            return False
         self.init_app()
         result: bool = super().execute()
         self.ctx.stop_running()
