@@ -93,11 +93,12 @@ P02_R07 = Region("zwzz", "造物之柱", P02_YYL)
 P02_R08_L2 = Region("jwqsyc", "旧武器试验场", P02_YYL, level=2)
 P02_R09 = Region("pyz", "磐岩镇", P02_YYL)
 P02_R10 = Region("dkq", "大矿区", P02_YYL)
-P02_R11 = Region("mdz", "铆钉镇", P02_YYL)
+P02_R11_L1 = Region("mdz", "铆钉镇", P02_YYL, level=1)
+P02_R11_L2 = Region("mdz", "铆钉镇", P02_YYL, level=2)
 
 PLANET_2_REGION = {
     P01_KZJ.id: [P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2],
-    P02_YYL.id: [P02_R01_L1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R06, P02_R07, P02_R08_L2, P02_R09, P02_R10, P02_R11],
+    P02_YYL.id: [P02_R01_L1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R06, P02_R07, P02_R08_L2, P02_R09, P02_R10, P02_R11_L1, P02_R11_L2],
     P03_XZLF.id: []
 }
 

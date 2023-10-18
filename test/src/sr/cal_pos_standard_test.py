@@ -36,8 +36,8 @@ case_list = [
 
     TestCase(constants.map.P01_R04_ZYCD_L1, (470, 244), 1, True),
 
-    TestCase(constants.map.P02_R07, (488, 687), 1, True),
-    TestCase(constants.map.P02_R07, (488, 687), 2, True),  # 暂时找不到好方法
+    TestCase(constants.map.P02_R06, (488, 687), 1, True),
+    TestCase(constants.map.P02_R06, (488, 687), 2, True),  # 暂时找不到好方法
 ]
 
 
