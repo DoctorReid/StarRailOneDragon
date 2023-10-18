@@ -102,7 +102,7 @@ class LargeMapRecorder(Application):
             if i == 0:
                 merge = img[i]
             else:
-                merge = cv2_utils.concat_horizontally(merge, img[i], decision_width=400)
+                merge = cv2_utils.concat_horizontally(merge, img[i])
         return merge
 
 
@@ -110,6 +110,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = constants.map.P02_R10
+    r = constants.map.P02_R07
     app = LargeMapRecorder(ctx, r)
     app.run()

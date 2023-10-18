@@ -185,7 +185,6 @@ def concat_horizontally(img: MatLike, next_img: MatLike, decision_width: int = 2
     # 截取一个横截面用来匹配 要用中心部分 四周空白较多容易误判
     cx = next_img.shape[1] // 2
     next_part = next_img[:, cx - decision_width:cx + decision_width]
-    show_image(next_part, win_name='next_part')
     result = match_template(img, next_part, 0.8)
     # 找出置信度最高的结果
     r = result.max
