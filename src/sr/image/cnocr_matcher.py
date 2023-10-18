@@ -42,4 +42,5 @@ class CnOcrMatcher(OcrMatcher):
                                                      r['position'][0][1],
                                                      r['position'][2][0] - r['position'][0][0],
                                                      r['position'][2][1] - r['position'][0][1]))
+        log.debug('OCR结果 %s', result_map)
         return result_map

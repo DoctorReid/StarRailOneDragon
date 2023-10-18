@@ -91,7 +91,7 @@ class ChooseTransportPoint(Operation):
             lower_color = np.array([120, 170, 190], dtype=np.uint8)
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
-            tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.cn)], threshold=0.4)
+            tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.ocr_str)], threshold=0.4)
             # cv2_utils.show_image(gold_part, win_name='gold_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
@@ -191,7 +191,7 @@ class ChooseTransportPoint(Operation):
         upper_color = np.array([u, u, u], dtype=np.uint8)
         white_part = cv2.inRange(screen_map, lower_color, upper_color)  # 提取白色部分方便匹配
 
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.cn)])
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.ocr_str)])
 
         for r in ocr_result.values():
             tx = r.max.cx + mx1

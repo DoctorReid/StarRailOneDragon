@@ -124,13 +124,14 @@ def get_region_by_cn(cn: str, planet: Planet, level: int = 0) -> Region:
 
 class TransportPoint:
 
-    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple):
+    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple, ocr_str: str = None):
         self.id: str = id  # 英文 用在找图
         self.cn: str = cn  # 中文 用在OCR
         self.region: Region = region  # 所属区域
         self.planet: Planet = region.planet  # 所属星球
         self.template_id: str = template_id  # 匹配模板
         self.lm_pos: tuple = lm_pos  # 在大地图的坐标
+        self.ocr_str: str = cn if ocr_str is None else ocr_str
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -161,7 +162,7 @@ P01_R03_SP07 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_sp_02', (600, 349))
 P01_R04_SP01 = TransportPoint('dls', '电力室', P01_R04_ZYCD_L2, 'mm_tp_03', (155, 380))
 P01_R04_SP02 = TransportPoint('bjkf', '备件库房', P01_R04_ZYCD_L2, 'mm_tp_03', (424, 206))
 P01_R04_SP03 = TransportPoint('yt', '月台', P01_R04_ZYCD_L2, 'mm_tp_03', (778, 370))
-P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (457, 288))
+P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (457, 288), ocr_str='存护')
 P01_R04_SP05 = TransportPoint('tkdt', '太空电梯', P01_R04_ZYCD_L2, 'mm_sp_02', (105, 345))
 
 # 雅利洛 - 城郊雪原
@@ -175,14 +176,14 @@ P02_R02_SP06 = TransportPoint('lk', '玲可', P02_R02, 'mm_sp_03', (1032, 342))
 # 雅利洛 - 边缘通路
 P02_R03_SP01 = TransportPoint('hcgc', '候车广场', P02_R03, 'mm_tp_03', (598, 832))
 P02_R03_SP02 = TransportPoint('xxgc', '休闲广场', P02_R03, 'mm_tp_03', (690, 480))
-P02_R03_SP03 = TransportPoint('gdjz', '歌德', P02_R03, 'mm_tp_03', (811, 259))
+P02_R03_SP03 = TransportPoint('gdjz', '歌德旧宅', P02_R03, 'mm_tp_03', (811, 259), ocr_str='歌德')
 P02_R03_SP04 = TransportPoint('hgzx', '幻光之形', P02_R03, 'mm_tp_06', (450, 840))
 P02_R03_SP05 = TransportPoint('frzl', '丰饶之蕾', P02_R03, 'mm_tp_07', (659, 509))
 P02_R03_SP06 = TransportPoint('ytzl', '以太之蕾', P02_R03, 'mm_tp_08', (596, 194))
 
 # 雅利洛 - 残响回廊
 P02_R05_SP01 = TransportPoint('zcly', '筑城领域', P02_R05, 'mm_tp_03', (770, 442))
-P02_R05_SP02 = TransportPoint('zcly', '污染广场', P02_R05, 'mm_tp_03', (381, 655))
+P02_R05_SP02 = TransportPoint('wrgc', '污染广场', P02_R05, 'mm_tp_03', (381, 655))
 P02_R05_SP03 = TransportPoint('zzzhs', '作战指挥室', P02_R05, 'mm_tp_03', (495, 856))
 P02_R05_SP04 = TransportPoint('gzcqx', '古战场前线', P02_R05, 'mm_tp_03', (570, 1243))
 P02_R05_SP05 = TransportPoint('mlzx', '鸣雷之形', P02_R05, 'mm_tp_06', (526, 640))
@@ -217,6 +218,7 @@ def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> Tran
         P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05,
         P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06,
         P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06,
+        P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08, P02_R05_SP09,
         P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04,
     ]
 

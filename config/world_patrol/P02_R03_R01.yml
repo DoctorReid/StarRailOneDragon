@@ -1,12 +1,13 @@
 planet: '雅利洛'
 region: '边缘通路'
 level: 0
-tp: '歌德'
+tp: '歌德旧宅'
 route:
   - op: 'move'
     data: [750, 261]
   - op: 'move'
     data: [683, 326]
+  - op: 'patrol'
   - op: 'move'
     data: [690, 354]
   - op: 'move'
@@ -16,9 +17,9 @@ route:
   - op: 'move'
     data: [662, 645]
   - op: 'move'
-    data: [746, 650]
+    data: [746, 630]
   - op: 'move'
-    data: [746, 846]
+    data: [746, 835]
   - op: 'move'
     data: [686, 851]
   - op: 'move'

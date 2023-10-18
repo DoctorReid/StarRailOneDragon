@@ -371,7 +371,11 @@ def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_colo
     :param bg_color: 背景色
     :return:
     """
+    final_mask = np.zeros((height, width), dtype=np.uint8)
     bw = np.where(mask == 255)
+    if len(bw[0]) == 0:  # 遇袭情况下 有可能小地图上使用颜色扣图会完全扣不到 掩码全黑
+        return final_mask
+
     white_pixel_coordinates = list(zip(bw[1], bw[0]))
 
     # 找到最大最小坐标值
@@ -400,8 +404,7 @@ def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_colo
     ccx = width // 2
     ccy = height // 2
 
-    # 移动到 50*50 居中
-    final_mask = np.zeros((height, width), dtype=np.uint8)
+    # 移动到 特定尺寸 居中
     final_mask[ccy-y1:ccy+y2, ccx-x1:ccx+x2] = mask[min_y:max_y, min_x:max_x]
 
     if len(origin.shape) > 2:
