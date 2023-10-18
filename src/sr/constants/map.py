@@ -88,13 +88,13 @@ P02_R02 = Region("cjxy", "城郊雪原", P02_YYL)
 P02_R03 = Region("bytl", "边缘通路", P02_YYL)
 P02_R04 = Region("twjq", "铁卫禁区", P02_YYL)
 P02_R05 = Region("cxhl", "残响回廊", P02_YYL)
-P02_R07 = Region("ydl", "永冬岭", P02_YYL)
+P02_R06 = Region("ydl", "永冬岭", P02_YYL)
 P02_R09_MDZ = Region("mdz", "铆钉镇", P02_YYL)
 P02_R10 = Region("dkq", "大矿区", P02_YYL)
 
 PLANET_2_REGION = {
     P01_KZJ.id: [P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2],
-    P02_YYL.id: [P02_R01_L1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R07, P02_R09_MDZ, P02_R10],
+    P02_YYL.id: [P02_R01_L1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R06, P02_R09_MDZ, P02_R10],
     P03_XZLF.id: []
 }
 
@@ -186,10 +186,10 @@ P02_R05_SP08 = TransportPoint('twjq', '铁卫禁区', P02_R05, 'mm_sp02', (389, 
 P02_R05_SP09 = TransportPoint('ydl', '永冬岭', P02_R05, 'mm_sp02', (733, 1280))  # 这里旁边站着一个传送到造物之柱的士兵
 
 # 雅利洛 - 永冬岭
-P02_R07_SP01 = TransportPoint('gzc', '古战场', P02_R07, 'mm_tp_03', (366, 776))
-P02_R07_SP02 = TransportPoint('zwpt', '造物平台', P02_R07, 'mm_tp_03', (784, 571))
-P02_R07_SP03 = TransportPoint('rzzj', '睿治之径', P02_R07, 'mm_tp_09', (585, 663))
-P02_R07_SP04 = TransportPoint('cxhl', '残响回廊', P02_R07, 'mm_sp_02', (338, 793))
+P02_R06_SP01 = TransportPoint('gzc', '古战场', P02_R06, 'mm_tp_03', (366, 776))
+P02_R06_SP02 = TransportPoint('zwpt', '造物平台', P02_R06, 'mm_tp_03', (784, 571))
+P02_R06_SP03 = TransportPoint('rzzj', '睿治之径', P02_R06, 'mm_tp_09', (585, 663))
+P02_R06_SP04 = TransportPoint('cxhl', '残响回廊', P02_R06, 'mm_sp_02', (338, 793))
 
 # 雅利洛 - 大矿区
 P02_R10_SP01 = TransportPoint('rk', '入口', P02_R10, 'mm_tp_03', (333, 166))
@@ -211,7 +211,7 @@ def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> Tran
         P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05,
         P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06,
         P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06,
-        P02_R07_SP01, P02_R07_SP02, P02_R07_SP03, P02_R07_SP04,
+        P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04,
     ]
 
     for i in arr:
@@ -244,7 +244,7 @@ REGION_2_SP = {
     P02_R02.get_pr_id(): [P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06],
     P02_R03.get_pr_id(): [P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06],
     P02_R05.get_pr_id(): [P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08, P02_R05_SP09],
-    P02_R07.get_pr_id(): [P02_R07_SP01, P02_R07_SP02, P02_R07_SP03, P02_R07_SP04],
+    P02_R06.get_pr_id(): [P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04],
     P02_R10.get_pr_id(): [P02_R10_SP01, P02_R10_SP02, P02_R10_SP03, P02_R10_SP04, P02_R10_SP05, P02_R10_SP06, P02_R10_SP07, P02_R10_SP08, P02_R10_SP09],
 }
 
