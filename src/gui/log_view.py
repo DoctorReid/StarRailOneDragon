@@ -24,7 +24,7 @@ class GuiHandler(logging.Handler):
 
 def get(sp: ft.Page):
     log_list = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
-    log.addHandler(GuiHandler(sp, list_view=log_list))
+    # log.addHandler(GuiHandler(sp, list_view=log_list))
 
     log_view = ft.Container(padding=5, content=log_list)
     return log_view

@@ -3,6 +3,7 @@ from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import MatchResultList, MatchResult
+from basic.log_utils import log
 from sr.image import OcrMatcher
 
 
@@ -14,10 +15,13 @@ class CnOcrMatcher(OcrMatcher):
     def __init__(self,
                  det_model_name: str = 'ch_PP-OCRv2_det',
                  rec_model_name: str = 'densenet_lite_136-fc'):
-        self.ocr = CnOcr(det_model_name=det_model_name,
-                         rec_model_name=rec_model_name,
-                         det_root=os_utils.get_path_under_work_dir('model', 'cnocr'),
-                         rec_root=os_utils.get_path_under_work_dir('model', 'cnstd'))
+        try:
+            self.ocr = CnOcr(det_model_name=det_model_name,
+                             rec_model_name=rec_model_name,
+                             det_root=os_utils.get_path_under_work_dir('model', 'cnocr'),
+                             rec_root=os_utils.get_path_under_work_dir('model', 'cnstd'))
+        except Exception:
+            log.error('OCR模型加载出错', exc_info=True)
 
     def run_ocr(self, image: MatLike, threshold: float = 0.5) -> dict:
         """

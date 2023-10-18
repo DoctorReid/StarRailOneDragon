@@ -49,13 +49,14 @@ class WorldPatrolDraftRouteView:
             controls=[self.switch_level, self.back_btn, self.reset_btn, self.save_btn]
         )
 
+        self.image_width = 1000
         self.map_img = ft.Image(src="a.png", fit=ft.ImageFit.CONTAIN, error_content=ft.Text('等待选择区域'), visible=False)
 
         self.component = ft.Column(
             controls=[
                 ft.Container(content=choose_row, padding=20),
                 ft.Container(content=ctrl_row, padding=20),
-                ft.Container(content=self.map_img, width=800, height=800, on_click=self.on_map_click,
+                ft.Container(content=self.map_img, width=self.image_width, height=self.image_width, on_click=self.on_map_click,
                              alignment=ft.alignment.top_left)
             ],
             scroll=ScrollMode.AUTO
@@ -184,9 +185,9 @@ class WorldPatrolDraftRouteView:
         map_image: MatLike = self.get_original_map_image()
         original_height, original_width = map_image.shape[:2]
         if original_height > original_width:
-            scale = 800 / original_height
+            scale = self.image_width / original_height
         else:
-            scale = 800 / original_width
+            scale = self.image_width / original_width
 
         x = int(e.local_x / scale)
         y = int(e.local_y / scale)

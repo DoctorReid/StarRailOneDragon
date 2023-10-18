@@ -6,3 +6,6 @@ __pycache__
 config/game.yml
 out/
 config/world_patrol/record.yml
+/build
+/dist
+sr-ap.spec

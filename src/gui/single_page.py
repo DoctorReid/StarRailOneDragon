@@ -9,7 +9,7 @@ def run_app(page: ft.Page):
     ctx = get_context()
     page.title = gt('崩坏：星穹铁道 自动代理器') + ' v0.1'
 
-    display_part = ft.Container(padding=5, content=world_patrol_view.get(page, ctx).component)
+    display_part = ft.Container(padding=20, content=world_patrol_view.get(page, ctx).component)
 
     def on_rail_chosen(e):
         if e.control.selected_index == 0:

@@ -58,9 +58,7 @@ class Context:
         return True
 
     def stop_running(self):
-        if self.running == 0:
-            return
-
+        log.info('停止运行')
         self.running = 0
         t = threading.Thread(target=self.after_stop)
         t.start()
@@ -104,12 +102,12 @@ class Context:
         try:
             if self.controller is None:
                 if self.platform == 'PC':
-                    # win = Window(gt('崩坏：星穹铁道'))
-                    win = Window(gt('唯秘'))
+                    win = Window(gt('崩坏：星穹铁道'))
                     self.controller = PcController(win=win, ocr=self.ocr)
         except pyautogui.PyAutoGUIException:
             log.error('未开打游戏')
             return False
+        log.info('加载游戏控制器完毕')
         return True
 
     def init_image_matcher(self, renew: bool = False) -> bool:
@@ -117,6 +115,7 @@ class Context:
             self.im = None
         if self.im is None:
             self.im = CvImageMatcher(self.ih)
+        log.info('加载图片匹配器完毕')
         return True
 
     def init_ocr_matcher(self, renew: bool = False) -> bool:
@@ -124,6 +123,7 @@ class Context:
             self.ocr = None
         if self.ocr is None:
             self.ocr = CnOcrMatcher()
+        log.info('加载OCR识别器完毕')
         return True
 
     def init_all(self, renew: bool = False) -> bool:

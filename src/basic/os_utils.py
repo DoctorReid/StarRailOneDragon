@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime
 
 
@@ -33,7 +34,9 @@ def get_work_dir() -> str:
     :return: 项目根目录
     """
     dir_path = os.path.abspath(__file__)
-    for _ in range(3):
+    # 打包后运行
+    up_times = 2 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') else 3
+    for _ in range(up_times):
         dir_path = os.path.dirname(dir_path)
     return dir_path
 
