@@ -207,9 +207,12 @@ def init_large_map(region: Region, origin: MatLike, im: ImageMatcher, save: bool
         cv2_utils.show_image(info.origin, win_name='origin')
         cv2_utils.show_image(info.gray, win_name='gray')
         cv2_utils.show_image(info.mask, win_name='mask')
+        log.info('地图特殊点坐标')
+        i: int = 0
         for k, v in info.sp_result.items():
             for vs in v:
-                log.info('地图特殊点坐标 %s (%d, %d)', k, vs.cx, vs.cy)
+                log.info("SP%02d = TransportPoint('', '', , '%s', (%d, %d))", i, k, vs.cx, vs.cy)
+                i += 1
         cv2.waitKey(0)
 
         save_large_map_image(info.origin, region, 'origin')
