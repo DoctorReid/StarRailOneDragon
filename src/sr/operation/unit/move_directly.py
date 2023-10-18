@@ -68,8 +68,10 @@ class MoveDirectly(Operation):
         screen = self.screenshot()
 
         if battle.IN_WORLD != battle.get_battle_status(screen, self.ctx.im):  # 可能被怪攻击了
+            self.ctx.controller.stop_moving_forward()
             fight = EnterAutoFight(self.ctx)
             fight.execute()
+            self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
             return Operation.WAIT
 
         mm = mini_map.cut_mini_map(screen)

@@ -10,6 +10,7 @@ route:
   - op: 'move'
     data: [250, 310]
   - op: 'move'
-    data: [210, 310]
+    data: [215, 310]
   - op: 'move'
     data: [200, 400]
+  - op: 'patrol'

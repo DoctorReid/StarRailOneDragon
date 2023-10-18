@@ -26,6 +26,7 @@ class Calibrator(Application):
     def run(self):
         self._check_mini_map_pos()
         self._check_turning_rate()
+        return True
 
     def _check_mini_map_pos(self, screenshot: MatLike = None):
         log.info('[小地图定位校准] 开始')
