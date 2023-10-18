@@ -44,11 +44,7 @@ class ChooseTransportPoint(Operation):
         time.sleep(0.5)
 
         mx1, my1, mx2, my2 = large_map.CUT_MAP_RECT
-        mx1 += 10
-        my1 += 10
-        mx2 -= 10
-        my2 -= 10
-        screen_map = screen[my1: my2, mx1: mx2]  # 这里要截取比录制地图小一点 以免边缘部分匹配不到
+        screen_map = screen[my1: my2, mx1: mx2]
 
         offset: MatchResult = self.get_map_offset(screen_map)
         if offset is None:
