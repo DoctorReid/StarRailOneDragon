@@ -96,7 +96,7 @@ def match_battle_ctrl(screen: MatLike, im: ImageMatcher, template_id: str, is_on
     mask[np.where(g > lower)] = 255
     mask[np.where(r > lower)] = 255
 
-    mr = im.match_template(mask, template_id, template_type='mask', threshold=0.6, ignore_template_mask=True)
+    mr = im.match_template(mask, template_id, template_type='mask', threshold=0.4, ignore_template_mask=True)
     r = mr.max
 
     if r is not None:

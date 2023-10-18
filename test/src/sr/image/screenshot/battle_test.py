@@ -24,6 +24,8 @@ def _test_is_auto_battle_on():
     print(battle.is_auto_battle_on(screen, im))  # false
     screen = get_test_image('all_on', sub_dir='battle')
     print(battle.is_auto_battle_on(screen, im))  # true
+    screen = get_test_image('all_on_2', sub_dir='battle')
+    print(battle.is_auto_battle_on(screen, im))  # true
 
 
 def _test_is_fast_battle_on():
@@ -31,8 +33,10 @@ def _test_is_fast_battle_on():
     print(battle.is_fast_battle_on(screen, im))  # false
     screen = get_test_image('all_on', sub_dir='battle')
     print(battle.is_fast_battle_on(screen, im))  # true
+    screen = get_test_image('all_on_2', sub_dir='battle')
+    print(battle.is_fast_battle_on(screen, im))  # true
 
 
 if __name__ == '__main__':
     im = CvImageMatcher()
-    _test_is_fast_battle_on()
+    _test_is_auto_battle_on()
