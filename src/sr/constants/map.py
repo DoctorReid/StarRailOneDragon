@@ -231,6 +231,11 @@ P02_R06_SP02 = TransportPoint('zwpt', '造物平台', P02_R06, 'mm_tp_03', (784,
 P02_R06_SP03 = TransportPoint('rzzj', '睿治之径', P02_R06, 'mm_tp_09', (585, 663))
 P02_R06_SP04 = TransportPoint('cxhl', '残响回廊', P02_R06, 'mm_sp_02', (338, 793))
 
+# 雅利洛 - 造物之柱
+P02_R07_SP01 = TransportPoint('zwzz-rk', '造物之柱-入口', P02_R07, 'mm_tp_03', (382, 426), ocr_str='入口')
+P02_R07_SP02 = TransportPoint('zwzz-sgc', '造物之柱-施工场', P02_R07, 'mm_tp_03', (660, 616), ocr_str='施工场')
+P02_R07_SP03 = TransportPoint('cxhl', '残响回廊', P02_R07, 'mm_sp_02', (313, 346))
+
 # 雅利洛 - 大矿区
 P02_R10_SP01 = TransportPoint('rk', '入口', P02_R10, 'mm_tp_03', (333, 166))
 P02_R10_SP02 = TransportPoint('llzbns', '流浪者避难所', P02_R10, 'mm_tp_03', (778, 349))
@@ -256,6 +261,7 @@ def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> Tran
         P02_R04_SP01, P02_R04_SP02, P02_R04_SP03, P02_R04_SP04, P02_R04_SP05, P02_R04_SP06, P02_R04_SP07, P02_R04_SP08,
         P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08, P02_R05_SP09,
         P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04,
+        P02_R07_SP01, P02_R07_SP02, P02_R07_SP03,
     ]
 
     for i in arr:
@@ -293,6 +299,7 @@ REGION_2_SP = {
     P02_R04.get_pr_id(): [P02_R04_SP01, P02_R04_SP02, P02_R04_SP03, P02_R04_SP04, P02_R04_SP05, P02_R04_SP06, P02_R04_SP07, P02_R04_SP08],
     P02_R05.get_pr_id(): [P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08, P02_R05_SP09],
     P02_R06.get_pr_id(): [P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04],
+    P02_R07.get_pr_id(): [P02_R07_SP01, P02_R07_SP02, P02_R07_SP03],
     P02_R10.get_pr_id(): [P02_R10_SP01, P02_R10_SP02, P02_R10_SP03, P02_R10_SP04, P02_R10_SP05, P02_R10_SP06, P02_R10_SP07, P02_R10_SP08, P02_R10_SP09],
 }
 
