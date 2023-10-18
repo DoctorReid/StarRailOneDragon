@@ -165,6 +165,28 @@ P01_R04_SP03 = TransportPoint('yt', '月台', P01_R04_ZYCD_L2, 'mm_tp_03', (778,
 P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (457, 288), ocr_str='存护')
 P01_R04_SP05 = TransportPoint('tkdt', '太空电梯', P01_R04_ZYCD_L2, 'mm_sp_02', (105, 345))
 
+# 雅利洛 - 行政区 - L1
+P02_R01_SP01 = TransportPoint('hjgjy', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374))
+P02_R01_SP02 = TransportPoint('zygc', '中央广场', P02_R01_L1, 'mm_tp_03', (487, 806))
+P02_R01_SP03 = TransportPoint('gdbg', '歌德宾馆', P02_R01_L1, 'mm_tp_03', (784, 1173))
+P02_R01_SP04 = TransportPoint('lswhbwg', '历史文化博物馆', P02_R01_L1, 'mm_tp_05', (395, 771))
+P02_R01_SP05 = TransportPoint('cjxy', '城郊雪原', P02_R01_L1, 'mm_sp_02', (485, 370))
+P02_R01_SP06 = TransportPoint('bytl', '边缘通路', P02_R01_L1, 'mm_sp_02', (508, 1113))
+P02_R01_SP07 = TransportPoint('twjq', '铁卫禁区', P02_R01_L1, 'mm_sp_02', (792, 1259))
+P02_R01_SP08 = TransportPoint('shj-s', '售货机-上', P02_R01_L1, 'mm_sp_03', (672, 521), ocr_str='售货机')
+P02_R01_SP09 = TransportPoint('ss', '书商', P02_R01_L1, 'mm_sp_03', (641, 705))
+P02_R01_SP10 = TransportPoint('mbr', '卖报人', P02_R01_L1, 'mm_sp_03', (610, 806))
+P02_R01_SP11 = TransportPoint('xzqsd', '行政区商店', P02_R01_L1, 'mm_sp_03', (639, 906))
+P02_R01_SP12 = TransportPoint('shj-x', '售货机-下', P02_R01_L1, 'mm_sp_03', (697, 1187), ocr_str='售货机')
+P02_R01_SP13 = TransportPoint('hd-cx', '花店-长夏', P02_R01_L1, 'mm_sp_05', (602, 588), ocr_str='花店')
+P02_R01_SP14 = TransportPoint('klbb-s', '克里珀堡-上', P02_R01_L1, 'mm_sp_05', (769, 732), ocr_str='克里珀堡')
+P02_R01_SP15 = TransportPoint('klbb-x', '克里珀堡-下', P02_R01_L1, 'mm_sp_05', (769, 878), ocr_str='克里珀堡')
+P02_R01_SP16 = TransportPoint('jxw-yd', '机械屋-永动', P02_R01_L1, 'mm_sp_05', (727, 918))
+P02_R01_SP17 = TransportPoint('gdbg-rk', '歌德宾馆-入口', P02_R01_L1, 'mm_sp_05', (627, 1152), ocr_str='歌德宾馆')
+# 雅利洛 - 行政区 - B1
+P02_R01_SP18 = TransportPoint('pyz', '磐岩镇', P02_R01_B1, 'mm_sp_02', (641, 778))
+P02_R01_SP19 = TransportPoint('shj-d', '售货机-底', P02_R01_B1, 'mm_sp_03', (516, 864), ocr_str='售货机')
+
 # 雅利洛 - 城郊雪原
 P02_R02_SP01 = TransportPoint('cp', '长坡', P02_R02, 'mm_tp_03', (1035, 319))
 P02_R02_SP02 = TransportPoint('zld', '着陆点', P02_R02, 'mm_tp_03', (1283, 367))
@@ -216,6 +238,8 @@ def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> Tran
         P01_R02_SP01_JKS, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04,
         P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07,
         P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05,
+        P02_R01_SP01, P02_R01_SP02, P02_R01_SP03, P02_R01_SP04, P02_R01_SP05, P02_R01_SP06, P02_R01_SP07, P02_R01_SP08, P02_R01_SP09, P02_R01_SP10,
+        P02_R01_SP11, P02_R01_SP12, P02_R01_SP13, P02_R01_SP14, P02_R01_SP15, P02_R01_SP16, P02_R01_SP17, P02_R01_SP18, P02_R01_SP19,
         P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06,
         P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06,
         P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08, P02_R05_SP09,
@@ -249,6 +273,9 @@ REGION_2_SP = {
     P01_R02_JZCD.get_pr_id(): [P01_R02_SP01_JKS],
     P01_R03_SRCD_L1.get_pr_id(): [P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07],
     P01_R04_ZYCD_L1.get_pr_id(): [P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05],
+    P02_R01_L1.get_pr_id(): [
+        P02_R01_SP01, P02_R01_SP02, P02_R01_SP03, P02_R01_SP04, P02_R01_SP05, P02_R01_SP06, P02_R01_SP07, P02_R01_SP08, P02_R01_SP09, P02_R01_SP10,
+        P02_R01_SP11, P02_R01_SP12, P02_R01_SP13, P02_R01_SP14, P02_R01_SP15, P02_R01_SP16, P02_R01_SP17, P02_R01_SP18, P02_R01_SP19],
     P02_R02.get_pr_id(): [P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06],
     P02_R03.get_pr_id(): [P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06],
     P02_R05.get_pr_id(): [P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08, P02_R05_SP09],
