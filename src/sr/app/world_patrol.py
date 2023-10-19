@@ -114,9 +114,12 @@ class WorldPatrol(Application):
         last_region = route.tp.region
         lm_info = large_map.analyse_large_map(last_region, self.ctx.ih)
         current_pos = route.tp.lm_pos
-        for route_item in route.route_list:
+        for i in range(len(route.route_list)):
+            route_item = route.route_list[i]
+            next_route_item = route.route_list[i + 1] if i < len(route.route_list) - 1 else None
             if route_item['op'] == 'move':
-                result, next_pos, next_lm_info = self.move(route_item['data'], lm_info, current_pos)
+                result, next_pos, next_lm_info = self.move(route_item['data'], lm_info, current_pos,
+                                                           next_route_item is not None and next_route_item['op'] != 'move')
                 if not result:
                     log.error('寻路失败 即将跳过本次路线 %s', route_id)
                     return
@@ -151,12 +154,13 @@ class WorldPatrol(Application):
         self.record.finished.append(route_id)
         self.record.save()
 
-    def move(self, p, lm_info: LargeMapInfo, current_pos):
+    def move(self, p, lm_info: LargeMapInfo, current_pos, stop_afterwards: bool):
         """
         移动到某个点
-        :param p:
-        :param lm_info:
-        :param current_pos:
+        :param p: 下一个目标点
+        :param lm_info: 小地图信息
+        :param current_pos: 当前位置
+        :param stop_afterwards: 是否最后停止
         :return:
         """
         target_pos = (p[0], p[1])
@@ -165,7 +169,7 @@ class WorldPatrol(Application):
             next_region = region_with_another_floor(lm_info.region, p[2])
             next_lm_info = large_map.analyse_large_map(next_region, self.ctx.ih)
         op = MoveDirectly(self.ctx, lm_info, next_lm_info=next_lm_info,
-                          target=target_pos, start=current_pos)
+                          target=target_pos, start=current_pos, stop_afterwards=stop_afterwards)
 
         result = op.execute()
 

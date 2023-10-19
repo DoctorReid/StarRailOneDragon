@@ -31,7 +31,8 @@ class MoveDirectly(Operation):
                  lm_info: LargeMapInfo,
                  target: tuple,
                  next_lm_info: LargeMapInfo = None,
-                 start: tuple = None):
+                 start: tuple = None,
+                 stop_afterwards: bool = True):
         super().__init__(ctx)
         self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
@@ -43,6 +44,7 @@ class MoveDirectly(Operation):
         self.stuck_times = 0  # 被困次数
         self.last_rec_time = time.time()  # 上一次记录坐标的时间
         self.no_pos_times = 0
+        self.stop_afterwards = stop_afterwards  # 最后是否停止前进
 
     def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
@@ -107,11 +109,12 @@ class MoveDirectly(Operation):
 
         if basic.cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             log.info('目标点已到达 %s', self.target)
-            self.ctx.controller.stop_moving_forward()
+            if self.stop_afterwards:
+                self.ctx.controller.stop_moving_forward()
             return Operation.SUCCESS
 
         self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
-        time.sleep(0.5)
+        time.sleep(0.5)  # 等待人物转过来再进行下一轮
 
         if now_time - self.last_rec_time > self.rec_pos_interval:
             self.pos.append(next_pos)
