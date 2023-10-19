@@ -49,6 +49,7 @@ class MoveDirectly(Operation):
     def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
 
+        # 通过第一个坐标和最后一个坐标的距离 判断是否困住了
         if len(self.pos) >= MoveDirectly.max_len and \
                 basic.cal_utils.distance_between(self.pos[0], self.pos[len(self.pos) - 1]) < MoveDirectly.stuck_distance:
             self.stuck_times += 1
@@ -63,13 +64,15 @@ class MoveDirectly(Operation):
         else:
             self.stuck_times = 0
 
+        # 如果使用小箭头计算方向 则需要前进一步 保证小箭头方向就是人物朝向
         if not self.ctx.controller.is_moving:
             self.ctx.controller.move('w')
             time.sleep(0.5)  # 等待人物转过来再截图
         now_time = time.time()
         screen = self.screenshot()
 
-        if battle.IN_WORLD != battle.get_battle_status(screen, self.ctx.im):  # 可能被怪攻击了
+        # 可能被怪攻击了
+        if battle.IN_WORLD != battle.get_battle_status(screen, self.ctx.im):
             self.ctx.controller.stop_moving_forward()
             fight = EnterAutoFight(self.ctx)
             fight.execute()
@@ -77,10 +80,12 @@ class MoveDirectly(Operation):
             return Operation.WAIT
 
         mm = mini_map.cut_mini_map(screen)
-        if self.check_enemy_and_attack(mm):  # 处理完敌人 再重新开始下一轮寻路
+        # 根据小地图判断是否被怪锁定 是的话停下来处理敌人
+        if self.check_enemy_and_attack(mm):
             self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
             return Operation.WAIT
 
+        # 根据上一次的坐标和行进距离 计算当前位置
         lx, ly = last_pos
         move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time)
         possible_pos = (lx, ly, move_distance)
@@ -114,9 +119,9 @@ class MoveDirectly(Operation):
             return Operation.SUCCESS
 
         self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
-        time.sleep(0.5)  # 等待人物转过来再进行下一轮
+        time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
 
-        if now_time - self.last_rec_time > self.rec_pos_interval:
+        if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
             self.pos.append(next_pos)
             if len(self.pos) > MoveDirectly.max_len:
                 del self.pos[0]
@@ -133,7 +138,7 @@ class MoveDirectly(Operation):
         10-12次 往后再往右 然后直走
         :param stuck_times: 判断困住多少次了 次数越多 往回走距离越大
         :param last_pos: 上一次位置 也就是被困的位置
-        :return:
+        :return: 这次脱困用了多久
         """
         log.info('尝试脱困第%d次', stuck_times)
         ctrl: GameController = self.ctx.controller
@@ -144,26 +149,28 @@ class MoveDirectly(Operation):
 
         if stuck_times <= 3:
             ctrl.move('a', walk_sec)
-            ctrl.start_moving_forward()
-            return walk_sec
+            ctrl.start_moving_forward()  # 多往前走1秒再判断是否被困
+            time.sleep(1)
+            return walk_sec + 1
         elif stuck_times <= 6:
             ctrl.move('d', walk_sec)
             ctrl.start_moving_forward()
-            return walk_sec
+            time.sleep(1)
+            return walk_sec + 1
         elif stuck_times <= 9:
             ctrl.move('s', walk_sec)
             ctrl.move('a', walk_sec)
             ctrl.move('w', walk_sec)
             ctrl.start_moving_forward()
             time.sleep(1)
-            return walk_sec * 3
+            return walk_sec * 3 + 1
         elif stuck_times <= 12:
             ctrl.move('s', walk_sec)
             ctrl.move('d', walk_sec)
             ctrl.move('w', walk_sec)
             ctrl.start_moving_forward()
             time.sleep(1)
-            return walk_sec * 3
+            return walk_sec * 3 + 1
 
         return 0
 

@@ -143,20 +143,6 @@ class PcController(GameController):
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
-    def turn_by_angle_2(self, x):
-        print(x)
-        if x > 30:
-            y = 30
-        elif x < -30:
-            y = -30
-        else:
-            y = x
-        dx = self.turn_dx * y
-        ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_MOVE, dx, 0)  # 进行视角移动
-        time.sleep(1)
-        if x != y:
-            self.turn_by_angle_2(x - y)
-
     def interactive(self, pos: tuple, wait: int = 0) -> bool:
         """
         交互
