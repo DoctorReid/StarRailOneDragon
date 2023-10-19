@@ -21,24 +21,30 @@ def _test_match_battle_ctrl():
 
 def _test_is_auto_battle_on():
     screen = get_test_image('all_off', sub_dir='battle')
-    print(battle.is_auto_battle_on(screen, im))  # false
+    assert not battle.is_auto_battle_on(screen, im)  # false
     screen = get_test_image('all_on', sub_dir='battle')
-    print(battle.is_auto_battle_on(screen, im))  # true
+    assert battle.is_auto_battle_on(screen, im)  # true
     screen = get_test_image('all_on_2', sub_dir='battle')
-    print(battle.is_auto_battle_on(screen, im))  # true
+    assert battle.is_auto_battle_on(screen, im)  # true
+    screen = get_test_image('all_on_3', sub_dir='battle')
+    assert battle.is_auto_battle_on(screen, im)  # true
 
 
 def _test_is_fast_battle_on():
     screen = get_test_image('all_off', sub_dir='battle')
-    print(battle.is_fast_battle_on(screen, im))  # false
+    assert not battle.is_fast_battle_on(screen, im)  # false
     screen = get_test_image('all_on', sub_dir='battle')
-    print(battle.is_fast_battle_on(screen, im))  # true
+    assert battle.is_fast_battle_on(screen, im)  # true
     screen = get_test_image('all_on_2', sub_dir='battle')
-    print(battle.is_fast_battle_on(screen, im))  # true
+    assert battle.is_fast_battle_on(screen, im)  # true
     screen = get_test_image('no_fast', sub_dir='battle')
-    print(battle.is_fast_battle_on(screen, im))  # true
+    assert battle.is_fast_battle_on(screen, im)  # true
+    screen = get_test_image('no_fast_2', sub_dir='battle')
+    assert battle.is_fast_battle_on(screen, im)  # true
+    screen = get_test_image('all_on_3', sub_dir='battle')
+    assert battle.is_fast_battle_on(screen, im)  # true
 
 
 if __name__ == '__main__':
     im = CvImageMatcher()
-    _test_get_battle_status()
+    _test_is_auto_battle_on()

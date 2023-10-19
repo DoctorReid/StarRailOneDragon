@@ -49,8 +49,8 @@ def cal_character_pos(im: ImageMatcher,
     # if result is None:  # 使用模板匹配 用道路掩码的
     #     result: MatchResult = cal_character_pos_by_edge_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
 
-    # if result is None:  # 特征匹配失败 或者无特殊点的时候 使用模板匹配 用原图的
-    #     result: MatchResult = cal_character_pos_by_template_match(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+    if result is None:  # 使用模板匹配 用原图的
+        result: MatchResult = cal_character_pos_by_template_match(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
 
     if result is None:
         if lm_rect is not None and retry_without_rect:  # 整张大地图试试
@@ -167,7 +167,7 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
             template = mm_info.origin
             template_mask = origin_template_mask
 
-        result = im.match_image(source, template, mask=template_mask, threshold=0.4, ignore_inf=True)
+        result = im.match_image(source, template, mask=template_mask, threshold=0.3, ignore_inf=True)
 
         if show:
             cv2_utils.show_image(source, win_name='template_match_source')

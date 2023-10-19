@@ -5,6 +5,7 @@ tp: '锋芒之形'
 route:
   - op: 'move'
     data: [434, 526]
+  - op: 'patrol'
   - op: 'move'
     data: [451, 460]
   - op: 'move'

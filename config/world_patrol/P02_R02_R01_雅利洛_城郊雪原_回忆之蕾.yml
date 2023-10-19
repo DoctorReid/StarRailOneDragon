@@ -8,13 +8,15 @@ route:
   - op: 'move'
     data: [1013, 583]
   - op: 'move'
-    data: [953, 495]
+    data: [933, 485]
+  - op: 'patrol'
   - op: 'move'
     data: [1025, 287]
   - op: 'move'
     data: [843, 281]
   - op: 'move'
-    data: [711, 326]
+    data: [711, 316]
+  - op: 'patrol'
   - op: 'move'
     data: [674, 236]
   - op: 'patrol'

@@ -4,7 +4,7 @@ level: 0
 tp: '鸣雷之形'
 route:
   - op: 'move'
-    data: [521, 606]
+    data: [484, 630]
   - op: 'move'
     data: [484, 606]
   - op: 'move'

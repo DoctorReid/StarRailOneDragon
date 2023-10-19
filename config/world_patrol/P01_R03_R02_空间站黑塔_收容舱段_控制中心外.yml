@@ -5,12 +5,14 @@ tp: '控制中心外'
 route:
   - op: 'move'
     data: [385, 330]
+  - op: 'patrol'
   - op: 'move'
     data: [380, 360]
   - op: 'move'
     data: [390, 420]
   - op: 'move'
     data: [436, 444]
+  - op: 'patrol'
   - op: 'move'
     data: [422, 480]
   - op: 'move'

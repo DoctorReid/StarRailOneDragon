@@ -37,7 +37,7 @@ class ChooseRegion(Operation):
         # 判断当前选择区域是否目标区域
         current_region = large_map.get_active_region_name(screen, self.ctx.ocr)
         log.info('当前选择区域 %s', current_region)
-        if current_region != gt(self.region.cn):
+        if current_region != gt(self.region.ocr_str):
             find = self.click_target_region(screen)
             if not find:  # 向下滚动5次 再向上滚动5次
                 log.info('当前界面未发现 %s 准备滚动', self.region.cn)
@@ -82,7 +82,7 @@ class ChooseRegion(Operation):
         :param screen:
         :return:
         """
-        return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT)
+        return self.ctx.controller.click_ocr(screen, self.region.ocr_str, rect=large_map.REGION_LIST_RECT)
 
     def scroll_region_area(self, d: int = 1):
         """

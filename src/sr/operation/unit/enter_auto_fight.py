@@ -13,14 +13,15 @@ class EnterAutoFight(Operation):
     """
     根据小地图标点
     """
-    attack_interval = 1  # 发起攻击的间隔
+    attack_interval = 0.5  # 发起攻击的间隔
     exit_after_no_alter_time = 2  # 多久没警报退出
 
     def __init__(self, ctx: Context):
         super().__init__(ctx)
         self.last_attack_time = time.time()
         self.ctx.controller.stop_moving_forward()
-        self.last_alert_time = 0  # 上次警报时间
+        self.last_alert_time = time.time()  # 上次警报时间
+        log.info('索敌开始')
 
     def run(self) -> int:
         ctrl: GameController = self.ctx.controller
@@ -49,13 +50,12 @@ class EnterAutoFight(Operation):
 
         if not mini_map.is_under_attack(mm, get_game_config().mini_map_pos):
             if now_time - self.last_alert_time > EnterAutoFight.exit_after_no_alter_time:
-                log.info('警报解除 索敌结束')
+                log.info('索敌结束')
                 return Operation.SUCCESS
         else:
             self.last_alert_time = now_time
 
         if now_time - self.last_attack_time > EnterAutoFight.attack_interval:
-            log.info('检测到警报 尝试攻击')
             self.last_attack_time = now_time
             ctrl.initiate_attack()
         return Operation.WAIT

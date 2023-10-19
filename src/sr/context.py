@@ -3,6 +3,7 @@ import pyautogui
 from sentry_sdk.integrations import threading
 
 from basic.i18_utils import gt
+from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.control import GameController
 from sr.control.pc_controller import PcController
@@ -10,6 +11,7 @@ from sr.image import ImageMatcher, OcrMatcher
 from sr.image.cnocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
+from sr.image.sceenshot import fill_uid_black
 from sr.win import Window
 
 
@@ -32,7 +34,7 @@ class Context:
         self.register_key_press('f10', self.stop_running)
         self.register_key_press('f11', self.screenshot)
         if self.platform == 'PC':
-            self.register_key_press('f12', self.stop_running)
+            self.register_key_press('f12', self.mouse_position)
 
         self.init_status: int = 0
 
@@ -136,10 +138,11 @@ class Context:
     def mouse_position(self):
         rect = self.controller.win.get_win_rect()
         pos = pyautogui.position()
-        print(pos.x - rect.x, pos.y - rect.y)
+        log.info('当前鼠标坐标 %s', (pos.x - rect.x, pos.y - rect.y))
 
     def screenshot(self):
-        self.controller.screenshot()
+        self.init_controller()
+        save_debug_image(fill_uid_black(self.controller.screenshot()))
 
 
 global_context: Context = Context()

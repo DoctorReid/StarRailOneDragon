@@ -4,7 +4,7 @@ level: 0
 tp: '睿治之径'
 route:
   - op: 'move'
-    data: [560, 533]
+    data: [560, 553]
   - op: 'move'
     data: [627, 539]
   - op: 'move'

@@ -33,11 +33,12 @@ def get_planet_by_cn(cn: str) -> Planet:
 
 class Region:
 
-    def __init__(self, i: str, cn: str, planet: Planet, level: int = 0):
+    def __init__(self, i: str, cn: str, planet: Planet, level: int = 0, ocr_str: str=None):
         self.id: str = i  # id 用在找文件夹之类的
         self.cn: str = cn  # 中文 用在OCR
         self.planet: Planet = planet
         self.level: int = level
+        self.ocr_str: str = cn if ocr_str is None else ocr_str
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -85,6 +86,7 @@ class Region:
 
 R0_GJCX = Region("gjcx", "观景车厢", None)
 
+# 空间站黑塔
 P01_R01_ZKCD = Region("zkcd", "主控舱段", P01_KZJ)
 P01_R02_JZCD = Region("jzcd", "基座舱段", P01_KZJ)
 P01_R03_SRCD_B1 = Region("srcd", "收容舱段", P01_KZJ, -1)
@@ -93,6 +95,7 @@ P01_R03_SRCD_L2 = Region("srcd", "收容舱段", P01_KZJ, 2)
 P01_R04_ZYCD_L1 = Region("zycd", "支援舱段", P01_KZJ, 1)
 P01_R04_ZYCD_L2 = Region("zycd", "支援舱段", P01_KZJ, 2)
 
+# 雅利洛
 P02_R01_L1 = Region("xzq", "行政区", P02_YYL, level=1)
 P02_R01_B1 = Region("xzq", "行政区", P02_YYL, level=-1)
 P02_R02 = Region("cjxy", "城郊雪原", P02_YYL)
@@ -108,6 +111,21 @@ P02_R11_L1 = Region("mdz", "铆钉镇", P02_YYL, level=1)
 P02_R11_L2 = Region("mdz", "铆钉镇", P02_YYL, level=2)
 P02_R12_L1 = Region("jxjl", "机械聚落", P02_YYL, level=1)
 P02_R12_L2 = Region("jxjl", "机械聚落", P02_YYL, level=2)
+
+# 罗浮仙舟
+P03_R01 = Region("xchzs", "星槎海中枢", P03_XZLF)
+P03_R02_L1 = Region("lyd", "流云渡", P03_XZLF, level=1)
+P03_R02_L2 = Region("lyd", "流云渡", P03_XZLF, level=2)
+P03_R03_L1 = Region("hxg", "廻星港", P03_XZLF, level=1, ocr_str='迥星港')
+P03_R03_L2 = Region("hxg", "廻星港", P03_XZLF, level=2, ocr_str='迥星港')
+P03_R04 = Region("clt", "长乐天", P03_XZLF)
+P03_R05 = Region("jrx", "金人巷", P03_XZLF)
+P03_R06_L1 = Region("tbs", "太卜司", P03_XZLF, level=1)
+P03_R06_L2 = Region("tbs", "太卜司", P03_XZLF, level=2)
+P03_R07 = Region("gzs", "工造司", P03_XZLF)
+P03_R08_l1 = Region("dds", "丹鼎司", P03_XZLF, level=1)
+P03_R08_l2 = Region("dds", "丹鼎司", P03_XZLF, level=2)
+P03_R09 = Region("lyj", "鳞渊境", P03_XZLF)
 
 PLANET_2_REGION = {
     P01_KZJ.id: [P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2],
@@ -291,6 +309,181 @@ P02_R12_SP01 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (556, 174))
 P02_R12_SP02 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (554, 506))
 P02_R12_SP03 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (413, 527))
 P02_R12_SP04 = TransportPoint('', '', P02_R12_L1, 'mm_tp_07', (298, 564))
+
+# 罗浮仙舟 - 星槎海中枢
+SP00 = TransportPoint('', '', P03_R01, 'mm_tp_03', (443, 341))
+SP01 = TransportPoint('', '', P03_R01, 'mm_tp_03', (700, 370))
+SP02 = TransportPoint('', '', P03_R01, 'mm_tp_03', (428, 622))
+SP03 = TransportPoint('', '', P03_R01, 'mm_sp_01', (616, 409))
+SP04 = TransportPoint('', '', P03_R01, 'mm_sp_02', (849, 168))
+SP05 = TransportPoint('', '', P03_R01, 'mm_sp_02', (539, 231))
+SP06 = TransportPoint('', '', P03_R01, 'mm_sp_02', (337, 748))
+SP07 = TransportPoint('', '', P03_R01, 'mm_sp_03', (603, 306))
+SP08 = TransportPoint('', '', P03_R01, 'mm_sp_03', (572, 482))
+SP09 = TransportPoint('', '', P03_R01, 'mm_sp_03', (348, 508))
+SP10 = TransportPoint('', '', P03_R01, 'mm_sp_03', (360, 538))
+SP11 = TransportPoint('', '', P03_R01, 'mm_sp_03', (389, 538))
+SP12 = TransportPoint('', '', P03_R01, 'mm_sp_03', (375, 595))
+SP13 = TransportPoint('', '', P03_R01, 'mm_sp_03', (316, 698))
+SP14 = TransportPoint('', '', P03_R01, 'mm_sp_03', (436, 702))
+SP15 = TransportPoint('', '', P03_R01, 'mm_sp_04', (602, 307))
+SP16 = TransportPoint('', '', P03_R01, 'mm_sp_04', (572, 482))
+SP17 = TransportPoint('', '', P03_R01, 'mm_sp_04', (348, 509))
+SP18 = TransportPoint('', '', P03_R01, 'mm_sp_04', (359, 538))
+SP19 = TransportPoint('', '', P03_R01, 'mm_sp_04', (389, 538))
+SP20 = TransportPoint('', '', P03_R01, 'mm_sp_04', (375, 594))
+SP21 = TransportPoint('', '', P03_R01, 'mm_sp_04', (315, 698))
+SP22 = TransportPoint('', '', P03_R01, 'mm_sp_04', (435, 702))
+SP23 = TransportPoint('', '', P03_R01, 'mm_sp_05', (673, 487))
+
+# 罗浮仙舟 - 流云渡
+SP00 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (704, 422))
+SP01 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (541, 795))
+SP02 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (567, 986))
+SP03 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (579, 1369))
+SP04 = TransportPoint('', '', P03_R02_L1, 'mm_tp_06', (730, 1367))
+SP05 = TransportPoint('', '', P03_R02_L1, 'mm_tp_09', (542, 1153))
+SP06 = TransportPoint('', '', P03_R02_L1, 'mm_sp_02', (578, 1503))
+SP07 = TransportPoint('', '', P03_R02_L1, 'mm_sp_03', (388, 777))
+SP08 = TransportPoint('', '', P03_R02_L1, 'mm_sp_04', (388, 777))
+
+
+# 廻星港
+# [21:46:10] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (834, 249))
+# [21:46:10] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (441, 465))
+# [21:46:10] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (523, 609))
+# [21:46:10] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (647, 707))
+# [21:46:10] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_06', (729, 803))
+# [21:46:10] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_tp_09', (455, 374))
+# [21:47:45] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_02', (881, 222))
+
+
+
+# [21:48:12] [run 39] [INFO]: 当前选择区域 长乐天
+# [21:48:12] [run 46] [INFO]: 完成步骤
+# [21:48:27] [init_large_map 210] [INFO]: 地图特殊点坐标
+# [21:48:27] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (550, 206))
+# [21:48:27] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (589, 530))
+# [21:48:27] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_sp_02', (697, 104))
+# [21:48:27] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_sp_02', (427, 145))
+# [21:48:27] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_02', (355, 224))
+# [21:48:27] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_02', (380, 465))
+# [21:48:27] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_02', (494, 588))
+# [21:48:27] [init_large_map 214] [INFO]: SP07 = TransportPoint('', '', , 'mm_sp_03', (695, 193))
+# [21:48:27] [init_large_map 214] [INFO]: SP08 = TransportPoint('', '', , 'mm_sp_03', (745, 232))
+# [21:48:27] [init_large_map 214] [INFO]: SP09 = TransportPoint('', '', , 'mm_sp_03', (663, 262))
+# [21:48:27] [init_large_map 214] [INFO]: SP10 = TransportPoint('', '', , 'mm_sp_03', (662, 423))
+# [21:48:27] [init_large_map 214] [INFO]: SP11 = TransportPoint('', '', , 'mm_sp_03', (444, 505))
+# [21:48:27] [init_large_map 214] [INFO]: SP12 = TransportPoint('', '', , 'mm_sp_03', (636, 560))
+# [21:48:27] [init_large_map 214] [INFO]: SP13 = TransportPoint('', '', , 'mm_sp_04', (695, 193))
+# [21:48:27] [init_large_map 214] [INFO]: SP14 = TransportPoint('', '', , 'mm_sp_04', (744, 232))
+# [21:48:27] [init_large_map 214] [INFO]: SP15 = TransportPoint('', '', , 'mm_sp_04', (663, 262))
+# [21:48:27] [init_large_map 214] [INFO]: SP16 = TransportPoint('', '', , 'mm_sp_04', (662, 423))
+# [21:48:27] [init_large_map 214] [INFO]: SP17 = TransportPoint('', '', , 'mm_sp_04', (443, 506))
+# [21:48:27] [init_large_map 214] [INFO]: SP18 = TransportPoint('', '', , 'mm_sp_04', (636, 560))
+# [21:48:27] [init_large_map 214] [INFO]: SP19 = TransportPoint('', '', , 'mm_sp_05', (538, 294))
+
+#
+# [21:49:27] [run 39] [INFO]: 当前选择区域 金人巷
+# [21:49:27] [run 46] [INFO]: 完成步骤
+# [21:49:41] [init_large_map 210] [INFO]: 地图特殊点坐标
+# [21:49:41] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (694, 383))
+# [21:49:41] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (432, 521))
+# [21:49:41] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_11', (480, 53))
+# [21:49:41] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_sp_02', (346, 495))
+# [21:49:41] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_03', (365, 275))
+# [21:49:41] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_03', (423, 347))
+# [21:49:41] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_03', (500, 352))
+# [21:49:41] [init_large_map 214] [INFO]: SP07 = TransportPoint('', '', , 'mm_sp_03', (653, 369))
+# [21:49:41] [init_large_map 214] [INFO]: SP08 = TransportPoint('', '', , 'mm_sp_03', (582, 392))
+# [21:49:41] [init_large_map 214] [INFO]: SP09 = TransportPoint('', '', , 'mm_sp_03', (429, 393))
+# [21:49:41] [init_large_map 214] [INFO]: SP10 = TransportPoint('', '', , 'mm_sp_03', (491, 395))
+# [21:49:41] [init_large_map 214] [INFO]: SP11 = TransportPoint('', '', , 'mm_sp_04', (364, 275))
+# [21:49:41] [init_large_map 214] [INFO]: SP12 = TransportPoint('', '', , 'mm_sp_04', (499, 353))
+# [21:49:41] [init_large_map 214] [INFO]: SP13 = TransportPoint('', '', , 'mm_sp_04', (653, 369))
+# [21:49:41] [init_large_map 214] [INFO]: SP14 = TransportPoint('', '', , 'mm_sp_04', (582, 392))
+# [21:49:41] [init_large_map 214] [INFO]: SP15 = TransportPoint('', '', , 'mm_sp_04', (429, 393))
+# [21:49:41] [init_large_map 214] [INFO]: SP16 = TransportPoint('', '', , 'mm_sp_04', (491, 395))
+# [21:49:41] [init_large_map 214] [INFO]: SP17 = TransportPoint('', '', , 'mm_sp_07', (775, 266))
+
+
+# [21:51:01] [run 39] [INFO]: 当前选择区域 太卜司
+# [21:51:01] [run_ocr 45] [DEBUG]: OCR结果 {'1层': <basic.img.MatchResultList object at 0x0000027B9F62BDD0>}
+# [21:51:01] [run 62] [INFO]: 当前层数 1层
+# [21:51:01] [run 46] [INFO]: 完成步骤
+# [21:51:57] [init_large_map 210] [INFO]: 地图特殊点坐标
+# [21:51:57] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (339, 287))
+# [21:51:57] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (553, 601))
+# [21:51:57] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (922, 830))
+# [21:51:57] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (416, 1177))
+
+#
+# [21:53:42] [run 39] [INFO]: 当前选择区域 太卜司
+# [21:53:42] [run_ocr 45] [DEBUG]: OCR结果 {'2层': <basic.img.MatchResultList object at 0x000001B5FFDCE9D0>}
+# [21:53:42] [run 62] [INFO]: 当前层数 2层
+# [21:53:42] [run 46] [INFO]: 完成步骤
+# [21:54:37] [init_large_map 210] [INFO]: 地图特殊点坐标
+# [21:54:37] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (340, 287))
+# [21:54:37] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (553, 601))
+# [21:54:37] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (922, 830))
+# [21:54:37] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (415, 1177))
+# [21:54:37] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_02', (1141, 789))
+# [21:54:37] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_02', (449, 1147))
+
+
+# [21:55:06] [run 39] [INFO]: 当前选择区域 工造司
+# [21:55:06] [run 46] [INFO]: 完成步骤
+# [21:56:38] [init_large_map 210] [INFO]: 地图特殊点坐标
+# [21:56:38] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (461, 485))
+# [21:56:38] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (821, 602))
+# [21:56:38] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (189, 865))
+# [21:56:38] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (758, 964))
+# [21:56:38] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_06', (388, 655))
+# [21:56:38] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_02', (1029, 767))
+# [21:56:38] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_02', (170, 928))
+
+# [21:58:20] [run 39] [INFO]: 当前选择区域 丹鼎司
+# [21:58:20] [run_ocr 45] [DEBUG]: OCR结果 {'1层': <basic.img.MatchResultList object at 0x000002667F047150>}
+# [21:58:20] [run 62] [INFO]: 当前层数 1层
+# [21:58:20] [run 46] [INFO]: 完成步骤
+# [22:00:11] [init_large_map 210] [INFO]: 地图特殊点坐标
+# [22:00:11] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (547, 555))
+# [22:00:11] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (438, 694))
+# [22:00:11] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (826, 898))
+# [22:00:11] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (819, 1533))
+# [22:00:11] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_06', (1225, 1087))
+# [22:00:11] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_tp_09', (667, 1504))
+# [22:00:11] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_02', (453, 218))
+# [22:00:12] [init_large_map 214] [INFO]: SP07 = TransportPoint('', '', , 'mm_sp_02', (186, 710))
+
+
+# [22:01:00] [run 39] [INFO]: 当前选择区域 丹鼎司
+# [22:01:00] [run_ocr 45] [DEBUG]: OCR结果 {'2层': <basic.img.MatchResultList object at 0x00000297FFFAAE90>}
+# [22:01:00] [run 62] [INFO]: 当前层数 2层
+# [22:01:00] [run 46] [INFO]: 完成步骤
+# [22:03:00] [init_large_map 210] [INFO]: 地图特殊点坐标
+# [22:03:00] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (547, 555))
+# [22:03:00] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (439, 694))
+# [22:03:00] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (826, 897))
+# [22:03:00] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (818, 1533))
+# [22:03:00] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_06', (1224, 1087))
+# [22:03:00] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_tp_09', (667, 1504))
+# [22:03:00] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_01', (846, 815))
+# [22:03:00] [init_large_map 214] [INFO]: SP07 = TransportPoint('', '', , 'mm_sp_02', (867, 1564))
+# [22:03:00] [init_large_map 214] [INFO]: SP08 = TransportPoint('', '', , 'mm_sp_03', (990, 758))
+# [22:03:00] [init_large_map 214] [INFO]: SP09 = TransportPoint('', '', , 'mm_sp_03', (837, 843))
+# [22:03:00] [init_large_map 214] [INFO]: SP10 = TransportPoint('', '', , 'mm_sp_04', (989, 759))
+# [22:03:00] [init_large_map 214] [INFO]: SP11 = TransportPoint('', '', , 'mm_sp_04', (836, 844))
+
+# [22:03:38] [run 39] [INFO]: 当前选择区域 鳞渊境
+# [22:03:38] [run 46] [INFO]: 完成步骤
+# [22:05:02] [init_large_map 210] [INFO]: 地图特殊点坐标
+# [22:05:02] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (891, 345))
+# [22:05:02] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (1113, 345))
+# [22:05:02] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (1599, 364))
+# [22:05:02] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_06', (917, 89))
+# [22:05:02] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_02', (1891, 311))
+
 
 ALL_SP_LIST = [
     P01_R01_SP01, P01_R01_SP02, P01_R01_SP03_HTBGS, P01_R01_SP04, P01_R01_SP04, P01_R01_SP05, P01_R01_SP06,

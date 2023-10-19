@@ -10,5 +10,5 @@ route:
   - op: 'move'
     data: [462, 609]
   - op: 'move'
-    data: [482, 539]
+    data: [482, 550]
   - op: 'patrol'

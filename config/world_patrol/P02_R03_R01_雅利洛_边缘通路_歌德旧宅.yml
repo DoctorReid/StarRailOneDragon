@@ -10,18 +10,24 @@ route:
   - op: 'patrol'
   - op: 'move'
     data: [690, 354]
+  - op: 'patrol'
   - op: 'move'
     data: [693, 510]
   - op: 'move'
     data: [670, 516]
   - op: 'move'
-    data: [662, 645]
+    data: [662, 635]
+  - op: 'patrol'
   - op: 'move'
-    data: [746, 630]
+    data: [746, 640]
+  - op: 'move'
+    data: [746, 680]
+  - op: 'patrol'
   - op: 'move'
     data: [746, 835]
+  - op: 'patrol'
   - op: 'move'
     data: [686, 851]
   - op: 'move'
-    data: [686, 975]
+    data: [686, 965]
   - op: 'patrol'

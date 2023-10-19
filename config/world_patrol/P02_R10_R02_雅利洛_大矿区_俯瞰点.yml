@@ -9,6 +9,7 @@ route:
     data: [679, 642]
   - op: 'move'
     data: [694, 574]
+  - op: 'patrol'
   - op: 'move'
     data: [770, 565]
   - op: 'move'
@@ -16,17 +17,21 @@ route:
   - op: 'move'
     data: [732, 688]
   - op: 'move'
-    data: [662, 715]
+    data: [695, 705]
+  - op: 'patrol'
   - op: 'move'
     data: [642, 742]
+  - op: 'patrol'
   - op: 'move'
     data: [555, 720]
   - op: 'move'
     data: [492, 728]
   - op: 'move'
     data: [397, 682]
+  - op: 'patrol'
   - op: 'move'
     data: [376, 622]
+  - op: 'patrol'
   - op: 'move'
     data: [413, 611]
   - op: 'move'
