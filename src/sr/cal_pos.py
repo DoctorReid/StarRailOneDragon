@@ -35,6 +35,9 @@ def cal_character_pos(im: ImageMatcher,
     if mm_info.sp_result is not None and len(mm_info.sp_result) > 0:  # 有特殊点的时候 使用特殊点倒推位置
         result = cal_character_pos_by_sp_result(lm_info, mm_info, lm_rect=lm_rect, show=show)
         if result is None:  # 倒推位置失败 使用特征匹配
+            # 只有极少部分情况需要使用特征匹配 所以不需要 mini_map.analyse_mini_map 中对所有情况都分析特征点
+            # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map
+            mm_info.kps, mm_info.desc = cv2_utils.feature_detect_and_compute(mm_info.gray, mask=mm_info.sp_mask)
             result = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
 
     if result is None:  # 使用模板匹配 用道路掩码的
@@ -388,6 +391,7 @@ def cal_character_pos_by_edge_mask(im: ImageMatcher,
     target: MatchResult = None
     target_scale = None
     # 使用道路掩码
+    mm_info.edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)
     origin_template = mm_info.edge
     origin_template_mask = mm_info.center_mask
     for scale in mini_map.get_mini_map_scale_list(running):

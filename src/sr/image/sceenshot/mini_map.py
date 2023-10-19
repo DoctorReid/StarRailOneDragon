@@ -10,7 +10,7 @@ from basic.log_utils import log
 from sr import constants
 from sr.config.game_config import MiniMapPos, get_game_config
 from sr.image import ImageMatcher, TemplateImage
-from sr.image.sceenshot import MiniMapInfo
+from sr.image.sceenshot import MiniMapInfo, mini_map_angle_alas
 
 
 def cal_little_map_pos(screen: MatLike) -> MiniMapPos:
@@ -103,6 +103,8 @@ def get_angle_from_arrow(arrow: MatLike,
                          show: bool = False) -> int:
     """
     用小地图上的箭头 计算当前方向 正右方向为0度 逆时针旋转为正度数
+    先匹配1度的图 再匹配0.1度的图
+    实验结果误差较大
     :param arrow: 已经提取好的白色的箭头
     :param im: 图片匹配器
     :param show: 显示结果
@@ -114,6 +116,7 @@ def get_angle_from_arrow(arrow: MatLike,
         return None
 
     if show:
+        cv2_utils.show_image(arrow, win_name="arrow")
         cv2_utils.show_image(rough_template, result.max, win_name="rough_template_match")
 
     d = constants.TEMPLATE_ARROW_LEN_PLUS
@@ -126,6 +129,9 @@ def get_angle_from_arrow(arrow: MatLike,
     precise_template = im.get_template('arrow_precise').mask
     result2 = im.match_image(precise_template, rough_arrow, threshold=0.85)
 
+    if show:
+        cv2_utils.show_image(precise_template, result2.max, win_name="precise_template_match")
+
     if len(result2) == 0:
         precise_angle = rough_angle
     else:
@@ -134,7 +140,7 @@ def get_angle_from_arrow(arrow: MatLike,
         precise_delta_angle = (row * 11 + col - 60) / 10.0
         precise_angle = rough_angle + precise_delta_angle
 
-    if precise_angle is not None and precise_angle < 0:
+    if precise_angle is not None and precise_angle <= 0:
         precise_angle += 360
     if precise_angle is not None and precise_angle > 360:
         precise_angle -= 360
@@ -149,7 +155,8 @@ def analyse_arrow_and_angle(mini_map: MatLike, im: ImageMatcher):
     :return:
     """
     center_arrow_mask, arrow_mask = get_arrow_mask(mini_map)
-    angle = get_angle_from_arrow(center_arrow_mask, im)  # 正右方向为0度 顺时针旋转为正度数
+    # angle = get_angle_from_arrow(center_arrow_mask, im)  # 正右方向为0度 顺时针旋转为正度数
+    angle = mini_map_angle_alas.calculate(mini_map)
     return center_arrow_mask, arrow_mask, angle
 
 
@@ -382,11 +389,6 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
                                             another_floor=another_floor)
     info.gray, info.feature_mask = merge_all_map_mask(info.gray, info.road_mask, info.sp_mask)
 
-    info.edge = find_mini_map_edge_mask(origin, info.road_mask)
-
-    # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map
-    info.kps, info.desc = cv2_utils.feature_detect_and_compute(info.gray, mask=info.sp_mask)
-
     return info
 
 
@@ -521,7 +523,7 @@ def merge_all_map_mask(gray_image: MatLike,
     return usage, all_mask
 
 
-def find_mini_map_edge_mask(origin: MatLike, road_mask: MatLike):
+def get_edge_mask(origin: MatLike, road_mask: MatLike):
     """
     小地图道路边缘掩码 暂时不需要
     :param origin: 小地图图片

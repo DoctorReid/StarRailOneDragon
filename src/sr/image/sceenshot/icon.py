@@ -206,7 +206,7 @@ def init_template_feature(template_id: str) -> bool:
 
 def init_arrow_template(mm: MatLike):
     """
-    找一个传送点下来朝正右方的地方 截取小箭头的template 推荐位置 空间站黑塔-支援舱段-
+    找一个传送点下来朝正右方的地方 截取小箭头的template 推荐位置 空间站黑塔-支援舱段-月台
     :param mm: 小地图
     :return: 模板
     """

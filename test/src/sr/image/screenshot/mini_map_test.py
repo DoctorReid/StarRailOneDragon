@@ -48,37 +48,46 @@ def _test_analyse_arrow_and_angle():
     print(angle)
 
 
-def _test_all_angle():
+def _test_all_get_angle_from_arrow():
     """
-    测试所有角度
+    用箭头匹配角度 测试所有角度
+    结果发现误差较大 效率也低
     :return:
     """
     mm = get_test_image('mm_arrow', sub_dir='mini_map')
     max_delta = 0
-    for i in range(3600):
-        to_test = cv2_utils.image_rotate(mm, i / 10.0)
+    for i in range(360):
+        to_test = cv2_utils.image_rotate(mm, -i)
         t1 = time.time()
         center_arrow_mask, arrow_mask = mini_map.get_arrow_mask(to_test)
-        angle = mini_map.get_angle_from_arrow(center_arrow_mask, im)
-        print(time.time() - t1)
-        break
-        expect = 360 - i / 10.0
-        if abs(angle - expect) > max_delta:
-            max_delta = angle - expect
-        # if angle - expect > 2:
+        angle = mini_map.get_angle_from_arrow(center_arrow_mask, im, show=False)
+        # print(time.time() - t1)
+        # cv2.waitKey(0)
+        expect = i
+        delta = abs(angle - expect)
+        if delta > 180:
+            delta = 360 - delta
+        if delta > max_delta:
+            max_delta = delta
+            print(max_delta)
+        # if abs(angle - expect) > 2:
         #     print(i, expect, angle)
-        #     mini_map.get_angle_from_arrow
         #     break
     print(max_delta)
 
 
 def test_get_angle_new():
     mm = get_test_image('mm_arrow', sub_dir='mini_map')
-    for i in range(2):
-        to_test = cv2_utils.image_rotate(mm, i)
+    max_delta = 0
+    for i in range(100):
+        to_test = cv2_utils.image_rotate(mm, -i)
         t1 = time.time()
-        print(i, mini_map_angle_alas.calculate(to_test))
+        angle = mini_map_angle_alas.calculate(to_test)
+        print(i, angle)
         print(time.time() - t1)
+        if abs(i - angle) > max_delta:
+            max_delta = abs(i - angle)
+    print(max_delta)
 
 
 def _test_get_sp_mask_by_feature_match():
@@ -144,4 +153,4 @@ def _test_is_under_attack():
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    _test_all_angle()
+    test_get_angle_new()

@@ -65,6 +65,7 @@ def convolve(arr, kernel=3):
 def calculate(minimap: MatLike, scale: int = 1):
     """
     计算小地图上角色的朝向 参考自 ALAZ
+    https://github.com/LmeSzinc/StarRailCopilot/wiki/MinimapTracking#%E6%98%9F%E7%A9%B9%E9%93%81%E9%81%93%E8%A7%86%E9%87%8E%E6%9C%9D%E5%90%91%E8%AF%86%E5%88%AB
     https://github.com/LmeSzinc/StarRailCopilot/blob/db3e78498ea06b0d3548263773b0f2bfa9adba0d/tasks/map/minimap/minimap.py#L261
     :param minimap:
     :param scale:
@@ -125,10 +126,7 @@ def calculate(minimap: MatLike, scale: int = 1):
 
     # Convert match point to degree
     degree = np.argmax(result) / (d * scale) * 360 + 135
-    # +3 is a value obtained from experience
-    # Don't know why but <predicted_rotation> + 3 = <actual_rotation>
-    degree = degree + 3
-    # print(degree)
+    degree = degree - 1.875  # 跟alas的+3不一样 这边认为 空间站黑塔-支援舱段-月台 落地后为正右方 0度 以此为基准调整的值
     while degree > 360:
         degree -= 360
 
