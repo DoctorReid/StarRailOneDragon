@@ -166,7 +166,7 @@ P01_R04_SP03 = TransportPoint('yt', '月台', P01_R04_ZYCD_L2, 'mm_tp_03', (778,
 P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (457, 288), ocr_str='存护')
 P01_R04_SP05 = TransportPoint('tkdt', '太空电梯', P01_R04_ZYCD_L2, 'mm_sp_02', (105, 345))
 
-# 雅利洛 - 行政区 - L1
+# 雅利洛 - 行政区
 P02_R01_SP01 = TransportPoint('hjgjy', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374))
 P02_R01_SP02 = TransportPoint('zygc', '中央广场', P02_R01_L1, 'mm_tp_03', (487, 806))
 P02_R01_SP03 = TransportPoint('gdbg', '歌德宾馆', P02_R01_L1, 'mm_tp_03', (784, 1173))
@@ -184,7 +184,6 @@ P02_R01_SP14 = TransportPoint('klbb-s', '克里珀堡-上', P02_R01_L1, 'mm_sp_0
 P02_R01_SP15 = TransportPoint('klbb-x', '克里珀堡-下', P02_R01_L1, 'mm_sp_05', (769, 878), ocr_str='克里珀堡')
 P02_R01_SP16 = TransportPoint('jxw-yd', '机械屋-永动', P02_R01_L1, 'mm_sp_05', (727, 918))
 P02_R01_SP17 = TransportPoint('gdbg-rk', '歌德宾馆-入口', P02_R01_L1, 'mm_sp_05', (627, 1152), ocr_str='歌德宾馆')
-# 雅利洛 - 行政区 - B1
 P02_R01_SP18 = TransportPoint('pyz', '磐岩镇', P02_R01_B1, 'mm_sp_02', (641, 778))
 P02_R01_SP19 = TransportPoint('shj-d', '售货机-底', P02_R01_B1, 'mm_sp_03', (516, 864), ocr_str='售货机')
 
@@ -240,6 +239,20 @@ P02_R07_SP03 = TransportPoint('cxhl', '残响回廊', P02_R07, 'mm_sp_02', (313,
 P02_R08_SP01 = TransportPoint('jsqdzx', '决胜庆典中心', P02_R08_L2, 'mm_tp_03', (583, 836))
 P02_R08_SP02 = TransportPoint('mdz', '铆钉镇', P02_R08_L2, 'mm_sp_02', (591, 1032))
 
+# 雅利洛 - 磐岩镇
+P02_R09_SP01 = TransportPoint('gddfd', '歌德大饭店', P02_R09, 'mm_tp_03', (614, 236))
+P02_R09_SP02 = TransportPoint('bjjlb', '搏击俱乐部', P02_R09, 'mm_tp_03', (419, 251))
+P02_R09_SP03 = TransportPoint('ntsdzs', '娜塔莎的诊所', P02_R09, 'mm_tp_03', (416, 417))
+P02_R09_SP04 = TransportPoint('pyzcjls', '磐岩镇超级联赛', P02_R09, 'mm_tp_10', (358, 262))
+P02_R09_SP05 = TransportPoint('', '', P02_R09, 'mm_sp_02', (630, 114))
+P02_R09_SP06 = TransportPoint('', '', P02_R09, 'mm_sp_02', (453, 595))
+P02_R09_SP07 = TransportPoint('', '', P02_R09, 'mm_sp_03', (707, 458))
+P02_R09_SP08 = TransportPoint('', '', P02_R09, 'mm_sp_04', (632, 306))
+P02_R09_SP09 = TransportPoint('', '', P02_R09, 'mm_sp_04', (706, 458))
+P02_R09_SP10 = TransportPoint('', '', P02_R09, 'mm_sp_05', (688, 222))
+P02_R09_SP11 = TransportPoint('', '', P02_R09, 'mm_sp_05', (393, 475))
+
+
 # 雅利洛 - 大矿区
 P02_R10_SP01 = TransportPoint('rk', '入口', P02_R10, 'mm_tp_03', (333, 166))
 P02_R10_SP02 = TransportPoint('llzbns', '流浪者避难所', P02_R10, 'mm_tp_03', (778, 349))
@@ -252,24 +265,50 @@ P02_R10_SP08 = TransportPoint('czzl', '藏珍之蕾', P02_R10, 'mm_tp_08', (554,
 P02_R10_SP09 = TransportPoint('pyz', '磐岩镇', P02_R10, 'mm_sp_02', (351, 144))
 
 
-def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
-    arr = [
-        P01_R01_SP01, P01_R01_SP02, P01_R01_SP03_HTBGS, P01_R01_SP04, P01_R01_SP04, P01_R01_SP05, P01_R01_SP06,
-        P01_R02_SP01_JKS, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04,
-        P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07,
-        P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05,
-        P02_R01_SP01, P02_R01_SP02, P02_R01_SP03, P02_R01_SP04, P02_R01_SP05, P02_R01_SP06, P02_R01_SP07, P02_R01_SP08, P02_R01_SP09, P02_R01_SP10,
-        P02_R01_SP11, P02_R01_SP12, P02_R01_SP13, P02_R01_SP14, P02_R01_SP15, P02_R01_SP16, P02_R01_SP17, P02_R01_SP18, P02_R01_SP19,
-        P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06,
-        P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06,
-        P02_R04_SP01, P02_R04_SP02, P02_R04_SP03, P02_R04_SP04, P02_R04_SP05, P02_R04_SP06, P02_R04_SP07, P02_R04_SP08,
-        P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08, P02_R05_SP09,
-        P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04,
-        P02_R07_SP01, P02_R07_SP02, P02_R07_SP03,
-        P02_R08_SP01, P02_R08_SP02,
-    ]
+# 雅利洛 - 铆钉镇 TODO 判断层数
+P02_R11_SP01 = TransportPoint('', '', P02_R11_L1, 'mm_tp_03', (600, 134))
+P02_R11_SP02 = TransportPoint('', '', P02_R11_L1, 'mm_tp_03', (465, 297))
+P02_R11_SP03 = TransportPoint('', '', P02_R11_L1, 'mm_tp_03', (613, 598))
+P02_R11_SP04 = TransportPoint('', '', P02_R11_L1, 'mm_tp_06', (580, 297))
+P02_R11_SP05 = TransportPoint('', '', P02_R11_L1, 'mm_tp_07', (609, 531))
+P02_R11_SP06 = TransportPoint('', '', P02_R11_L1, 'mm_sp_02', (767, 167))
+P02_R11_SP07 = TransportPoint('', '', P02_R11_L1, 'mm_sp_02', (597, 621))
 
-    for i in arr:
+
+# 雅利洛 - 机械聚落 TODO 判断层数
+P02_R12_SP01 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (556, 174))
+P02_R12_SP02 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (554, 506))
+P02_R12_SP03 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (413, 527))
+P02_R12_SP04 = TransportPoint('', '', P02_R12_L1, 'mm_tp_07', (298, 564))
+
+ALL_SP_LIST = [
+    P01_R01_SP01, P01_R01_SP02, P01_R01_SP03_HTBGS, P01_R01_SP04, P01_R01_SP04, P01_R01_SP05, P01_R01_SP06,
+    P01_R02_SP01_JKS, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04,
+    P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07,
+    P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05,
+    P02_R01_SP01, P02_R01_SP02, P02_R01_SP03, P02_R01_SP04, P02_R01_SP05, P02_R01_SP06, P02_R01_SP07, P02_R01_SP08,
+    P02_R01_SP09, P02_R01_SP10,
+    P02_R01_SP11, P02_R01_SP12, P02_R01_SP13, P02_R01_SP14, P02_R01_SP15, P02_R01_SP16, P02_R01_SP17, P02_R01_SP18,
+    P02_R01_SP19,
+    P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06,
+    P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06,
+    P02_R04_SP01, P02_R04_SP02, P02_R04_SP03, P02_R04_SP04, P02_R04_SP05, P02_R04_SP06, P02_R04_SP07, P02_R04_SP08,
+    P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08,
+    P02_R05_SP09,
+    P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04,
+    P02_R07_SP01, P02_R07_SP02, P02_R07_SP03,
+    P02_R08_SP01, P02_R08_SP02,
+    P02_R09_SP01, P02_R09_SP02, P02_R09_SP03, P02_R09_SP04, P02_R09_SP05, P02_R09_SP06, P02_R09_SP07, P02_R09_SP08,
+    P02_R09_SP09, P02_R09_SP10,
+    P02_R09_SP11,
+    P02_R10_SP01, P02_R10_SP02, P02_R10_SP03, P02_R10_SP04, P02_R10_SP05, P02_R10_SP06, P02_R10_SP07, P02_R10_SP08,
+    P02_R10_SP09,
+    P02_R11_SP01, P02_R11_SP02, P02_R11_SP03, P02_R11_SP04, P02_R11_SP05, P02_R11_SP06, P02_R11_SP07,
+    P02_R12_SP01, P02_R12_SP02, P02_R12_SP03, P02_R12_SP04,
+]
+
+def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
+    for i in ALL_SP_LIST:
         if i.planet.cn != planet_cn:
             continue
         if i.region.cn != region_cn:
@@ -306,7 +345,11 @@ REGION_2_SP = {
     P02_R06.get_pr_id(): [P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04],
     P02_R07.get_pr_id(): [P02_R07_SP01, P02_R07_SP02, P02_R07_SP03],
     P02_R08_L2.get_pr_id(): [P02_R08_SP01, P02_R08_SP02],
+    P02_R09.get_pr_id(): [P02_R09_SP01, P02_R09_SP02, P02_R09_SP03, P02_R09_SP04, P02_R09_SP05, P02_R09_SP06, P02_R09_SP07, P02_R09_SP08, P02_R09_SP09, P02_R09_SP10,
+                          P02_R09_SP11],
     P02_R10.get_pr_id(): [P02_R10_SP01, P02_R10_SP02, P02_R10_SP03, P02_R10_SP04, P02_R10_SP05, P02_R10_SP06, P02_R10_SP07, P02_R10_SP08, P02_R10_SP09],
+    P02_R11_L1.get_pr_id(): [P02_R11_SP01, P02_R11_SP02, P02_R11_SP03, P02_R11_SP04, P02_R11_SP05, P02_R11_SP06, P02_R11_SP07],
+    P02_R12_L1.get_pr_id(): [P02_R12_SP01, P02_R12_SP02, P02_R12_SP03, P02_R12_SP04]
 }
 
 
