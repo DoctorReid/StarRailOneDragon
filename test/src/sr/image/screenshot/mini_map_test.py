@@ -1,4 +1,5 @@
 import os
+import time
 
 import cv2
 import numpy as np
@@ -9,7 +10,7 @@ from basic.img.os import get_debug_image_dir, get_test_image, save_debug_image, 
 from sr.config.game_config import get_game_config
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
-from sr.image.sceenshot import mini_map
+from sr.image.sceenshot import mini_map, mini_map_angle_alas
 
 
 def _test_extract_arrow():
@@ -45,6 +46,39 @@ def _test_analyse_arrow_and_angle():
     mm = mini_map.cut_mini_map(screen)
     _, _, angle = mini_map.analyse_arrow_and_angle(mm, im)
     print(angle)
+
+
+def _test_all_angle():
+    """
+    测试所有角度
+    :return:
+    """
+    mm = get_test_image('mm_arrow', sub_dir='mini_map')
+    max_delta = 0
+    for i in range(3600):
+        to_test = cv2_utils.image_rotate(mm, i / 10.0)
+        t1 = time.time()
+        center_arrow_mask, arrow_mask = mini_map.get_arrow_mask(to_test)
+        angle = mini_map.get_angle_from_arrow(center_arrow_mask, im)
+        print(time.time() - t1)
+        break
+        expect = 360 - i / 10.0
+        if abs(angle - expect) > max_delta:
+            max_delta = angle - expect
+        # if angle - expect > 2:
+        #     print(i, expect, angle)
+        #     mini_map.get_angle_from_arrow
+        #     break
+    print(max_delta)
+
+
+def test_get_angle_new():
+    mm = get_test_image('mm_arrow', sub_dir='mini_map')
+    for i in range(2):
+        to_test = cv2_utils.image_rotate(mm, i)
+        t1 = time.time()
+        print(i, mini_map_angle_alas.calculate(to_test))
+        print(time.time() - t1)
 
 
 def _test_get_sp_mask_by_feature_match():
@@ -110,4 +144,4 @@ def _test_is_under_attack():
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    _test_is_under_attack()
+    _test_all_angle()

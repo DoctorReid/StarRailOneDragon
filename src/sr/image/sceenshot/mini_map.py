@@ -5,13 +5,10 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import os_utils
 from basic.img import cv2_utils, MatchResultList, MatchResult
-from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import constants
 from sr.config.game_config import MiniMapPos, get_game_config
-from sr.constants.map import Region
 from sr.image import ImageMatcher, TemplateImage
 from sr.image.sceenshot import MiniMapInfo
 
@@ -107,8 +104,6 @@ def get_angle_from_arrow(arrow: MatLike,
     """
     用小地图上的箭头 计算当前方向 正右方向为0度 逆时针旋转为正度数
     :param arrow: 已经提取好的白色的箭头
-    :param all_template: 模板 每5度一张图的模板
-    :param one_template: 模板 0度的模板
     :param im: 图片匹配器
     :param show: 显示结果
     :return: 角度 正右方向为0度 顺时针旋转为正度数
@@ -136,7 +131,7 @@ def get_angle_from_arrow(arrow: MatLike,
     else:
         row = result2.max.cy // d
         col = result2.max.cx // d
-        precise_delta_angle = (row * 11 + col - 6) / 10.0
+        precise_delta_angle = (row * 11 + col - 60) / 10.0
         precise_angle = rough_angle + precise_delta_angle
 
     if precise_angle is not None and precise_angle < 0:
@@ -398,7 +393,7 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
 def get_mini_map_road_mask(origin: MatLike,
                            sp_mask: MatLike = None,
                            arrow_mask: MatLike = None,
-                           angle: int = None,
+                           angle: float = None,
                            another_floor: bool = True) -> MatLike:
     """
     在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
@@ -467,7 +462,7 @@ def get_mini_map_road_mask(origin: MatLike,
     return real_road_mask
 
 
-def get_mini_map_radio_mask(mm: MatLike, angle: int = None, another_floor: bool = True):
+def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: bool = True):
     """
     小地图中心雷达区的掩码
     :param mm: 小地图图片

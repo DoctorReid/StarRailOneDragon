@@ -98,14 +98,20 @@ class ImageHolder:
         if template_id in self.template:
             del self.template[template_id]
 
-    def rotate_template(self, template: TemplateImage, rotate_angle: int) -> TemplateImage:
+    def rotate_template(self, template: TemplateImage, rotate_angle: float) -> TemplateImage:
+        """
+        旋转图片
+        :param template:
+        :param rotate_angle:
+        :return:
+        """
         rotate: TemplateImage = TemplateImage()
         rotate.origin = cv2_utils.image_rotate(template.origin, rotate_angle)
         rotate.gray = cv2_utils.image_rotate(template.gray, rotate_angle)
         rotate.mask = cv2_utils.image_rotate(template.mask, rotate_angle)
         return rotate
 
-    def get_template(self, template_id: str, rotate_angle: int = 0) -> TemplateImage:
+    def get_template(self, template_id: str, rotate_angle: float = 0) -> TemplateImage:
         """
         获取某个模板
         :param template_id: 模板id

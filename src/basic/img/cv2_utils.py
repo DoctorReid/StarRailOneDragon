@@ -51,7 +51,7 @@ def show_image(img: MatLike,
     cv2.waitKey(wait)
 
 
-def image_rotate(img: MatLike, angle: int, show_result: bool = False):
+def image_rotate(img: MatLike, angle: float, show_result: bool = False):
     """
     对图片按中心进行旋转
     :param img: 原图

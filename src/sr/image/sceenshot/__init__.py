@@ -28,7 +28,7 @@ class MiniMapInfo:
         self.origin: MatLike = None  # 原图
         self.center_arrow_mask: MatLike = None  # 小地图中心小箭头的掩码 用于判断方向
         self.arrow_mask: MatLike = None  # 整张小地图的小箭头掩码 用于合成道路掩码
-        self.angle: int = None  # 箭头方向
+        self.angle: float = None  # 箭头方向
         self.gray: MatLike = None  # 灰度图 用于特征检测
         self.center_mask: MatLike = None  # 中心正方形 用于模板匹配
         self.circle_mask: MatLike = None  # 小地图圆形
