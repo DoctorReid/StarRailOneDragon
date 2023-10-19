@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.context import Context
+from sr.image.sceenshot import fill_uid_black
 
 
 class Operation:
@@ -43,7 +44,8 @@ class Operation:
                 result = self.run()
             except Exception as e:
                 if self.last_screenshot is not None:
-                    file_name = save_debug_image(self.last_screenshot, prefix=self.__class__.__name__)
+                    to_save = fill_uid_black(self.last_screenshot)
+                    file_name = save_debug_image(to_save, prefix=self.__class__.__name__)
                     log.error('指令执行出错 相关截图保存至 %s', file_name, exc_info=True)
                 else:
                     log.error('指令执行出错', exc_info=True)

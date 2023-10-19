@@ -138,8 +138,16 @@ def init_ui_icon(template_id: str, noise_threshold: int = 0):
 
 def init_battle_ctrl_icon(template_id: str, noise_threshold: int = 0):
     raw = _read_template_raw_image(template_id)
-    gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
-    _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+    if template_id == 'battle_ctrl_02':  # 自动战斗的图标激活之后有动态的光条 用激活前的做模板比较好
+        gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+        _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+    else:
+        mask = np.zeros((raw.shape[0], raw.shape[1]), dtype=np.uint8)
+        b, g, r = cv2.split(raw)
+        lower = 170
+        mask[np.where(b > lower)] = 255
+        mask[np.where(g > lower)] = 255
+        mask[np.where(r > lower)] = 255
     final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=35, bg_color=(0, 0, 0))
     show_and_save(template_id, final_origin, final_mask)
 

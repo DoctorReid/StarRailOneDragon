@@ -35,6 +35,8 @@ def _test_is_fast_battle_on():
     print(battle.is_fast_battle_on(screen, im))  # true
     screen = get_test_image('all_on_2', sub_dir='battle')
     print(battle.is_fast_battle_on(screen, im))  # true
+    screen = get_test_image('no_fast', sub_dir='battle')
+    print(battle.is_fast_battle_on(screen, im))  # true
 
 
 if __name__ == '__main__':
