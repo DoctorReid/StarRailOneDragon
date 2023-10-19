@@ -1,8 +1,8 @@
-planet: '空间站'
+planet: '空间站黑塔'
 region: '基座舱段'
 level: 0
 tp: '监控室'
 route:
   - op: 'move'
-    data: [645, 250]
+    data: [640, 250]
   - op: 'patrol'

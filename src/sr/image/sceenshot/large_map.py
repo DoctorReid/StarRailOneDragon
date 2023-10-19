@@ -34,11 +34,11 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     result = ocr.run_ocr(screen[30:100, 90:250], threshold=0.4)
     log.debug('屏幕左上方获取星球结果 %s', result.keys())
     for word in result.keys():
-        if word.find(gt(constants.map.P01_KZJ.cn)) > -1:
+        if word.find(gt(constants.map.P01_KZJ.ocr_str)) > -1:
             return constants.map.P01_KZJ
-        if word.find(gt(constants.map.P02_YYL.cn)) > -1:
+        if word.find(gt(constants.map.P02_YYL.ocr_str)) > -1:
             return constants.map.P02_YYL
-        if word.find(gt(constants.map.P03_XZLF.cn)) > -1:
+        if word.find(gt(constants.map.P03_XZLF.ocr_str)) > -1:
             return constants.map.P03_XZLF
 
     return None

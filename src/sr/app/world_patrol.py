@@ -2,6 +2,7 @@ import os
 from typing import List
 
 from basic import os_utils
+from basic.i18_utils import gt
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
@@ -22,6 +23,8 @@ class WorldPatrolRoute(ConfigHolder):
     def __init__(self, route_id: str):
         self.tp: TransportPoint = None
         self.route_list: List = None
+        self.route_id: str = route_id
+        self.route_name: str = route_id[12:]  # 用于界面展示
         super().__init__(route_id, sample=False, sub_dir='world_patrol')
 
     def init(self):
@@ -67,17 +70,7 @@ class WorldPatrol(Application):
         self.route_iterator = iter(self.route_list)
 
     def init_app(self):
-        self.route_list = []
-
-        dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol')
-        for filename in os.listdir(dir_path):
-            if filename == 'record.yml':
-                continue
-            idx = filename.find('.yml')
-            if idx == -1:
-                continue
-            self.route_list.append(filename[0:idx])
-
+        self.route_list = load_all_route_id()
         log.info('共加载 %d 条线路', len(self.route_list))
         self.record = WorldPatrolRecord(os_utils.get_dt(), restart=self.restart)
         log.info('之前已完成线路 %d 条', len(self.record.finished))
@@ -206,6 +199,23 @@ class WorldPatrol(Application):
             return False
 
         return op.execute()
+
+
+def load_all_route_id() -> List[str]:
+    """
+    加载所有路线
+    :return:
+    """
+    route_id_arr: List[str] = []
+    dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol')
+    for filename in os.listdir(dir_path):
+        if filename == 'record.yml':
+            continue
+        idx = filename.find('.yml')
+        if idx == -1:
+            continue
+        route_id_arr.append(filename[0:idx])
+    return route_id_arr
 
 
 if __name__ == '__main__':

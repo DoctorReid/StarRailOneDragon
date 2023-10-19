@@ -1,21 +1,20 @@
-from typing import Set
-
 from basic import cal_utils
 
 
 class Planet:
 
-    def __init__(self, i: str, cn: str):
+    def __init__(self, i: str, cn: str, ocr_str: str = None):
         self.id: str = i  # id 用在找文件夹之类的
-        self.cn: str = cn  # 中文 用在OCR
+        self.cn: str = cn  # 中文
+        self.ocr_str: str = ocr_str if ocr_str is not None else cn # 用于ocr
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
 
 
-P01_KZJ = Planet("kjzht", "空间站")
-P02_YYL = Planet("yll6", "雅利洛")
-P03_XZLF = Planet("zxlf", "罗浮")
+P01_KZJ = Planet("kjzht", "空间站黑塔", ocr_str='空间站')
+P02_YYL = Planet("yll6", "雅利洛", ocr_str='雅利洛')
+P03_XZLF = Planet("zxlf", "罗浮仙舟", ocr_str='罗浮')
 
 PLANET_LIST = [P01_KZJ, P02_YYL, P03_XZLF]
 
@@ -45,6 +44,18 @@ class Region:
 
     def get_pr_id(self):
         return '%s-%s' % (self.planet.id, self.id)
+
+    def get_level_str(self):
+        """
+        层数 正数用 l1 负数用 b1
+        :return:
+        """
+        if self.level == 0:
+            return ''
+        elif self.level > 0:
+            return '-l%d' % self.level
+        elif self.level < 0:
+            return 'b%d' % abs(self.level)
 
     def get_rl_id(self):
         """
