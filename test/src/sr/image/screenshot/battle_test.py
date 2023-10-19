@@ -7,10 +7,10 @@ from sr.image.sceenshot import battle
 
 
 def _test_get_battle_status():
-    screen = get_test_image('mm_arrow')
-    cv2_utils.show_image(screen[0:90, 1800:1900], win_name='icon_c"')
-    print(battle.get_battle_status(screen, im))  # 1
-    cv2.waitKey(0)
+    screen = get_test_image('game1')
+    assert battle.IN_WORLD == battle.get_battle_status(screen, im)  # 1
+    screen = get_test_image('all_off', sub_dir='battle')
+    assert battle.BATTLING == battle.get_battle_status(screen, im)  # 2
 
 
 def _test_match_battle_ctrl():
@@ -41,4 +41,4 @@ def _test_is_fast_battle_on():
 
 if __name__ == '__main__':
     im = CvImageMatcher()
-    _test_is_auto_battle_on()
+    _test_get_battle_status()

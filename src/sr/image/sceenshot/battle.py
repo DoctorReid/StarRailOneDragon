@@ -17,6 +17,9 @@ FAST_BATTLE_RECT = (1620, 30, 1700, 70)  # 二倍速
 AUTO_BATTLE_RECT = (1700, 30, 1800, 70)  # 自动战斗
 PAUSE_BATTLE_RECT = (1800, 30, 1900, 70)  # 暂停
 
+# 右上方那一行的菜单
+RT_CHARACTER_RECT = (1800, 0, 1900, 90)  # 角色按钮
+
 
 def get_battle_status(screen: MatLike, im: ImageMatcher):
     """
@@ -40,7 +43,7 @@ def is_character_icon_at_right_top(screen: MatLike, im: ImageMatcher):
     :param im: 图片匹配器
     :return: 右上角是否有角色的图标
     """
-    part = screen[0:90, 1800:1900]
+    part, _ = cv2_utils.crop_image(screen, RT_CHARACTER_RECT)
     result = im.match_template(part, 'ui_icon_01', threshold=0.7)
     return result.max is not None
 
@@ -76,7 +79,6 @@ def match_battle_ctrl(screen: MatLike, im: ImageMatcher, template_id: str, rect 
     :return:
     """
     part, _ = cv2_utils.crop_image(screen, rect)
-    cv2_utils.show_image(part, wait=0)
     b, g, r = cv2.split(part)
 
     # 找到亮的部分

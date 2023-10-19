@@ -99,14 +99,6 @@ def _test_get_sp_mask_by_feature_match():
     cv2.waitKey(0)
 
 
-def _test_is_under_attack():
-    for i in range(2):
-        screen = get_test_image('%d' % (i + 1), sub_dir='under_attack')
-        mm = mini_map.cut_mini_map(screen)
-        print(mini_map.is_under_attack(mm, get_game_config().mini_map_pos, show=True))
-        cv2.waitKey(0)
-
-
 def _test_radio_mask():
     screen = get_debug_image('1697036262088')
     mm = mini_map.cut_mini_map(screen)
@@ -153,4 +145,4 @@ def _test_is_under_attack():
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    test_get_angle_new()
+    _test_is_under_attack()

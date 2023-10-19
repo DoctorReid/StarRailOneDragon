@@ -24,6 +24,8 @@ class EnableAutoFight(Operation):
 
         if not battle.is_auto_battle_on(screen, self.ctx.im):
             log.info('检测到未启动自动战斗')
+            if os_utils.is_debug():
+                save_debug_image(screen, prefix='no_auto')
             r = battle.match_battle_ctrl(screen, self.ctx.im, 'battle_ctrl_02', is_on=False)
             if r is not None:
                 log.info('启动自动战斗')
@@ -34,7 +36,7 @@ class EnableAutoFight(Operation):
         if not battle.is_fast_battle_on(screen, self.ctx.im):
             log.info('检测到未启动二倍速战斗')
             if os_utils.is_debug():
-                save_debug_image(screen)
+                save_debug_image(screen, prefix='no_fast')
             r = battle.match_battle_ctrl(screen, self.ctx.im, 'battle_ctrl_03', is_on=False)
             if r is not None:
                 log.info('启动二倍速战斗')
