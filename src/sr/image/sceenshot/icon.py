@@ -264,7 +264,7 @@ def init_battle_lock():
     cv2.waitKey(0)
 
 
-def init_boos_icon(template_id):
+def init_boss_icon(template_id):
     raw = _read_template_raw_image(template_id)
     lower_color = np.array([80, 80, 180], dtype=np.uint8)
     upper_color = np.array([140, 140, 255], dtype=np.uint8)

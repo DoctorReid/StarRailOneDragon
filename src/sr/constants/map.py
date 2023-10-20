@@ -194,7 +194,7 @@ P01_R04_SP02 = TransportPoint('bjkf', '备件库房', P01_R04_ZYCD_L2, 'mm_tp_03
 P01_R04_SP03 = TransportPoint('yt', '月台', P01_R04_ZYCD_L2, 'mm_tp_03', (778, 370))
 P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (457, 288), ocr_str='存护')
 P01_R04_SP05 = TransportPoint('tkdt', '太空电梯', P01_R04_ZYCD_L2, 'mm_sp_02', (105, 345))
-P01_R04_SP06 = TransportPoint('', '', P01_R04_ZYCD_L2, 'mm_boss_01', (1000, 252))
+P01_R04_SP06 = TransportPoint('hmdkd', '毁灭的开端', P01_R04_ZYCD_L2, 'mm_boss_01', (1000, 252))
 
 # 雅利洛 - 行政区
 P02_R01_SP01 = TransportPoint('hjgjy', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374))
@@ -487,55 +487,6 @@ SP08 = TransportPoint('', '', P03_R02_L1, 'mm_sp_04', (388, 777))
 # [22:05:02] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_02', (1891, 311))
 
 
-ALL_SP_LIST = [
-    P01_R01_SP01, P01_R01_SP02, P01_R01_SP03_HTBGS, P01_R01_SP04, P01_R01_SP04, P01_R01_SP05, P01_R01_SP06,
-    P01_R02_SP01_JKS, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04,
-    P01_R03_SP01_KZZXW, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05_HMZL, P01_R03_SP06, P01_R03_SP07,
-    P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05, P01_R04_SP06,
-    P02_R01_SP01, P02_R01_SP02, P02_R01_SP03, P02_R01_SP04, P02_R01_SP05, P02_R01_SP06, P02_R01_SP07, P02_R01_SP08,
-    P02_R01_SP09, P02_R01_SP10,
-    P02_R01_SP11, P02_R01_SP12, P02_R01_SP13, P02_R01_SP14, P02_R01_SP15, P02_R01_SP16, P02_R01_SP17, P02_R01_SP18,
-    P02_R01_SP19,
-    P02_R02_SP01, P02_R02_SP02, P02_R02_SP03, P02_R02_SP04, P02_R02_SP05, P02_R02_SP06,
-    P02_R03_SP01, P02_R03_SP02, P02_R03_SP03, P02_R03_SP04, P02_R03_SP05, P02_R03_SP06,
-    P02_R04_SP01, P02_R04_SP02, P02_R04_SP03, P02_R04_SP04, P02_R04_SP05, P02_R04_SP06, P02_R04_SP07, P02_R04_SP08,
-    P02_R05_SP01, P02_R05_SP02, P02_R05_SP03, P02_R05_SP04, P02_R05_SP05, P02_R05_SP06, P02_R05_SP07, P02_R05_SP08,
-    P02_R05_SP09,
-    P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04, P02_R06_SP05,
-    P02_R07_SP01, P02_R07_SP02, P02_R07_SP03,
-    P02_R08_SP01, P02_R08_SP02,
-    P02_R09_SP01, P02_R09_SP02, P02_R09_SP03, P02_R09_SP04, P02_R09_SP05, P02_R09_SP06, P02_R09_SP07, P02_R09_SP08,
-    P02_R09_SP09, P02_R09_SP10,
-    P02_R09_SP11,
-    P02_R10_SP01, P02_R10_SP02, P02_R10_SP03, P02_R10_SP04, P02_R10_SP05, P02_R10_SP06, P02_R10_SP07, P02_R10_SP08,
-    P02_R10_SP09,
-    P02_R11_SP01, P02_R11_SP02, P02_R11_SP03, P02_R11_SP04, P02_R11_SP05, P02_R11_SP06, P02_R11_SP07,
-    P02_R12_SP01, P02_R12_SP02, P02_R12_SP03, P02_R12_SP04,
-]
-
-def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
-    for i in ALL_SP_LIST:
-        if i.planet.cn != planet_cn:
-            continue
-        if i.region.cn != region_cn:
-            continue
-        if i.region.level != level:
-            continue
-        if i.cn != tp_cn:
-            continue
-        return i
-
-
-def region_with_another_floor(region: Region, level: int) -> Region:
-    """
-    切换层数
-    :param region:
-    :param level:
-    :return:
-    """
-    return get_region_by_cn(region.cn, region.planet, level)
-
-
 REGION_2_SP = {
     P01_R01_ZKCD.get_pr_id(): [P01_R01_SP03_HTBGS],
     P01_R02_JZCD.get_pr_id(): [P01_R02_SP01_JKS],
@@ -557,6 +508,28 @@ REGION_2_SP = {
     P02_R11_L1.get_pr_id(): [P02_R11_SP01, P02_R11_SP02, P02_R11_SP03, P02_R11_SP04, P02_R11_SP05, P02_R11_SP06, P02_R11_SP07],
     P02_R12_L1.get_pr_id(): [P02_R12_SP01, P02_R12_SP02, P02_R12_SP03, P02_R12_SP04]
 }
+
+
+def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
+    p: Planet = get_planet_by_cn(planet_cn)
+    r: Region = get_region_by_cn(region_cn, p, level)
+    for i in REGION_2_SP.get(r.get_pr_id()):
+        if i.cn != tp_cn:
+            continue
+        return i
+
+
+def region_with_another_floor(region: Region, level: int) -> Region:
+    """
+    切换层数
+    :param region:
+    :param level:
+    :return:
+    """
+    return get_region_by_cn(region.cn, region.planet, level)
+
+
+
 
 
 def get_sp_type_in_rect(region: Region, rect: tuple) -> dict:
