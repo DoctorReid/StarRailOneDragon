@@ -261,7 +261,7 @@ P02_R06_SP01 = TransportPoint('gzc', '古战场', P02_R06, 'mm_tp_03', (366, 776
 P02_R06_SP02 = TransportPoint('zwpt', '造物平台', P02_R06, 'mm_tp_03', (784, 571))
 P02_R06_SP03 = TransportPoint('rzzj', '睿治之径', P02_R06, 'mm_tp_09', (585, 663))
 P02_R06_SP04 = TransportPoint('cxhl', '残响回廊', P02_R06, 'mm_sp_02', (338, 793))
-P02_R06_SP05 = TransportPoint('', '', P02_R06, 'mm_boss_02', (814, 701))
+P02_R06_SP05 = TransportPoint('hcdlm', '寒潮的落幕', P02_R06, 'mm_boss_02', (814, 701))
 
 # 雅利洛 - 造物之柱
 P02_R07_SP01 = TransportPoint('zwzz-rk', '造物之柱-入口', P02_R07, 'mm_tp_03', (382, 426), ocr_str='入口')
