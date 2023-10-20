@@ -307,11 +307,11 @@ P02_R11_SP06 = TransportPoint('jwqsyc', '旧武器试验场', P02_R11_L1, 'mm_sp
 P02_R11_SP07 = TransportPoint('pyz', '磐岩镇', P02_R11_L1, 'mm_sp_02', (597, 621))
 
 
-# 雅利洛 - 机械聚落 TODO 判断层数
-P02_R12_SP01 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (556, 174))
-P02_R12_SP02 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (554, 506))
-P02_R12_SP03 = TransportPoint('', '', P02_R12_L1, 'mm_tp_03', (413, 527))
-P02_R12_SP04 = TransportPoint('', '', P02_R12_L1, 'mm_tp_07', (298, 564))
+# 雅利洛 - 机械聚落
+P02_R12_SP01 = TransportPoint('llzyd', '流浪者营地', P02_R12_L2, 'mm_tp_03', (556, 174))
+P02_R12_SP02 = TransportPoint('sqlzd', '史瓦罗驻地', P02_R12_L2, 'mm_tp_03', (554, 506))
+P02_R12_SP03 = TransportPoint('nyzhss', '能源转换设施', P02_R12_L1, 'mm_tp_03', (413, 527))
+P02_R12_SP04 = TransportPoint('txzl', '同谐之蕾', P02_R12_L1, 'mm_tp_07', (298, 564))
 
 # 罗浮仙舟 - 星槎海中枢
 SP00 = TransportPoint('', '', P03_R01, 'mm_tp_03', (443, 341))
