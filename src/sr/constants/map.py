@@ -315,10 +315,10 @@ P02_R12_SP04 = TransportPoint('txzl', '同谐之蕾', P02_R12_L1, 'mm_tp_07', (2
 P03_R01_SP01 = TransportPoint('xcmt', '星槎码头', P03_R01, 'mm_tp_03', (443, 341))
 P03_R01_SP02 = TransportPoint('kyt', '坤舆台', P03_R01, 'mm_tp_03', (700, 370))
 P03_R01_SP03 = TransportPoint('xydd', '宣夜大道', P03_R01, 'mm_tp_03', (428, 622))
-P03_R01_SP04 = TransportPoint('', '', P03_R01, 'mm_sp_01', (616, 409))
-P03_R01_SP05 = TransportPoint('', '', P03_R01, 'mm_sp_02', (849, 168))
-P03_R01_SP06 = TransportPoint('', '', P03_R01, 'mm_sp_02', (539, 231))
-P03_R01_SP07 = TransportPoint('', '', P03_R01, 'mm_sp_02', (337, 748))
+P03_R01_SP04 = TransportPoint('tkzy', '天空之眼', P03_R01, 'mm_sp_01', (616, 409))
+P03_R01_SP05 = TransportPoint('lyd', '流云渡', P03_R01, 'mm_sp_02', (849, 168))
+P03_R01_SP06 = TransportPoint('clt', '长乐天', P03_R01, 'mm_sp_02', (539, 231))
+P03_R01_SP07 = TransportPoint('hxg', '廻星港', P03_R01, 'mm_sp_02', (337, 748))
 P03_R01_SP08 = TransportPoint('shj-1', '售货机-1', P03_R01, 'mm_sp_03', (603, 306))
 P03_R01_SP09 = TransportPoint('zhplb', '杂货铺老板', P03_R01, 'mm_sp_03', (572, 482))
 P03_R01_SP10 = TransportPoint('byh', '不夜侯', P03_R01, 'mm_sp_03', (348, 508))
@@ -327,18 +327,17 @@ P03_R01_SP12 = TransportPoint('shj-3', '售货机-3', P03_R01, 'mm_sp_03', (389,
 P03_R01_SP13 = TransportPoint('szg', '赎珠阁', P03_R01, 'mm_sp_04', (375, 595))
 P03_R01_SP14 = TransportPoint('shj-4', '售货机-4', P03_R01, 'mm_sp_03', (316, 698))
 P03_R01_SP15 = TransportPoint('xct', '小吃摊', P03_R01, 'mm_sp_03', (436, 702))
-P03_R01_SP16 = TransportPoint('', '', P03_R01, 'mm_sp_05', (673, 487))
+P03_R01_SP16 = TransportPoint('scg', '司辰宫', P03_R01, 'mm_sp_05', (673, 487))
 
 # 仙舟罗浮 - 流云渡
-SP00 = TransportPoint('lydhd', '流云渡货道', P03_R02_L2, 'mm_tp_03', (704, 422))
-SP01 = TransportPoint('jyf', '积玉坊', P03_R02_L1, 'mm_tp_03', (541, 795))
-SP02 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (567, 986))
-SP03 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (579, 1369))
-SP04 = TransportPoint('', '', P03_R02_L1, 'mm_tp_06', (730, 1367))
-SP05 = TransportPoint('', '', P03_R02_L1, 'mm_tp_09', (542, 1153))
-SP06 = TransportPoint('', '', P03_R02_L1, 'mm_sp_02', (578, 1503))
-SP07 = TransportPoint('', '', P03_R02_L1, 'mm_sp_03', (388, 777))
-SP08 = TransportPoint('', '', P03_R02_L1, 'mm_sp_04', (388, 777))
+P03_R02_SP01 = TransportPoint('lydhd', '流云渡货道', P03_R02_L2, 'mm_tp_03', (704, 422))
+P03_R02_SP02 = TransportPoint('jyf', '积玉坊', P03_R02_L1, 'mm_tp_03', (541, 795))
+P03_R02_SP03 = TransportPoint('jyfnc', '积玉坊南侧', P03_R02_L1, 'mm_tp_03', (567, 986))
+P03_R02_SP04 = TransportPoint('lydccc', '流云渡乘槎处', P03_R02_L1, 'mm_tp_03', (579, 1369))
+P03_R02_SP05 = TransportPoint('blzx', '冰棱之形', P03_R02_L1, 'mm_tp_06', (730, 1367))
+P03_R02_SP06 = TransportPoint('sszj', '圣颂之径', P03_R02_L1, 'mm_tp_09', (542, 1153))
+P03_R02_SP07 = TransportPoint('xchzs', '星槎海中枢', P03_R02_L1, 'mm_sp_02', (578, 1503))
+P03_R02_SP08 = TransportPoint('gqybsgc', '过期邮包收购处', P03_R02_L1, 'mm_sp_03', (388, 777))
 
 
 # 廻星港
@@ -496,7 +495,10 @@ REGION_2_SP = {
     P02_R09.get_pr_id(): [P02_R09_SP01, P02_R09_SP02, P02_R09_SP03, P02_R09_SP04, P02_R09_SP05, P02_R09_SP06, P02_R09_SP07, P02_R09_SP08, P02_R09_SP09, P02_R09_SP10],
     P02_R10.get_pr_id(): [P02_R10_SP01, P02_R10_SP02, P02_R10_SP03, P02_R10_SP04, P02_R10_SP05, P02_R10_SP06, P02_R10_SP07, P02_R10_SP08, P02_R10_SP09],
     P02_R11_L1.get_pr_id(): [P02_R11_SP01, P02_R11_SP02, P02_R11_SP03, P02_R11_SP04, P02_R11_SP05, P02_R11_SP06, P02_R11_SP07],
-    P02_R12_L1.get_pr_id(): [P02_R12_SP01, P02_R12_SP02, P02_R12_SP03, P02_R12_SP04]
+    P02_R12_L1.get_pr_id(): [P02_R12_SP01, P02_R12_SP02, P02_R12_SP03, P02_R12_SP04],
+    P03_R01.get_pr_id(): [P03_R01_SP01, P03_R01_SP02, P03_R01_SP03, P03_R01_SP04, P03_R01_SP05, P03_R01_SP06, P03_R01_SP07, P03_R01_SP08, P03_R01_SP09, P03_R01_SP10,
+                          P03_R01_SP11, P03_R01_SP12, P03_R01_SP13, P03_R01_SP14, P03_R01_SP15, P03_R01_SP16],
+    P03_R02_L1.get_pr_id(): [P03_R02_SP01, P03_R02_SP02, P03_R02_SP03, P03_R02_SP04, P03_R02_SP05, P03_R02_SP06, P03_R02_SP07, P03_R02_SP08]
 }
 
 
