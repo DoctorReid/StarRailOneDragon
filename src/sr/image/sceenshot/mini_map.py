@@ -197,7 +197,7 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
 
     sp_mask = np.zeros_like(mm_info.gray)
     sp_match_result = {}
-    for prefix in ['mm_tp', 'mm_sp']:
+    for prefix in ['mm_tp', 'mm_sp', 'mm_boss']:
         for i in range(100):
             if i == 0:
                 continue

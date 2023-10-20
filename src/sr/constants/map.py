@@ -194,6 +194,7 @@ P01_R04_SP02 = TransportPoint('bjkf', '备件库房', P01_R04_ZYCD_L2, 'mm_tp_03
 P01_R04_SP03 = TransportPoint('yt', '月台', P01_R04_ZYCD_L2, 'mm_tp_03', (778, 370))
 P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (457, 288), ocr_str='存护')
 P01_R04_SP05 = TransportPoint('tkdt', '太空电梯', P01_R04_ZYCD_L2, 'mm_sp_02', (105, 345))
+P01_R04_SP06 = TransportPoint('', '', P01_R04_ZYCD_L2, 'mm_boss_01', (1000, 252))
 
 # 雅利洛 - 行政区
 P02_R01_SP01 = TransportPoint('hjgjy', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374))

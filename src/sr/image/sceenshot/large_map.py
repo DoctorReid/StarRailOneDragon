@@ -101,7 +101,7 @@ def get_sp_mask_by_template_match(lm_info: LargeMapInfo, im: ImageMatcher,
     source = lm_info.origin if template_type == 'origin' else lm_info.gray
     sp_mask = np.zeros(source.shape[:2], dtype=np.uint8)
     # 找出特殊点位置
-    for prefix in ['mm_tp', 'mm_sp']:
+    for prefix in ['mm_tp', 'mm_sp', 'mm_boss']:
         for i in range(100):
             if i == 0:
                 continue

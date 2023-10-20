@@ -263,3 +263,29 @@ def init_battle_lock():
     cv2_utils.show_image(origin, win_name='origin')
     cv2.waitKey(0)
 
+
+def init_boos_icon(template_id):
+    raw = _read_template_raw_image(template_id)
+    lower_color = np.array([80, 80, 180], dtype=np.uint8)
+    upper_color = np.array([140, 140, 255], dtype=np.uint8)
+    red_part = cv2.inRange(raw, lower_color, upper_color)
+    # gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+    circles = cv2.HoughCircles(red_part, cv2.HOUGH_GRADIENT, 1, 10, param1=0.7, param2=0.7, minRadius=20, maxRadius=25)
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        tx, ty, tr = 0, 0, 0
+
+        # 保留半径最大的圆
+        for circle in circles[0, :]:
+            x, y, r = circle[0], circle[1], circle[2]
+            if x < r or y < r or x + r > red_part.shape[1] or y + r > red_part.shape[0]:
+                continue
+            if r > tr:
+                tx, ty, tr = x, y, r
+
+    mask = np.zeros(red_part.shape, dtype=np.uint8)
+    cv2.circle(mask, (tx, ty), tr, 255, -1)
+    mask = cv2_utils.dilate(mask, 3)
+
+    origin, mask = convert_to_standard(raw, mask, width=65, height=65, bg_color=constants.COLOR_MAP_ROAD_BGR)
+    show_and_save(template_id, origin, mask)
