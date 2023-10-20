@@ -36,8 +36,11 @@ case_list = [
 
     TestCase(constants.map.P01_R04_ZYCD_L1, (470, 244), 1, True),
 
+    TestCase(constants.map.P02_R05, (495, 429), 1, True),
+    TestCase(constants.map.P02_R05, (242, 1283), 2, True),
+
     TestCase(constants.map.P02_R06, (488, 687), 1, True),
-    TestCase(constants.map.P02_R06, (488, 687), 2, True),  # 暂时找不到好方法
+    TestCase(constants.map.P02_R06, (465, 595), 2, True),
 ]
 
 
@@ -56,7 +59,11 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     if show:
         cv2.waitKey(0)
 
-    return x is None or cal_utils.distance_between((x,y), c.pos) > 10
+    error = x is None or cal_utils.distance_between((x,y), c.pos[:2]) > 10
+    if error:
+        log.error('定位错误 %s', (x, y))
+
+    return error
 
 
 if __name__ == '__main__':
@@ -66,7 +73,7 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != constants.map.P02_R07 or c.num != 2:
+        # if c.region != constants.map.P02_R06 or c.num != 2:
         #     continue
         if c.region.get_prl_id() not in lm_info_map:
             lm_info_map[c.region.get_prl_id()] = large_map.analyse_large_map(c.region, ih)

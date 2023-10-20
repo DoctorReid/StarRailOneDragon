@@ -239,13 +239,13 @@ def get_large_map_road_mask(map_image: MatLike,
     """
     # 按道路颜色圈出 当前层的颜色
     l1 = 45
-    u1 = 75
+    u1 = 100
     lower_color = np.array([l1, l1, l1], dtype=np.uint8)
     upper_color = np.array([u1, u1, u1], dtype=np.uint8)
     road_mask_1 = cv2.inRange(map_image, lower_color, upper_color)
     # 按道路颜色圈出 其他层的颜色
     l2 = 120
-    u2 = 135
+    u2 = 150
     lower_color = np.array([l2, l2, l2], dtype=np.uint8)
     upper_color = np.array([u2, u2, u2], dtype=np.uint8)
     road_mask_2 = cv2.inRange(map_image, lower_color, upper_color)

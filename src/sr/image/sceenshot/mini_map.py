@@ -464,6 +464,25 @@ def get_mini_map_road_mask(origin: MatLike,
     return real_road_mask
 
 
+def get_rough_road_mask(mm: MatLike):
+    """
+    获取比较粗略的道路掩码 用于原图的模板匹配
+    需要用到这一步说明特殊点特征匹配无用 提取的高精度道路掩码无用
+    :param mm: 小地图截图
+    :return:
+    """
+    l1 = 0
+    u1 = 100
+    lower_color = np.array([l1, l1, l1], dtype=np.uint8)
+    upper_color = np.array([u1, u1, u1], dtype=np.uint8)
+    road_mask_1 = cv2.inRange(mm, lower_color, upper_color)
+
+    hsv = cv2.cvtColor(mm, cv2.COLOR_BGR2HSV)
+    hsv_mask = cv2.threshold(hsv[:, :, 2], 70, 255, cv2.THRESH_BINARY_INV)[1]
+
+    return cv2.bitwise_and(road_mask_1, hsv_mask)
+
+
 def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: bool = True):
     """
     小地图中心雷达区的掩码

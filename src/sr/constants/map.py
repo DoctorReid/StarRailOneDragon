@@ -14,7 +14,7 @@ class Planet:
 
 P01_KZJ = Planet("kjzht", "空间站黑塔", ocr_str='空间站')
 P02_YYL = Planet("yll6", "雅利洛", ocr_str='雅利洛')
-P03_XZLF = Planet("zxlf", "罗浮仙舟", ocr_str='罗浮')
+P03_XZLF = Planet("lfxz", "罗浮仙舟", ocr_str='罗浮')
 
 PLANET_LIST = [P01_KZJ, P02_YYL, P03_XZLF]
 

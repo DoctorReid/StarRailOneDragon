@@ -156,8 +156,9 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
     target: MatchResult = None
     target_scale = None
     # 使用道路掩码
-    origin_template_mask = cv2_utils.dilate(mm_info.road_mask, 10)
-    origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.circle_mask)
+    # origin_template_mask = cv2_utils.dilate(mm_info.road_mask, 10)
+    # origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.circle_mask)
+    origin_template_mask = cv2.bitwise_and(mm_info.circle_mask, mini_map.get_rough_road_mask(mm_info.origin))
     for scale in mini_map.get_mini_map_scale_list(running):
         if scale > 1:
             dest_size = (int(template_w * scale), int(template_h * scale))
@@ -167,7 +168,7 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
             template = mm_info.origin
             template_mask = origin_template_mask
 
-        result = im.match_image(source, template, mask=template_mask, threshold=0.3, ignore_inf=True)
+        result = im.match_image(source, template, mask=template_mask, threshold=0.2, ignore_inf=True)
 
         if show:
             cv2_utils.show_image(source, win_name='template_match_source')
@@ -176,7 +177,7 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
             # cv2_utils.show_image(cv2.bitwise_and(template, template_mask), win_name='template_match_template')
             # cv2.waitKey(0)
 
-        if result.max is not None:
+        if result.max is not None and (target is None or result.max.confidence > target.confidence):
             target = result.max
             target_scale = scale
             break  # 节省点时间 其中一个缩放匹配到就可以了 也不用太精准

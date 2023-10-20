@@ -98,9 +98,9 @@ class MoveDirectly(Operation):
         x, y = self.get_pos(mm_info, lm_rect)
 
         if x is None or y is None:
-            log.error('无法判断当前人物坐标')
+            log.error('无法判断当前人物坐标 使用上一个坐标为%s', possible_pos)
             if os_utils.is_debug():
-                save_debug_image(mm)
+                save_debug_image(mm, prefix='cal_pos')
             self.no_pos_times += 1
             if self.no_pos_times >= 10:
                 log.error('持续无法判断当前人物坐标 退出本次移动')
