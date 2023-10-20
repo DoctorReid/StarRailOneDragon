@@ -1,0 +1,21 @@
+planet: '雅利洛'
+region: '铆钉镇'
+level: 1
+tp: '废弃集市'
+route:
+  - op: 'move'
+    data: [446, 298]
+  - op: 'move'
+    data: [447, 322]
+  - op: 'move'
+    data: [426, 322]
+  - op: 'move'
+    data: [410, 342]
+  - op: 'move'
+    data: [411, 391]
+  - op: 'move'
+    data: [432, 409]
+  - op: 'patrol'
+  - op: 'move'
+    data: [480, 448]
+  - op: 'patrol'

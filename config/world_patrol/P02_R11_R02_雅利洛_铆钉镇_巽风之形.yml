@@ -1,0 +1,17 @@
+planet: '雅利洛'
+region: '铆钉镇'
+level: 1
+tp: '巽风之形'
+route:
+  - op: 'move'
+    data: [603, 382]
+  - op: 'move'
+    data: [673, 382]
+  - op: 'move'
+    data: [702, 335]
+  - op: 'move'
+    data: [732, 345]
+  - op: 'patrol'
+  - op: 'move'
+    data: [732, 402]
+  - op: 'patrol'
