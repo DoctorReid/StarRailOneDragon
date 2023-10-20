@@ -268,7 +268,7 @@ P02_R07_SP01 = TransportPoint('zwzz-rk', '造物之柱-入口', P02_R07, 'mm_tp_
 P02_R07_SP02 = TransportPoint('zwzz-sgc', '造物之柱-施工场', P02_R07, 'mm_tp_03', (660, 616), ocr_str='施工场')
 P02_R07_SP03 = TransportPoint('cxhl', '残响回廊', P02_R07, 'mm_sp_02', (313, 346))
 
-# 雅利洛 - 旧武器试验场 # TODO 漏了一个  的图标
+# 雅利洛 - 旧武器试验场
 P02_R08_SP01 = TransportPoint('jsqdzx', '决胜庆典中心', P02_R08_L2, 'mm_tp_03', (583, 836))
 P02_R08_SP02 = TransportPoint('ytzxzd', '以太战线终端', P02_R08_L2, 'mm_tp_12', (525, 792))
 P02_R08_SP03 = TransportPoint('mdz', '铆钉镇', P02_R08_L2, 'mm_sp_02', (591, 1032))
@@ -278,14 +278,12 @@ P02_R09_SP01 = TransportPoint('gddfd', '歌德大饭店', P02_R09, 'mm_tp_03', (
 P02_R09_SP02 = TransportPoint('bjjlb', '搏击俱乐部', P02_R09, 'mm_tp_03', (419, 251))
 P02_R09_SP03 = TransportPoint('ntsdzs', '娜塔莎的诊所', P02_R09, 'mm_tp_03', (416, 417))
 P02_R09_SP04 = TransportPoint('pyzcjls', '磐岩镇超级联赛', P02_R09, 'mm_tp_10', (358, 262))
-P02_R09_SP05 = TransportPoint('', '', P02_R09, 'mm_sp_02', (630, 114))
-P02_R09_SP06 = TransportPoint('', '', P02_R09, 'mm_sp_02', (453, 595))
-P02_R09_SP07 = TransportPoint('', '', P02_R09, 'mm_sp_03', (707, 458))
-P02_R09_SP08 = TransportPoint('', '', P02_R09, 'mm_sp_04', (632, 306))
-P02_R09_SP09 = TransportPoint('', '', P02_R09, 'mm_sp_04', (706, 458))
-P02_R09_SP10 = TransportPoint('', '', P02_R09, 'mm_sp_05', (688, 222))
-P02_R09_SP11 = TransportPoint('', '', P02_R09, 'mm_sp_05', (393, 475))
-
+P02_R09_SP05 = TransportPoint('mdz', '铆钉镇', P02_R09, 'mm_sp_02', (630, 114))
+P02_R09_SP06 = TransportPoint('dkq', '大矿区', P02_R09, 'mm_sp_02', (453, 595))
+P02_R09_SP07 = TransportPoint('ddsd', '地底商店', P02_R09, 'mm_sp_03', (632, 306))
+P02_R09_SP08 = TransportPoint('xct', '小吃摊', P02_R09, 'mm_sp_04', (706, 458))
+P02_R09_SP09 = TransportPoint('gddfd', '歌德大饭店', P02_R09, 'mm_sp_05', (688, 222))
+P02_R09_SP10 = TransportPoint('ntsdzs-kr', '娜塔莎的诊所-入口', P02_R09, 'mm_sp_05', (393, 475))
 
 # 雅利洛 - 大矿区
 P02_R10_SP01 = TransportPoint('rk', '入口', P02_R10, 'mm_tp_03', (333, 166))
@@ -505,8 +503,7 @@ REGION_2_SP = {
     P02_R06.get_pr_id(): [P02_R06_SP01, P02_R06_SP02, P02_R06_SP03, P02_R06_SP04, P02_R06_SP05],
     P02_R07.get_pr_id(): [P02_R07_SP01, P02_R07_SP02, P02_R07_SP03],
     P02_R08_L2.get_pr_id(): [P02_R08_SP01, P02_R08_SP02, P02_R08_SP03],
-    P02_R09.get_pr_id(): [P02_R09_SP01, P02_R09_SP02, P02_R09_SP03, P02_R09_SP04, P02_R09_SP05, P02_R09_SP06, P02_R09_SP07, P02_R09_SP08, P02_R09_SP09, P02_R09_SP10,
-                          P02_R09_SP11],
+    P02_R09.get_pr_id(): [P02_R09_SP01, P02_R09_SP02, P02_R09_SP03, P02_R09_SP04, P02_R09_SP05, P02_R09_SP06, P02_R09_SP07, P02_R09_SP08, P02_R09_SP09, P02_R09_SP10],
     P02_R10.get_pr_id(): [P02_R10_SP01, P02_R10_SP02, P02_R10_SP03, P02_R10_SP04, P02_R10_SP05, P02_R10_SP06, P02_R10_SP07, P02_R10_SP08, P02_R10_SP09],
     P02_R11_L1.get_pr_id(): [P02_R11_SP01, P02_R11_SP02, P02_R11_SP03, P02_R11_SP04, P02_R11_SP05, P02_R11_SP06, P02_R11_SP07],
     P02_R12_L1.get_pr_id(): [P02_R12_SP01, P02_R12_SP02, P02_R12_SP03, P02_R12_SP04]
