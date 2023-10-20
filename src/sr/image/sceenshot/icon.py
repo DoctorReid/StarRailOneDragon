@@ -51,6 +51,7 @@ def init_tp_with_background(template_id: str, noise_threshold: int = 0):
     最后结果图都会转化到 51*51 并居中
     会覆盖原图 发现有问题可在图片显示时退出程序
     :param template_id:
+    :param noise_threshold: 消除多少个像素点以下的连通块 可以视情况调整
     :return:
     """
     raw = _read_template_raw_image(template_id)
@@ -59,12 +60,18 @@ def init_tp_with_background(template_id: str, noise_threshold: int = 0):
     gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
     _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
     if noise_threshold > 0:
-        mask = cv2_utils.connection_erase(mask, threshold=noise_threshold)
+        # 消除白色的
+        white_mask = cv2_utils.connection_erase(mask, threshold=noise_threshold)
+
+        # 消除黑色的
+        black_mask = cv2_utils.connection_erase(cv2.bitwise_not(white_mask), threshold=noise_threshold)
+        mask = cv2.bitwise_or(white_mask, cv2.bitwise_not(black_mask))
 
     # 背景统一使用道路颜色 因为地图上传送点附近大概率都是道路 这样更方便匹配
     final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=51, bg_color=constants.COLOR_MAP_ROAD_BGR)
 
     show_and_save(template_id, final_origin, final_mask)
+
 
 def init_sp_with_background(template_id: str, noise_threshold: int = 0):
     """

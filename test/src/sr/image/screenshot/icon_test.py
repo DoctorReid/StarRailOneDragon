@@ -39,10 +39,10 @@ def _test_init_template_feature():
 
 
 if __name__ == '__main__':
-    # icon.init_tp_with_background('mm_tp_11', noise_threshold=0)
+    icon.init_tp_with_background('mm_tp_12', noise_threshold=30)
     # icon.init_sp_with_background('mm_sp_07')
     # _test_init_ui_icon('ui_icon_09')
     # icon.init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
     # icon.init_battle_lock()
-    icon.init_boss_icon('mm_boss_03')
+    # icon.init_boss_icon('mm_boss_03')
