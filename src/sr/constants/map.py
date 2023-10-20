@@ -167,26 +167,28 @@ class TransportPoint:
         return '%s - %s' % (self.cn, self.id)
 
 
-P01_R01_SP01 = TransportPoint('', '', P01_R01_ZKCD, 'mm_tp_03', (529, 231))
-P01_R01_SP02 = TransportPoint('', '', P01_R01_ZKCD, 'mm_tp_03', (592, 691))
-P01_R01_SP03_HTBGS = TransportPoint('htdbgs', '办公室', P01_R01_ZKCD, 'mm_tp_04', (245, 796))
-P01_R01_SP04 = TransportPoint('', '', P01_R01_ZKCD, 'mm_sp_01', (228, 744))
-P01_R01_SP05 = TransportPoint('', '', P01_R01_ZKCD, 'mm_sp_02', (562, 837))
-P01_R01_SP06 = TransportPoint('', '', P01_R01_ZKCD, 'mm_sp_04', (535, 628))
+P01_R01_SP01 = TransportPoint('jcy', '监察域', P01_R01_ZKCD, 'mm_tp_03', (529, 231))
+P01_R01_SP02 = TransportPoint('hxtl', '核心通路', P01_R01_ZKCD, 'mm_tp_03', (592, 691))
+P01_R01_SP03_HTBGS = TransportPoint('htdbgs', '黑塔的办公室', P01_R01_ZKCD, 'mm_tp_04', (245, 796), ocr_str='办公室')
+P01_R01_SP04 = TransportPoint('fssq', '封锁扇区', P01_R01_ZKCD, 'mm_sp_01', (228, 744))
+P01_R01_SP05 = TransportPoint('tkdt', '太空电梯', P01_R01_ZKCD, 'mm_sp_02', (562, 837))
+P01_R01_SP06 = TransportPoint('ngzy', '内购专员', P01_R01_ZKCD, 'mm_sp_04', (535, 628))
 
+# 空间站黑塔 - 基座舱段
 P01_R02_SP01_JKS = TransportPoint('jks', '监控室', P01_R02_JZCD, 'mm_tp_03', (635, 143))
-P01_R02_SP02 = TransportPoint('', '', P01_R02_JZCD, 'mm_tp_03', (493, 500))
-P01_R02_SP03 = TransportPoint('', '', P01_R02_JZCD, 'mm_tp_06', (540, 938))
-P01_R02_SP04 = TransportPoint('', '', P01_R02_JZCD, 'mm_tp_06', (556, 986))
+P01_R02_SP02 = TransportPoint('jdzx', '接待中心', P01_R02_JZCD, 'mm_tp_03', (493, 500))
+P01_R02_SP03 = TransportPoint('khzx', '空海之形', P01_R02_JZCD, 'mm_tp_06', (540, 938))
+P01_R02_SP04 = TransportPoint('tkdt', '太空电梯', P01_R02_JZCD, 'mm_sp_02', (556, 986))
 
 # 空间站黑塔 - 收容舱段
 P01_R03_SP01_KZZXW = TransportPoint('kzzxw', '控制中心外', P01_R03_SRCD_L1, 'mm_tp_03', (365, 360))
 P01_R03_SP02 = TransportPoint('zt', '中庭', P01_R03_SRCD_L1, 'mm_tp_03', (619, 331))
-P01_R03_SP03 = TransportPoint('', '', P01_R03_SRCD_L2, 'mm_tp_03', (758, 424))
-P01_R03_SP04 = TransportPoint('', '', P01_R03_SRCD_L2, 'mm_tp_03', (1033, 495))
+P01_R03_SP03 = TransportPoint('tsjxs', '特殊解析室', P01_R03_SRCD_L2, 'mm_tp_03', (758, 424))
+P01_R03_SP04 = TransportPoint('wmzj', '无明之间', P01_R03_SRCD_L1, 'mm_tp_03', (1033, 495))
 P01_R03_SP05_HMZL = TransportPoint('hmzl', '毁灭之蕾', P01_R03_SRCD_L1, 'mm_tp_07', (309, 310))
-P01_R03_SP06 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_tp_09', (840, 352))
-P01_R03_SP07 = TransportPoint('', '', P01_R03_SRCD_L1, 'mm_sp_02', (600, 349))
+P01_R03_SP06 = TransportPoint('sfzj', '霜风之径', P01_R03_SRCD_L1, 'mm_tp_09', (840, 352))
+P01_R03_SP07 = TransportPoint('ljzz', '裂界征兆', P01_R03_SRCD_L1, 'mm_sp_01', (452, 327))
+P01_R03_SP08 = TransportPoint('tkdt', '太空电梯', P01_R03_SRCD_L1, 'mm_sp_02', (600, 349))
 
 # 空间站黑塔 - 支援舱段
 P01_R04_SP01 = TransportPoint('dls', '电力室', P01_R04_ZYCD_L2, 'mm_tp_03', (155, 380))
