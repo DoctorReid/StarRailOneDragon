@@ -45,4 +45,4 @@ if __name__ == '__main__':
     # icon.init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
     # icon.init_battle_lock()
-    icon.init_boos_icon('mm_boss_02')
+    icon.init_boos_icon('mm_boss_03')
