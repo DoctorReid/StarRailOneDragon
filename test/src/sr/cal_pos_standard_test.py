@@ -41,6 +41,8 @@ case_list = [
 
     TestCase(constants.map.P02_R06, (488, 687), 1, True),
     TestCase(constants.map.P02_R06, (465, 595), 2, True),
+
+    TestCase(constants.map.P02_R11_L1, (702, 335, 17), 1, True),  # TODO
 ]
 
 

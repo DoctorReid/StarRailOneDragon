@@ -6,7 +6,9 @@ route:
   - op: 'move'
     data: [560, 553]
   - op: 'move'
-    data: [627, 539]
+    data: [604, 534]
+  - op: 'move'
+    data: [627, 545]
   - op: 'move'
     data: [653, 557]
   - op: 'patrol'

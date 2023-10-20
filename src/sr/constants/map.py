@@ -298,7 +298,7 @@ P02_R10_SP09 = TransportPoint('pyz', '磐岩镇', P02_R10, 'mm_sp_02', (351, 144
 
 # 雅利洛 - 铆钉镇
 P02_R11_SP01 = TransportPoint('gey', '孤儿院', P02_R11_L1, 'mm_tp_03', (600, 134))
-P02_R11_SP02 = TransportPoint('fqjs', '废弃集市', P02_R11_L1, 'mm_tp_03', (465, 297))
+P02_R11_SP02 = TransportPoint('fqjs', '废弃市集', P02_R11_L1, 'mm_tp_03', (465, 297))
 P02_R11_SP03 = TransportPoint('rk', '入口', P02_R11_L1, 'mm_tp_03', (613, 598))
 P02_R11_SP04 = TransportPoint('xfzx', '巽风之形', P02_R11_L1, 'mm_tp_06', (580, 297), ocr_str='风之形')
 P02_R11_SP05 = TransportPoint('zszl', '智识之蕾', P02_R11_L1, 'mm_tp_07', (609, 531))
@@ -309,7 +309,7 @@ P02_R11_SP07 = TransportPoint('pyz', '磐岩镇', P02_R11_L1, 'mm_sp_02', (597, 
 P02_R12_SP01 = TransportPoint('llzyd', '流浪者营地', P02_R12_L2, 'mm_tp_03', (556, 174))
 P02_R12_SP02 = TransportPoint('sqlzd', '史瓦罗驻地', P02_R12_L2, 'mm_tp_03', (554, 506))
 P02_R12_SP03 = TransportPoint('nyzhss', '能源转换设施', P02_R12_L1, 'mm_tp_03', (413, 527))
-P02_R12_SP04 = TransportPoint('txzl', '同谐之蕾', P02_R12_L1, 'mm_tp_07', (298, 564))
+P02_R12_SP04 = TransportPoint('txzl', '同谐之蕾', P02_R12_L1, 'mm_tp_07', (298, 564), ocr_str='同谐')
 
 # 仙舟罗浮 - 星槎海中枢
 P03_R01_SP01 = TransportPoint('xcmt', '星槎码头', P03_R01, 'mm_tp_03', (443, 341))

@@ -1,7 +1,7 @@
 planet: '雅利洛'
 region: '铆钉镇'
 level: 1
-tp: '废弃集市'
+tp: '废弃市集'
 route:
   - op: 'move'
     data: [446, 298]
