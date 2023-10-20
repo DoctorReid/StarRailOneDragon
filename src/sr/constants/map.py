@@ -14,7 +14,7 @@ class Planet:
 
 P01_KZJ = Planet("kjzht", "空间站黑塔", ocr_str='空间站')
 P02_YYL = Planet("yll6", "雅利洛", ocr_str='雅利洛')
-P03_XZLF = Planet("lfxz", "罗浮仙舟", ocr_str='罗浮')
+P03_XZLF = Planet("xzlf", "仙舟罗浮", ocr_str='罗浮')
 
 PLANET_LIST = [P01_KZJ, P02_YYL, P03_XZLF]
 
@@ -112,7 +112,7 @@ P02_R11_L2 = Region("mdz", "铆钉镇", P02_YYL, level=2)
 P02_R12_L1 = Region("jxjl", "机械聚落", P02_YYL, level=1)
 P02_R12_L2 = Region("jxjl", "机械聚落", P02_YYL, level=2)
 
-# 罗浮仙舟
+# 仙舟罗浮
 P03_R01 = Region("xchzs", "星槎海中枢", P03_XZLF)
 P03_R02_L1 = Region("lyd", "流云渡", P03_XZLF, level=1)
 P03_R02_L2 = Region("lyd", "流云渡", P03_XZLF, level=2)
@@ -311,35 +311,27 @@ P02_R12_SP02 = TransportPoint('sqlzd', '史瓦罗驻地', P02_R12_L2, 'mm_tp_03'
 P02_R12_SP03 = TransportPoint('nyzhss', '能源转换设施', P02_R12_L1, 'mm_tp_03', (413, 527))
 P02_R12_SP04 = TransportPoint('txzl', '同谐之蕾', P02_R12_L1, 'mm_tp_07', (298, 564))
 
-# 罗浮仙舟 - 星槎海中枢
-SP00 = TransportPoint('', '', P03_R01, 'mm_tp_03', (443, 341))
-SP01 = TransportPoint('', '', P03_R01, 'mm_tp_03', (700, 370))
-SP02 = TransportPoint('', '', P03_R01, 'mm_tp_03', (428, 622))
-SP03 = TransportPoint('', '', P03_R01, 'mm_sp_01', (616, 409))
-SP04 = TransportPoint('', '', P03_R01, 'mm_sp_02', (849, 168))
-SP05 = TransportPoint('', '', P03_R01, 'mm_sp_02', (539, 231))
-SP06 = TransportPoint('', '', P03_R01, 'mm_sp_02', (337, 748))
-SP07 = TransportPoint('', '', P03_R01, 'mm_sp_03', (603, 306))
-SP08 = TransportPoint('', '', P03_R01, 'mm_sp_03', (572, 482))
-SP09 = TransportPoint('', '', P03_R01, 'mm_sp_03', (348, 508))
-SP10 = TransportPoint('', '', P03_R01, 'mm_sp_03', (360, 538))
-SP11 = TransportPoint('', '', P03_R01, 'mm_sp_03', (389, 538))
-SP12 = TransportPoint('', '', P03_R01, 'mm_sp_03', (375, 595))
-SP13 = TransportPoint('', '', P03_R01, 'mm_sp_03', (316, 698))
-SP14 = TransportPoint('', '', P03_R01, 'mm_sp_03', (436, 702))
-SP15 = TransportPoint('', '', P03_R01, 'mm_sp_04', (602, 307))
-SP16 = TransportPoint('', '', P03_R01, 'mm_sp_04', (572, 482))
-SP17 = TransportPoint('', '', P03_R01, 'mm_sp_04', (348, 509))
-SP18 = TransportPoint('', '', P03_R01, 'mm_sp_04', (359, 538))
-SP19 = TransportPoint('', '', P03_R01, 'mm_sp_04', (389, 538))
-SP20 = TransportPoint('', '', P03_R01, 'mm_sp_04', (375, 594))
-SP21 = TransportPoint('', '', P03_R01, 'mm_sp_04', (315, 698))
-SP22 = TransportPoint('', '', P03_R01, 'mm_sp_04', (435, 702))
-SP23 = TransportPoint('', '', P03_R01, 'mm_sp_05', (673, 487))
+# 仙舟罗浮 - 星槎海中枢
+P03_R01_SP01 = TransportPoint('xcmt', '星槎码头', P03_R01, 'mm_tp_03', (443, 341))
+P03_R01_SP02 = TransportPoint('kyt', '坤舆台', P03_R01, 'mm_tp_03', (700, 370))
+P03_R01_SP03 = TransportPoint('xydd', '宣夜大道', P03_R01, 'mm_tp_03', (428, 622))
+P03_R01_SP04 = TransportPoint('', '', P03_R01, 'mm_sp_01', (616, 409))
+P03_R01_SP05 = TransportPoint('', '', P03_R01, 'mm_sp_02', (849, 168))
+P03_R01_SP06 = TransportPoint('', '', P03_R01, 'mm_sp_02', (539, 231))
+P03_R01_SP07 = TransportPoint('', '', P03_R01, 'mm_sp_02', (337, 748))
+P03_R01_SP08 = TransportPoint('shj-1', '售货机-1', P03_R01, 'mm_sp_03', (603, 306))
+P03_R01_SP09 = TransportPoint('zhplb', '杂货铺老板', P03_R01, 'mm_sp_03', (572, 482))
+P03_R01_SP10 = TransportPoint('byh', '不夜侯', P03_R01, 'mm_sp_03', (348, 508))
+P03_R01_SP11 = TransportPoint('shj-2', '售货机-2', P03_R01, 'mm_sp_03', (360, 538))
+P03_R01_SP12 = TransportPoint('shj-3', '售货机-3', P03_R01, 'mm_sp_03', (389, 538))
+P03_R01_SP13 = TransportPoint('szg', '赎珠阁', P03_R01, 'mm_sp_04', (375, 595))
+P03_R01_SP14 = TransportPoint('shj-4', '售货机-4', P03_R01, 'mm_sp_03', (316, 698))
+P03_R01_SP15 = TransportPoint('xct', '小吃摊', P03_R01, 'mm_sp_03', (436, 702))
+P03_R01_SP16 = TransportPoint('', '', P03_R01, 'mm_sp_05', (673, 487))
 
-# 罗浮仙舟 - 流云渡
-SP00 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (704, 422))
-SP01 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (541, 795))
+# 仙舟罗浮 - 流云渡
+SP00 = TransportPoint('lydhd', '流云渡货道', P03_R02_L2, 'mm_tp_03', (704, 422))
+SP01 = TransportPoint('jyf', '积玉坊', P03_R02_L1, 'mm_tp_03', (541, 795))
 SP02 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (567, 986))
 SP03 = TransportPoint('', '', P03_R02_L1, 'mm_tp_03', (579, 1369))
 SP04 = TransportPoint('', '', P03_R02_L1, 'mm_tp_06', (730, 1367))
