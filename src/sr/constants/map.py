@@ -123,15 +123,16 @@ P03_R05 = Region("jrx", "金人巷", P03_XZLF)
 P03_R06_L1 = Region("tbs", "太卜司", P03_XZLF, level=1)
 P03_R06_L2 = Region("tbs", "太卜司", P03_XZLF, level=2)
 P03_R07 = Region("gzs", "工造司", P03_XZLF)
-P03_R08_l1 = Region("dds", "丹鼎司", P03_XZLF, level=1)
-P03_R08_l2 = Region("dds", "丹鼎司", P03_XZLF, level=2)
+P03_R08_L1 = Region("dds", "丹鼎司", P03_XZLF, level=1)
+P03_R08_L2 = Region("dds", "丹鼎司", P03_XZLF, level=2)
 P03_R09 = Region("lyj", "鳞渊境", P03_XZLF)
 
 PLANET_2_REGION = {
     P01_KZJ.id: [P01_R01_ZKCD, P01_R02_JZCD, P01_R03_SRCD_L1, P01_R03_SRCD_L2, P01_R03_SRCD_B1, P01_R04_ZYCD_L1, P01_R04_ZYCD_L2],
     P02_YYL.id: [P02_R01_L1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R06, P02_R07, P02_R08_L2, P02_R09, P02_R10,
                  P02_R11_L1, P02_R11_L2, P02_R12_L1, P02_R12_L2],
-    P03_XZLF.id: []
+    P03_XZLF.id: [P03_R01, P03_R02_L1, P03_R02_L2, P03_R03_L1, P03_R03_L2, P03_R04, P03_R05, P03_R06_L1, P03_R06_L2,
+                  P03_R07, P03_R08_L1, P03_R08_L2, P03_R09]
 }
 
 

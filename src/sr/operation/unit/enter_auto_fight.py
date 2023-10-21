@@ -34,7 +34,7 @@ class EnterAutoFight(Operation):
             eaf = EnableAutoFight(self.ctx)
             eaf.execute()
             time.sleep(0.5)  # 战斗部分
-            self.last_alert_time = now_time
+            self.last_alert_time = time.time()
             return Operation.WAIT
 
         mm = mini_map.cut_mini_map(screen)

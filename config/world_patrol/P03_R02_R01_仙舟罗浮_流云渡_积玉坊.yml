@@ -1,0 +1,14 @@
+planet: '仙舟罗浮'
+region: '流云渡'
+level: 1
+tp: '积玉坊'
+route:
+  - op: 'move'
+    data: [566, 754]
+  - op: 'move'
+    data: [596, 750]
+  - op: 'move'
+    data: [597, 661, 2]
+  - op: 'move'
+    data: [555, 660]
+  - op: 'patrol'
