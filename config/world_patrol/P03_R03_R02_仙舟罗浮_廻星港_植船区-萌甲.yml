@@ -1,0 +1,25 @@
+planet: '仙舟罗浮'
+region: '廻星港'
+level: 1
+tp: '植船区-萌甲'
+route:
+  - op: 'move'
+    data: [441, 489]
+  - op: 'move'
+    data: [421, 487]
+  - op: 'move'
+    data: [421, 445]
+  - op: 'move'
+    data: [401, 438]
+  - op: 'patrol'
+  - op: 'move'
+    data: [402, 399]
+  - op: 'move'
+    data: [444, 398]
+  - op: 'move'
+    data: [482, 398]
+  - op: 'move'
+    data: [485, 332]
+  - op: 'move'
+    data: [494, 332]
+  - op: 'patrol'

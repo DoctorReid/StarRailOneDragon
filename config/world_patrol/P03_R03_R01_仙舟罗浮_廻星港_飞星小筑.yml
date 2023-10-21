@@ -1,0 +1,42 @@
+planet: '仙舟罗浮'
+region: '廻星港'
+level: 2
+tp: '飞星小筑'
+route:
+  - op: 'move'
+    data: [834, 275]
+  - op: 'move'
+    data: [789, 276]
+  - op: 'move'
+    data: [736, 275]
+  - op: 'move'
+    data: [703, 283]
+  - op: 'move'
+    data: [672, 283]
+  - op: 'move'
+    data: [673, 301]
+  - op: 'move'
+    data: [710, 299]
+  - op: 'patrol'
+  - op: 'move'
+    data: [739, 319]
+  - op: 'move'
+    data: [788, 321]
+  - op: 'move'
+    data: [846, 327]
+  - op: 'move'
+    data: [849, 374]
+  - op: 'move'
+    data: [770, 396]
+  - op: 'patrol'
+  - op: 'move'
+    data: [858, 413]
+  - op: 'move'
+    data: [861, 439]
+  - op: 'move'
+    data: [802, 444]
+  - op: 'move'
+    data: [801, 475]
+  - op: 'move'
+    data: [850, 477]
+  - op: 'patrol'

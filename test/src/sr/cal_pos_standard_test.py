@@ -46,6 +46,9 @@ case_list = [
     TestCase(constants.map.P02_R11_L1, (707, 406, 5), 2, True),
     TestCase(constants.map.P02_R11_L1, (726, 486, 50), 3, False),
     TestCase(constants.map.P02_R11_L1, (733, 423, 50), 4, False),
+
+    TestCase(constants.map.P03_R03_L1, (352, 496, 6), 1, True),
+    TestCase(constants.map.P03_R03_L1, (413, 524, 6), 2, True),
 ]
 
 
@@ -85,7 +88,7 @@ if __name__ == '__main__':
     total_cal_time = 0
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != constants.map.P02_R11_L1 or c.num != 4:
+        # if c.region != constants.map.P03_R03_L1 or c.num != 2:
         #     continue
         if c.region.get_prl_id() not in lm_info_map:
             lm_info_map[c.region.get_prl_id()] = large_map.analyse_large_map(c.region, ih)
@@ -96,8 +99,7 @@ if __name__ == '__main__':
         total_analyse_time += analyse_time
         total_cal_time += cal_time
 
+    performance_recorder.log_all_performance()
 
     for c in fail_list:
         log.error('定位错误 %s %d', c.region.get_prl_id(), c.num)
-
-

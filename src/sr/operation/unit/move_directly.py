@@ -3,7 +3,7 @@ import time
 from cv2.typing import MatLike
 
 import basic.cal_utils
-from basic import os_utils
+from basic import os_utils, cal_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import constants, cal_pos
@@ -95,13 +95,15 @@ class MoveDirectly(Operation):
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()),
                                             another_floor=self.region.another_floor())
 
-        x, y = self.get_pos(mm_info, lm_rect)
+        x, y = self.get_pos(mm_info, possible_pos, lm_rect)
 
         if x is None or y is None:
             log.error('无法判断当前人物坐标 使用上一个坐标为%s', possible_pos)
             if os_utils.is_debug():
                 save_debug_image(mm, prefix='cal_pos')
             self.no_pos_times += 1
+            if self.no_pos_times >= 5:  # 不要再乱走了
+                self.ctx.controller.stop_moving_forward()
             if self.no_pos_times >= 10:
                 log.error('持续无法判断当前人物坐标 退出本次移动')
                 self.ctx.controller.stop_moving_forward()
@@ -174,10 +176,11 @@ class MoveDirectly(Operation):
 
         return 0
 
-    def get_pos(self, mm_info: MiniMapInfo, lm_rect: tuple):
+    def get_pos(self, mm_info: MiniMapInfo, possible_pos: tuple, lm_rect: tuple):
         """
         获取当前位置、 下一步方向、 记录时间
         :param mm_info: 小地图
+        :param possible_pos: 上一次的位置
         :param lm_rect: 大地图区域
         :return:
         """
@@ -189,6 +192,10 @@ class MoveDirectly(Operation):
 
         log.debug('计算坐标耗时 %.4f s', time.time() - start_time)
         log.info('计算当前坐标为 (%s, %s)', x, y)
+
+        if x is not None and possible_pos[2] > 0 and cal_utils.distance_between((x, y), possible_pos[:2]) > possible_pos[2] * 2:
+            x, y = None, None
+            log.info('计算位置偏离上一个位置过远 舍弃')
 
         return x, y
 
