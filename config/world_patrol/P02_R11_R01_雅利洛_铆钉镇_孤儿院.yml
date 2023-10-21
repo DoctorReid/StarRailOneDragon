@@ -4,9 +4,9 @@ level: 1
 tp: '孤儿院'
 route:
   - op: 'move'
-    data: [596, 118]
+    data: [596, 195]
   - op: 'move'
-    data: [632, 107]
+    data: [632, 184]
   - op: 'move'
-    data: [679, 115]
+    data: [679, 192]
   - op: 'patrol'

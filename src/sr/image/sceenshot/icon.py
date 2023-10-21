@@ -5,11 +5,10 @@ from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import cv2_utils
-from basic.img.cv2_utils import convert_to_standard
+from basic.img.cv2_utils import convert_to_standard, get_four_corner
 from sr import constants
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map
-from sr.image.sceenshot.mini_map import get_arrow_mask
 
 
 def _read_template_raw_image(template_id):
@@ -157,20 +156,6 @@ def init_battle_ctrl_icon(template_id: str, noise_threshold: int = 0):
         mask[np.where(r > lower)] = 255
     final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=35, bg_color=(0, 0, 0))
     show_and_save(template_id, final_origin, final_mask)
-
-
-def get_four_corner(bw):
-    """
-    获取四个方向最远的白色像素点的位置
-    :param bw: 黑白图
-    :return:
-    """
-    white = np.where(bw == 255)
-    left = (white[1][np.argmin(white[1])], white[0][np.argmin(white[1])])
-    right = (white[1][np.argmax(white[1])], white[0][np.argmax(white[1])])
-    top = (white[1][np.argmin(white[0])], white[0][np.argmin(white[0])])
-    bottom = (white[1][np.argmax(white[0])], white[0][np.argmax(white[0])])
-    return left, right, top, bottom
 
 
 def show_and_save(template_id, origin, mask):

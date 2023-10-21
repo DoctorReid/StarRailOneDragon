@@ -10,6 +10,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
+from sr.config.game_config import get_game_config
 from sr.constants.map import Planet, Region
 from sr.image import OcrMatcher, TemplateImage, ImageMatcher, get_large_map_dir_path
 from sr.image.image_holder import ImageHolder
@@ -192,13 +193,21 @@ def get_active_level(screen: MatLike, ocr: OcrMatcher) -> str:
         return None
 
 
-def init_large_map(region: Region, origin: MatLike, im: ImageMatcher, save: bool = False) -> LargeMapInfo:
+def init_large_map(region: Region, raw: MatLike, im: ImageMatcher, save: bool = False) -> LargeMapInfo:
+    """
+    初始化大地图需要用的数据
+    :param region: 区域
+    :param raw: 大地图原始图片
+    :param im: 图片处理器
+    :param save: 是否保存
+    :return:
+    """
     info = LargeMapInfo()
     info.region = region
-    info.origin = origin
-    gray = cv2.cvtColor(origin, cv2.COLOR_BGRA2GRAY)
+    info.origin = expand_raw(raw)
+    gray = cv2.cvtColor(info.origin, cv2.COLOR_BGRA2GRAY)
     sp_mask, info.sp_result = get_sp_mask_by_template_match(info, im)
-    road_mask = get_large_map_road_mask(origin, sp_mask)
+    road_mask = get_large_map_road_mask(info.origin, sp_mask)
     info.gray, info.mask = merge_all_map_mask(gray, road_mask, sp_mask)
     info.kps, info.desc = cv2_utils.feature_detect_and_compute(info.gray, mask=info.mask)
     info.edge = get_edge_mask(info.mask)
@@ -211,7 +220,7 @@ def init_large_map(region: Region, origin: MatLike, im: ImageMatcher, save: bool
         i: int = 0
         for k, v in info.sp_result.items():
             for vs in v:
-                log.info("SP%02d = TransportPoint('', '', , '%s', (%d, %d))", i, k, vs.cx, vs.cy)
+                log.info("SP%02d = TransportPoint('', '', , '%s', (%d, %d))", i+1, k, vs.cx, vs.cy)
                 i += 1
         cv2.waitKey(0)
 
@@ -227,6 +236,36 @@ def init_large_map(region: Region, origin: MatLike, im: ImageMatcher, save: bool
         file_storage.release()
 
     return info
+
+
+def expand_raw(raw: MatLike):
+    """
+    如果道路太贴近大地图边缘 使用小地图模板匹配的时候会匹配失败
+    这时候需要拓展一下大地图
+    :param raw: 大地图原图
+    :return:
+    """
+    # 道路掩码图
+    mask: MatLike = get_large_map_road_mask(raw)
+
+    mm_pos = get_game_config().mini_map_pos
+    padding = mm_pos.r + 10  # 边缘至少留一个小地图半径的空白
+
+    # 四个方向需要拓展多少像素
+    left, right, top, bottom = cv2_utils.get_four_corner(mask)
+    lp = 0 if left[0] >= padding else padding - left[0]
+    rp = 0 if right[0] + padding < raw.shape[0] else right[0] + padding + 1 - raw.shape[0]
+    tp = 0 if top[1] >= padding else padding - top[1]
+    bp = 0 if bottom[1] + padding < raw.shape[1] else bottom[1] + padding + 1 - raw.shape[1]
+
+    if lp == 0 and rp == 0 and tp == 0 and bp == 0:
+        return raw.copy()
+
+    origin = np.full((raw.shape[0] + tp + bp, raw.shape[1] + lp + rp, raw.shape[2]),
+                     fill_value=210, dtype=np.uint8)
+    origin[tp:tp+raw.shape[0], lp:lp+raw.shape[1]] = raw
+
+    return origin
 
 
 def get_large_map_road_mask(map_image: MatLike,

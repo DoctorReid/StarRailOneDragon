@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Iterator
 
 from basic import os_utils
 from basic.i18_utils import gt
@@ -61,16 +61,17 @@ class WorldPatrolRecord(ConfigHolder):
 
 class WorldPatrol(Application):
 
-    def __init__(self, ctx: Context, restart: bool = False):
+    def __init__(self, ctx: Context, restart: bool = False, route_id_list: List = None):
         super().__init__(ctx)
         self.route_list = []
         self.first: bool = True
         self.restart: bool = restart
         self.record: WorldPatrolRecord = None
-        self.route_iterator = iter(self.route_list)
+        self.route_iterator: Iterator = None
+        self.route_id_list: List = route_id_list
 
     def init_app(self):
-        self.route_list = load_all_route_id()
+        self.route_list = load_all_route_id() if self.route_id_list is None else self.route_id_list
         log.info('共加载 %d 条线路', len(self.route_list))
         self.record = WorldPatrolRecord(os_utils.get_dt(), restart=self.restart)
         log.info('之前已完成线路 %d 条', len(self.record.finished))

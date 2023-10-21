@@ -11,6 +11,7 @@ from sr import constants
 from sr.config.game_config import MiniMapPos, get_game_config
 from sr.image import ImageMatcher, TemplateImage
 from sr.image.sceenshot import MiniMapInfo, mini_map_angle_alas
+from sr.performance_recorder import record_performance
 
 
 def cal_little_map_pos(screen: MatLike) -> MiniMapPos:
@@ -354,9 +355,10 @@ def with_enemy_in_main_road(mm: MatLike):
 
 
 def get_mini_map_scale_list(running: bool):
-    return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05]
+    return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05, 1.10, 1.15]
 
 
+@record_performance
 def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
                      another_floor: bool = True) -> MiniMapInfo:
     """
@@ -464,23 +466,61 @@ def get_mini_map_road_mask(origin: MatLike,
     return real_road_mask
 
 
-def get_rough_road_mask(mm: MatLike):
+def get_rough_road_mask(mm: MatLike,
+                        arrow_mask: MatLike = None,
+                        angle: float = None,
+                        another_floor: bool = True):
     """
     获取比较粗略的道路掩码 用于原图的模板匹配
     需要用到这一步说明特殊点特征匹配无用 提取的高精度道路掩码无用
     :param mm: 小地图截图
     :return:
     """
-    l1 = 0
-    u1 = 100
-    lower_color = np.array([l1, l1, l1], dtype=np.uint8)
-    upper_color = np.array([u1, u1, u1], dtype=np.uint8)
+    b, g, r = cv2.split(mm)
+    avg_b = np.mean(b)
+    avg_g = np.mean(g)
+    avg_r = np.mean(r)
+    log.debug('小地图平均色彩 %d %d %d', avg_b, avg_g, avg_r)
+
+    ub = 55 if avg_b < 70 else 100
+    ug = 55 if avg_g < 70 else 100
+    ur = 55 if avg_r < 70 else 100
+    lower_color = np.array([45, 45, 45], dtype=np.uint8)
+    upper_color = np.array([ub, ug, ur], dtype=np.uint8)
     road_mask_1 = cv2.inRange(mm, lower_color, upper_color)
+    # cv2_utils.show_image(road_mask_1, win_name='road_mask_1')
 
-    hsv = cv2.cvtColor(mm, cv2.COLOR_BGR2HSV)
-    hsv_mask = cv2.threshold(hsv[:, :, 2], 70, 255, cv2.THRESH_BINARY_INV)[1]
+    radio_mask = get_mini_map_radio_mask(mm, angle, another_floor)
+    # cv2_utils.show_image(radio_mask, win_name='radio_mask')
 
-    return cv2.bitwise_and(road_mask_1, hsv_mask)
+    center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
+    road_mask = cv2.bitwise_or(road_mask_1, center_mask)
+    # cv2_utils.show_image(road_mask, win_name='road_mask')
+
+    # 非道路连通块 < 50的，认为是噪点 加入道路
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(road_mask), connectivity=4)
+    large_components = []
+    for label in range(1, num_labels):
+        if stats[label, cv2.CC_STAT_AREA] < 50:
+            large_components.append(label)
+    for label in large_components:
+        road_mask[labels == label] = 255
+
+    # 找到多于500个像素点的连通道路 这些才是真的路
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask, connectivity=4)
+    large_components = []
+    for label in range(1, num_labels):
+        if stats[label, cv2.CC_STAT_AREA] > 200:
+            large_components.append(label)
+    real_road_mask = np.zeros(road_mask.shape[:2], dtype=np.uint8)
+    for label in large_components:
+        real_road_mask[labels == label] = 255
+
+    # 膨胀一下 把白色边弄进来
+    real_road_mask = cv2_utils.dilate(real_road_mask, 5)
+    # cv2_utils.show_image(real_road_mask, win_name='road_mask_2')
+
+    return real_road_mask
 
 
 def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: bool = True):

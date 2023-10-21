@@ -4,18 +4,18 @@ level: 1
 tp: '废弃市集'
 route:
   - op: 'move'
-    data: [446, 298]
+    data: [446, 375]
   - op: 'move'
-    data: [447, 322]
+    data: [447, 399]
   - op: 'move'
-    data: [426, 322]
+    data: [426, 399]
   - op: 'move'
-    data: [410, 342]
+    data: [410, 419]
   - op: 'move'
-    data: [411, 391]
+    data: [411, 468]
   - op: 'move'
-    data: [432, 409]
+    data: [432, 486]
   - op: 'patrol'
   - op: 'move'
-    data: [480, 448]
+    data: [480, 525]
   - op: 'patrol'

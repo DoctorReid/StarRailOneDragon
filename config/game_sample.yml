@@ -1,7 +1,7 @@
 mini_map:
   r: 93
-  x: 139
-  y: 152
+  x: 141
+  y: 151
 walk_speed: 20
 turn_dx: 0
 interactive: 'f'

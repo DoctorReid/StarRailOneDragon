@@ -13,7 +13,7 @@ from basic import config_utils
 from basic.img import cv2_utils
 from basic.img.os import get_debug_world_patrol_dir
 from basic.log_utils import log
-from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute
+from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol
 from sr.constants.map import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
     REGION_2_SP, TransportPoint
 from sr.context import Context
@@ -34,7 +34,12 @@ class WorldPatrolDraftRouteView:
         )
         self.chosen_route_id: str = None
         self.cancel_edit_existed_btn = ft.ElevatedButton(text='取消编辑已有路线', disabled=True, on_click=self.on_cancel_edit_existed)
-        load_existed_row = ft.Row(spacing=10, controls=[self.existed_route_dropdown, self.cancel_edit_existed_btn])
+        self.text_existed_btn = ft.ElevatedButton(text='测试选择线路', disabled=True, on_click=self.on_test_existed)
+        load_existed_row = ft.Row(spacing=10, controls=[
+            self.existed_route_dropdown,
+            self.cancel_edit_existed_btn,
+            self.text_existed_btn
+        ])
 
         self.planet_dropdown = ft.Dropdown(
             label='星球',
@@ -326,6 +331,7 @@ class WorldPatrolDraftRouteView:
         self.chosen_route_id = self.existed_route_dropdown.value
         route = WorldPatrolRoute(self.chosen_route_id)
         self.cancel_edit_existed_btn.disabled = False
+        self.text_existed_btn.disabled = False
 
         self.planet_dropdown.value = route.tp.planet.cn
         self.planet_dropdown.disabled = True
@@ -353,6 +359,7 @@ class WorldPatrolDraftRouteView:
 
     def on_cancel_edit_existed(self, e):
         self.cancel_edit_existed_btn.disabled = True
+        self.text_existed_btn.disabled = True
         self.chosen_route_id = None
         self.existed_route_dropdown.value = None
 
@@ -375,6 +382,11 @@ class WorldPatrolDraftRouteView:
 
         self.route_list = []
         self.draw_route_and_display()
+
+    def on_test_existed(self, e):
+        app = WorldPatrol(self.ctx, restart=True, route_id_list=[self.chosen_route_id])
+        app.first = False
+        app.execute()
 
 
 gv: WorldPatrolDraftRouteView = None

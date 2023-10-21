@@ -4,14 +4,14 @@ level: 1
 tp: '巽风之形'
 route:
   - op: 'move'
-    data: [603, 382]
+    data: [603, 459]
   - op: 'move'
-    data: [673, 382]
+    data: [673, 459]
   - op: 'move'
-    data: [702, 335]
+    data: [702, 412]
   - op: 'move'
-    data: [732, 345]
+    data: [732, 417]
   - op: 'patrol'
   - op: 'move'
-    data: [732, 402]
+    data: [732, 479]
   - op: 'patrol'

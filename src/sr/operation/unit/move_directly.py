@@ -65,9 +65,9 @@ class MoveDirectly(Operation):
             self.stuck_times = 0
 
         # 如果使用小箭头计算方向 则需要前进一步 保证小箭头方向就是人物朝向
-        if not self.ctx.controller.is_moving:
-            self.ctx.controller.move('w')
-            time.sleep(0.5)  # 等待人物转过来再截图
+        # if not self.ctx.controller.is_moving:
+        #     self.ctx.controller.move('w')
+        #     time.sleep(0.5)  # 等待人物转过来再截图
         now_time = time.time()
         screen = self.screenshot()
 
@@ -119,7 +119,7 @@ class MoveDirectly(Operation):
             return Operation.SUCCESS
 
         self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
-        time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
+        # time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
 
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
             self.pos.append(next_pos)

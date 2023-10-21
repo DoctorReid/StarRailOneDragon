@@ -9,6 +9,7 @@ from sr import constants
 from sr.constants.map import Region
 from sr.image import ImageMatcher
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
+from sr.performance_recorder import record_performance
 
 
 def cal_character_pos(im: ImageMatcher,
@@ -73,6 +74,7 @@ def cal_character_pos(im: ImageMatcher,
     return center_x, center_y
 
 
+@record_performance
 def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                        lm_rect: tuple = None,
                                        show: bool = False) -> MatchResult:
@@ -134,6 +136,7 @@ def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapIn
         return None
 
 
+@record_performance
 def cal_character_pos_by_template_match(im: ImageMatcher,
                                         lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                         lm_rect: tuple = None,
@@ -158,7 +161,11 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
     # 使用道路掩码
     # origin_template_mask = cv2_utils.dilate(mm_info.road_mask, 10)
     # origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.circle_mask)
-    origin_template_mask = cv2.bitwise_and(mm_info.circle_mask, mini_map.get_rough_road_mask(mm_info.origin))
+    rough_road_mask = mini_map.get_rough_road_mask(mm_info.origin,
+                                                   arrow_mask=mm_info.arrow_mask,
+                                                   angle=mm_info.angle,
+                                                   another_floor=lm_info.region.level != 0)
+    origin_template_mask = cv2.bitwise_and(mm_info.circle_mask, rough_road_mask)
     for scale in mini_map.get_mini_map_scale_list(running):
         if scale > 1:
             dest_size = (int(template_w * scale), int(template_h * scale))
@@ -171,16 +178,14 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
         result = im.match_image(source, template, mask=template_mask, threshold=0.2, ignore_inf=True)
 
         if show:
-            cv2_utils.show_image(source, win_name='template_match_source')
-            cv2_utils.show_image(template, win_name='template_match_template')
+            cv2_utils.show_image(source, result, win_name='template_match_source')
+            cv2_utils.show_image(cv2.bitwise_and(template, template, mask=template_mask), win_name='template_match_template')
             cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
-            # cv2_utils.show_image(cv2.bitwise_and(template, template_mask), win_name='template_match_template')
-            # cv2.waitKey(0)
 
         if result.max is not None and (target is None or result.max.confidence > target.confidence):
             target = result.max
             target_scale = scale
-            break  # 节省点时间 其中一个缩放匹配到就可以了 也不用太精准
+            # break  # 节省点时间 其中一个缩放匹配到就可以了 也不用太精准
     if target is not None:
         offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
         offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
@@ -189,6 +194,7 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
         return None
 
 
+@record_performance
 def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                    lm_rect: tuple = None,
                                    show: bool = False) -> MatchResult:
@@ -257,6 +263,7 @@ def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
     return None if same_confidence else target_pos
 
 
+@record_performance
 def cal_character_pos_by_road_mask(im: ImageMatcher,
                                    lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                    lm_rect: tuple = None,
@@ -313,6 +320,7 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
         return None
 
 
+@record_performance
 def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
                                          lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                          lm_rect: tuple = None,
@@ -370,6 +378,7 @@ def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
         return None
 
 
+@record_performance
 def cal_character_pos_by_edge_mask(im: ImageMatcher,
                                    lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                    lm_rect: tuple = None,

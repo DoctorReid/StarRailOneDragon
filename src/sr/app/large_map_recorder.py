@@ -74,6 +74,7 @@ class LargeMapRecorder(Application):
                 merge = cv2_utils.concat_vertically(merge, img[i], decision_height=large_map.CUT_MAP_RECT[3] - large_map.CUT_MAP_RECT[1] - 300)
 
         cv2_utils.show_image(merge, win_name='final')
+        large_map.save_large_map_image(merge, self.region, 'raw')
         large_map.init_large_map(self.region, merge, self.ctx.im, save=True)
 
     def screenshot_horizontally(self, center):
@@ -110,6 +111,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = constants.map.P03_R09
+    r = constants.map.P02_R11_L2
     app = LargeMapRecorder(ctx, r)
     app.run()

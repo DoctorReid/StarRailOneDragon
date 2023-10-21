@@ -483,3 +483,17 @@ def get_overlap_rect(source, template, x, y):
         sy_end -= sy_end - source.shape[0]
 
     return (sx_start, sy_start, sx_end, sy_end), (tx_start, ty_start, tx_end, ty_end)
+
+
+def get_four_corner(bw):
+    """
+    获取四个方向最远的白色像素点的位置
+    :param bw: 黑白图
+    :return:
+    """
+    white = np.where(bw == 255)
+    left = (white[1][np.argmin(white[1])], white[0][np.argmin(white[1])])
+    right = (white[1][np.argmax(white[1])], white[0][np.argmax(white[1])])
+    top = (white[1][np.argmin(white[0])], white[0][np.argmin(white[0])])
+    bottom = (white[1][np.argmax(white[0])], white[0][np.argmax(white[0])])
+    return left, right, top, bottom

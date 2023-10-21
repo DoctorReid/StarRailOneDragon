@@ -12,6 +12,7 @@ from sr.image.cnocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import fill_uid_black
+from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.win import Window
 
 
@@ -37,6 +38,7 @@ class Context:
             self.register_key_press('f12', self.mouse_position)
 
         self.init_status: int = 0
+        self.recorder: PerformanceRecorder = get_recorder()
 
     def register_key_press(self, key, callback):
         if key not in self.press_event:
@@ -68,6 +70,8 @@ class Context:
     def after_stop(self):
         for obj_id, callback in self.stop_callback.items():
             callback()
+
+        log_all_performance()
 
     def switch(self):
         if self.running == 1:

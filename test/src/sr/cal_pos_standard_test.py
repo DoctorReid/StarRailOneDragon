@@ -5,7 +5,7 @@ import cv2
 from basic import cal_utils
 from basic.img.os import get_test_cal_pos_image
 from basic.log_utils import log
-from sr import constants, cal_pos
+from sr import constants, cal_pos, performance_recorder
 from sr.constants.map import Region
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
@@ -42,7 +42,10 @@ case_list = [
     TestCase(constants.map.P02_R06, (488, 687), 1, True),
     TestCase(constants.map.P02_R06, (465, 595), 2, True),
 
-    TestCase(constants.map.P02_R11_L1, (702, 335, 17), 1, True),  # TODO
+    TestCase(constants.map.P02_R11_L1, (655, 461), 1, True),
+    TestCase(constants.map.P02_R11_L1, (707, 406, 5), 2, True),
+    TestCase(constants.map.P02_R11_L1, (726, 486, 50), 3, False),
+    TestCase(constants.map.P02_R11_L1, (733, 423, 50), 4, False),
 ]
 
 
@@ -54,9 +57,13 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     lm_rect = get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
     mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()), another_floor=c.region.another_floor())
-    log.debug('analyse_mini_map 耗时 %.6f', (time.time() - t1))
+    t2 = time.time()
+    analyse_time = t2 - t1
+    log.debug('analyse_mini_map 耗时 %.6f', analyse_time)
     x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
-    log.debug('cal_character_pos 耗时 %.6f', (time.time() - t1))
+    t3 = time.time()
+    cal_time = t3 - t2
+    log.debug('cal_character_pos 耗时 %.6f', cal_time)
 
     if show:
         cv2.waitKey(0)
@@ -65,7 +72,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     if error:
         log.error('定位错误 %s', (x, y))
 
-    return error
+    return error, analyse_time, cal_time
 
 
 if __name__ == '__main__':
@@ -73,14 +80,24 @@ if __name__ == '__main__':
     im = CvImageMatcher(ih)
     lm_info_map = {}
     fail_list = []
+    case_num = 0
+    total_analyse_time = 0
+    total_cal_time = 0
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != constants.map.P02_R06 or c.num != 2:
+        # if c.region != constants.map.P02_R11_L1 or c.num != 4:
         #     continue
         if c.region.get_prl_id() not in lm_info_map:
             lm_info_map[c.region.get_prl_id()] = large_map.analyse_large_map(c.region, ih)
-        if test_one(c, lm_info_map[c.region.get_prl_id()], False):
+        is_err, analyse_time, cal_time = test_one(c, lm_info_map[c.region.get_prl_id()], False)
+        if is_err:
             fail_list.append(c)
+        case_num += 1
+        total_analyse_time += analyse_time
+        total_cal_time += cal_time
+
 
     for c in fail_list:
         log.error('定位错误 %s %d', c.region.get_prl_id(), c.num)
+
+
