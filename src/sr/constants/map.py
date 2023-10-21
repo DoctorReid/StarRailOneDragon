@@ -366,29 +366,20 @@ P03_R04_SP13 = TransportPoint('shj-3', '售货机-3', P03_R04, 'mm_sp_03', (444,
 P03_R04_SP14 = TransportPoint('xct', '小吃摊', P03_R04, 'mm_sp_03', (636, 560))
 P03_R04_SP15 = TransportPoint('dhsgx', '地衡司公廨', P03_R04, 'mm_sp_05', (538, 294))
 
-#
-# [21:49:27] [run 39] [INFO]: 当前选择区域 金人巷
-# [21:49:27] [run 46] [INFO]: 完成步骤
-# [21:49:41] [init_large_map 210] [INFO]: 地图特殊点坐标
-# [21:49:41] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (694, 383))
-# [21:49:41] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (432, 521))
-# [21:49:41] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_11', (480, 53))
-# [21:49:41] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_sp_02', (346, 495))
-# [21:49:41] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_03', (365, 275))
-# [21:49:41] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_03', (423, 347))
-# [21:49:41] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_03', (500, 352))
-# [21:49:41] [init_large_map 214] [INFO]: SP07 = TransportPoint('', '', , 'mm_sp_03', (653, 369))
-# [21:49:41] [init_large_map 214] [INFO]: SP08 = TransportPoint('', '', , 'mm_sp_03', (582, 392))
-# [21:49:41] [init_large_map 214] [INFO]: SP09 = TransportPoint('', '', , 'mm_sp_03', (429, 393))
-# [21:49:41] [init_large_map 214] [INFO]: SP10 = TransportPoint('', '', , 'mm_sp_03', (491, 395))
-# [21:49:41] [init_large_map 214] [INFO]: SP11 = TransportPoint('', '', , 'mm_sp_04', (364, 275))
-# [21:49:41] [init_large_map 214] [INFO]: SP12 = TransportPoint('', '', , 'mm_sp_04', (499, 353))
-# [21:49:41] [init_large_map 214] [INFO]: SP13 = TransportPoint('', '', , 'mm_sp_04', (653, 369))
-# [21:49:41] [init_large_map 214] [INFO]: SP14 = TransportPoint('', '', , 'mm_sp_04', (582, 392))
-# [21:49:41] [init_large_map 214] [INFO]: SP15 = TransportPoint('', '', , 'mm_sp_04', (429, 393))
-# [21:49:41] [init_large_map 214] [INFO]: SP16 = TransportPoint('', '', , 'mm_sp_04', (491, 395))
-# [21:49:41] [init_large_map 214] [INFO]: SP17 = TransportPoint('', '', , 'mm_sp_07', (775, 266))
-
+# 仙舟罗浮 - 金人巷
+P03_R05_SP01 = TransportPoint('qkj', '乾坤街', P03_R05, 'mm_tp_03', (694, 383))
+P03_R05_SP02 = TransportPoint('jrxys', '金人巷夜市', P03_R05, 'mm_tp_03', (432, 521))
+P03_R05_SP03 = TransportPoint('jrxmt', '金人巷码头', P03_R05, 'mm_tp_11', (480, 53))
+P03_R05_SP04 = TransportPoint('clt', '长乐天', P03_R05, 'mm_sp_02', (346, 495))
+P03_R05_SP05 = TransportPoint('clt-2', '长乐天-2', P03_R05, 'mm_sp_02', (447, 536))  # 这个没有扫描到 坐标可能不准
+P03_R05_SP06 = TransportPoint('skt', '寿考堂', P03_R05, 'mm_sp_03', (365, 275))
+P03_R05_SP07 = TransportPoint('szw', '尚滋味', P03_R05, 'mm_sp_03', (423, 347))
+P03_R05_SP08 = TransportPoint('gaydxct', '高阿姨的小吃摊', P03_R05, 'mm_sp_03', (500, 352))
+P03_R05_SP09 = TransportPoint('cjp', '陈机铺', P03_R05, 'mm_sp_03', (653, 369))
+P03_R05_SP10 = TransportPoint('dscz', '杜氏茶庄', P03_R05, 'mm_sp_03', (582, 392))
+P03_R05_SP11 = TransportPoint('mzg', '美馔阁', P03_R05, 'mm_sp_03', (429, 393))  # mei zhuan ge
+P03_R05_SP12 = TransportPoint('shj', '售货机', P03_R05, 'mm_sp_03', (491, 395))
+P03_R05_SP13 = TransportPoint('hsgddync', '霍三哥的大衣内侧', P03_R05, 'mm_sp_07', (775, 266))
 
 # [21:51:01] [run 39] [INFO]: 当前选择区域 太卜司
 # [21:51:01] [run_ocr 45] [DEBUG]: OCR结果 {'1层': <basic.img.MatchResultList object at 0x0000027B9F62BDD0>}
@@ -493,6 +484,8 @@ REGION_2_SP = {
     P03_R03_L1.get_pr_id(): [P03_R03_SP01, P03_R03_SP02, P03_R03_SP03, P03_R03_SP04, P03_R03_SP05, P03_R03_SP06, P03_R03_SP07],
     P03_R04.get_pr_id(): [P03_R04_SP01, P03_R04_SP02, P03_R04_SP03, P03_R04_SP04, P03_R04_SP05, P03_R04_SP06, P03_R04_SP07, P03_R04_SP08, P03_R04_SP09, P03_R04_SP10,
                           P03_R04_SP10, P03_R04_SP11, P03_R04_SP12, P03_R04_SP13, P03_R04_SP14, P03_R04_SP15],
+    P03_R05.get_pr_id(): [P03_R05_SP01, P03_R05_SP02, P03_R05_SP03, P03_R05_SP04, P03_R05_SP05, P03_R05_SP06, P03_R05_SP07, P03_R05_SP08, P03_R05_SP09, P03_R05_SP10,
+                          P03_R05_SP11, P03_R05_SP12, P03_R05_SP13],
 }
 
 
