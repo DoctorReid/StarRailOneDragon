@@ -5,7 +5,7 @@ tp: '存护之蕾'
 route:
   - op: 'move'
     data: [486, 351]
-  - op: 'interactive'
+  - op: 'interact'
     data: '配控装置'
   - op: 'wait'
     data: 'in_world'

@@ -6,11 +6,12 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.context import Context
 from sr.operation import Operation
 
 
-class Interactive(Operation):
+class Interact(Operation):
     """
     点击交互
     """
@@ -42,7 +43,7 @@ class Interactive(Operation):
         u = 255
         lower_color = np.array([l, l, l], dtype=np.uint8)
         upper_color = np.array([u, u, u], dtype=np.uint8)
-        white_part = cv2.inRange(cv2_utils.crop_image(screen, Interactive.rect)[0], lower_color, upper_color)  # 提取白色部分方便匹配
+        white_part = cv2.inRange(cv2_utils.crop_image(screen, Interact.rect)[0], lower_color, upper_color)  # 提取白色部分方便匹配
         # cv2_utils.show_image(white_part, wait=0)
 
         ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.cn)])
@@ -53,7 +54,8 @@ class Interactive(Operation):
             return Operation.RETRY
         else:
             for r in ocr_result.values():
-                if self.ctx.controller.interactive((r.max.cx, r.max.cy), self.wait):
+                if self.ctx.controller.interact((r.max.cx, r.max.cy), self.wait):
+                    log.info('交互成功 %s', gt(self.cn))
                     return Operation.SUCCESS
 
         return Operation.RETRY

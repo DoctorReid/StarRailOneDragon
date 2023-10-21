@@ -26,7 +26,7 @@ class PcController(GameController):
         self.turn_dx: float = config.get('turn_dx')
         self.walk_speed: float = config.get('walk_speed')
         self.is_moving: bool = False
-        self.f = config.get('interactive')
+        self.f = config.get('interact')
 
     def init(self):
         self.win.active()
@@ -143,7 +143,7 @@ class PcController(GameController):
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
-    def interactive(self, pos: tuple, wait: int = 0) -> bool:
+    def interact(self, pos: tuple, wait: int = 0) -> bool:
         """
         交互
         :param pos: 如果是模拟器的话 需要传入交互内容的坐标
@@ -151,5 +151,6 @@ class PcController(GameController):
         :return:
         """
         pyautogui.press(self.f)
-        time.sleep(wait)
+        if wait > 0:
+            time.sleep(wait)
         return True

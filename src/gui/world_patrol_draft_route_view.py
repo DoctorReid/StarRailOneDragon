@@ -35,10 +35,14 @@ class WorldPatrolDraftRouteView:
         self.chosen_route_id: str = None
         self.cancel_edit_existed_btn = ft.ElevatedButton(text='取消编辑已有路线', disabled=True, on_click=self.on_cancel_edit_existed)
         self.text_existed_btn = ft.ElevatedButton(text='测试选择线路', disabled=True, on_click=self.on_test_existed)
+        self.back_btn = ft.ElevatedButton(text='后退', disabled=True, on_click=self.cancel_last)
+        self.reset_btn = ft.ElevatedButton(text='重置', disabled=True, on_click=self.cancel_all)
+        self.save_btn = ft.ElevatedButton(text='保存', disabled=True, on_click=self.save_route)
         load_existed_row = ft.Row(spacing=10, controls=[
             self.existed_route_dropdown,
             self.cancel_edit_existed_btn,
-            self.text_existed_btn
+            self.text_existed_btn,
+            self.back_btn, self.reset_btn, self.save_btn
         ])
 
         self.planet_dropdown = ft.Dropdown(
@@ -60,12 +64,20 @@ class WorldPatrolDraftRouteView:
 
         self.switch_level = ft.Dropdown(label='路线中切换层数', width=200, on_change=self.on_switch_level)
         self.patrol_btn = ft.ElevatedButton(text='攻击怪物', disabled=True, on_click=self.add_patrol)
-        self.back_btn = ft.ElevatedButton(text='后退', disabled=True, on_click=self.cancel_last)
-        self.reset_btn = ft.ElevatedButton(text='重置', disabled=True, on_click=self.cancel_all)
-        self.save_btn = ft.ElevatedButton(text='保存', disabled=True, on_click=self.save_route)
+        self.interact_text = ft.TextField(label="交互文本", width=200, disabled=True)
+        self.interact_btn = ft.ElevatedButton(text='交互', disabled=True, on_click=self.on_interact)
+        self.update_pos_btn = ft.ElevatedButton(text='不移动更新坐标', disabled=True, on_click=self.on_update_pos)
+        self.wait_dropdown = ft.Dropdown(
+            label='等待', width=200,
+            options=[
+                ft.dropdown.Option(text='主界面', key='in_world')
+            ],
+            on_change=self.on_wait_changed
+        )
+
         ctrl_row = ft.Row(
             spacing=10,
-            controls=[self.switch_level, self.patrol_btn, self.back_btn, self.reset_btn, self.save_btn]
+            controls=[self.switch_level, self.patrol_btn, self.interact_text, self.interact_btn, self.wait_dropdown, self.update_pos_btn]
         )
 
         self.image_width = 1000
@@ -191,6 +203,10 @@ class WorldPatrolDraftRouteView:
         if self.chosen_region is None:
             self.map_img.visible = False
             self.patrol_btn.disabled = True
+            self.interact_text.disabled = True
+            self.interact_btn.disabled = True
+            self.wait_dropdown.disabled = True
+            self.update_pos_btn.disabled = True
             self.back_btn.disabled = True
             self.reset_btn.disabled = True
             self.save_btn.disabled = True
@@ -214,6 +230,16 @@ class WorldPatrolDraftRouteView:
             elif route_item['op'] == 'patrol':
                 if last_point is not None:
                     cv2.circle(display_image, last_point[:2], 10, color=(0, 255, 255), thickness=2)
+            elif route_item['op'] == 'interact':
+                if last_point is not None:
+                    cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
+            elif route_item['op'] == 'wait':
+                if last_point is not None:
+                    cv2.circle(display_image, last_point[:2], 14, color=(255, 255, 255), thickness=2)
+            elif route_item['op'] == 'update_pos':
+                pos = route_item['data']
+                cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
+                last_point = pos
 
         cv2_utils.show_image(display_image)
 
@@ -225,6 +251,11 @@ class WorldPatrolDraftRouteView:
         self.map_img.src_base64 = base64_string
 
         self.patrol_btn.disabled = False
+        self.interact_text.disabled = False
+        self.interact_btn.disabled = False
+        self.wait_dropdown.disabled = False
+        self.wait_dropdown.value = None
+        self.update_pos_btn.disabled = False
         self.back_btn.disabled = len(self.route_list) == 0
         self.reset_btn.disabled = len(self.route_list) == 0
         self.save_btn.disabled = len(self.route_list) == 0
@@ -282,6 +313,19 @@ class WorldPatrolDraftRouteView:
                 last_level = pos[2]
             elif route_item['op'] == 'patrol':
                 cfg += "  - op: 'patrol'\n"
+            elif route_item['op'] == 'interact':
+                cfg += "  - op: 'interact'\n"
+                cfg += "    data: '%s'\n" % route_item['data']
+            elif route_item['op'] == 'wait':
+                cfg += "  - op: 'wait'\n"
+                cfg += "    data: '%s'\n" % route_item['data']
+            elif route_item['op'] == 'update_pos':
+                cfg += "  - op: 'update_pos'\n"
+                pos = route_item['data']
+                if pos[2] != last_level:
+                    cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
+                else:
+                    cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
         return cfg
 
     def save_route(self, e):
@@ -316,7 +360,7 @@ class WorldPatrolDraftRouteView:
         """
         last_level = int(self.level_dropdown.value)
         for route_item in self.route_list:
-            if route_item['op'] == 'move':
+            if route_item['op'] == 'move' or route_item['op'] == 'update_pos':
                 if len(route_item['data']) == 2:
                     route_item['data'].append(last_level)
                 else:
@@ -387,6 +431,21 @@ class WorldPatrolDraftRouteView:
         app = WorldPatrol(self.ctx, restart=True, route_id_list=[self.chosen_route_id])
         app.first = False
         app.execute()
+
+    def on_interact(self, e):
+        self.route_list.append({'op': 'interact', 'data': self.interact_text.value})
+        self.draw_route_and_display()
+
+    def on_wait_changed(self, e):
+        self.route_list.append({'op': 'wait', 'data': self.wait_dropdown.value})
+        self.draw_route_and_display()
+
+    def on_update_pos(self, e):
+        idx = len(self.route_list) - 1
+        print(self.route_list[idx])
+        if self.route_list[idx]['op'] == 'move':
+            self.route_list[idx]['op'] = 'update_pos'
+        self.draw_route_and_display()
 
 
 gv: WorldPatrolDraftRouteView = None

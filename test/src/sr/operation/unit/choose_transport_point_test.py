@@ -1,5 +1,7 @@
+import cv2
+
 from basic.img import cv2_utils
-from basic.img.os import get_test_image
+from basic.img.os import get_test_image, get_debug_image
 from sr import constants
 from sr.constants.map import Region, TransportPoint
 from sr.context import get_context
@@ -14,6 +16,17 @@ def _test_get_tp_pos():
     cv2_utils.show_image(map_image, r, win_name='map_image', wait=0)
 
 
+def _test_check_and_click_sp_cn():
+    screen = get_debug_image('_1697894267261')
+    op.check_and_click_sp_cn(screen)
+
+
+def _test_check_and_click_transport():
+    screen = get_debug_image('_1697894859950')
+    op.check_and_click_transport(screen)
+    cv2.waitKey(0)
+
+
 def _test_whole_operation():
     ctx.running = True
     ctx.controller.init()
@@ -22,6 +35,7 @@ def _test_whole_operation():
 
 if __name__ == '__main__':
     ctx = get_context()
-    tp: TransportPoint = constants.map.P01_R02_SP01_JKS
+    ctx.init_all()
+    tp: TransportPoint = constants.map.P03_R06_SP04
     op = ChooseTransportPoint(ctx, tp)
-    _test_whole_operation()
+    _test_check_and_click_transport()

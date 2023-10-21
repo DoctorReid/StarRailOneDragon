@@ -1,0 +1,43 @@
+planet: '仙舟罗浮'
+region: '太卜司'
+level: 2
+tp: '祥台'
+route:
+  - op: 'move'
+    data: [469, 1168]
+  - op: 'move'
+    data: [506, 1166]
+  - op: 'move'
+    data: [533, 1107]
+  - op: 'patrol'
+  - op: 'move'
+    data: [535, 1034]
+  - op: 'move'
+    data: [610, 1031]
+  - op: 'move'
+    data: [638, 1030]
+  - op: 'move'
+    data: [673, 1030]
+  - op: 'patrol'
+  - op: 'move'
+    data: [638, 1030]
+  - op: 'move'
+    data: [610, 1031]
+  - op: 'move'
+    data: [537, 1006]
+  - op: 'move'
+    data: [534, 920]
+  - op: 'move'
+    data: [565, 918]
+  - op: 'patrol'
+  - op: 'move'
+    data: [495, 918]
+  - op: 'move'
+    data: [490, 882]
+  - op: 'move'
+    data: [470, 883]
+  - op: 'move'
+    data: [430, 883]
+  - op: 'move'
+    data: [300, 878]
+  - op: 'patrol'

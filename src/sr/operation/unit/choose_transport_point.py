@@ -31,7 +31,7 @@ class ChooseTransportPoint(Operation):
 
         # 判断地图中间是否有目标点中文可选
         if self.check_and_click_sp_cn(screen):
-            time.sleep(0.5)
+            time.sleep(1)
             return Operation.WAIT
 
         # 先判断右边是不是出现传送了
@@ -84,9 +84,10 @@ class ChooseTransportPoint(Operation):
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
             tp_name_part, _ = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
-            lower_color = np.array([120, 170, 190], dtype=np.uint8)
+            lower_color = np.array([55, 55, 55], dtype=np.uint8)
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
+            gold_part = cv2_utils.dilate(gold_part, 1)
             tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.ocr_str)], threshold=0.4)
             # cv2_utils.show_image(gold_part, win_name='gold_part')
             if len(tp_name_ocr) > 0:
@@ -178,20 +179,19 @@ class ChooseTransportPoint(Operation):
         :param screen: 屏幕截图
         :return:
         """
-        mx1, my1, mx2, my2 = ChooseTransportPoint.map_rect
-        screen_map = screen[my1: my2, mx1: mx2]
+        screen_map, _ = cv2_utils.crop_image(screen, ChooseTransportPoint.map_rect)
 
-        l = 200
+        l = 190
         u = 255
         lower_color = np.array([l, l, l], dtype=np.uint8)
         upper_color = np.array([u, u, u], dtype=np.uint8)
         white_part = cv2.inRange(screen_map, lower_color, upper_color)  # 提取白色部分方便匹配
 
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.ocr_str)])
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.ocr_str)], threshold=0.4)
 
         for r in ocr_result.values():
-            tx = r.max.cx + mx1
-            ty = r.max.cy + my1
+            tx = r.max.cx + ChooseTransportPoint.map_rect[0]
+            ty = r.max.cy + ChooseTransportPoint.map_rect[1]
             return self.ctx.controller.click((tx, ty))
 
         return False

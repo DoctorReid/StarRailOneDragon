@@ -13,7 +13,7 @@ from sr.image.sceenshot import large_map, LargeMapInfo
 from sr.operation import Operation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
-from sr.operation.unit.interactive import Interactive
+from sr.operation.unit.interact import Interact
 from sr.operation.unit.move_directly import MoveDirectly
 from sr.operation.unit.wait_in_world import WaitInWorld
 
@@ -113,7 +113,7 @@ class WorldPatrol(Application):
             next_route_item = route.route_list[i + 1] if i < len(route.route_list) - 1 else None
             if route_item['op'] == 'move':
                 result, next_pos, next_lm_info = self.move(route_item['data'], lm_info, current_pos,
-                                                           next_route_item is not None and next_route_item['op'] != 'move')
+                                                           next_route_item is None or next_route_item['op'] != 'move')
                 if not result:
                     log.error('寻路失败 即将跳过本次路线 %s', route_id)
                     return
@@ -123,16 +123,25 @@ class WorldPatrol(Application):
                     lm_info = next_lm_info
             elif route_item['op'] == 'patrol':
                 self.patrol()
-            elif route_item['op'] == 'interactive':
-                result = self.interactive(route_item['data'])
+            elif route_item['op'] == 'interact':
+                print('interact')
+                result = self.interact(route_item['data'])
                 if not result:
                     log.error('交互失败 即将跳过本次路线 %s', route_id)
                     return
             elif route_item['op'] == 'wait':
+                print('wait')
                 result = self.wait(route_item['data'])
                 if not result:
                     log.error('等待失败 即将跳过本次路线 %s', route_id)
                     return
+            elif route_item['op'] == 'update_pos':
+                print('update_pos')
+                next_pos = route_item['data']
+                if len(next_pos) > 2:
+                    next_region = constants.map.region_with_another_floor(lm_info.region, next_pos[2])
+                    lm_info = large_map.analyse_large_map(next_region, self.ctx.ih)
+                current_pos = next_pos[:2]
             else:
                 log.error('错误的锄大地指令 %s 即将跳过本次路线 %s', route_item['op'], route_id)
                 return
@@ -177,13 +186,13 @@ class WorldPatrol(Application):
         op = EnterAutoFight(self.ctx)
         return op.execute()
 
-    def interactive(self, cn: str) -> bool:
+    def interact(self, cn: str) -> bool:
         """
         交互
         :param cn:
         :return:
         """
-        op = Interactive(self.ctx, cn, wait=2)
+        op = Interact(self.ctx, cn, wait=0)
         return op.execute()
 
     def wait(self, wait_type: str) -> bool:

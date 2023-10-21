@@ -1,0 +1,46 @@
+planet: '仙舟罗浮'
+region: '太卜司'
+level: 1
+tp: '界寰阵'
+route:
+  - op: 'move'
+    data: [320, 282]
+  - op: 'move'
+    data: [294, 309]
+  - op: 'move'
+    data: [288, 390]
+  - op: 'patrol'
+  - op: 'move'
+    data: [277, 420]
+  - op: 'patrol'
+  - op: 'move'
+    data: [230, 419]
+  - op: 'move'
+    data: [210, 400]
+  - op: 'patrol'
+  - op: 'move'
+    data: [210, 430]
+  - op: 'patrol'
+  - op: 'move'
+    data: [230, 419]
+  - op: 'move'
+    data: [277, 420]
+  - op: 'move'
+    data: [291, 445]
+  - op: 'move'
+    data: [290, 482]
+  - op: 'move'
+    data: [288, 521]
+  - op: 'move'
+    data: [311, 543]
+  - op: 'move'
+    data: [330, 560]
+  - op: 'move'
+    data: [375, 579]
+  - op: 'move'
+    data: [402, 633]
+  - op: 'move'
+    data: [435, 665]
+  - op: 'move'
+    data: [523, 671]
+  - op: 'patrol'
