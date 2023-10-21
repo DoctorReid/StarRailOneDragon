@@ -340,15 +340,14 @@ P03_R02_SP06 = TransportPoint('sszj', '圣颂之径', P03_R02_L1, 'mm_tp_09', (5
 P03_R02_SP07 = TransportPoint('xchzs', '星槎海中枢', P03_R02_L1, 'mm_sp_02', (578, 1503))
 P03_R02_SP08 = TransportPoint('gqybsgc', '过期邮包收购处', P03_R02_L1, 'mm_sp_03', (388, 777))
 
-
-# 廻星港
-# [21:46:10] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (834, 249))
-# [21:46:10] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (441, 465))
-# [21:46:10] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (523, 609))
-# [21:46:10] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (647, 707))
-# [21:46:10] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_06', (729, 803))
-# [21:46:10] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_tp_09', (455, 374))
-# [21:47:45] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_02', (881, 222))
+# 仙舟罗浮 - 廻星港
+P03_R03_SP01 = TransportPoint('fxxz', '飞星小筑', P03_R03_L2, 'mm_tp_03', (834, 249))
+P03_R03_SP02 = TransportPoint('zcq-mj', '植船区-萌甲', P03_R03_L1, 'mm_tp_03', (441, 465), ocr_str='萌甲')
+P03_R03_SP03 = TransportPoint('zcq-fs', '植船区-繁生', P03_R03_L1, 'mm_tp_03', (523, 609), ocr_str='繁生')
+P03_R03_SP04 = TransportPoint('bhq', '泊航区', P03_R03_L1, 'mm_tp_03', (647, 707))
+P03_R03_SP05 = TransportPoint('zezx', '震厄之形', P03_R03_L1, 'mm_tp_06', (729, 803))
+P03_R03_SP06 = TransportPoint('yyzj', '野焰之径', P03_R03_L1, 'mm_tp_09', (455, 374))
+P03_R03_SP07 = TransportPoint('xchzs', '星槎海中枢', P03_R03_L2, 'mm_sp_02', (881, 222))
 
 
 
@@ -499,7 +498,9 @@ REGION_2_SP = {
     P02_R12_L1.get_pr_id(): [P02_R12_SP01, P02_R12_SP02, P02_R12_SP03, P02_R12_SP04],
     P03_R01.get_pr_id(): [P03_R01_SP01, P03_R01_SP02, P03_R01_SP03, P03_R01_SP04, P03_R01_SP05, P03_R01_SP06, P03_R01_SP07, P03_R01_SP08, P03_R01_SP09, P03_R01_SP10,
                           P03_R01_SP11, P03_R01_SP12, P03_R01_SP13, P03_R01_SP14, P03_R01_SP15, P03_R01_SP16],
-    P03_R02_L1.get_pr_id(): [P03_R02_SP01, P03_R02_SP02, P03_R02_SP03, P03_R02_SP04, P03_R02_SP05, P03_R02_SP06, P03_R02_SP07, P03_R02_SP08]
+    P03_R02_L1.get_pr_id(): [P03_R02_SP01, P03_R02_SP02, P03_R02_SP03, P03_R02_SP04, P03_R02_SP05, P03_R02_SP06, P03_R02_SP07, P03_R02_SP08],
+    P03_R03_L1.get_pr_id(): [P03_R03_SP01, P03_R03_SP02, P03_R03_SP03, P03_R03_SP04, P03_R03_SP05, P03_R03_SP06, P03_R03_SP07]
+
 }
 
 
