@@ -4,7 +4,7 @@ level: 1
 tp: '同谐之蕾'
 route:
   - op: 'move'
-    data: [312, 521]
+    data: [312, 531]
   - op: 'patrol'
   - op: 'move'
     data: [347, 548]
@@ -12,6 +12,13 @@ route:
     data: [402, 533]
   - op: 'move'
     data: [410, 485]
+  - op: 'move'
+    data: [410, 420]
+  - op: 'patrol'
+  - op: 'move'
+    data: [415, 482]
+  - op: 'move'
+    data: [433, 482]
   - op: 'move'
     data: [612, 487]
   - op: 'move'
