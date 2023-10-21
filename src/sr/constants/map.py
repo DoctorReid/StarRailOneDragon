@@ -389,17 +389,15 @@ P03_R06_SP04 = TransportPoint('xt', '祥台', P03_R06_L2, 'mm_tp_03', (416, 1177
 P03_R06_SP05 = TransportPoint('gzs', '工造司', P03_R06_L2, 'mm_sp_02', (1141, 789))
 P03_R06_SP06 = TransportPoint('clt', '长乐天', P03_R06_L2, 'mm_sp_02', (449, 1147))
 
+# 仙舟罗浮 - 工造司
+P03_R07_SP01 = TransportPoint('gwytd', '格物院通道', P03_R07, 'mm_tp_03', (461, 485))
+P03_R07_SP02 = TransportPoint('rjftd', '镕金坊通道', P03_R07, 'mm_tp_03', (821, 602))
+P03_R07_SP03 = TransportPoint('xjp', '玄机坪', P03_R07, 'mm_tp_03', (189, 865))
+P03_R07_SP04 = TransportPoint('qhhl', '强化烘炉', P03_R07, 'mm_tp_03', (758, 964))
+P03_R07_SP05 = TransportPoint('yozx', '偃偶之形', P03_R07, 'mm_tp_06', (388, 655))
+P03_R07_SP06 = TransportPoint('dds', '丹鼎司', P03_R07, 'mm_sp_02', (1029, 767))
+P03_R07_SP07 = TransportPoint('tbs', '太卜司', P03_R07, 'mm_sp_02', (170, 928))
 
-# [21:55:06] [run 39] [INFO]: 当前选择区域 工造司
-# [21:55:06] [run 46] [INFO]: 完成步骤
-# [21:56:38] [init_large_map 210] [INFO]: 地图特殊点坐标
-# [21:56:38] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (461, 485))
-# [21:56:38] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (821, 602))
-# [21:56:38] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (189, 865))
-# [21:56:38] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (758, 964))
-# [21:56:38] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_06', (388, 655))
-# [21:56:38] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_02', (1029, 767))
-# [21:56:38] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_02', (170, 928))
 
 # [21:58:20] [run 39] [INFO]: 当前选择区域 丹鼎司
 # [21:58:20] [run_ocr 45] [DEBUG]: OCR结果 {'1层': <basic.img.MatchResultList object at 0x000002667F047150>}
@@ -472,6 +470,7 @@ REGION_2_SP = {
     P03_R05.get_pr_id(): [P03_R05_SP01, P03_R05_SP02, P03_R05_SP03, P03_R05_SP04, P03_R05_SP05, P03_R05_SP06, P03_R05_SP07, P03_R05_SP08, P03_R05_SP09, P03_R05_SP10,
                           P03_R05_SP11, P03_R05_SP12, P03_R05_SP13],
     P03_R06_L1.get_pr_id(): [P03_R06_SP01, P03_R06_SP02, P03_R06_SP03, P03_R06_SP04, P03_R06_SP05, P03_R06_SP06],
+    P03_R07.get_pr_id(): [P03_R07_SP01, P03_R07_SP02, P03_R07_SP03, P03_R07_SP04, P03_R07_SP05, P03_R07_SP06, P03_R07_SP07],
 }
 
 
@@ -492,9 +491,6 @@ def region_with_another_floor(region: Region, level: int) -> Region:
     :return:
     """
     return get_region_by_cn(region.cn, region.planet, level)
-
-
-
 
 
 def get_sp_type_in_rect(region: Region, rect: tuple) -> dict:
