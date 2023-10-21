@@ -381,28 +381,13 @@ P03_R05_SP11 = TransportPoint('mzg', '美馔阁', P03_R05, 'mm_sp_03', (429, 393
 P03_R05_SP12 = TransportPoint('shj', '售货机', P03_R05, 'mm_sp_03', (491, 395))
 P03_R05_SP13 = TransportPoint('hsgddync', '霍三哥的大衣内侧', P03_R05, 'mm_sp_07', (775, 266))
 
-# [21:51:01] [run 39] [INFO]: 当前选择区域 太卜司
-# [21:51:01] [run_ocr 45] [DEBUG]: OCR结果 {'1层': <basic.img.MatchResultList object at 0x0000027B9F62BDD0>}
-# [21:51:01] [run 62] [INFO]: 当前层数 1层
-# [21:51:01] [run 46] [INFO]: 完成步骤
-# [21:51:57] [init_large_map 210] [INFO]: 地图特殊点坐标
-# [21:51:57] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (339, 287))
-# [21:51:57] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (553, 601))
-# [21:51:57] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (922, 830))
-# [21:51:57] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (416, 1177))
-
-#
-# [21:53:42] [run 39] [INFO]: 当前选择区域 太卜司
-# [21:53:42] [run_ocr 45] [DEBUG]: OCR结果 {'2层': <basic.img.MatchResultList object at 0x000001B5FFDCE9D0>}
-# [21:53:42] [run 62] [INFO]: 当前层数 2层
-# [21:53:42] [run 46] [INFO]: 完成步骤
-# [21:54:37] [init_large_map 210] [INFO]: 地图特殊点坐标
-# [21:54:37] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (340, 287))
-# [21:54:37] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (553, 601))
-# [21:54:37] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (922, 830))
-# [21:54:37] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (415, 1177))
-# [21:54:37] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_02', (1141, 789))
-# [21:54:37] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_02', (449, 1147))
+# 仙舟罗浮 - 太卜司
+P03_R06_SP01 = TransportPoint('jhz', '界寰阵', P03_R06_L1, 'mm_tp_03', (339, 287))
+P03_R06_SP02 = TransportPoint('tyqgz', '太衍穷观阵', P03_R06_L2, 'mm_tp_03', (553, 601))
+P03_R06_SP03 = TransportPoint('sst', '授事厅', P03_R06_L2, 'mm_tp_03', (922, 830))
+P03_R06_SP04 = TransportPoint('xt', '祥台', P03_R06_L2, 'mm_tp_03', (416, 1177))
+P03_R06_SP05 = TransportPoint('gzs', '工造司', P03_R06_L2, 'mm_sp_02', (1141, 789))
+P03_R06_SP06 = TransportPoint('clt', '长乐天', P03_R06_L2, 'mm_sp_02', (449, 1147))
 
 
 # [21:55:06] [run 39] [INFO]: 当前选择区域 工造司
@@ -486,6 +471,7 @@ REGION_2_SP = {
                           P03_R04_SP10, P03_R04_SP11, P03_R04_SP12, P03_R04_SP13, P03_R04_SP14, P03_R04_SP15],
     P03_R05.get_pr_id(): [P03_R05_SP01, P03_R05_SP02, P03_R05_SP03, P03_R05_SP04, P03_R05_SP05, P03_R05_SP06, P03_R05_SP07, P03_R05_SP08, P03_R05_SP09, P03_R05_SP10,
                           P03_R05_SP11, P03_R05_SP12, P03_R05_SP13],
+    P03_R06_L1.get_pr_id(): [P03_R06_SP01, P03_R06_SP02, P03_R06_SP03, P03_R06_SP04, P03_R06_SP05, P03_R06_SP06],
 }
 
 
