@@ -60,9 +60,9 @@ def _test_get_active_level():
 def _test_init_large_map(region: Region):
     ih: ImageHolder = ImageHolder()
     im: ImageMatcher = CvImageMatcher(ih)
-    large_map.init_large_map(region, ih.get_large_map(region).origin, im, save=True)
+    large_map.init_large_map(region, ih.get_large_map(region).raw, im, save=True)
 
 
 if __name__ == '__main__':
-    for r in [constants.map.P02_R08_L2]:
+    for r in [constants.map.P03_R09]:
         _test_init_large_map(r)

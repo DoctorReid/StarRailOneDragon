@@ -45,7 +45,8 @@ class LargeMapInfo:
 
     def __init__(self):
         self.region: Region = None  # 区域
-        self.origin: MatLike = None  # 原图
+        self.raw: MatLike = None  # 原图
+        self.origin: MatLike = None  # 处理后的原图
         self.gray: MatLike = None  # 灰度图 用于特征检测
         self.mask: MatLike = None  # 主体掩码 用于特征匹配
         self.edge: MatLike = None  # 道路边缘 用于模板匹配

@@ -412,15 +412,13 @@ P03_R08_SP10 = TransportPoint('gzs', '工造司', P03_R08_L2, 'mm_sp_02', (867, 
 P03_R08_SP11 = TransportPoint('yrdxyt', '永仁的小药摊', P03_R08_L2, 'mm_sp_03', (990, 758))
 P03_R08_SP12 = TransportPoint('ggdyct', '汵汵的药材摊', P03_R08_L2, 'mm_sp_03', (837, 843))
 
-# [22:03:38] [run 39] [INFO]: 当前选择区域 鳞渊境
-# [22:03:38] [run 46] [INFO]: 完成步骤
-# [22:05:02] [init_large_map 210] [INFO]: 地图特殊点坐标
-# [22:05:02] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (891, 345))
-# [22:05:02] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (1113, 345))
-# [22:05:02] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (1599, 364))
-# [22:05:02] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_06', (917, 89))
-# [22:05:02] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_02', (1891, 311))
-
+# 仙舟罗浮 - 鳞渊境
+P03_R09_SP01 = TransportPoint('gxsc', '宫墟深处', P03_R09, 'mm_tp_03', (891, 345))
+P03_R09_SP02 = TransportPoint('ghgx', '股海宫墟', P03_R09, 'mm_tp_03', (1113, 345))
+P03_R09_SP03 = TransportPoint('xldyd', '显龙大雩殿', P03_R09, 'mm_tp_03', (1599, 364))
+P03_R09_SP04 = TransportPoint('nszx', '孽兽之形', P03_R09, 'mm_tp_06', (917, 89))
+P03_R09_SP05 = TransportPoint('nszx', '孽兽之形', P03_R09, 'mm_sp_02', (1891, 311))
+P03_R09_SP06 = TransportPoint('bsdss', '不死的神实', P03_R09, 'mm_boss_03', (470, 450))
 
 REGION_2_SP = {
     P01_R01_ZKCD.get_pr_id(): [P01_R01_SP03_HTBGS],
@@ -452,7 +450,8 @@ REGION_2_SP = {
     P03_R06_L1.get_pr_id(): [P03_R06_SP01, P03_R06_SP02, P03_R06_SP03, P03_R06_SP04, P03_R06_SP05, P03_R06_SP06],
     P03_R07.get_pr_id(): [P03_R07_SP01, P03_R07_SP02, P03_R07_SP03, P03_R07_SP04, P03_R07_SP05, P03_R07_SP06, P03_R07_SP07],
     P03_R08_L1.get_pr_id(): [P03_R08_SP01, P03_R08_SP02, P03_R08_SP03, P03_R08_SP04, P03_R08_SP05, P03_R08_SP06, P03_R08_SP07, P03_R08_SP08, P03_R08_SP09, P03_R08_SP10,
-                             P03_R08_SP11, P03_R08_SP12]
+                             P03_R08_SP11, P03_R08_SP12],
+    P03_R09.get_pr_id(): [P03_R09_SP01, P03_R09_SP02, P03_R09_SP03, P03_R09_SP04, P03_R09_SP05, P03_R09_SP06]
 }
 
 

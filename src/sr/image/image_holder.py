@@ -24,6 +24,7 @@ class ImageHolder:
         dir_path = get_large_map_dir_path(region)
         info = LargeMapInfo()
         info.region = region
+        info.raw = cv2_utils.read_image(os.path.join(dir_path, 'raw.png'))
         info.origin = cv2_utils.read_image(os.path.join(dir_path, 'origin.png'))
         info.gray = cv2_utils.read_image(os.path.join(dir_path, 'gray.png'))
         info.mask = cv2_utils.read_image(os.path.join(dir_path, 'mask.png'))
