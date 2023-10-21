@@ -349,31 +349,22 @@ P03_R03_SP05 = TransportPoint('zezx', '震厄之形', P03_R03_L1, 'mm_tp_06', (7
 P03_R03_SP06 = TransportPoint('yyzj', '野焰之径', P03_R03_L1, 'mm_tp_09', (455, 374))
 P03_R03_SP07 = TransportPoint('xchzs', '星槎海中枢', P03_R03_L2, 'mm_sp_02', (881, 222))
 
-
-
-# [21:48:12] [run 39] [INFO]: 当前选择区域 长乐天
-# [21:48:12] [run 46] [INFO]: 完成步骤
-# [21:48:27] [init_large_map 210] [INFO]: 地图特殊点坐标
-# [21:48:27] [init_large_map 214] [INFO]: SP00 = TransportPoint('', '', , 'mm_tp_03', (550, 206))
-# [21:48:27] [init_large_map 214] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (589, 530))
-# [21:48:27] [init_large_map 214] [INFO]: SP02 = TransportPoint('', '', , 'mm_sp_02', (697, 104))
-# [21:48:27] [init_large_map 214] [INFO]: SP03 = TransportPoint('', '', , 'mm_sp_02', (427, 145))
-# [21:48:27] [init_large_map 214] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_02', (355, 224))
-# [21:48:27] [init_large_map 214] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_02', (380, 465))
-# [21:48:27] [init_large_map 214] [INFO]: SP06 = TransportPoint('', '', , 'mm_sp_02', (494, 588))
-# [21:48:27] [init_large_map 214] [INFO]: SP07 = TransportPoint('', '', , 'mm_sp_03', (695, 193))
-# [21:48:27] [init_large_map 214] [INFO]: SP08 = TransportPoint('', '', , 'mm_sp_03', (745, 232))
-# [21:48:27] [init_large_map 214] [INFO]: SP09 = TransportPoint('', '', , 'mm_sp_03', (663, 262))
-# [21:48:27] [init_large_map 214] [INFO]: SP10 = TransportPoint('', '', , 'mm_sp_03', (662, 423))
-# [21:48:27] [init_large_map 214] [INFO]: SP11 = TransportPoint('', '', , 'mm_sp_03', (444, 505))
-# [21:48:27] [init_large_map 214] [INFO]: SP12 = TransportPoint('', '', , 'mm_sp_03', (636, 560))
-# [21:48:27] [init_large_map 214] [INFO]: SP13 = TransportPoint('', '', , 'mm_sp_04', (695, 193))
-# [21:48:27] [init_large_map 214] [INFO]: SP14 = TransportPoint('', '', , 'mm_sp_04', (744, 232))
-# [21:48:27] [init_large_map 214] [INFO]: SP15 = TransportPoint('', '', , 'mm_sp_04', (663, 262))
-# [21:48:27] [init_large_map 214] [INFO]: SP16 = TransportPoint('', '', , 'mm_sp_04', (662, 423))
-# [21:48:27] [init_large_map 214] [INFO]: SP17 = TransportPoint('', '', , 'mm_sp_04', (443, 506))
-# [21:48:27] [init_large_map 214] [INFO]: SP18 = TransportPoint('', '', , 'mm_sp_04', (636, 560))
-# [21:48:27] [init_large_map 214] [INFO]: SP19 = TransportPoint('', '', , 'mm_sp_05', (538, 294))
+# 仙舟罗浮 - 长乐天
+P03_R04_SP01 = TransportPoint('rmt', '若木亭', P03_R04, 'mm_tp_03', (550, 206))
+P03_R04_SP02 = TransportPoint('yxt', '悠暇庭', P03_R04, 'mm_tp_03', (589, 530))
+P03_R04_SP03 = TransportPoint('tbs', '太卜司', P03_R04, 'mm_sp_02', (697, 104))
+P03_R04_SP04 = TransportPoint('scf', '神策府', P03_R04, 'mm_sp_02', (427, 145))
+P03_R04_SP05 = TransportPoint('jrx-s', '金人巷-上', P03_R04, 'mm_sp_02', (355, 224))
+P03_R04_SP06 = TransportPoint('jrx-x', '金人巷-下', P03_R04, 'mm_sp_02', (380, 465))
+P03_R04_SP07 = TransportPoint('xchzs', '星槎海中枢', P03_R04, 'mm_sp_02', (494, 588))
+P03_R04_SP08 = TransportPoint('zhxt', '杂货小摊', P03_R04, 'mm_sp_03', (695, 193))
+P03_R04_SP09 = TransportPoint('shj-1', '售货机-1', P03_R04, 'mm_sp_03', (550, 226))  # 这个没有扫描到 坐标可能不准
+P03_R04_SP10 = TransportPoint('bet', '宝饵堂', P03_R04, 'mm_sp_03', (745, 232))
+P03_R04_SP11 = TransportPoint('shj-2', '售货机-2', P03_R04, 'mm_sp_03', (663, 262))
+P03_R04_SP12 = TransportPoint('syss', '三余书肆', P03_R04, 'mm_sp_03', (662, 423))
+P03_R04_SP13 = TransportPoint('shj-3', '售货机-3', P03_R04, 'mm_sp_03', (444, 505))
+P03_R04_SP14 = TransportPoint('xct', '小吃摊', P03_R04, 'mm_sp_03', (636, 560))
+P03_R04_SP15 = TransportPoint('dhsgx', '地衡司公廨', P03_R04, 'mm_sp_05', (538, 294))
 
 #
 # [21:49:27] [run 39] [INFO]: 当前选择区域 金人巷
@@ -499,8 +490,9 @@ REGION_2_SP = {
     P03_R01.get_pr_id(): [P03_R01_SP01, P03_R01_SP02, P03_R01_SP03, P03_R01_SP04, P03_R01_SP05, P03_R01_SP06, P03_R01_SP07, P03_R01_SP08, P03_R01_SP09, P03_R01_SP10,
                           P03_R01_SP11, P03_R01_SP12, P03_R01_SP13, P03_R01_SP14, P03_R01_SP15, P03_R01_SP16],
     P03_R02_L1.get_pr_id(): [P03_R02_SP01, P03_R02_SP02, P03_R02_SP03, P03_R02_SP04, P03_R02_SP05, P03_R02_SP06, P03_R02_SP07, P03_R02_SP08],
-    P03_R03_L1.get_pr_id(): [P03_R03_SP01, P03_R03_SP02, P03_R03_SP03, P03_R03_SP04, P03_R03_SP05, P03_R03_SP06, P03_R03_SP07]
-
+    P03_R03_L1.get_pr_id(): [P03_R03_SP01, P03_R03_SP02, P03_R03_SP03, P03_R03_SP04, P03_R03_SP05, P03_R03_SP06, P03_R03_SP07],
+    P03_R04.get_pr_id(): [P03_R04_SP01, P03_R04_SP02, P03_R04_SP03, P03_R04_SP04, P03_R04_SP05, P03_R04_SP06, P03_R04_SP07, P03_R04_SP08, P03_R04_SP09, P03_R04_SP10,
+                          P03_R04_SP10, P03_R04_SP11, P03_R04_SP12, P03_R04_SP13, P03_R04_SP14, P03_R04_SP15],
 }
 
 
