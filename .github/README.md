@@ -6,7 +6,7 @@
 ## 使用指南
 需要在```1920*1080 窗口模式```下运行，详情见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)
 
-下载方式 [Release](https://github.com/DoctorReid/StarRailAutoProxy/releases)
+下载方式 [Release页面](https://github.com/DoctorReid/StarRailAutoProxy/releases)
 
 ## 项目进度
 
