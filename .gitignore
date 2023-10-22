@@ -8,4 +8,4 @@ out/
 config/world_patrol/record.yml
 /build
 /dist
-sr-ap.spec
+*.spec
