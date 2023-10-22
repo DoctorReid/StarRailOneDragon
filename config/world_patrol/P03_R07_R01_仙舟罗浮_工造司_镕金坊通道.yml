@@ -1,0 +1,76 @@
+planet: '仙舟罗浮'
+region: '工造司'
+level: 0
+tp: '镕金坊通道'
+route:
+  - op: 'move'
+    data: [793, 589]
+  - op: 'move'
+    data: [793, 500]
+  - op: 'move'
+    data: [831, 500]
+  - op: 'move'
+    data: [896, 502]
+  - op: 'move'
+    data: [915, 501]
+  - op: 'patrol'
+  - op: 'move'
+    data: [896, 502]
+  - op: 'move'
+    data: [831, 500]
+  - op: 'move'
+    data: [798, 474]
+  - op: 'move'
+    data: [799, 439]
+  - op: 'move'
+    data: [779, 439]
+  - op: 'move'
+    data: [779, 450]
+  - op: 'patrol'
+  - op: 'move'
+    data: [800, 408]
+  - op: 'move'
+    data: [821, 408]
+  - op: 'move'
+    data: [869, 408]
+  - op: 'move'
+    data: [867, 357]
+  - op: 'move'
+    data: [855, 353]
+  - op: 'move'
+    data: [858, 305]
+  - op: 'move'
+    data: [880, 311]
+  - op: 'move'
+    data: [880, 321]
+  - op: 'patrol'
+  - op: 'move'
+    data: [802, 255]
+  - op: 'move'
+    data: [773, 259]
+  - op: 'interact'
+    data: '入画'
+  - op: 'wait'
+    data: 'in_world'
+  - op: 'update_pos'
+    data: [573, 319]
+  - op: 'move'
+    data: [462, 335]
+  - op: 'move'
+    data: [415, 337]
+  - op: 'patrol'
+  - op: 'move'
+    data: [413, 370]
+  - op: 'patrol'
+  - op: 'move'
+    data: [408, 406]
+  - op: 'move'
+    data: [369, 403]
+  - op: 'move'
+    data: [368, 324]
+  - op: 'move'
+    data: [348, 329]
+  - op: 'patrol'
+  - op: 'move'
+    data: [343, 392]
+  - op: 'patrol'

@@ -1,0 +1,42 @@
+planet: '仙舟罗浮'
+region: '工造司'
+level: 0
+tp: '格物院通道'
+route:
+  - op: 'move'
+    data: [490, 484]
+  - op: 'move'
+    data: [518, 547]
+  - op: 'move'
+    data: [518, 639]
+  - op: 'patrol'
+  - op: 'move'
+    data: [540, 639]
+  - op: 'move'
+    data: [541, 744]
+  - op: 'move'
+    data: [500, 765]
+  - op: 'patrol'
+  - op: 'move'
+    data: [499, 802]
+  - op: 'move'
+    data: [498, 860]
+  - op: 'patrol'
+  - op: 'move'
+    data: [499, 969]
+  - op: 'move'
+    data: [475, 993]
+  - op: 'move'
+    data: [422, 993]
+  - op: 'move'
+    data: [414, 1011]
+  - op: 'move'
+    data: [414, 1038]
+  - op: 'move'
+    data: [403, 1100]
+  - op: 'move'
+    data: [410, 1158]
+  - op: 'patrol'
+  - op: 'move'
+    data: [426, 1210]
+  - op: 'patrol'

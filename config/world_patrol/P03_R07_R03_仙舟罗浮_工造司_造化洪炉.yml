@@ -1,0 +1,38 @@
+planet: '仙舟罗浮'
+region: '工造司'
+level: 0
+tp: '造化洪炉'
+route:
+  - op: 'move'
+    data: [738, 967]
+  - op: 'move'
+    data: [740, 1007]
+  - op: 'move'
+    data: [773, 1010]
+  - op: 'move'
+    data: [779, 1048]
+  - op: 'move'
+    data: [780, 1067]
+  - op: 'move'
+    data: [716, 1067]
+  - op: 'move'
+    data: [714, 1083]
+  - op: 'patrol'
+  - op: 'move'
+    data: [725, 1125]
+  - op: 'patrol'
+  - op: 'move'
+    data: [758, 1167]
+  - op: 'patrol'
+  - op: 'move'
+    data: [760, 1135]
+  - op: 'move'
+    data: [816, 1135]
+  - op: 'move'
+    data: [882, 1135]
+  - op: 'move'
+    data: [881, 1117]
+  - op: 'patrol'
+  - op: 'move'
+    data: [918, 1111]
+  - op: 'patrol'
