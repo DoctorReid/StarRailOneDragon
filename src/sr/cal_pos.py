@@ -16,7 +16,8 @@ def cal_character_pos(im: ImageMatcher,
                       lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                       lm_rect: tuple = None, show: bool = False,
                       retry_without_rect: bool = True,
-                      running: bool = False):
+                      running: bool = False,
+                      possible_pos: tuple = None):
     """
     根据小地图 匹配大地图 判断当前的坐标
     :param im: 图片匹配器
@@ -26,32 +27,49 @@ def cal_character_pos(im: ImageMatcher,
     :param retry_without_rect: 失败时是否去除特定区域进行全图搜索
     :param show: 是否显示结果
     :param running: 角色是否在移动 移动时候小地图会缩小
+    :param possible_pos: 上一次的位置
     :return:
     """
     log.debug("准备计算当前位置 大地图区域 %s", lm_rect)
 
+    r1, r2, r3, r4 = None, None, None, None
     result: MatchResult = None
 
     # 匹配结果 是缩放后的 offset 和宽高
     if mm_info.sp_result is not None and len(mm_info.sp_result) > 0:  # 有特殊点的时候 使用特殊点倒推位置
-        result = cal_character_pos_by_sp_result(lm_info, mm_info, lm_rect=lm_rect, show=show)
-        if result is None:  # 倒推位置失败 使用特征匹配
+        r1 = cal_character_pos_by_sp_result(lm_info, mm_info, lm_rect=lm_rect, show=show)
+        in1 = pos_in_range(r1, possible_pos)
+        if not in1:  # 倒推位置失败 使用特征匹配
             # 只有极少部分情况需要使用特征匹配 所以不需要 mini_map.analyse_mini_map 中对所有情况都分析特征点
             # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map
             mm_info.kps, mm_info.desc = cv2_utils.feature_detect_and_compute(mm_info.gray, mask=mm_info.sp_mask)
-            result = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
+            r2 = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
+            in2 = pos_in_range(r2, possible_pos)
+            if in2:
+                result = r2
+        else:
+            result = r1
 
-    if result is None:  # 使用模板匹配 用道路掩码的
-        result: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+    if result is None:  # 使用模板匹配 用道路掩码的 相对快 但不是很准
+        r3: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        in3 = pos_in_range(r3, possible_pos)
+        if in3:
+            result = r3
+
+    if result is None:  # 使用模板匹配 用原图的 相对慢 但准确率更高一点
+        r4: MatchResult = cal_character_pos_by_template_match(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        in4 = pos_in_range(r4, possible_pos)
+        if in4:
+            result = r4
+
+    if result is None:  # 没有一个计算结果在预估范围内 按优先级返回
+        result = cal_utils.coalesce(r1, r2, r3, r4)
 
     # if result is None:
     #     result: MatchResult = cal_character_pos_by_merge_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
 
     # if result is None:  # 使用模板匹配 用道路掩码的
     #     result: MatchResult = cal_character_pos_by_edge_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-
-    if result is None:  # 使用模板匹配 用原图的
-        result: MatchResult = cal_character_pos_by_template_match(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
 
     if result is None:
         if lm_rect is not None and retry_without_rect:  # 整张大地图试试
@@ -72,6 +90,28 @@ def cal_character_pos(im: ImageMatcher,
     log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f 置信度 %.2f', center_x, center_y, scale, result.confidence)
 
     return center_x, center_y
+
+
+def pos_in_range(result: MatchResult, possible_pos: tuple) -> bool:
+    """
+    判断计算结果是否在预估的范围内
+    :param result: 计算坐标结果
+    :param possible_pos: 预估范围 根据上一个坐标和移动速度得到
+    :return: 计算结果是否在预估的范围内
+    """
+    if result is None:
+        return False
+
+    if possible_pos is None:
+        return True
+
+    if len(possible_pos) < 3 or possible_pos[2] == 0:  # 还没有移动的话 通常是第一个点 这时候先默认通过判断
+        return True
+
+    if cal_utils.distance_between((result.cx, result.cy), possible_pos[:2]) > possible_pos[2] * 2:
+        return False
+
+    return True
 
 
 @record_performance

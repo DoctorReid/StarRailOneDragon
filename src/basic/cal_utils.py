@@ -78,3 +78,12 @@ def calculate_overlap_area(rect1, rect2):
         # 计算重叠矩形的面积
         overlap_area = width * height
         return overlap_area
+
+
+def coalesce(*args):
+    """
+    返回第一个非空元素
+    :param args:
+    :return:
+    """
+    return next((arg for arg in args if arg is not None), None)

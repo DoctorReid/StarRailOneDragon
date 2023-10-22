@@ -17,7 +17,6 @@ from sr.operation import Operation
 
 class ChooseTransportPoint(Operation):
 
-    map_rect = (200, 200, 1400, 900)  # 大地图界面裁剪地图区域 应该需要比 大地图录制的区域小一点
     tp_name_rect = (1485, 120, 1800, 170)  # 右侧显示传送点名称的区域
     drag_distance = -200
 
@@ -179,7 +178,7 @@ class ChooseTransportPoint(Operation):
         :param screen: 屏幕截图
         :return:
         """
-        screen_map, _ = cv2_utils.crop_image(screen, ChooseTransportPoint.map_rect)
+        screen_map, _ = cv2_utils.crop_image(screen, large_map.CUT_MAP_RECT)
 
         l = 190
         u = 255
@@ -190,8 +189,8 @@ class ChooseTransportPoint(Operation):
         ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.ocr_str)], threshold=0.4)
 
         for r in ocr_result.values():
-            tx = r.max.cx + ChooseTransportPoint.map_rect[0]
-            ty = r.max.cy + ChooseTransportPoint.map_rect[1]
+            tx = r.max.cx + large_map.CUT_MAP_RECT[0]
+            ty = r.max.cy + large_map.CUT_MAP_RECT[1]
             return self.ctx.controller.click((tx, ty))
 
         return False

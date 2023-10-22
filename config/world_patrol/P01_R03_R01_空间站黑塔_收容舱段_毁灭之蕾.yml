@@ -4,13 +4,13 @@ level: 1
 tp: '毁灭之蕾'
 route:
   - op: 'move'
-    data: [311, 430, -1]
+    data: [318, 440, -1]
   - op: 'move'
-    data: [250, 430]
+    data: [257, 440]
   - op: 'move'
-    data: [250, 310]
+    data: [257, 320]
   - op: 'move'
-    data: [215, 310]
+    data: [222, 320]
   - op: 'move'
-    data: [200, 400]
+    data: [207, 410]
   - op: 'patrol'

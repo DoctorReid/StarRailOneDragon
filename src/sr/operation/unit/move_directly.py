@@ -42,9 +42,10 @@ class MoveDirectly(Operation):
         if start is not None:
             self.pos.append(start)
         self.stuck_times = 0  # 被困次数
-        self.last_rec_time = time.time()  # 上一次记录坐标的时间
+        self.last_rec_time = 0  # 上一次记录坐标的时间
         self.no_pos_times = 0
         self.stop_afterwards = stop_afterwards  # 最后是否停止前进
+        self.first_record: bool = True  # 是否第一个点
 
     def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
@@ -87,7 +88,7 @@ class MoveDirectly(Operation):
 
         # 根据上一次的坐标和行进距离 计算当前位置
         lx, ly = last_pos
-        move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time)
+        move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time) if self.last_rec_time > 0 else 0
         possible_pos = (lx, ly, move_distance)
         lm_rect = get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
@@ -193,9 +194,9 @@ class MoveDirectly(Operation):
         log.debug('计算坐标耗时 %.4f s', time.time() - start_time)
         log.info('计算当前坐标为 (%s, %s)', x, y)
 
-        if x is not None and possible_pos[2] > 0 and cal_utils.distance_between((x, y), possible_pos[:2]) > possible_pos[2] * 2:
-            x, y = None, None
-            log.info('计算位置偏离上一个位置过远 舍弃')
+        # if x is not None and possible_pos[2] > 0 and cal_utils.distance_between((x, y), possible_pos[:2]) > possible_pos[2] * 2:
+        #     x, y = None, None
+        #     log.info('计算位置偏离上一个位置过远 舍弃')
 
         return x, y
 

@@ -7,9 +7,10 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
-from sr.constants.map import Region
+from sr.constants.map import Region, region_with_another_floor
 from sr.context import Context, get_context
 from sr.image.sceenshot import large_map, LargeMapInfo
+from sr.operation import Operation
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.open_map import OpenMap
@@ -25,57 +26,95 @@ class LargeMapRecorder(Application):
 
     def __init__(self, ctx: Context, region: Region):
         super().__init__(ctx)
-        self.ops = [OpenMap(ctx), ScaleLargeMap(ctx, -5), ChoosePlanet(ctx, region.planet), ChooseRegion(ctx, region)]
         self.planet = region.planet
         self.region = region
 
     def run(self) -> bool:
         """
-        先拉到最左上角
-        然后一行一行地截图 最后再拼接起来
+        先拉到最左上角 然后一行一行地截图 最后再拼接起来。
+        多层数的话需要一次性先将所有楼层截图再处理 保证各楼层大小一致
         :return:
         """
-        self.ctx.running = True
-        self.ctx.controller.init()
-        for op in self.ops:
-            r = op.execute()
-            if not r:
-                log.error('前置打开地图失败')
+        region_list = []
+        for l in [-1, 0, 1, 2]:
+            region = region_with_another_floor(self.region, l)
+            if region is not None:
+                region_list.append(region)
+
+        raw_img = {}
+
+        ops = [OpenMap(ctx), ScaleLargeMap(ctx, -5)]
+        if not self.run_ops(ops):
+            return False
+
+        for region in region_list:
+            ops = [ChoosePlanet(ctx, region.planet), ChooseRegion(ctx, region)]
+            if not self.run_ops(ops):
                 return False
+
+            win: Window = self.ctx.controller.win
+            rect: WinRect = win.get_win_rect()
+
+            center = (rect.w // 2, rect.h // 2)
+            self.ctx.controller.drag_to(end=(rect.w, rect.h), start=center, duration=1)  # 先拉到左上角
+            time.sleep(1)
+            img = []
+            for i in range(10):
+                if not self.ctx.running:
+                    return False
+                row_img = self.screenshot_horizontally(center)  # 对一行进行水平的截图
+                cv2_utils.show_image(row_img, win_name='row %d' % i)
+                if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], row_img):
+                    img.append(row_img)
+                    self.ctx.controller.drag_to(end=(center[0], center[1] - 200), start=center, duration=1)  # 往下拉一段
+                    time.sleep(1)
+                    self.ctx.controller.drag_to(end=(rect.w, center[1]), start=center, duration=1)  # 往左拉到尽头
+                    time.sleep(1)
+                else:
+                    break
+
+            merge = img[0]
+            for i in range(len(img)):
+                if i == 0:
+                    merge = img[i]
+                else:
+                    merge = cv2_utils.concat_vertically(merge, img[i], decision_height=large_map.CUT_MAP_RECT[3] - large_map.CUT_MAP_RECT[1] - 300)
+
+            raw_img[region.get_prl_id()] = merge
+            cv2_utils.show_image(merge, win_name='region.get_prl_id()')
+
+        # 检测几个楼层是否大小一致
+        shape = None
+        lp, rp, tp, bp = None, None, None, None
+        for region in region_list:
+            raw = raw_img[region.get_prl_id()]
+            if shape is None:
+                shape = raw.shape
             else:
-                log.info('完成步骤')
+                shape2 = raw.shape
+                if shape[0] != shape2[0] or shape[1] != shape2[1]:
+                    log.error('层数截图大小不一致')
 
-        win: Window = self.ctx.controller.win
-        rect: WinRect = win.get_win_rect()
+            # 不同楼层需要拓展的大小可能不一致 保留一个最大的
+            lp2, rp2, tp2, bp2 = large_map.get_expand_arr(raw)
+            if lp is None or lp2 > lp:
+                lp = lp2
+            if rp is None or rp2 > rp:
+                rp = rp2
+            if tp is None or tp2 > tp:
+                tp = tp2
+            if bp is None or bp2 > bp:
+                bp = bp2
 
-        center = (rect.w // 2, rect.h // 2)
-        self.ctx.controller.drag_to(end=(rect.w, rect.h), start=center, duration=1)  # 先拉到左上角
-        time.sleep(1)
-        img = []
-        for i in range(10):
-            if not self.ctx.running:
-                return False
-            row_img = self.screenshot_horizontally(center)  # 对一行进行水平的截图
-            cv2_utils.show_image(row_img, win_name='row %d' % i)
-            if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], row_img):
-                img.append(row_img)
-                self.ctx.controller.drag_to(end=(center[0], center[1] - 200), start=center, duration=1)  # 往下拉一段
-                time.sleep(1)
-                self.ctx.controller.drag_to(end=(rect.w, center[1]), start=center, duration=1)  # 往左拉到尽头
-                time.sleep(1)
-            else:
-                break
+        cv2.waitKey(0)
 
-        merge = img[0]
-        for i in range(len(img)):
-            if i == 0:
-                merge = img[i]
-            else:
-                merge = cv2_utils.concat_vertically(merge, img[i], decision_height=large_map.CUT_MAP_RECT[3] - large_map.CUT_MAP_RECT[1] - 300)
+        for region in region_list:
+            raw = raw_img[region.get_prl_id()]
+            large_map.save_large_map_image(raw, region, 'raw')
+            large_map.init_large_map(region, raw, self.ctx.im,
+                                     expand_arr=[lp, rp, tp, bp], save=True)
 
-        cv2_utils.show_image(merge, win_name='final')
-        large_map.save_large_map_image(merge, self.region, 'raw')
-        large_map.init_large_map(self.region, merge, self.ctx.im, save=True)
+        return Operation.SUCCESS
 
     def screenshot_horizontally(self, center):
         """
@@ -106,11 +145,18 @@ class LargeMapRecorder(Application):
                 merge = cv2_utils.concat_horizontally(merge, img[i])
         return merge
 
+    def run_ops(self, ops) -> bool:
+        for op in ops:
+            if not op.execute():
+                log.error('前置打开地图失败')
+                return False
+        return True
+
 
 if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = constants.map.P02_R11_L2
+    r = constants.map.P01_R03_SRCD_L1
     app = LargeMapRecorder(ctx, r)
-    app.run()
+    app.execute()

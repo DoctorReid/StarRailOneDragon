@@ -23,16 +23,18 @@ class TestCase:
 
 
 case_list = [
-    TestCase(constants.map.P01_R03_SRCD_L1, (314, 319), 1, False),
-    TestCase(constants.map.P01_R03_SRCD_L1, (292, 400), 2, False),
-    TestCase(constants.map.P01_R03_SRCD_L1, (249, 382), 3, True),
+    TestCase(constants.map.P01_R03_SRCD_L1, (321, 329), 1, False),
+    TestCase(constants.map.P01_R03_SRCD_L1, (299, 410), 2, False),
+    TestCase(constants.map.P01_R03_SRCD_L1, (256, 392), 3, True),
+    TestCase(constants.map.P01_R03_SRCD_L1, (436, 497, 1), 4, True),
+    TestCase(constants.map.P01_R03_SRCD_L1, (538, 546, 1), 5, True),
 
-    TestCase(constants.map.P01_R03_SRCD_B1, (243, 342), 1, False),
-    TestCase(constants.map.P01_R03_SRCD_B1, (321, 428), 2, True),
-    TestCase(constants.map.P01_R03_SRCD_B1, (275, 427), 3, True),
-    TestCase(constants.map.P01_R03_SRCD_B1, (249, 305), 4, True),
-    TestCase(constants.map.P01_R03_SRCD_B1, (210, 302), 5, True),
-    TestCase(constants.map.P01_R03_SRCD_B1, (214, 346), 6, True),
+    TestCase(constants.map.P01_R03_SRCD_B1, (254, 356), 1, False),
+    TestCase(constants.map.P01_R03_SRCD_B1, (328, 438), 2, True),
+    TestCase(constants.map.P01_R03_SRCD_B1, (282, 437), 3, True),
+    TestCase(constants.map.P01_R03_SRCD_B1, (256, 315), 4, True),
+    TestCase(constants.map.P01_R03_SRCD_B1, (217, 312), 5, True),
+    TestCase(constants.map.P01_R03_SRCD_B1, (221, 356), 6, True),
 
     TestCase(constants.map.P01_R04_ZYCD_L1, (470, 244), 1, True),
 
@@ -63,7 +65,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     t2 = time.time()
     analyse_time = t2 - t1
     log.debug('analyse_mini_map 耗时 %.6f', analyse_time)
-    x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
+    x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running, possible_pos=c.pos)
     t3 = time.time()
     cal_time = t3 - t2
     log.debug('cal_character_pos 耗时 %.6f', cal_time)
@@ -88,7 +90,7 @@ if __name__ == '__main__':
     total_cal_time = 0
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != constants.map.P03_R03_L1 or c.num != 2:
+        # if c.region != constants.map.P01_R03_SRCD_B1 or c.num != 1:
         #     continue
         if c.region.get_prl_id() not in lm_info_map:
             lm_info_map[c.region.get_prl_id()] = large_map.analyse_large_map(c.region, ih)
