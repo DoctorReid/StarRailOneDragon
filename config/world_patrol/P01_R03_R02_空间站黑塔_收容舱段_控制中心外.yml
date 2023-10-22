@@ -4,25 +4,25 @@ level: 1
 tp: '控制中心外'
 route:
   - op: 'move'
-    data: [392, 340]
+    data: [392, 345]
   - op: 'patrol'
   - op: 'move'
-    data: [387, 370]
+    data: [387, 375]
   - op: 'move'
-    data: [397, 430]
+    data: [397, 435]
   - op: 'move'
-    data: [443, 454]
+    data: [443, 459]
   - op: 'patrol'
   - op: 'move'
-    data: [429, 490]
+    data: [429, 495]
   - op: 'move'
-    data: [492, 537]
+    data: [492, 542]
   - op: 'move'
-    data: [555, 541]
+    data: [555, 546]
   - op: 'move'
-    data: [572, 541, 2]
+    data: [572, 546, 2]
   - op: 'move'
-    data: [572, 510]
+    data: [572, 515]
   - op: 'move'
-    data: [610, 510]
+    data: [610, 515]
   - op: 'patrol'

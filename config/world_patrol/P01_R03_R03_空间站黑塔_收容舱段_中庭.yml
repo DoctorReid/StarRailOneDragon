@@ -4,14 +4,14 @@ level: 1
 tp: '中庭'
 route:
   - op: 'move'
-    data: [677, 290]
+    data: [677, 295]
   - op: 'patrol'
   - op: 'move'
-    data: [707, 315]
+    data: [707, 320]
   - op: 'move'
-    data: [712, 384]
+    data: [712, 389]
   - op: 'move'
-    data: [696, 431]
+    data: [696, 436]
   - op: 'move'
-    data: [668, 432]
+    data: [668, 437]
   - op: 'patrol'
