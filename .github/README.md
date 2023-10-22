@@ -1,14 +1,22 @@
-# Honkai Star Rail - Auto Proxy Player
+# Honkai Star Rail - Auto Proxy
 崩坏：星穹铁道自动代理器 - 基于图像识别的自动游戏脚本
 
 期望自动化完成星铁中所有内容
 
-期望一期锄大地功能在10月份完工 [目前进度](https://github.com/DoctorReid/StarRailProxy/milestone/2)
-
-元旦前完成二期模拟宇宙
-
 ## 使用指南
-见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F)
+需要在```1920*1080 窗口模式```下运行，详情见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F)
+
+下载方式 [Release](https://github.com/DoctorReid/StarRailAutoProxy/releases) (百度网盘准备中)
+
+## 项目进度
+
+- 锄大地功能已完成
+
+![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/%E9%94%84%E5%A4%A7%E5%9C%B0.png)
+
+![锄地线路录制](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/%E8%B7%AF%E7%BA%BF%E5%BD%95%E5%88%B6.png)
+
+[目前进度](https://github.com/DoctorReid/StarRailProxy/milestone/2)
 
 ## 免责声明
 本软件是一个外部工具旨在自动化崩坏星轨的游戏玩法。它被设计成仅通过现有用户界面与游戏交互,并遵守相关法律法规。该软件包旨在提供简化和用户通过功能与游戏交互,并且它不打算以任何方式破坏游戏平衡或提供任何不公平的优势。该软件包不会以任何方式修改任何游戏文件或游戏代码。
