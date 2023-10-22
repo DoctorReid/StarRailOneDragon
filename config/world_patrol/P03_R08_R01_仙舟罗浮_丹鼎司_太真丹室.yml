@@ -8,27 +8,35 @@ route:
   - op: 'move'
     data: [521, 594]
   - op: 'move'
-    data: [452, 596]
+    data: [465, 596]
+  - op: 'move'
+    data: [455, 606]
+  - op: 'move'
+    data: [441, 597]
   - op: 'move'
     data: [390, 596]
   - op: 'move'
     data: [346, 557]
   - op: 'patrol'
   - op: 'move'
+    data: [323, 559]
+  - op: 'move'
     data: [317, 527]
   - op: 'move'
     data: [292, 500]
   - op: 'move'
     data: [292, 444]
-  - op: 'patrol'
   - op: 'move'
     data: [313, 427]
+  - op: 'patrol'
   - op: 'move'
     data: [380, 430]
   - op: 'move'
-    data: [405, 371]
+    data: [434, 496]
   - op: 'move'
-    data: [454, 361]
+    data: [485, 491]
   - op: 'move'
-    data: [511, 386]
+    data: [523, 454]
+  - op: 'move'
+    data: [515, 386]
   - op: 'patrol'

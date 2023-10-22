@@ -1,10 +1,10 @@
 planet: '仙舟罗浮'
 region: '丹鼎司'
 level: 2
-tp: '行医集市'
+tp: '行医市集'
 route:
   - op: 'move'
-    data: [875, 861]
+    data: [865, 861]
   - op: 'move'
     data: [879, 756]
   - op: 'move'
