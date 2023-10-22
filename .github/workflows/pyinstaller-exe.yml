@@ -1,0 +1,39 @@
+name: Package into exe
+
+on:
+  release:
+    types:
+      - created
+  push:
+    branches:
+      - dev_exe
+
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Build application
+        run: pyinstaller src/gui/app.py --noconfirm --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --name StarRailAutoProxy --collect-all cnocr
+
+      - name: Create archive
+        run: 7z a -r StarRailAutoProxy.zip dist/StarRailAutoProxy
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Application
+          path: StarRailAutoProxy.zip
