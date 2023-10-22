@@ -15,10 +15,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
@@ -32,8 +34,13 @@ jobs:
       - name: Create archive
         run: 7z a -r StarRailAutoProxy.zip dist/StarRailAutoProxy
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: Application
-          path: StarRailAutoProxy.zip
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: StarRailAutoProxy.zip
+          asset_name: StarRailAutoProxy-${{ github.event.release.tag_name }}.zip
+          asset_content_type: application/zip
