@@ -281,12 +281,16 @@ def get_track_road_mask(mm: MatLike) -> MatLike:
     return cv2.inRange(mm, lower_color, upper_color)
 
 
-def is_under_attack(mm: MatLike, mm_pos: MiniMapPos, show: bool = False) -> bool:
+def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
+                    strict: bool = False,
+                    show: bool = False) -> bool:
     """
     根据小地图边缘 判断是否被锁定
     红色色道应该有一个圆
     :param mm: 小地图截图
     :param mm_pos: 小地图坐标信息
+    :param strict: 是否严格判断 只有红色的框认为是被锁定
+    :param show: debug用 显示中间结果图片
     :return: 是否被锁定
     """
     w, h = mm.shape[1], mm.shape[0]
@@ -303,12 +307,15 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos, show: bool = False) -> bool
     upper_color = np.array([100, 100, 255], dtype=np.uint8)
     red = cv2.inRange(circle_part, lower_color, upper_color)
 
-    # 提取橙色部分
-    lower_color = np.array([0, 150, 200], dtype=np.uint8)
-    upper_color = np.array([100, 180, 255], dtype=np.uint8)
-    orange = cv2.inRange(circle_part, lower_color, upper_color)
+    if strict:
+        mask = red
+    else:
+        # 提取橙色部分
+        lower_color = np.array([0, 150, 200], dtype=np.uint8)
+        upper_color = np.array([100, 180, 255], dtype=np.uint8)
+        orange = cv2.inRange(circle_part, lower_color, upper_color)
 
-    mask = cv2.bitwise_or(red, orange)
+        mask = cv2.bitwise_or(red, orange)
 
     circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT, 0.3, 100, param1=10, param2=10,
                                minRadius=mm_pos.r - 10, maxRadius=mm_pos.r + 10)
@@ -317,7 +324,8 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos, show: bool = False) -> bool
     if show:
         cv2_utils.show_image(circle_part, win_name='circle_part')
         cv2_utils.show_image(red, win_name='red')
-        cv2_utils.show_image(orange, win_name='orange')
+        if not strict:
+            cv2_utils.show_image(orange, win_name='orange')
         cv2_utils.show_image(mask, win_name='mask')
         find_circle = np.zeros(mm.shape[:2], dtype=np.uint8)
         if circles is not None:
@@ -326,6 +334,7 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos, show: bool = False) -> bool
             for (x, y, r) in circles:
                 cv2.circle(find_circle, (x, y), r, 255, 1)
         cv2_utils.show_image(find_circle, win_name='find_circle')
+        cv2.waitKey(0)
 
     return find
 

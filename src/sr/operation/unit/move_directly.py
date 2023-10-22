@@ -45,7 +45,7 @@ class MoveDirectly(Operation):
         self.last_rec_time = 0  # 上一次记录坐标的时间
         self.no_pos_times = 0
         self.stop_afterwards = stop_afterwards  # 最后是否停止前进
-        self.first_record: bool = True  # 是否第一个点
+        self.last_auto_fight_fail: bool = False  # 上一次索敌是否失败 只有小地图背景污染严重时候出现
 
     def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
@@ -74,6 +74,7 @@ class MoveDirectly(Operation):
 
         # 可能被怪攻击了
         if battle.IN_WORLD != battle.get_battle_status(screen, self.ctx.im):
+            self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
             fight = EnterAutoFight(self.ctx)
             fight.execute()
@@ -203,13 +204,16 @@ class MoveDirectly(Operation):
         :param mm:
         :return: 是否有敌人
         """
+        if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
+            return False
         if not mini_map.is_under_attack(mm, get_game_config().mini_map_pos):
             return False
         # pos_list = mini_map.get_enemy_location(mini_map)
         # if len(pos_list) == 0:
         #     return False
         fight = EnterAutoFight(self.ctx)
-        fight.execute()
+        r = fight.execute()
+        self.last_auto_fight_fail = not r
 
         return True
 

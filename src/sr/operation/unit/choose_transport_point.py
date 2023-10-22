@@ -44,7 +44,7 @@ class ChooseTransportPoint(Operation):
 
         mx1, my1, mx2, my2 = large_map.CUT_MAP_RECT
         screen_map = screen[my1: my2, mx1: mx2]
-        cv2_utils.show_image(screen_map, win_name='ChooseTransportPoint-screen_map')
+        # cv2_utils.show_image(screen_map, win_name='ChooseTransportPoint-screen_map')
 
         offset: MatchResult = self.get_map_offset(screen_map)
         if offset is None:
