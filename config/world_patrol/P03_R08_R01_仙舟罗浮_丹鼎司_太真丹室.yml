@@ -1,0 +1,34 @@
+planet: '仙舟罗浮'
+region: '丹鼎司'
+level: 1
+tp: '太真丹室'
+route:
+  - op: 'move'
+    data: [550, 567]
+  - op: 'move'
+    data: [521, 594]
+  - op: 'move'
+    data: [452, 596]
+  - op: 'move'
+    data: [390, 596]
+  - op: 'move'
+    data: [346, 557]
+  - op: 'patrol'
+  - op: 'move'
+    data: [317, 527]
+  - op: 'move'
+    data: [292, 500]
+  - op: 'move'
+    data: [292, 444]
+  - op: 'patrol'
+  - op: 'move'
+    data: [313, 427]
+  - op: 'move'
+    data: [380, 430]
+  - op: 'move'
+    data: [405, 371]
+  - op: 'move'
+    data: [454, 361]
+  - op: 'move'
+    data: [511, 386]
+  - op: 'patrol'

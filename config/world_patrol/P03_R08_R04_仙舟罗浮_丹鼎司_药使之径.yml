@@ -1,0 +1,41 @@
+planet: '仙舟罗浮'
+region: '丹鼎司'
+level: 2
+tp: '药使之径'
+route:
+  - op: 'move'
+    data: [669, 1458]
+  - op: 'move'
+    data: [684, 1389]
+  - op: 'patrol'
+  - op: 'move'
+    data: [712, 1358]
+  - op: 'move'
+    data: [759, 1315]
+  - op: 'patrol'
+  - op: 'move'
+    data: [712, 1358]
+  - op: 'move'
+    data: [684, 1389]
+  - op: 'move'
+    data: [669, 1458]
+  - op: 'move'
+    data: [650, 1478]
+  - op: 'move'
+    data: [579, 1478]
+  - op: 'move'
+    data: [577, 1374]
+  - op: 'move'
+    data: [644, 1317]
+  - op: 'move'
+    data: [725, 1224]
+  - op: 'move'
+    data: [744, 1155]
+  - op: 'patrol'
+  - op: 'move'
+    data: [754, 1053]
+  - op: 'move'
+    data: [708, 1016]
+  - op: 'move'
+    data: [573, 1016]
+  - op: 'patrol'

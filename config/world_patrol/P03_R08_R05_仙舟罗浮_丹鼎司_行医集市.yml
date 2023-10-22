@@ -1,0 +1,18 @@
+planet: '仙舟罗浮'
+region: '丹鼎司'
+level: 2
+tp: '行医集市'
+route:
+  - op: 'move'
+    data: [875, 861]
+  - op: 'move'
+    data: [879, 756]
+  - op: 'move'
+    data: [883, 715]
+  - op: 'move'
+    data: [815, 650]
+  - op: 'move'
+    data: [794, 627]
+  - op: 'move'
+    data: [725, 563]
+  - op: 'patrol'

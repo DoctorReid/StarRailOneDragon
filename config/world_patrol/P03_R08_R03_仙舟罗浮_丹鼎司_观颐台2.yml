@@ -1,0 +1,47 @@
+planet: '仙舟罗浮'
+region: '丹鼎司'
+level: 1
+tp: '观颐台'
+route:
+  - op: 'move'
+    data: [442, 751]
+  - op: 'move'
+    data: [446, 836]
+  - op: 'move'
+    data: [444, 890]
+  - op: 'move'
+    data: [467, 921]
+  - op: 'move'
+    data: [498, 924]
+  - op: 'move'
+    data: [502, 913]
+  - op: 'move'
+    data: [504, 844]
+  - op: 'move'
+    data: [531, 846]
+  - op: 'patrol'
+  - op: 'move'
+    data: [504, 844]
+  - op: 'move'
+    data: [502, 913]
+  - op: 'move'
+    data: [498, 924]
+  - op: 'move'
+    data: [500, 1015]
+  - op: 'move'
+    data: [502, 1080]
+  - op: 'move'
+    data: [515, 1115]
+  - op: 'move'
+    data: [540, 1117]
+  - op: 'move'
+    data: [611, 1119]
+  - op: 'move'
+    data: [611, 1221]
+  - op: 'move'
+    data: [604, 1244]
+  - op: 'move'
+    data: [632, 1265]
+  - op: 'move'
+    data: [645, 1242]
+  - op: 'patrol'
