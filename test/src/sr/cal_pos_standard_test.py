@@ -15,11 +15,12 @@ from sr.image.sceenshot.large_map import get_large_map_rect_by_pos
 
 class TestCase:
 
-    def __init__(self, region: Region, pos: tuple, num: int, running: bool):
+    def __init__(self, region: Region, pos: tuple, num: int, running: bool, possible_pos: tuple = None):
         self.region: Region = region
         self.pos: tuple = pos
         self.num: int = num
         self.running: bool = running
+        self.possible_pos: tuple = pos if possible_pos is None else possible_pos
 
 
 case_list = [
@@ -51,6 +52,8 @@ case_list = [
 
     TestCase(constants.map.P03_R03_L1, (352, 496, 6), 1, True),
     TestCase(constants.map.P03_R03_L1, (413, 524, 6), 2, True),
+
+    TestCase(constants.map.P03_R09, (972, 402), 1, True, (963, 360, 30)),
 ]
 
 
@@ -65,7 +68,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     t2 = time.time()
     analyse_time = t2 - t1
     log.debug('analyse_mini_map 耗时 %.6f', analyse_time)
-    x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running, possible_pos=c.pos)
+    x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running, possible_pos=c.possible_pos)
     t3 = time.time()
     cal_time = t3 - t2
     log.debug('cal_character_pos 耗时 %.6f', cal_time)
@@ -90,11 +93,11 @@ if __name__ == '__main__':
     total_cal_time = 0
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != constants.map.P01_R03_SRCD_B1 or c.num != 1:
-        #     continue
+        if c.region != constants.map.P03_R09 or c.num != 1:
+            continue
         if c.region.get_prl_id() not in lm_info_map:
             lm_info_map[c.region.get_prl_id()] = large_map.analyse_large_map(c.region, ih)
-        is_err, analyse_time, cal_time = test_one(c, lm_info_map[c.region.get_prl_id()], False)
+        is_err, analyse_time, cal_time = test_one(c, lm_info_map[c.region.get_prl_id()], True)
         if is_err:
             fail_list.append(c)
         case_num += 1

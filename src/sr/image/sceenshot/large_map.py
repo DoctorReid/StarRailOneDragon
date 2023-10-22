@@ -18,7 +18,7 @@ from sr.image.sceenshot import LargeMapInfo
 
 CUT_MAP_RECT = (200, 190, 1300, 900)  # 截取大地图的区域
 EMPTY_MAP_POS = (1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
-TP_BTN_RECT = (1500, 800, 1800, 1000)  # 右侧显示传送按钮的区域
+TP_BTN_RECT = (1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
 REGION_LIST_RECT = (1480, 200, 1700, 1000)
 REGION_LIST_PART_CENTER = ((REGION_LIST_RECT[0] + REGION_LIST_RECT[2]) // 2, (REGION_LIST_RECT[1] + REGION_LIST_RECT[3]) // 2)
 LEVEL_LIST_PART = (30, 730, 100, 1000)
@@ -261,7 +261,8 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
 def get_expand_arr(raw: MatLike):
     """
     如果道路太贴近大地图边缘 使用小地图模板匹配的时候会匹配失败
-    这时候需要拓展一下大地图
+    如果最后截图高度或宽度跟大地图圈定范围CUT_MAP_RECT一致 则choose_transport_point中两个大地图做模板匹配可能会报错
+    这些情况需要拓展一下大地图
     :param raw: 大地图原图
     :return: 各个方向需要扩展的大小
     """
@@ -277,6 +278,14 @@ def get_expand_arr(raw: MatLike):
     rp = 0 if right[0] + padding < raw.shape[1] else right[0] + padding + 1 - raw.shape[1]
     tp = 0 if top[1] >= padding else padding - top[1]
     bp = 0 if bottom[1] + padding < raw.shape[0] else bottom[1] + padding + 1 - raw.shape[0]
+
+    # raw 尺寸至少跟CUT_MAP_RECT一致 所以只有上面没有拓展的情况要
+    if tp == 0 and bp == 0 and raw.shape[0] == CUT_MAP_RECT[3] - CUT_MAP_RECT[1]:
+        tp = 5
+        bp = 5
+    if lp == 0 and rp == 0 and raw.shape[1] == CUT_MAP_RECT[2] - CUT_MAP_RECT[0]:
+        lp = 5
+        rp = 5
 
     return lp, rp, tp, bp
 

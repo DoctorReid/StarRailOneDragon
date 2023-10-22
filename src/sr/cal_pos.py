@@ -6,9 +6,9 @@ from basic import cal_utils
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import constants
-from sr.constants.map import Region
+from sr.constants.map import Region, get_sp_type_in_rect
 from sr.image import ImageMatcher
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map
 from sr.performance_recorder import record_performance
 
 
@@ -38,32 +38,29 @@ def cal_character_pos(im: ImageMatcher,
     # 匹配结果 是缩放后的 offset 和宽高
     if mm_info.sp_result is not None and len(mm_info.sp_result) > 0:  # 有特殊点的时候 使用特殊点倒推位置
         r1 = cal_character_pos_by_sp_result(lm_info, mm_info, lm_rect=lm_rect, show=show)
-        in1 = pos_in_range(r1, possible_pos)
-        if not in1:  # 倒推位置失败 使用特征匹配
+        if pos_in_range(r1, possible_pos):
+            result = r1
+        else:  # 倒推位置失败 说明大地图附近有多个相同特殊点 这时候使用特征匹配也没用了
+            pass
             # 只有极少部分情况需要使用特征匹配 所以不需要 mini_map.analyse_mini_map 中对所有情况都分析特征点
             # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map
-            mm_info.kps, mm_info.desc = cv2_utils.feature_detect_and_compute(mm_info.gray, mask=mm_info.sp_mask)
-            r2 = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
-            in2 = pos_in_range(r2, possible_pos)
-            if in2:
-                result = r2
-        else:
-            result = r1
+            # mm_info.kps, mm_info.desc = cv2_utils.feature_detect_and_compute(mm_info.gray, mask=mm_info.road_mask)
+            # r2 = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
+            # if pos_in_range(r2, possible_pos):
+            #     result = r2
 
     if result is None:  # 使用模板匹配 用道路掩码的 相对快 但不是很准
         r3: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-        in3 = pos_in_range(r3, possible_pos)
-        if in3:
+        if pos_in_range(r3, possible_pos):
             result = r3
 
     if result is None:  # 使用模板匹配 用原图的 相对慢 但准确率更高一点
         r4: MatchResult = cal_character_pos_by_template_match(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-        in4 = pos_in_range(r4, possible_pos)
-        if in4:
+        if pos_in_range(r4, possible_pos):
             result = r4
 
-    if result is None:  # 没有一个计算结果在预估范围内 按优先级返回
-        result = cal_utils.coalesce(r1, r2, r3, r4)
+    # if result is None:  # 没有一个计算结果在预估范围内 按优先级返回
+    #     result = cal_utils.coalesce(r1, r2, r3, r4)
 
     # if result is None:
     #     result: MatchResult = cal_character_pos_by_merge_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
@@ -105,10 +102,10 @@ def pos_in_range(result: MatchResult, possible_pos: tuple) -> bool:
     if possible_pos is None:
         return True
 
-    if len(possible_pos) < 3 or possible_pos[2] == 0:  # 还没有移动的话 通常是第一个点 这时候先默认通过判断
-        return True
+    # 还没有移动的话 通常是第一个点 这时候先默认移动1秒距离判断
+    d = 20 if len(possible_pos) < 3 or possible_pos[2] == 0 else possible_pos[2]
 
-    if cal_utils.distance_between((result.cx, result.cy), possible_pos[:2]) > possible_pos[2] * 2:
+    if cal_utils.distance_between((result.cx, result.cy), possible_pos[:2]) > d * 2:
         return False
 
     return True
@@ -202,6 +199,7 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
     # origin_template_mask = cv2_utils.dilate(mm_info.road_mask, 10)
     # origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.circle_mask)
     rough_road_mask = mini_map.get_rough_road_mask(mm_info.origin,
+                                                   sp_mask=mm_info.sp_mask,
                                                    arrow_mask=mm_info.arrow_mask,
                                                    angle=mm_info.angle,
                                                    another_floor=lm_info.region.level != 0)
@@ -327,7 +325,7 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     target_scale = None
     # 使用道路掩码
     origin_template = mm_info.gray
-    origin_template_mask = mm_info.center_mask
+    origin_template_mask = mm_info.circle_mask
     for scale in mini_map.get_mini_map_scale_list(running):
         if scale > 1:
             dest_size = (int(template_w * scale), int(template_h * scale))

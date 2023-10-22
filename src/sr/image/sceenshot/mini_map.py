@@ -467,6 +467,7 @@ def get_mini_map_road_mask(origin: MatLike,
 
 
 def get_rough_road_mask(mm: MatLike,
+                        sp_mask: MatLike = None,
                         arrow_mask: MatLike = None,
                         angle: float = None,
                         another_floor: bool = True):
@@ -474,6 +475,7 @@ def get_rough_road_mask(mm: MatLike,
     获取比较粗略的道路掩码 用于原图的模板匹配
     需要用到这一步说明特殊点特征匹配无用 提取的高精度道路掩码无用
     :param mm: 小地图截图
+    :param sp_mask: 特殊点的掩码
     :return:
     """
     b, g, r = cv2.split(mm)
@@ -495,6 +497,7 @@ def get_rough_road_mask(mm: MatLike,
 
     center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
     road_mask = cv2.bitwise_or(road_mask_1, center_mask)
+    road_mask = cv2.bitwise_or(road_mask, sp_mask)
     # cv2_utils.show_image(road_mask, win_name='road_mask')
 
     # 非道路连通块 < 50的，认为是噪点 加入道路

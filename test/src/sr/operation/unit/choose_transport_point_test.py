@@ -22,13 +22,13 @@ def _test_check_and_click_sp_cn():
 
 
 def _test_check_and_click_transport():
-    screen = get_debug_image('_1697894859950')
+    screen = get_debug_image('_1697954225487')
     op.check_and_click_transport(screen)
     cv2.waitKey(0)
 
 
 def _test_whole_operation():
-    ctx.running = True
+    ctx.start_running()
     ctx.controller.init()
     op.execute()
 
@@ -36,6 +36,6 @@ def _test_whole_operation():
 if __name__ == '__main__':
     ctx = get_context()
     ctx.init_all()
-    tp: TransportPoint = constants.map.P03_R06_SP04
+    tp: TransportPoint = constants.map.P03_R09_SP02
     op = ChooseTransportPoint(ctx, tp)
-    _test_check_and_click_transport()
+    _test_whole_operation()

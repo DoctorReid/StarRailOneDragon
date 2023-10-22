@@ -11,7 +11,7 @@ from sr.config.game_config import get_game_config
 from sr.constants.map import Region
 from sr.context import Context
 from sr.control import GameController
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, battle
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, battle, large_map
 from sr.image.sceenshot.large_map import get_large_map_rect_by_pos
 from sr.operation import Operation
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
@@ -22,7 +22,7 @@ class MoveDirectly(Operation):
     从当前位置 朝目标点直线前行
     有简单的脱困功能
     """
-    max_len: int = 5  # 最多存储多少个走过的坐标
+    max_len: int = 6  # 最多存储多少个走过的坐标
     rec_pos_interval: float = 0.5  # 间隔多少秒记录一次坐标
     stuck_distance: float = 20  # 移动距离多少以内认为是被困
     arrival_distance: float = 10  # 多少距离内认为是到达目的地
@@ -90,13 +90,15 @@ class MoveDirectly(Operation):
         lx, ly = last_pos
         move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time) if self.last_rec_time > 0 else 0
         possible_pos = (lx, ly, move_distance)
-        lm_rect = get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
+        lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
         sp_map = constants.map.get_sp_type_in_rect(self.region, lm_rect)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()),
                                             another_floor=self.region.another_floor())
 
         x, y = self.get_pos(mm_info, possible_pos, lm_rect)
+        # log.info('使用上一个坐标为%s', possible_pos)
+        # save_debug_image(mm, prefix='cal_pos')
 
         if x is None or y is None:
             log.error('无法判断当前人物坐标 使用上一个坐标为%s', possible_pos)
@@ -185,14 +187,9 @@ class MoveDirectly(Operation):
         :param lm_rect: 大地图区域
         :return:
         """
-        start_time = time.time()
-
         x, y = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
         if x is None and self.next_lm_info is not None:
             x, y = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
-
-        log.debug('计算坐标耗时 %.4f s', time.time() - start_time)
-        log.info('计算当前坐标为 (%s, %s)', x, y)
 
         # if x is not None and possible_pos[2] > 0 and cal_utils.distance_between((x, y), possible_pos[:2]) > possible_pos[2] * 2:
         #     x, y = None, None

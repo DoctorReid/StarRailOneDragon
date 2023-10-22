@@ -1,0 +1,16 @@
+planet: '仙舟罗浮'
+region: '鳞渊境'
+level: 0
+tp: '孽兽之形'
+route:
+  - op: 'move'
+    data: [876, 171]
+  - op: 'move'
+    data: [850, 167]
+  - op: 'move'
+    data: [837, 174]
+  - op: 'move'
+    data: [818, 171]
+  - op: 'move'
+    data: [799, 175]
+  - op: 'patrol'

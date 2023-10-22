@@ -1,0 +1,19 @@
+planet: '仙舟罗浮'
+region: '鳞渊境'
+level: 0
+tp: '宫墟深处'
+route:
+  - op: 'move'
+    data: [910, 430]
+  - op: 'move'
+    data: [922, 395]
+  - op: 'move'
+    data: [920, 353]
+  - op: 'patrol'
+  - op: 'move'
+    data: [922, 395]
+  - op: 'move'
+    data: [955, 399]
+  - op: 'move'
+    data: [999, 389]
+  - op: 'patrol'

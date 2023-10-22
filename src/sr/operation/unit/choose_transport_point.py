@@ -44,6 +44,7 @@ class ChooseTransportPoint(Operation):
 
         mx1, my1, mx2, my2 = large_map.CUT_MAP_RECT
         screen_map = screen[my1: my2, mx1: mx2]
+        cv2_utils.show_image(screen_map, win_name='ChooseTransportPoint-screen_map')
 
         offset: MatchResult = self.get_map_offset(screen_map)
         if offset is None:
@@ -86,8 +87,8 @@ class ChooseTransportPoint(Operation):
             lower_color = np.array([55, 55, 55], dtype=np.uint8)
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
-            gold_part = cv2_utils.dilate(gold_part, 1)
-            tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.ocr_str)], threshold=0.4)
+            # gold_part = cv2_utils.dilate(gold_part, 1)
+            tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.ocr_str)], threshold=0.39)
             # cv2_utils.show_image(gold_part, win_name='gold_part')
             if len(tp_name_ocr) > 0:
                 # 点击传送
