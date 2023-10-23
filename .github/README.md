@@ -1,16 +1,19 @@
 # Honkai Star Rail - Auto Proxy
-崩坏：星穹铁道自动代理器 - 基于图像识别的自动游戏脚本
-
-期望自动化完成星铁中所有内容
+崩坏：星穹铁道自动代理器 - 基于图像识别的自动游戏脚本。
 
 ## 使用指南
-需要在```1920*1080 窗口模式```下运行，详情见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)
+需要在```1920*1080 窗口模式```下运行，```画质尽量高```，且保证```窗口完整在屏幕内```。
+
+详情见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)
 
 下载方式 [Release页面](https://github.com/DoctorReid/StarRailAutoProxy/releases)
 
+如果喜欢本项目，可右上角送作者一个```Star```~
+
 ## 项目进度
 
-- 锄大地功能已完成
+- 锄大地功能 ```已完成```
+- 模拟宇宙 ```计划中```
 
 ![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/%E9%94%84%E5%A4%A7%E5%9C%B0.png)
 

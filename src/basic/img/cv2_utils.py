@@ -374,7 +374,7 @@ def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_colo
     final_mask = np.zeros((height, width), dtype=np.uint8)
     bw = np.where(mask == 255)
     if len(bw[0]) == 0:  # 遇袭情况下 有可能小地图上使用颜色扣图会完全扣不到 掩码全黑
-        return final_mask
+        return origin, final_mask
 
     white_pixel_coordinates = list(zip(bw[1], bw[0]))
 
