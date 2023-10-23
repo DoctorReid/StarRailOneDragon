@@ -106,7 +106,7 @@ class LargeMapRecorder(Application):
             if bp is None or bp2 > bp:
                 bp = bp2
 
-        cv2.waitKey(0)
+        # cv2.waitKey(0)
 
         for region in region_list:
             raw = raw_img[region.get_prl_id()]
@@ -157,6 +157,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = constants.map.P01_R03_SRCD_B1
+    r = constants.map.P01_R04_ZYCD_L1
     app = LargeMapRecorder(ctx, r)
     app.execute()

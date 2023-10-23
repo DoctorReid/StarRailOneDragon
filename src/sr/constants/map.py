@@ -192,12 +192,12 @@ P01_R03_SP07 = TransportPoint('ljzz', '裂界征兆', P01_R03_SRCD_L1, 'mm_sp_01
 P01_R03_SP08 = TransportPoint('tkdt', '太空电梯', P01_R03_SRCD_L1, 'mm_sp_02', (607, 364))
 
 # 空间站黑塔 - 支援舱段
-P01_R04_SP01 = TransportPoint('dls', '电力室', P01_R04_ZYCD_L2, 'mm_tp_03', (155, 380))
-P01_R04_SP02 = TransportPoint('bjkf', '备件库房', P01_R04_ZYCD_L2, 'mm_tp_03', (424, 206))
-P01_R04_SP03 = TransportPoint('yt', '月台', P01_R04_ZYCD_L2, 'mm_tp_03', (778, 370))
-P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (457, 288), ocr_str='存护')
+P01_R04_SP01 = TransportPoint('bjkf', '备件库房', P01_R04_ZYCD_L2, 'mm_tp_03', (434, 240))
+P01_R04_SP02 = TransportPoint('yt', '月台', P01_R04_ZYCD_L2, 'mm_tp_03', (789, 404))
+P01_R04_SP03 = TransportPoint('dls', '电力室', P01_R04_ZYCD_L2, 'mm_tp_03', (165, 414))
+P01_R04_SP04 = TransportPoint('chzl', '存护之蕾', P01_R04_ZYCD_L2, 'mm_tp_07', (467, 322), ocr_str='存护')
 P01_R04_SP05 = TransportPoint('tkdt', '太空电梯', P01_R04_ZYCD_L2, 'mm_sp_02', (105, 345))
-P01_R04_SP06 = TransportPoint('hmdkd', '毁灭的开端', P01_R04_ZYCD_L2, 'mm_boss_01', (1000, 252))
+P01_R04_SP06 = TransportPoint('hmdkd', '毁灭的开端', P01_R04_ZYCD_L2, 'mm_boss_01', (1010, 286))
 
 # 雅利洛 - 行政区
 P02_R01_SP01 = TransportPoint('hjgjy', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374))

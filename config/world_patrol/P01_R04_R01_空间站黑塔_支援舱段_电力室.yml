@@ -4,19 +4,19 @@ level: 2
 tp: '电力室'
 route:
   - op: 'move'
-    data: [245, 343]
+    data: [235, 380]
   - op: 'patrol'
   - op: 'move'
-    data: [265, 343]
+    data: [275, 380]
   - op: 'move'
-    data: [272, 284]
+    data: [282, 318]
   - op: 'move'
-    data: [332, 278]
+    data: [322, 312]
   - op: 'patrol'
   - op: 'move'
-    data: [440, 278]
+    data: [450, 312]
   - op: 'move'
-    data: [435, 197]
+    data: [445, 231]
   - op: 'move'
-    data: [567, 200]
+    data: [567, 234]
   - op: 'patrol'

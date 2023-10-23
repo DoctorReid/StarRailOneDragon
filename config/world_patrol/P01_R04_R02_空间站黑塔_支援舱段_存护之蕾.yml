@@ -4,11 +4,11 @@ level: 2
 tp: '存护之蕾'
 route:
   - op: 'move'
-    data: [486, 351]
+    data: [500, 388]
   - op: 'interact'
     data: '配控装置'
   - op: 'wait'
     data: 'in_world'
   - op: 'move'
-    data: [472, 240]
+    data: [482, 274]
   - op: 'patrol'

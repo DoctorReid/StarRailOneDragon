@@ -229,19 +229,6 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
                 log.info("SP%02d = TransportPoint('', '', , '%s', (%d, %d))", i+1, k, vs.cx, vs.cy)
                 i += 1
 
-        if region.level != 0:
-            c_shape = info.origin.shape
-            for another_floor in [-1, 1, 2]:
-                if another_floor == region.level:
-                    continue
-                another_region = region_with_another_floor(region, another_floor)
-                another_lm_info = im.ih.get_large_map(another_region)
-                if another_lm_info.origin is None:
-                    continue
-                a_shape = another_lm_info.origin.shape
-                if abs(c_shape[0] - a_shape[0]) > 2 or abs(c_shape[1] != a_shape[1]) > 2:
-                    log.error('与其它层数截图大小不一致 %d', another_floor)
-
         cv2.waitKey(0)
 
         save_large_map_image(info.origin, region, 'origin')

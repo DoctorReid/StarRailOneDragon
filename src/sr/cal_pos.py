@@ -81,7 +81,7 @@ def cal_character_pos(im: ImageMatcher,
     center_x = offset_x + result.w // 2
     center_y = offset_y + result.h // 2
 
-    if show:
+    if True:
         cv2_utils.show_overlap(lm_info.origin, mm_info.origin, offset_x, offset_y, template_scale=scale, win_name='overlap')
 
     log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f 置信度 %.2f', center_x, center_y, scale, result.confidence)
