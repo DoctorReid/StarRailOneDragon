@@ -27,3 +27,7 @@ class Application(Operation):
 
     def init_app(self):
         pass
+
+    def on_resume(self):
+        super().on_resume()
+        self.ctx.controller.init()

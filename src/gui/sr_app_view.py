@@ -74,7 +74,6 @@ class SrAppView:
         self.page.update()
 
     def pause(self, e):
-        self.on_pause()
         self.ctx.switch()
 
     def on_resume(self):
@@ -87,7 +86,6 @@ class SrAppView:
         self.page.update()
 
     def resume(self, e):
-        self.on_resume()
         self.ctx.switch()
 
     def stop(self, e):

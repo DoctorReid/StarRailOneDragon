@@ -84,8 +84,6 @@ class Context:
             self.running = 1
             for obj_id, callback in self.resume_callback.items():
                 callback()
-        else:
-            log.error('不处于运行状态 当前状态(%d) 启动失败', self.running)
 
     def register_pause(self, obj,
                        pause_callback,
