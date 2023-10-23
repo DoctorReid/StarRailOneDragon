@@ -13,8 +13,8 @@ class CnOcrMatcher(OcrMatcher):
     """
 
     def __init__(self,
-                 det_model_name: str = 'ch_PP-OCRv2_det',
-                 rec_model_name: str = 'densenet_lite_136-fc'):
+                 det_model_name: str = 'ch_PP-OCRv2_det',  # 实测这个比 ch_PP-OCRv3_det 更适合
+                 rec_model_name: str = 'densenet_lite_136-fc'):  # densenet_lite_136-gru
         try:
             self.ocr = CnOcr(det_model_name=det_model_name,
                              rec_model_name=rec_model_name,
@@ -22,6 +22,12 @@ class CnOcrMatcher(OcrMatcher):
                              rec_root=os_utils.get_path_under_work_dir('model', 'cnstd'))
         except Exception:
             log.error('OCR模型加载出错', exc_info=True)
+
+    def ocr_for_single_line(self, image: MatLike, threshold: float = 0.5) -> str:
+        result = self.ocr.ocr_for_single_line(image)
+        log.debug('OCR结果 %s', result)
+        if result['score'] > threshold:
+            return result['text']
 
     def run_ocr(self, image: MatLike, threshold: float = 0.5) -> dict:
         """

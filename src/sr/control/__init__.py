@@ -25,7 +25,7 @@ class GameController:
         pass
 
     def click_ocr(self, screen: MatLike, word: str, threshold: float = 0.5, rect: tuple = None, click_offset: tuple = None,
-                  press_time: int = 0, same_word: bool = False,
+                  press_time: float = 0, same_word: bool = False,
                   ) -> bool:
         """
         在屏幕中点击关键词所在位置 多个关键词时随机点击一个

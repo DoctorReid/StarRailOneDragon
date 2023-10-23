@@ -16,6 +16,7 @@ from sr.image import OcrMatcher, TemplateImage, ImageMatcher, get_large_map_dir_
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo
 
+PLANET_NAME_RECT = (100, 60, 260, 100)
 CUT_MAP_RECT = (200, 190, 1300, 900)  # 截取大地图的区域
 EMPTY_MAP_POS = (1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
 TP_BTN_RECT = (1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
@@ -31,8 +32,12 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     :param ocr: ocr
     :return: 星球名称
     """
-    word: str
-    result = ocr.run_ocr(screen[30:100, 90:250], threshold=0.4)
+    planet_name_part, _ = cv2_utils.crop_image(screen, PLANET_NAME_RECT)
+    lower_color = np.array([220, 220, 220], dtype=np.uint8)
+    upper_color = np.array([255, 255, 255], dtype=np.uint8)
+    white_part = cv2.inRange(planet_name_part, lower_color, upper_color)
+    # cv2_utils.show_image(white_part, win_name='white_part')
+    result = ocr.run_ocr(planet_name_part, threshold=0.4)
     log.debug('屏幕左上方获取星球结果 %s', result.keys())
     for word in result.keys():
         if word.find(gt(constants.map.P01_KZJ.ocr_str)) > -1:
@@ -168,6 +173,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     upper = 255
     part, _ = cv2_utils.crop_image(screen, REGION_LIST_RECT)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
+    # cv2_utils.show_image(bw, win_name='get_active_region_name')
     km = ocr.run_ocr(bw)
     if len(km) > 0:
         return km.popitem()[0]

@@ -101,7 +101,7 @@ P02_R01_B1 = Region("xzq", "行政区", P02_YYL, level=-1)
 P02_R02 = Region("cjxy", "城郊雪原", P02_YYL)
 P02_R03 = Region("bytl", "边缘通路", P02_YYL)
 P02_R04 = Region("twjq", "铁卫禁区", P02_YYL)
-P02_R05 = Region("cxhl", "残响回廊", P02_YYL)
+P02_R05 = Region("cxhl", "残响回廊", P02_YYL, ocr_str='回廊')
 P02_R06 = Region("ydl", "永冬岭", P02_YYL)
 P02_R07 = Region("zwzz", "造物之柱", P02_YYL)
 P02_R08_L2 = Region("jwqsyc", "旧武器试验场", P02_YYL, level=2)
@@ -249,7 +249,7 @@ P02_R04_SP08 = TransportPoint('cxhl', '残响回廊', P02_R04, 'mm_sp_02', (314,
 # 雅利洛 - 残响回廊
 P02_R05_SP01 = TransportPoint('zcly', '筑城领域', P02_R05, 'mm_tp_03', (770, 442))
 P02_R05_SP02 = TransportPoint('wrgc', '污染广场', P02_R05, 'mm_tp_03', (381, 655))
-P02_R05_SP03 = TransportPoint('zzzhs', '作战指挥室', P02_R05, 'mm_tp_03', (495, 856))
+P02_R05_SP03 = TransportPoint('zzzhs', '作战指挥室', P02_R05, 'mm_tp_03', (495, 856), ocr_str='作战')
 P02_R05_SP04 = TransportPoint('gzcqx', '古战场前线', P02_R05, 'mm_tp_03', (570, 1243))
 P02_R05_SP05 = TransportPoint('mlzx', '鸣雷之形', P02_R05, 'mm_tp_06', (526, 640))
 P02_R05_SP06 = TransportPoint('sjzx', '霜晶之形', P02_R05, 'mm_tp_06', (681, 1231))
@@ -260,7 +260,7 @@ P02_R05_SP09 = TransportPoint('ydl', '永冬岭', P02_R05, 'mm_sp02', (733, 1280
 # 雅利洛 - 永冬岭
 P02_R06_SP01 = TransportPoint('gzc', '古战场', P02_R06, 'mm_tp_03', (366, 776))
 P02_R06_SP02 = TransportPoint('zwpt', '造物平台', P02_R06, 'mm_tp_03', (784, 571))
-P02_R06_SP03 = TransportPoint('rzzj', '睿治之径', P02_R06, 'mm_tp_09', (585, 663))
+P02_R06_SP03 = TransportPoint('rzzj', '睿治之径', P02_R06, 'mm_tp_09', (585, 663), ocr_str='治之径')
 P02_R06_SP04 = TransportPoint('cxhl', '残响回廊', P02_R06, 'mm_sp_02', (338, 793))
 P02_R06_SP05 = TransportPoint('hcdlm', '寒潮的落幕', P02_R06, 'mm_boss_02', (814, 701))
 

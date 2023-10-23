@@ -89,6 +89,9 @@ class ImageMatcher:
 
 class OcrMatcher:
 
+    def ocr_for_single_line(self, image: MatLike, threshold: float = 0.5) -> str:
+        pass
+
     def run_ocr(self, image: MatLike, threshold: float = 0.5) -> dict:
         """
         对图片进行OCR 返回所有匹配结果
