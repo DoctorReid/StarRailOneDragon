@@ -60,7 +60,7 @@ class Calibrator(Application):
         """
         log.info('[转向校准] 开始')
         if tp:
-            p: TransportPoint = constants.map.P01_R01_SP03_HTBGS
+            p: TransportPoint = constants.map.P01_R01_SP03
             op = Transport(self.ctx, p, False)
             if not op.execute():
                 log.error('传送到黑塔办公室失败 转向校准 失败')

@@ -44,6 +44,6 @@ def _test_whole_operation():
 if __name__ == '__main__':
     real_game = True
     ctx = get_context('唯秘')
-    region: Region = constants.map.P01_R03_SRCD_B1
+    region: Region = constants.map.P01_R03_B1
     op = ChooseRegion(ctx, region)
     _test_click_target_level()

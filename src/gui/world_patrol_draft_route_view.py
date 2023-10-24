@@ -1,6 +1,5 @@
 import base64
 import os
-import time
 from typing import List
 
 import cv2
@@ -9,11 +8,11 @@ import yaml
 from cv2.typing import MatLike
 from flet_core import ScrollMode
 
-from basic import config_utils
+from basic import config_utils, os_utils
 from basic.img import cv2_utils
 from basic.img.os import get_debug_world_patrol_dir
 from basic.log_utils import log
-from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol
+from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol, WorldPatrolRouteId
 from sr.constants.map import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
     REGION_2_SP, TransportPoint
 from sr.context import Context
@@ -25,14 +24,13 @@ class WorldPatrolDraftRouteView:
         self.page = page
         self.ctx = ctx
 
+        self.route_id_list: List[WorldPatrolRouteId] = None
         self.existed_route_dropdown = ft.Dropdown(
             label='编辑已有路线',
-            options=[
-                ft.dropdown.Option(text=r[12:], key=r) for r in load_all_route_id()
-            ],
             on_change=self.on_existed_route_changed
         )
-        self.chosen_route_id: str = None
+        self.load_route_id_list()
+        self.chosen_route_id: WorldPatrolRouteId = None
         self.cancel_edit_existed_btn = ft.ElevatedButton(text='取消编辑已有路线', disabled=True, on_click=self.on_cancel_edit_existed)
         self.text_existed_btn = ft.ElevatedButton(text='测试选择线路', disabled=True, on_click=self.on_test_existed)
         self.back_btn = ft.ElevatedButton(text='后退', disabled=True, on_click=self.cancel_last)
@@ -138,7 +136,7 @@ class WorldPatrolDraftRouteView:
         根据选择星球更新区域列表
         :return:
         """
-        r_arr = PLANET_2_REGION[self.chosen_planet.id] if self.chosen_planet is not None else []
+        r_arr = PLANET_2_REGION[self.chosen_planet.np_id] if self.chosen_planet is not None else []
         self.region_dropdown.options = [ft.dropdown.Option(text=r.cn, key=r.cn) for r in r_arr if r.level in [0, 1]]
 
     def on_region_change(self, e):
@@ -154,11 +152,12 @@ class WorldPatrolDraftRouteView:
 
         self.page.update()
 
+        self.chosen_route_id = None
         self.route_list = []
         self.draw_route_and_display()
 
     def update_level_list_by_region(self):
-        r_arr = PLANET_2_REGION[self.chosen_planet.id]
+        r_arr = PLANET_2_REGION[self.chosen_planet.np_id]
         region_name = self.region_dropdown.value
         self.level_dropdown.options = [ft.dropdown.Option(text=str(r.level), key=str(r.level)) for r in r_arr if r.cn == region_name]
         self.switch_level.options = [ft.dropdown.Option(text=str(r.level), key=str(r.level)) for r in r_arr if r.cn == region_name]
@@ -181,12 +180,11 @@ class WorldPatrolDraftRouteView:
         self.draw_route_and_display()
 
     def update_sp_list_by_level(self):
-        sp_arr = REGION_2_SP.get(self.chosen_region.get_pr_id())
+        sp_arr = REGION_2_SP.get(self.chosen_region.pr_id)
         self.tp_dropdown.options = [ft.dropdown.Option(text=sp.cn, key=sp.cn) for sp in sp_arr if sp.region == self.chosen_region]
 
-
     def on_sp_change(self, e):
-        sp_arr = REGION_2_SP.get(self.chosen_region.get_pr_id())
+        sp_arr = REGION_2_SP.get(self.chosen_region.pr_id)
         for sp in sp_arr:
             if sp.region == self.chosen_region and sp.cn == self.tp_dropdown.value:
                 self.chosen_sp = sp
@@ -196,6 +194,7 @@ class WorldPatrolDraftRouteView:
 
         self.page.update()
 
+        self.chosen_route_id = None
         self.route_list = []
         self.draw_route_and_display()
 
@@ -330,13 +329,34 @@ class WorldPatrolDraftRouteView:
 
     def save_route(self, e):
         if self.chosen_route_id is None:
-            dir_path = get_debug_world_patrol_dir()
-            file_path = os.path.join(dir_path, "%s_%s_%s.yml" % (self.chosen_planet.cn ,self.chosen_region.cn, self.chosen_sp.cn))
-        else:
-            file_path = config_utils.get_config_file_path(self.chosen_route_id, sub_dir='world_patrol')
+            same_region_cnt: int = 0
+            same_tp_cnt: int = 0
+            dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol', self.chosen_planet.np_id)
+            for filename in os.listdir(dir_path):
+                idx = filename.find('.yml')
+                if idx == -1:
+                    continue
+                if not filename.startswith(self.chosen_region.r_id):
+                    continue
+                same_region_cnt += 1
+                tp_suffix = filename[len(self.chosen_region.r_id) + 5:idx]
+                if not tp_suffix.startswith(self.chosen_sp.id):
+                    continue
+                same_tp_cnt += 1
+
+            raw_id = '%s_R%02d_%s' % (self.chosen_region.r_id, same_region_cnt + 1, self.chosen_sp.id) + ('' if same_tp_cnt == 0 else '_%d' % (same_tp_cnt + 1))
+            self.chosen_route_id = WorldPatrolRouteId(self.chosen_planet, raw_id)
+
+            self.cancel_edit_existed_btn.disabled = False
+            self.text_existed_btn.disabled = False
+            self.page.update()
+
+        file_path = config_utils.get_config_file_path(self.chosen_route_id.raw_id, sub_dir=['world_patrol', self.chosen_planet.np_id])
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(self.route_text.value)
         log.info('保存成功 %s', file_path)
+
+
 
     def add_patrol(self, e):
         self.route_list.append({'op': 'patrol'})
@@ -372,7 +392,7 @@ class WorldPatrolDraftRouteView:
         :param e:
         :return:
         """
-        self.chosen_route_id = self.existed_route_dropdown.value
+        self.chosen_route_id = self.route_id_list[int(self.existed_route_dropdown.value)]
         route = WorldPatrolRoute(self.chosen_route_id)
         self.cancel_edit_existed_btn.disabled = False
         self.text_existed_btn.disabled = False
@@ -446,6 +466,12 @@ class WorldPatrolDraftRouteView:
         if self.route_list[idx]['op'] == 'move':
             self.route_list[idx]['op'] = 'update_pos'
         self.draw_route_and_display()
+
+    def load_route_id_list(self):
+        self.route_id_list = load_all_route_id()
+        self.existed_route_dropdown.options = [
+            ft.dropdown.Option(text=self.route_id_list[i].display_name, key=i) for i in range(len(self.route_id_list))
+        ]
 
 
 gv: WorldPatrolDraftRouteView = None

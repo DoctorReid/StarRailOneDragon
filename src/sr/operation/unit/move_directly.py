@@ -94,7 +94,7 @@ class MoveDirectly(Operation):
 
         sp_map = constants.map.get_sp_type_in_rect(self.region, lm_rect)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()),
-                                            another_floor=self.region.another_floor())
+                                            another_floor=self.region.another_floor)
 
         x, y = self.get_pos(mm_info, possible_pos, lm_rect)
         # log.info('使用上一个坐标为%s', possible_pos)

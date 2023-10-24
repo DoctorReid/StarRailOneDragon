@@ -7,7 +7,8 @@ from basic.log_utils import log
 from sr import constants
 from sr.app import Application
 from sr.config import ConfigHolder
-from sr.constants.map import TransportPoint, region_with_another_floor
+from sr.constants.map import TransportPoint, region_with_another_floor, Region, PLANET_LIST, Planet, PLANET_2_REGION, \
+    REGION_2_SP
 from sr.context import Context, get_context
 from sr.image.sceenshot import large_map, LargeMapInfo
 from sr.operation import Operation
@@ -18,14 +19,56 @@ from sr.operation.unit.move_directly import MoveDirectly
 from sr.operation.unit.wait_in_world import WaitInWorld
 
 
+class WorldPatrolRouteId:
+
+    def __init__(self, planet: Planet, raw_id: str):
+        print(raw_id)
+        idx = -1
+        idx_cnt = 0
+        while True:
+            idx = raw_id.find('_', idx + 1)
+            if idx == -1:
+                break
+            idx_cnt += 1
+        idx = raw_id.rfind('_')
+
+        self.route_num: int = 0 if idx_cnt == 3 else int(raw_id[idx+1:])
+
+        self.planet: Planet = planet
+        self.region: Region = None
+        self.tp: TransportPoint = None
+
+        for region in PLANET_2_REGION.get(planet.np_id):
+            if raw_id.startswith(region.r_id):
+                self.region: Region = region
+                break
+
+        for sp in REGION_2_SP.get(self.region.pr_id):
+            if self.route_num == 0:
+                if raw_id.endswith(sp.id):
+                    self.tp = sp
+                    break
+            else:
+                if raw_id[:raw_id.rfind('_')].endswith(sp.id):
+                    self.tp = sp
+                    break
+
+        assert self.tp is not None
+
+        self.raw_id = raw_id
+
+    @property
+    def display_name(self):
+        return '%s_%s_%s' % (gt(self.planet.cn), gt(self.region.cn), gt(self.tp.cn)) + ('' if self.route_num == 0 else '_%02d' % self.route_num)
+
+
 class WorldPatrolRoute(ConfigHolder):
 
-    def __init__(self, route_id: str):
+    def __init__(self, route_id: WorldPatrolRouteId):
         self.tp: TransportPoint = None
         self.route_list: List = None
-        self.route_id: str = route_id
-        self.route_name: str = route_id[12:]  # 用于界面展示
-        super().__init__(route_id, sample=False, sub_dir='world_patrol')
+        self.route_id: WorldPatrolRouteId = route_id
+        super().__init__(route_id.raw_id, sample=False, sub_dir=['world_patrol', route_id.planet.np_id])
 
     def init(self):
         self.init_from_data(**self.data)
@@ -33,6 +76,10 @@ class WorldPatrolRoute(ConfigHolder):
     def init_from_data(self, planet: str, region: str, tp: str, level: int, route: List):
         self.tp: TransportPoint = constants.map.get_sp_by_cn(planet, region, level, tp)
         self.route_list = route
+
+    @property
+    def display_name(self):
+        return self.route_id.display_name
 
 
 class WorldPatrolRecord(ConfigHolder):
@@ -211,20 +258,20 @@ class WorldPatrol(Application):
         return op.execute()
 
 
-def load_all_route_id() -> List[str]:
+def load_all_route_id() -> List[WorldPatrolRouteId]:
     """
     加载所有路线
     :return:
     """
-    route_id_arr: List[str] = []
+    route_id_arr: List[WorldPatrolRouteId] = []
     dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol')
-    for filename in os.listdir(dir_path):
-        if filename == 'record.yml':
-            continue
-        idx = filename.find('.yml')
-        if idx == -1:
-            continue
-        route_id_arr.append(filename[0:idx])
+    for planet in PLANET_LIST:
+        planet_dir_path = os.path.join(dir_path, planet.np_id)
+        for filename in os.listdir(planet_dir_path):
+            idx = filename.find('.yml')
+            if idx == -1:
+                continue
+            route_id_arr.append(WorldPatrolRouteId(planet, filename[0:idx]))
     return route_id_arr
 
 

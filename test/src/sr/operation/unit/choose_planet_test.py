@@ -29,5 +29,5 @@ if __name__ == '__main__':
     ctx = get_context()
     ctx.running = True
     ctx.controller.win.active()
-    op = ChoosePlanet(sr.constants.region.P02_YYL.cn)
+    op = ChoosePlanet(sr.constants.region.P02.cn)
     _test_whole_operation()

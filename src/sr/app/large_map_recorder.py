@@ -80,14 +80,14 @@ class LargeMapRecorder(Application):
                 else:
                     merge = cv2_utils.concat_vertically(merge, img[i], decision_height=large_map.CUT_MAP_RECT[3] - large_map.CUT_MAP_RECT[1] - 300)
 
-            raw_img[region.get_prl_id()] = merge
-            cv2_utils.show_image(merge, win_name='region.get_prl_id()')
+            raw_img[region.prl_id] = merge
+            cv2_utils.show_image(merge, win_name='region.prl_id')
 
         # 检测几个楼层是否大小一致
         shape = None
         lp, rp, tp, bp = None, None, None, None
         for region in region_list:
-            raw = raw_img[region.get_prl_id()]
+            raw = raw_img[region.prl_id]
             if shape is None:
                 shape = raw.shape
             else:
@@ -109,7 +109,7 @@ class LargeMapRecorder(Application):
         # cv2.waitKey(0)
 
         for region in region_list:
-            raw = raw_img[region.get_prl_id()]
+            raw = raw_img[region.prl_id]
             large_map.save_large_map_image(raw, region, 'raw')
             large_map.init_large_map(region, raw, self.ctx.im,
                                      expand_arr=[lp, rp, tp, bp], save=True)
@@ -157,6 +157,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = constants.map.P01_R04_ZYCD_L1
+    r = constants.map.P01_R04_L1
     app = LargeMapRecorder(ctx, r)
     app.execute()

@@ -3,7 +3,7 @@ import ctypes
 
 
 def _test_active_win():
-    win_utils.get_win_by_name('唯秘', active=True)
+    win_utils.get_win_by_name('微信', active=True)
 
 
 if __name__ == '__main__':

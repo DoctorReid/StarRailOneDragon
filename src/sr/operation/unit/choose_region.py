@@ -3,9 +3,8 @@ import time
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.constants.map import Planet, Region
+from sr.constants.map import Planet, Region, PLANET_2_REGION
 from sr.context import Context
-from sr.control import GameController
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
 
@@ -35,22 +34,14 @@ class ChooseRegion(Operation):
             return Operation.WAIT
 
         # 判断当前选择区域是否目标区域
-        current_region = large_map.get_active_region_name(screen, self.ctx.ocr)
-        log.info('当前选择区域 %s', current_region)
-        if current_region is None or current_region.find(gt(self.region.ocr_str)) == -1:
+        current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
+        target_region_name = gt(self.region.ocr_str)
+        log.info('当前选择区域 %s', current_region_name)
+        if current_region_name is None or current_region_name.find(target_region_name) == -1:
             find = self.click_target_region(screen)
-            if not find:  # 向下滚动5次 再向上滚动5次
-                log.info('当前界面未发现 %s 准备滚动', self.region.cn)
-                if self.op_round < 5:
-                    self.scroll_region_area()
-                elif self.op_round == 5:
-                    for _ in range(self.op_round):  # 回到原点
-                        self.scroll_region_area(-1)
-                        time.sleep(0.5)
-                    self.scroll_region_area(-1)
-                else:
-                    self.scroll_region_area(-1)
-                time.sleep(1)
+
+            if not find:
+                self.scroll_when_no_target_region(current_region_name)
                 return Operation.RETRY
             else:
                 time.sleep(0.2)
@@ -83,6 +74,37 @@ class ChooseRegion(Operation):
         :return:
         """
         return self.ctx.controller.click_ocr(screen, self.region.ocr_str, rect=large_map.REGION_LIST_RECT, threshold=0.4)
+
+    def scroll_when_no_target_region(self, current_region_name):
+        """
+        当前找不到目标区域时 进行滚动
+        :param current_region_name: 当前选择的区域
+        :return:
+        """
+        log.info('当前界面未发现 %s 准备滚动', self.region.cn)
+        if current_region_name is None:  # 判断不了当前选择区域的情况 就先向下滚动5次 再向上滚动5次
+            if self.op_round < 5:
+                self.scroll_region_area()
+            elif self.op_round == 5:
+                for _ in range(self.op_round):  # 回到原点
+                    self.scroll_region_area(-1)
+                    time.sleep(0.5)
+                self.scroll_region_area(-1)
+            else:
+                self.scroll_region_area(-1)
+        else:
+            find_current: bool = False
+            region_list = PLANET_2_REGION.get(self.region.planet.np_id)
+            for r in region_list:
+                if r == self.region:
+                    break
+                if current_region_name.find(gt(r.ocr_str)) != -1:
+                    find_current = True
+
+            # 在找到目标区域前 当前区域已经出现 说明目标区域在下面 向下滚动
+            self.scroll_region_area(1 if find_current else -1)
+
+        time.sleep(1)
 
     def scroll_region_area(self, d: int = 1):
         """

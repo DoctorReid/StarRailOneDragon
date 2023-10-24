@@ -43,12 +43,6 @@ def get_test_image(filename, suffix: str = '.png', sub_dir: str = None) -> MatLi
     return cv2_utils.read_image(get_test_image_path(filename, suffix, sub_dir))
 
 
-def get_test_cal_pos_image(num: int, prl_id: str, suffix: str = '.png') -> MatLike:
-    dir_path = os.path.join(get_test_image_dir('cal_pos'), prl_id)
-    img_path = os.path.join(dir_path, '%d%s' % (num, suffix))
-    return cv2_utils.read_image(img_path)
-
-
 def save_debug_image(image, prefix: str = '') -> str:
     file_name = '%s_%d' % (prefix, round(time.time() * 1000))
     path = get_debug_image_path(file_name)

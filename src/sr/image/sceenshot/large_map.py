@@ -40,12 +40,12 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     result = ocr.run_ocr(planet_name_part, threshold=0.4)
     log.debug('屏幕左上方获取星球结果 %s', result.keys())
     for word in result.keys():
-        if word.find(gt(constants.map.P01_KZJ.ocr_str)) > -1:
-            return constants.map.P01_KZJ
-        if word.find(gt(constants.map.P02_YYL.ocr_str)) > -1:
-            return constants.map.P02_YYL
-        if word.find(gt(constants.map.P03_XZLF.ocr_str)) > -1:
-            return constants.map.P03_XZLF
+        if word.find(gt(constants.map.P01.ocr_str)) > -1:
+            return constants.map.P01
+        if word.find(gt(constants.map.P02.ocr_str)) > -1:
+            return constants.map.P02
+        if word.find(gt(constants.map.P03.ocr_str)) > -1:
+            return constants.map.P03
 
     return None
 
@@ -147,7 +147,7 @@ def get_map_path(region: Region, mt: str = 'origin') -> str:
     :param mt: 地图类型
     :return: 图片路径
     """
-    return os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.id, region.get_rl_id()), '%s.png' % mt)
+    return os.path.join(os_utils.get_path_under_work_dir('images', 'map', region.planet.np_id, region.rl_id), '%s.png' % mt)
 
 
 def save_large_map_image(image: MatLike, region: Region, mt: str = 'origin'):

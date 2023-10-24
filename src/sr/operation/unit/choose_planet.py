@@ -27,7 +27,7 @@ class ChoosePlanet(Operation):
         screen = self.screenshot()
         # 根据左上角判断当前星球是否正确
         planet = large_map.get_planet(screen, self.ctx.ocr)
-        if planet is not None and planet.id == self.planet.id:
+        if planet is not None and planet.np_id == self.planet.np_id:
             return Operation.SUCCESS
 
         if planet is not None:  # 在大地图

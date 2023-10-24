@@ -124,4 +124,4 @@ class OcrMatcher:
 
 
 def get_large_map_dir_path(region: Region):
-    return os_utils.get_path_under_work_dir('images', 'map', region.planet.id, region.get_rl_id())
+    return os_utils.get_path_under_work_dir('images', 'map', region.planet.np_id, region.rl_id)

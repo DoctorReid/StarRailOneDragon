@@ -36,7 +36,7 @@ class ImageHolder:
             info.desc = file_storage.getNode("descriptors").mat()
             # 释放文件存储对象
             file_storage.release()
-        self.large_map[region.get_prl_id()] = info
+        self.large_map[region.prl_id] = info
         return info
 
     def pop_large_map(self, region: Region, map_type: str):
@@ -46,7 +46,7 @@ class ImageHolder:
         :param map_type: 地图类型
         :return:
         """
-        key = region.get_prl_id()
+        key = region.prl_id
         if key in self.large_map:
             del self.large_map[key]
 
@@ -56,11 +56,11 @@ class ImageHolder:
         :param region: 区域
         :return: 地图图片
         """
-        if region.get_prl_id() not in self.large_map:
+        if region.prl_id not in self.large_map:
             # 尝试加载一次
             return self.load_large_map(region)
         else:
-            return self.large_map[region.get_prl_id()]
+            return self.large_map[region.prl_id]
 
     def load_template(self, template_id: str) -> TemplateImage:
         """

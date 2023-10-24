@@ -1,9 +1,12 @@
+from ctypes import Union
+from typing import List
+
 from basic import config_utils
 
 
 class ConfigHolder:
 
-    def __init__(self, module_name: str, sample: bool = True, sub_dir: str = None):
+    def __init__(self, module_name: str, sample: bool = True, sub_dir: List[str] = None):
         self.mod = module_name
         self.sample = sample
         self.sub_dir = sub_dir
