@@ -61,37 +61,22 @@ def is_active_win_by_name(window_name: str):
         return False
 
 
-def close_win_with_f4(win: Win32Window):
-    """
-    先切换到窗口 再使用 ALT+F4 对窗口进行关闭 可能只会最小化到任务栏
-    :param win: 窗口
-    :return: None
-    :raise PyAutoGUIException 找不到对应窗口
-    """
-    if win is not None:
-        win.activate()
-        pyautogui.hotkey('alt', 'f4')
-    else:
-        raise pyautogui.PyAutoGUIException
-
-
 def shutdown_sys(seconds: int):
     """
-    ${minutes} 秒后自动关机
-    使用 shutdown -s -t ${minutes} 来关闭系统
+    使用 shutdown -s -t ${seconds} 来关闭系统
     :param seconds: 秒
     :return:
     """
-    os.system("shutdown -s -t %d" % seconds)
+    os.system("shutdown /s /t %d" % seconds)
 
 
 def cancel_shutdown_sys():
     """
     取消计划的自动关机
-    使用 shutdown -a 命令
+    使用 shutdown /a 命令
     :return:
     """
-    os.system("shutdown -a")
+    os.system("shutdown /a")
 
 
 def screenshot_win(win: Union[str, Win32Window]) -> MatLike:
