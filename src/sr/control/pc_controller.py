@@ -105,7 +105,7 @@ class PcController(GameController):
         """
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_MOVE, int(d), 0)
 
-    def move(self, direction: str, press_time: int = 0):
+    def move(self, direction: str, press_time: float = 0):
         """
         往固定方向移动
         :param direction: 方向 wsad

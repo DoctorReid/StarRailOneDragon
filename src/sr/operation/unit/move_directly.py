@@ -3,7 +3,7 @@ import time
 from cv2.typing import MatLike
 
 import basic.cal_utils
-from basic import os_utils, cal_utils
+from basic import os_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import constants, cal_pos
@@ -12,7 +12,6 @@ from sr.constants.map import Region
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, battle, large_map
-from sr.image.sceenshot.large_map import get_large_map_rect_by_pos
 from sr.operation import Operation
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 
@@ -60,7 +59,7 @@ class MoveDirectly(Operation):
                     screen = self.screenshot()
                     save_debug_image(screen, prefix=self.__class__.__name__ + "_stuck")
                 return Operation.FAIL
-            walk_sec = self.get_rid_of_stuck(self.stuck_times, last_pos)
+            walk_sec = self.get_rid_of_stuck(self.stuck_times)
             self.last_rec_time += walk_sec
         else:
             self.stuck_times = 0
@@ -135,13 +134,16 @@ class MoveDirectly(Operation):
 
         return Operation.WAIT
 
-    def get_rid_of_stuck(self, stuck_times: int, last_pos: tuple):
+    def get_rid_of_stuck(self, stuck_times: int):
         """
-        尝试脱困 使用往回走 再左右移 再往前走的方法
-        1-3次 往左 然后直走
-        4-6次 往右 然后直走
-        7-9次 往后再往左 然后直走
-        10-12次 往后再往右 然后直走
+        尝试脱困 以下方式各尝试2遍
+        1. 往左 然后往前走
+        2. 往右 然后往前走
+        3. 往后再往左 然后往前走
+        4. 往后再往右 然后往前走
+        5. 往左再往后再往右 然后往前走
+        6. 往右再往后再往左 然后往前走
+
         :param stuck_times: 判断困住多少次了 次数越多 往回走距离越大
         :param last_pos: 上一次位置 也就是被困的位置
         :return: 这次脱困用了多久
@@ -151,32 +153,54 @@ class MoveDirectly(Operation):
 
         ctrl.stop_moving_forward()
 
-        walk_sec = (stuck_times % 3 if stuck_times % 3 != 0 else 3) * 0.25
+        move_unit_sec = 0.25
+        try_move_unit = stuck_times % 2 if stuck_times % 2 != 0 else 2
+        try_method = (stuck_times + 1) // 2
 
-        if stuck_times <= 3:
+        if try_method == 1:  # 左 前
+            walk_sec = try_move_unit * move_unit_sec
             ctrl.move('a', walk_sec)
             ctrl.start_moving_forward()  # 多往前走1秒再判断是否被困
             time.sleep(1)
             return walk_sec + 1
-        elif stuck_times <= 6:
+        elif try_method == 2:  # 右 前
+            walk_sec = try_move_unit * move_unit_sec
             ctrl.move('d', walk_sec)
             ctrl.start_moving_forward()
             time.sleep(1)
             return walk_sec + 1
-        elif stuck_times <= 9:
+        elif try_method == 3:  # 后左 前
+            walk_sec = try_move_unit * move_unit_sec
             ctrl.move('s', walk_sec)
             ctrl.move('a', walk_sec)
             ctrl.move('w', walk_sec)
             ctrl.start_moving_forward()
             time.sleep(1)
             return walk_sec * 3 + 1
-        elif stuck_times <= 12:
+        elif try_method == 4:  # 后右 前
+            walk_sec = try_move_unit * move_unit_sec
             ctrl.move('s', walk_sec)
             ctrl.move('d', walk_sec)
             ctrl.move('w', walk_sec)
             ctrl.start_moving_forward()
             time.sleep(1)
             return walk_sec * 3 + 1
+        elif try_method == 5:  # 左后右 前
+            walk_sec = try_move_unit * move_unit_sec
+            ctrl.move('a', walk_sec)
+            ctrl.move('s', walk_sec)
+            ctrl.move('d', walk_sec + move_unit_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            return walk_sec * 3 + move_unit_sec + 1
+        elif try_method == 6:  # 右后左 前
+            walk_sec = try_move_unit * move_unit_sec
+            ctrl.move('d', walk_sec)
+            ctrl.move('s', walk_sec)
+            ctrl.move('a', walk_sec + move_unit_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            return walk_sec * 3 + move_unit_sec + 1
 
         return 0
 
