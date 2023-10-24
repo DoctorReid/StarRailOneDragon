@@ -35,6 +35,7 @@ def active_win(win: Win32Window):
     :return: None
     """
     if win is not None and not win.isActive:
+        win.restore()
         win.activate()
 
 
@@ -72,18 +73,6 @@ def close_win_with_f4(win: Win32Window):
         pyautogui.hotkey('alt', 'f4')
     else:
         raise pyautogui.PyAutoGUIException
-
-
-def close_win_with_f4_by_name(window_name: str):
-    """
-    根据窗口名称
-    先切换到窗口 再使用 ALT+F4 对窗口进行关闭 可能只会最小化到任务栏
-    :param window_name: 窗口名称
-    :return: None
-    :raise PyAutoGUIException 找不到对应窗口
-    """
-    win: Win32Window = get_win_by_name(window_name)
-    close_win_with_f4(win)
 
 
 def shutdown_sys(seconds: int):
