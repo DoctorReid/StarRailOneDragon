@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+import datetime
 
 
 def join_dir_path_with_mk(path: str, *subs) -> str:
@@ -87,3 +87,20 @@ def get_dt() -> str:
     current_time = datetime.now()
     return current_time.strftime("%Y%m%d")
 
+
+def clear_outdated_debug_files(days: int = 3):
+    """
+    清理过期的调试临时文件
+    :return:
+    """
+    directory = get_path_under_work_dir('.debug')
+    now = datetime.datetime.now()
+    cutoff = now - datetime.timedelta(days=days)
+
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            path = os.path.join(root, file)
+            stat = os.stat(path)
+            modified_time = datetime.datetime.fromtimestamp(stat.st_mtime)
+            if modified_time < cutoff:
+                os.remove(path)

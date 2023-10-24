@@ -4,7 +4,7 @@ import flet as ft
 from flet_core import CrossAxisAlignment, MainAxisAlignment
 from sentry_sdk.integrations import threading
 
-from basic import win_utils
+from basic import win_utils, os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import snack_bar
@@ -109,6 +109,8 @@ class SrAppView:
         if self.shutdown_check.value:
             log.info('执行完毕 准备关机')
             win_utils.shutdown_sys(60)
+
+        os_utils.clear_outdated_debug_files(3)
 
     def on_shutdown_changed(self, e):
         if not self.shutdown_check.value:
