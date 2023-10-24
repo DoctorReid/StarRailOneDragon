@@ -22,7 +22,6 @@ from sr.operation.unit.wait_in_world import WaitInWorld
 class WorldPatrolRouteId:
 
     def __init__(self, planet: Planet, raw_id: str):
-        print(raw_id)
         idx = -1
         idx_cnt = 0
         while True:
@@ -171,19 +170,16 @@ class WorldPatrol(Application):
             elif route_item['op'] == 'patrol':
                 self.patrol()
             elif route_item['op'] == 'interact':
-                print('interact')
                 result = self.interact(route_item['data'])
                 if not result:
                     log.error('交互失败 即将跳过本次路线 %s', route_id)
                     return
             elif route_item['op'] == 'wait':
-                print('wait')
                 result = self.wait(route_item['data'])
                 if not result:
                     log.error('等待失败 即将跳过本次路线 %s', route_id)
                     return
             elif route_item['op'] == 'update_pos':
-                print('update_pos')
                 next_pos = route_item['data']
                 if len(next_pos) > 2:
                     next_region = constants.map.region_with_another_floor(lm_info.region, next_pos[2])
