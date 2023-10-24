@@ -75,7 +75,7 @@ def now_timestamp_str() -> str:
     返回当前时间字符串
     :return: 例如 20230915220515
     """
-    current_time = datetime.now()
+    current_time = datetime.datetime.now()
     return current_time.strftime("%Y%m%d%H%M%S")
 
 
@@ -84,7 +84,7 @@ def get_dt() -> str:
     返回当前日期字符串
     :return: 例如 20230915
     """
-    current_time = datetime.now()
+    current_time = datetime.datetime.now()
     return current_time.strftime("%Y%m%d")
 
 

@@ -11,7 +11,7 @@ from sr.operation import Operation
 
 class ChooseRegion(Operation):
 
-    scroll_distance = -300
+    scroll_distance = -800
 
     def __init__(self, ctx: Context, region: Region):
         """
@@ -22,6 +22,7 @@ class ChooseRegion(Operation):
         super().__init__(ctx, 10)
         self.planet: Planet = region.planet
         self.region: Region = region
+        self.scroll_direction: int = None
 
     def run(self) -> int:
         screen = self.screenshot()
@@ -82,7 +83,7 @@ class ChooseRegion(Operation):
         :return:
         """
         log.info('当前界面未发现 %s 准备滚动', self.region.cn)
-        if current_region_name is None:  # 判断不了当前选择区域的情况 就先向下滚动5次 再向上滚动5次
+        if current_region_name is None and self.scroll_direction is None:  # 判断不了当前选择区域的情况 就先向下滚动5次 再向上滚动5次
             if self.op_round < 5:
                 self.scroll_region_area()
             elif self.op_round == 5:
@@ -93,16 +94,18 @@ class ChooseRegion(Operation):
             else:
                 self.scroll_region_area(-1)
         else:
-            find_current: bool = False
-            region_list = PLANET_2_REGION.get(self.region.planet.np_id)
-            for r in region_list:
-                if r == self.region:
-                    break
-                if current_region_name.find(gt(r.ocr_str)) != -1:
-                    find_current = True
+            if self.scroll_direction is None:
+                find_current: bool = False
+                region_list = PLANET_2_REGION.get(self.region.planet.np_id)
+                for r in region_list:
+                    if r == self.region:
+                        break
+                    if current_region_name.find(gt(r.ocr_str)) != -1:
+                        find_current = True
 
-            # 在找到目标区域前 当前区域已经出现 说明目标区域在下面 向下滚动
-            self.scroll_region_area(1 if find_current else -1)
+                # 在找到目标区域前 当前区域已经出现 说明目标区域在下面 向下滚动
+                self.scroll_direction = 1 if find_current else -1
+            self.scroll_region_area(self.scroll_direction)
 
         time.sleep(1)
 
@@ -112,7 +115,7 @@ class ChooseRegion(Operation):
         :param d: 滚动距离 正向下 负向上
         :return:
         """
-        self.ctx.controller.scroll(ChooseRegion.scroll_distance * d, pos=large_map.REGION_LIST_PART_CENTER)
+        self.ctx.controller.scroll(-5 * d, pos=large_map.REGION_LIST_PART_CENTER)  # TODO 有问题 一直滚动固定距离
 
     def click_target_level(self, screen, target_level_str: str) -> bool:
         """
