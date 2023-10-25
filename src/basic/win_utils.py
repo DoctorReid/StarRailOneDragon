@@ -162,10 +162,10 @@ def move_mouse_in_place(dx: int, dy: int, duration: float = 0.5):
 
 def key_down(k: str, t: int, asyn: bool = False):
     """
-
-    :param k:
-    :param t:
-    :param asyn:
+    键盘按键
+    :param k: 按键
+    :param t: 持续时间
+    :param asyn: 是否异步 未实现
     :return:
     """
     pyautogui.keyDown(k)
@@ -186,6 +186,10 @@ def scroll(clicks: int, pos: tuple = None):
 
 @lru_cache
 def get_mouse_sensitivity():
+    """
+    获取鼠标灵敏度
+    :return:
+    """
     user32 = ctypes.windll.user32
     speed = ctypes.c_int()
     user32.SystemParametersInfoA(SPI_GETMOUSESPEED, 0, ctypes.byref(speed), 0)

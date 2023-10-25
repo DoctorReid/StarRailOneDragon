@@ -8,7 +8,7 @@ from sr.image import OcrMatcher
 
 class GameController:
 
-    def __init__(self):
+    def __init__(self, ocr: OcrMatcher):
         self.ocr: OcrMatcher = None
         self.turn_dx: float = None
         self.walk_speed: float = None

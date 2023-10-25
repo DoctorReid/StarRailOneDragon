@@ -8,6 +8,7 @@ from cv2.typing import MatLike
 from basic import win_utils
 from basic.log_utils import log
 from sr.config.game_config import GameConfig, get_game_config
+from sr.constants import STANDARD_RESOLUTION_H, STANDARD_RESOLUTION_W
 from sr.control import GameController
 from sr.image import OcrMatcher
 from sr.win import Window, WinRect
@@ -20,8 +21,8 @@ class PcController(GameController):
     MOUSEEVENTF_LEFTUP = 0x0004
 
     def __init__(self, win: Window, ocr: OcrMatcher):
+        super().__init__(ocr)
         self.win: Window = win
-        self.ocr: OcrMatcher = ocr
         config: GameConfig = get_game_config()
         self.turn_dx: float = config.get('turn_dx')
         self.walk_speed: float = config.get('walk_speed')
@@ -67,7 +68,7 @@ class PcController(GameController):
         rect: WinRect = self.win.get_win_rect()
         pyautogui.moveTo(rect.x + 10, rect.y + rect.h - 10)  # 移动到uid位置
         img = win_utils.screenshot(rect.x, rect.y, rect.w, rect.h)
-        return cv2.resize(img, (img.shape[0] // rect.ys, img.shape[1] // rect.xs)) if rect.is_scale() else img
+        return cv2.resize(img, (STANDARD_RESOLUTION_H, STANDARD_RESOLUTION_W)) if rect.is_scale() else img
 
     def scroll(self, down: int, pos: tuple = None):
         """
