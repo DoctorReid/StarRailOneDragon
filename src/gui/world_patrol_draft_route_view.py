@@ -29,18 +29,19 @@ class WorldPatrolDraftRouteView:
             label='编辑已有路线',
             on_change=self.on_existed_route_changed
         )
-        self.load_route_id_list()
         self.chosen_route_id: WorldPatrolRouteId = None
+        self.load_route_id_list()
         self.cancel_edit_existed_btn = ft.ElevatedButton(text='取消编辑已有路线', disabled=True, on_click=self.on_cancel_edit_existed)
-        self.text_existed_btn = ft.ElevatedButton(text='测试选择线路', disabled=True, on_click=self.on_test_existed)
+        self.test_existed_btn = ft.ElevatedButton(text='测试选择线路', disabled=True, on_click=self.on_test_existed)
         self.back_btn = ft.ElevatedButton(text='后退', disabled=True, on_click=self.cancel_last)
         self.reset_btn = ft.ElevatedButton(text='重置', disabled=True, on_click=self.cancel_all)
         self.save_btn = ft.ElevatedButton(text='保存', disabled=True, on_click=self.save_route)
+        self.delete_btn = ft.ElevatedButton(text='删除', disabled=True, on_click=self.delete_route)
         load_existed_row = ft.Row(spacing=10, controls=[
             self.existed_route_dropdown,
             self.cancel_edit_existed_btn,
-            self.text_existed_btn,
-            self.back_btn, self.reset_btn, self.save_btn
+            self.test_existed_btn,
+            self.back_btn, self.reset_btn, self.save_btn, self.delete_btn
         ])
 
         self.planet_dropdown = ft.Dropdown(
@@ -113,22 +114,16 @@ class WorldPatrolDraftRouteView:
         self.chosen_planet = p
 
         self.update_region_list_by_planet()
-        self.region_dropdown.disabled = False
         self.chosen_region = None
-
-        self.level_dropdown.disabled = True
         self.level_dropdown.options = []
-
-        self.switch_level.disabled = True
         self.switch_level.options = []
-
-        self.tp_dropdown.disabled = True
         self.tp_dropdown.options = []
         self.chosen_sp = None
 
-        self.page.update()
-
+        self.chosen_route_id = None
         self.route_list = []
+
+        self.update_all_component_status()
         self.draw_route_and_display()
 
     def update_region_list_by_planet(self):
@@ -143,17 +138,13 @@ class WorldPatrolDraftRouteView:
         self.chosen_region = None
 
         self.update_level_list_by_region()
-        self.level_dropdown.disabled = False
-        self.switch_level.disabled = False
-
-        self.tp_dropdown.disabled = True
         self.tp_dropdown.options = []
         self.chosen_sp = None
 
-        self.page.update()
-
         self.chosen_route_id = None
         self.route_list = []
+
+        self.update_all_component_status()
         self.draw_route_and_display()
 
     def update_level_list_by_region(self):
@@ -171,12 +162,12 @@ class WorldPatrolDraftRouteView:
         self.switch_level.value = self.level_dropdown.value
 
         self.update_sp_list_by_level()
-        self.tp_dropdown.disabled = False
         self.chosen_sp = None
 
-        self.page.update()
-
+        self.chosen_route_id = None
         self.route_list = []
+
+        self.update_all_component_status()
         self.draw_route_and_display()
 
     def update_sp_list_by_level(self):
@@ -200,16 +191,6 @@ class WorldPatrolDraftRouteView:
 
     def draw_route_and_display(self):
         if self.chosen_region is None:
-            self.map_img.visible = False
-            self.patrol_btn.disabled = True
-            self.interact_text.disabled = True
-            self.interact_btn.disabled = True
-            self.wait_dropdown.disabled = True
-            self.update_pos_btn.disabled = True
-            self.back_btn.disabled = True
-            self.reset_btn.disabled = True
-            self.save_btn.disabled = True
-            self.page.update()
             return
 
         map_image: MatLike = self.get_original_map_image()
@@ -249,18 +230,8 @@ class WorldPatrolDraftRouteView:
         self.map_img.visible = True
         self.map_img.src_base64 = base64_string
 
-        self.patrol_btn.disabled = False
-        self.interact_text.disabled = False
-        self.interact_btn.disabled = False
-        self.wait_dropdown.disabled = False
-        self.wait_dropdown.value = None
-        self.update_pos_btn.disabled = False
-        self.back_btn.disabled = len(self.route_list) == 0
-        self.reset_btn.disabled = len(self.route_list) == 0
-        self.save_btn.disabled = len(self.route_list) == 0
         self.route_text.value = self.get_route_config_str()
-
-        self.page.update()
+        self.update_all_component_status()
 
     def on_map_click(self, e):
         map_image: MatLike = self.get_original_map_image()
@@ -328,7 +299,8 @@ class WorldPatrolDraftRouteView:
         return cfg
 
     def save_route(self, e):
-        if self.chosen_route_id is None:
+        new_save: bool = self.chosen_route_id is None
+        if new_save:
             same_region_cnt: int = 0
             same_tp_cnt: int = 0
             dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol', self.chosen_planet.np_id)
@@ -347,16 +319,14 @@ class WorldPatrolDraftRouteView:
             raw_id = '%s_R%02d_%s' % (self.chosen_region.r_id, same_region_cnt + 1, self.chosen_sp.id) + ('' if same_tp_cnt == 0 else '_%d' % (same_tp_cnt + 1))
             self.chosen_route_id = WorldPatrolRouteId(self.chosen_planet, raw_id)
 
-            self.cancel_edit_existed_btn.disabled = False
-            self.text_existed_btn.disabled = False
-            self.page.update()
-
         file_path = config_utils.get_config_file_path(self.chosen_route_id.raw_id, sub_dir=['world_patrol', self.chosen_planet.np_id])
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(self.route_text.value)
         log.info('保存成功 %s', file_path)
 
-
+        if new_save:
+            self.load_route_id_list()
+            self.update_all_component_status()
 
     def add_patrol(self, e):
         self.route_list.append({'op': 'patrol'})
@@ -385,6 +355,7 @@ class WorldPatrolDraftRouteView:
                     route_item['data'].append(last_level)
                 else:
                     last_level = route_item['data'][2]
+        self.switch_level.value = str(last_level)
 
     def on_existed_route_changed(self, e):
         """
@@ -394,27 +365,20 @@ class WorldPatrolDraftRouteView:
         """
         self.chosen_route_id = self.route_id_list[int(self.existed_route_dropdown.value)]
         route = WorldPatrolRoute(self.chosen_route_id)
-        self.cancel_edit_existed_btn.disabled = False
-        self.text_existed_btn.disabled = False
 
         self.planet_dropdown.value = route.tp.planet.cn
-        self.planet_dropdown.disabled = True
         self.chosen_planet = route.tp.planet
 
         self.update_region_list_by_planet()
         self.region_dropdown.value = route.tp.region.cn
-        self.region_dropdown.disabled = True
         self.chosen_region = route.tp.region
 
         self.update_level_list_by_region()
         self.level_dropdown.value = str(route.tp.region.level)
-        self.level_dropdown.disabled = True
         self.switch_level.value = str(route.tp.region.level)
-        self.switch_level.disabled = False
 
         self.update_sp_list_by_level()
         self.tp_dropdown.value = route.tp.cn
-        self.tp_dropdown.disabled = True
         self.chosen_sp = route.tp
 
         self.route_list = route.route_list
@@ -422,10 +386,8 @@ class WorldPatrolDraftRouteView:
         self.draw_route_and_display()
 
     def on_cancel_edit_existed(self, e):
-        self.cancel_edit_existed_btn.disabled = True
-        self.text_existed_btn.disabled = True
+        self.chosen_planet = None
         self.chosen_route_id = None
-        self.existed_route_dropdown.value = None
 
         self.planet_dropdown.value = None
         self.chosen_planet = None
@@ -433,19 +395,17 @@ class WorldPatrolDraftRouteView:
 
         self.region_dropdown.value = None
         self.chosen_region = None
-        self.region_dropdown.disabled = True
 
         self.level_dropdown.value = None
-        self.level_dropdown.disabled = True
 
         self.tp_dropdown.value = None
         self.chosen_sp = None
-        self.tp_dropdown.disabled = True
 
         self.switch_level.value = None
 
         self.route_list = []
         self.draw_route_and_display()
+        self.update_all_component_status()
 
     def on_test_existed(self, e):
         app = WorldPatrol(self.ctx, restart=True, route_id_list=[self.chosen_route_id])
@@ -469,9 +429,46 @@ class WorldPatrolDraftRouteView:
 
     def load_route_id_list(self):
         self.route_id_list = load_all_route_id()
-        self.existed_route_dropdown.options = [
-            ft.dropdown.Option(text=self.route_id_list[i].display_name, key=i) for i in range(len(self.route_id_list))
-        ]
+        chosen_value = None
+        options = []
+        for i in range(len(self.route_id_list)):
+            opt = ft.dropdown.Option(text=self.route_id_list[i].display_name, key=str(i))
+            options.append(opt)
+            if self.chosen_route_id is not None and self.chosen_route_id.equals(self.route_id_list[i]):
+                chosen_value = str(i)
+        self.existed_route_dropdown.options = options
+        self.existed_route_dropdown.value = chosen_value
+
+    def delete_route(self, e):
+        os.remove(self.chosen_route_id.file_path)
+        self.load_route_id_list()
+        self.on_cancel_edit_existed(e)
+
+    def update_all_component_status(self):
+        """
+        统一管理所有组件状态
+        :return:
+        """
+        self.cancel_edit_existed_btn.disabled = self.chosen_route_id is None
+        self.test_existed_btn.disabled = self.chosen_route_id is None
+        self.back_btn.disabled = len(self.route_list) == 0
+        self.reset_btn.disabled = len(self.route_list) == 0
+        self.save_btn.disabled = len(self.route_list) == 0
+        self.delete_btn.disabled = self.chosen_route_id is None
+
+        self.planet_dropdown.disabled = self.chosen_route_id is not None
+        self.region_dropdown.disabled = self.chosen_route_id is not None or self.chosen_planet is None
+        self.level_dropdown.disabled = self.region_dropdown.disabled or self.region_dropdown.value is None
+        self.tp_dropdown.disabled = self.level_dropdown.disabled or self.level_dropdown.value is None
+
+        self.switch_level.disabled = self.chosen_sp is None
+        self.patrol_btn.disabled = self.chosen_sp is None
+        self.interact_text.disabled = self.chosen_sp is None
+        self.interact_btn.disabled = self.chosen_sp is None
+        self.wait_dropdown.disabled = self.chosen_sp is None
+        self.update_pos_btn.disabled = self.chosen_sp is None
+
+        self.page.update()
 
 
 gv: WorldPatrolDraftRouteView = None
