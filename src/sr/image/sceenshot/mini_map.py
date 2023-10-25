@@ -192,12 +192,15 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
     :param show: 是否展示结果
     :return:
     """
+    sp_mask = np.zeros_like(mm_info.circle_mask)
+    sp_match_result = {}
+
+    if sp_types is not None and len(sp_types) == 0:  # 特征点为空 不匹配了
+        return sp_mask, sp_match_result
+
     source = mm_info.origin
     source_mask = mm_info.circle_mask
     source_kps, source_desc = cv2_utils.feature_detect_and_compute(source, mask=source_mask)
-
-    sp_mask = np.zeros_like(mm_info.gray)
-    sp_match_result = {}
     for prefix in ['mm_tp', 'mm_sp', 'mm_boss']:
         for i in range(100):
             if i == 0:
@@ -381,24 +384,23 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
     info = MiniMapInfo()
     info.origin = origin
     info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin, im)
-    info.gray = cv2.cvtColor(origin, cv2.COLOR_BGR2GRAY)
+    #
 
     # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
     h, w = origin.shape[1], origin.shape[0]
     cx, cy = w // 2, h // 2
     r = math.floor(h / math.sqrt(2) / 2) - 8
-    info.center_mask = np.zeros_like(info.gray)
+    info.center_mask = np.zeros_like(info.arrow_mask)
     info.center_mask[cy - r:cy + r, cx - r:cx + r] = 255
     info.center_mask = cv2.bitwise_xor(info.center_mask, info.arrow_mask)
 
-    info.circle_mask = np.zeros_like(info.gray)
+    info.circle_mask = np.zeros_like(info.arrow_mask)
     cv2.circle(info.circle_mask, (cx, cy), h // 2 - 5, 255, -1)  # 忽略一点圆的边缘
     info.circle_mask = cv2.bitwise_xor(info.circle_mask, info.arrow_mask)
 
     info.sp_mask, info.sp_result = get_sp_mask_by_feature_match(info, im, sp_types)
     info.road_mask = get_mini_map_road_mask(origin, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, angle=info.angle,
                                             another_floor=another_floor)
-    info.gray, info.feature_mask = merge_all_map_mask(info.gray, info.road_mask, info.sp_mask)
 
     return info
 

@@ -497,3 +497,17 @@ def get_four_corner(bw):
     top = (white[1][np.argmin(white[0])], white[0][np.argmin(white[0])])
     bottom = (white[1][np.argmax(white[0])], white[0][np.argmax(white[0])])
     return left, right, top, bottom
+
+
+def scale_image(img: MatLike, scale: float = None, copy: bool = True):
+    """
+    按比例缩放图片
+    :param img: 原图
+    :param scale: 缩放比例
+    :param copy: 是否复制新图
+    :return: 缩放后图片
+    """
+    if scale is None or scale == 1:
+        return img.copy() if copy else img
+    target_size = (int(img.shape[0] * scale), int(img.shape[1] * scale))
+    return cv2.resize(img, target_size)

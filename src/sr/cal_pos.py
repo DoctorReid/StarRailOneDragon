@@ -1,23 +1,30 @@
+from concurrent.futures import Future
+from typing import List
+
 import cv2
+import concurrent.futures
 import numpy as np
+from cv2.typing import MatLike
 
 import basic.cal_utils
 from basic import cal_utils
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import constants
-from sr.constants.map import Region, get_sp_type_in_rect
+from sr.constants.map import Region
 from sr.image import ImageMatcher
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
 from sr.performance_recorder import record_performance
+
+
+cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='cal_pos')
 
 
 def cal_character_pos(im: ImageMatcher,
                       lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                       lm_rect: tuple = None, show: bool = False,
                       retry_without_rect: bool = True,
-                      running: bool = False,
-                      possible_pos: tuple = None):
+                      running: bool = False):
     """
     根据小地图 匹配大地图 判断当前的坐标
     :param im: 图片匹配器
@@ -27,7 +34,6 @@ def cal_character_pos(im: ImageMatcher,
     :param retry_without_rect: 失败时是否去除特定区域进行全图搜索
     :param show: 是否显示结果
     :param running: 角色是否在移动 移动时候小地图会缩小
-    :param possible_pos: 上一次的位置
     :return:
     """
     log.debug("准备计算当前位置 大地图区域 %s", lm_rect)
@@ -38,26 +44,20 @@ def cal_character_pos(im: ImageMatcher,
     # 匹配结果 是缩放后的 offset 和宽高
     if mm_info.sp_result is not None and len(mm_info.sp_result) > 0:  # 有特殊点的时候 使用特殊点倒推位置
         r1 = cal_character_pos_by_sp_result(lm_info, mm_info, lm_rect=lm_rect, show=show)
-        if pos_in_range(r1, possible_pos):
-            result = r1
-        else:  # 倒推位置失败 说明大地图附近有多个相同特殊点 这时候使用特征匹配也没用了
-            pass
-            # 只有极少部分情况需要使用特征匹配 所以不需要 mini_map.analyse_mini_map 中对所有情况都分析特征点
-            # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map
-            # mm_info.kps, mm_info.desc = cv2_utils.feature_detect_and_compute(mm_info.gray, mask=mm_info.road_mask)
-            # r2 = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
-            # if pos_in_range(r2, possible_pos):
-            #     result = r2
+        result = r1
+        # 倒推位置失败 说明大地图附近有多个相同类型的特殊点 这时候使用特征匹配也没用了
+        # 只有极少部分情况需要使用特征匹配 所以不需要 mini_map.analyse_mini_map 中对所有情况都分析特征点
+        # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map
+        # r2 = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
+        # result = r2
 
     if result is None:  # 使用模板匹配 用道路掩码的 相对快 但不是很准
         r3: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-        if pos_in_range(r3, possible_pos):
-            result = r3
+        result = r3
 
     if result is None:  # 使用模板匹配 用原图的 相对慢 但准确率更高一点
-        r4: MatchResult = cal_character_pos_by_template_match(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-        if pos_in_range(r4, possible_pos):
-            result = r4
+        r4: MatchResult = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = r4
 
     # if result is None:  # 没有一个计算结果在预估范围内 按优先级返回
     #     result = cal_utils.coalesce(r1, r2, r3, r4)
@@ -89,28 +89,6 @@ def cal_character_pos(im: ImageMatcher,
     return center_x, center_y
 
 
-def pos_in_range(result: MatchResult, possible_pos: tuple) -> bool:
-    """
-    判断计算结果是否在预估的范围内
-    :param result: 计算坐标结果
-    :param possible_pos: 预估范围 根据上一个坐标和移动速度得到
-    :return: 计算结果是否在预估的范围内
-    """
-    if result is None:
-        return False
-
-    if possible_pos is None:
-        return True
-
-    # 还没有移动的话 通常是第一个点 这时候先默认移动1秒距离判断
-    d = 20 if len(possible_pos) < 3 or possible_pos[2] == 0 else possible_pos[2]
-
-    if cal_utils.distance_between((result.cx, result.cy), possible_pos[:2]) > d * 2:
-        return False
-
-    return True
-
-
 @record_performance
 def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                        lm_rect: tuple = None,
@@ -123,7 +101,10 @@ def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapIn
     :param show: 是否显示调试结果
     :return:
     """
-    template_kps, template_desc = mm_info.kps, mm_info.desc
+    gray = cv2.cvtColor(mm_info.origin, cv2.COLOR_BGR2GRAY)
+    gray, feature_mask = mini_map.merge_all_map_mask(gray, mm_info.road_mask, mm_info.sp_mask)
+    template_mask = mm_info.road_mask
+    template_kps, template_desc = cv2_utils.feature_detect_and_compute(gray, mask=template_mask)
     source_kps, source_desc = lm_info.kps, lm_info.desc
 
     # 筛选范围内的特征点
@@ -152,7 +133,6 @@ def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapIn
     if show:
         source = lm_info.origin
         template = mm_info.origin
-        template_mask = mm_info.feature_mask
         source_with_keypoints = cv2.drawKeypoints(source, source_kps, None)
         cv2_utils.show_image(source_with_keypoints, win_name='source_with_keypoints')
         template_with_keypoints = cv2.drawKeypoints(cv2.bitwise_and(template, template, mask=template_mask), template_kps, None)
@@ -161,8 +141,8 @@ def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapIn
         cv2_utils.show_image(all_result, win_name='all_match')
 
     if offset_x is not None:
-        template_w = mm_info.gray.shape[1]
-        template_h = mm_info.gray.shape[0]
+        template_w = gray.shape[1]
+        template_h = gray.shape[0]
         # 小地图缩放后的宽度和高度
         scaled_width = int(template_w * template_scale)
         scaled_height = int(template_h * template_scale)
@@ -174,11 +154,11 @@ def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapIn
 
 
 @record_performance
-def cal_character_pos_by_template_match(im: ImageMatcher,
-                                        lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                        lm_rect: tuple = None,
-                                        running: bool = False,
-                                        show: bool = False) -> MatchResult:
+def cal_character_pos_by_original(im: ImageMatcher,
+                                  lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+                                  lm_rect: tuple = None,
+                                  running: bool = False,
+                                  show: bool = False) -> MatchResult:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用小地图原图
@@ -190,44 +170,35 @@ def cal_character_pos_by_template_match(im: ImageMatcher,
     :param show: 是否显示调试结果
     :return:
     """
-    template_w = mm_info.gray.shape[1]
-    template_h = mm_info.gray.shape[0]
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
-    target: MatchResult = None
-    target_scale = None
     # 使用道路掩码
     # origin_template_mask = cv2_utils.dilate(mm_info.road_mask, 10)
     # origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.circle_mask)
+    template = mm_info.origin
     rough_road_mask = mini_map.get_rough_road_mask(mm_info.origin,
                                                    sp_mask=mm_info.sp_mask,
                                                    arrow_mask=mm_info.arrow_mask,
                                                    angle=mm_info.angle,
                                                    another_floor=lm_info.region.level != 0)
-    origin_template_mask = cv2.bitwise_and(mm_info.circle_mask, rough_road_mask)
-    for scale in mini_map.get_mini_map_scale_list(running):
-        if scale > 1:
-            dest_size = (int(template_w * scale), int(template_h * scale))
-            template = cv2.resize(mm_info.origin, dest_size)
-            template_mask = cv2.resize(origin_template_mask, dest_size)
-        else:
-            template = mm_info.origin
-            template_mask = origin_template_mask
+    template_mask = cv2.bitwise_and(mm_info.circle_mask, rough_road_mask)
 
-        result = im.match_image(source, template, mask=template_mask, threshold=0.2, ignore_inf=True)
+    target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
+                                                                   mini_map.get_mini_map_scale_list(running),
+                                                                   0.3)
 
-        if show:
-            cv2_utils.show_image(source, result, win_name='template_match_source')
-            cv2_utils.show_image(cv2.bitwise_and(template, template, mask=template_mask), win_name='template_match_template')
-            cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
+    if show:
+        scale = target.template_scale if target is not None else 1
+        template_usage = cv2_utils.scale_image(template, scale, copy=False)
+        template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
+        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
+        cv2_utils.show_image(source, win_name='template_match_source')
+        cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
+        cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
 
-        if result.max is not None and (target is None or result.max.confidence > target.confidence):
-            target = result.max
-            target_scale = scale
-            # break  # 节省点时间 其中一个缩放匹配到就可以了 也不用太精准
     if target is not None:
         offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
         offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
-        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target_scale)
+        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None
 
@@ -244,7 +215,7 @@ def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
     :param show: 是否显示调试结果
     :return:
     """
-    mm_height, mm_width = mm_info.gray.shape[:2]
+    mm_height, mm_width = mm_info.origin.shape[:2]
 
     lm_sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
 
@@ -318,42 +289,28 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     :param show: 是否显示调试结果
     :return:
     """
-    template_w = mm_info.gray.shape[1]
-    template_h = mm_info.gray.shape[0]
-    source, lm_rect = cv2_utils.crop_image(lm_info.gray, lm_rect)
-    target: MatchResult = None
-    target_scale = None
+    source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
     # 使用道路掩码
-    origin_template = mm_info.gray
-    origin_template_mask = mm_info.circle_mask
-    for scale in mini_map.get_mini_map_scale_list(running):
-        if scale > 1:
-            dest_size = (int(template_w * scale), int(template_h * scale))
-            template = cv2.resize(origin_template, dest_size)
-            template_mask = cv2.resize(origin_template_mask, dest_size)
-        else:
-            template = origin_template
-            template_mask = origin_template_mask
+    template = mm_info.road_mask
+    template_mask = mm_info.circle_mask
 
-        result = im.match_image(source, template, mask=template_mask, threshold=0.4, ignore_inf=True)
+    target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
+                                                                   mini_map.get_mini_map_scale_list(running),
+                                                                   0.4)
 
-        if show:
-            cv2_utils.show_image(mm_info.origin, win_name='mini_map')
-            cv2_utils.show_image(source, win_name='template_match_source')
-            cv2_utils.show_image(cv2.bitwise_and(template, template_mask), win_name='template_match_template')
-            # cv2_utils.show_image(template, win_name='template_match_template')
-            cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
-            # cv2.waitKey(0)
+    if show:
+        scale = target.template_scale if target is not None else 1
+        template_usage = cv2_utils.scale_image(template, scale, copy=False)
+        template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
+        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
+        cv2_utils.show_image(source, win_name='template_match_source')
+        cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
+        cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
 
-        if result.max is not None:
-            if target is None or result.max.confidence > target.confidence:
-                target = result.max
-                target_scale = scale
-                # break  # 节省点时间 其中一个缩放匹配到就可以了 也不用太精准
     if target is not None:
         offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
         offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
-        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target_scale)
+        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None
 
@@ -375,43 +332,30 @@ def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
     :param show: 是否显示调试结果
     :return:
     """
-    template_w = mm_info.gray.shape[1]
-    template_h = mm_info.gray.shape[0]
     source = merge_road_mask(lm_info.mask, lm_info.edge)
     source, lm_rect = cv2_utils.crop_image(source, lm_rect)
-    target: MatchResult = None
-    target_scale = None
     # 使用道路掩码
-    origin_template = merge_road_mask(mm_info.road_mask, mm_info.edge)
-    origin_template_mask = mm_info.center_mask
-    for scale in mini_map.get_mini_map_scale_list(running):
-        if scale > 1:
-            dest_size = (int(template_w * scale), int(template_h * scale))
-            template = cv2.resize(origin_template, dest_size)
-            template_mask = cv2.resize(origin_template_mask, dest_size)
-        else:
-            template = origin_template
-            template_mask = origin_template_mask
+    edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)
+    template = merge_road_mask(mm_info.road_mask, edge)
+    template_mask = mm_info.center_mask
 
-        result = im.match_image(source, template, mask=template_mask, threshold=0.4, ignore_inf=True)
+    target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
+                                                                   mini_map.get_mini_map_scale_list(running),
+                                                                   0.4)
 
-        if show:
-            cv2_utils.show_image(mm_info.origin, win_name='mini_map')
-            cv2_utils.show_image(source, win_name='template_match_source')
-            cv2_utils.show_image(cv2.bitwise_and(template, template_mask), win_name='template_match_template')
-            # cv2_utils.show_image(template, win_name='template_match_template')
-            cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
-            # cv2.waitKey(0)
+    if show:
+        scale = target.template_scale if target is not None else 1
+        template_usage = cv2_utils.scale_image(template, scale, copy=False)
+        template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
+        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
+        cv2_utils.show_image(source, win_name='template_match_source')
+        cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
+        cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
 
-        if result.max is not None:
-            if target is None or result.max.confidence > target.confidence:
-                target = result.max
-                target_scale = scale
-                # break  # 节省点时间 其中一个缩放匹配到就可以了 也不用太精准
     if target is not None:
         offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
         offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
-        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target_scale)
+        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None
 
@@ -433,43 +377,30 @@ def cal_character_pos_by_edge_mask(im: ImageMatcher,
     :param show: 是否显示调试结果
     :return:
     """
-    template_w = mm_info.gray.shape[1]
-    template_h = mm_info.gray.shape[0]
     source, lm_rect = cv2_utils.crop_image(lm_info.edge, lm_rect)
-    target: MatchResult = None
     target_scale = None
     # 使用道路掩码
-    mm_info.edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)
-    origin_template = mm_info.edge
-    origin_template_mask = mm_info.center_mask
-    for scale in mini_map.get_mini_map_scale_list(running):
-        if scale > 1:
-            dest_size = (int(template_w * scale), int(template_h * scale))
-            template = cv2.resize(origin_template, dest_size)
-            template_mask = cv2.resize(origin_template_mask, dest_size)
-        else:
-            template = origin_template
-            template_mask = origin_template_mask
+    edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)
+    template = edge
+    template_mask = mm_info.center_mask
 
-        result = im.match_image(source, template, mask=template_mask, threshold=0.4, ignore_inf=True)
+    target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
+                                                                   mini_map.get_mini_map_scale_list(running),
+                                                                   0.4)
 
-        if show:
-            cv2_utils.show_image(mm_info.origin, win_name='mini_map')
-            cv2_utils.show_image(source, win_name='template_match_source')
-            cv2_utils.show_image(cv2.bitwise_and(template, template_mask), win_name='template_match_template')
-            # cv2_utils.show_image(template, win_name='template_match_template')
-            cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
-            # cv2.waitKey(0)
+    if show:
+        scale = target.template_scale if target is not None else 1
+        template_usage = cv2_utils.scale_image(template, scale, copy=False)
+        template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
+        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
+        cv2_utils.show_image(source, win_name='template_match_source')
+        cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
+        cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
 
-        if result.max is not None:
-            if target is None or result.max.confidence > target.confidence:
-                target = result.max
-                target_scale = scale
-                # break  # 节省点时间 其中一个缩放匹配到就可以了 也不用太精准
     if target is not None:
         offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
         offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
-        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target_scale)
+        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None
 
@@ -479,3 +410,56 @@ def merge_road_mask(road_mask, edge_mask):
     mask[np.where(road_mask > 0)] = 0
     mask[np.where(edge_mask > 0)] = 255
     return mask
+
+
+def template_match_with_scale_list_parallely(im: ImageMatcher,
+                                             source: MatLike, template: MatLike, template_mask: MatLike,
+                                             scale_list: List[float],
+                                             threshold: float) -> MatchResult:
+    """
+    按一定缩放比例进行模板匹配，并行处理不同的缩放比例，返回置信度最高的结果
+    :param im: 图片匹配器
+    :param source: 原图
+    :param template: 模板图
+    :param template_mask: 模板掩码
+    :param scale_list: 模板的缩放比例
+    :param threshold: 匹配阈值
+    :return: 置信度最高的结果
+    """
+    future_list: List[Future] = []
+    for scale in scale_list:
+        future_list.append(cal_pos_executor.submit(template_match_with_scale, im, source, template, template_mask, scale, threshold))
+
+    target: MatchResult = None
+    for future in future_list:
+        try:
+            result: MatchResult = future.result(1)
+            if result is not None and (target is None or result.confidence > target.confidence):
+                target = result
+        except concurrent.futures.TimeoutError:
+            log.error('模板匹配超时', exc_info=True)
+
+    return target;
+
+
+def template_match_with_scale(im: ImageMatcher,
+                              source: MatLike, template: MatLike, template_mask: MatLike, scale: float,
+                              threshold: float) -> MatchResult:
+    """
+    按一定缩放比例进行模板匹配，返回置信度最高的结果
+    :param im: 图片匹配器
+    :param source: 原图
+    :param template: 模板图
+    :param template_mask: 模板掩码
+    :param scale: 模板的缩放比例
+    :param threshold: 匹配阈值
+    :return:
+    """
+    template_usage = cv2_utils.scale_image(template, scale, copy=False)
+    template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
+
+    result = im.match_image(source, template_usage, mask=template_mask_usage, threshold=threshold, ignore_inf=True)
+    if result.max is not None:
+        result.max.template_scale = scale
+
+    return result.max

@@ -401,9 +401,11 @@ def get_large_map_rect_by_pos(lm_shape, mm_shape, possible_pos: tuple = None):
     :return:
     """
     if possible_pos is not None:  # 传入了潜在位置 那就截取部分大地图再进行匹配
-        lr = mm_shape[0] // 2  # 小地图半径
-        x, y, r = int(possible_pos[0]), int(possible_pos[1]), int(possible_pos[2])
-        ur = r + lr + lr // 2  # 潜在位置半径 = 移动距离 + 1.5倍的小地图半径
+        mr = mm_shape[0] // 2  # 小地图半径
+        x, y = int(possible_pos[0]), int(possible_pos[1])
+        # 还没有移动的话 通常是第一个点 这时候先默认移动1秒距离判断
+        r = 20 if len(possible_pos) < 3 or possible_pos[2] == 0 else int(possible_pos[2])
+        ur = r + 20 + mr + 5  # 潜在位置半径 = 移动距离 + 20(1秒移动距离) + 小地图半径 + 5(多留一些边缘匹配)
         lm_offset_x = x - ur
         lm_offset_y = y - ur
         lm_offset_x2 = x + ur

@@ -78,4 +78,4 @@ def log_all_performance():
     log.info(get('cal_character_pos_by_sp_result'))
     log.info(get('cal_character_pos_by_feature_match'))
     log.info(get('cal_character_pos_by_road_mask'))
-    log.info(get('cal_character_pos_by_template_match'))
+    log.info(get('cal_character_pos_by_original'))

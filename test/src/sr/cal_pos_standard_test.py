@@ -73,7 +73,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     lm_rect = get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
     mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()), another_floor=c.region.another_floor)
-    x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running, possible_pos=c.possible_pos)
+    x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
 
     if show:
         cv2.waitKey(0)
