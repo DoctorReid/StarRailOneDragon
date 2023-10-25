@@ -64,7 +64,8 @@ class ChoosePlanet(Operation):
         if len(km) == 0:
             return False
         for v in km.values():
-            x, y = v.max.cx, v.max.cy - 100
-            self.ctx.controller.click((x, y))
-            self.ctx.controller.click((x, y), press_time=1.5)
+            x, y = v.max.cx, v.max.cy
+            self.ctx.controller.click((x, y - 100))
+            time.sleep(0.1)
+            self.ctx.controller.click((x, y - 110), press_time=1)
         return True

@@ -60,7 +60,7 @@ class Window:
         ctypes.windll.user32.GetClientRect(self.hWnd, ctypes.byref(client_rect))
         left_top_pos = ctypes.wintypes.POINT(client_rect.left, client_rect.top)
         ctypes.windll.user32.ClientToScreen(self.hWnd, ctypes.byref(left_top_pos))
-        return WinRect(left_top_pos.x.value, left_top_pos.y.value, client_rect.right.value, client_rect.bottom.value)
+        return WinRect(left_top_pos.x, left_top_pos.y, client_rect.right, client_rect.bottom)
 
     def game_pos(self, pos: tuple, inner: bool = True, rect: WinRect = None) -> tuple:
         """

@@ -9,11 +9,10 @@ from sr.image import OcrMatcher
 class GameController:
 
     def __init__(self, ocr: OcrMatcher):
-        self.ocr: OcrMatcher = None
+        self.ocr: OcrMatcher = ocr
         self.turn_dx: float = None
         self.walk_speed: float = None
         self.is_moving: bool = False
-        pass
 
     def init(self):
         pass

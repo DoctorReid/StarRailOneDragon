@@ -11,7 +11,7 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.config.game_config import get_game_config
-from sr.constants.map import Planet, Region, region_with_another_floor
+from sr.constants.map import Planet, Region, region_with_another_floor, PLANET_LIST
 from sr.image import OcrMatcher, TemplateImage, ImageMatcher, get_large_map_dir_path
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo
@@ -37,15 +37,12 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     upper_color = np.array([255, 255, 255], dtype=np.uint8)
     white_part = cv2.inRange(planet_name_part, lower_color, upper_color)
     # cv2_utils.show_image(white_part, win_name='white_part')
-    result = ocr.run_ocr(planet_name_part, threshold=0.4)
-    log.debug('屏幕左上方获取星球结果 %s', result.keys())
-    for word in result.keys():
-        if word.find(gt(constants.map.P01.ocr_str)) > -1:
-            return constants.map.P01
-        if word.find(gt(constants.map.P02.ocr_str)) > -1:
-            return constants.map.P02
-        if word.find(gt(constants.map.P03.ocr_str)) > -1:
-            return constants.map.P03
+    planet_name_str: str = ocr.ocr_for_single_line(white_part)
+    log.debug('屏幕左上方获取星球结果 %s', planet_name_str)
+    if planet_name_str is not None:
+        for p in PLANET_LIST:
+            if planet_name_str.find(gt(p.ocr_str)) != -1:
+                return p
 
     return None
 

@@ -88,9 +88,10 @@ class ChooseTransportPoint(Operation):
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
             # gold_part = cv2_utils.dilate(gold_part, 1)
-            tp_name_ocr = self.ctx.ocr.match_words(gold_part, [gt(self.tp.ocr_str)], threshold=0.39)
+            tp_name_str: str = self.ctx.ocr.ocr_for_single_line(gold_part)
+            log.info('当前选择传送点名称 %s', tp_name_str)
             # cv2_utils.show_image(gold_part, win_name='gold_part')
-            if len(tp_name_ocr) > 0:
+            if tp_name_str is not None and tp_name_str.find(gt(self.tp.ocr_str)) != -1:
                 # 点击传送
                 tx = large_map.TP_BTN_RECT[0]
                 ty = large_map.TP_BTN_RECT[1]

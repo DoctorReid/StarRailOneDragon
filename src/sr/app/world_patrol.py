@@ -73,6 +73,9 @@ class WorldPatrolRouteId:
         return os.path.join(dir_path, '%s.yml' % self.raw_id)
 
 
+    def __str__(self):
+        return '%s_%s' % (self.planet.cn, self.raw_id)
+
 
 class WorldPatrolRoute(ConfigHolder):
 
@@ -132,8 +135,11 @@ class WorldPatrol(Application):
     def init_app(self):
         self.route_list = load_all_route_id() if self.route_id_list is None else self.route_id_list
         log.info('共加载 %d 条线路', len(self.route_list))
-        self.record = WorldPatrolRecord(os_utils.get_dt(), restart=self.restart)
-        log.info('之前已完成线路 %d 条', len(self.record.finished))
+        try:
+            self.record = WorldPatrolRecord(os_utils.get_dt(), restart=self.restart)
+            log.info('之前已完成线路 %d 条', len(self.record.finished))
+        except Exception:
+            log.info('读取运行记录失败 重新开始', exc_info=True)
 
         self.route_iterator = iter(self.route_list)
 
@@ -144,23 +150,27 @@ class WorldPatrol(Application):
             log.info('所有线路执行完毕')
             return Operation.SUCCESS
 
-        self.run_one_route(route_id)
-        self.first = False
+        if self.run_one_route(route_id):
+            self.first = False
 
         return Operation.WAIT
 
-    def run_one_route(self, route_id):
+    def run_one_route(self, route_id: WorldPatrolRouteId) -> bool:
+        """
+        :param route_id:
+        :return: 是否执行成功当前线路
+        """
         route: WorldPatrolRoute = WorldPatrolRoute(route_id)
         log.info('准备执行线路 %s %s %s %s', route_id, route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
-        if route_id in self.record.finished:
-            log.info('线路 %s 之前已执行 跳过', route_id)
-            return
+        if self.record is not None and route_id.display_name in self.record.finished:
+            log.info('线路 %s 之前已执行 跳过', route_id.display_name)
+            return False
 
         log.info('准备传送 %s %s %s', route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
         op = Transport(self.ctx, route.tp, self.first)
         if not op.execute():
-            log.error('传送失败 即将跳过本次路线 %s', route_id)
-            return
+            log.error('传送失败 即将跳过本次路线 %s', route_id.display_name)
+            return False
         else:
             log.info('传送完成 开始寻路')
 
@@ -175,7 +185,7 @@ class WorldPatrol(Application):
                                                            next_route_item is None or next_route_item['op'] != 'move')
                 if not result:
                     log.error('寻路失败 即将跳过本次路线 %s', route_id)
-                    return
+                    return False
 
                 current_pos = next_pos
                 if next_lm_info is not None:
@@ -186,12 +196,12 @@ class WorldPatrol(Application):
                 result = self.interact(route_item['data'])
                 if not result:
                     log.error('交互失败 即将跳过本次路线 %s', route_id)
-                    return
+                    return False
             elif route_item['op'] == 'wait':
                 result = self.wait(route_item['data'])
                 if not result:
                     log.error('等待失败 即将跳过本次路线 %s', route_id)
-                    return
+                    return False
             elif route_item['op'] == 'update_pos':
                 next_pos = route_item['data']
                 if len(next_pos) > 2:
@@ -200,17 +210,18 @@ class WorldPatrol(Application):
                 current_pos = next_pos[:2]
             else:
                 log.error('错误的锄大地指令 %s 即将跳过本次路线 %s', route_item['op'], route_id)
-                return
+                return False
 
         self.save_record(route_id)
+        return True
 
-    def save_record(self, route_id):
+    def save_record(self, route_id: WorldPatrolRouteId):
         """
         保存当天运行记录
         :param route_id: 路线ID
         :return:
         """
-        self.record.finished.append(route_id)
+        self.record.finished.append(route_id.display_name)
         self.record.save()
 
     def move(self, p, lm_info: LargeMapInfo, current_pos, stop_afterwards: bool):

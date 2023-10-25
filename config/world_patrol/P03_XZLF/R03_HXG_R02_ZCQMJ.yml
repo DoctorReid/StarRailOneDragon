@@ -1,7 +1,7 @@
 planet: '仙舟罗浮'
 region: '廻星港'
 level: 1
-tp: '植船区-萌甲'
+tp: '植船区萌甲'
 route:
   - op: 'move'
     data: [441, 489]

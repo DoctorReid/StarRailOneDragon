@@ -23,11 +23,10 @@ class CnOcrMatcher(OcrMatcher):
         except Exception:
             log.error('OCR模型加载出错', exc_info=True)
 
-    def ocr_for_single_line(self, image: MatLike, threshold: float = 0.5) -> str:
+    def ocr_for_single_line(self, image: MatLike, threshold: float = None) -> str:
         result = self.ocr.ocr_for_single_line(image)
         log.debug('OCR结果 %s', result)
-        if result['score'] > threshold:
-            return result['text']
+        return result['text'] if threshold is None or result['score'] >= threshold else None
 
     def run_ocr(self, image: MatLike, threshold: float = 0.5) -> dict:
         """
