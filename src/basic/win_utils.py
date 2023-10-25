@@ -1,6 +1,8 @@
+import ctypes
 import os
 import time
-from typing import Union, List
+from functools import lru_cache
+from typing import Union
 
 import cv2
 import numpy as np
@@ -8,6 +10,9 @@ import pyautogui
 from PIL.Image import Image
 from cv2.typing import MatLike
 from pygetwindow import Win32Window
+
+
+SPI_GETMOUSESPEED = 0x0070
 
 
 def get_win_by_name(window_name: str, active: bool = False) -> Win32Window:
@@ -166,3 +171,22 @@ def key_down(k: str, t: int, asyn: bool = False):
     pyautogui.keyDown(k)
     time.sleep(t)
     pyautogui.keyUp(k)
+
+
+def scroll(clicks: int, pos: tuple = None):
+    """
+    向下滚动
+    :param clicks: 负数时为相上滚动
+    :param pos: 滚动位置 不传入时为鼠标当前位置
+    :return:
+    """
+    d = 500 if get_mouse_sensitivity() <= 10 else 1000
+    pyautogui.scroll(-d * clicks, pos)
+
+
+@lru_cache
+def get_mouse_sensitivity():
+    user32 = ctypes.windll.user32
+    speed = ctypes.c_int()
+    user32.SystemParametersInfoA(SPI_GETMOUSESPEED, 0, ctypes.byref(speed), 0)
+    return speed.value

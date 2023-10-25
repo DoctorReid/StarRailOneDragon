@@ -6,7 +6,6 @@ from cv2.typing import MatLike
 from scipy import signal
 
 
-
 @lru_cache
 def RotationRemapData(d: int):
     mx = np.zeros((d, d), dtype=np.float32)
