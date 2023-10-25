@@ -60,4 +60,11 @@ class ChoosePlanet(Operation):
         # 二值化后更方便识别字体
         gray = cv2.cvtColor(screen, cv2.COLOR_RGB2GRAY)
         _, mask = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
-        return self.ctx.controller.click_ocr(mask, gt(self.planet.ocr_str), click_offset=(0, -100), press_time=1.5)
+        km = self.ctx.ocr.match_words(mask, words=[gt(self.planet.ocr_str)])
+        if len(km) == 0:
+            return False
+        for v in km.values():
+            x, y = v.max.cx, v.max.cy - 100
+            self.ctx.controller.click((x, y))
+            self.ctx.controller.click((x, y), press_time=1.5)
+        return True

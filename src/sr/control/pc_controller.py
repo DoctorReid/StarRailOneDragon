@@ -41,7 +41,7 @@ class PcController(GameController):
         pyautogui.press('m')
         return True
 
-    def click(self, pos: tuple = None, press_time: int = 0) -> bool:
+    def click(self, pos: tuple = None, press_time: float = 0) -> bool:
         """
         点击位置
         :param pos: 游戏中的位置 (x,y)

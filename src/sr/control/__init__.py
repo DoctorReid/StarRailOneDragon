@@ -56,7 +56,7 @@ class GameController:
             log.debug('OCR识别 %s 成功 准备点击 (%d, %d)', word, x, y)
             return self.click((x, y), press_time=press_time)
 
-    def click(self, pos: tuple = None, press_time: int = 0) -> bool:
+    def click(self, pos: tuple = None, press_time: float = 0) -> bool:
         """
         点击位置
         :param pos: 点击位置 (x,y) 默认分辨率下的游戏窗口里的坐标

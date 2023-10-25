@@ -124,7 +124,7 @@ def screenshot(left, top, width, height) -> MatLike:
     return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
 
-def click(x: int = None, y: int = None, press_time: int = 0):
+def click(x: int = None, y: int = None, press_time: float = 0):
     """
     点击鼠标
     :param x: 屏幕坐标
