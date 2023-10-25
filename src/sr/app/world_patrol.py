@@ -88,7 +88,7 @@ class WorldPatrolRecord(ConfigHolder):
         self.current_dt: str = current_dt
         self.dt: str = None
         self.finished: List = None
-        super().__init__('record', sample=False, sub_dir='world_patrol')
+        super().__init__('record', sample=False, sub_dir=['world_patrol'])
 
     def init(self):
         if self.data is not None:
