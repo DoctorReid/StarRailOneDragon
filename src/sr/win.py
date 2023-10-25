@@ -1,7 +1,9 @@
 import ctypes
+import time
 from ctypes.wintypes import RECT
 
 from basic import win_utils
+from basic.log_utils import log
 from sr.constants import STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H
 
 
@@ -42,8 +44,11 @@ class Window:
         显示并激活当前窗口
         :return:
         """
-        self.win.show()
-        self.win.activate()
+        try:
+            win_utils.active_win(self.win)
+        except:
+            log.error('切换到游戏窗口失败 可尝试手动切换到游戏窗口中 3秒后脚本启动', exc_info=True)
+            time.sleep(3)
 
     def get_win_rect(self):
         """

@@ -40,8 +40,13 @@ def active_win(win: Win32Window):
     :return: None
     """
     if win is not None and not win.isActive:
-        win.restore()
-        win.activate()
+        try:
+            win.restore()
+            win.activate()
+        except Exception:  # 比较神奇的一个bug 直接activate有可能失败 https://github.com/asweigart/PyGetWindow/issues/16#issuecomment-1110207862
+            win.minimize()
+            win.restore()
+            win.activate()
 
 
 def is_active_win(win: Win32Window) -> bool:

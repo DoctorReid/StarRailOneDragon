@@ -11,31 +11,5 @@ def _test_scroll():
     win_utils.scroll(1)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == '__main__':
-    _test_is_window_maximized()
+    _test_active_win()
