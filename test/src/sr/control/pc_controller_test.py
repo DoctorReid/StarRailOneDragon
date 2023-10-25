@@ -1,6 +1,7 @@
 import pyautogui
 
-from sr.context import Context, get_context
+from sr.control.pc_controller import PcController
+from sr.win import Window
 
 
 def _test_turn_by_distance():
@@ -15,6 +16,11 @@ def _test_move_towards():
     ctx.controller.move_towards((0, 0), (0, 90), 270)
 
 
+def _test_scroll():
+    ctrl.init()
+    ctrl.scroll(2000)
+
+
 if __name__ == '__main__':
-    ctx: Context = get_context('唯秘')
-    _test_turn_by_distance()
+    ctrl = PcController(Window('微信'), None)
+    _test_scroll()

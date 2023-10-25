@@ -11,7 +11,7 @@ from sr.operation import Operation
 
 class ChooseRegion(Operation):
 
-    scroll_distance = -800
+    scroll_distance = -2000
 
     def __init__(self, ctx: Context, region: Region):
         """
