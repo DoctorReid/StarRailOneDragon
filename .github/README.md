@@ -2,9 +2,9 @@
 崩坏：星穹铁道自动代理器 - 基于图像识别的自动游戏脚本。
 
 ## 使用指南
-需要在```1920*1080 窗口模式```下运行，且保证```游戏窗口完整在屏幕内```，目前只支持```简体中文```。
+仅支持```16:9```系列的分辨率，理论上可在```1920*1080```及以上分辨率以及```非常低```画质下运行。游戏分辨率比显示器分辨率低时，请使用```窗口模式```。画质越好脚本出错概率越低。
 
-详情见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)
+目前只支持```简体中文```，运行过程请保证```游戏窗口完整在屏幕内```，更多详情见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)
 
 下载方式 [Release页面](https://github.com/DoctorReid/StarRailAutoProxy/releases)
 

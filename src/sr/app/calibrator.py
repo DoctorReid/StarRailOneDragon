@@ -4,7 +4,6 @@ import numpy as np
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
-from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
@@ -96,8 +95,6 @@ class Calibrator(Application):
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
-        cv2_utils.show_image(center_arrow_mask, win_name='center_arrow_mask')
-        cv2_utils.show_image(arrow_mask, win_name='arrow_mask')
         log.info('当前角度 %.2f', next_angle)
         return next_angle
 

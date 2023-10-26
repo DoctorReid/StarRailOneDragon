@@ -17,7 +17,7 @@ class ChooseRegion(Operation):
         选择目标区域
         :param region: 区域
         """
-        super().__init__(ctx, 10)
+        super().__init__(ctx, 20)
         self.planet: Planet = region.planet
         self.region: Region = region
         self.scroll_direction: int = None
@@ -27,10 +27,10 @@ class ChooseRegion(Operation):
 
         planet = large_map.get_planet(screen, self.ctx.ocr)
         if planet is None or planet != self.planet:
-            return Operation.FAIL  # 目前不在目标大地图了
+            return Operation.FAIL  # 目前不在目标星球的大地图了
 
         if self.check_tp_and_cancel(screen):
-            return Operation.WAIT
+            return Operation.RETRY
 
         # 判断当前选择区域是否目标区域
         current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
@@ -44,7 +44,7 @@ class ChooseRegion(Operation):
                 return Operation.RETRY
             else:
                 time.sleep(0.2)
-                return Operation.WAIT
+                return Operation.RETRY
 
         # 需要选择层数
         if self.region.level != 0:
@@ -60,7 +60,7 @@ class ChooseRegion(Operation):
                     log.error('未成功点击层数')
                     return Operation.RETRY
                 else:
-                    return Operation.WAIT
+                    return Operation.RETRY
             else:  # 已经是目标楼层
                 return Operation.SUCCESS
 

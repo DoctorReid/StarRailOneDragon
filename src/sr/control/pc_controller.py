@@ -69,7 +69,8 @@ class PcController(GameController):
         rect: WinRect = self.win.get_win_rect()
         pyautogui.moveTo(rect.x + 10, rect.y + rect.h - 10)  # 移动到uid位置
         img = win_utils.screenshot(rect.x, rect.y, rect.w, rect.h)
-        return cv2.resize(img, (STANDARD_RESOLUTION_H, STANDARD_RESOLUTION_W)) if rect.is_scale() else img
+        result = cv2.resize(img, (STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H)) if rect.is_scale() else img
+        return result
 
     def scroll(self, down: int, pos: tuple = None):
         """
