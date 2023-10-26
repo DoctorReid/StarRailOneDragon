@@ -62,7 +62,9 @@ class Context:
         return True
 
     def stop_running(self):
-        log.info('停止运行')
+        log.info('停止运行')  # 这里不能先判断 self.running == 0 就退出 因为有可能启动初始化就失败 这时候需要触发 after_stop 回调各方
+        if self.running == 1:  # 先触发暂停 让执行中的指令停止
+            self.switch()
         self.running = 0
         t = threading.Thread(target=self.after_stop)
         t.start()
