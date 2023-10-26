@@ -1,16 +1,19 @@
+author: ['DoctorReid', '1224910892']
 planet: '空间站黑塔'
 region: '支援舱段'
 level: 2
 tp: '存护之蕾'
 route:
   - op: 'move'
-    data: [500, 388]
+    data: [473, 388]
+  - op: 'move'
+    data: [503, 388]
   - op: 'interact'
     data: '配控装置'
   - op: 'wait'
     data: 'in_world'
   - op: 'update_pos'
-    data: [500, 388, 1]
+    data: [503, 388, 1]
   - op: 'move'
     data: [482, 274]
   - op: 'patrol'

@@ -1,3 +1,4 @@
+author: ['DoctorReid', '1224910892']
 planet: '仙舟罗浮'
 region: '太卜司'
 level: 2
@@ -31,7 +32,13 @@ route:
     data: [565, 918]
   - op: 'patrol'
   - op: 'move'
-    data: [495, 918]
+    data: [573, 885]
+  - op: 'move'
+    data: [572, 842]
+  - op: 'move'
+    data: [535, 841]
+  - op: 'move'
+    data: [493, 841]
   - op: 'move'
     data: [490, 882]
   - op: 'move'

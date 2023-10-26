@@ -10,7 +10,6 @@ from flet_core import ScrollMode
 
 from basic import config_utils, os_utils
 from basic.img import cv2_utils
-from basic.img.os import get_debug_world_patrol_dir
 from basic.log_utils import log
 from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol, WorldPatrolRouteId
 from sr.constants.map import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
@@ -23,6 +22,12 @@ class WorldPatrolDraftRouteView:
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
         self.ctx = ctx
+
+        self.author_text = ft.TextField(label='作者署名', width=200, value='DoctorReid')
+        author_row = ft.Row(spacing=10, controls=[
+            self.author_text,
+            ft.Text(value='留下您的大名可以让大家知道您的贡献，匿名提供也替大家谢谢您')
+            ])
 
         self.route_id_list: List[WorldPatrolRouteId] = None
         self.existed_route_dropdown = ft.Dropdown(
@@ -84,6 +89,7 @@ class WorldPatrolDraftRouteView:
 
         display_part = ft.Column(
             controls=[
+                ft.Container(content=author_row, padding=20),
                 ft.Container(content=load_existed_row, padding=20),
                 ft.Container(content=choose_row, padding=20),
                 ft.Container(content=ctrl_row, padding=20),
@@ -103,6 +109,7 @@ class WorldPatrolDraftRouteView:
             ]
         )
 
+        self.author_list: List[str] = [self.author_text.value]
         self.route_list: List = []
         self.chosen_planet: Planet = None
         self.chosen_region: Region = None
@@ -244,6 +251,9 @@ class WorldPatrolDraftRouteView:
         x = int(e.local_x / scale)
         y = int(e.local_y / scale)
 
+        if x > original_width or y > original_height:
+            return
+
         self.route_list.append({'op': 'move', 'data': (x, y, int(self.switch_level.value))})
         self.draw_route_and_display()
 
@@ -267,6 +277,10 @@ class WorldPatrolDraftRouteView:
         if self.chosen_sp is None:
             return
         last_level = int(self.level_dropdown.value)
+        display_auth_list = self.author_list.copy()
+        if self.author_text.value not in display_auth_list:
+            display_auth_list.append(self.author_text.value)
+        cfg += "author: %s\n" % display_auth_list
         cfg += "planet: '%s'\n" % self.chosen_planet.cn
         cfg += "region: '%s'\n" % self.chosen_region.cn
         cfg += "level: %d\n" % last_level
@@ -382,6 +396,7 @@ class WorldPatrolDraftRouteView:
         self.tp_dropdown.value = route.tp.cn
         self.chosen_sp = route.tp
 
+        self.author_list = route.author_list
         self.route_list = route.route_list
         self.init_route_list_from_outer_data()
         self.draw_route_and_display()

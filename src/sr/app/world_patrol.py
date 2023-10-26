@@ -77,6 +77,7 @@ class WorldPatrolRouteId:
 class WorldPatrolRoute(ConfigHolder):
 
     def __init__(self, route_id: WorldPatrolRouteId):
+        self.author_list: List[str] = None
         self.tp: TransportPoint = None
         self.route_list: List = None
         self.route_id: WorldPatrolRouteId = route_id
@@ -85,7 +86,8 @@ class WorldPatrolRoute(ConfigHolder):
     def init(self):
         self.init_from_data(**self.data)
 
-    def init_from_data(self, planet: str, region: str, tp: str, level: int, route: List):
+    def init_from_data(self, author: List[str], planet: str, region: str, tp: str, level: int, route: List):
+        self.author_list = author
         self.tp: TransportPoint = constants.map.get_sp_by_cn(planet, region, level, tp)
         self.route_list = route
 
@@ -174,6 +176,7 @@ class WorldPatrol(Application):
         """
         route: WorldPatrolRoute = WorldPatrolRoute(route_id)
         log.info('准备执行线路 %s %s %s %s', route_id, route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
+        log.info('感谢以下人员提供本路线 %s', route.author_list)
         if self.record is not None and route_id.display_name in self.record.finished:
             log.info('线路 %s 之前已执行 跳过', route_id.display_name)
             return False

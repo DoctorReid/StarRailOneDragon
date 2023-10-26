@@ -1,9 +1,10 @@
-from sr.app.world_patrol import WorldPatrol, WorldPatrolRoute
+from sr.app import world_patrol
+from sr.app.world_patrol import WorldPatrol
 from sr.context import Context, get_context
 
 
-def _test_read_yaml():
-    WorldPatrolRoute('P01_R02_R01')
+def _test_load_all_route():
+    print('目前总共 %d 条路线' % len(world_patrol.load_all_route_id()))
 
 
 def _test_run_one_route():
@@ -18,4 +19,4 @@ def _test_run_one_route():
 if __name__ == '__main__':
     ctx: Context = get_context()
     app = WorldPatrol(ctx)
-    _test_run_one_route()
+    _test_load_all_route()

@@ -1,3 +1,4 @@
+author: ['DoctorReid', '1224910892']
 planet: '雅利洛'
 region: '残响回廊'
 level: 0
@@ -7,6 +8,7 @@ route:
     data: [490, 1232]
   - op: 'move'
     data: [488, 1176]
+  - op: 'patrol'
   - op: 'move'
     data: [373, 1176]
   - op: 'patrol'
@@ -15,5 +17,5 @@ route:
   - op: 'move'
     data: [265, 1190]
   - op: 'move'
-    data: [270, 1280]
+    data: [265, 1320]
   - op: 'patrol'
