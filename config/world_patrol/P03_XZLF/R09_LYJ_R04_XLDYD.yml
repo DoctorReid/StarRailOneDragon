@@ -1,0 +1,13 @@
+author: ['DoctorReid']
+planet: '仙舟罗浮'
+region: '鳞渊境'
+level: 0
+tp: '显龙大雩殿'
+route:
+  - op: 'move'
+    data: [1580, 410]
+  - op: 'move'
+    data: [1601, 396]
+  - op: 'move'
+    data: [1605, 371]
+  - op: 'patrol'

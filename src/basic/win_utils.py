@@ -185,7 +185,9 @@ def scroll(clicks: int, pos: tuple = None):
     :param pos: 滚动位置 不传入时为鼠标当前位置
     :return:
     """
-    d = 500 if get_mouse_sensitivity() <= 10 else 1000
+    if pos is not None:
+        pyautogui.moveTo(pos)
+    d = 2000 if get_mouse_sensitivity() <= 10 else 1000
     pyautogui.scroll(-d * clicks, pos)
 
 
@@ -198,4 +200,5 @@ def get_mouse_sensitivity():
     user32 = ctypes.windll.user32
     speed = ctypes.c_int()
     user32.SystemParametersInfoA(SPI_GETMOUSESPEED, 0, ctypes.byref(speed), 0)
+    print(speed.value)
     return speed.value

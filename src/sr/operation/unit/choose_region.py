@@ -11,8 +11,6 @@ from sr.operation import Operation
 
 class ChooseRegion(Operation):
 
-    scroll_distance = -2000
-
     def __init__(self, ctx: Context, region: Region):
         """
         默认已经打开了大地图 且选择了正确的星球。
@@ -115,7 +113,9 @@ class ChooseRegion(Operation):
         :param d: 滚动距离 正向下 负向上
         :return:
         """
-        self.ctx.controller.scroll(-5 * d, pos=large_map.REGION_LIST_PART_CENTER)  # TODO 有问题 一直滚动固定距离
+        x1, y1 = large_map.REGION_LIST_PART_CENTER
+        x2, y2 = x1, y1 + d * -200
+        self.ctx.controller.drag_to(start=(x1, y1), end=(x2, y2), duration=0.5)
 
     def click_target_level(self, screen, target_level_str: str) -> bool:
         """

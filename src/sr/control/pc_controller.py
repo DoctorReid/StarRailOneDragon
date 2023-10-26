@@ -79,8 +79,8 @@ class PcController(GameController):
         :return:
         """
         win_pos = self.win.game2win_pos(pos) if pos is not None else (None, None)
-        pyautogui.moveTo(x=win_pos[0], y=win_pos[1])
-        pyautogui.scroll(down, x=win_pos[0], y=win_pos[1])
+        # pyautogui.scroll(down, x=win_pos[0], y=win_pos[1])
+        win_utils.scroll(down, win_pos)
 
     def drag_to(self, end: tuple, start: tuple = None, duration: float = 0.5):
         """
