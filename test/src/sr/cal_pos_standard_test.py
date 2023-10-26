@@ -1,4 +1,3 @@
-import time
 import os
 
 import cv2
@@ -12,7 +11,7 @@ from sr import constants, cal_pos, performance_recorder
 from sr.constants.map import Region
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
-from sr.image.sceenshot import LargeMapInfo, mini_map, large_map
+from sr.image.sceenshot import LargeMapInfo, mini_map, large_map, mini_map_angle_alas
 from sr.image.sceenshot.large_map import get_large_map_rect_by_pos
 
 
@@ -72,7 +71,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     possible_pos = (*c.pos, 0)
     lm_rect = get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
-    mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()), another_floor=c.region.another_floor)
+    mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()))
     x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
 
     if show:
@@ -89,12 +88,15 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
 
 if __name__ == '__main__':
     ih = ImageHolder()
+    ih.preheat_for_world_patrol()  # 预热 方便后续统计耗时
+    for i in range(93, 100):  # 预热 方便后续统计耗时 不同时期截图大小可能不一致
+        mini_map_angle_alas.RotationRemapData(i * 2)
     im = CvImageMatcher(ih)
     lm_info_map = {}
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != constants.map.P01_R03_L1 or c.num != 5:
+        # if c.region != constants.map.P02_R11_L1 or c.num != 4:
         #     continue
         if c.region.prl_id not in lm_info_map:
             lm_info_map[c.region.prl_id] = large_map.analyse_large_map(c.region, ih)

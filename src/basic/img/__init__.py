@@ -1,7 +1,5 @@
 from typing import List
 
-from basic import cal_utils
-
 
 class MatchResult:
 
@@ -21,7 +19,8 @@ class MatchResult:
 
 class MatchResultList:
 
-    def __init__(self):
+    def __init__(self, only_best: bool = True):
+        self.only_best: bool = only_best
         self.arr: List[MatchResult] = []
         self.max: MatchResult = None
 
@@ -51,15 +50,23 @@ class MatchResultList:
         :param merge_distance: 多少距离内的
         :return:
         """
-        if auto_merge:
-            for i in self.arr:
-                if (i.x - a.x) ** 2 + (i.y - a.y) ** 2 <= merge_distance ** 2:
-                    if a.confidence > i.confidence:
-                        i.x = a.x
-                        i.y = a.y
-                        i.confidence = a.confidence
-                    return
+        if self.only_best:
+            if self.max is None:
+                self.max = a
+                self.arr.append(a)
+            elif a.confidence > self.max.confidence:
+                self.max = a
+                self.arr[0] = a
+        else:
+            if auto_merge:
+                for i in self.arr:
+                    if (i.x - a.x) ** 2 + (i.y - a.y) ** 2 <= merge_distance ** 2:
+                        if a.confidence > i.confidence:
+                            i.x = a.x
+                            i.y = a.y
+                            i.confidence = a.confidence
+                        return
 
-        self.arr.append(a)
-        if self.max is None or a.confidence > self.max.confidence:
-            self.max = a
+            self.arr.append(a)
+            if self.max is None or a.confidence > self.max.confidence:
+                self.max = a

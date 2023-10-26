@@ -8,7 +8,8 @@ from cv2.typing import MatLike
 from basic.img import cv2_utils, MatchResultList, MatchResult
 from basic.log_utils import log
 from sr import constants
-from sr.config.game_config import MiniMapPos, get_game_config
+from sr.config import game_config
+from sr.config.game_config import MiniMapPos
 from sr.image import ImageMatcher, TemplateImage
 from sr.image.sceenshot import MiniMapInfo, mini_map_angle_alas
 from sr.performance_recorder import record_performance
@@ -55,7 +56,7 @@ def cut_mini_map(screen: MatLike, mm_pos: MiniMapPos = None):
     :return:
     """
     if mm_pos is None:
-        mm_pos = get_game_config().mini_map_pos
+        mm_pos = game_config.get().mini_map_pos
     return screen[mm_pos.ly:mm_pos.ry, mm_pos.lx:mm_pos.rx]
 
 
@@ -151,6 +152,7 @@ def get_angle_from_arrow(arrow: MatLike,
 def analyse_arrow_and_angle(mini_map: MatLike, im: ImageMatcher):
     """
     在小地图上获取小箭头掩码和角度
+    没有性能问题
     :param mini_map: 小地图图片
     :param im: 图片匹配器
     :return:
@@ -184,8 +186,8 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
                                  sp_types: Set = None,
                                  show: bool = False):
     """
-    在小地图上找到特殊点
-    使用特征匹配 每个模板最多只能找到一个
+    在小地图上找到特殊点 使用特征匹配 每个模板最多只能找到一个
+    特征点提取匹配、画掩码耗时都很少 主要花费在读模板 真实运行有缓存就没问题
     :param mm_info: 小地图信息
     :param im: 图片匹配器
     :param sp_types: 限定种类的特殊点
@@ -226,21 +228,23 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
 
             if offset_x is not None:
                 mr = MatchResult(1, offset_x, offset_y, template.shape[1], template.shape[0], template_scale=scale)  #
-                match_result_list.append(mr)
+                match_result_list.append(mr, auto_merge=False)
                 sp_match_result[template_id] = match_result_list
 
                 # 缩放后的宽度和高度
                 sw = int(template.shape[1] * scale)
                 sh = int(template.shape[0] * scale)
-                one_sp_mask = cv2.resize(template_mask, (sw, sh))
+                # one_sp_mask = cv2.resize(template_mask, (sh, sw))
+                one_sp_mask = np.zeros((sh, sw))
 
                 rect1, rect2 = cv2_utils.get_overlap_rect(sp_mask, one_sp_mask, mr.x, mr.y)
                 sx_start, sy_start, sx_end, sy_end = rect1
                 tx_start, ty_start, tx_end, ty_end = rect2
-                sp_mask[sy_start:sy_end, sx_start:sx_end] = cv2.bitwise_or(
-                    sp_mask[sy_start:sy_end, sx_start:sx_end],
-                    one_sp_mask[ty_start:ty_end, tx_start:tx_end]
-                )
+                # sp_mask[sy_start:sy_end, sx_start:sx_end] = cv2.bitwise_or(
+                #     sp_mask[sy_start:sy_end, sx_start:sx_end],
+                #     one_sp_mask[ty_start:ty_end, tx_start:tx_end]
+                # )
+                sp_mask[sy_start:sy_end, sx_start:sx_end] = 255
 
             if show:
                 cv2_utils.show_image(source, win_name='source')
@@ -353,7 +357,7 @@ def with_enemy_in_main_road(mm: MatLike):
     red_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
     red_mask[np.where(r > 230)] = 255
 
-    mm_pos = get_game_config().mini_map_pos
+    mm_pos = game_config.get().mini_map_pos
     circle_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
     cx = mm.shape[1] // 2
     cy = mm.shape[0] // 2
@@ -371,8 +375,7 @@ def get_mini_map_scale_list(running: bool):
 
 
 @record_performance
-def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
-                     another_floor: bool = True) -> MiniMapInfo:
+def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) -> MiniMapInfo:
     """
     预处理 从小地图中提取出所有需要的信息
     :param origin: 小地图 左上角的一个正方形区域
@@ -399,8 +402,6 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None,
     info.circle_mask = cv2.bitwise_xor(info.circle_mask, info.arrow_mask)
 
     info.sp_mask, info.sp_result = get_sp_mask_by_feature_match(info, im, sp_types)
-    info.road_mask = get_mini_map_road_mask(origin, sp_mask=info.sp_mask, arrow_mask=info.arrow_mask, angle=info.angle,
-                                            another_floor=another_floor)
 
     return info
 
@@ -487,6 +488,9 @@ def get_rough_road_mask(mm: MatLike,
     需要用到这一步说明特殊点特征匹配无用 提取的高精度道路掩码无用
     :param mm: 小地图截图
     :param sp_mask: 特殊点的掩码
+    :param arrow_mask: 小箭头的掩码 只有小地图有
+    :param angle: 只有小地图上需要传入 表示当前朝向
+    :param another_floor: 是否有其它楼层
     :return:
     """
     b, g, r = cv2.split(mm)
@@ -495,7 +499,7 @@ def get_rough_road_mask(mm: MatLike,
     avg_r = np.mean(r)
     log.debug('小地图平均色彩 %d %d %d', avg_b, avg_g, avg_r)
 
-    ub = 55 if avg_b < 70 else 100
+    ub = 55 if avg_b < 70 else 100  # 太亮的时候可以提高道路颜色
     ug = 55 if avg_g < 70 else 100
     ur = 55 if avg_r < 70 else 100
     lower_color = np.array([45, 45, 45], dtype=np.uint8)
@@ -530,7 +534,7 @@ def get_rough_road_mask(mm: MatLike,
     for label in large_components:
         real_road_mask[labels == label] = 255
 
-    # 膨胀一下 把白色边弄进来
+    # 膨胀一下 把白色边缘弄进来
     real_road_mask = cv2_utils.dilate(real_road_mask, 5)
     # cv2_utils.show_image(real_road_mask, win_name='road_mask_2')
 

@@ -6,8 +6,6 @@ import numpy as np
 from cv2.typing import MatLike
 
 from basic.img import MatchResult, MatchResultList
-from basic.log_utils import log
-
 
 feature_detector = cv2.SIFT_create()
 
@@ -121,13 +119,15 @@ def mark_area_as_color(image: MatLike, pos: List, color, new_image: bool = False
 
 
 def match_template(source: MatLike, template: MatLike, threshold,
-                   mask: np.ndarray = None, ignore_inf: bool = False) -> MatchResultList:
+                   mask: np.ndarray = None, only_best: bool = True,
+                   ignore_inf: bool = False) -> MatchResultList:
     """
     在原图中匹配模板 注意无法从负偏移量开始匹配 即需要保证目标模板不会在原图边缘位置导致匹配不到
     :param source: 原图
     :param template: 模板
     :param threshold: 阈值
     :param mask: 掩码
+    :param only_best: 只返回最好的结果
     :param ignore_inf: 是否忽略无限大的结果
     :return: 所有匹配结果
     """
@@ -135,7 +135,7 @@ def match_template(source: MatLike, template: MatLike, threshold,
     # 进行模板匹配
     result = cv2.matchTemplate(source, template, cv2.TM_CCOEFF_NORMED, mask=mask)
 
-    match_result_list = MatchResultList()
+    match_result_list = MatchResultList(only_best=only_best)
     filtered_locations = np.where(np.logical_and(
         result >= threshold,
         np.isfinite(result) if ignore_inf else np.ones_like(result))

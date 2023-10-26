@@ -51,9 +51,9 @@ def cal_character_pos(im: ImageMatcher,
         # r2 = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
         # result = r2
 
-    if result is None:  # 使用模板匹配 用道路掩码的 相对快 但不是很准
-        r3: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-        result = r3
+    # if result is None:  # 使用模板匹配 用道路掩码的 相对快 但不是很准
+    #     r3: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+    #     result = r3
 
     if result is None:  # 使用模板匹配 用原图的 相对慢 但准确率更高一点
         r4: MatchResult = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
@@ -161,7 +161,7 @@ def cal_character_pos_by_original(im: ImageMatcher,
                                   show: bool = False) -> MatchResult:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
-    使用小地图原图
+    使用小地图原图 - 实测灰度图更快
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
@@ -171,15 +171,14 @@ def cal_character_pos_by_original(im: ImageMatcher,
     :return:
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
+    source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
-    # origin_template_mask = cv2_utils.dilate(mm_info.road_mask, 10)
-    # origin_template_mask = cv2.bitwise_and(origin_template_mask, mm_info.circle_mask)
-    template = mm_info.origin
+    template = cv2.cvtColor(mm_info.origin, cv2.COLOR_BGR2GRAY)
     rough_road_mask = mini_map.get_rough_road_mask(mm_info.origin,
                                                    sp_mask=mm_info.sp_mask,
                                                    arrow_mask=mm_info.arrow_mask,
                                                    angle=mm_info.angle,
-                                                   another_floor=lm_info.region.level != 0)
+                                                   another_floor=lm_info.region.another_floor)
     template_mask = cv2.bitwise_and(mm_info.circle_mask, rough_road_mask)
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
@@ -291,7 +290,8 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
     # 使用道路掩码
-    template = mm_info.road_mask
+    template = mini_map.get_mini_map_road_mask(mm_info.origin, sp_mask=mm_info.sp_mask, arrow_mask=mm_info.arrow_mask,
+                                               angle=mm_info.angle, another_floor=lm_info.region.another_floor)
     template_mask = mm_info.circle_mask
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
@@ -458,7 +458,8 @@ def template_match_with_scale(im: ImageMatcher,
     template_usage = cv2_utils.scale_image(template, scale, copy=False)
     template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
 
-    result = im.match_image(source, template_usage, mask=template_mask_usage, threshold=threshold, ignore_inf=True)
+    result = im.match_image(source, template_usage, mask=template_mask_usage, threshold=threshold,
+                            only_best=True, ignore_inf=True)
     if result.max is not None:
         result.max.template_scale = scale
 

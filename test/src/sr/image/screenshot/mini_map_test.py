@@ -8,7 +8,7 @@ from cv2.typing import MatLike
 from basic.img import cv2_utils
 from basic.img.os import get_debug_image_dir, get_test_image, save_debug_image, get_debug_image
 from basic.log_utils import log
-from sr.config.game_config import get_game_config
+from sr.config import game_config
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map, mini_map_angle_alas
@@ -128,7 +128,7 @@ def _test_cut_mini_map():
 
 
 def _test_is_under_attack():
-    mm_pos = get_game_config().mini_map_pos
+    mm_pos = game_config.get().mini_map_pos
 
     mm = get_test_image('under_1', sub_dir='battle')
     assert mini_map.is_under_attack(mm, mm_pos=mm_pos, show=False, strict=False)  # True

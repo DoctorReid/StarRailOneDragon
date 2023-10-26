@@ -136,3 +136,18 @@ class ImageHolder:
                     return rotate_template
                 else:
                     return None
+
+    def preheat_for_world_patrol(self):
+        """
+        锄大地预热加载模板
+        :return:
+        """
+        for prefix in ['mm_tp', 'mm_sp', 'mm_boss']:
+            for i in range(100):
+                if i == 0:
+                    continue
+
+                template_id = '%s_%02d' % (prefix, i)
+                t: TemplateImage = self.get_template(template_id)
+                if t is None:
+                    break

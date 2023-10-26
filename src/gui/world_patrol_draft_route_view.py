@@ -296,6 +296,7 @@ class WorldPatrolDraftRouteView:
                     cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
                 else:
                     cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
+                last_level = pos[2]
         return cfg
 
     def save_route(self, e):

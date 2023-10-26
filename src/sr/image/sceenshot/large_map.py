@@ -10,8 +10,8 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
-from sr.config.game_config import get_game_config
-from sr.constants.map import Planet, Region, region_with_another_floor, PLANET_LIST
+from sr.config import game_config
+from sr.constants.map import Planet, Region, PLANET_LIST
 from sr.image import OcrMatcher, TemplateImage, ImageMatcher, get_large_map_dir_path
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo
@@ -259,7 +259,7 @@ def get_expand_arr(raw: MatLike):
     # 道路掩码图
     mask: MatLike = get_large_map_road_mask(raw)
 
-    mm_pos = get_game_config().mini_map_pos
+    mm_pos = game_config.get().mini_map_pos
     padding = mm_pos.r + 10  # 边缘至少留一个小地图半径的空白
 
     # 四个方向需要拓展多少像素

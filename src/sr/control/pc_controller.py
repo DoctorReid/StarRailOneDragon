@@ -7,7 +7,8 @@ from cv2.typing import MatLike
 
 from basic import win_utils
 from basic.log_utils import log
-from sr.config.game_config import GameConfig, get_game_config
+from sr.config import game_config
+from sr.config.game_config import GameConfig
 from sr.constants import STANDARD_RESOLUTION_H, STANDARD_RESOLUTION_W
 from sr.control import GameController
 from sr.image import OcrMatcher
@@ -23,7 +24,7 @@ class PcController(GameController):
     def __init__(self, win: Window, ocr: OcrMatcher):
         super().__init__(ocr)
         self.win: Window = win
-        config: GameConfig = get_game_config()
+        config: GameConfig = game_config.get()
         self.turn_dx: float = config.get('turn_dx')
         self.walk_speed: float = config.get('walk_speed')
         self.is_moving: bool = False

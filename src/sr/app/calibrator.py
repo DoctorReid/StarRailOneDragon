@@ -7,10 +7,10 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
-from sr.config.game_config import GameConfig, get_game_config, MiniMapPos
+from sr.config import game_config
+from sr.config.game_config import GameConfig, MiniMapPos
 from sr.constants.map import TransportPoint
 from sr.context import Context, get_context
-from sr.control import GameController
 from sr.image.sceenshot import mini_map
 from sr.operation.combine.transport import Transport
 
@@ -39,7 +39,7 @@ class Calibrator(Application):
 
             screenshot = self.screenshot()
         mm_pos: MiniMapPos = mini_map.cal_little_map_pos(screenshot)
-        config: GameConfig = get_game_config()
+        config: GameConfig = game_config.get()
         config.update('mini_map', {
             'x': mm_pos.x,
             'y': mm_pos.y,
@@ -81,8 +81,8 @@ class Calibrator(Application):
         avg_turn_angle = np.mean(turn_angle)
         log.info('平均旋转角度 %.4f', avg_turn_angle)
         ans = float(turn_distance / avg_turn_angle)
-        log.info('每度移动距离 %.8f', ans)
-        config: GameConfig = get_game_config()
+        log.info('每度移动距离 %.4f', ans)
+        config: GameConfig = game_config.get()
         config.update('turn_dx', ans)
         config.write_config()
         log.info('[转向校准] 完成')

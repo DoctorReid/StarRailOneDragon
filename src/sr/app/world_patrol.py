@@ -1,4 +1,5 @@
 import os
+import threading
 from typing import List, Iterator
 
 from basic import os_utils
@@ -6,11 +7,11 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr import constants
 from sr.app import Application
-from sr.config import ConfigHolder
+from sr.config import ConfigHolder, game_config
 from sr.constants.map import TransportPoint, region_with_another_floor, Region, PLANET_LIST, Planet, PLANET_2_REGION, \
     REGION_2_SP
 from sr.context import Context, get_context
-from sr.image.sceenshot import large_map, LargeMapInfo
+from sr.image.sceenshot import large_map, LargeMapInfo, mini_map_angle_alas
 from sr.operation import Operation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
@@ -71,10 +72,6 @@ class WorldPatrolRouteId:
         """
         dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol', self.planet.np_id)
         return os.path.join(dir_path, '%s.yml' % self.raw_id)
-
-
-    def __str__(self):
-        return '%s_%s' % (self.planet.cn, self.raw_id)
 
 
 class WorldPatrolRoute(ConfigHolder):
@@ -142,6 +139,21 @@ class WorldPatrol(Application):
             log.info('读取运行记录失败 重新开始', exc_info=True)
 
         self.route_iterator = iter(self.route_list)
+
+        t = threading.Thread(target=self.preheat)
+        t.start()
+
+    def preheat(self):
+        """
+        预热
+        - 提前加载需要的模板
+        - 角度匹配用的矩阵
+        :return:
+        """
+        self.ctx.ih.preheat_for_world_patrol()
+        mm_r = game_config.get().mini_map_pos.r
+        for i in range(-2, 2):
+            mini_map_angle_alas.RotationRemapData((mm_r + i) * 2)
 
     def run(self) -> int:
         try:

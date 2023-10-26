@@ -7,7 +7,7 @@ from basic import os_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import constants, cal_pos
-from sr.config.game_config import get_game_config
+from sr.config import game_config
 from sr.constants.map import Region
 from sr.context import Context
 from sr.control import GameController
@@ -93,8 +93,7 @@ class MoveDirectly(Operation):
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
         sp_map = constants.map.get_sp_type_in_rect(self.region, lm_rect)
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()),
-                                            another_floor=self.region.another_floor)
+        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
 
         x, y = self.get_pos(mm_info, possible_pos, lm_rect)
         # log.info('使用上一个坐标为%s', possible_pos)
@@ -230,7 +229,7 @@ class MoveDirectly(Operation):
         """
         if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
             return False
-        if not mini_map.is_under_attack(mm, get_game_config().mini_map_pos):
+        if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos):
             return False
         # pos_list = mini_map.get_enemy_location(mini_map)
         # if len(pos_list) == 0:

@@ -1,6 +1,6 @@
 import keyboard
 import pyautogui
-from sentry_sdk.integrations import threading
+import threading
 
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
@@ -153,3 +153,4 @@ global_context: Context = Context()
 def get_context() -> Context:
     global global_context
     return global_context
+

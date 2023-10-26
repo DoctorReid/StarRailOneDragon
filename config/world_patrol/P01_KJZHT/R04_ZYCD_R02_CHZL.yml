@@ -9,6 +9,8 @@ route:
     data: '配控装置'
   - op: 'wait'
     data: 'in_world'
+  - op: 'update_pos'
+    data: [500, 388, 1]
   - op: 'move'
     data: [482, 274]
   - op: 'patrol'

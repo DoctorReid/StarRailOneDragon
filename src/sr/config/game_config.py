@@ -33,7 +33,7 @@ class GameConfig(ConfigHolder):
 _game_config = None
 
 
-def get_game_config() -> GameConfig:
+def get() -> GameConfig:
     global _game_config
     if _game_config is None:
         _game_config = GameConfig()

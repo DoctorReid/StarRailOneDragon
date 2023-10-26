@@ -1,7 +1,7 @@
 import time
 
 from basic.log_utils import log
-from sr.config.game_config import get_game_config
+from sr.config import game_config
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, battle
@@ -51,7 +51,7 @@ class EnterAutoFight(Operation):
         # _, _, angle = mini_map.analyse_arrow_and_angle(mm, self.im)
         # ctrl.move_towards((mm.shape[0] // 2, mm.shape[1] // 2), pos_list[0], angle)
 
-        if not mini_map.is_under_attack(mm, get_game_config().mini_map_pos, strict=True):
+        if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos, strict=True):
             if now_time - self.last_alert_time > EnterAutoFight.exit_after_no_alter_time:
                 log.info('索敌结束')
                 return Operation.SUCCESS
