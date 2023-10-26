@@ -23,6 +23,7 @@ class EnterAutoFight(Operation):
         self.ctx.controller.stop_moving_forward()
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_in_battle_time = time.time()  # 上次在战斗的时间
+        self.with_battle: bool = False  # 是否有进入战斗
         log.info('索敌开始')
 
     def run(self) -> int:
@@ -38,6 +39,7 @@ class EnterAutoFight(Operation):
             time.sleep(0.5)  # 战斗部分
             self.last_in_battle_time = time.time()
             self.last_alert_time = self.last_in_battle_time
+            self.with_battle = True
             return Operation.WAIT
 
         mm = mini_map.cut_mini_map(screen)
@@ -54,7 +56,7 @@ class EnterAutoFight(Operation):
         if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos, strict=True):
             if now_time - self.last_alert_time > EnterAutoFight.exit_after_no_alter_time:
                 log.info('索敌结束')
-                return Operation.SUCCESS
+                return Operation.SUCCESS if self.with_battle else Operation.FAIL
         else:
             self.last_alert_time = now_time
 

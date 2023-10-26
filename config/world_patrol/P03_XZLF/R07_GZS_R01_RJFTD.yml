@@ -24,7 +24,7 @@ route:
   - op: 'move'
     data: [799, 439]
   - op: 'move'
-    data: [779, 439]
+    data: [779, 430]
   - op: 'move'
     data: [779, 450]
   - op: 'patrol'
@@ -41,7 +41,7 @@ route:
   - op: 'move'
     data: [858, 305]
   - op: 'move'
-    data: [880, 311]
+    data: [880, 305]
   - op: 'move'
     data: [880, 321]
   - op: 'patrol'

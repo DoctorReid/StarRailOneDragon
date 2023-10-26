@@ -20,7 +20,11 @@ route:
     data: [504, 844]
   - op: 'move'
     data: [531, 846]
+  - op: 'move'
+    data: [531, 866]
   - op: 'patrol'
+  - op: 'move'
+    data: [531, 846]
   - op: 'move'
     data: [504, 844]
   - op: 'move'

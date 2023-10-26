@@ -188,7 +188,8 @@ class ChooseTransportPoint(Operation):
         upper_color = np.array([u, u, u], dtype=np.uint8)
         white_part = cv2.inRange(screen_map, lower_color, upper_color)  # 提取白色部分方便匹配
 
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.ocr_str)], threshold=0.4)
+        # cv2_utils.show_image(white_part, win_name='check_and_click_sp_cn')
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.ocr_str)], threshold=0.3)
 
         for r in ocr_result.values():
             tx = r.max.cx + large_map.CUT_MAP_RECT[0]

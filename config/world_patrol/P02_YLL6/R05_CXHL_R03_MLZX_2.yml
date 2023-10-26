@@ -22,3 +22,8 @@ route:
   - op: 'move'
     data: [697, 663]
   - op: 'patrol'
+  - op: 'move'
+    data: [668, 663]
+  - op: 'move'
+    data: [650, 648]
+  - op: 'patrol'
