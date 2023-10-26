@@ -3,6 +3,7 @@ import time
 import numpy as np
 from cv2.typing import MatLike
 
+from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import constants
@@ -31,10 +32,10 @@ class Calibrator(Application):
     def _check_mini_map_pos(self, screenshot: MatLike = None):
         log.info('[小地图定位校准] 开始')
         if screenshot is None:
-            tp: TransportPoint = constants.map.P01_R04_SP03
+            tp: TransportPoint = constants.map.P01_R02_SP02
             op = Transport(self.ctx, tp, True)
             if not op.execute():
-                log.error('传送到支援舱段失败 小地图定位校准 失败')
+                log.error('传送到 %s %s 失败 小地图定位校准 失败', gt(tp.region.cn), gt(tp.cn))
                 return False
 
             screenshot = self.screenshot()
@@ -63,7 +64,7 @@ class Calibrator(Application):
             p: TransportPoint = constants.map.P01_R01_SP03
             op = Transport(self.ctx, p, False)
             if not op.execute():
-                log.error('传送到黑塔办公室失败 转向校准 失败')
+                log.error('传送到 %s %s 失败 转向校准 失败', gt(p.region.cn), gt(p.cn))
                 return False
         turn_distance = 500
 
