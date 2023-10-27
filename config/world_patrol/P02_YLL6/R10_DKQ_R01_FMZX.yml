@@ -8,7 +8,9 @@ route:
     data: [434, 526]
   - op: 'patrol'
   - op: 'move'
-    data: [451, 460]
+    data: [443, 491]
   - op: 'move'
-    data: [489, 448]
+    data: [446, 462]
+  - op: 'move'
+    data: [486, 440]
   - op: 'patrol'

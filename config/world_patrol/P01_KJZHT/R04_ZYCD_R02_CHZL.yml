@@ -1,4 +1,4 @@
-author: ['DoctorReid', '1224910892']
+author: ['DoctorReid', '龙女姬']
 planet: '空间站黑塔'
 region: '支援舱段'
 level: 2
@@ -16,4 +16,9 @@ route:
     data: [503, 388, 1]
   - op: 'move'
     data: [482, 274]
+  - op: 'patrol'
+  - op: 'move'
+    data: [479, 487]
+  - op: 'move'
+    data: [403, 487]
   - op: 'patrol'

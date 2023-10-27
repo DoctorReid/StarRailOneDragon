@@ -1,4 +1,4 @@
-author: ['DoctorReid']
+author: ['DoctorReid', '龙女姬']
 planet: '仙舟罗浮'
 region: '太卜司'
 level: 1
@@ -10,38 +10,32 @@ route:
     data: [294, 309]
   - op: 'move'
     data: [288, 390]
+  - op: 'move'
+    data: [302, 394]
   - op: 'patrol'
   - op: 'move'
-    data: [277, 420]
+    data: [286, 420]
   - op: 'patrol'
   - op: 'move'
-    data: [230, 419]
-  - op: 'move'
-    data: [210, 400]
+    data: [212, 417]
   - op: 'patrol'
   - op: 'move'
-    data: [210, 430]
+    data: [212, 391]
   - op: 'patrol'
   - op: 'move'
-    data: [230, 419]
+    data: [235, 420]
   - op: 'move'
-    data: [277, 420]
+    data: [289, 420]
   - op: 'move'
-    data: [291, 445]
+    data: [289, 520]
   - op: 'move'
-    data: [290, 482]
+    data: [327, 559]
   - op: 'move'
-    data: [288, 521]
+    data: [377, 580]
   - op: 'move'
-    data: [311, 543]
+    data: [404, 635]
   - op: 'move'
-    data: [330, 560]
+    data: [436, 666]
   - op: 'move'
-    data: [375, 579]
-  - op: 'move'
-    data: [402, 633]
-  - op: 'move'
-    data: [435, 665]
-  - op: 'move'
-    data: [523, 671]
+    data: [522, 668]
   - op: 'patrol'

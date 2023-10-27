@@ -1,4 +1,4 @@
-author: ['DoctorReid', '1224910892']
+author: ['DoctorReid', '龙女姬']
 planet: '雅利洛'
 region: '残响回廊'
 level: 0
@@ -20,4 +20,6 @@ route:
     data: [265, 1190]
   - op: 'move'
     data: [265, 1320]
+  - op: 'move'
+    data: [295, 1324]
   - op: 'patrol'

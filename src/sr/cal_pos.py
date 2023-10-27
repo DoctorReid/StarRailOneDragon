@@ -51,13 +51,14 @@ def cal_character_pos(im: ImageMatcher,
         # r2 = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
         # result = r2
 
-    # if result is None:  # 使用模板匹配 用道路掩码的 相对快 但不是很准
-    #     r3: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-    #     result = r3
-
-    if result is None:  # 使用模板匹配 用原图的 相对慢 但准确率更高一点
+    if result is None:  # 使用模板匹配 用灰度图的
         r4: MatchResult = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
         result = r4
+
+    # 上面灰度图中 道理掩码部分有些楼梯扣不出来 所以下面用两个都扣不出楼梯的掩码图来匹配
+    if result is None:  # 使用模板匹配 用道路掩码的
+        r3: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = r3
 
     # if result is None:  # 没有一个计算结果在预估范围内 按优先级返回
     #     result = cal_utils.coalesce(r1, r2, r3, r4)

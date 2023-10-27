@@ -317,7 +317,7 @@ P02_R09_SP10 = TransportPoint('NTSDZSRK', '娜塔莎的诊所入口', P02_R09, '
 # 雅利洛 - 大矿区
 P02_R10_SP01 = TransportPoint('RK', '入口', P02_R10, 'mm_tp_03', (333, 166))
 P02_R10_SP02 = TransportPoint('LLZBNS', '流浪者避难所', P02_R10, 'mm_tp_03', (778, 349))
-P02_R10_SP03 = TransportPoint('FKD', '俯瞰点', P02_R10, 'mm_tp_03', (565, 641), ocr_str='俯')
+P02_R10_SP03 = TransportPoint('FKD', '俯瞰点', P02_R10, 'mm_tp_03', (565, 641), ocr_str='点')
 P02_R10_SP04 = TransportPoint('ZKD', '主矿道', P02_R10, 'mm_tp_03', (530, 757))
 P02_R10_SP05 = TransportPoint('FMZX', '锋芒之形', P02_R10, 'mm_tp_06', (561, 536))
 P02_R10_SP06 = TransportPoint('FZZX', '燔灼之形', P02_R10, 'mm_tp_06', (836, 630))

@@ -42,9 +42,10 @@ class MoveDirectly(Operation):
             self.pos.append(start)
         self.stuck_times = 0  # 被困次数
         self.last_rec_time = 0  # 上一次记录坐标的时间
-        self.no_pos_times = 0
+        self.no_pos_times = 0  # 累计算不到坐标的次数
         self.stop_afterwards = stop_afterwards  # 最后是否停止前进
         self.last_auto_fight_fail: bool = False  # 上一次索敌是否失败 只有小地图背景污染严重时候出现
+        self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
 
     def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
@@ -101,15 +102,17 @@ class MoveDirectly(Operation):
 
         if x is None or y is None:
             log.error('无法判断当前人物坐标 使用上一个坐标为%s', possible_pos)
-            if os_utils.is_debug():
-                save_debug_image(mm, prefix='cal_pos')
-            self.no_pos_times += 1
-            if self.no_pos_times >= 5:  # 不要再乱走了
-                self.ctx.controller.stop_moving_forward()
-            if self.no_pos_times >= 10:
-                log.error('持续无法判断当前人物坐标 退出本次移动')
-                self.ctx.controller.stop_moving_forward()
-                return Operation.FAIL
+            if now_time - self.last_no_pos_time > 0.5:
+                self.no_pos_times += 1
+                self.last_no_pos_time = now_time
+                if os_utils.is_debug():
+                    save_debug_image(mm, prefix='cal_pos')
+                if self.no_pos_times >= 5:  # 不要再乱走了
+                    self.ctx.controller.stop_moving_forward()
+                if self.no_pos_times >= 10:
+                    log.error('持续无法判断当前人物坐标 退出本次移动')
+                    self.ctx.controller.stop_moving_forward()
+                    return Operation.FAIL
             return Operation.WAIT
         else:
             self.no_pos_times = 0

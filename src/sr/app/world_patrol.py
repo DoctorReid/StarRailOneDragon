@@ -234,7 +234,7 @@ class WorldPatrol(Application):
                 result, next_pos, next_lm_info = self.move(route_item['data'], lm_info, current_pos,
                                                            next_route_item is None or next_route_item['op'] != 'move')
                 if not result:
-                    log.error('寻路失败 即将跳过本次路线 %s', route_id)
+                    log.error('寻路失败 即将跳过本次路线 %s', route_id.display_name)
                     return False
 
                 current_pos = next_pos
@@ -245,12 +245,12 @@ class WorldPatrol(Application):
             elif route_item['op'] == 'interact':
                 result = self.interact(route_item['data'])
                 if not result:
-                    log.error('交互失败 即将跳过本次路线 %s', route_id)
+                    log.error('交互失败 即将跳过本次路线 %s', route_id.display_name)
                     return False
             elif route_item['op'] == 'wait':
                 result = self.wait(route_item['data'])
                 if not result:
-                    log.error('等待失败 即将跳过本次路线 %s', route_id)
+                    log.error('等待失败 即将跳过本次路线 %s', route_id.display_name)
                     return False
             elif route_item['op'] == 'update_pos':
                 next_pos = route_item['data']

@@ -43,6 +43,8 @@ case_list = [
 
     TestCase(constants.map.P02_R05, (495, 429), 1, True),
     TestCase(constants.map.P02_R05, (242, 1283), 2, True),
+    TestCase(constants.map.P02_R05, (488, 1147), 3, False, possible_pos=(488, 1155, 0)),
+    TestCase(constants.map.P02_R05, (365, 1176), 4, True, possible_pos=(390, 1176, 52)),
 
     TestCase(constants.map.P02_R06, (488, 687), 1, True),
     TestCase(constants.map.P02_R06, (465, 595), 2, True),
@@ -68,7 +70,7 @@ def get_test_cal_pos_image(r: Region, num: int, suffix: str = '.png') -> MatLike
 
 def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     mm = get_test_cal_pos_image(c.region, c.num)
-    possible_pos = (*c.pos, 0)
+    possible_pos = (*c.possible_pos, 0)
     lm_rect = get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
     mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()))
@@ -96,7 +98,7 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != constants.map.P02_R11_L1 or c.num != 4:
+        # if c.region != constants.map.P02_R05 or c.num != 4:
         #     continue
         if c.region.prl_id not in lm_info_map:
             lm_info_map[c.region.prl_id] = large_map.analyse_large_map(c.region, ih)

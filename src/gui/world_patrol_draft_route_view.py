@@ -202,7 +202,7 @@ class WorldPatrolDraftRouteView:
         if self.chosen_region is None:
             return
 
-        route = self.mock_temp_route() if self.chosen_route_id is None else WorldPatrolRoute(self.chosen_route_id)
+        route = self.mock_temp_route(self.chosen_route_id)
         display_image = draw_route_in_image(self.ctx, route, route.route_id)
 
         # 图片转化成base64编码展示
@@ -464,8 +464,9 @@ class WorldPatrolDraftRouteView:
 
         self.page.update()
 
-    def mock_temp_route(self) -> WorldPatrolRoute:
-        route_id = WorldPatrolRouteId(constants.map.P01, 'R02_JZCD_R01_JKS')
+    def mock_temp_route(self, route_id: WorldPatrolRouteId=None) -> WorldPatrolRoute:
+        if route_id is None:
+            route_id = WorldPatrolRouteId(constants.map.P01, 'R02_JZCD_R01_JKS')
         route = WorldPatrolRoute(route_id)
 
         route_id.planet = self.chosen_planet

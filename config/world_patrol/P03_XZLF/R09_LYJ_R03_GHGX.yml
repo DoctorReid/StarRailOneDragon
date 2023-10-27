@@ -1,61 +1,46 @@
-author: ['DoctorReid']
+author: ['DoctorReid', '龙女姬']
 planet: '仙舟罗浮'
 region: '鳞渊境'
 level: 0
 tp: '古海宫墟'
 route:
   - op: 'move'
-    data: [1127, 432]
+    data: [1127, 428]
   - op: 'move'
-    data: [1127, 453]
+    data: [1127, 505]
   - op: 'move'
-    data: [1126, 490]
+    data: [1147, 505]
   - op: 'move'
-    data: [1133, 505]
-  - op: 'move'
-    data: [1143, 523]
-  - op: 'move'
-    data: [1137, 611]
+    data: [1141, 580]
   - op: 'patrol'
   - op: 'move'
-    data: [1087, 609]
-  - op: 'move'
-    data: [1047, 610]
-  - op: 'move'
-    data: [1002, 613]
+    data: [1145, 607]
   - op: 'patrol'
   - op: 'move'
-    data: [952, 605]
-  - op: 'move'
-    data: [920, 605]
-  - op: 'move'
-    data: [920, 624]
-  - op: 'move'
-    data: [919, 685]
+    data: [1110, 623]
   - op: 'patrol'
   - op: 'move'
-    data: [919, 675]
+    data: [1079, 607]
   - op: 'move'
-    data: [898, 674]
-  - op: 'move'
-    data: [886, 674]
-  - op: 'move'
-    data: [873, 667]
-  - op: 'move'
-    data: [861, 661]
-  - op: 'move'
-    data: [852, 650]
-  - op: 'move'
-    data: [841, 635]
-  - op: 'move'
-    data: [823, 624]
-  - op: 'move'
-    data: [803, 610]
-  - op: 'move'
-    data: [770, 603]
-  - op: 'move'
-    data: [720, 588]
+    data: [1046, 607]
   - op: 'patrol'
   - op: 'move'
-    data: [692, 562]
+    data: [996, 609]
+  - op: 'patrol'
+  - op: 'move'
+    data: [919, 607]
+  - op: 'move'
+    data: [917, 696]
+  - op: 'patrol'
+  - op: 'move'
+    data: [882, 671]
+  - op: 'move'
+    data: [843, 638]
+  - op: 'move'
+    data: [793, 602]
+  - op: 'move'
+    data: [698, 586]
+  - op: 'patrol'
+  - op: 'move'
+    data: [692, 549]
   - op: 'patrol'
