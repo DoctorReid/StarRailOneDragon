@@ -1,7 +1,7 @@
 import flet as ft
 
 from basic.i18_utils import gt
-from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view, world_patrol_whitelist_view
+from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view, world_patrol_whitelist_view, settings_view
 from sr.context import get_context
 
 
@@ -20,6 +20,8 @@ def run_app(page: ft.Page):
             display_part.content = world_patrol_draft_route_view.get(page, ctx).component
         elif e.control.selected_index == 3:
             display_part.content = world_patrol_whitelist_view.get(page, ctx).component
+        elif e.control.selected_index == 4:
+            display_part.content = settings_view.get(page, ctx).component
         else:
             display_part.content = None
         display_part.update()
@@ -50,6 +52,11 @@ def run_app(page: ft.Page):
                 icon=ft.icons.PLAYLIST_ADD_CHECK_OUTLINED,
                 selected_icon=ft.icons.PLAYLIST_ADD_CHECK_CIRCLE_ROUNDED,
                 label=gt('锄地路线白名单')
+            ),
+            ft.NavigationRailDestination(
+                icon=ft.icons.SETTINGS_OUTLINED,
+                selected_icon=ft.icons.SETTINGS,
+                label=gt('设置')
             ),
         ],
         on_change=on_rail_chosen
