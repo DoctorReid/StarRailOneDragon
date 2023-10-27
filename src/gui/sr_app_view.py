@@ -40,10 +40,11 @@ class SrAppView:
             ft.Container(content=self.shutdown_check)
         ], horizontal_alignment=CrossAxisAlignment.CENTER)
 
+        self.diy_part = ft.Container(expand=True)
         self.component = ft.Column(
-            spacing=0, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
+            spacing=5, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
             controls=[
-                ft.Container(expand=True),
+                self.diy_part,
                 ft.Container(content=progress_col, expand=True, alignment=ft.alignment.bottom_center),
             ])
 

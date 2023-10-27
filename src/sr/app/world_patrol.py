@@ -59,7 +59,19 @@ class WorldPatrolRouteId:
 
     @property
     def display_name(self):
+        """
+        用于前端显示路线名称
+        :return:
+        """
         return '%s_%s_%s' % (gt(self.planet.cn), gt(self.region.cn), gt(self.tp.cn)) + ('' if self.route_num == 0 else '_%02d' % self.route_num)
+
+    @property
+    def unique_id(self):
+        """
+        唯一标识 用于各种配置中保存
+        :return:
+        """
+        return '%s_%s_%s' % (self.planet.np_id, self.region.r_id, self.tp.id) + ('' if self.route_num == 0 else '_%02d' % self.route_num)
 
     def equals(self, another_route_id):
         return another_route_id is not None and self.planet == another_route_id.planet and self.raw_id == another_route_id.raw_id
@@ -96,6 +108,24 @@ class WorldPatrolRoute(ConfigHolder):
         return self.route_id.display_name
 
 
+class WorldPatrolWhitelist(ConfigHolder):
+
+    def __init__(self, file_name: str):
+        self.id: str = file_name
+        self.type: str = None
+        self.list: List[str] = []
+        super().__init__(file_name, sample=False, sub_dir=['world_patrol', 'whitelist'])
+
+    def init(self):
+        if self.data is not None:
+            self.type = self.data['type']
+            self.list = self.data['list']
+
+    @property
+    def valid(self) -> bool:
+        return self.type in ['white', 'black'] and len(self.list) > 0
+
+
 class WorldPatrolRecord(ConfigHolder):
 
     def __init__(self, current_dt: str, restart: bool = False):
@@ -122,17 +152,20 @@ class WorldPatrolRecord(ConfigHolder):
 
 class WorldPatrol(Application):
 
-    def __init__(self, ctx: Context, restart: bool = False, route_id_list: List = None):
+    def __init__(self, ctx: Context, restart: bool = False, whitelist: WorldPatrolWhitelist = None):
         super().__init__(ctx)
         self.route_list = []
         self.first: bool = True
         self.restart: bool = restart
         self.record: WorldPatrolRecord = None
         self.route_iterator: Iterator = None
-        self.route_id_list: List = route_id_list
+        self.whitelist: WorldPatrolWhitelist = whitelist
+        self.current_route_idx: int = -1
 
     def init_app(self):
-        self.route_list = load_all_route_id() if self.route_id_list is None else self.route_id_list
+        self.route_list = load_all_route_id(self.whitelist)
+        if self.whitelist is not None:
+            log.info('使用白名单 %s' % self.whitelist.id)
         log.info('共加载 %d 条线路', len(self.route_list))
         try:
             self.record = WorldPatrolRecord(os_utils.get_dt(), restart=self.restart)
@@ -140,7 +173,7 @@ class WorldPatrol(Application):
         except Exception:
             log.info('读取运行记录失败 重新开始', exc_info=True)
 
-        self.route_iterator = iter(self.route_list)
+        self.current_route_idx = -1
 
         t = threading.Thread(target=self.preheat)
         t.start()
@@ -158,11 +191,12 @@ class WorldPatrol(Application):
             mini_map_angle_alas.RotationRemapData((mm_r + i) * 2)
 
     def run(self) -> int:
-        try:
-            route_id = next(self.route_iterator)
-        except StopIteration:
+        self.current_route_idx += 1
+        if self.current_route_idx >= len(self.route_list):
             log.info('所有线路执行完毕')
             return Operation.SUCCESS
+
+        route_id = self.route_list[self.current_route_idx]
 
         if self.run_one_route(route_id):
             self.first = False
@@ -176,11 +210,12 @@ class WorldPatrol(Application):
         """
         route: WorldPatrolRoute = WorldPatrolRoute(route_id)
         log.info('准备执行线路 %s %s %s %s', route_id, route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
-        log.info('感谢以下人员提供本路线 %s', route.author_list)
-        if self.record is not None and route_id.display_name in self.record.finished:
+
+        if self.record is not None and route_id.unique_id in self.record.finished:
             log.info('线路 %s 之前已执行 跳过', route_id.display_name)
             return False
 
+        log.info('感谢以下人员提供本路线 %s', route.author_list)
         log.info('准备传送 %s %s %s', route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
         op = Transport(self.ctx, route.tp, self.first)
         if not op.execute():
@@ -236,7 +271,7 @@ class WorldPatrol(Application):
         :param route_id: 路线ID
         :return:
         """
-        self.record.finished.append(route_id.display_name)
+        self.record.finished.append(route_id.unique_id)
         self.record.save()
 
     def move(self, p, lm_info: LargeMapInfo, current_pos, stop_afterwards: bool):
@@ -293,9 +328,10 @@ class WorldPatrol(Application):
         return op.execute()
 
 
-def load_all_route_id() -> List[WorldPatrolRouteId]:
+def load_all_route_id(whitelist: WorldPatrolWhitelist = None) -> List[WorldPatrolRouteId]:
     """
     加载所有路线
+    :param whitelist: 白名单
     :return:
     """
     route_id_arr: List[WorldPatrolRouteId] = []
@@ -306,8 +342,30 @@ def load_all_route_id() -> List[WorldPatrolRouteId]:
             idx = filename.find('.yml')
             if idx == -1:
                 continue
-            route_id_arr.append(WorldPatrolRouteId(planet, filename[0:idx]))
+            route_id: WorldPatrolRouteId = WorldPatrolRouteId(planet, filename[0:idx])
+            if whitelist is not None:
+                if whitelist.type == 'white' and route_id.unique_id not in whitelist.list:
+                    continue
+                if whitelist.type == 'black' and route_id.unique_id in whitelist.list:
+                    continue
+            route_id_arr.append(route_id)
     return route_id_arr
+
+
+def load_all_whitelist_id() -> List[str]:
+    """
+    加载所有名单
+    :return:
+    """
+    whitelist_id_arr: List[str] = []
+    dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol', 'whitelist')
+    for filename in os.listdir(dir_path):
+        idx = filename.find('.yml')
+        if idx == -1:
+            continue
+        whitelist_id_arr.append(filename[0:idx])
+
+    return whitelist_id_arr
 
 
 if __name__ == '__main__':

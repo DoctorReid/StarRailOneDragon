@@ -11,9 +11,11 @@ from flet_core import ScrollMode
 from basic import config_utils, os_utils
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol, WorldPatrolRouteId
+from sr import constants
+from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol, WorldPatrolRouteId, \
+    WorldPatrolWhitelist
 from sr.constants.map import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
-    REGION_2_SP, TransportPoint
+    REGION_2_SP, TransportPoint, region_with_another_floor
 from sr.context import Context
 
 
@@ -200,35 +202,8 @@ class WorldPatrolDraftRouteView:
         if self.chosen_region is None:
             return
 
-        map_image: MatLike = self.get_original_map_image()
-        display_image = map_image.copy()
-
-        last_point = None
-        if self.chosen_sp is not None:
-            last_point = self.chosen_sp.lm_pos
-            cv2.circle(display_image, last_point[:2], 25, color=(0, 255, 0), thickness=3)
-        for route_item in self.route_list:
-            if route_item['op'] == 'move':
-                pos = route_item['data']
-                cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
-                if last_point is not None:
-                    cv2.line(display_image, last_point[:2], pos[:2], color=(255, 0, 0), thickness=2)
-                last_point = pos
-            elif route_item['op'] == 'patrol':
-                if last_point is not None:
-                    cv2.circle(display_image, last_point[:2], 10, color=(0, 255, 255), thickness=2)
-            elif route_item['op'] == 'interact':
-                if last_point is not None:
-                    cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
-            elif route_item['op'] == 'wait':
-                if last_point is not None:
-                    cv2.circle(display_image, last_point[:2], 14, color=(255, 255, 255), thickness=2)
-            elif route_item['op'] == 'update_pos':
-                pos = route_item['data']
-                cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
-                last_point = pos
-
-        cv2_utils.show_image(display_image)
+        route = self.mock_temp_route() if self.chosen_route_id is None else WorldPatrolRoute(self.chosen_route_id)
+        display_image = draw_route_in_image(self.ctx, route, route.route_id)
 
         # 图片转化成base64编码展示
         _, buffer = cv2.imencode('.png', display_image)
@@ -334,10 +309,9 @@ class WorldPatrolDraftRouteView:
             raw_id = '%s_R%02d_%s' % (self.chosen_region.r_id, same_region_cnt + 1, self.chosen_sp.id) + ('' if same_tp_cnt == 0 else '_%d' % (same_tp_cnt + 1))
             self.chosen_route_id = WorldPatrolRouteId(self.chosen_planet, raw_id)
 
-        file_path = config_utils.get_config_file_path(self.chosen_route_id.raw_id, sub_dir=['world_patrol', self.chosen_planet.np_id])
-        with open(file_path, "w", encoding="utf-8") as file:
+        with open(self.chosen_route_id.file_path, "w", encoding="utf-8") as file:
             file.write(self.route_text.value)
-        log.info('保存成功 %s', file_path)
+        log.info('保存成功 %s', self.chosen_route_id.file_path)
 
         if new_save:
             self.load_route_id_list()
@@ -404,6 +378,7 @@ class WorldPatrolDraftRouteView:
     def on_cancel_edit_existed(self, e):
         self.chosen_planet = None
         self.chosen_route_id = None
+        self.existed_route_dropdown.value = None
 
         self.planet_dropdown.value = None
         self.chosen_planet = None
@@ -424,7 +399,10 @@ class WorldPatrolDraftRouteView:
         self.update_all_component_status()
 
     def on_test_existed(self, e):
-        app = WorldPatrol(self.ctx, restart=True, route_id_list=[self.chosen_route_id])
+        whitelist: WorldPatrolWhitelist = WorldPatrolWhitelist('0')
+        whitelist.type = 'white'
+        whitelist.list = [self.chosen_route_id.unique_id]
+        app = WorldPatrol(self.ctx, restart=True, whitelist=whitelist)
         app.first = False
         app.execute()
 
@@ -486,6 +464,19 @@ class WorldPatrolDraftRouteView:
 
         self.page.update()
 
+    def mock_temp_route(self) -> WorldPatrolRoute:
+        route_id = WorldPatrolRouteId(constants.map.P01, 'R02_JZCD_R01_JKS')
+        route = WorldPatrolRoute(route_id)
+
+        route_id.planet = self.chosen_planet
+        route_id.region = self.chosen_region
+        route_id.tp = self.chosen_sp
+
+        route.tp = self.chosen_sp
+        route.route_list = self.route_list
+
+        return route
+
 
 gv: WorldPatrolDraftRouteView = None
 
@@ -496,3 +487,48 @@ def get(page: ft.Page, ctx: Context) -> WorldPatrolDraftRouteView:
         gv = WorldPatrolDraftRouteView(page, ctx)
 
     return gv
+
+
+def draw_route_in_image(ctx: Context, route: WorldPatrolRoute, route_id: WorldPatrolRouteId = None):
+    """
+    画一个
+    :param ctx:
+    :param route:
+    :param route_id: 新建路线时候传入
+    :return:
+    """
+    last_region = route_id.region if route_id is not None else route.tp.region
+    for route_item in route.route_list:
+        if route_item['op'] == 'move' or route_item['op'] == 'update_pos':
+            pos = route_item['data']
+            if len(pos) > 2:
+                last_region = region_with_another_floor(last_region, pos[2])
+
+    display_image = ctx.ih.get_large_map(last_region).origin.copy()
+
+    last_point = None
+    if route.tp is not None:
+        last_point = route.tp.lm_pos
+        cv2.circle(display_image, last_point[:2], 25, color=(0, 255, 0), thickness=3)
+    for route_item in route.route_list:
+        if route_item['op'] == 'move':
+            pos = route_item['data']
+            cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
+            if last_point is not None:
+                cv2.line(display_image, last_point[:2], pos[:2], color=(255, 0, 0), thickness=2)
+            last_point = pos
+        elif route_item['op'] == 'patrol':
+            if last_point is not None:
+                cv2.circle(display_image, last_point[:2], 10, color=(0, 255, 255), thickness=2)
+        elif route_item['op'] == 'interact':
+            if last_point is not None:
+                cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
+        elif route_item['op'] == 'wait':
+            if last_point is not None:
+                cv2.circle(display_image, last_point[:2], 14, color=(255, 255, 255), thickness=2)
+        elif route_item['op'] == 'update_pos':
+            pos = route_item['data']
+            cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
+            last_point = pos
+
+    return display_image

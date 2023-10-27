@@ -1,7 +1,7 @@
 import flet as ft
 
 from basic.i18_utils import gt
-from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view
+from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.context import get_context
 
 
@@ -9,7 +9,7 @@ def run_app(page: ft.Page):
     ctx = get_context()
     page.title = gt('崩坏：星穹铁道 自动代理器') + ' v0.4.0'
 
-    display_part = ft.Container(padding=20, content=world_patrol_view.get(page, ctx).component)
+    display_part = ft.Container(content=world_patrol_view.get(page, ctx).component)
 
     def on_rail_chosen(e):
         if e.control.selected_index == 0:
@@ -18,6 +18,8 @@ def run_app(page: ft.Page):
             display_part.content = calibrator_view.get(page, ctx).component
         elif e.control.selected_index == 2:
             display_part.content = world_patrol_draft_route_view.get(page, ctx).component
+        elif e.control.selected_index == 3:
+            display_part.content = world_patrol_whitelist_view.get(page, ctx).component
         else:
             display_part.content = None
         display_part.update()
@@ -43,6 +45,11 @@ def run_app(page: ft.Page):
                 icon=ft.icons.DRAW_OUTLINED,
                 selected_icon=ft.icons.DRAW,
                 label=gt('锄地路线绘制')
+            ),
+            ft.NavigationRailDestination(
+                icon=ft.icons.PLAYLIST_ADD_CHECK_OUTLINED,
+                selected_icon=ft.icons.PLAYLIST_ADD_CHECK_CIRCLE_ROUNDED,
+                label=gt('锄地路线白名单')
             ),
         ],
         on_change=on_rail_chosen

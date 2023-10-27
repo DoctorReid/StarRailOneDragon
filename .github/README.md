@@ -4,11 +4,11 @@
 ## 使用指南
 仅支持```16:9```系列的分辨率，理论上可在```1920*1080```及以上分辨率以及```非常低```画质下运行。游戏分辨率比显示器分辨率低时，请使用```窗口模式```。画质越好脚本出错概率越低。
 
-目前只支持```简体中文```，运行过程请保证```游戏窗口完整在屏幕内```，更多详情见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)
+目前只支持```简体中文```，运行过程请保证```游戏窗口完整在屏幕内```，部分系统中需要使用```管理员```权限运行脚本。更多详情见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)
 
-下载方式 [Release页面](https://github.com/DoctorReid/StarRailAutoProxy/releases)
+下载方式见 [Release页面](https://github.com/DoctorReid/StarRailAutoProxy/releases)。如果喜欢本项目，可右上角送作者一个```Star```~
 
-如果喜欢本项目，可右上角送作者一个```Star```~
+如有疑问，可以提ISSUE或进QQ群```743525216```咨询。~~__(虽然上班搬砖时间回复较慢，下班写代码时间也回复较慢__~~
 
 ## 项目进度
 
@@ -19,7 +19,7 @@
 
 ![锄地线路录制](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/%E8%B7%AF%E7%BA%BF%E5%BD%95%E5%88%B6.png)
 
-[目前进度](https://github.com/DoctorReid/StarRailProxy/milestone/3)
+[当前进度](https://github.com/DoctorReid/StarRailProxy/milestone/3)
 
 ## 免责声明
 本软件是一个外部工具旨在自动化崩坏星轨的游戏玩法。它被设计成仅通过现有用户界面与游戏交互,并遵守相关法律法规。该软件包旨在提供简化和用户通过功能与游戏交互,并且它不打算以任何方式破坏游戏平衡或提供任何不公平的优势。该软件包不会以任何方式修改任何游戏文件或游戏代码。

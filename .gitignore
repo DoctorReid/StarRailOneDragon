@@ -3,9 +3,10 @@
 .log
 __pycache__
 .debug
-config/game.yml
 out/
-config/world_patrol/record.yml
 /build
 /dist
 *.spec
+config/game.yml
+config/world_patrol/record.yml
+config/world_patrol/whitelist/*.yml
