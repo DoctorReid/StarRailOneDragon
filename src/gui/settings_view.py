@@ -2,6 +2,7 @@ import flet as ft
 from flet_core import CrossAxisAlignment
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr import constants
 from sr.config import game_config
 from sr.config.game_config import GameConfig
@@ -28,11 +29,22 @@ class SettingsView:
                 ft.Container(content=self.server_region, padding=5),
                 ft.Container(content=self.save_btn, padding=5),
             ])
-    
+
+        self.init_with_config()
+
+    def init_with_config(self):
+        """
+        页面初始化加载已有配置
+        :return:
+        """
+        gc: GameConfig = game_config.get()
+        self.server_region.value = gc.server_region
+
     def save_config(self, e):
         config: GameConfig = game_config.get()
         config.update('server_region', self.server_region.value)
         config.write_config()
+        log.info('保存成功')
 
 
 sv: SettingsView = None
