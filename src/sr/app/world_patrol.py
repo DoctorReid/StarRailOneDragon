@@ -140,7 +140,7 @@ class WorldPatrolRecord(ConfigHolder):
             self.dt = self.data['dt']
             self.finished = self.data['finished']
 
-        if self.restart or (self.dt is not None and self.dt < self.current_dt) or self.dt is None:  # 重新开始
+        if self.restart or (self.dt is not None and self.dt != self.current_dt) or self.dt is None:  # 重新开始
             self.dt = self.current_dt
             self.finished = []
 
@@ -168,7 +168,9 @@ class WorldPatrol(Application):
             log.info('使用白名单 %s' % self.whitelist.id)
         log.info('共加载 %d 条线路', len(self.route_list))
         try:
-            self.record = WorldPatrolRecord(os_utils.get_dt(), restart=self.restart)
+            sr = game_config.get().server_region
+            utc_offset = constants.SERVER_TIME_OFFSET.get(sr)
+            self.record = WorldPatrolRecord(os_utils.get_dt(utc_offset), restart=self.restart)
             log.info('之前已完成线路 %d 条', len(self.record.finished))
         except Exception:
             log.info('读取运行记录失败 重新开始', exc_info=True)

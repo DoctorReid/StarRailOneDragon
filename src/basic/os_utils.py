@@ -79,12 +79,17 @@ def now_timestamp_str() -> str:
     return current_time.strftime("%Y%m%d%H%M%S")
 
 
-def get_dt() -> str:
+def get_dt(utc_offset: int = None) -> str:
     """
-    返回当前日期字符串
+    返回给定UTC偏移下当前日期字符串
+    默认返回本机时间所对应的日期
+    :param utc_offset: 时区与UTC之间的偏移
     :return: 例如 20230915
     """
-    current_time = datetime.datetime.now()
+    timezone = None
+    if utc_offset is not None:
+        timezone = datetime.timezone(datetime.timedelta(hours=utc_offset))
+    current_time = datetime.datetime.now(tz=timezone)
     return current_time.strftime("%Y%m%d")
 
 

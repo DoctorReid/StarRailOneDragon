@@ -1,3 +1,4 @@
+from sr import constants
 from sr.config import ConfigHolder
 
 
@@ -23,11 +24,15 @@ class GameConfig(ConfigHolder):
 
     def __init__(self):
         self.mini_map_pos: MiniMapPos = None
+        self.server_region: str = None
         super().__init__('game')
 
     def init(self):
         mini_map = self.data['mini_map']
         self.mini_map_pos = MiniMapPos(mini_map['x'], mini_map['y'], mini_map['r'])
+        self.server_region = constants.SERVER_REGION_CN
+        if self.data.get('server_region') in constants.SERVER_TIME_OFFSET:
+            self.server_region = self.data.get('server_region')
 
 
 _game_config = None
