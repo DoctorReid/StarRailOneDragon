@@ -281,7 +281,7 @@ class WorldPatrolDraftRouteView:
                 cfg += "    data: '%s'\n" % route_item['data']
             elif route_item['op'] == 'wait':
                 cfg += "  - op: 'wait'\n"
-                cfg += "    data: ['%s', '%d']\n" % (route_item['data'][0], route_item['data'][1])
+                cfg += "    data: ['%s', '%s']\n" % (route_item['data'][0], route_item['data'][1])
             elif route_item['op'] == 'update_pos':
                 cfg += "  - op: 'update_pos'\n"
                 pos = route_item['data']
@@ -423,7 +423,7 @@ class WorldPatrolDraftRouteView:
         self.page.update()
 
     def add_wait(self, e):
-        self.route_list.append({'op': 'wait', 'data': [self.wait_dropdown.value, int(self.wait_timeout_text.value)]})
+        self.route_list.append({'op': 'wait', 'data': [self.wait_dropdown.value, self.wait_timeout_text.value]})
         self.draw_route_and_display()
 
     def on_update_pos(self, e):

@@ -64,7 +64,7 @@ class WorldPatrolRouteId:
         用于前端显示路线名称
         :return:
         """
-        return '%s_%s_%s' % (gt(self.planet.cn), gt(self.region.cn), gt(self.tp.cn)) + ('' if self.route_num == 0 else '_%02d' % self.route_num)
+        return '%s_%s_%s' % (gt(self.planet.cn, 'ui'), gt(self.region.cn, 'ui'), gt(self.tp.cn, 'ui')) + ('' if self.route_num == 0 else '_%02d' % self.route_num)
 
     @property
     def unique_id(self):
@@ -253,7 +253,7 @@ class WorldPatrol(Application):
                     log.error('交互失败 即将跳过本次路线 %s', route_id.display_name)
                     return False
             elif route_item['op'] == 'wait':
-                result = self.wait(route_item['data'])
+                result = self.wait(route_item['data'][0], route_item['data'][1])
                 if not result:
                     log.error('等待失败 即将跳过本次路线 %s', route_id.display_name)
                     return False
@@ -317,7 +317,7 @@ class WorldPatrol(Application):
         op = Interact(self.ctx, cn, wait=0)
         return op.execute()
 
-    def wait(self, wait_type: str, seconds: int) -> bool:
+    def wait(self, wait_type: str, seconds: float) -> bool:
         """
         等待
         :param wait_type: 等待类型

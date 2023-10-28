@@ -21,7 +21,7 @@ route:
   - op: 'interact'
     data: '入画'
   - op: 'wait'
-    data: 'in_world'
+    data: ['in_world', '20']
   - op: 'update_pos'
     data: [690, 224]
   - op: 'move'

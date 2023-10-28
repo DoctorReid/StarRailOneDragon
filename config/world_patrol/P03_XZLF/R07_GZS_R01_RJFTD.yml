@@ -20,6 +20,8 @@ route:
   - op: 'move'
     data: [831, 500]
   - op: 'move'
+    data: [798, 500]
+  - op: 'move'
     data: [798, 474]
   - op: 'move'
     data: [799, 439]
@@ -43,18 +45,18 @@ route:
   - op: 'move'
     data: [880, 305]
   - op: 'move'
-    data: [880, 315]
+    data: [880, 320]
   - op: 'patrol'
   - op: 'move'
     data: [880, 258]
   - op: 'move'
     data: [802, 258]
   - op: 'move'
-    data: [778, 258]
+    data: [780, 258]
   - op: 'interact'
     data: '入画'
   - op: 'wait'
-    data: 'in_world'
+    data: ['in_world', '20']
   - op: 'update_pos'
     data: [573, 319]
   - op: 'move'
