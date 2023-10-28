@@ -4,8 +4,8 @@ import cv2
 
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
-from sr import constants
-from sr.constants.map import Region
+from sr.const import map_const
+from sr.const.map_const import Region
 from sr.context import get_context
 from sr.operation.unit.choose_region import ChooseRegion
 
@@ -44,6 +44,6 @@ def _test_whole_operation():
 if __name__ == '__main__':
     real_game = True
     ctx = get_context('唯秘')
-    region: Region = constants.map.P01_R03_B1
+    region: Region = map_const.P01_R03_B1
     op = ChooseRegion(ctx, region)
     _test_click_target_level()

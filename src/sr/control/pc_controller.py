@@ -7,9 +7,9 @@ from cv2.typing import MatLike
 
 from basic import win_utils
 from basic.log_utils import log
+from sr import const
 from sr.config import game_config
 from sr.config.game_config import GameConfig
-from sr.constants import STANDARD_RESOLUTION_H, STANDARD_RESOLUTION_W
 from sr.control import GameController
 from sr.image import OcrMatcher
 from sr.win import Window, WinRect
@@ -24,11 +24,13 @@ class PcController(GameController):
     def __init__(self, win: Window, ocr: OcrMatcher):
         super().__init__(ocr)
         self.win: Window = win
-        config: GameConfig = game_config.get()
-        self.turn_dx: float = config.get('turn_dx')
-        self.walk_speed: float = config.get('walk_speed')
+        gc: GameConfig = game_config.get()
+        self.turn_dx: float = gc.get('turn_dx')
+        self.run_speed: float = gc.get('run_speed')
+        self.walk_speed: float = gc.get('walk_speed')
         self.is_moving: bool = False
-        self.f = config.get('interact')
+        self.is_running: bool = False  # 是否在疾跑
+        self.f = gc.get('interact')
 
     def init(self):
         self.win.active()
@@ -58,7 +60,7 @@ class PcController(GameController):
             point: pyautogui.Point = pyautogui.position()
             x, y = point.x, point.y
 
-        win_utils.click(x, y, press_time=press_time)
+        win_utils.click((x, y), press_time=press_time)
         return True
 
     def screenshot(self) -> MatLike:
@@ -69,7 +71,7 @@ class PcController(GameController):
         rect: WinRect = self.win.get_win_rect()
         pyautogui.moveTo(rect.x + 10, rect.y + rect.h - 10)  # 移动到uid位置
         img = win_utils.screenshot(rect.x, rect.y, rect.w, rect.h)
-        result = cv2.resize(img, (STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H)) if rect.is_scale() else img
+        result = cv2.resize(img, (const.STANDARD_RESOLUTION_W, const.STANDARD_RESOLUTION_H)) if rect.is_scale() else img
         return result
 
     def scroll(self, down: int, pos: tuple = None):
@@ -108,35 +110,45 @@ class PcController(GameController):
         """
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_MOVE, int(d), 0)
 
-    def move(self, direction: str, press_time: float = 0):
+    def move(self, direction: str, press_time: float = 0, run: bool = False):
         """
         往固定方向移动
         :param direction: 方向 wsad
         :param press_time: 持续秒数
+        :param run: 是否启用疾跑
         :return:
         """
         if direction not in ['w', 's', 'a', 'd']:
             log.error('非法的方向移动 %s', direction)
             return False
         if press_time > 0:
+            pyautogui.keyDown(direction)
             self.is_moving = True
-            win_utils.key_down(direction, press_time)
+            if run:
+                self.enter_running()
+            time.sleep(press_time)
+            pyautogui.keyUp(direction)
             self.is_moving = False
+            self.is_running = False
         else:
             pyautogui.press(direction)
         return True
 
-    def start_moving_forward(self):
+    def start_moving_forward(self, run: bool = False):
         """
         开始往前走
+        :param run: 是否启用疾跑
         :return:
         """
         self.is_moving = True
         pyautogui.keyDown('w')
+        if run:
+            self.enter_running()
 
     def stop_moving_forward(self):
-        self.is_moving = False
         pyautogui.keyUp('w')
+        self.is_moving = False
+        self.is_running = False
 
     def initiate_attack(self):
         """
@@ -157,3 +169,13 @@ class PcController(GameController):
         if wait > 0:
             time.sleep(wait)
         return True
+
+    def enter_running(self):
+        """
+        进入疾跑模式
+        :return:
+        """
+        if not self.is_running:
+            time.sleep(0.02)
+            win_utils.click(primary=False)
+            self.is_running = True

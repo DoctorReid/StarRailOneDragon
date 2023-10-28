@@ -8,13 +8,12 @@ import yaml
 from cv2.typing import MatLike
 from flet_core import ScrollMode
 
-from basic import config_utils, os_utils
-from basic.img import cv2_utils
+from basic import os_utils
 from basic.log_utils import log
-from sr import constants
 from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol, WorldPatrolRouteId, \
     WorldPatrolWhitelist
-from sr.constants.map import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
+from sr.const import map_const
+from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
     REGION_2_SP, TransportPoint, region_with_another_floor
 from sr.context import Context
 
@@ -466,7 +465,7 @@ class WorldPatrolDraftRouteView:
 
     def mock_temp_route(self, route_id: WorldPatrolRouteId=None) -> WorldPatrolRoute:
         if route_id is None:
-            route_id = WorldPatrolRouteId(constants.map.P01, 'R02_JZCD_R01_JKS')
+            route_id = WorldPatrolRouteId(map_const.P01, 'R02_JZCD_R01_JKS')
         route = WorldPatrolRoute(route_id)
 
         route_id.planet = self.chosen_planet

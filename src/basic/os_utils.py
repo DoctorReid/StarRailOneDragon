@@ -1,6 +1,6 @@
+import datetime
 import os
 import sys
-import datetime
 
 
 def join_dir_path_with_mk(path: str, *subs) -> str:
@@ -33,7 +33,7 @@ def get_work_dir() -> str:
     返回项目根目录的路径 StarRailCopilot/
     :return: 项目根目录
     """
-    dir_path = os.path.abspath(__file__)
+    dir_path: str = os.path.abspath(__file__)
     # 打包后运行
     up_times = 2 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') else 3
     for _ in range(up_times):

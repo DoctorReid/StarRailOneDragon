@@ -11,6 +11,7 @@ class GameController:
     def __init__(self, ocr: OcrMatcher):
         self.ocr: OcrMatcher = ocr
         self.turn_dx: float = None
+        self.run_speed: float = None
         self.walk_speed: float = None
         self.is_moving: bool = False
 
@@ -101,9 +102,10 @@ class GameController:
     def turn_by_angle(self, angle: float):
         self.turn_by_distance(self.turn_dx * angle)
 
-    def start_moving_forward(self):
+    def start_moving_forward(self, run: bool = False):
         """
         开始往前走
+        :param run: 是否启用疾跑
         :return:
         """
         pass
@@ -124,20 +126,22 @@ class GameController:
         """
         pass
 
-    def cal_move_distance_by_time(self, seconds: float):
+    def cal_move_distance_by_time(self, seconds: float, run: bool = False):
         """
         根据时间计算移动距离
-        :param seconds:
+        :param seconds: 秒
+        :param run: 是否疾跑
         :return:
         """
-        return self.walk_speed * seconds
+        return (self.run_speed if run else self.walk_speed) * seconds
 
-    def move_towards(self, pos1: tuple, pos2: tuple, angle: float) -> bool:
+    def move_towards(self, pos1: tuple, pos2: tuple, angle: float, run: bool = False) -> bool:
         """
         朝目标点行走
         :param pos1: 起始点
         :param pos2: 目标点
         :param angle: 当前角度
+        :param run: 是否疾跑
         :return:
         """
         if angle is None:
@@ -152,7 +156,7 @@ class GameController:
         log.info('寻路中 当前点: %s 目标点: %s 当前角度: %.2f度 目标角度: %.2f度 转动朝向: %.2f度', pos1, pos2, angle, target_angle, delta_angle)
 
         self.turn_by_angle(delta_angle)
-        self.start_moving_forward()
+        self.start_moving_forward(run=run)
         return True
 
     def initiate_attack(self):

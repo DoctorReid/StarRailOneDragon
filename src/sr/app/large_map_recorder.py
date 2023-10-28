@@ -1,15 +1,12 @@
-import os
 import time
-
-import cv2
 
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr import constants
 from sr.app import Application
-from sr.constants.map import Region, region_with_another_floor
+from sr.const import map_const
+from sr.const.map_const import Region, region_with_another_floor
 from sr.context import Context, get_context
-from sr.image.sceenshot import large_map, LargeMapInfo
+from sr.image.sceenshot import large_map
 from sr.operation import Operation
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
@@ -157,6 +154,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = constants.map.P01_R04_L1
+    r = map_const.P01_R04_L1
     app = LargeMapRecorder(ctx, r)
     app.execute()

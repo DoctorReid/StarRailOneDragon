@@ -6,9 +6,10 @@ import basic.cal_utils
 from basic import os_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
-from sr import constants, cal_pos
+from sr import cal_pos
 from sr.config import game_config
-from sr.constants.map import Region
+from sr.const import map_const, game_config_const
+from sr.const.map_const import Region
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, battle, large_map
@@ -46,6 +47,8 @@ class MoveDirectly(Operation):
         self.stop_afterwards = stop_afterwards  # 最后是否停止前进
         self.last_auto_fight_fail: bool = False  # 上一次索敌是否失败 只有小地图背景污染严重时候出现
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
+
+        self.run_mode = game_config.get().run_mode
 
     def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
@@ -89,11 +92,13 @@ class MoveDirectly(Operation):
 
         # 根据上一次的坐标和行进距离 计算当前位置
         lx, ly = last_pos
-        move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time) if self.last_rec_time > 0 else 0
+        move_distance = 0
+        if self.last_rec_time > 0:
+            move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
         possible_pos = (lx, ly, move_distance)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-        sp_map = constants.map.get_sp_type_in_rect(self.region, lm_rect)
+        sp_map = map_const.get_sp_type_in_rect(self.region, lm_rect)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
 
         x, y = self.get_pos(mm_info, possible_pos, lm_rect)
@@ -101,7 +106,7 @@ class MoveDirectly(Operation):
         # save_debug_image(mm, prefix='cal_pos')
 
         if x is None or y is None:
-            log.error('无法判断当前人物坐标 使用上一个坐标为%s', possible_pos)
+            log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, now_time - self.last_rec_time, self.ctx.controller.is_moving)
             if now_time - self.last_no_pos_time > 0.5:
                 self.no_pos_times += 1
                 self.last_no_pos_time = now_time
@@ -125,7 +130,7 @@ class MoveDirectly(Operation):
                 self.ctx.controller.stop_moving_forward()
             return Operation.SUCCESS
 
-        self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle)
+        self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle, run=self.run_mode == game_config_const.RUN_MODE_BTN)
         # time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
 
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点

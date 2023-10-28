@@ -4,7 +4,7 @@ import cv2
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.constants.map import Planet
+from sr.const.map_const import Planet
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation

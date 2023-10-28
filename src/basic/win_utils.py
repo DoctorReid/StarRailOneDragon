@@ -124,21 +124,22 @@ def screenshot(left, top, width, height) -> MatLike:
     return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
 
-def click(x: int = None, y: int = None, press_time: float = 0):
+def click(pos: tuple = None, press_time: float = 0, primary: bool = True):
     """
     点击鼠标
-    :param x: 屏幕坐标
-    :param y: 屏幕坐标
+    :param pos: 屏幕坐标
     :param press_time: 按住时间
+    :param primary: 是否点击鼠标主要按键（通常是左键）
     :return:
     """
+    btn = pyautogui.PRIMARY if primary else pyautogui.SECONDARY
     if press_time > 0:
-        pyautogui.moveTo(x, y)
-        pyautogui.mouseDown()
+        pyautogui.moveTo(pos)
+        pyautogui.mouseDown(button=btn)
         time.sleep(press_time)
-        pyautogui.mouseUp()
+        pyautogui.mouseUp(button=btn)
     else:
-        pyautogui.click(x, y)
+        pyautogui.click(pos, button=btn)
 
 
 def drag_mouse(start: tuple, end: tuple, duration: float = 0.5):

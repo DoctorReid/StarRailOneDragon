@@ -7,7 +7,7 @@ from sr.context import get_context
 
 def run_app(page: ft.Page):
     ctx = get_context()
-    page.title = gt('崩坏：星穹铁道 自动代理器') + ' v0.4.0'
+    page.title = gt('崩坏：星穹铁道 自动代理器') + ' v0.4.1'
 
     display_part = ft.Container(content=world_patrol_view.get(page, ctx).component)
 

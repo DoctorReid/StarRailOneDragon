@@ -1,5 +1,5 @@
-from sr import constants
 from sr.config import ConfigHolder
+from sr.const import game_config_const
 
 
 class MiniMapPos:
@@ -24,25 +24,37 @@ class GameConfig(ConfigHolder):
 
     def __init__(self):
         self.mini_map_pos: MiniMapPos = None
-        self.server_region: str = None
+        self.server_region: str = game_config_const.SERVER_REGION_CN
+        self.run_mode: int = game_config_const.RUN_MODE_OFF
         super().__init__('game')
 
     def init(self):
         mini_map = self.data['mini_map']
         self.mini_map_pos = MiniMapPos(mini_map['x'], mini_map['y'], mini_map['r'])
-        self.server_region = constants.SERVER_REGION_CN
-        if self.data.get('server_region') in constants.SERVER_TIME_OFFSET:
+
+        if self.data.get('server_region') in game_config_const.SERVER_TIME_OFFSET:
             self.server_region = self.data.get('server_region')
 
+        if self.data.get('run_mode') in game_config_const.RUN_MODE.values():
+            self.run_mode = self.data.get('run_mode')
 
-_game_config = None
+    def set_server_region(self, value: str):
+        self.server_region = value
+        self.update('server_region', value)
+
+    def set_run_mode(self, value: int):
+        self.run_mode = value
+        self.update('run_mode', value)
+
+
+_gc = None
 
 
 def get() -> GameConfig:
-    global _game_config
-    if _game_config is None:
-        _game_config = GameConfig()
+    global _gc
+    if _gc is None:
+        _gc = GameConfig()
 
-    return _game_config
+    return _gc
 
 

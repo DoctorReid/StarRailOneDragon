@@ -7,7 +7,7 @@ from cv2.typing import MatLike
 
 from basic.img import cv2_utils, MatchResultList, MatchResult
 from basic.log_utils import log
-from sr import constants
+from sr import const
 from sr.config import game_config
 from sr.config.game_config import MiniMapPos
 from sr.image import ImageMatcher, TemplateImage
@@ -66,7 +66,7 @@ def extract_arrow(mini_map: MatLike):
     :param mini_map: 小地图
     :return: 小箭头
     """
-    return cv2_utils.color_similarity_2d(mini_map, constants.COLOR_ARROW_BGR)
+    return cv2_utils.color_similarity_2d(mini_map, const.COLOR_ARROW_BGR)
 
 
 def get_arrow_mask(mm: MatLike):
@@ -77,8 +77,8 @@ def get_arrow_mask(mm: MatLike):
     """
     w, h = mm.shape[1], mm.shape[0]
     cx, cy = w // 2, h // 2
-    d = constants.TEMPLATE_ARROW_LEN
-    r = constants.TEMPLATE_ARROW_R
+    d = const.TEMPLATE_ARROW_LEN
+    r = const.TEMPLATE_ARROW_R
     center = mm[cy - r:cy + r, cx - r:cx + r]
     arrow = extract_arrow(center)
     _, mask = cv2.threshold(arrow, 180, 255, cv2.THRESH_BINARY)
@@ -121,7 +121,7 @@ def get_angle_from_arrow(arrow: MatLike,
         cv2_utils.show_image(arrow, win_name="arrow")
         cv2_utils.show_image(rough_template, result.max, win_name="rough_template_match")
 
-    d = constants.TEMPLATE_ARROW_LEN_PLUS
+    d = const.TEMPLATE_ARROW_LEN_PLUS
 
     row = result.max.cy // d
     col = result.max.cx // d
@@ -595,8 +595,8 @@ def merge_all_map_mask(gray_image: MatLike,
     expand_sp_mask = cv2.dilate(sp_mask, kernel, iterations=1)
 
     all_mask = cv2.bitwise_or(road_mask, expand_sp_mask)
-    usage[np.where(all_mask == 0)] = constants.COLOR_WHITE_GRAY
-    usage[np.where(road_mask == 255)] = constants.COLOR_MAP_ROAD_GRAY
+    usage[np.where(all_mask == 0)] = const.COLOR_WHITE_GRAY
+    usage[np.where(road_mask == 255)] = const.COLOR_MAP_ROAD_GRAY
     return usage, all_mask
 
 

@@ -9,9 +9,9 @@ from basic import os_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr import constants
+from sr import const
 from sr.config import game_config
-from sr.constants.map import Planet, Region, PLANET_LIST
+from sr.const.map_const import Planet, Region, PLANET_LIST
 from sr.image import OcrMatcher, TemplateImage, ImageMatcher, get_large_map_dir_path
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo
@@ -119,7 +119,7 @@ def get_sp_mask_by_template_match(lm_info: LargeMapInfo, im: ImageMatcher,
 
             match_result = im.match_image(
                 source, template, mask=template_mask,
-                threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP,
+                threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP,
                 ignore_inf=True)
 
             if len(match_result) > 0:
@@ -368,8 +368,8 @@ def merge_all_map_mask(gray_image: MatLike, road_mask, sp_mask):
     expand_sp_mask = cv2.dilate(sp_mask, kernel, iterations=1)
 
     all_mask = cv2.bitwise_or(road_mask, expand_sp_mask)
-    usage[np.where(all_mask == 0)] = constants.COLOR_WHITE_GRAY
-    usage[np.where(road_mask == 255)] = constants.COLOR_MAP_ROAD_GRAY
+    usage[np.where(all_mask == 0)] = const.COLOR_WHITE_GRAY
+    usage[np.where(road_mask == 255)] = const.COLOR_MAP_ROAD_GRAY
     return usage, all_mask
 
 

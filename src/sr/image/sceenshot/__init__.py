@@ -1,7 +1,7 @@
 import cv2
 from cv2.typing import MatLike
 
-from sr.constants.map import Region
+from sr.const.map_const import Region
 from sr.win import Window
 
 

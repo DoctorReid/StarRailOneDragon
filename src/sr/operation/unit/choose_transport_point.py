@@ -8,8 +8,8 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.img import MatchResultList, MatchResult, cv2_utils
 from basic.log_utils import log
-from sr import constants
-from sr.constants.map import TransportPoint
+from sr import const
+from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.image.sceenshot import LargeMapInfo, large_map
 from sr.operation import Operation
@@ -147,7 +147,7 @@ class ChooseTransportPoint(Operation):
             sm_offset_y = self.tp.lm_pos[1] - offset.y
             sp_rect = (sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100)
             crop_screen_map, sp_rect = cv2_utils.crop_image(screen_map, sp_rect)
-            result: MatchResultList = self.ctx.im.match_template(crop_screen_map, self.tp.template_id, threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
+            result: MatchResultList = self.ctx.im.match_template(crop_screen_map, self.tp.template_id, threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
 
             if result.max is not None:
                 return MatchResult(result.max.confidence,
@@ -159,7 +159,7 @@ class ChooseTransportPoint(Operation):
             else:
                 return None
         else:
-            result: MatchResultList = self.ctx.im.match_template(screen_map, self.tp.template_id, threshold=constants.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
+            result: MatchResultList = self.ctx.im.match_template(screen_map, self.tp.template_id, threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
             return result.max
 
     def random_drag(self):

@@ -20,7 +20,7 @@ def get_config_file_path(name: str, sub_dir: List[str] = None):
     return os.path.join(dir_path, '%s.yml' % name)
 
 
-def get_sample_config_file_path(name: str, sub_dir: str = None):
+def get_sample_config_file_path(name: str, sub_dir: List[str] = None):
     """
     获取样例配置文件的完整路径
     :param name: 配置名
@@ -48,7 +48,7 @@ def read_config(name: str, sample: bool = True, sub_dir: List[str] = None):
     return data
 
 
-def read_sample_config(name: str, sub_dir: str = None):
+def read_sample_config(name: str, sub_dir: List[str] = None):
     """
     读取样例配置
     :param name: 配置名
@@ -107,14 +107,15 @@ def deep_del_extra_prop(source: dict, target: dict):
         del target[key]
 
 
-def async_sample(name: str) -> dict:
+def async_sample(name: str, sub_dir: List[str] = None) -> dict:
     """
     将样例配置同步到具体配置中
     :param name: 模块名称
+    :param sub_dir: 子目录
     :return: 同步后的配置
     """
-    sample = read_sample_config(name)
-    config = read_config(name)
+    sample = read_sample_config(name, sub_dir)
+    config = read_config(name, False, sub_dir)
     if config is None:
         config = sample
     else:

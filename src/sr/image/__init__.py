@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 
 from basic import os_utils
 from basic.img import MatchResultList
-from sr.constants.map import Region
+from sr.const.map_const import Region
 
 
 class TemplateImage:

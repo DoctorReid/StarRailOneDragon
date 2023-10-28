@@ -2,8 +2,8 @@ import cv2
 
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
-from sr import constants
-from sr.constants.map import Region
+from sr.const import map_const
+from sr.const.map_const import Region
 from sr.image import ImageMatcher
 from sr.image.cnocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
@@ -64,5 +64,5 @@ def _test_init_large_map(region: Region):
 
 
 if __name__ == '__main__':
-    for r in [constants.map.P01_R03_B1]:
+    for r in [map_const.P01_R03_B1]:
         _test_init_large_map(r)

@@ -1,8 +1,8 @@
+import concurrent.futures
 from concurrent.futures import Future
 from typing import List
 
 import cv2
-import concurrent.futures
 import numpy as np
 from cv2.typing import MatLike
 
@@ -10,12 +10,11 @@ import basic.cal_utils
 from basic import cal_utils
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
-from sr import constants
-from sr.constants.map import Region
+from sr import const
+from sr.const import map_const
 from sr.image import ImageMatcher
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
 from sr.performance_recorder import record_performance
-
 
 cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='cal_pos')
 
@@ -217,7 +216,7 @@ def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
     """
     mm_height, mm_width = mm_info.origin.shape[:2]
 
-    lm_sp_map = constants.map.get_sp_type_in_rect(lm_info.region, lm_rect)
+    lm_sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
 
     cal_pos_list = []
 

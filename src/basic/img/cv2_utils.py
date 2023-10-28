@@ -14,7 +14,6 @@ def read_image(file_path: str) -> MatLike:
     """
     读取图片
     :param file_path: 图片路径
-    :param show_result: 是否显示结果
     :return:
     """
     if not os.path.exists(file_path):

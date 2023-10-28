@@ -1,9 +1,9 @@
 import cv2
 
-import sr.constants.region
+import const.region
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
-from sr import constants
+from sr import const
 from sr.context import get_context, Context
 from sr.operation.unit.choose_planet import ChoosePlanet
 
@@ -29,5 +29,5 @@ if __name__ == '__main__':
     ctx = get_context()
     ctx.running = True
     ctx.controller.win.active()
-    op = ChoosePlanet(sr.constants.region.P02.cn)
+    op = ChoosePlanet(const.region.P02.cn)
     _test_whole_operation()

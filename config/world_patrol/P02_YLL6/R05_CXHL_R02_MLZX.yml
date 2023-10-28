@@ -5,9 +5,11 @@ level: 0
 tp: '鸣雷之形'
 route:
   - op: 'move'
-    data: [484, 630]
+    data: [488, 630]
   - op: 'move'
     data: [484, 606]
   - op: 'move'
     data: [486, 453]
+  - op: 'move'
+    data: [507, 436]
   - op: 'patrol'

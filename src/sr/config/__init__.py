@@ -1,4 +1,3 @@
-from ctypes import Union
 from typing import List
 
 from basic import config_utils
@@ -18,7 +17,10 @@ class ConfigHolder:
         self.init()
 
     def read_config(self):
-        self.data = config_utils.read_config(self.mod, sample=self.sample, sub_dir=self.sub_dir)
+        if self.sample:  # 脚本更新时 可能加入了新配置 要从sample同步过去
+            self.data = config_utils.async_sample(self.mod, sub_dir=self.sub_dir)
+        else:
+            self.data = config_utils.read_config(self.mod, sample=self.sample, sub_dir=self.sub_dir)
 
     def write_config(self):
         config_utils.save_config(self.mod, self.data, sub_dir=self.sub_dir)

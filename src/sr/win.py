@@ -4,7 +4,7 @@ from ctypes.wintypes import RECT
 
 from basic import win_utils
 from basic.log_utils import log
-from sr.constants import STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H
+from sr import const
 
 
 class WinRect:
@@ -19,8 +19,8 @@ class WinRect:
         self.h: int = h
 
         # 缩放比例
-        self.xs: int = 1 if w == STANDARD_RESOLUTION_W else w * 1.0 / STANDARD_RESOLUTION_W
-        self.ys: int = 1 if w == STANDARD_RESOLUTION_H else h * 1.0 / STANDARD_RESOLUTION_H
+        self.xs: int = 1 if w == const.STANDARD_RESOLUTION_W else w * 1.0 / const.STANDARD_RESOLUTION_W
+        self.ys: int = 1 if w == const.STANDARD_RESOLUTION_H else h * 1.0 / const.STANDARD_RESOLUTION_H
 
     def is_scale(self):
         return self.xs != 1 or self.ys != 1

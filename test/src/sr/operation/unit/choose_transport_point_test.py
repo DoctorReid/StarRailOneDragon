@@ -2,8 +2,8 @@ import cv2
 
 from basic.img import cv2_utils
 from basic.img.os import get_test_image, get_debug_image
-from sr import constants
-from sr.constants.map import Region, TransportPoint
+from sr.const import map_const
+from sr.const.map_const import TransportPoint
 from sr.context import get_context
 from sr.operation.unit.choose_transport_point import ChooseTransportPoint
 
@@ -36,6 +36,6 @@ def _test_whole_operation():
 if __name__ == '__main__':
     ctx = get_context()
     ctx.init_all()
-    tp: TransportPoint = constants.map.P03_R09_SP02
+    tp: TransportPoint = map_const.P03_R09_SP02
     op = ChooseTransportPoint(ctx, tp)
     _test_whole_operation()

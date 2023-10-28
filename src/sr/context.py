@@ -145,6 +145,10 @@ class Context:
         log.info('当前鼠标坐标 %s', (pos.x - rect.x, pos.y - rect.y))
 
     def screenshot(self):
+        """
+        仅供快捷键使用 命令图中请使用 controller.screenshot()
+        :return:
+        """
         self.init_controller()
         save_debug_image(fill_uid_black(self.controller.screenshot()))
 

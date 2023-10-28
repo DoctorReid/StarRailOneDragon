@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic import os_utils
 from basic.img import cv2_utils
 from basic.img.cv2_utils import convert_to_standard, get_four_corner
-from sr import constants
+from sr import const
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map
 
@@ -67,7 +67,7 @@ def init_tp_with_background(template_id: str, noise_threshold: int = 0):
         mask = cv2.bitwise_or(white_mask, cv2.bitwise_not(black_mask))
 
     # 背景统一使用道路颜色 因为地图上传送点附近大概率都是道路 这样更方便匹配
-    final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=51, bg_color=constants.COLOR_MAP_ROAD_BGR)
+    final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=51, bg_color=const.COLOR_MAP_ROAD_BGR)
 
     show_and_save(template_id, final_origin, final_mask)
 
@@ -116,7 +116,7 @@ def init_sp_with_background(template_id: str, noise_threshold: int = 0):
     mask = cv2_utils.connection_erase(binary, threshold=noise_threshold)
     mask = cv2_utils.connection_erase(mask, threshold=noise_threshold, erase_white=False)
 
-    final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=51, bg_color=constants.COLOR_MAP_ROAD_BGR)
+    final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=51, bg_color=const.COLOR_MAP_ROAD_BGR)
 
     show_and_save(template_id, final_origin, final_mask)
 
@@ -211,7 +211,7 @@ def init_arrow_template(mm: MatLike):
     :return: 模板
     """
     bw, _ = mini_map.get_arrow_mask(mm)
-    d0 = constants.TEMPLATE_ARROW_LEN_PLUS
+    d0 = const.TEMPLATE_ARROW_LEN_PLUS
     # 稍微放大一下 更好地匹配到边缘的结果
     _, bw = cv2_utils.convert_to_standard(bw, bw, width=d0, height=d0)
     rough_template = np.zeros((11 * d0, 11 * d0), dtype=np.uint8)
@@ -279,5 +279,5 @@ def init_boss_icon(template_id):
     cv2.circle(mask, (tx, ty), tr, 255, -1)
     mask = cv2_utils.dilate(mask, 3)
 
-    origin, mask = convert_to_standard(raw, mask, width=65, height=65, bg_color=constants.COLOR_MAP_ROAD_BGR)
+    origin, mask = convert_to_standard(raw, mask, width=65, height=65, bg_color=const.COLOR_MAP_ROAD_BGR)
     show_and_save(template_id, origin, mask)

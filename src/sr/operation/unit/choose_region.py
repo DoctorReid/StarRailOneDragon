@@ -3,7 +3,7 @@ import time
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.constants.map import Planet, Region, PLANET_2_REGION
+from sr.const.map_const import Planet, Region, PLANET_2_REGION
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation

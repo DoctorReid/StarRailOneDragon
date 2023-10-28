@@ -7,7 +7,7 @@ route:
   - op: 'move'
     data: [390, 240]
   - op: 'move'
-    data: [398, 208]
+    data: [396, 208]
   - op: 'move'
     data: [431, 173]
   - op: 'move'
@@ -17,9 +17,13 @@ route:
   - op: 'move'
     data: [541, 169]
   - op: 'move'
-    data: [593, 168]
+    data: [585, 170]
   - op: 'interact'
     data: '入画'
+  - op: 'wait'
+    data: 'in_world'
+  - op: 'update_pos'
+    data: [690, 224]
   - op: 'move'
     data: [706, 237]
   - op: 'move'
@@ -35,6 +39,8 @@ route:
     data: [835, 415]
   - op: 'move'
     data: [871, 394]
+  - op: 'move'
+    data: [907, 395]
   - op: 'move'
     data: [930, 368]
   - op: 'patrol'

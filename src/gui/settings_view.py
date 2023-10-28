@@ -3,9 +3,9 @@ from flet_core import CrossAxisAlignment
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr import constants
 from sr.config import game_config
 from sr.config.game_config import GameConfig
+from sr.const import game_config_const
 from sr.context import Context
 
 
@@ -15,18 +15,28 @@ class SettingsView:
         self.page = page
         self.ctx = ctx
 
-        self.save_btn = ft.ElevatedButton(text=gt("保存"), on_click=self.save_config)
         self.server_region = ft.Dropdown(
             label=gt("区服"), width=200,
             options=[
-                ft.dropdown.Option(text=r, key=r) for r in constants.SERVER_TIME_OFFSET.keys()
+                ft.dropdown.Option(text=r, key=r) for r in game_config_const.SERVER_TIME_OFFSET.keys()
             ],
+            on_change=self.on_server_region_changed
         )
+        self.run_mode_dropdown = ft.Dropdown(
+            label=gt("疾跑设置"), width=200,
+            options=[
+                ft.dropdown.Option(text=k, key=v) for k, v in game_config_const.RUN_MODE.items()
+            ],
+            on_change=self.on_run_mode_changed
+        )
+
+        self.save_btn = ft.ElevatedButton(text=gt("保存"), on_click=self.save_config)
 
         self.component = ft.Column(
             spacing=20, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
             controls=[
                 ft.Container(content=self.server_region, padding=5),
+                ft.Container(content=self.run_mode_dropdown, padding=5),
                 ft.Container(content=self.save_btn, padding=5),
             ])
 
@@ -39,11 +49,19 @@ class SettingsView:
         """
         gc: GameConfig = game_config.get()
         self.server_region.value = gc.server_region
+        self.run_mode_dropdown.value = gc.run_mode
+
+    def on_server_region_changed(self, e):
+        gc: GameConfig = game_config.get()
+        gc.set_server_region(self.server_region.value)
+
+    def on_run_mode_changed(self, e):
+        gc: GameConfig = game_config.get()
+        gc.set_run_mode(int(self.run_mode_dropdown.value))
 
     def save_config(self, e):
-        config: GameConfig = game_config.get()
-        config.update('server_region', self.server_region.value)
-        config.write_config()
+        gc: GameConfig = game_config.get()
+        gc.write_config()
         log.info('保存成功')
 
 

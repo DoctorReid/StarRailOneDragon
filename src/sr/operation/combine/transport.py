@@ -1,4 +1,4 @@
-from sr.constants.map import TransportPoint, Region, Planet
+from sr.const.map_const import TransportPoint, Region, Planet
 from sr.context import Context
 from sr.operation import Operation
 from sr.operation.unit.choose_planet import ChoosePlanet

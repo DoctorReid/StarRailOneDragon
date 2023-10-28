@@ -5,10 +5,10 @@ from typing import List, Iterator
 from basic import os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr import constants
 from sr.app import Application
 from sr.config import ConfigHolder, game_config
-from sr.constants.map import TransportPoint, region_with_another_floor, Region, PLANET_LIST, Planet, PLANET_2_REGION, \
+from sr.const import map_const, game_config_const
+from sr.const.map_const import TransportPoint, region_with_another_floor, Region, PLANET_LIST, Planet, PLANET_2_REGION, \
     REGION_2_SP
 from sr.context import Context, get_context
 from sr.image.sceenshot import large_map, LargeMapInfo, mini_map_angle_alas
@@ -100,7 +100,7 @@ class WorldPatrolRoute(ConfigHolder):
 
     def init_from_data(self, author: List[str], planet: str, region: str, tp: str, level: int, route: List):
         self.author_list = author
-        self.tp: TransportPoint = constants.map.get_sp_by_cn(planet, region, level, tp)
+        self.tp: TransportPoint = map_const.get_sp_by_cn(planet, region, level, tp)
         self.route_list = route
 
     @property
@@ -169,7 +169,7 @@ class WorldPatrol(Application):
         log.info('共加载 %d 条线路', len(self.route_list))
         try:
             sr = game_config.get().server_region
-            utc_offset = constants.SERVER_TIME_OFFSET.get(sr)
+            utc_offset = game_config_const.SERVER_TIME_OFFSET.get(sr)
             self.record = WorldPatrolRecord(os_utils.get_dt(utc_offset), restart=self.restart)
             log.info('之前已完成线路 %d 条', len(self.record.finished))
         except Exception:
@@ -257,7 +257,7 @@ class WorldPatrol(Application):
             elif route_item['op'] == 'update_pos':
                 next_pos = route_item['data']
                 if len(next_pos) > 2:
-                    next_region = constants.map.region_with_another_floor(lm_info.region, next_pos[2])
+                    next_region = map_const.region_with_another_floor(lm_info.region, next_pos[2])
                     lm_info = large_map.analyse_large_map(next_region, self.ctx.ih)
                 current_pos = next_pos[:2]
             else:
