@@ -1,3 +1,5 @@
+中文 | [English](https://github.com/DoctorReid/StarRailAutoProxy/tree/main/.github/README_en.md)
+
 # Honkai Star Rail - Auto Proxy
 崩坏：星穹铁道自动代理器 - 基于图像识别的自动游戏脚本。
 
