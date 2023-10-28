@@ -59,15 +59,15 @@ class WorldPatrolDraftRouteView:
             on_change=self.on_planet_changed
         )
         self.region_dropdown = ft.Dropdown(label='区域', width=200, on_change=self.on_region_change)
-        self.level_dropdown = ft.Dropdown(label='层数', width=200, on_change=self.on_level_changed)
+        self.floor_dropdown = ft.Dropdown(label='层数', width=200, on_change=self.on_floor_changed)
         self.tp_dropdown = ft.Dropdown(label='传送点', width=200, on_change=self.on_sp_change)
 
         choose_row = ft.Row(
             spacing=10,
-            controls=[self.planet_dropdown, self.region_dropdown, self.level_dropdown, self.tp_dropdown]
+            controls=[self.planet_dropdown, self.region_dropdown, self.floor_dropdown, self.tp_dropdown]
         )
 
-        self.switch_level = ft.Dropdown(label='中途切换层数', width=150, on_change=self.on_switch_level)
+        self.switch_floor_dropdown = ft.Dropdown(label='中途切换层数', width=150, on_change=self.on_switch_floor)
         self.patrol_btn = ft.ElevatedButton(text='攻击怪物', disabled=True, on_click=self.add_patrol)
         self.interact_text = ft.TextField(label="交互文本", width=150, disabled=True)
         self.interact_btn = ft.ElevatedButton(text='交互', disabled=True, on_click=self.on_interact)
@@ -87,7 +87,7 @@ class WorldPatrolDraftRouteView:
 
         ctrl_row = ft.Row(
             spacing=10,
-            controls=[self.switch_level, self.patrol_btn, self.interact_text, self.interact_btn, self.wait_timeout_text, self.wait_dropdown, self.add_wait_btn, self.update_pos_btn]
+            controls=[self.switch_floor_dropdown, self.patrol_btn, self.interact_text, self.interact_btn, self.wait_timeout_text, self.wait_dropdown, self.add_wait_btn, self.update_pos_btn]
         )
 
         self.image_width = 1000
@@ -128,8 +128,8 @@ class WorldPatrolDraftRouteView:
 
         self.update_region_list_by_planet()
         self.chosen_region = None
-        self.level_dropdown.options = []
-        self.switch_level.options = []
+        self.floor_dropdown.options = []
+        self.switch_floor_dropdown.options = []
         self.tp_dropdown.options = []
         self.chosen_sp = None
 
@@ -145,12 +145,12 @@ class WorldPatrolDraftRouteView:
         :return:
         """
         r_arr = PLANET_2_REGION[self.chosen_planet.np_id] if self.chosen_planet is not None else []
-        self.region_dropdown.options = [ft.dropdown.Option(text=r.cn, key=r.cn) for r in r_arr if r.level in [0, 1]]
+        self.region_dropdown.options = [ft.dropdown.Option(text=r.cn, key=r.cn) for r in r_arr if r.floor in [0, 1]]
 
     def on_region_change(self, e):
         self.chosen_region = None
 
-        self.update_level_list_by_region()
+        self.update_floor_list_by_region()
         self.tp_dropdown.options = []
         self.chosen_sp = None
 
@@ -160,21 +160,21 @@ class WorldPatrolDraftRouteView:
         self.update_all_component_status()
         self.draw_route_and_display()
 
-    def update_level_list_by_region(self):
+    def update_floor_list_by_region(self):
         r_arr = PLANET_2_REGION[self.chosen_planet.np_id]
         region_name = self.region_dropdown.value
-        self.level_dropdown.options = [ft.dropdown.Option(text=str(r.level), key=str(r.level)) for r in r_arr if r.cn == region_name]
-        self.switch_level.options = [ft.dropdown.Option(text=str(r.level), key=str(r.level)) for r in r_arr if r.cn == region_name]
+        self.floor_dropdown.options = [ft.dropdown.Option(text=str(r.floor), key=str(r.floor)) for r in r_arr if r.cn == region_name]
+        self.switch_floor_dropdown.options = [ft.dropdown.Option(text=str(r.floor), key=str(r.floor)) for r in r_arr if r.cn == region_name]
 
-    def on_level_changed(self, e):
+    def on_floor_changed(self, e):
         region_name = self.region_dropdown.value
-        region_level = int(self.level_dropdown.value)
-        region: Region = get_region_by_cn(region_name, planet=self.chosen_planet, level=region_level)
+        region_floor = int(self.floor_dropdown.value)
+        region: Region = get_region_by_cn(region_name, planet=self.chosen_planet, floor=region_floor)
         self.chosen_region = region
 
-        self.switch_level.value = self.level_dropdown.value
+        self.switch_floor_dropdown.value = self.floor_dropdown.value
 
-        self.update_sp_list_by_level()
+        self.update_sp_list_by_floor()
         self.chosen_sp = None
 
         self.chosen_route_id = None
@@ -183,7 +183,7 @@ class WorldPatrolDraftRouteView:
         self.update_all_component_status()
         self.draw_route_and_display()
 
-    def update_sp_list_by_level(self):
+    def update_sp_list_by_floor(self):
         sp_arr = REGION_2_SP.get(self.chosen_region.pr_id)
         self.tp_dropdown.options = [ft.dropdown.Option(text=sp.cn, key=sp.cn) for sp in sp_arr if sp.region == self.chosen_region]
 
@@ -194,7 +194,7 @@ class WorldPatrolDraftRouteView:
                 self.chosen_sp = sp
                 break
 
-        self.switch_level.value = self.level_dropdown.value
+        self.switch_floor_dropdown.value = self.floor_dropdown.value
 
         self.page.update()
 
@@ -233,14 +233,14 @@ class WorldPatrolDraftRouteView:
         if x > original_width or y > original_height:
             return
 
-        self.route_list.append({'op': 'move', 'data': (x, y, int(self.switch_level.value))})
+        self.route_list.append({'op': 'move', 'data': (x, y, int(self.switch_floor_dropdown.value))})
         self.draw_route_and_display()
 
     def get_original_map_image(self) -> MatLike:
-        region = get_region_by_cn(self.chosen_region.cn, self.chosen_planet, level=int(self.switch_level.value))
+        region = get_region_by_cn(self.chosen_region.cn, self.chosen_planet, floor=int(self.switch_floor_dropdown.value))
         return self.ctx.ih.get_large_map(region).origin
 
-    def on_switch_level(self, e):
+    def on_switch_floor(self, e):
         self.draw_route_and_display()
 
     def cancel_last(self, e):
@@ -255,25 +255,25 @@ class WorldPatrolDraftRouteView:
         cfg: str = ''
         if self.chosen_sp is None:
             return
-        last_level = int(self.level_dropdown.value)
+        last_floor = int(self.floor_dropdown.value)
         display_auth_list = self.author_list.copy()
         if self.author_text.value not in display_auth_list:
             display_auth_list.append(self.author_text.value)
         cfg += "author: %s\n" % display_auth_list
         cfg += "planet: '%s'\n" % self.chosen_planet.cn
         cfg += "region: '%s'\n" % self.chosen_region.cn
-        cfg += "level: %d\n" % last_level
+        cfg += "floor: %d\n" % last_floor
         cfg += "tp: '%s'\n" % self.chosen_sp.cn
         cfg += "route:\n"
         for route_item in self.route_list:
             if route_item['op'] == 'move':
                 cfg += "  - op: 'move'\n"
                 pos = route_item['data']
-                if pos[2] != last_level:
+                if pos[2] != last_floor:
                     cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
                 else:
                     cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
-                last_level = pos[2]
+                last_floor = pos[2]
             elif route_item['op'] == 'patrol':
                 cfg += "  - op: 'patrol'\n"
             elif route_item['op'] == 'interact':
@@ -285,11 +285,11 @@ class WorldPatrolDraftRouteView:
             elif route_item['op'] == 'update_pos':
                 cfg += "  - op: 'update_pos'\n"
                 pos = route_item['data']
-                if pos[2] != last_level:
+                if pos[2] != last_floor:
                     cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
                 else:
                     cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
-                last_level = pos[2]
+                last_floor = pos[2]
         return cfg
 
     def save_route(self, e):
@@ -341,14 +341,14 @@ class WorldPatrolDraftRouteView:
         当路线是从外部文件加载或编辑框过来时 稍微处理一下格式
         :return:
         """
-        last_level = int(self.level_dropdown.value)
+        last_floor = int(self.floor_dropdown.value)
         for route_item in self.route_list:
             if route_item['op'] == 'move' or route_item['op'] == 'update_pos':
                 if len(route_item['data']) == 2:
-                    route_item['data'].append(last_level)
+                    route_item['data'].append(last_floor)
                 else:
-                    last_level = route_item['data'][2]
-        self.switch_level.value = str(last_level)
+                    last_floor = route_item['data'][2]
+        self.switch_floor_dropdown.value = str(last_floor)
 
     def on_existed_route_changed(self, e):
         """
@@ -366,11 +366,11 @@ class WorldPatrolDraftRouteView:
         self.region_dropdown.value = route.tp.region.cn
         self.chosen_region = route.tp.region
 
-        self.update_level_list_by_region()
-        self.level_dropdown.value = str(route.tp.region.level)
-        self.switch_level.value = str(route.tp.region.level)
+        self.update_floor_list_by_region()
+        self.floor_dropdown.value = str(route.tp.region.floor)
+        self.switch_floor_dropdown.value = str(route.tp.region.floor)
 
-        self.update_sp_list_by_level()
+        self.update_sp_list_by_floor()
         self.tp_dropdown.value = route.tp.cn
         self.chosen_sp = route.tp
 
@@ -391,12 +391,12 @@ class WorldPatrolDraftRouteView:
         self.region_dropdown.value = None
         self.chosen_region = None
 
-        self.level_dropdown.value = None
+        self.floor_dropdown.value = None
 
         self.tp_dropdown.value = None
         self.chosen_sp = None
 
-        self.switch_level.value = None
+        self.switch_floor_dropdown.value = None
 
         self.route_list = []
         self.draw_route_and_display()
@@ -464,10 +464,10 @@ class WorldPatrolDraftRouteView:
 
         self.planet_dropdown.disabled = self.chosen_route_id is not None
         self.region_dropdown.disabled = self.chosen_route_id is not None or self.chosen_planet is None
-        self.level_dropdown.disabled = self.region_dropdown.disabled or self.region_dropdown.value is None
-        self.tp_dropdown.disabled = self.level_dropdown.disabled or self.level_dropdown.value is None
+        self.floor_dropdown.disabled = self.region_dropdown.disabled or self.region_dropdown.value is None
+        self.tp_dropdown.disabled = self.floor_dropdown.disabled or self.floor_dropdown.value is None
 
-        self.switch_level.disabled = self.chosen_sp is None
+        self.switch_floor_dropdown.disabled = self.chosen_sp is None
         self.patrol_btn.disabled = self.chosen_sp is None
         self.interact_text.disabled = self.chosen_sp is None
         self.interact_btn.disabled = self.chosen_sp is None

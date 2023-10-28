@@ -1,7 +1,7 @@
 author: ['DoctorReid']
 planet: '雅利洛'
 region: '残响回廊'
-level: 0
+floor: 0
 tp: '作战指挥室'
 route:
   - op: 'move'

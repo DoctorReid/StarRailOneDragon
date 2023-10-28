@@ -1,7 +1,7 @@
 author: ['DoctorReid']
 planet: '雅利洛'
 region: '机械聚落'
-level: 1
+floor: 1
 tp: '同谐之蕾'
 route:
   - op: 'move'

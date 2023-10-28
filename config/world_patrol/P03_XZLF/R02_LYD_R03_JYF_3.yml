@@ -1,7 +1,7 @@
 author: ['DoctorReid']
 planet: '仙舟罗浮'
 region: '流云渡'
-level: 1
+floor: 1
 tp: '积玉坊'
 route:
   - op: 'move'

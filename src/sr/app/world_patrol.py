@@ -99,9 +99,9 @@ class WorldPatrolRoute(ConfigHolder):
     def init(self):
         self.init_from_data(**self.data)
 
-    def init_from_data(self, author: List[str], planet: str, region: str, tp: str, level: int, route: List):
+    def init_from_data(self, author: List[str], planet: str, region: str, tp: str, floor: int, route: List):
         self.author_list = author
-        self.tp: TransportPoint = map_const.get_sp_by_cn(planet, region, level, tp)
+        self.tp: TransportPoint = map_const.get_sp_by_cn(planet, region, floor, tp)
         self.route_list = route
 
     @property
@@ -226,6 +226,8 @@ class WorldPatrol(Application):
             return False
         else:
             log.info('传送完成 开始寻路')
+            # self.save_record(route_id)  # 只测试传送点OCR时开启
+            # return True
 
         last_region = route.tp.region
         lm_info = large_map.analyse_large_map(last_region, self.ctx.ih)

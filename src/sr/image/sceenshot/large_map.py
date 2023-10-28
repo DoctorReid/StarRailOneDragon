@@ -11,18 +11,20 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import const
 from sr.config import game_config
+from sr.const import game_config_const
 from sr.const.map_const import Planet, Region, PLANET_LIST
-from sr.image import OcrMatcher, TemplateImage, ImageMatcher, get_large_map_dir_path
+from sr.image import TemplateImage, ImageMatcher, get_large_map_dir_path
+from sr.image.ocr_matcher import OcrMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo
 
-PLANET_NAME_RECT = (100, 60, 260, 100)
+PLANET_NAME_RECT = (100, 60, 350, 100)
 CUT_MAP_RECT = (200, 190, 1300, 900)  # 截取大地图的区域
 EMPTY_MAP_POS = (1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
 TP_BTN_RECT = (1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
-REGION_LIST_RECT = (1480, 200, 1700, 1000)
+REGION_LIST_RECT = (1480, 200, 1820, 1000)
 REGION_LIST_PART_CENTER = ((REGION_LIST_RECT[0] + REGION_LIST_RECT[2]) // 2, (REGION_LIST_RECT[1] + REGION_LIST_RECT[3]) // 2)
-LEVEL_LIST_PART = (30, 730, 100, 1000)
+FLOOR_LIST_PART = (30, 730, 100, 1000)
 
 
 def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
@@ -38,10 +40,11 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     white_part = cv2.inRange(planet_name_part, lower_color, upper_color)
     # cv2_utils.show_image(white_part, win_name='white_part')
     planet_name_str: str = ocr.ocr_for_single_line(white_part)
+
     log.debug('屏幕左上方获取星球结果 %s', planet_name_str)
     if planet_name_str is not None:
         for p in PLANET_LIST:
-            if planet_name_str.find(gt(p.ocr_str)) != -1:
+            if planet_name_str.find(gt(p.cn, 'ocr')) != -1:
                 return p
 
     return None
@@ -178,7 +181,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
         return None
 
 
-def get_active_level(screen: MatLike, ocr: OcrMatcher) -> str:
+def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> str:
     """
     在大地图界面 获取左下方当前选择的层数 黑色字体
     :param screen: 大地图界面截图
@@ -187,7 +190,7 @@ def get_active_level(screen: MatLike, ocr: OcrMatcher) -> str:
     """
     lower = 40
     upper = 80
-    part, _ = cv2_utils.crop_image(screen, LEVEL_LIST_PART)
+    part, _ = cv2_utils.crop_image(screen, FLOOR_LIST_PART)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
     km = ocr.run_ocr(bw)
     if len(km) > 0:

@@ -1,0 +1,160 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "崩坏：星穹铁道"
+msgstr "Honkai: Star Rail"
+
+# Planet
+msgid "空间站黑塔"
+msgstr "Herta Space Station"
+
+msgid "雅利洛"
+msgstr "Jarilo-VI"
+
+msgid "仙舟罗浮"
+msgstr "The Xianzhou Luofu"
+
+# Region
+msgid "观景车厢"
+msgstr "Parlor Car"
+
+msgid "主控舱段"
+msgstr "Master Control Zone"
+
+msgid "基座舱段"
+msgstr "Base Zone"
+
+msgid "收容舱段"
+msgstr "Storage Zone"
+
+msgid "支援舱段"
+msgstr "Supply Zone"
+
+msgid "行政区"
+msgstr "Administrative District"
+
+msgid "城郊雪原"
+msgstr "Outlying Snow Plains"
+
+msgid "边缘通路"
+msgstr "Backwater Pass"
+
+msgid "铁卫禁区"
+msgstr "Silvermane Guard Restricted Zone"
+
+msgid "残响回廊"
+msgstr "Corridor of Fading Echoes"
+
+msgid "造物之柱"
+msgstr "Pillars of Creation"
+
+msgid "旧武器试验场"
+msgstr "Old Weapon Testing Ground"
+
+msgid "磐岩镇"
+msgstr "Boulder Town"
+
+msgid "大矿区"
+msgstr "Great Mine"
+
+msgid "铆钉镇"
+msgstr "Rivet Town"
+
+msgid "机械聚落"
+msgstr "Robot Settlement"
+
+msgid "星槎海中枢"
+msgstr "Central Starskiff Haven"
+
+msgid "流云渡"
+msgstr "Cloudford"
+
+msgid "廻星港"
+msgstr "Stargazer Navalia"
+
+msgid "长乐天"
+msgstr "Exallting Sanctum"
+
+msgid "金人巷"
+msgstr "Aurum Alley"
+
+msgid "太卜司"
+msgstr "Divination Commission"
+
+msgid "工造司"
+msgstr "Artisanship Commission"
+
+msgid "丹鼎司"
+msgstr "Alchemy Commission"
+
+msgid "鳞渊境"
+msgstr "Scalegorge Waterscape"
+
+# Special Point - Herta Space Station - Master Control Zone
+msgid "监察域"
+msgstr "Watcher Zone"
+
+msgid "核心通路"
+msgstr "Central Passage"
+
+msgid "黑塔的办公室"
+msgstr "Herta's Office"
+
+msgid "封锁扇区"
+msgstr "Sealed Sector"
+
+msgid "太空电梯"
+msgstr "Space Elevator"
+
+msgid "内购专员"
+msgstr "Internal Purchase Officer"
+
+# Special Point - Herta Space Station - Base Zone
+msgid "监控室"
+msgstr "Monitoring Room"
+
+msgid "接待中心"
+msgstr "Reception Center"
+
+msgid "空海之形"
+msgstr "Stagnant Shadow"
+
+# Special Point - Herta Space Station - Storage Zone
+msgid "中庭"
+msgstr "Courtyard"
+
+msgid "控制中心外"
+msgstr "Outside the Control Center"
+
+msgid "特殊解析室"
+msgstr "Special Purpose Lab"
+
+msgid "无明之间"
+msgstr "Gallery of Shadow"
+
+msgid "毁灭之蕾"
+msgstr "Bud of Destruction"
+
+msgid "霜风之径"
+msgstr "Path of Gelid Wind"
+
+msgid "裂界征兆"
+msgstr "Signs of Fragmentum"
+
+# Special Point - Herta Space Station - Supply Zone
+msgid "备件库房"
+msgstr "Spare Parts Warehouse"
+
+msgid "月台"
+msgstr "Railway Platform"
+
+msgid "电力室"
+msgstr "Electrical Room"
+
+msgid "存护之蕾"
+msgstr "Bud of Preservation"
+
+msgid "毁灭的开端"
+msgstr "Destruction's Beginning"

@@ -1,7 +1,7 @@
 author: ['DoctorReid']
 planet: '仙舟罗浮'
 region: '工造司'
-level: 0
+floor: 0
 tp: '造化洪炉'
 route:
   - op: 'move'

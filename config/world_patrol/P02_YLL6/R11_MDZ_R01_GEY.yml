@@ -1,7 +1,7 @@
 author: ['DoctorReid']
 planet: '雅利洛'
 region: '铆钉镇'
-level: 1
+floor: 1
 tp: '孤儿院'
 route:
   - op: 'move'

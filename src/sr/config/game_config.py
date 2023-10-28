@@ -26,6 +26,7 @@ class GameConfig(ConfigHolder):
         self.mini_map_pos: MiniMapPos = None
         self.server_region: str = game_config_const.SERVER_REGION_CN
         self.run_mode: int = game_config_const.RUN_MODE_OFF
+        self.lang: str = game_config_const.LANG_CN
         super().__init__('game')
 
     def init(self):
@@ -38,6 +39,9 @@ class GameConfig(ConfigHolder):
         if self.data.get('run_mode') in game_config_const.RUN_MODE.values():
             self.run_mode = self.data.get('run_mode')
 
+        if self.data.get('lang') in game_config_const.LANG_OPTS.values():
+            self.lang = self.data.get('lang')
+
     def set_server_region(self, value: str):
         self.server_region = value
         self.update('server_region', value)
@@ -45,6 +49,10 @@ class GameConfig(ConfigHolder):
     def set_run_mode(self, value: int):
         self.run_mode = value
         self.update('run_mode', value)
+
+    def set_lang(self, value: str):
+        self.lang = value
+        self.update('lang', value)
 
 
 _gc = None

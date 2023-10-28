@@ -3,11 +3,10 @@ from basic import cal_utils
 
 class Planet:
 
-    def __init__(self, num: int, i: str, cn: str, ocr_str: str = None):
+    def __init__(self, num: int, i: str, cn: str):
         self.num: int = num  # 编号 用于强迫症给文件排序
         self.id: str = i  # 用在找文件夹之类的
         self.cn: str = cn  # 中文
-        self.ocr_str: str = ocr_str if ocr_str is not None else cn # 用于ocr
 
     def __str__(self):
         return '%02d - %s' % (self.num, self.cn)
@@ -29,9 +28,9 @@ class Planet:
         return '%s_%s' % (self.n_id, self.id)
 
 
-P01 = Planet(1, "KJZHT", "空间站黑塔", ocr_str='空间站')
-P02 = Planet(2, "YLL6", "雅利洛", ocr_str='雅利洛')
-P03 = Planet(3, "XZLF", "仙舟罗浮", ocr_str='罗浮')
+P01 = Planet(1, "KJZHT", "空间站黑塔")
+P02 = Planet(2, "YLL6", "雅利洛")
+P03 = Planet(3, "XZLF", "仙舟罗浮")
 
 PLANET_LIST = [P01, P02, P03]
 
@@ -50,13 +49,12 @@ def get_planet_by_cn(cn: str) -> Planet:
 
 class Region:
 
-    def __init__(self, num: int, i: str, cn: str, planet: Planet, level: int = 0, ocr_str: str = None):
+    def __init__(self, num: int, i: str, cn: str, planet: Planet, floor: int = 0):
         self.num: int = num  # 编号 方便列表排序
         self.id: str = i  # id 用在找文件夹之类的
         self.cn: str = cn  # 中文 用在OCR
         self.planet: Planet = planet
-        self.level: int = level
-        self.ocr_str: str = cn if ocr_str is None else ocr_str
+        self.floor: int = floor
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -83,12 +81,12 @@ class Region:
         层数 正数用 l1 负数用 b1
         :return:
         """
-        if self.level == 0:
+        if self.floor == 0:
             return ''
-        elif self.level > 0:
-            return '_L%d' % self.level
-        elif self.level < 0:
-            return '_B%d' % abs(self.level)
+        elif self.floor > 0:
+            return '_F%d' % self.floor
+        elif self.floor < 0:
+            return '_B%d' % abs(self.floor)
 
     @property
     def rl_id(self) -> str:
@@ -108,7 +106,7 @@ class Region:
 
     @property
     def another_floor(self) -> bool:
-        return self.level != 0
+        return self.floor != 0
 
 
 # 空间站黑塔
@@ -122,35 +120,35 @@ P01_R04_L1 = Region(4, "ZYCD", "支援舱段", P01, 1)
 P01_R04_L2 = Region(4, "ZYCD", "支援舱段", P01, 2)
 
 # 雅利洛
-P02_R01_L1 = Region(1, "XZQ", "行政区", P02, level=1)
-P02_R01_B1 = Region(1, "XZQ", "行政区", P02, level=-1)
+P02_R01_L1 = Region(1, "XZQ", "行政区", P02, floor=1)
+P02_R01_B1 = Region(1, "XZQ", "行政区", P02, floor=-1)
 P02_R02 = Region(2, "CJXY", "城郊雪原", P02)
 P02_R03 = Region(3, "BYTL", "边缘通路", P02)
 P02_R04 = Region(4, "TWJQ", "铁卫禁区", P02)
-P02_R05 = Region(5, "CXHL", "残响回廊", P02, ocr_str='回廊')
+P02_R05 = Region(5, "CXHL", "残响回廊", P02)
 P02_R06 = Region(6, "YDL", "永冬岭", P02)
 P02_R07 = Region(7, "ZWZZ", "造物之柱", P02)
-P02_R08_L2 = Region(8, "JWQSYC", "旧武器试验场", P02, level=2)
+P02_R08_L2 = Region(8, "JWQSYC", "旧武器试验场", P02, floor=2)
 P02_R09 = Region(9, "PYZ", "磐岩镇", P02)
 P02_R10 = Region(10, "DKQ", "大矿区", P02)
-P02_R11_L1 = Region(11, "MDZ", "铆钉镇", P02, level=1, ocr_str='钉镇')
-P02_R11_L2 = Region(11, "MDZ", "铆钉镇", P02, level=2, ocr_str='钉镇')
-P02_R12_L1 = Region(12, "JXJL", "机械聚落", P02, level=1)
-P02_R12_L2 = Region(12, "JXJL", "机械聚落", P02, level=2)
+P02_R11_L1 = Region(11, "MDZ", "铆钉镇", P02, floor=1)
+P02_R11_L2 = Region(11, "MDZ", "铆钉镇", P02, floor=2)
+P02_R12_L1 = Region(12, "JXJL", "机械聚落", P02, floor=1)
+P02_R12_L2 = Region(12, "JXJL", "机械聚落", P02, floor=2)
 
 # 仙舟罗浮
 P03_R01 = Region(1, "XCHZS", "星槎海中枢", P03)
-P03_R02_L1 = Region(2, "LYD", "流云渡", P03, level=1)
-P03_R02_L2 = Region(2, "LYD", "流云渡", P03, level=2)
-P03_R03_L1 = Region(3, "HXG", "廻星港", P03, level=1, ocr_str='迥星港')
-P03_R03_L2 = Region(3, "HXG", "廻星港", P03, level=2, ocr_str='迥星港')
+P03_R02_L1 = Region(2, "LYD", "流云渡", P03, floor=1)
+P03_R02_L2 = Region(2, "LYD", "流云渡", P03, floor=2)
+P03_R03_L1 = Region(3, "HXG", "廻星港", P03, floor=1)
+P03_R03_L2 = Region(3, "HXG", "廻星港", P03, floor=2)
 P03_R04 = Region(4, "CLT", "长乐天", P03)
 P03_R05 = Region(5, "JRX", "金人巷", P03)
-P03_R06_L1 = Region(6, "TBS", "太卜司", P03, level=1)
-P03_R06_L2 = Region(6, "TBS", "太卜司", P03, level=2)
+P03_R06_L1 = Region(6, "TBS", "太卜司", P03, floor=1)
+P03_R06_L2 = Region(6, "TBS", "太卜司", P03, floor=2)
 P03_R07 = Region(7, "GZS", "工造司", P03)
-P03_R08_L1 = Region(8, "DDS", "丹鼎司", P03, level=1)
-P03_R08_L2 = Region(8, "DDS", "丹鼎司", P03, level=2)
+P03_R08_L1 = Region(8, "DDS", "丹鼎司", P03, floor=1)
+P03_R08_L2 = Region(8, "DDS", "丹鼎司", P03, floor=2)
 P03_R09 = Region(9, "LYJ", "鳞渊境", P03)
 
 # 这里的顺序需要保持和界面上的区域顺序一致
@@ -163,18 +161,18 @@ PLANET_2_REGION = {
 }
 
 
-def get_region_by_cn(cn: str, planet: Planet, level: int = 0) -> Region:
+def get_region_by_cn(cn: str, planet: Planet, floor: int = 0) -> Region:
     """
     根据区域的中文 获取对应常量
     :param cn: 区域的中文
     :param planet: 所属星球 传入后会判断 为以后可能重名准备
-    :param level: 层数
+    :param floor: 层数
     :return: 常量
     """
     for i in PLANET_2_REGION[planet.np_id]:
         if i.cn != cn:
             continue
-        if level is not None and i.level != level:
+        if floor is not None and i.floor != floor:
             continue
         return i
     return None
@@ -182,14 +180,13 @@ def get_region_by_cn(cn: str, planet: Planet, level: int = 0) -> Region:
 
 class TransportPoint:
 
-    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple, ocr_str: str = None):
+    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple):
         self.id: str = id  # 英文 用在找图
         self.cn: str = cn  # 中文 用在OCR
         self.region: Region = region  # 所属区域
         self.planet: Planet = region.planet  # 所属星球
         self.template_id: str = template_id  # 匹配模板
         self.lm_pos: tuple = lm_pos  # 在大地图的坐标
-        self.ocr_str: str = cn if ocr_str is None else ocr_str
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -198,7 +195,7 @@ class TransportPoint:
 # 空间站黑塔 - 主控舱段
 P01_R01_SP01 = TransportPoint('JCY', '监察域', P01_R01, 'mm_tp_03', (529, 231))
 P01_R01_SP02 = TransportPoint('HXTL', '核心通路', P01_R01, 'mm_tp_03', (592, 691))
-P01_R01_SP03 = TransportPoint('HTDBGS', '黑塔的办公室', P01_R01, 'mm_tp_04', (245, 796), ocr_str='办公室')
+P01_R01_SP03 = TransportPoint('HTDBGS', '黑塔的办公室', P01_R01, 'mm_tp_04', (245, 796))
 P01_R01_SP04 = TransportPoint('FSSQ', '封锁扇区', P01_R01, 'mm_sp_01', (228, 744))
 P01_R01_SP05 = TransportPoint('TKDT', '太空电梯', P01_R01, 'mm_sp_02', (562, 837))
 P01_R01_SP06 = TransportPoint('NGZY', '内购专员', P01_R01, 'mm_sp_04', (535, 628))
@@ -210,11 +207,11 @@ P01_R02_SP03 = TransportPoint('KHZX', '空海之形', P01_R02, 'mm_tp_06', (540,
 P01_R02_SP04 = TransportPoint('TKDT', '太空电梯', P01_R02, 'mm_sp_02', (556, 986))
 
 # 空间站黑塔 - 收容舱段
-P01_R03_SP01 = TransportPoint('ZT', '中庭', P01_R03_L1, 'mm_tp_03', (626, 346), ocr_str='一楼')
+P01_R03_SP01 = TransportPoint('ZT', '中庭', P01_R03_L1, 'mm_tp_03', (626, 346))
 P01_R03_SP02 = TransportPoint('KZZXW', '控制中心外', P01_R03_L1, 'mm_tp_03', (372, 375))
 P01_R03_SP03 = TransportPoint('TSJXS', '特殊解析室', P01_R03_L2, 'mm_tp_03', (765, 439))
 P01_R03_SP04 = TransportPoint('WMZJ', '无明之间', P01_R03_L1, 'mm_tp_03', (1040, 510))
-P01_R03_SP05 = TransportPoint('HMZL', '毁灭之蕾', P01_R03_L1, 'mm_tp_07', (316, 325), ocr_str='毁灭')
+P01_R03_SP05 = TransportPoint('HMZL', '毁灭之蕾', P01_R03_L1, 'mm_tp_07', (316, 325))
 P01_R03_SP06 = TransportPoint('SFZJ', '霜风之径', P01_R03_L1, 'mm_tp_09', (847, 367))
 P01_R03_SP07 = TransportPoint('LJZZ', '裂界征兆', P01_R03_L1, 'mm_sp_01', (459, 342))
 P01_R03_SP08 = TransportPoint('TKDT', '太空电梯', P01_R03_L1, 'mm_sp_02', (607, 364))
@@ -223,7 +220,7 @@ P01_R03_SP08 = TransportPoint('TKDT', '太空电梯', P01_R03_L1, 'mm_sp_02', (6
 P01_R04_SP01 = TransportPoint('BJKF', '备件库房', P01_R04_L2, 'mm_tp_03', (434, 240))
 P01_R04_SP02 = TransportPoint('YT', '月台', P01_R04_L2, 'mm_tp_03', (789, 404))
 P01_R04_SP03 = TransportPoint('DLS', '电力室', P01_R04_L2, 'mm_tp_03', (165, 414))
-P01_R04_SP04 = TransportPoint('CHZL', '存护之蕾', P01_R04_L2, 'mm_tp_07', (467, 322), ocr_str='存护')
+P01_R04_SP04 = TransportPoint('CHZL', '存护之蕾', P01_R04_L2, 'mm_tp_07', (467, 322))
 P01_R04_SP05 = TransportPoint('TKDT', '太空电梯', P01_R04_L2, 'mm_sp_02', (105, 345))
 P01_R04_SP06 = TransportPoint('HMDKD', '毁灭的开端', P01_R04_L2, 'mm_boss_01', (1010, 286))
 
@@ -235,31 +232,31 @@ P02_R01_SP04 = TransportPoint('LSWHBWG', '历史文化博物馆', P02_R01_L1, 'm
 P02_R01_SP05 = TransportPoint('CJXY', '城郊雪原', P02_R01_L1, 'mm_sp_02', (485, 370))
 P02_R01_SP06 = TransportPoint('BYTL', '边缘通路', P02_R01_L1, 'mm_sp_02', (508, 1113))
 P02_R01_SP07 = TransportPoint('TWJQ', '铁卫禁区', P02_R01_L1, 'mm_sp_02', (792, 1259))
-P02_R01_SP08 = TransportPoint('SHJ1', '售货机1', P02_R01_L1, 'mm_sp_03', (672, 521), ocr_str='售货机')
+P02_R01_SP08 = TransportPoint('SHJ1', '售货机1', P02_R01_L1, 'mm_sp_03', (672, 521))
 P02_R01_SP09 = TransportPoint('SS', '书商', P02_R01_L1, 'mm_sp_03', (641, 705))
 P02_R01_SP10 = TransportPoint('MBR', '卖报人', P02_R01_L1, 'mm_sp_03', (610, 806))
 P02_R01_SP11 = TransportPoint('XZQSD', '行政区商店', P02_R01_L1, 'mm_sp_03', (639, 906))
-P02_R01_SP12 = TransportPoint('SHJ2', '售货机2', P02_R01_L1, 'mm_sp_03', (697, 1187), ocr_str='售货机')
-P02_R01_SP13 = TransportPoint('HDCX', '花店长夏', P02_R01_L1, 'mm_sp_05', (602, 588), ocr_str='花店')
-P02_R01_SP14 = TransportPoint('KLBB1', '克里珀堡1', P02_R01_L1, 'mm_sp_05', (769, 732), ocr_str='克里珀堡')
-P02_R01_SP15 = TransportPoint('KLBB2', '克里珀堡2', P02_R01_L1, 'mm_sp_05', (769, 878), ocr_str='克里珀堡')
+P02_R01_SP12 = TransportPoint('SHJ2', '售货机2', P02_R01_L1, 'mm_sp_03', (697, 1187))
+P02_R01_SP13 = TransportPoint('HDCX', '花店长夏', P02_R01_L1, 'mm_sp_05', (602, 588))
+P02_R01_SP14 = TransportPoint('KLBB1', '克里珀堡1', P02_R01_L1, 'mm_sp_05', (769, 732))
+P02_R01_SP15 = TransportPoint('KLBB2', '克里珀堡2', P02_R01_L1, 'mm_sp_05', (769, 878))
 P02_R01_SP16 = TransportPoint('JWXYD', '机械屋永动', P02_R01_L1, 'mm_sp_05', (727, 918))
-P02_R01_SP17 = TransportPoint('GDBGRK', '歌德宾馆入口', P02_R01_L1, 'mm_sp_05', (627, 1152), ocr_str='歌德宾馆')
+P02_R01_SP17 = TransportPoint('GDBGRK', '歌德宾馆入口', P02_R01_L1, 'mm_sp_05', (627, 1152))  # 这个跟传送点冲突 区分一下
 P02_R01_SP18 = TransportPoint('PYZ', '磐岩镇', P02_R01_B1, 'mm_sp_02', (641, 778))
-P02_R01_SP19 = TransportPoint('SHJ3', '售货机3', P02_R01_B1, 'mm_sp_03', (516, 864), ocr_str='售货机')
+P02_R01_SP19 = TransportPoint('SHJ3', '售货机3', P02_R01_B1, 'mm_sp_03', (516, 864))
 
 # 雅利洛 - 城郊雪原
 P02_R02_SP01 = TransportPoint('CP', '长坡', P02_R02, 'mm_tp_03', (1035, 319))
 P02_R02_SP02 = TransportPoint('ZLD', '着陆点', P02_R02, 'mm_tp_03', (1283, 367))
 P02_R02_SP03 = TransportPoint('XLZL', '巡猎之蕾', P02_R02, 'mm_tp_07', (946, 244))
-P02_R02_SP04 = TransportPoint('HYZL', '回忆之蕾', P02_R02, 'mm_tp_08', (1098, 391), ocr_str='回忆')
+P02_R02_SP04 = TransportPoint('HYZL', '回忆之蕾', P02_R02, 'mm_tp_08', (1098, 391))
 P02_R02_SP05 = TransportPoint('XZQ', '行政区', P02_R02, 'mm_sp_02', (444, 109))
 P02_R02_SP06 = TransportPoint('LK', '玲可', P02_R02, 'mm_sp_03', (1032, 342))
 
 # 雅利洛 - 边缘通路
 P02_R03_SP01 = TransportPoint('HCGC', '候车广场', P02_R03, 'mm_tp_03', (598, 832))
 P02_R03_SP02 = TransportPoint('XXGC', '休闲广场', P02_R03, 'mm_tp_03', (690, 480))
-P02_R03_SP03 = TransportPoint('GDJZ', '歌德旧宅', P02_R03, 'mm_tp_03', (811, 259), ocr_str='歌德')
+P02_R03_SP03 = TransportPoint('GDJZ', '歌德旧宅', P02_R03, 'mm_tp_03', (811, 259))
 P02_R03_SP04 = TransportPoint('HGZX', '幻光之形', P02_R03, 'mm_tp_06', (450, 840))
 P02_R03_SP05 = TransportPoint('FRZL', '丰饶之蕾', P02_R03, 'mm_tp_07', (659, 509))
 P02_R03_SP06 = TransportPoint('YTZL', '以太之蕾', P02_R03, 'mm_tp_08', (596, 194))
@@ -275,9 +272,9 @@ P02_R04_SP07 = TransportPoint('DBJXQ', '冬兵进行曲', P02_R04, 'mm_sp_01', (
 P02_R04_SP08 = TransportPoint('CXHL', '残响回廊', P02_R04, 'mm_sp_02', (314, 589))
 
 # 雅利洛 - 残响回廊
-P02_R05_SP01 = TransportPoint('ZCLY', '筑城领域', P02_R05, 'mm_tp_03', (770, 442), ocr_str='筑城')
+P02_R05_SP01 = TransportPoint('ZCLY', '筑城领域', P02_R05, 'mm_tp_03', (770, 442))
 P02_R05_SP02 = TransportPoint('WRGC', '污染广场', P02_R05, 'mm_tp_03', (381, 655))
-P02_R05_SP03 = TransportPoint('ZZZHS', '作战指挥室', P02_R05, 'mm_tp_03', (495, 856), ocr_str='作战')
+P02_R05_SP03 = TransportPoint('ZZZHS', '作战指挥室', P02_R05, 'mm_tp_03', (495, 856))
 P02_R05_SP04 = TransportPoint('GZCQX', '古战场前线', P02_R05, 'mm_tp_03', (570, 1243))
 P02_R05_SP05 = TransportPoint('MLZX', '鸣雷之形', P02_R05, 'mm_tp_06', (526, 640))
 P02_R05_SP06 = TransportPoint('SJZX', '霜晶之形', P02_R05, 'mm_tp_06', (681, 1231))
@@ -288,13 +285,13 @@ P02_R05_SP09 = TransportPoint('YDL', '永冬岭', P02_R05, 'mm_sp02', (733, 1280
 # 雅利洛 - 永冬岭
 P02_R06_SP01 = TransportPoint('GZC', '古战场', P02_R06, 'mm_tp_03', (366, 776))
 P02_R06_SP02 = TransportPoint('ZWPT', '造物平台', P02_R06, 'mm_tp_03', (784, 571))
-P02_R06_SP03 = TransportPoint('RZZJ', '睿治之径', P02_R06, 'mm_tp_09', (585, 663), ocr_str='治之径')
+P02_R06_SP03 = TransportPoint('RZZJ', '睿治之径', P02_R06, 'mm_tp_09', (585, 663))
 P02_R06_SP04 = TransportPoint('CXHL', '残响回廊', P02_R06, 'mm_sp_02', (338, 793))
 P02_R06_SP05 = TransportPoint('HCDLM', '寒潮的落幕', P02_R06, 'mm_boss_02', (814, 701))
 
 # 雅利洛 - 造物之柱
-P02_R07_SP01 = TransportPoint('ZWZZRK', '造物之柱入口', P02_R07, 'mm_tp_03', (382, 426), ocr_str='入口')
-P02_R07_SP02 = TransportPoint('ZWZZSGC', '造物之柱施工场', P02_R07, 'mm_tp_03', (660, 616), ocr_str='施工场')
+P02_R07_SP01 = TransportPoint('ZWZZRK', '造物之柱入口', P02_R07, 'mm_tp_03', (382, 426))
+P02_R07_SP02 = TransportPoint('ZWZZSGC', '造物之柱施工场', P02_R07, 'mm_tp_03', (660, 616))
 P02_R07_SP03 = TransportPoint('CXHL', '残响回廊', P02_R07, 'mm_sp_02', (313, 346))
 
 # 雅利洛 - 旧武器试验场
@@ -317,7 +314,7 @@ P02_R09_SP10 = TransportPoint('NTSDZSRK', '娜塔莎的诊所入口', P02_R09, '
 # 雅利洛 - 大矿区
 P02_R10_SP01 = TransportPoint('RK', '入口', P02_R10, 'mm_tp_03', (333, 166))
 P02_R10_SP02 = TransportPoint('LLZBNS', '流浪者避难所', P02_R10, 'mm_tp_03', (778, 349))
-P02_R10_SP03 = TransportPoint('FKD', '俯瞰点', P02_R10, 'mm_tp_03', (565, 641), ocr_str='点')
+P02_R10_SP03 = TransportPoint('FKD', '俯瞰点', P02_R10, 'mm_tp_03', (565, 641))
 P02_R10_SP04 = TransportPoint('ZKD', '主矿道', P02_R10, 'mm_tp_03', (530, 757))
 P02_R10_SP05 = TransportPoint('FMZX', '锋芒之形', P02_R10, 'mm_tp_06', (561, 536))
 P02_R10_SP06 = TransportPoint('FZZX', '燔灼之形', P02_R10, 'mm_tp_06', (836, 630))
@@ -329,7 +326,7 @@ P02_R10_SP09 = TransportPoint('PYZ', '磐岩镇', P02_R10, 'mm_sp_02', (351, 144
 P02_R11_SP01 = TransportPoint('GEY', '孤儿院', P02_R11_L1, 'mm_tp_03', (600, 211))
 P02_R11_SP02 = TransportPoint('FQSJ', '废弃市集', P02_R11_L1, 'mm_tp_03', (465, 374))
 P02_R11_SP03 = TransportPoint('RK', '入口', P02_R11_L1, 'mm_tp_03', (613, 675))
-P02_R11_SP04 = TransportPoint('XFZX', '巽风之形', P02_R11_L1, 'mm_tp_06', (580, 374), ocr_str='风之形')
+P02_R11_SP04 = TransportPoint('XFZX', '巽风之形', P02_R11_L1, 'mm_tp_06', (580, 374))
 P02_R11_SP05 = TransportPoint('ZSZL', '智识之蕾', P02_R11_L1, 'mm_tp_07', (609, 608))
 P02_R11_SP06 = TransportPoint('JWQSYC', '旧武器试验场', P02_R11_L1, 'mm_sp_02', (767, 244))  # 与 机械聚落 重合
 P02_R11_SP07 = TransportPoint('PYZ', '磐岩镇', P02_R11_L1, 'mm_sp_02', (597, 698))
@@ -338,7 +335,7 @@ P02_R11_SP07 = TransportPoint('PYZ', '磐岩镇', P02_R11_L1, 'mm_sp_02', (597, 
 P02_R12_SP01 = TransportPoint('LLZYD', '流浪者营地', P02_R12_L2, 'mm_tp_03', (556, 174))
 P02_R12_SP02 = TransportPoint('SQLZD', '史瓦罗驻地', P02_R12_L2, 'mm_tp_03', (554, 506))
 P02_R12_SP03 = TransportPoint('NYZHSS', '能源转换设施', P02_R12_L1, 'mm_tp_03', (413, 527))
-P02_R12_SP04 = TransportPoint('TXZL', '同谐之蕾', P02_R12_L1, 'mm_tp_07', (298, 564), ocr_str='同谐')
+P02_R12_SP04 = TransportPoint('TXZL', '同谐之蕾', P02_R12_L1, 'mm_tp_07', (298, 564))
 
 # 仙舟罗浮 - 星槎海中枢
 P03_R01_SP01 = TransportPoint('XCMT', '星槎码头', P03_R01, 'mm_tp_03', (443, 341))
@@ -370,8 +367,8 @@ P03_R02_SP08 = TransportPoint('GQYBSGC', '过期邮包收购处', P03_R02_L1, 'm
 
 # 仙舟罗浮 - 廻星港
 P03_R03_SP01 = TransportPoint('FXXZ', '飞星小筑', P03_R03_L2, 'mm_tp_03', (834, 249))
-P03_R03_SP02 = TransportPoint('ZCQMJ', '植船区萌甲', P03_R03_L1, 'mm_tp_03', (441, 465), ocr_str='萌甲')
-P03_R03_SP03 = TransportPoint('ZCQFS', '植船区繁生', P03_R03_L1, 'mm_tp_03', (523, 609), ocr_str='繁生')
+P03_R03_SP02 = TransportPoint('ZCQMJ', '植船区萌甲', P03_R03_L1, 'mm_tp_03', (441, 465))
+P03_R03_SP03 = TransportPoint('ZCQFS', '植船区繁生', P03_R03_L1, 'mm_tp_03', (523, 609))
 P03_R03_SP04 = TransportPoint('BHQ', '泊航区', P03_R03_L1, 'mm_tp_03', (647, 707))
 P03_R03_SP05 = TransportPoint('ZEZX', '震厄之形', P03_R03_L1, 'mm_tp_06', (729, 803))
 P03_R03_SP06 = TransportPoint('YYZJ', '野焰之径', P03_R03_L1, 'mm_tp_09', (455, 374))
@@ -419,7 +416,7 @@ P03_R06_SP06 = TransportPoint('CLT', '长乐天', P03_R06_L2, 'mm_sp_02', (449, 
 
 # 仙舟罗浮 - 工造司
 P03_R07_SP01 = TransportPoint('GWYTD', '格物院通道', P03_R07, 'mm_tp_03', (461, 485))
-P03_R07_SP02 = TransportPoint('RJFTD', '镕金坊通道', P03_R07, 'mm_tp_03', (821, 602), ocr_str='金坊')
+P03_R07_SP02 = TransportPoint('RJFTD', '镕金坊通道', P03_R07, 'mm_tp_03', (821, 602))
 P03_R07_SP03 = TransportPoint('XJP', '玄机坪', P03_R07, 'mm_tp_03', (189, 865))
 P03_R07_SP04 = TransportPoint('ZHHL', '造化洪炉', P03_R07, 'mm_tp_03', (758, 964))
 P03_R07_SP05 = TransportPoint('YOZX', '偃偶之形', P03_R07, 'mm_tp_06', (388, 655))
@@ -428,7 +425,7 @@ P03_R07_SP07 = TransportPoint('TBS', '太卜司', P03_R07, 'mm_sp_02', (170, 928
 
 # 仙舟罗浮 - 丹鼎司
 P03_R08_SP01 = TransportPoint('TZDS', '太真丹室', P03_R08_L1, 'mm_tp_03', (547, 555))
-P03_R08_SP02 = TransportPoint('GYT', '观颐台', P03_R08_L1, 'mm_tp_03', (438, 694), ocr_str='观')
+P03_R08_SP02 = TransportPoint('GYT', '观颐台', P03_R08_L1, 'mm_tp_03', (438, 694))
 P03_R08_SP03 = TransportPoint('XYSJ', '行医市集', P03_R08_L2, 'mm_tp_03', (826, 898))
 P03_R08_SP04 = TransportPoint('QHS', '岐黄署', P03_R08_L2, 'mm_tp_03', (819, 1533))
 P03_R08_SP05 = TransportPoint('TRZX', '天人之形', P03_R08_L2, 'mm_tp_06', (1225, 1087))
@@ -441,10 +438,10 @@ P03_R08_SP11 = TransportPoint('YRDXYT', '永仁的小药摊', P03_R08_L2, 'mm_sp
 P03_R08_SP12 = TransportPoint('GGDYCT', '汵汵的药材摊', P03_R08_L2, 'mm_sp_03', (837, 843))
 
 # 仙舟罗浮 - 鳞渊境
-P03_R09_SP01 = TransportPoint('GXSC', '宫墟深处', P03_R09, 'mm_tp_03', (891, 425), ocr_str='深处')
-P03_R09_SP02 = TransportPoint('GHGX', '古海宫墟', P03_R09, 'mm_tp_03', (1113, 425), ocr_str='古海')
-P03_R09_SP03 = TransportPoint('XLDYD', '显龙大雩殿', P03_R09, 'mm_tp_03', (1599, 444), ocr_str='显龙')
-P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形', P03_R09, 'mm_tp_06', (917, 169), ocr_str='兽之形')
+P03_R09_SP01 = TransportPoint('GXSC', '宫墟深处', P03_R09, 'mm_tp_03', (891, 425))
+P03_R09_SP02 = TransportPoint('GHGX', '古海宫墟', P03_R09, 'mm_tp_03', (1113, 425))
+P03_R09_SP03 = TransportPoint('XLDYD', '显龙大雩殿', P03_R09, 'mm_tp_03', (1599, 444))
+P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形', P03_R09, 'mm_tp_06', (917, 169))
 P03_R09_SP05 = TransportPoint('DDS', '丹鼎司', P03_R09, 'mm_sp_02', (1891, 391))
 P03_R09_SP06 = TransportPoint('BSDSS', '不死的神实', P03_R09, 'mm_boss_03', (470, 450))
 
@@ -483,23 +480,23 @@ REGION_2_SP = {
 }
 
 
-def get_sp_by_cn(planet_cn: str, region_cn: str, level: int, tp_cn: str) -> TransportPoint:
+def get_sp_by_cn(planet_cn: str, region_cn: str, floor: int, tp_cn: str) -> TransportPoint:
     p: Planet = get_planet_by_cn(planet_cn)
-    r: Region = get_region_by_cn(region_cn, p, level)
+    r: Region = get_region_by_cn(region_cn, p, floor)
     for i in REGION_2_SP.get(r.pr_id):
         if i.cn != tp_cn:
             continue
         return i
 
 
-def region_with_another_floor(region: Region, level: int) -> Region:
+def region_with_another_floor(region: Region, floor: int) -> Region:
     """
     切换层数
     :param region:
-    :param level:
+    :param floor:
     :return:
     """
-    return get_region_by_cn(region.cn, region.planet, level)
+    return get_region_by_cn(region.cn, region.planet, floor)
 
 
 def get_sp_type_in_rect(region: Region, rect: tuple) -> dict:

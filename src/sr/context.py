@@ -2,18 +2,24 @@ import keyboard
 import pyautogui
 import threading
 
+from basic import i18_utils
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
+from sr.config import game_config
+from sr.const import game_config_const
 from sr.control import GameController
 from sr.control.pc_controller import PcController
-from sr.image import ImageMatcher, OcrMatcher
+from sr.image import ImageMatcher
+from sr.image.en_ocr_matcher import EnOcrMatcher
+from sr.image.ocr_matcher import OcrMatcher
 from sr.image.cnocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import fill_uid_black
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.win import Window
+
 
 
 class Context:
@@ -108,7 +114,7 @@ class Context:
         try:
             if self.controller is None:
                 if self.platform == 'PC':
-                    win = Window(gt('崩坏：星穹铁道'))
+                    win = Window(gt('崩坏：星穹铁道', model='ui'))
                     self.controller = PcController(win=win, ocr=self.ocr)
         except pyautogui.PyAutoGUIException:
             log.error('未开打游戏')
@@ -128,7 +134,7 @@ class Context:
         if renew:
             self.ocr = None
         if self.ocr is None:
-            self.ocr = CnOcrMatcher()
+            self.ocr = get_ocr_matcher(game_config.get().lang)
         log.info('加载OCR识别器完毕')
         return True
 
@@ -151,6 +157,22 @@ class Context:
         """
         self.init_controller()
         save_debug_image(fill_uid_black(self.controller.screenshot()))
+
+
+_ocr_matcher = {}
+
+
+def get_ocr_matcher(lang: str) -> OcrMatcher:
+    matcher: OcrMatcher = None
+    if lang not in _ocr_matcher:
+        if lang == game_config_const.LANG_CN:
+            matcher = CnOcrMatcher()
+        elif lang == game_config_const.LANG_EN:
+            matcher = EnOcrMatcher()
+        _ocr_matcher[lang] = matcher
+    else:
+        matcher = _ocr_matcher[lang]
+    return matcher
 
 
 global_context: Context = Context()

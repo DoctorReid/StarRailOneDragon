@@ -11,7 +11,7 @@ from sr import const
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.control import GameController
-from sr.image import OcrMatcher
+from sr.image.ocr_matcher import OcrMatcher
 from sr.win import Window, WinRect
 
 

@@ -34,7 +34,7 @@ class ChooseRegion(Operation):
 
         # 判断当前选择区域是否目标区域
         current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
-        target_region_name = gt(self.region.ocr_str)
+        target_region_name = gt(self.region.cn, 'ocr')
         log.info('当前选择区域 %s', current_region_name)
         if current_region_name is None or current_region_name.find(target_region_name) == -1:
             find = self.click_target_region(screen)
@@ -47,14 +47,14 @@ class ChooseRegion(Operation):
                 return Operation.RETRY
 
         # 需要选择层数
-        if self.region.level != 0:
-            level_str = large_map.get_active_level(screen, self.ctx.ocr)
-            log.info('当前层数 %s', level_str)
-            if level_str is None:
+        if self.region.floor != 0:
+            floor_str = large_map.get_active_floor(screen, self.ctx.ocr)
+            log.info('当前层数 %s', floor_str)
+            if floor_str is None:
                 log.error('未找到当前选择的层数')
-            target_level_str = gt('%d层' % self.region.level)
-            if target_level_str != level_str:
-                cl = self.click_target_level(screen, target_level_str)
+            target_floor_str = gt('%d层' % self.region.floor, 'ocr')
+            if target_floor_str != floor_str:
+                cl = self.click_target_floor(screen, target_floor_str)
                 time.sleep(0.5)
                 if not cl:
                     log.error('未成功点击层数')
@@ -72,7 +72,7 @@ class ChooseRegion(Operation):
         :param screen:
         :return:
         """
-        return self.ctx.controller.click_ocr(screen, self.region.ocr_str, rect=large_map.REGION_LIST_RECT, threshold=0.4)
+        return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT, threshold=0.4)
 
     def scroll_when_no_target_region(self, current_region_name):
         """
@@ -98,7 +98,7 @@ class ChooseRegion(Operation):
                 for r in region_list:
                     if r == self.region:
                         break
-                    if current_region_name.find(gt(r.ocr_str)) != -1:
+                    if current_region_name.find(gt(r.cn, 'ocr')) != -1:
                         find_current = True
 
                 # 在找到目标区域前 当前区域已经出现 说明目标区域在下面 向下滚动
@@ -117,15 +117,15 @@ class ChooseRegion(Operation):
         x2, y2 = x1, y1 + d * -200
         self.ctx.controller.drag_to(start=(x1, y1), end=(x2, y2), duration=0.5)
 
-    def click_target_level(self, screen, target_level_str: str) -> bool:
+    def click_target_floor(self, screen, target_floor_str: str) -> bool:
         """
         点击目标层数
         :param screen: 大地图界面截图
-        :param target_level_str: 层数
+        :param target_floor_str: 层数
         :return:
         """
-        part, _ = cv2_utils.crop_image(screen, large_map.LEVEL_LIST_PART)
-        return self.ctx.controller.click_ocr(part, target_level_str, click_offset=large_map.LEVEL_LIST_PART[:2],
+        part, _ = cv2_utils.crop_image(screen, large_map.FLOOR_LIST_PART)
+        return self.ctx.controller.click_ocr(part, target_floor_str, click_offset=large_map.FLOOR_LIST_PART[:2],
                                              same_word=True)
 
     def check_tp_and_cancel(self, screen) -> bool:
@@ -136,7 +136,7 @@ class ChooseRegion(Operation):
         """
         tp_btn_part, _ = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
-        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')], threshold=0.4)
+        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'], threshold=0.4)
         if len(tp_btn_ocr) > 0:
             return self.ctx.controller.click(large_map.EMPTY_MAP_POS)
         return False

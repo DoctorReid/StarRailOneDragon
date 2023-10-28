@@ -23,3 +23,12 @@ RUN_MODE = {
     '通过按钮切换': RUN_MODE_BTN,
     '长按进入疾跑状态': RUN_MODE_AUTO
 }
+
+# 语言
+LANG_CN = 'cn'
+LANG_EN = 'en'
+
+LANG_OPTS = {
+    '简体中文': LANG_CN,
+    'English': LANG_EN
+}

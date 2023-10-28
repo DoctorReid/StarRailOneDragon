@@ -1,7 +1,7 @@
 author: ['DoctorReid', '龙女姬']
 planet: '仙舟罗浮'
 region: '太卜司'
-level: 2
+floor: 2
 tp: '祥台'
 route:
   - op: 'move'

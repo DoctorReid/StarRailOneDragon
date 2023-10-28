@@ -9,6 +9,8 @@ from basic.i18_utils import gt
 from basic.img import MatchResultList, MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import const
+from sr.config import game_config
+from sr.const import game_config_const
 from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.image.sceenshot import LargeMapInfo, large_map
@@ -17,7 +19,7 @@ from sr.operation import Operation
 
 class ChooseTransportPoint(Operation):
 
-    tp_name_rect = (1485, 120, 1800, 170)  # 右侧显示传送点名称的区域
+    tp_name_rect = (1485, 120, 1850, 170)  # 右侧显示传送点名称的区域
     drag_distance = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
@@ -80,18 +82,31 @@ class ChooseTransportPoint(Operation):
         """
         tp_btn_part, _ = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
-        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, [gt('传送')], threshold=0.4)
+        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'], threshold=0.4)
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
             tp_name_part, _ = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
             lower_color = np.array([55, 55, 55], dtype=np.uint8)
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
-            # gold_part = cv2_utils.dilate(gold_part, 1)
-            tp_name_str: str = self.ctx.ocr.ocr_for_single_line(gold_part)
+            current_lang: str = game_config.get().lang
+            if current_lang == game_config_const.LANG_CN:
+                gold_part = cv2_utils.dilate(gold_part, 1)
+            tp_name_str: str = None
+            if current_lang == game_config_const.LANG_CN:
+                tp_name_str = self.ctx.ocr.ocr_for_single_line(gold_part)
+            elif current_lang == game_config_const.LANG_EN:
+                ocr_result: dict = self.ctx.ocr.run_ocr(gold_part)
+                tp_name_str = None
+                for k in ocr_result.keys():
+                    if tp_name_str is None:
+                        tp_name_str = k
+                    else:
+                        tp_name_str += ' ' + k
+
             log.info('当前选择传送点名称 %s', tp_name_str)
             # cv2_utils.show_image(gold_part, win_name='gold_part')
-            if tp_name_str is not None and tp_name_str.find(gt(self.tp.ocr_str)) != -1:
+            if tp_name_str is not None and tp_name_str.lower().find(gt(self.tp.cn, 'ocr').lower()) != -1:
                 # 点击传送
                 tx = large_map.TP_BTN_RECT[0]
                 ty = large_map.TP_BTN_RECT[1]
@@ -189,7 +204,7 @@ class ChooseTransportPoint(Operation):
         white_part = cv2.inRange(screen_map, lower_color, upper_color)  # 提取白色部分方便匹配
 
         # cv2_utils.show_image(white_part, win_name='check_and_click_sp_cn')
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.tp.ocr_str)], threshold=0.3)
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.tp.cn], threshold=0.3)
 
         for r in ocr_result.values():
             tx = r.max.cx + large_map.CUT_MAP_RECT[0]

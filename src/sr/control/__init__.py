@@ -3,7 +3,7 @@ from cv2.typing import MatLike
 import basic.cal_utils
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.image import OcrMatcher
+from sr.image.ocr_matcher import OcrMatcher
 
 
 class GameController:

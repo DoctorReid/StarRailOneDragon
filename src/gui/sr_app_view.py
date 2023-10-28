@@ -17,10 +17,10 @@ class SrAppView:
         self.page = page
         self.ctx = ctx
 
-        self.start_btn = ft.ElevatedButton(text=gt("F9 开始"), on_click=self.start)
-        self.pause_btn = ft.ElevatedButton(text=gt("F9 暂停"), on_click=self.pause, visible=False)
-        self.resume_btn = ft.ElevatedButton(text=gt("F9 继续"), on_click=self.resume, visible=False)
-        self.stop_btn = ft.ElevatedButton(text=gt("F10 结束"), on_click=self.stop, disabled=True)
+        self.start_btn = ft.ElevatedButton(text=gt("F9 开始", model='ui'), on_click=self.start)
+        self.pause_btn = ft.ElevatedButton(text=gt("F9 暂停", model='ui'), on_click=self.pause, visible=False)
+        self.resume_btn = ft.ElevatedButton(text=gt("F9 继续", model='ui'), on_click=self.resume, visible=False)
+        self.stop_btn = ft.ElevatedButton(text=gt("F10 结束", model='ui'), on_click=self.stop, disabled=True)
 
         ctrl_row = ft.Row(controls=[
             ft.Container(content=self.start_btn),
@@ -29,10 +29,10 @@ class SrAppView:
             ft.Container(content=self.stop_btn),
         ], alignment=MainAxisAlignment.CENTER)
 
-        self.shutdown_check = ft.Checkbox(label=gt("结束后关机"), value=False, on_change=self.on_shutdown_changed)
+        self.shutdown_check = ft.Checkbox(label=gt("结束后关机", model='ui'), value=False, on_change=self.on_shutdown_changed)
 
         self.running = ft.ProgressRing(width=16, height=16, stroke_width=2, visible=False)
-        self.running_status = ft.Text(value=gt('未开始'))
+        self.running_status = ft.Text(value=gt('未开始', model='ui'))
         progress_col = ft.Column(controls=[
             ft.Container(content=self.running, height=20),
             ft.Container(content=self.running_status),
@@ -53,7 +53,7 @@ class SrAppView:
             snack_bar.show_message('请先结束其他运行中的功能 再启动', self.page)
             return
 
-        self.running_status.value = gt('运行中')
+        self.running_status.value = gt('运行中', model='ui')
         self.running.visible = True
         self.start_btn.visible = False
         self.pause_btn.visible = True
@@ -67,7 +67,7 @@ class SrAppView:
         t.start()
 
     def on_pause(self):
-        self.running_status.value = gt('暂停')
+        self.running_status.value = gt('暂停', model='ui')
         self.running.visible = False
         self.start_btn.visible = False
         self.pause_btn.visible = False
@@ -79,7 +79,7 @@ class SrAppView:
         self.ctx.switch()
 
     def on_resume(self):
-        self.running_status.value = gt('运行中')
+        self.running_status.value = gt('运行中', model='ui')
         self.running.visible = True
         self.start_btn.visible = False
         self.pause_btn.visible = True
@@ -97,7 +97,7 @@ class SrAppView:
         pass
 
     def after_stop(self):
-        self.running_status.value = gt('未开始')
+        self.running_status.value = gt('未开始', model='ui')
         self.running.visible = False
         self.start_btn.visible = True
         self.pause_btn.visible = False

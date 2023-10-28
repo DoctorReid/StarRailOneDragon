@@ -1,7 +1,7 @@
 author: ['DoctorReid']
 planet: '仙舟罗浮'
 region: '丹鼎司'
-level: 1
+floor: 1
 tp: '观颐台'
 route:
   - op: 'move'

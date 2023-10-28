@@ -46,7 +46,7 @@ class Interact(Operation):
         white_part = cv2.inRange(cv2_utils.crop_image(screen, Interact.rect)[0], lower_color, upper_color)  # 提取白色部分方便匹配
         # cv2_utils.show_image(white_part, wait=0)
 
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[gt(self.cn)])
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.cn])
 
         if len(ocr_result) == 0:  # 目前没有交互按钮 尝试左右挪动触发交互
             move = 'wasd'

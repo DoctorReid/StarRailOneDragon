@@ -1,5 +1,3 @@
-from typing import List
-
 import numpy as np
 from cv2.typing import MatLike
 
@@ -25,8 +23,6 @@ class TemplateImage:
             return self.gray
         if t == 'mask':
             return self.mask
-
-
 
 
 class ImageMatcher:
@@ -91,42 +87,6 @@ class ImageMatcher:
         :return: 每个选择角度的匹配结果
         """
         pass
-
-
-class OcrMatcher:
-
-    def ocr_for_single_line(self, image: MatLike, threshold: float = 0.5) -> str:
-        pass
-
-    def run_ocr(self, image: MatLike, threshold: float = 0.5) -> dict:
-        """
-        对图片进行OCR 返回所有匹配结果
-        :param image: 图片
-        :param threshold: 匹配阈值
-        :return: {key_word: []}
-        """
-        pass
-
-    def match_words(self, image: MatLike, words: List[str], threshold: float = 0.5, same_word: bool = False) -> dict:
-        """
-        在图片中查找关键词 返回所有词对应的位置
-        :param image: 图片
-        :param words: 关键词
-        :param threshold: 匹配阈值
-        :param same_word: 要求整个词一样
-        :return: {key_word: []}
-        """
-        all_match_result: dict = self.run_ocr(image, threshold)
-        match_key = set()
-        for k in all_match_result.keys():
-            for w in words:
-                if same_word and k == w:
-                    match_key.add(k)
-                elif not same_word and k.find(w) != -1:
-                    match_key.add(k)
-                    break
-
-        return {key: all_match_result[key] for key in match_key if key in all_match_result}
 
 
 def get_large_map_dir_path(region: Region):

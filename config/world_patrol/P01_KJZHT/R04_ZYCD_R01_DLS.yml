@@ -1,7 +1,7 @@
 author: ['DoctorReid']
 planet: '空间站黑塔'
 region: '支援舱段'
-level: 2
+floor: 2
 tp: '电力室'
 route:
   - op: 'move'

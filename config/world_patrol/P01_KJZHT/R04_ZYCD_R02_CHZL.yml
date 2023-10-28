@@ -1,7 +1,7 @@
 author: ['DoctorReid', '龙女姬']
 planet: '空间站黑塔'
 region: '支援舱段'
-level: 2
+floor: 2
 tp: '存护之蕾'
 route:
   - op: 'move'

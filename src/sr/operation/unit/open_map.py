@@ -3,7 +3,7 @@ import time
 from basic.log_utils import log
 from sr.context import Context
 from sr.control import GameController
-from sr.image import OcrMatcher
+from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
 

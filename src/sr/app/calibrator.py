@@ -37,7 +37,7 @@ class Calibrator(Application):
             tp: TransportPoint = map_const.P01_R02_SP02
             op = Transport(self.ctx, tp, True)
             if not op.execute():
-                log.error('传送到 %s %s 失败 小地图定位校准 失败', gt(tp.region.cn), gt(tp.cn))
+                log.error('传送到 %s %s 失败 小地图定位校准 失败', gt(tp.region.cn, 'ocr'), gt(tp.cn, 'ocr'))
                 return False
 
             screenshot = self.screenshot()
@@ -111,7 +111,7 @@ class Calibrator(Application):
         tp: TransportPoint = map_const.P01_R04_SP02
         op = Transport(self.ctx, tp, True)
         if not op.execute():
-            log.error('传送到 %s %s 失败 疾跑距离校准 失败', gt(tp.region.cn), gt(tp.cn))
+            log.error('传送到 %s %s 失败 疾跑距离校准 失败', gt(tp.region.cn, 'ocr'), gt(tp.cn, 'ocr'))
             return False
 
         lm_info: LargeMapInfo = self.ctx.ih.get_large_map(tp.region)

@@ -1,7 +1,7 @@
 author: ['DoctorReid']
 planet: '仙舟罗浮'
 region: '鳞渊境'
-level: 0
+floor: 0
 tp: '孽兽之形'
 route:
   - op: 'move'

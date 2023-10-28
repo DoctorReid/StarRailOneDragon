@@ -1,6 +1,7 @@
 import flet as ft
 from flet_core import CrossAxisAlignment
 
+from basic import i18_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.config import game_config
@@ -16,27 +17,35 @@ class SettingsView:
         self.ctx = ctx
 
         self.server_region = ft.Dropdown(
-            label=gt("区服"), width=200,
+            label=gt("区服", model='ui'), width=200,
             options=[
                 ft.dropdown.Option(text=r, key=r) for r in game_config_const.SERVER_TIME_OFFSET.keys()
             ],
             on_change=self.on_server_region_changed
         )
         self.run_mode_dropdown = ft.Dropdown(
-            label=gt("疾跑设置"), width=200,
+            label=gt("疾跑设置", model='ui'), width=200,
             options=[
                 ft.dropdown.Option(text=k, key=v) for k, v in game_config_const.RUN_MODE.items()
             ],
             on_change=self.on_run_mode_changed
         )
+        self.lang_dropdown = ft.Dropdown(
+            label=gt("语言", model='ui'), width=200,
+            options=[
+                ft.dropdown.Option(text=k, key=v) for k, v in game_config_const.LANG_OPTS.items()
+            ],
+            on_change=self.on_lang_changed
+        )
 
-        self.save_btn = ft.ElevatedButton(text=gt("保存"), on_click=self.save_config)
+        self.save_btn = ft.ElevatedButton(text=gt("保存", model='ui'), on_click=self.save_config)
 
         self.component = ft.Column(
             spacing=20, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
             controls=[
                 ft.Container(content=self.server_region, padding=5),
                 ft.Container(content=self.run_mode_dropdown, padding=5),
+                ft.Container(content=self.lang_dropdown, padding=5),
                 ft.Container(content=self.save_btn, padding=5),
             ])
 
@@ -50,6 +59,7 @@ class SettingsView:
         gc: GameConfig = game_config.get()
         self.server_region.value = gc.server_region
         self.run_mode_dropdown.value = gc.run_mode
+        self.lang_dropdown.value = gc.lang
 
     def on_server_region_changed(self, e):
         gc: GameConfig = game_config.get()
@@ -58,6 +68,11 @@ class SettingsView:
     def on_run_mode_changed(self, e):
         gc: GameConfig = game_config.get()
         gc.set_run_mode(int(self.run_mode_dropdown.value))
+
+    def on_lang_changed(self, e):
+        gc: GameConfig = game_config.get()
+        gc.set_lang(self.lang_dropdown.value)
+        i18_utils.update_default_lang(self.lang_dropdown.value)
 
     def save_config(self, e):
         gc: GameConfig = game_config.get()
