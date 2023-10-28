@@ -12,7 +12,7 @@ from basic import os_utils
 from basic.log_utils import log
 from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol, WorldPatrolRouteId, \
     WorldPatrolWhitelist
-from sr.const import map_const
+from sr.const import map_const, route_const
 from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
     REGION_2_SP, TransportPoint, region_with_another_floor
 from sr.context import Context
@@ -67,22 +67,27 @@ class WorldPatrolDraftRouteView:
             controls=[self.planet_dropdown, self.region_dropdown, self.level_dropdown, self.tp_dropdown]
         )
 
-        self.switch_level = ft.Dropdown(label='路线中切换层数', width=200, on_change=self.on_switch_level)
+        self.switch_level = ft.Dropdown(label='中途切换层数', width=150, on_change=self.on_switch_level)
         self.patrol_btn = ft.ElevatedButton(text='攻击怪物', disabled=True, on_click=self.add_patrol)
-        self.interact_text = ft.TextField(label="交互文本", width=200, disabled=True)
+        self.interact_text = ft.TextField(label="交互文本", width=150, disabled=True)
         self.interact_btn = ft.ElevatedButton(text='交互', disabled=True, on_click=self.on_interact)
         self.update_pos_btn = ft.ElevatedButton(text='不移动更新坐标', disabled=True, on_click=self.on_update_pos)
+        self.wait_timeout_text = ft.TextField(
+            label='等待秒数', width=100,
+        )
         self.wait_dropdown = ft.Dropdown(
-            label='等待', width=200,
+            label='等待类型', width=100,
             options=[
-                ft.dropdown.Option(text='主界面', key='in_world')
+                ft.dropdown.Option(text='主界面', key='in_world'),
+                ft.dropdown.Option(text='秒数', key='seconds')
             ],
             on_change=self.on_wait_changed
         )
+        self.add_wait_btn = ft.ElevatedButton(text='等待', disabled=True, on_click=self.add_wait)
 
         ctrl_row = ft.Row(
             spacing=10,
-            controls=[self.switch_level, self.patrol_btn, self.interact_text, self.interact_btn, self.wait_dropdown, self.update_pos_btn]
+            controls=[self.switch_level, self.patrol_btn, self.interact_text, self.interact_btn, self.wait_timeout_text, self.wait_dropdown, self.add_wait_btn, self.update_pos_btn]
         )
 
         self.image_width = 1000
@@ -276,7 +281,7 @@ class WorldPatrolDraftRouteView:
                 cfg += "    data: '%s'\n" % route_item['data']
             elif route_item['op'] == 'wait':
                 cfg += "  - op: 'wait'\n"
-                cfg += "    data: '%s'\n" % route_item['data']
+                cfg += "    data: ['%s', '%d']\n" % (route_item['data'][0], route_item['data'][1])
             elif route_item['op'] == 'update_pos':
                 cfg += "  - op: 'update_pos'\n"
                 pos = route_item['data']
@@ -410,7 +415,15 @@ class WorldPatrolDraftRouteView:
         self.draw_route_and_display()
 
     def on_wait_changed(self, e):
-        self.route_list.append({'op': 'wait', 'data': self.wait_dropdown.value})
+        if self.wait_dropdown.value == route_const.WAIT_IN_WORLD:
+            self.wait_timeout_text.value = '20'  # 给主界面加一个20秒固定超时时间
+        elif self.wait_dropdown.value == route_const.WAIT_SECONDS:
+            if int(self.wait_timeout_text.value) > 10:  # 等待秒数通常不会太长 默认一个1
+                self.wait_timeout_text.value = '1'
+        self.page.update()
+
+    def add_wait(self, e):
+        self.route_list.append({'op': 'wait', 'data': [self.wait_dropdown.value, int(self.wait_timeout_text.value)]})
         self.draw_route_and_display()
 
     def on_update_pos(self, e):
@@ -458,7 +471,9 @@ class WorldPatrolDraftRouteView:
         self.patrol_btn.disabled = self.chosen_sp is None
         self.interact_text.disabled = self.chosen_sp is None
         self.interact_btn.disabled = self.chosen_sp is None
+        self.wait_timeout_text.disabled = self.chosen_sp is None
         self.wait_dropdown.disabled = self.chosen_sp is None
+        self.add_wait_btn.disabled = self.chosen_sp is None
         self.update_pos_btn.disabled = self.chosen_sp is None
 
         self.page.update()

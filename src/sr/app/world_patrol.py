@@ -7,7 +7,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import Application
 from sr.config import ConfigHolder, game_config
-from sr.const import map_const, game_config_const
+from sr.const import map_const, game_config_const, route_const
 from sr.const.map_const import TransportPoint, region_with_another_floor, Region, PLANET_LIST, Planet, PLANET_2_REGION, \
     REGION_2_SP
 from sr.context import Context, get_context
@@ -17,6 +17,7 @@ from sr.operation.combine.transport import Transport
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move_directly import MoveDirectly
+from sr.operation.unit.wait_in_seconds import WaitInSeconds
 from sr.operation.unit.wait_in_world import WaitInWorld
 
 
@@ -314,15 +315,18 @@ class WorldPatrol(Application):
         op = Interact(self.ctx, cn, wait=0)
         return op.execute()
 
-    def wait(self, wait_type: str) -> bool:
+    def wait(self, wait_type: str, seconds: int) -> bool:
         """
         等待
         :param wait_type: 等待类型
+        :param seconds: 等待秒数
         :return:
         """
         op: Operation = None
         if wait_type == 'in_world':
-            op = WaitInWorld(self.ctx)
+            op = WaitInWorld(self.ctx, seconds)
+        elif wait_type == route_const.WAIT_SECONDS:
+            op = WaitInSeconds(self.ctx, seconds)
         else:
             log.error('错误的wait类型 %s', wait_type)
             return False
