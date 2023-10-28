@@ -1,5 +1,3 @@
-import cv2
-
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
 from sr.image.cv2_matcher import CvImageMatcher
@@ -28,6 +26,8 @@ def _test_is_auto_battle_on():
     assert battle.is_auto_battle_on(screen, im)  # true
     screen = get_test_image('all_on_3', sub_dir='battle')
     assert battle.is_auto_battle_on(screen, im)  # true
+    screen = get_test_image('all_on_4', sub_dir='battle')
+    assert battle.is_auto_battle_on(screen, im)  # true
 
 
 def _test_is_fast_battle_on():
@@ -43,8 +43,12 @@ def _test_is_fast_battle_on():
     assert battle.is_fast_battle_on(screen, im)  # true
     screen = get_test_image('all_on_3', sub_dir='battle')
     assert battle.is_fast_battle_on(screen, im)  # true
+    screen = get_test_image('all_on_4', sub_dir='battle')
+    assert battle.is_fast_battle_on(screen, im)  # true
 
 
 if __name__ == '__main__':
     im = CvImageMatcher()
+    _test_get_battle_status()
     _test_is_auto_battle_on()
+    _test_is_fast_battle_on()

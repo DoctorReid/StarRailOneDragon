@@ -29,11 +29,11 @@ route:
     data: [779, 450]
   - op: 'patrol'
   - op: 'move'
-    data: [800, 408]
+    data: [779, 407]
   - op: 'move'
-    data: [821, 408]
+    data: [821, 407]
   - op: 'move'
-    data: [869, 408]
+    data: [869, 407]
   - op: 'move'
     data: [867, 357]
   - op: 'move'
@@ -43,12 +43,14 @@ route:
   - op: 'move'
     data: [880, 305]
   - op: 'move'
-    data: [880, 321]
+    data: [880, 315]
   - op: 'patrol'
   - op: 'move'
-    data: [802, 255]
+    data: [880, 258]
   - op: 'move'
-    data: [773, 259]
+    data: [802, 258]
+  - op: 'move'
+    data: [778, 258]
   - op: 'interact'
     data: '入画'
   - op: 'wait'

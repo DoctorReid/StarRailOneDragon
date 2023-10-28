@@ -51,6 +51,8 @@ def is_character_icon_at_right_top(screen: MatLike, im: ImageMatcher):
 def is_auto_battle_on(screen: MatLike, im: ImageMatcher):
     """
     通过右上角自动战斗图标是否点亮 判断是否开启了自动战斗
+    1. 直接看是否已经存在自动战斗激活的图标 存在则返回 True
+    2. 如果1不存在 看是否存在暂停按键 不存在则返回 True 部分动画过程三个按键都会消失
     :param screen: 屏幕截图
     :param im: 图片匹配器
     :return: 是否已经开启了自动战斗 部分情况画面没加载完毕 认为已经默认开启
@@ -67,9 +69,12 @@ def is_auto_battle_on(screen: MatLike, im: ImageMatcher):
 def is_fast_battle_on(screen: MatLike, im: ImageMatcher):
     """
     通过右上角二倍速图标是否点亮 判断是否开启了二倍速
+    1. 直接看是否已经存在快速战斗的图标 存在则返回 True
+    2. 如果1不存在 看是否存在禁止改变二倍速的图标 存在则返回 True 部分动画过程禁止改变二倍速
+    3. 如果2不存在 看是否存在暂停按键 不存在则返回 True 部分动画过程三个按键都会消失
     :param screen: 屏幕截图
     :param im: 图片匹配器
-    :return: 是否已经开启了二倍速 部分情况画面没加载完毕 认为已经默认开启
+    :return: 是否已经开启了二倍速
     """
     on: bool = match_battle_ctrl(screen, im, 'battle_ctrl_03', rect=FAST_BATTLE_RECT) is not None
     if on:
@@ -101,7 +106,7 @@ def match_battle_ctrl(screen: MatLike, im: ImageMatcher, template_id: str, rect=
 
     # 找到亮的部分
     mask = np.zeros((part.shape[0], part.shape[1]), dtype=np.uint8)
-    lower = 170 if is_on else 100
+    lower = 230 if is_on else 100
     if lower_color is not None:
         lower = lower_color
     mask[np.where(b > lower)] = 255

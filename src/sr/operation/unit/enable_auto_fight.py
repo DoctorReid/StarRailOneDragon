@@ -4,7 +4,7 @@ from basic import os_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.context import Context
-from sr.image.sceenshot import battle
+from sr.image.sceenshot import battle, fill_uid_black
 from sr.operation import Operation
 
 
@@ -25,7 +25,7 @@ class EnableAutoFight(Operation):
         if not battle.is_auto_battle_on(screen, self.ctx.im):
             log.info('检测到未启动自动战斗')
             if os_utils.is_debug():
-                save_debug_image(screen, prefix='no_auto')
+                save_debug_image(fill_uid_black(screen), prefix='no_auto')
             r = battle.match_battle_ctrl(screen, self.ctx.im, 'battle_ctrl_02', is_on=False)
             if r is not None:
                 log.info('启动自动战斗')
@@ -36,7 +36,7 @@ class EnableAutoFight(Operation):
         if not battle.is_fast_battle_on(screen, self.ctx.im):
             log.info('检测到未启动二倍速战斗')
             if os_utils.is_debug():
-                save_debug_image(screen, prefix='no_fast')
+                save_debug_image(fill_uid_black(screen), prefix='no_fast')
             r = battle.match_battle_ctrl(screen, self.ctx.im, 'battle_ctrl_03', is_on=False)
             if r is not None:
                 log.info('启动二倍速战斗')
