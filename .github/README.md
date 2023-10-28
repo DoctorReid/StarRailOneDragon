@@ -15,9 +15,7 @@
 - 锄大地功能 ```已完成```
 - 模拟宇宙 ```计划中```
 
-![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/%E9%94%84%E5%A4%A7%E5%9C%B0.png)
-
-![锄地线路录制](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/%E8%B7%AF%E7%BA%BF%E5%BD%95%E5%88%B6.png)
+![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/draw_route.png)
 
 [当前进度](https://github.com/DoctorReid/StarRailProxy/milestone/3)
 
