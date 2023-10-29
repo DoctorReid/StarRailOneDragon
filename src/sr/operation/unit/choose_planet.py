@@ -49,7 +49,8 @@ class ChoosePlanet(Operation):
         :param screen: 屏幕截图
         :return: 找到 星轨航图
         """
-        return self.ctx.controller.click_ocr(screen, word=gt('星轨航图', 'ocr'), rect=ChoosePlanet.xght_rect)
+        return self.ctx.controller.click_ocr(screen, word=gt('星轨航图', 'ocr'), rect=ChoosePlanet.xght_rect,
+                                             lcs_percent=self.gc.planet_lcs_percent)
 
     def choose_planet(self, screen) -> bool:
         """
@@ -60,7 +61,7 @@ class ChoosePlanet(Operation):
         # 二值化后更方便识别字体
         gray = cv2.cvtColor(screen, cv2.COLOR_RGB2GRAY)
         _, mask = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
-        km = self.ctx.ocr.match_words(mask, words=[self.planet.cn])
+        km = self.ctx.ocr.match_words(mask, words=[self.planet.cn], lcs_percent=self.gc.planet_lcs_percent)
         if len(km) == 0:
             return False
         for v in km.values():

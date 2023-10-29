@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import os_utils
+from basic import os_utils, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -44,7 +44,7 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     log.debug('屏幕左上方获取星球结果 %s', planet_name_str)
     if planet_name_str is not None:
         for p in PLANET_LIST:
-            if planet_name_str.find(gt(p.cn, 'ocr')) != -1:
+            if str_utils.find_by_lcs(gt(p.cn, 'ocr'), planet_name_str, percent=game_config.get().planet_lcs_percent):
                 return p
 
     return None
@@ -173,12 +173,13 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     upper = 255
     part, _ = cv2_utils.crop_image(screen, REGION_LIST_RECT)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
-    # cv2_utils.show_image(bw, win_name='get_active_region_name')
-    km = ocr.run_ocr(bw)
-    if len(km) > 0:
-        return km.popitem()[0]
-    else:
-        return None
+    left, right, top, bottom = cv2_utils.get_four_corner(bw)
+    rect = (left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
+    to_ocr: MatLike = cv2_utils.crop_image(bw, rect)[0]
+    cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
+    lang = game_config.get().lang
+    strict_one_line: bool = lang in [game_config_const.LANG_CN]
+    return ocr.ocr_for_single_line(to_ocr, strict_one_line=strict_one_line)
 
 
 def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> str:

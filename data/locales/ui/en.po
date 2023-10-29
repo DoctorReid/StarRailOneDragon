@@ -3,6 +3,83 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+# Honkai: Star Rail Auto Proxy UI
+msgid "设置"
+msgstr "Settings"
+
+msgid "锄大地"
+msgstr "Patrol"
+
+msgid "校准"
+msgstr "Calibrate"
+
+msgid "锄地路线绘制"
+msgstr "Patrol Route"
+
+msgid "锄地路线白名单"
+msgstr "Patrol Whitelist"
+
+# Patrol Part
+msgid "锄地路线绘制"
+msgstr "Patrol Route"
+
+msgid "路线白名单"
+msgstr "Whitelist"
+
+msgid "无"
+msgstr "None"
+
+msgid "开始"
+msgstr "Start"
+
+msgid "F9 暂停"
+msgstr "F9 Pause"
+
+msgid "F9 继续"
+msgstr "Resume"
+
+msgid "F10 结束"
+msgstr "Stop"
+
+msgid "结束后关机"
+msgstr "Shutdown after Stop"
+
+msgid "未开始"
+msgstr "Waiting"
+
+msgid "运行中"
+msgstr "Running"
+
+msgid "暂停"
+msgstr "Pause"
+
+msgid "请先结束其他运行中的功能 再启动"
+msgstr "Stop the running function before another"
+
+# Settings Part
+msgid "区服"
+msgstr "Game Server"
+
+msgid "疾跑设置"
+msgstr "Sprint"
+
+msgid "语言"
+msgstr "Language"
+
+msgid "保存"
+msgstr "Save"
+
+msgid "不启用"
+msgstr "Off"
+
+msgid "通过按钮切换"
+msgstr "Click to Switch"
+
+msgid "长按进入疾跑状态"
+msgstr "Hold to Sprint"
+
+
+# Game Part
 msgid "崩坏：星穹铁道"
 msgstr "Honkai: Star Rail"
 
@@ -46,6 +123,9 @@ msgstr "Silvermane Guard Restricted Zone"
 
 msgid "残响回廊"
 msgstr "Corridor of Fading Echoes"
+
+msgid "永冬岭"
+msgstr "Everwinter Hill"
 
 msgid "造物之柱"
 msgstr "Pillars of Creation"
@@ -158,3 +238,462 @@ msgstr "Bud of Preservation"
 
 msgid "毁灭的开端"
 msgstr "Destruction's Beginning"
+
+# Interact
+msgid "配控装置"
+msgstr "Control Device"
+
+# Special Point - Jarilo-VI - Administrative District
+msgid "黄金歌剧院"
+msgstr "Golden Theater"
+
+msgid "中央广场"
+msgstr "Central Plaza"
+
+msgid "歌德宾馆"
+msgstr "Goethe Hotel"
+
+msgid "历史文化博物馆"
+msgstr "History and Culture Museum"
+
+msgid "售货机1"
+msgstr "Vending Machine"
+
+msgid "书商"
+msgstr "Book Merchant"
+
+msgid "卖报人"
+msgstr "Newspaper Seller"
+
+msgid "行政区商店"
+msgstr "Administrative District Shop"
+
+msgid "售货机2"
+msgstr "Vending Machine"
+
+msgid "花店长夏"
+msgstr "Eversummer Florist"
+
+msgid "克里珀堡1"
+msgstr "Qlipoth Fort"
+
+msgid "克里珀堡2"
+msgstr "Qlipoth Fort"
+
+msgid "机械屋永动"
+msgstr "Neverwinter Workshop"
+
+msgid "歌德宾馆入口"
+msgstr "Goethe Hotel"
+
+msgid "售货机3"
+msgstr "Vending Machine"
+
+# Special Point - Jarilo-VI - Outlying Snow Plains
+msgid "长坡"
+msgstr "Long Slope"
+
+msgid "着陆点"
+msgstr "Landing Point"
+
+msgid "巡猎之蕾"
+msgstr "Bud of The Hunt"
+
+msgid "回忆之蕾"
+msgstr "Bud of Memories"
+
+msgid "玲可"
+msgstr "Lynx"
+
+# Special Point - Jarilo-VI - Backwater Pass
+msgid "候车广场"
+msgstr "Transport Hub"
+
+msgid "休闲广场"
+msgstr "Leisure Plaza"
+
+msgid "歌德旧宅"
+msgstr "Goethe Mansion"
+
+msgid "幻光之形"
+msgstr "Shape of Mirage"
+
+msgid "丰饶之蕾"
+msgstr "Bud of Abundance"
+
+msgid "以太之蕾"
+msgstr "Bud of Aether"
+
+# Special Point - Jarilo-VI - Silvermane Guard Restricted Zone
+msgid "禁区岗哨"
+msgstr "Outpost"
+
+msgid "禁区前线"
+msgstr "Frontline"
+
+msgid "能源枢纽"
+msgstr "Energy Hub"
+
+msgid "炎华之形"
+msgstr "Shape of Blaze"
+
+msgid "迅拳之径"
+msgstr "Path of Jabbing Punch"
+
+msgid "以眼还眼"
+msgstr "An Eye for an Eye"
+
+msgid "冬兵进行曲"
+msgstr "Winter Soldiers' March"
+
+# Special Point - Jarilo-VI - Corridor of Fading Echoes
+msgid "筑城领域"
+msgstr "Fortified Zone"
+
+msgid "污染广场"
+msgstr "Contaminated Plaza"
+
+msgid "作战指挥室"
+msgstr "Command Center"
+
+msgid "古战场前线"
+msgstr "Ancient Battlefield: Frontline"
+
+msgid "鸣雷之形"
+msgstr "Shape of Fulmination"
+
+msgid "霜晶之形"
+msgstr "Shape of Rime"
+
+msgid "漂泊之径"
+msgstr "Path of Drifting"
+
+# Special Point - Jarilo-VI - Everwinter Hill
+msgid "古战场"
+msgstr "Ancient Battlefield"
+
+msgid "造物平台"
+msgstr "Deck of Creation"
+
+msgid "睿治之径"
+msgstr "Path of Providence"
+
+msgid "寒潮的落幕"
+msgstr "End of the Eternal Freeze"
+
+# Special Point - Jarilo-VI - Pillars of Creation
+msgid "造物之柱入口"
+msgstr "Pillars of Creation: Entrance"
+
+msgid "造物之柱施工场"
+msgstr "Pillars of Creation: Construction Site"
+
+# Special Point - Jarilo-VI - Old Weapon Testing Ground
+msgid "决胜庆典中心"
+msgstr "Victory Celebration Center"
+
+msgid "以太战线终端"
+msgstr "Aetherium Wars Terminal"
+
+# Special Point - Jarilo-VI - Boulder Town
+msgid "歌德大饭店"
+msgstr "Goethe Grand Hotel"
+
+msgid "搏击俱乐部"
+msgstr "Fight Club"
+
+msgid "娜塔莎的诊所"
+msgstr "Natasha's Clinic"
+
+msgid "磐岩镇超级联赛"
+msgstr "Boulder Town Super League"
+
+msgid "地底商店"
+msgstr "Underground Shop"
+
+msgid "小吃摊"
+msgstr "Food Stall"
+
+msgid "娜塔莎的诊所入口"
+msgstr "Natasha's Clinic"
+
+# Special Point - Jarilo-VI - Great Mine
+msgid "入口"
+msgstr "Entrance"
+
+msgid "流浪者避难所"
+msgstr "Vagrant Shelter"
+
+msgid "俯瞰点"
+msgstr "Overlook"
+
+msgid "主矿道"
+msgstr "Main Mine Shaft"
+
+msgid "锋芒之形"
+msgstr "Shape of Spike"
+
+msgid "燔灼之形"
+msgstr "Shape of Scorch"
+
+msgid "虚无之蕾"
+msgstr "Bud of Nihility"
+
+msgid "藏珍之蕾"
+msgstr "Bud of Treasures"
+
+# Special Point - Jarilo-VI - Rivet Town
+msgid "孤儿院"
+msgstr "Orphanage"
+
+msgid "废弃市集"
+msgstr "Abandoned Market"
+
+msgid "巽风之形"
+msgstr "Shape of Gust"
+
+msgid "智识之蕾"
+msgstr "Bud of Erudition"
+
+# Special Point - Jarilo-VI - Robot Settlement
+msgid "流浪者营地"
+msgstr "Vagrant Camp"
+
+msgid "史瓦罗驻地"
+msgstr "Svarog's Base"
+
+msgid "能源转换设施"
+msgstr "Energy Conversion Station"
+
+msgid "同谐之蕾"
+msgstr "Bud of Harmony"
+
+# Special Point - The Xianzhou Luofu - Central Starskiff Haven
+msgid "星槎码头"
+msgstr "Starskiff Jetty"
+
+msgid "坤舆台"
+msgstr "Earthrise Agora"
+
+msgid "宣夜大道"
+msgstr "Starwatcher Avenue"
+
+msgid "天空之眼"
+msgstr "Eye of the Cosmos"
+
+msgid "杂货铺老板"
+msgstr "Grocery Store Owner"
+
+msgid "不夜侯"
+msgstr "The Sleepless Earl"
+
+msgid "赎珠阁"
+msgstr "Jeweler's Pagoda"
+
+msgid "售货机4"
+msgstr "Vending Machine"
+
+msgid "司辰宫"
+msgstr "Palace of Astrum"
+
+# Special Point - The Xianzhou Luofu - Central Starskiff Haven
+msgid "流云渡货道"
+msgstr "Cloudford: Cargo Lane"
+
+msgid "积玉坊"
+msgstr "Trove of Verdure"
+
+msgid "积玉坊南侧"
+msgstr "Trove of Verdure: South Wing"
+
+msgid "流云渡乘槎处"
+msgstr "Cloudford: Skiff Boarding Area"
+
+msgid "冰棱之形"
+msgstr "Shape of Icicle"
+
+msgid "圣颂之径"
+msgstr "Path of Holy Hymn"
+
+msgid "过期邮包收购处"
+msgstr "Procurement Point for Expired Parcels"
+
+# Special Point - The Xianzhou Luofu - Stargazer Navalia
+msgid "飞星小筑"
+msgstr "Astral Cottage"
+
+msgid "植船区萌甲"
+msgstr "Ship Nursery - The Budding"
+
+msgid "植船区繁生"
+msgstr "Ship Nursery - The Burgeoning"
+
+msgid "泊航区"
+msgstr "The Mooring"
+
+msgid "震厄之形"
+msgstr "Shape of Doom"
+
+msgid "野焰之径"
+msgstr "Path of Conflagration"
+
+# Special Point - The Xianzhou Luofu - Exalting Sanctum
+msgid "若木亭"
+msgstr "Synwood Pavilion"
+
+msgid "悠暇庭"
+msgstr "Court of Tranquility"
+
+msgid "神策府"
+msgstr "Seat of Divine Foresight"
+
+msgid "金人巷1"
+msgstr "Aurum Alley"
+
+msgid "金人巷2"
+msgstr "Aurum Alley"
+
+msgid "杂货小摊"
+msgstr "Grocery Stand"
+
+msgid "宝饵堂"
+msgstr "NutriTreasures"
+
+msgid "三余书肆"
+msgstr "Spare Time Book Shop"
+
+msgid "地衡司公廨"
+msgstr "Realm-Keeping Commission Chancery"
+
+# Special Point - The Xianzhou Luofu - Aurum Alley
+msgid "乾坤街"
+msgstr "Cosmos Street"
+
+msgid "金人巷夜市"
+msgstr "Aurum Alley Night Market"
+
+msgid "金人巷码头"
+msgstr "Aurum Alley Dock"
+
+msgid "长乐天1"
+msgstr "Exalting Sanctum"
+
+msgid "长乐天2"
+msgstr "Exalting Sanctum"
+
+msgid "寿考堂"
+msgstr "Longevity Hall"
+
+msgid "尚滋味"
+msgstr "Spices Supreme"
+
+msgid "高阿姨的小吃摊"
+msgstr "Tall Auntie's Food Stall"
+
+msgid "陈机铺"
+msgstr "Oldies Depot"
+
+msgid "杜氏茶庄"
+msgstr "Du's Teahouse"
+
+msgid "美馔阁"
+msgstr "Delicacy Pavilion"
+
+msgid "霍三哥的大衣内侧"
+msgstr "The Insides of Mr.Huo's Coat"
+
+# Special Point - The Xianzhou Luofu - Aurum Alley
+msgid "界寰阵"
+msgstr "Spatial Terminal"
+
+msgid "太衍穷观阵"
+msgstr "Matrix of Prescience Ultima"
+
+msgid "授事厅"
+msgstr "Conclave Hall"
+
+msgid "祥台"
+msgstr "Fortuna Augurstead"
+
+# Special Point - The Xianzhou Luofu - Artisanship Commission
+msgid "格物院通道"
+msgstr "Passage to the Sapientia Academe"
+
+msgid "镕金坊通道"
+msgstr "Passage to the Finery Foundry"
+
+msgid "玄机坪"
+msgstr "Arcane Moorage"
+
+msgid "造化洪炉"
+msgstr "Creation Furnace"
+
+msgid "偃偶之形"
+msgstr "Shape of Puppetry"
+
+# Interact
+msgid "入画"
+msgstr "Teleport"
+
+# Special Point - The Xianzhou Luofu - Alchemy Commission
+msgid "太真丹室"
+msgstr "Aureate Elixir Furance"
+
+msgid "观颐台"
+msgstr "Elixir Research Terrace"
+
+msgid "行医市集"
+msgstr "Healer's Market"
+
+msgid "岐黄署"
+msgstr "Medicine Bureau"
+
+msgid "天人之形"
+msgstr "Shape of Celestial"
+
+msgid "药使之径"
+msgstr "Path of Elixir Seekers"
+
+msgid "祈龙坛"
+msgstr "Dragonprayer Terrace"
+
+msgid "蜃楼遁影"
+msgstr "Wraiths of Mirage"
+
+msgid "永仁的小药摊"
+msgstr "Yongren's Medicine Stand"
+
+msgid "汵汵的药材摊"
+msgstr "Lingling's Medicine Stand"
+
+# Special Point - The Xianzhou Luofu - Scalegorge Waterscape
+msgid "宫墟深处"
+msgstr "Palace Ruin Depths"
+
+msgid "古海宫墟"
+msgstr "Ancient Sea Palace Ruins"
+
+msgid "显龙大雩殿"
+msgstr "Draggonvista Rain Hall"
+
+msgid "孽兽之形"
+msgstr "Shape of Abomination"
+
+msgid "不死的神实"
+msgstr "Divine Seed"
+
+# Large Map Btn
+msgid "星轨航图"
+msgstr "Star Rail Map"
+
+msgid "传送"
+msgstr "Teleport"
+
+msgid "-1层"
+msgstr "B1"
+
+msgid "1层"
+msgstr "F1"
+
+msgid "2层"
+msgstr "F2"

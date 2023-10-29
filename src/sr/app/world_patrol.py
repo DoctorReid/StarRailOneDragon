@@ -212,7 +212,7 @@ class WorldPatrol(Application):
         :return: 是否执行成功当前线路
         """
         route: WorldPatrolRoute = WorldPatrolRoute(route_id)
-        log.info('准备执行线路 %s %s %s %s', route_id, route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
+        log.info('准备执行线路 %s', route_id.display_name)
 
         if self.record is not None and route_id.unique_id in self.record.finished:
             log.info('线路 %s 之前已执行 跳过', route_id.display_name)

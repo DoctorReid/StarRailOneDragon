@@ -13,7 +13,7 @@ from sr.control.pc_controller import PcController
 from sr.image import ImageMatcher
 from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.ocr_matcher import OcrMatcher
-from sr.image.cnocr_matcher import CnOcrMatcher
+from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import fill_uid_black

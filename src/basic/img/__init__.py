@@ -3,7 +3,7 @@ from typing import List
 
 class MatchResult:
 
-    def __init__(self, c, x, y, w, h, template_scale: float = 1):
+    def __init__(self, c, x, y, w, h, template_scale: float = 1, data: str = None):
         self.confidence = c
         self.x = int(x)
         self.y = int(y)
@@ -12,6 +12,7 @@ class MatchResult:
         self.cx = int(self.x + self.w // 2)
         self.cy = int(self.y + self.h // 2)
         self.template_scale = template_scale
+        self.data: str = data
 
     def __str__(self):
         return '(%.2f, %d, %d, %d, %d, %.2f)' % (self.confidence, self.x, self.y, self.w, self.h, self.template_scale)

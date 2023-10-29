@@ -4,6 +4,8 @@ from cv2.typing import MatLike
 
 from basic.img.os import save_debug_image
 from basic.log_utils import log
+from sr.config import game_config
+from sr.config.game_config import GameConfig
 from sr.context import Context
 from sr.image.sceenshot import fill_uid_black
 
@@ -25,6 +27,7 @@ class Operation:
         self.ctx: Context = ctx
         ctx.register_pause(self, self.on_pause, self.on_resume)
         self.last_screenshot: MatLike = None
+        self.gc: GameConfig = game_config.get()
 
     def execute(self) -> bool:
         """

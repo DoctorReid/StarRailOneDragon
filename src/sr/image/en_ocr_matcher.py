@@ -4,7 +4,7 @@ from cv2.typing import MatLike
 from basic import os_utils
 from basic.img import MatchResultList, MatchResult
 from basic.log_utils import log
-from sr.image.ocr_matcher import OcrMatcher
+from sr.image.ocr_matcher import OcrMatcher, merge_ocr_result_to_single_line, merge_ocr_result_to_multiple_line
 
 
 class EnOcrMatcher(OcrMatcher):
@@ -22,24 +22,29 @@ class EnOcrMatcher(OcrMatcher):
         except Exception:
             log.error('OCR模型加载出错', exc_info=True)
 
-    def ocr_for_single_line(self, image: MatLike, threshold: float = None, lang: str = None,
-                            strict_one_line: bool = True) -> str:
+    def ocr_for_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:
         """
-        Some
-        :param image:
-        :param threshold:
-        :param lang:
+        单行文本识别 部分英语很长 会分成两行 手动合成一行 按匹配结果从左到右 从上到下
+        :param image: 图片
+        :param threshold: 阈值
+        :param strict_one_line: 严格判断只有单行文本 False时合并成一行
         :return:
         """
-        result = self.ocr.ocr_for_single_line(image)
-        log.debug('OCR结果 %s', result.keys())
-        return result['text'] if threshold is None or result['score'] >= threshold else None
+        if strict_one_line:
+            result = self.ocr.ocr_for_single_line(image)
+            log.debug('OCR结果 %s', result.keys())
+            return result['text'] if threshold is None or result['score'] >= threshold else None
+        else:
+            ocr_map: dict = self.run_ocr(image, threshold)
+            return merge_ocr_result_to_single_line(ocr_map, join_space=True)
 
-    def run_ocr(self, image: MatLike, threshold: float = None, lang: str = None) -> dict:
+    def run_ocr(self, image: MatLike, threshold: float = None,
+                merge_line_distance: float = -1) -> dict:
         """
         对图片进行OCR 返回所有匹配结果
         :param image: 图片
         :param threshold: 匹配阈值
+        :param merge_line_distance: 多少行距内合并结果 -1为不合并
         :return: {key_word: []}
         """
         scan_result: list = self.ocr.ocr(image)
@@ -53,6 +58,9 @@ class EnOcrMatcher(OcrMatcher):
                                                      r['position'][0][0],
                                                      r['position'][0][1],
                                                      r['position'][2][0] - r['position'][0][0],
-                                                     r['position'][2][1] - r['position'][0][1]))
+                                                     r['position'][2][1] - r['position'][0][1],
+                                                     data=r['text']))
+        if merge_line_distance != -1:
+            result_map = merge_ocr_result_to_multiple_line(result_map, join_space=True, merge_line_distance=merge_line_distance)
         log.debug('OCR结果 %s', result_map.keys())
         return result_map

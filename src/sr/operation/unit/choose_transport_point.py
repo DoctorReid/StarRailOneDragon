@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import MatchResultList, MatchResult, cv2_utils
 from basic.log_utils import log
@@ -19,7 +20,7 @@ from sr.operation import Operation
 
 class ChooseTransportPoint(Operation):
 
-    tp_name_rect = (1485, 120, 1850, 170)  # 右侧显示传送点名称的区域
+    tp_name_rect = (1485, 120, 1870, 170)  # 右侧显示传送点名称的区域
     drag_distance = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
@@ -82,7 +83,7 @@ class ChooseTransportPoint(Operation):
         """
         tp_btn_part, _ = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
-        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'], threshold=0.4)
+        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'])
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
             tp_name_part, _ = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
@@ -106,7 +107,8 @@ class ChooseTransportPoint(Operation):
 
             log.info('当前选择传送点名称 %s', tp_name_str)
             # cv2_utils.show_image(gold_part, win_name='gold_part')
-            if tp_name_str is not None and tp_name_str.lower().find(gt(self.tp.cn, 'ocr').lower()) != -1:
+            if (tp_name_str is not None and
+                    str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True, percent=self.gc.special_point_lcs_percent)):
                 # 点击传送
                 tx = large_map.TP_BTN_RECT[0]
                 ty = large_map.TP_BTN_RECT[1]
@@ -204,7 +206,8 @@ class ChooseTransportPoint(Operation):
         white_part = cv2.inRange(screen_map, lower_color, upper_color)  # 提取白色部分方便匹配
 
         # cv2_utils.show_image(white_part, win_name='check_and_click_sp_cn')
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.tp.cn], threshold=0.3)
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.tp.cn],
+                                              lcs_percent=self.gc.special_point_lcs_percent)
 
         for r in ocr_result.values():
             tx = r.max.cx + large_map.CUT_MAP_RECT[0]

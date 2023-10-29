@@ -5,47 +5,32 @@ floor: 0
 tp: '镕金坊通道'
 route:
   - op: 'move'
-    data: [793, 589]
+    data: [793, 601]
   - op: 'move'
-    data: [793, 500]
+    data: [796, 502]
   - op: 'move'
-    data: [831, 500]
-  - op: 'move'
-    data: [896, 502]
-  - op: 'move'
-    data: [915, 501]
+    data: [911, 502]
   - op: 'patrol'
   - op: 'move'
-    data: [896, 502]
-  - op: 'move'
-    data: [831, 500]
-  - op: 'move'
-    data: [798, 500]
-  - op: 'move'
-    data: [798, 474]
-  - op: 'move'
-    data: [799, 439]
-  - op: 'move'
-    data: [779, 430]
-  - op: 'move'
-    data: [779, 450]
+    data: [943, 502]
   - op: 'patrol'
   - op: 'move'
-    data: [779, 407]
+    data: [796, 502]
   - op: 'move'
-    data: [821, 407]
+    data: [798, 431]
   - op: 'move'
-    data: [869, 407]
+    data: [779, 431]
   - op: 'move'
-    data: [867, 357]
+    data: [779, 444]
+  - op: 'patrol'
   - op: 'move'
-    data: [855, 353]
+    data: [779, 405]
   - op: 'move'
-    data: [858, 305]
+    data: [864, 405]
   - op: 'move'
-    data: [880, 305]
+    data: [855, 312]
   - op: 'move'
-    data: [880, 320]
+    data: [884, 311]
   - op: 'patrol'
   - op: 'move'
     data: [880, 258]
@@ -56,29 +41,22 @@ route:
   - op: 'interact'
     data: '入画'
   - op: 'wait'
-    data: ['in_world', '20']
+    data: ['i', 'n']
   - op: 'update_pos'
-    data: [573, 319]
+    data: [558, 321]
   - op: 'move'
-    data: [462, 335]
-  - op: 'move'
-    data: [415, 337]
+    data: [444, 333]
   - op: 'patrol'
   - op: 'move'
-    data: [413, 370]
+    data: [407, 346]
   - op: 'patrol'
   - op: 'move'
-    data: [408, 406]
+    data: [370, 410]
   - op: 'move'
-    data: [369, 403]
+    data: [368, 321]
   - op: 'move'
-    data: [368, 324]
-  - op: 'move'
-    data: [348, 329]
+    data: [344, 334]
   - op: 'patrol'
   - op: 'move'
-    data: [343, 392]
-  - op: 'patrol'
-  - op: 'move'
-    data: [346, 427]
+    data: [343, 414]
   - op: 'patrol'

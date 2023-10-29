@@ -5,7 +5,7 @@ from basic import os_utils
 from basic.i18_utils import gt
 from basic.img import MatchResultList, MatchResult
 from basic.log_utils import log
-from sr.image.ocr_matcher import OcrMatcher
+from sr.image.ocr_matcher import OcrMatcher, merge_ocr_result_to_single_line
 
 
 class CnOcrMatcher(OcrMatcher):
@@ -22,16 +22,30 @@ class CnOcrMatcher(OcrMatcher):
         except Exception:
             log.error(gt('OCR模型加载出错'), exc_info=True)
 
-    def ocr_for_single_line(self, image: MatLike, threshold: float = None, lang: str = None) -> str:
-        result = self.ocr.ocr_for_single_line(image)
-        log.debug('OCR结果 %s', result.keys())
-        return result['text'] if threshold is None or result['score'] >= threshold else None
+    def ocr_for_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:
+        """
+        单行文本识别 手动合成一行 按匹配结果从左到右 从上到下
+        理论中文情况不会出现过长分行的 这里只是为了兼容英语的情况
+        :param image: 图片
+        :param threshold: 阈值
+        :param strict_one_line: 严格判断只有单行文本 False时合并成一行
+        :return:
+        """
+        if strict_one_line:
+            result = self.ocr.ocr_for_single_line(image)
+            log.debug('OCR结果 %s', result.keys())
+            return result['text'] if threshold is None or result['score'] >= threshold else None
+        else:
+            ocr_map: dict = self.run_ocr(image, threshold)
+            return merge_ocr_result_to_single_line(ocr_map, join_space=False)
 
-    def run_ocr(self, image: MatLike, threshold: float = None, lang: str = None) -> dict:
+    def run_ocr(self, image: MatLike, threshold: float = None,
+                merge_line_distance: float = -1) -> dict:
         """
         对图片进行OCR 返回所有匹配结果
         :param image: 图片
         :param threshold: 匹配阈值
+        :param merge_line_distance: 多少行距内合并结果 -1为不合并 理论中文情况不会出现过长分行的 这里只是为了兼容英语的情况
         :return: {key_word: []}
         """
         scan_result: list = self.ocr.ocr(image)
@@ -45,6 +59,7 @@ class CnOcrMatcher(OcrMatcher):
                                                      r['position'][0][0],
                                                      r['position'][0][1],
                                                      r['position'][2][0] - r['position'][0][0],
-                                                     r['position'][2][1] - r['position'][0][1]))
+                                                     r['position'][2][1] - r['position'][0][1],
+                                                     data=r['text']))
         log.debug('OCR结果 %s', result_map.keys())
         return result_map

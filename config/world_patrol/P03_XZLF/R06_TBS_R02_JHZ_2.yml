@@ -17,25 +17,32 @@ route:
     data: [286, 420]
   - op: 'patrol'
   - op: 'move'
-    data: [212, 417]
+    data: [230, 420]
+  - op: 'move'
+    data: [231, 407]
   - op: 'patrol'
   - op: 'move'
-    data: [212, 391]
+    data: [229, 389]
   - op: 'patrol'
   - op: 'move'
-    data: [235, 420]
+    data: [192, 389]
   - op: 'move'
-    data: [289, 420]
+    data: [192, 420]
+  - op: 'patrol'
   - op: 'move'
-    data: [289, 520]
+    data: [230, 420]
   - op: 'move'
-    data: [327, 559]
+    data: [288, 420]
   - op: 'move'
-    data: [377, 580]
+    data: [285, 520]
   - op: 'move'
-    data: [404, 635]
+    data: [330, 563]
+  - op: 'move'
+    data: [378, 580]
+  - op: 'move'
+    data: [403, 635]
   - op: 'move'
     data: [436, 666]
   - op: 'move'
-    data: [522, 668]
+    data: [522, 670]
   - op: 'patrol'

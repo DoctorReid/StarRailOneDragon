@@ -17,7 +17,7 @@ class SrAppView:
         self.page = page
         self.ctx = ctx
 
-        self.start_btn = ft.ElevatedButton(text=gt("F9 开始", model='ui'), on_click=self.start)
+        self.start_btn = ft.ElevatedButton(text=gt("开始", model='ui'), on_click=self.start)
         self.pause_btn = ft.ElevatedButton(text=gt("F9 暂停", model='ui'), on_click=self.pause, visible=False)
         self.resume_btn = ft.ElevatedButton(text=gt("F9 继续", model='ui'), on_click=self.resume, visible=False)
         self.stop_btn = ft.ElevatedButton(text=gt("F10 结束", model='ui'), on_click=self.stop, disabled=True)
@@ -50,7 +50,7 @@ class SrAppView:
 
     def start(self, e):
         if self.ctx.running != 0:
-            snack_bar.show_message('请先结束其他运行中的功能 再启动', self.page)
+            snack_bar.show_message(gt('请先结束其他运行中的功能 再启动', 'ui'), self.page)
             return
 
         self.running_status.value = gt('运行中', model='ui')

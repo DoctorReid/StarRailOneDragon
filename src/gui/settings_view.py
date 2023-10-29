@@ -26,7 +26,7 @@ class SettingsView:
         self.run_mode_dropdown = ft.Dropdown(
             label=gt("疾跑设置", model='ui'), width=200,
             options=[
-                ft.dropdown.Option(text=k, key=v) for k, v in game_config_const.RUN_MODE.items()
+                ft.dropdown.Option(text=gt(k, 'ui'), key=v) for k, v in game_config_const.RUN_MODE.items()
             ],
             on_change=self.on_run_mode_changed
         )

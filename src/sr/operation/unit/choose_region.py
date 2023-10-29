@@ -1,5 +1,6 @@
 import time
 
+from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -36,14 +37,15 @@ class ChooseRegion(Operation):
         current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
         target_region_name = gt(self.region.cn, 'ocr')
         log.info('当前选择区域 %s', current_region_name)
-        if current_region_name is None or current_region_name.find(target_region_name) == -1:
+        is_current: bool = str_utils.find_by_lcs(target_region_name, current_region_name, ignore_case=True,
+                                                 percent=self.gc.region_lcs_percent)
+        if not is_current:
             find = self.click_target_region(screen)
-
             if not find:
                 self.scroll_when_no_target_region(current_region_name)
                 return Operation.RETRY
             else:
-                time.sleep(0.2)
+                time.sleep(0.5)
                 return Operation.RETRY
 
         # 需要选择层数
@@ -72,7 +74,8 @@ class ChooseRegion(Operation):
         :param screen:
         :return:
         """
-        return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT, threshold=0.4)
+        return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT,
+                                             lcs_percent=self.gc.region_lcs_percent, merge_line_distance=40)
 
     def scroll_when_no_target_region(self, current_region_name):
         """
@@ -80,7 +83,7 @@ class ChooseRegion(Operation):
         :param current_region_name: 当前选择的区域
         :return:
         """
-        log.info('当前界面未发现 %s 准备滚动', self.region.cn)
+        log.info('当前界面未发现 %s 准备滚动', gt(self.region.cn, 'ui'))
         if current_region_name is None and self.scroll_direction is None:  # 判断不了当前选择区域的情况 就先向下滚动5次 再向上滚动5次
             if self.op_round < 5:
                 self.scroll_region_area()
@@ -98,7 +101,8 @@ class ChooseRegion(Operation):
                 for r in region_list:
                     if r == self.region:
                         break
-                    if current_region_name.find(gt(r.cn, 'ocr')) != -1:
+                    if str_utils.find_by_lcs(gt(r.cn, 'ocr'), current_region_name, ignore_case=True,
+                                             percent=self.gc.region_lcs_percent):
                         find_current = True
 
                 # 在找到目标区域前 当前区域已经出现 说明目标区域在下面 向下滚动
@@ -136,7 +140,7 @@ class ChooseRegion(Operation):
         """
         tp_btn_part, _ = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
-        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'], threshold=0.4)
+        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'])
         if len(tp_btn_ocr) > 0:
             return self.ctx.controller.click(large_map.EMPTY_MAP_POS)
         return False

@@ -1,4 +1,4 @@
-author: ['DoctorReid']
+author: ['DoctorReid', '龙女姬']
 planet: '仙舟罗浮'
 region: '丹鼎司'
 floor: 1
@@ -15,38 +15,27 @@ route:
   - op: 'move'
     data: [498, 924]
   - op: 'move'
-    data: [502, 913]
+    data: [507, 838]
   - op: 'move'
-    data: [504, 844]
-  - op: 'move'
-    data: [531, 846]
-  - op: 'move'
-    data: [531, 866]
+    data: [531, 852]
   - op: 'patrol'
   - op: 'move'
-    data: [531, 846]
+    data: [531, 885]
+  - op: 'patrol'
   - op: 'move'
-    data: [504, 844]
+    data: [532, 836]
   - op: 'move'
-    data: [502, 913]
+    data: [506, 838]
   - op: 'move'
-    data: [498, 924]
+    data: [502, 1019]
   - op: 'move'
-    data: [500, 1015]
+    data: [500, 1113]
   - op: 'move'
-    data: [502, 1080]
+    data: [613, 1115]
   - op: 'move'
-    data: [515, 1115]
+    data: [607, 1245]
   - op: 'move'
-    data: [540, 1117]
+    data: [634, 1266]
   - op: 'move'
-    data: [611, 1119]
-  - op: 'move'
-    data: [611, 1221]
-  - op: 'move'
-    data: [604, 1244]
-  - op: 'move'
-    data: [632, 1265]
-  - op: 'move'
-    data: [645, 1242]
+    data: [650, 1254]
   - op: 'patrol'

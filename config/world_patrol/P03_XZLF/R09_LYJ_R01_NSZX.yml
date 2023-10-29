@@ -1,4 +1,4 @@
-author: ['DoctorReid']
+author: ['DoctorReid', '龙女姬']
 planet: '仙舟罗浮'
 region: '鳞渊境'
 floor: 0
@@ -14,4 +14,7 @@ route:
     data: [818, 171]
   - op: 'move'
     data: [799, 175]
+  - op: 'patrol'
+  - op: 'move'
+    data: [789, 200]
   - op: 'patrol'

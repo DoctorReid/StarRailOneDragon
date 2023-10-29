@@ -20,6 +20,7 @@ route:
     data: [265, 1190]
   - op: 'move'
     data: [265, 1320]
+  - op: 'patrol'
   - op: 'move'
-    data: [295, 1324]
+    data: [303, 1320]
   - op: 'patrol'

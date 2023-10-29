@@ -1,6 +1,7 @@
 from cv2.typing import MatLike
 
 import basic.cal_utils
+from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.image.ocr_matcher import OcrMatcher
@@ -25,7 +26,8 @@ class GameController:
         pass
 
     def click_ocr(self, screen: MatLike, word: str, threshold: float = 0.5, rect: tuple = None, click_offset: tuple = None,
-                  press_time: float = 0, same_word: bool = False,
+                  press_time: float = 0, same_word: bool = False, ignore_case: bool = True, lcs_percent: float = -1,
+                  merge_line_distance: float = -1
                   ) -> bool:
         """
         在屏幕中点击关键词所在位置 多个关键词时随机点击一个
@@ -36,13 +38,18 @@ class GameController:
         :param click_offset: 在匹配结果后 偏移多少进行点击
         :param press_time: 持续按的时间
         :param same_word: 要求整个词一样
+        :param ignore_case: 忽略大小写
+        :param lcs_percent: 最长公共子序列长度百分比 -1代表不使用
+        :param merge_line_distance: 多少行距内合并OCR结果 -1为不合并
         :return:
         """
         if rect is not None:
             x1, y1, x2, y2 = rect
             # cv2_utils.show_image(screen[y1:y2, x1:x2], win_name='ocr_part')
         km = self.ocr.match_words(screen if rect is None else screen[y1:y2, x1:x2],
-                                  words=[word], threshold=threshold, same_word=same_word)
+                                  words=[word], threshold=threshold, same_word=same_word,
+                                  ignore_case=ignore_case, lcs_percent=lcs_percent,
+                                  merge_line_distance=merge_line_distance)
         if len(km) == 0:
             return False
         for v in km.values():
@@ -53,7 +60,7 @@ class GameController:
             if click_offset is not None:
                 x += click_offset[0]
                 y += click_offset[1]
-            log.debug('OCR识别 %s 成功 准备点击 (%d, %d)', word, x, y)
+            log.debug('OCR识别 %s 成功 准备点击 (%d, %d)', gt(word, 'ui'), x, y)
             return self.click((x, y), press_time=press_time)
 
     def click(self, pos: tuple = None, press_time: float = 0) -> bool:

@@ -1,5 +1,5 @@
 from sr.config import ConfigHolder
-from sr.const import game_config_const
+from sr.const import game_config_const, ocr_const
 
 
 class MiniMapPos:
@@ -53,6 +53,18 @@ class GameConfig(ConfigHolder):
     def set_lang(self, value: str):
         self.lang = value
         self.update('lang', value)
+
+    @property
+    def planet_lcs_percent(self):
+        return ocr_const.PLANET_LCS_PERCENT[self.lang]
+
+    @property
+    def region_lcs_percent(self):
+        return ocr_const.REGION_LCS_PERCENT[self.lang]
+
+    @property
+    def special_point_lcs_percent(self):
+        return ocr_const.SPECIAL_POINT_LCS_PERCENT[self.lang]
 
 
 _gc = None

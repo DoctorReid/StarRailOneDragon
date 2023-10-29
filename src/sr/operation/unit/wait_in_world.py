@@ -11,7 +11,7 @@ class WaitInWorld(Operation):
     等待加载 直到进入游戏主界面 右上角有角色图标
     """
 
-    def __init__(self, ctx: Context, wait: float = 10):
+    def __init__(self, ctx: Context, wait: float = 20):
         """
         :param ctx:
         :param wait: 最多等待多少秒

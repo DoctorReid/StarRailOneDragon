@@ -5,7 +5,7 @@ from basic.img.os import get_test_image
 from sr.const import map_const
 from sr.const.map_const import Region
 from sr.image import ImageMatcher
-from sr.image.cnocr_matcher import CnOcrMatcher
+from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import large_map, LargeMapInfo
