@@ -176,7 +176,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     left, right, top, bottom = cv2_utils.get_four_corner(bw)
     rect = (left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
     to_ocr: MatLike = cv2_utils.crop_image(bw, rect)[0]
-    cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
+    # cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
     lang = game_config.get().lang
     strict_one_line: bool = lang in [game_config_const.LANG_CN]
     return ocr.ocr_for_single_line(to_ocr, strict_one_line=strict_one_line)

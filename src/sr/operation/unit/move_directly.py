@@ -26,6 +26,7 @@ class MoveDirectly(Operation):
     rec_pos_interval: float = 0.5  # 间隔多少秒记录一次坐标
     stuck_distance: float = 20  # 移动距离多少以内认为是被困
     arrival_distance: float = 10  # 多少距离内认为是到达目的地
+    fail_after_no_battle: float = 120  # 多少秒无战斗后退出 通常不会有路线这么久都遇不到怪 只能是卡死了 然后脱困算法又让角色产生些位移
 
     def __init__(self, ctx: Context,
                  lm_info: LargeMapInfo,
@@ -46,6 +47,7 @@ class MoveDirectly(Operation):
         self.no_pos_times = 0  # 累计算不到坐标的次数
         self.stop_afterwards = stop_afterwards  # 最后是否停止前进
         self.last_auto_fight_fail: bool = False  # 上一次索敌是否失败 只有小地图背景污染严重时候出现
+        self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
 
         self.run_mode = game_config.get().run_mode
@@ -73,6 +75,11 @@ class MoveDirectly(Operation):
         #     self.ctx.controller.move('w')
         #     time.sleep(0.5)  # 等待人物转过来再截图
         now_time = time.time()
+
+        if now_time - self.last_battle_time > MoveDirectly.fail_after_no_battle:
+            log.error('移动执行超时')
+            return Operation.FAIL
+
         screen = self.screenshot()
 
         # 可能被怪攻击了
@@ -81,12 +88,14 @@ class MoveDirectly(Operation):
             self.ctx.controller.stop_moving_forward()
             fight = EnterAutoFight(self.ctx)
             fight.execute()
+            self.last_battle_time = time.time()
             self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
             return Operation.WAIT
 
         mm = mini_map.cut_mini_map(screen)
         # 根据小地图判断是否被怪锁定 是的话停下来处理敌人
         if self.check_enemy_and_attack(mm):
+            self.last_battle_time = time.time()
             self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
             return Operation.WAIT
 

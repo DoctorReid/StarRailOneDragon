@@ -406,7 +406,7 @@ class WorldPatrolDraftRouteView:
         whitelist: WorldPatrolWhitelist = WorldPatrolWhitelist('0')
         whitelist.type = 'white'
         whitelist.list = [self.chosen_route_id.unique_id]
-        app = WorldPatrol(self.ctx, restart=True, whitelist=whitelist)
+        app = WorldPatrol(self.ctx, ignore_record=True, whitelist=whitelist)
         app.first = False
         app.execute()
 

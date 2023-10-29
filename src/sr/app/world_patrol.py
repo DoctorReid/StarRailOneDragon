@@ -153,7 +153,8 @@ class WorldPatrolRecord(ConfigHolder):
 
 class WorldPatrol(Application):
 
-    def __init__(self, ctx: Context, restart: bool = False, whitelist: WorldPatrolWhitelist = None):
+    def __init__(self, ctx: Context, restart: bool = False, whitelist: WorldPatrolWhitelist = None,
+                 ignore_record: bool = False):
         super().__init__(ctx)
         self.route_list = []
         self.first: bool = True
@@ -162,19 +163,21 @@ class WorldPatrol(Application):
         self.route_iterator: Iterator = None
         self.whitelist: WorldPatrolWhitelist = whitelist
         self.current_route_idx: int = -1
+        self.ignore_record: bool = ignore_record
 
     def init_app(self):
         self.route_list = load_all_route_id(self.whitelist)
         if self.whitelist is not None:
             log.info('使用白名单 %s' % self.whitelist.id)
         log.info('共加载 %d 条线路', len(self.route_list))
-        try:
-            sr = game_config.get().server_region
-            utc_offset = game_config_const.SERVER_TIME_OFFSET.get(sr)
-            self.record = WorldPatrolRecord(os_utils.get_dt(utc_offset), restart=self.restart)
-            log.info('之前已完成线路 %d 条', len(self.record.finished))
-        except Exception:
-            log.info('读取运行记录失败 重新开始', exc_info=True)
+        if not self.ignore_record:
+            try:
+                sr = game_config.get().server_region
+                utc_offset = game_config_const.SERVER_TIME_OFFSET.get(sr)
+                self.record = WorldPatrolRecord(os_utils.get_dt(utc_offset), restart=self.restart)
+                log.info('之前已完成线路 %d 条', len(self.record.finished))
+            except Exception:
+                log.info('读取运行记录失败 重新开始', exc_info=True)
 
         self.current_route_idx = -1
 
@@ -203,6 +206,8 @@ class WorldPatrol(Application):
 
         if self.run_one_route(route_id):
             self.first = False
+            if not self.ignore_record:
+                self.save_record(route_id)
 
         return Operation.WAIT
 
@@ -226,8 +231,7 @@ class WorldPatrol(Application):
             return False
         else:
             log.info('传送完成 开始寻路')
-            # self.save_record(route_id)  # 只测试传送点OCR时开启
-            # return True
+            # return True  # 只测试传送点OCR时开启
 
         last_region = route.tp.region
         lm_info = large_map.analyse_large_map(last_region, self.ctx.ih)
@@ -267,7 +271,6 @@ class WorldPatrol(Application):
                 log.error('错误的锄大地指令 %s 即将跳过本次路线 %s', route_item['op'], route_id)
                 return False
 
-        self.save_record(route_id)
         return True
 
     def save_record(self, route_id: WorldPatrolRouteId):

@@ -50,12 +50,12 @@ class ChooseRegion(Operation):
 
         # 需要选择层数
         if self.region.floor != 0:
-            floor_str = large_map.get_active_floor(screen, self.ctx.ocr)
-            log.info('当前层数 %s', floor_str)
-            if floor_str is None:
+            current_floor_str = large_map.get_active_floor(screen, self.ctx.ocr)
+            log.info('当前层数 %s', current_floor_str)
+            if current_floor_str is None:
                 log.error('未找到当前选择的层数')
             target_floor_str = gt('%d层' % self.region.floor, 'ocr')
-            if target_floor_str != floor_str:
+            if not str_utils.find_by_lcs(target_floor_str, current_floor_str, 1):
                 cl = self.click_target_floor(screen, target_floor_str)
                 time.sleep(0.5)
                 if not cl:
@@ -130,7 +130,7 @@ class ChooseRegion(Operation):
         """
         part, _ = cv2_utils.crop_image(screen, large_map.FLOOR_LIST_PART)
         return self.ctx.controller.click_ocr(part, target_floor_str, click_offset=large_map.FLOOR_LIST_PART[:2],
-                                             same_word=True)
+                                             lcs_percent=1)
 
     def check_tp_and_cancel(self, screen) -> bool:
         """
