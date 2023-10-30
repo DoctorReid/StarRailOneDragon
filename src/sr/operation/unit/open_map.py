@@ -28,6 +28,7 @@ class OpenMap(Operation):
         if battle_status == battle.IN_WORLD:  # 主界面
             log.info('尝试打开地图')
             ctrl.open_map()
+            time.sleep(2)
             return Operation.WAIT
 
         if battle_status == battle.BATTLING:  # 可能是路线末尾被袭击了 等待最后一次战斗结束
@@ -43,5 +44,5 @@ class OpenMap(Operation):
         # 其他情况都需要通过返回上级菜单再尝试打开大地图
         log.info('尝试返回上级菜单')
         ctrl.esc()
-        time.sleep(1)
+        time.sleep(2)
         return Operation.RETRY

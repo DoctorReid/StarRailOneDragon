@@ -10,7 +10,7 @@ route:
     data: [510, 938]
   - op: 'patrol'
   - op: 'move'
-    data: [508, 999]
+    data: [510, 999]
   - op: 'move'
     data: [509, 1053]
   - op: 'move'
@@ -23,9 +23,9 @@ route:
     data: [525, 1261]
   - op: 'patrol'
   - op: 'move'
-    data: [494, 1255]
+    data: [494, 1258]
   - op: 'move'
-    data: [470, 1255]
+    data: [470, 1257]
   - op: 'move'
     data: [432, 1257]
   - op: 'patrol'
