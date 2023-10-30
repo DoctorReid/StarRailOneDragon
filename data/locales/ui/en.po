@@ -29,8 +29,8 @@ msgstr "Whitelist"
 msgid "无"
 msgstr "None"
 
-msgid "开始"
-msgstr "Start"
+msgid "F9 开始"
+msgstr "F9 Start"
 
 msgid "F9 暂停"
 msgstr "F9 Pause"

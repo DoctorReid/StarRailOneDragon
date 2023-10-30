@@ -38,7 +38,7 @@ class WorldPatrolDraftRouteView:
         self.chosen_route_id: WorldPatrolRouteId = None
         self.load_route_id_list()
         self.cancel_edit_existed_btn = ft.ElevatedButton(text='取消编辑已有路线', disabled=True, on_click=self.on_cancel_edit_existed)
-        self.test_existed_btn = ft.ElevatedButton(text='测试选择线路', disabled=True, on_click=self.on_test_existed)
+        self.test_existed_btn = ft.ElevatedButton(text='测试选择线路', disabled=True, on_click=self.test_existed)
         self.back_btn = ft.ElevatedButton(text='后退', disabled=True, on_click=self.cancel_last)
         self.reset_btn = ft.ElevatedButton(text='重置', disabled=True, on_click=self.cancel_all)
         self.save_btn = ft.ElevatedButton(text='保存', disabled=True, on_click=self.save_route)
@@ -402,7 +402,9 @@ class WorldPatrolDraftRouteView:
         self.draw_route_and_display()
         self.update_all_component_status()
 
-    def on_test_existed(self, e):
+    def test_existed(self, e):
+        if self.test_existed_btn.disabled:
+            return
         whitelist: WorldPatrolWhitelist = WorldPatrolWhitelist('0')
         whitelist.type = 'white'
         whitelist.list = [self.chosen_route_id.unique_id]

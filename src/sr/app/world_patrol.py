@@ -1,6 +1,9 @@
 import os
 import threading
+import time
 from typing import List, Iterator
+
+import numpy as np
 
 from basic import os_utils
 from basic.i18_utils import gt
@@ -132,23 +135,41 @@ class WorldPatrolRecord(ConfigHolder):
     def __init__(self, current_dt: str, restart: bool = False):
         self.restart = restart
         self.current_dt: str = current_dt
-        self.dt: str = None
-        self.finished: List = None
+        self.dt: str = current_dt
+        self.finished: List[str] = []
+        self.time_cost: dict[str, List] = {}
         super().__init__('record', sample=False, sub_dir=['world_patrol'])
 
     def init(self):
         if self.data is not None:
             self.dt = self.data['dt']
             self.finished = self.data['finished']
+            self.time_cost = self.data['time_cost']
 
-        if self.restart or (self.dt is not None and self.dt != self.current_dt) or self.dt is None:  # 重新开始
+        if self.restart or (self.dt is not None and self.dt != self.current_dt) or self.dt is None:  # 重新开始、新的一天、无记录
             self.dt = self.current_dt
             self.finished = []
 
-    def save(self):
+    def add_record(self, route_id: WorldPatrolRouteId, time_cost):
+        unique_id = route_id.unique_id
+        self.finished.append(unique_id)
+        if unique_id not in self.time_cost:
+            self.time_cost[unique_id] = []
+        self.time_cost[unique_id].append(time_cost)
+        while len(self.time_cost[unique_id]) > 3:
+            self.time_cost[unique_id].pop(0)
+
         self.update('dt', self.dt)
         self.update('finished', self.finished)
+        self.update('time_cost', self.time_cost)
         self.write_config()
+
+    def get_estimate_time(self, route_id: WorldPatrolRouteId):
+        unique_id = route_id.unique_id
+        if unique_id not in self.time_cost:
+            return 0
+        else:
+            return np.mean(self.time_cost[unique_id])
 
 
 class WorldPatrol(Application):
@@ -156,7 +177,7 @@ class WorldPatrol(Application):
     def __init__(self, ctx: Context, restart: bool = False, whitelist: WorldPatrolWhitelist = None,
                  ignore_record: bool = False):
         super().__init__(ctx)
-        self.route_list = []
+        self.route_id_list: List[WorldPatrolRouteId] = []
         self.first: bool = True
         self.restart: bool = restart
         self.record: WorldPatrolRecord = None
@@ -164,20 +185,18 @@ class WorldPatrol(Application):
         self.whitelist: WorldPatrolWhitelist = whitelist
         self.current_route_idx: int = -1
         self.ignore_record: bool = ignore_record
+        self.current_route_start_time = time.time()  # 当前路线开始时间
 
     def init_app(self):
-        self.route_list = load_all_route_id(self.whitelist)
-        if self.whitelist is not None:
-            log.info('使用白名单 %s' % self.whitelist.id)
-        log.info('共加载 %d 条线路', len(self.route_list))
         if not self.ignore_record:
             try:
                 sr = game_config.get().server_region
                 utc_offset = game_config_const.SERVER_TIME_OFFSET.get(sr)
                 self.record = WorldPatrolRecord(os_utils.get_dt(utc_offset), restart=self.restart)
-                log.info('之前已完成线路 %d 条', len(self.record.finished))
             except Exception:
                 log.info('读取运行记录失败 重新开始', exc_info=True)
+
+        self.route_id_list = load_all_route_id(self.whitelist, None if self.record is None else self.record.finished)
 
         self.current_route_idx = -1
 
@@ -198,16 +217,18 @@ class WorldPatrol(Application):
 
     def run(self) -> int:
         self.current_route_idx += 1
-        if self.current_route_idx >= len(self.route_list):
+        if self.current_route_idx >= len(self.route_id_list):
             log.info('所有线路执行完毕')
             return Operation.SUCCESS
 
-        route_id = self.route_list[self.current_route_idx]
+        route_id = self.route_id_list[self.current_route_idx]
 
-        if self.run_one_route(route_id):
+        start_time = time.time()
+        route_result = self.run_one_route(route_id)
+        if route_result:
             self.first = False
             if not self.ignore_record:
-                self.save_record(route_id)
+                self.save_record(route_id, time.time() - start_time)
 
         return Operation.WAIT
 
@@ -216,15 +237,11 @@ class WorldPatrol(Application):
         :param route_id:
         :return: 是否执行成功当前线路
         """
+        self.current_route_start_time = time.time()
         route: WorldPatrolRoute = WorldPatrolRoute(route_id)
         log.info('准备执行线路 %s', route_id.display_name)
 
-        if self.record is not None and route_id.unique_id in self.record.finished:
-            log.info('线路 %s 之前已执行 跳过', route_id.display_name)
-            return False
-
         log.info('感谢以下人员提供本路线 %s', route.author_list)
-        log.info('准备传送 %s %s %s', route.tp.planet.cn, route.tp.region.cn, route.tp.cn)
         op = Transport(self.ctx, route.tp, self.first)
         if not op.execute():
             log.error('传送失败 即将跳过本次路线 %s', route_id.display_name)
@@ -273,14 +290,14 @@ class WorldPatrol(Application):
 
         return True
 
-    def save_record(self, route_id: WorldPatrolRouteId):
+    def save_record(self, route_id: WorldPatrolRouteId, time_cost: float):
         """
         保存当天运行记录
         :param route_id: 路线ID
+        :param time_cost: 使用时间
         :return:
         """
-        self.record.finished.append(route_id.unique_id)
-        self.record.save()
+        self.record.add_record(route_id, time_cost)
 
     def move(self, p, lm_info: LargeMapInfo, current_pos, stop_afterwards: bool):
         """
@@ -338,15 +355,33 @@ class WorldPatrol(Application):
 
         return op.execute()
 
+    def estimate_end_time(self):
+        """
+        剩余路线预估的完成时间
+        :return:
+        """
+        total = - (time.time() - self.current_route_start_time)
+        for i in range(self.current_route_idx, len(self.route_id_list)):
+            total += self.record.get_estimate_time(self.route_id_list[i])
 
-def load_all_route_id(whitelist: WorldPatrolWhitelist = None) -> List[WorldPatrolRouteId]:
+            if total < 0:  # 只有第一条，也就是当前线路时会为负
+                total = 0
+
+        return total
+
+
+def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[WorldPatrolRouteId] = None) -> List[WorldPatrolRouteId]:
     """
     加载所有路线
     :param whitelist: 白名单
+    :param finished: 已完成的列表
     :return:
     """
     route_id_arr: List[WorldPatrolRouteId] = []
     dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol')
+
+    finished_unique_id = [] if finished is None else [i.unique_id for i in finished]
+
     for planet in PLANET_LIST:
         planet_dir_path = os.path.join(dir_path, planet.np_id)
         for filename in os.listdir(planet_dir_path):
@@ -354,12 +389,19 @@ def load_all_route_id(whitelist: WorldPatrolWhitelist = None) -> List[WorldPatro
             if idx == -1:
                 continue
             route_id: WorldPatrolRouteId = WorldPatrolRouteId(planet, filename[0:idx])
+            if route_id.unique_id in finished_unique_id:
+                continue
+
             if whitelist is not None:
                 if whitelist.type == 'white' and route_id.unique_id not in whitelist.list:
                     continue
                 if whitelist.type == 'black' and route_id.unique_id in whitelist.list:
                     continue
+
             route_id_arr.append(route_id)
+    log.info('最终加载 %d 条线路 过滤已完成 %d 条 使用名单 %s',
+             len(route_id_arr), len(finished_unique_id), 'None' if whitelist is None else whitelist.id)
+
     return route_id_arr
 
 
@@ -377,11 +419,3 @@ def load_all_whitelist_id() -> List[str]:
         whitelist_id_arr.append(filename[0:idx])
 
     return whitelist_id_arr
-
-
-if __name__ == '__main__':
-    ctx = get_context()
-    ctx.running = True
-    ctx.controller.init()
-    app = WorldPatrol(ctx)
-    app.execute()

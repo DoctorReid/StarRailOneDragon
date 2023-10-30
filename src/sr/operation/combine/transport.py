@@ -1,3 +1,5 @@
+from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.const.map_const import TransportPoint, Region, Planet
 from sr.context import Context
 from sr.operation import Operation
@@ -28,6 +30,10 @@ class Transport(Operation):
         self.ops.append(WaitInWorld(ctx))
 
     def run(self) -> int:
+        log.info('准备传送 %s %s %s',
+                 gt(self.planet.cn, 'ui'),
+                 gt(self.region.cn, 'ui'),
+                 gt(self.tp.cn, 'ui'))
         for op in self.ops:
             r = op.execute()
             if not r:

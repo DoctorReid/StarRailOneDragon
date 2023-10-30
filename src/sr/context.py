@@ -1,8 +1,8 @@
-import keyboard
-import pyautogui
 import threading
 
-from basic import i18_utils
+import keyboard
+import pyautogui
+
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -11,15 +11,14 @@ from sr.const import game_config_const
 from sr.control import GameController
 from sr.control.pc_controller import PcController
 from sr.image import ImageMatcher
-from sr.image.en_ocr_matcher import EnOcrMatcher
-from sr.image.ocr_matcher import OcrMatcher
 from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
+from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.image_holder import ImageHolder
+from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import fill_uid_black
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.win import Window
-
 
 
 class Context:
@@ -152,7 +151,7 @@ class Context:
 
     def screenshot(self):
         """
-        仅供快捷键使用 命令图中请使用 controller.screenshot()
+        仅供快捷键使用 命令途中获取截图请使用 controller.screenshot()
         :return:
         """
         self.init_controller()

@@ -16,7 +16,7 @@ class EnOcrMatcher(OcrMatcher):
         self.ocr: CnOcr = None
         try:
             self.ocr = CnOcr(det_model_name='en_PP-OCRv3_det',
-                             rec_model_name='densenet_lite_136-fc',
+                             rec_model_name='en_PP-OCRv3',
                              det_root=os_utils.get_path_under_work_dir('model', 'cnocr'),
                              rec_root=os_utils.get_path_under_work_dir('model', 'cnstd'))
         except Exception:

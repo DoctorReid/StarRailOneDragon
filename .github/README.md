@@ -15,7 +15,8 @@
 ## 项目进度
 
 - 锄大地功能 ```已完成```
-- 模拟宇宙 ```计划中```
+- 模拟宇宙 ```搁置```
+- 日常 ```计划中```
 
 ![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/draw_route.png)
 

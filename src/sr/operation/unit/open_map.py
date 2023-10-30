@@ -40,6 +40,7 @@ class OpenMap(Operation):
             return Operation.SUCCESS
 
         # 其他情况都需要通过返回上级菜单再尝试打开大地图
+        log.info('尝试返回上级菜单')
         ctrl.esc()
         time.sleep(1)
         return Operation.RETRY
