@@ -34,7 +34,7 @@ jobs:
           git config --local user.name "GitHub Action"
           git add version.json
           git commit -m "Update version.json"
-          git push
+          git push HEAD:main
 
   package_exe:
     runs-on: windows-latest
