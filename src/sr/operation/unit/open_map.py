@@ -1,5 +1,6 @@
 import time
 
+from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.context import Context
 from sr.control import GameController
@@ -15,7 +16,7 @@ class OpenMap(Operation):
         """
         通过按 esc 和 m 打开大地图
         """
-        super().__init__(ctx, 10)
+        super().__init__(ctx, 10, op_name=gt('打开地图', 'ui'))
 
     def run(self) -> int:
         ctrl: GameController = self.ctx.controller

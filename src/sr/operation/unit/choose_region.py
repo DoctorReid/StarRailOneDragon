@@ -18,7 +18,7 @@ class ChooseRegion(Operation):
         选择目标区域
         :param region: 区域
         """
-        super().__init__(ctx, 20)
+        super().__init__(ctx, 20, op_name=gt('选择区域 %s') % region.display_name)
         self.planet: Planet = region.planet
         self.region: Region = region
         self.scroll_direction: int = None

@@ -1,5 +1,6 @@
 import time
 
+from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
 from sr.context import Context
@@ -15,7 +16,7 @@ class ScaleLargeMap(Operation):
         默认在大地图页面 点击缩放按钮
         :param scale: 缩放次数。负数为缩小，正数为放大
         """
-        super().__init__(ctx, 5)
+        super().__init__(ctx, 5,op_name=gt('缩放地图 %d', 'ui') % scale)
         self.scale: int = scale
         self.click_times = 0
         self.pos = None

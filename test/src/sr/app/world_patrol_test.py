@@ -1,10 +1,11 @@
-from sr.app import world_patrol
-from sr.app.world_patrol import WorldPatrol
+import sr.app.world_patrol
+from sr.app import world_patrol_app
+from sr.app.world_patrol_app import WorldPatrol
 from sr.context import Context, get_context
 
 
 def _test_load_all_route():
-    print('目前总共 %d 条路线' % len(world_patrol.load_all_route_id()))
+    print('目前总共 %d 条路线' % len(sr.app.world_patrol.load_all_route_id()))
 
 
 def _test_run_one_route():

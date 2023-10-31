@@ -4,8 +4,8 @@ import flet as ft
 
 from basic.i18_utils import gt
 from gui.sr_app_view import SrAppView
-from sr.app import world_patrol
-from sr.app.world_patrol import WorldPatrolWhitelist
+from sr.app.world_patrol import WorldPatrolWhitelist, load_all_whitelist_id
+from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.context import Context
 
 
@@ -26,7 +26,7 @@ class WorldPatrolView(SrAppView):
         ])
 
     def load_whitelist_id_list(self):
-        self.existed_whitelist_id_list = world_patrol.load_all_whitelist_id()
+        self.existed_whitelist_id_list = load_all_whitelist_id()
         options = []
         options.append(ft.dropdown.Option(text=gt('无', 'ui'), key='none'))
         for i in range(len(self.existed_whitelist_id_list)):
@@ -38,7 +38,7 @@ class WorldPatrolView(SrAppView):
         whitelist: WorldPatrolWhitelist = None
         if self.whitelist_dropdown.value is not None and self.whitelist_dropdown.value != 'none':
             whitelist = WorldPatrolWhitelist(self.whitelist_dropdown.value)
-        app = world_patrol.WorldPatrol(self.ctx, whitelist=whitelist)
+        app = WorldPatrol(self.ctx, whitelist=whitelist)
         app.execute()
 
 

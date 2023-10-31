@@ -24,7 +24,7 @@ class ChooseTransportPoint(Operation):
     drag_distance = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
-        super().__init__(ctx, 10)
+        super().__init__(ctx, 10, op_name=gt('选择传送点 %s') % tp.display_name)
         self.tp: TransportPoint = tp
         self.lm_info: LargeMapInfo = self.ctx.ih.get_large_map(self.tp.region)
 

@@ -1,5 +1,6 @@
 import time
 
+from basic.i18_utils import gt
 from sr.context import Context
 from sr.operation import Operation
 
@@ -15,7 +16,7 @@ class WaitInSeconds(Operation):
         :param ctx:
         :param seconds: 等待多少秒
         """
-        super().__init__(ctx)
+        super().__init__(ctx, op_name=gt('等待秒数 %.2f') % seconds)
         self.seconds: float = float(seconds)
 
     def run(self) -> int:

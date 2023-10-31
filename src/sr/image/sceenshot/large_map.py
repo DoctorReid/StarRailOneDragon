@@ -223,7 +223,6 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
     road_mask = get_large_map_road_mask(info.origin, sp_mask)
     info.gray, info.mask = merge_all_map_mask(gray, road_mask, sp_mask)
     info.kps, info.desc = cv2_utils.feature_detect_and_compute(info.gray, mask=info.mask)
-    info.edge = get_edge_mask(info.mask)
 
     if save:
         cv2_utils.show_image(info.origin, win_name='origin')
@@ -432,7 +431,6 @@ def analyse_large_map(region: Region, ih: ImageHolder):
     :return:
     """
     info = ih.get_large_map(region)
-    info.edge = get_road_edge_mask(info.mask)
     return info
 
 

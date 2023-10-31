@@ -1,5 +1,6 @@
 import time
 
+from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.config import game_config
 from sr.context import Context
@@ -18,7 +19,7 @@ class EnterAutoFight(Operation):
     exit_after_no_battle_time = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx)
+        super().__init__(ctx, op_name=gt('进入战斗', 'ui'))
         self.last_attack_time = time.time()
         self.ctx.controller.stop_moving_forward()
         self.last_alert_time = time.time()  # 上次警报时间

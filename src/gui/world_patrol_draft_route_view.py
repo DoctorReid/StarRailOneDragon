@@ -8,12 +8,13 @@ import yaml
 from cv2.typing import MatLike
 from flet_core import ScrollMode
 
+import sr.const.operation_const
 from basic import os_utils
 from basic.log_utils import log
 from gui import snack_bar
-from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol, WorldPatrolRouteId, \
-    WorldPatrolWhitelist
-from sr.const import map_const, route_const, operation_const
+from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolRoute, WorldPatrolWhitelist, load_all_route_id
+from sr.app.world_patrol.world_patrol_app import WorldPatrol
+from sr.const import map_const, operation_const
 from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
     REGION_2_SP, TransportPoint, region_with_another_floor
 from sr.context import Context
@@ -412,9 +413,9 @@ class WorldPatrolDraftRouteView:
         self.draw_route_and_display()
 
     def on_wait_changed(self, e):
-        if self.wait_dropdown.value == route_const.WAIT_IN_WORLD:
+        if self.wait_dropdown.value == sr.const.operation_const.WAIT_TYPE_IN_WORLD:
             self.wait_timeout_text.value = '20'  # 给主界面加一个20秒固定超时时间
-        elif self.wait_dropdown.value == route_const.WAIT_SECONDS:
+        elif self.wait_dropdown.value == sr.const.operation_const.WAIT_TYPE_SECONDS:
             if int(self.wait_timeout_text.value) > 10:  # 等待秒数通常不会太长 默认一个1
                 self.wait_timeout_text.value = '1'
         self.page.update()

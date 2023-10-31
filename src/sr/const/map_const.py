@@ -1,4 +1,5 @@
 from basic import cal_utils
+from basic.i18_utils import gt
 
 
 class Planet:
@@ -26,6 +27,10 @@ class Planet:
         :return:
         """
         return '%s_%s' % (self.n_id, self.id)
+
+    @property
+    def display_name(self):
+        return gt(self.cn, 'ui')
 
 
 P01 = Planet(1, "KJZHT", "空间站黑塔")
@@ -107,6 +112,10 @@ class Region:
     @property
     def another_floor(self) -> bool:
         return self.floor != 0
+
+    @property
+    def display_name(self) -> str:
+        return gt(self.cn, 'ui')
 
 
 # 空间站黑塔
@@ -190,6 +199,10 @@ class TransportPoint:
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
+
+    @property
+    def display_name(self):
+        return gt(self.cn, 'ui')
 
 
 # 空间站黑塔 - 主控舱段

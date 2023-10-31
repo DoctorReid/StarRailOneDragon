@@ -4,6 +4,7 @@ from cv2.typing import MatLike
 
 import basic.cal_utils
 from basic import os_utils
+from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
@@ -35,7 +36,7 @@ class MoveDirectly(Operation):
                  start: tuple = None,
                  stop_afterwards: bool = True,
                  no_run: bool = False):
-        super().__init__(ctx)
+        super().__init__(ctx, op_name=gt('移动 %s -> %s') % (start, target))
         self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
         self.region: Region = lm_info.region

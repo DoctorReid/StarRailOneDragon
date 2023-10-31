@@ -13,7 +13,7 @@ from basic.log_utils import log
 from sr import const
 from sr.const import map_const
 from sr.image import ImageMatcher
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map
 from sr.performance_recorder import record_performance
 
 cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='cal_pos')
@@ -332,7 +332,8 @@ def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
     :param show: 是否显示调试结果
     :return:
     """
-    source = merge_road_mask(lm_info.mask, lm_info.edge)
+    source_edge = large_map.get_road_edge_mask(lm_info.mask)
+    source = merge_road_mask(lm_info.mask, source_edge)
     source, lm_rect = cv2_utils.crop_image(source, lm_rect)
     # 使用道路掩码
     edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)
@@ -377,7 +378,8 @@ def cal_character_pos_by_edge_mask(im: ImageMatcher,
     :param show: 是否显示调试结果
     :return:
     """
-    source, lm_rect = cv2_utils.crop_image(lm_info.edge, lm_rect)
+    source_edge = large_map.get_road_edge_mask(lm_info.mask)
+    source, lm_rect = cv2_utils.crop_image(source_edge, lm_rect)
     target_scale = None
     # 使用道路掩码
     edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)

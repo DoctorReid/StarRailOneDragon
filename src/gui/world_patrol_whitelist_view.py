@@ -8,8 +8,8 @@ import flet as ft
 from basic import os_utils
 from basic.log_utils import log
 from gui import world_patrol_draft_route_view
-from sr.app.world_patrol import load_all_route_id, WorldPatrolRouteId, WorldPatrolRoute, load_all_whitelist_id, \
-    WorldPatrolWhitelist
+from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolRoute, WorldPatrolWhitelist, load_all_route_id, \
+    load_all_whitelist_id
 from sr.context import Context
 
 

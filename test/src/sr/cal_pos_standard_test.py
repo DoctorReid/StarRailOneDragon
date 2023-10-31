@@ -103,7 +103,7 @@ if __name__ == '__main__':
         if c.region != map_const.P02_R11_L1 or c.num != 5:
             continue
         if c.region.prl_id not in lm_info_map:
-            lm_info_map[c.region.prl_id] = large_map.analyse_large_map(c.region, ih)
+            lm_info_map[c.region.prl_id] = ih.get_large_map(c.region)
         is_err = test_one(c, lm_info_map[c.region.prl_id], True)
         if is_err:
             fail_list.append(c)

@@ -25,7 +25,7 @@ class Interact(Operation):
         :param cn: 需要交互的中文
         :param wait: 成功之后等待的秒数
         """
-        super().__init__(ctx, try_times=len(Interact.TRY_INTERACT_MOVE))
+        super().__init__(ctx, try_times=len(Interact.TRY_INTERACT_MOVE), op_name=gt('交互 %s', 'ui') % gt(cn, 'ui'))
         self.cn = cn
         self.wait = wait
 
@@ -50,7 +50,7 @@ class Interact(Operation):
         ocr_result = self.ctx.ocr.match_words(white_part, words=[self.cn])
 
         if len(ocr_result) == 0:  # 目前没有交互按钮 尝试挪动触发交互
-            self.ctx.controller.move(Interact.TRY_INTERACT_MOVE[self.op_round])
+            self.ctx.controller.move(Interact.TRY_INTERACT_MOVE[self.op_round - 1])
             return Operation.RETRY
         else:
             for r in ocr_result.values():

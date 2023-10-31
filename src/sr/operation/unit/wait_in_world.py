@@ -1,5 +1,6 @@
 import time
 
+from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import battle
 from sr.operation import Operation
@@ -16,7 +17,7 @@ class WaitInWorld(Operation):
         :param ctx:
         :param wait: 最多等待多少秒
         """
-        super().__init__(ctx)
+        super().__init__(ctx, op_name=gt('等待主界面'))
         self.timeout_seconds: float = float(wait)
         self.start_time = time.time()
 

@@ -1,6 +1,7 @@
 import time
 
 from basic import os_utils
+from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.context import Context
@@ -14,7 +15,7 @@ class EnableAutoFight(Operation):
     """
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, 5)
+        super().__init__(ctx, 5, op_name=gt('打开自动战斗', 'ui'))
 
     def run(self) -> int:
         screen = self.screenshot()

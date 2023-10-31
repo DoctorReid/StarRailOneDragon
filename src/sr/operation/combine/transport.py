@@ -1,8 +1,11 @@
+from typing import List
+
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.const.map_const import TransportPoint, Region, Planet
+from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.operation import Operation
+from sr.operation.combine import CombineOperation
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.choose_transport_point import ChooseTransportPoint
@@ -11,7 +14,7 @@ from sr.operation.unit.scale_large_map import ScaleLargeMap
 from sr.operation.unit.wait_in_world import WaitInWorld
 
 
-class Transport(Operation):
+class Transport(CombineOperation):
 
     def __init__(self, ctx: Context, tp: TransportPoint, first: bool = True):
         """
@@ -19,25 +22,16 @@ class Transport(Operation):
         :param tp:
         :param first: 是否第一次传送
         """
-        self.ops = []
-        self.ops.append(OpenMap(ctx))
+        ops: List[Operation] = []
+        ops.append(OpenMap(ctx))
         if first:
-            self.ops.append(ScaleLargeMap(ctx, -5))
-        self.ops.append(ChoosePlanet(ctx, tp.region.planet))
-        self.ops.append(ChooseRegion(ctx, tp.region))
-        self.ops.append(ChooseTransportPoint(ctx, tp))
-        self.ops.append(WaitInWorld(ctx))
+            ops.append(ScaleLargeMap(ctx, -5))
+        ops.append(ChoosePlanet(ctx, tp.region.planet))
+        ops.append(ChooseRegion(ctx, tp.region))
+        ops.append(ChooseTransportPoint(ctx, tp))
+        ops.append(WaitInWorld(ctx))
 
-        super().__init__(ctx, len(self.ops))
-        self.tp: TransportPoint = tp
-        self.region: Region = self.tp.region
-        self.planet: Planet = self.region.planet
+        super().__init__(ctx, ops,
+                         op_name=gt('传送 %s %s %s', 'ui') % (tp.planet.display_name, tp.region.display_name, tp.display_name))
 
-        log.info('准备传送 %s %s %s', gt(self.planet.cn, 'ui'), gt(self.region.cn, 'ui'), gt(self.tp.cn, 'ui'))
-
-    def run(self) -> int:
-        r = self.ops[self.op_round - 1].execute()
-        if not r:
-            return Operation.FAIL
-
-        return Operation.SUCCESS if self.op_round == len(self.ops) else Operation.RETRY
+        log.info('准备传送 %s %s %s', tp.planet.display_name, tp.region.display_name, tp.display_name)

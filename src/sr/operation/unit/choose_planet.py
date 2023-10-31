@@ -20,7 +20,7 @@ class ChoosePlanet(Operation):
         默认已经打开大地图了
         :param planet: 目标星球
         """
-        super().__init__(ctx, 10)
+        super().__init__(ctx, 10, op_name=gt('选择星球 %s', 'ui') % planet.display_name)
         self.planet: Planet = planet
 
     def run(self) -> int:

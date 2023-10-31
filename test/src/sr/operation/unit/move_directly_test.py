@@ -15,7 +15,7 @@ if __name__ == '__main__':
     ctx = get_context()
     r: Region = map_const.P01_R02
     tp: TransportPoint = map_const.P01_R02_SP01
-    lm_info = large_map.analyse_large_map(r, ctx.ih)
+    lm_info = ctx.ih.get_large_map(r)
 
     op = MoveDirectly(ctx, lm_info, target=(650, 200), start=tp.lm_pos)
     _test_whole_op()
