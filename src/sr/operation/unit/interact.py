@@ -17,6 +17,7 @@ class Interact(Operation):
     """
 
     rect = [900, 400, 1450, 870]
+    TRY_INTERACT_MOVE = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
 
     def __init__(self, ctx: Context, cn: str, wait: int):
         """
@@ -24,7 +25,7 @@ class Interact(Operation):
         :param cn: 需要交互的中文
         :param wait: 成功之后等待的秒数
         """
-        super().__init__(ctx, try_times=12)
+        super().__init__(ctx, try_times=len(Interact.TRY_INTERACT_MOVE))
         self.cn = cn
         self.wait = wait
 
@@ -48,9 +49,8 @@ class Interact(Operation):
 
         ocr_result = self.ctx.ocr.match_words(white_part, words=[self.cn])
 
-        if len(ocr_result) == 0:  # 目前没有交互按钮 尝试左右挪动触发交互
-            move = 'wasd'
-            self.ctx.controller.move(move[self.op_round % 4])
+        if len(ocr_result) == 0:  # 目前没有交互按钮 尝试挪动触发交互
+            self.ctx.controller.move(Interact.TRY_INTERACT_MOVE[self.op_round])
             return Operation.RETRY
         else:
             for r in ocr_result.values():
