@@ -10,7 +10,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import Application
 from sr.config import ConfigHolder, game_config
-from sr.const import map_const, game_config_const, route_const
+from sr.const import map_const, game_config_const, route_const, operation_const
 from sr.const.map_const import TransportPoint, region_with_another_floor, Region, PLANET_LIST, Planet, PLANET_2_REGION, \
     REGION_2_SP
 from sr.context import Context, get_context
@@ -256,9 +256,10 @@ class WorldPatrol(Application):
         for i in range(len(route.route_list)):
             route_item = route.route_list[i]
             next_route_item = route.route_list[i + 1] if i < len(route.route_list) - 1 else None
-            if route_item['op'] == 'move':
+            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
                 result, next_pos, next_lm_info = self.move(route_item['data'], lm_info, current_pos,
-                                                           next_route_item is None or next_route_item['op'] != 'move')
+                                                           stop_afterwards=next_route_item is None or next_route_item['op'] != operation_const.OP_MOVE,
+                                                           no_run=route_item['op'] == operation_const.OP_SLOW_MOVE)
                 if not result:
                     log.error('寻路失败 即将跳过本次路线 %s', route_id.display_name)
                     return False
@@ -266,19 +267,19 @@ class WorldPatrol(Application):
                 current_pos = next_pos
                 if next_lm_info is not None:
                     lm_info = next_lm_info
-            elif route_item['op'] == 'patrol':
+            elif route_item['op'] == operation_const.OP_PATROL:
                 self.patrol()
-            elif route_item['op'] == 'interact':
+            elif route_item['op'] == operation_const.OP_INTERACT:
                 result = self.interact(route_item['data'])
                 if not result:
                     log.error('交互失败 即将跳过本次路线 %s', route_id.display_name)
                     return False
-            elif route_item['op'] == 'wait':
+            elif route_item['op'] == operation_const.OP_WAIT:
                 result = self.wait(route_item['data'][0], route_item['data'][1])
                 if not result:
                     log.error('等待失败 即将跳过本次路线 %s', route_id.display_name)
                     return False
-            elif route_item['op'] == 'update_pos':
+            elif route_item['op'] == operation_const.OP_UPDATE_POS:
                 next_pos = route_item['data']
                 if len(next_pos) > 2:
                     next_region = map_const.region_with_another_floor(lm_info.region, next_pos[2])
@@ -299,13 +300,15 @@ class WorldPatrol(Application):
         """
         self.record.add_record(route_id, time_cost)
 
-    def move(self, p, lm_info: LargeMapInfo, current_pos, stop_afterwards: bool):
+    def move(self, p, lm_info: LargeMapInfo, current_pos,
+             stop_afterwards: bool, no_run: bool):
         """
         移动到某个点
         :param p: 下一个目标点
         :param lm_info: 小地图信息
         :param current_pos: 当前位置
         :param stop_afterwards: 是否最后停止
+        :param no_run: 禁止疾跑
         :return:
         """
         target_pos = (p[0], p[1])
@@ -314,7 +317,7 @@ class WorldPatrol(Application):
             next_region = region_with_another_floor(lm_info.region, p[2])
             next_lm_info = large_map.analyse_large_map(next_region, self.ctx.ih)
         op = MoveDirectly(self.ctx, lm_info, next_lm_info=next_lm_info,
-                          target=target_pos, start=current_pos, stop_afterwards=stop_afterwards)
+                          target=target_pos, start=current_pos, stop_afterwards=stop_afterwards, no_run=no_run)
 
         result = op.execute()
 

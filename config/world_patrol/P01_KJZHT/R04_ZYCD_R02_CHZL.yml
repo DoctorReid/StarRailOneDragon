@@ -6,14 +6,14 @@ tp: '存护之蕾'
 route:
   - op: 'move'
     data: [473, 388]
-  - op: 'move'
+  - op: 'slow_move'
     data: [503, 390]
   - op: 'interact'
     data: '配控装置'
   - op: 'wait'
     data: ['seconds', '3']
   - op: 'wait'
-    data: ['in_world', '5']
+    data: ['in_world', '10']
   - op: 'update_pos'
     data: [503, 388, 1]
   - op: 'move'

@@ -33,7 +33,8 @@ class MoveDirectly(Operation):
                  target: tuple,
                  next_lm_info: LargeMapInfo = None,
                  start: tuple = None,
-                 stop_afterwards: bool = True):
+                 stop_afterwards: bool = True,
+                 no_run: bool = False):
         super().__init__(ctx)
         self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
@@ -50,7 +51,7 @@ class MoveDirectly(Operation):
         self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
 
-        self.run_mode = game_config.get().run_mode
+        self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
 
     def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]

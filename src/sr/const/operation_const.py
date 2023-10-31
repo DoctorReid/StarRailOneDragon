@@ -1,0 +1,6 @@
+OP_MOVE = 'move'
+OP_SLOW_MOVE = 'slow_move'
+OP_PATROL = 'patrol'
+OP_INTERACT = 'interact'
+OP_WAIT = 'wait'
+OP_UPDATE_POS = 'update_pos'

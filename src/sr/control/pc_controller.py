@@ -124,8 +124,7 @@ class PcController(GameController):
         if press_time > 0:
             pyautogui.keyDown(direction)
             self.is_moving = True
-            if run:
-                self.enter_running()
+            self.enter_running(run)
             time.sleep(press_time)
             pyautogui.keyUp(direction)
             self.is_moving = False
@@ -142,8 +141,7 @@ class PcController(GameController):
         """
         self.is_moving = True
         pyautogui.keyDown('w')
-        if run:
-            self.enter_running()
+        self.enter_running(run)
 
     def stop_moving_forward(self):
         pyautogui.keyUp('w')
@@ -170,12 +168,18 @@ class PcController(GameController):
             time.sleep(wait)
         return True
 
-    def enter_running(self):
+    def enter_running(self, run: bool):
         """
         进入疾跑模式
+        :param run: 是否进入疾跑
         :return:
         """
-        if not self.is_running:
+        if run and not self.is_running:
             time.sleep(0.02)
             win_utils.click(primary=False)
             self.is_running = True
+        elif not run and self.is_running:
+            time.sleep(0.02)
+            win_utils.click(primary=False)
+            self.is_running = False
+

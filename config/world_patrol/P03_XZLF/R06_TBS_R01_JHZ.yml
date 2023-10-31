@@ -16,10 +16,12 @@ route:
     data: [524, 156]
   - op: 'move'
     data: [541, 169]
-  - op: 'move'
+  - op: 'slow_move'
     data: [585, 170]
   - op: 'interact'
     data: '入画'
+  - op: 'wait'
+    data: ['seconds', '3']
   - op: 'wait'
     data: ['in_world', '20']
   - op: 'update_pos'

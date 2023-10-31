@@ -10,9 +10,10 @@ from flet_core import ScrollMode
 
 from basic import os_utils
 from basic.log_utils import log
+from gui import snack_bar
 from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute, WorldPatrol, WorldPatrolRouteId, \
     WorldPatrolWhitelist
-from sr.const import map_const, route_const
+from sr.const import map_const, route_const, operation_const
 from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
     REGION_2_SP, TransportPoint, region_with_another_floor
 from sr.context import Context
@@ -52,26 +53,26 @@ class WorldPatrolDraftRouteView:
 
         self.planet_dropdown = ft.Dropdown(
             label='星球',
-            width=200,
+            width=100,
             options=[
                 ft.dropdown.Option(text=p.cn, key=p.cn) for p in PLANET_LIST
             ],
             on_change=self.on_planet_changed
         )
         self.region_dropdown = ft.Dropdown(label='区域', width=200, on_change=self.on_region_change)
-        self.floor_dropdown = ft.Dropdown(label='层数', width=200, on_change=self.on_floor_changed)
+        self.floor_dropdown = ft.Dropdown(label='层数', width=50, on_change=self.on_floor_changed)
         self.tp_dropdown = ft.Dropdown(label='传送点', width=200, on_change=self.on_sp_change)
+        self.switch_floor_dropdown = ft.Dropdown(label='中途切换层数', width=150, on_change=self.on_switch_floor)
 
         choose_row = ft.Row(
             spacing=10,
-            controls=[self.planet_dropdown, self.region_dropdown, self.floor_dropdown, self.tp_dropdown]
+            controls=[self.planet_dropdown, self.region_dropdown, self.floor_dropdown, self.tp_dropdown, self.switch_floor_dropdown]
         )
 
-        self.switch_floor_dropdown = ft.Dropdown(label='中途切换层数', width=150, on_change=self.on_switch_floor)
         self.patrol_btn = ft.ElevatedButton(text='攻击怪物', disabled=True, on_click=self.add_patrol)
         self.interact_text = ft.TextField(label="交互文本", width=150, disabled=True)
         self.interact_btn = ft.ElevatedButton(text='交互', disabled=True, on_click=self.on_interact)
-        self.update_pos_btn = ft.ElevatedButton(text='不移动更新坐标', disabled=True, on_click=self.on_update_pos)
+        self.update_pos_btn = ft.ElevatedButton(text='传送更新坐标', disabled=True, on_click=self.on_update_pos)
         self.wait_timeout_text = ft.TextField(
             label='等待秒数', width=100,
         )
@@ -84,10 +85,12 @@ class WorldPatrolDraftRouteView:
             on_change=self.on_wait_changed
         )
         self.add_wait_btn = ft.ElevatedButton(text='等待', disabled=True, on_click=self.add_wait)
+        self.no_run_btn = ft.ElevatedButton(text='禁疾跑', disabled=True, on_click=self.add_no_run)
 
         ctrl_row = ft.Row(
             spacing=10,
-            controls=[self.switch_floor_dropdown, self.patrol_btn, self.interact_text, self.interact_btn, self.wait_timeout_text, self.wait_dropdown, self.add_wait_btn, self.update_pos_btn]
+            controls=[self.patrol_btn, self.interact_text, self.interact_btn,
+                      self.wait_dropdown, self.wait_timeout_text, self.add_wait_btn, self.update_pos_btn, self.no_run_btn]
         )
 
         self.image_width = 1000
@@ -95,10 +98,10 @@ class WorldPatrolDraftRouteView:
 
         display_part = ft.Column(
             controls=[
-                ft.Container(content=author_row, padding=20),
-                ft.Container(content=load_existed_row, padding=20),
-                ft.Container(content=choose_row, padding=20),
-                ft.Container(content=ctrl_row, padding=20),
+                ft.Container(content=author_row, padding=3),
+                ft.Container(content=load_existed_row, padding=3),
+                ft.Container(content=choose_row, padding=3),
+                ft.Container(content=ctrl_row, padding=3),
                 ft.Container(content=self.map_img, width=self.image_width, height=self.image_width,
                              on_click=self.on_map_click,
                              alignment=ft.alignment.top_left)
@@ -233,7 +236,7 @@ class WorldPatrolDraftRouteView:
         if x > original_width or y > original_height:
             return
 
-        self.route_list.append({'op': 'move', 'data': (x, y, int(self.switch_floor_dropdown.value))})
+        self.route_list.append({'op': operation_const.OP_MOVE, 'data': (x, y, int(self.switch_floor_dropdown.value))})
         self.draw_route_and_display()
 
     def get_original_map_image(self) -> MatLike:
@@ -266,30 +269,22 @@ class WorldPatrolDraftRouteView:
         cfg += "tp: '%s'\n" % self.chosen_sp.cn
         cfg += "route:\n"
         for route_item in self.route_list:
-            if route_item['op'] == 'move':
-                cfg += "  - op: 'move'\n"
+            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
+                cfg += "  - op: '%s'\n" % route_item['op']
                 pos = route_item['data']
                 if pos[2] != last_floor:
                     cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
                 else:
                     cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
                 last_floor = pos[2]
-            elif route_item['op'] == 'patrol':
-                cfg += "  - op: 'patrol'\n"
-            elif route_item['op'] == 'interact':
-                cfg += "  - op: 'interact'\n"
+            elif route_item['op'] == operation_const.OP_PATROL:
+                cfg += "  - op: '%s'\n" % route_item['op']
+            elif route_item['op'] == operation_const.OP_INTERACT:
+                cfg += "  - op: '%s'\n" % route_item['op']
                 cfg += "    data: '%s'\n" % route_item['data']
-            elif route_item['op'] == 'wait':
-                cfg += "  - op: 'wait'\n"
+            elif route_item['op'] == operation_const.OP_WAIT:
+                cfg += "  - op: '%s'\n" % route_item['op']
                 cfg += "    data: ['%s', '%s']\n" % (route_item['data'][0], route_item['data'][1])
-            elif route_item['op'] == 'update_pos':
-                cfg += "  - op: 'update_pos'\n"
-                pos = route_item['data']
-                if pos[2] != last_floor:
-                    cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
-                else:
-                    cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
-                last_floor = pos[2]
         return cfg
 
     def save_route(self, e):
@@ -322,7 +317,7 @@ class WorldPatrolDraftRouteView:
             self.update_all_component_status()
 
     def add_patrol(self, e):
-        self.route_list.append({'op': 'patrol'})
+        self.route_list.append({'op': operation_const.OP_PATROL})
         self.draw_route_and_display()
 
     def on_route_text_blur(self, e):
@@ -343,7 +338,7 @@ class WorldPatrolDraftRouteView:
         """
         last_floor = int(self.floor_dropdown.value)
         for route_item in self.route_list:
-            if route_item['op'] == 'move' or route_item['op'] == 'update_pos':
+            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
                 if len(route_item['data']) == 2:
                     route_item['data'].append(last_floor)
                 else:
@@ -413,7 +408,7 @@ class WorldPatrolDraftRouteView:
         app.execute()
 
     def on_interact(self, e):
-        self.route_list.append({'op': 'interact', 'data': self.interact_text.value})
+        self.route_list.append({'op': operation_const.OP_INTERACT, 'data': self.interact_text.value})
         self.draw_route_and_display()
 
     def on_wait_changed(self, e):
@@ -425,14 +420,16 @@ class WorldPatrolDraftRouteView:
         self.page.update()
 
     def add_wait(self, e):
-        self.route_list.append({'op': 'wait', 'data': [self.wait_dropdown.value, self.wait_timeout_text.value]})
+        if self.wait_dropdown.value is None or self.wait_timeout_text.value is None:
+            snack_bar.show_message('需要先填入等待类型和等待描述', self.page)
+        self.route_list.append({'op': operation_const.OP_WAIT, 'data': [self.wait_dropdown.value, self.wait_timeout_text.value]})
         self.draw_route_and_display()
 
     def on_update_pos(self, e):
         idx = len(self.route_list) - 1
         print(self.route_list[idx])
-        if self.route_list[idx]['op'] == 'move':
-            self.route_list[idx]['op'] = 'update_pos'
+        if self.route_list[idx]['op'] == operation_const.OP_MOVE:
+            self.route_list[idx]['op'] = operation_const.OP_UPDATE_POS
         self.draw_route_and_display()
 
     def load_route_id_list(self):
@@ -476,6 +473,7 @@ class WorldPatrolDraftRouteView:
         self.wait_timeout_text.disabled = self.chosen_sp is None
         self.wait_dropdown.disabled = self.chosen_sp is None
         self.add_wait_btn.disabled = self.chosen_sp is None
+        self.no_run_btn.disabled = self.chosen_sp is None
         self.update_pos_btn.disabled = self.chosen_sp is None
 
         self.page.update()
@@ -493,6 +491,25 @@ class WorldPatrolDraftRouteView:
         route.route_list = self.route_list
 
         return route
+
+    def add_no_run(self, e):
+        """
+        对最后一个
+        :param e:
+        :return:
+        """
+        if len(self.route_list) == 0 or self.route_list[len(self.route_list) - 1]['op'] not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+            snack_bar.show_message('最后一个路线点不是移动', self.page)
+            return
+
+        last_move = self.route_list[len(self.route_list) - 1]
+        if last_move['op'] == operation_const.OP_MOVE:
+            last_move['op'] = operation_const.OP_SLOW_MOVE
+        else:
+            last_move['op'] = operation_const.OP_MOVE
+
+        self.draw_route_and_display()
+
 
 
 gv: WorldPatrolDraftRouteView = None
@@ -516,7 +533,7 @@ def draw_route_in_image(ctx: Context, route: WorldPatrolRoute, route_id: WorldPa
     """
     last_region = route_id.region if route_id is not None else route.tp.region
     for route_item in route.route_list:
-        if route_item['op'] == 'move' or route_item['op'] == 'update_pos':
+        if route_item['op'] == operation_const.OP_MOVE or route_item['op'] == operation_const.OP_UPDATE_POS:
             pos = route_item['data']
             if len(pos) > 2:
                 last_region = region_with_another_floor(last_region, pos[2])
@@ -528,22 +545,24 @@ def draw_route_in_image(ctx: Context, route: WorldPatrolRoute, route_id: WorldPa
         last_point = route.tp.lm_pos
         cv2.circle(display_image, last_point[:2], 25, color=(0, 255, 0), thickness=3)
     for route_item in route.route_list:
-        if route_item['op'] == 'move':
+        if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             pos = route_item['data']
             cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
             if last_point is not None:
-                cv2.line(display_image, last_point[:2], pos[:2], color=(255, 0, 0), thickness=2)
+                cv2.line(display_image, last_point[:2], pos[:2],
+                         color=(255, 0, 0) if route_item['op'] == operation_const.OP_MOVE else (255, 255, 0),
+                         thickness=2)
             last_point = pos
-        elif route_item['op'] == 'patrol':
+        elif route_item['op'] == operation_const.OP_PATROL:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 10, color=(0, 255, 255), thickness=2)
-        elif route_item['op'] == 'interact':
+        elif route_item['op'] == operation_const.OP_INTERACT:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
-        elif route_item['op'] == 'wait':
+        elif route_item['op'] == operation_const.OP_WAIT:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 14, color=(255, 255, 255), thickness=2)
-        elif route_item['op'] == 'update_pos':
+        elif route_item['op'] == operation_const.OP_UPDATE_POS:
             pos = route_item['data']
             cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
             last_point = pos

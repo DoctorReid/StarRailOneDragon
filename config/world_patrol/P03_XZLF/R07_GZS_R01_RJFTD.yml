@@ -35,13 +35,15 @@ route:
   - op: 'move'
     data: [880, 258]
   - op: 'move'
-    data: [802, 258]
-  - op: 'move'
+    data: [810, 258]
+  - op: 'slow_move'
     data: [780, 258]
   - op: 'interact'
     data: '入画'
   - op: 'wait'
-    data: ['i', 'n']
+    data: ['seconds', '3']
+  - op: 'wait'
+    data: ['in_world', '20']
   - op: 'update_pos'
     data: [558, 321]
   - op: 'move'
