@@ -10,7 +10,7 @@ on:
       - '**/locale-po.yml'
 
 jobs:
-  build:
+  job1:
     runs-on: ubuntu-latest
     strategy:
       matrix:
