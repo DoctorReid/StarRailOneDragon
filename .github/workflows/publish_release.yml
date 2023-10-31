@@ -34,7 +34,8 @@ jobs:
           git config --local user.name "GitHub Action"
           git add version.json
           git commit -m "Update version.json"
-          git push HEAD:main
+          git checkout -b temp_version
+          git push origin temp_version:main
 
   package_exe:
     runs-on: windows-latest
