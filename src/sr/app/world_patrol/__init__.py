@@ -158,7 +158,7 @@ class WorldPatrolRecord(ConfigHolder):
             return np.mean(self.time_cost[unique_id])
 
 
-def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[WorldPatrolRouteId] = None) -> List[WorldPatrolRouteId]:
+def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str] = None) -> List[WorldPatrolRouteId]:
     """
     加载所有路线
     :param whitelist: 白名单
@@ -168,7 +168,7 @@ def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[Wor
     route_id_arr: List[WorldPatrolRouteId] = []
     dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol')
 
-    finished_unique_id = [] if finished is None else [i.unique_id for i in finished]
+    finished_unique_id = [] if finished is None else finished
 
     for planet in PLANET_LIST:
         planet_dir_path = os.path.join(dir_path, planet.np_id)

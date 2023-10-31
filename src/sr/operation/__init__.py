@@ -30,10 +30,17 @@ class Operation:
         self.last_screenshot: MatLike = None
         self.gc: GameConfig = game_config.get()
 
+    def init_before_execute(self):
+        """
+        执行前的初始化
+        """
+        pass
+
     def execute(self) -> bool:
         """
         循环执系列动作直到完成为止
         """
+        self.init_before_execute()
         result: bool = False
         while self.op_round < self.try_times:
             if self.ctx.running == 0:
@@ -62,7 +69,8 @@ class Operation:
                 break
             elif op_result == Operation.FAIL:
                 result = False
-                log.error('%s执行失败', self.get_display_name())
+                if not self.allow_fail():
+                    log.error('%s执行失败', self.get_display_name())
                 break
             elif op_result == Operation.WAIT:
                 self.op_round -= 1
@@ -97,3 +105,10 @@ class Operation:
         :return:
         """
         return '指令[ %s ]' % self.op_name
+
+    def allow_fail(self) -> bool:
+        """
+        该指令是否允许失败
+        :return:
+        """
+        return False

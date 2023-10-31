@@ -20,12 +20,15 @@ class EnterAutoFight(Operation):
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('进入战斗', 'ui'))
+        self.last_attack_time = 0
+        self.last_alert_time = 0  # 上次警报时间
+        self.last_in_battle_time = 0  # 上次在战斗的时间
+        self.with_battle: bool = False  # 是否有进入战斗
+
+    def init_before_execute(self):
         self.last_attack_time = time.time()
-        self.ctx.controller.stop_moving_forward()
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_in_battle_time = time.time()  # 上次在战斗的时间
-        self.with_battle: bool = False  # 是否有进入战斗
-        log.info('索敌开始')
 
     def run(self) -> int:
         ctrl: GameController = self.ctx.controller
@@ -68,3 +71,10 @@ class EnterAutoFight(Operation):
         if now_time - self.last_in_battle_time > EnterAutoFight.exit_after_no_battle_time:
             return Operation.FAIL
         return Operation.WAIT
+
+    def allow_fail(self) -> bool:
+        """
+        该指令是否允许失败
+        :return:
+        """
+        return True

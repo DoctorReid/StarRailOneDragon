@@ -21,7 +21,7 @@ class CombineOperation(Operation):
         if self.ops is None:  # 初始化指令失败
             return Operation.FAIL
         op = self.ops[self.op_round - 1]
-        if not op.execute():
+        if not op.execute() and not op.allow_fail:
             return Operation.FAIL
 
-        return Operation.RETRY
+        return Operation.RETRY if self.op_round < len(self.ops) else Operation.SUCCESS

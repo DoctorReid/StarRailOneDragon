@@ -19,12 +19,15 @@ class WaitInWorld(Operation):
         """
         super().__init__(ctx, op_name=gt('等待主界面'))
         self.timeout_seconds: float = float(wait)
+        self.start_time = 0
+
+    def init_before_execute(self):
         self.start_time = time.time()
 
     def run(self) -> int:
         screen = self.screenshot()
         if battle.IN_WORLD == battle.get_battle_status(screen, self.ctx.im):
-            time.sleep(1.5)  # 多等待一秒 动画后界面完整显示需要点时间
+            time.sleep(1)  # 多等待一秒 动画后界面完整显示需要点时间
             return Operation.SUCCESS
 
         time.sleep(1)

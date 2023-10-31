@@ -14,7 +14,7 @@ class StarRailAutoProxy:
         self.page: ft.Page = page
         self.ctx: Context = ctx
 
-        page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' v0.5.3'
+        page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' v0.5.4'
 
         self.display_part = ft.Container(content=world_patrol_view.get(page, ctx).component)
 

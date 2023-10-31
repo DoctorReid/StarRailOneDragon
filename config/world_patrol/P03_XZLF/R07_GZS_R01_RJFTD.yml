@@ -37,7 +37,7 @@ route:
   - op: 'move'
     data: [810, 258]
   - op: 'slow_move'
-    data: [780, 258]
+    data: [775, 258]
   - op: 'interact'
     data: '入画'
   - op: 'wait'

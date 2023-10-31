@@ -54,6 +54,9 @@ class MoveDirectly(Operation):
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
 
+    def init_before_execute(self):
+        self.last_battle_time = time.time()
+
     def run(self) -> bool:
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
 
@@ -266,3 +269,4 @@ class MoveDirectly(Operation):
     def on_resume(self):
         super().on_resume()
         self.last_rec_time = time.time()
+        self.last_battle_time = time.time()
