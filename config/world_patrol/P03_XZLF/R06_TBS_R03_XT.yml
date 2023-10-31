@@ -9,6 +9,10 @@ route:
   - op: 'move'
     data: [506, 1166]
   - op: 'move'
+    data: [514, 1108]
+  - op: 'move'
+    data: [514, 1108]
+  - op: 'move'
     data: [533, 1107]
   - op: 'patrol'
   - op: 'move'
