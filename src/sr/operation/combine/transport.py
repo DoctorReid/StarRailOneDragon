@@ -14,28 +14,30 @@ from sr.operation.unit.wait_in_world import WaitInWorld
 class Transport(Operation):
 
     def __init__(self, ctx: Context, tp: TransportPoint, first: bool = True):
-        super().__init__(ctx, 1)
-        self.tp: TransportPoint = tp
-        self.region: Region = self.tp.region
-        self.planet: Planet = self.region.planet
-        self.first: bool = first  # 是否第一次传送
-
+        """
+        :param ctx:
+        :param tp:
+        :param first: 是否第一次传送
+        """
         self.ops = []
         self.ops.append(OpenMap(ctx))
-        if self.first:
+        if first:
             self.ops.append(ScaleLargeMap(ctx, -5))
         self.ops.append(ChoosePlanet(ctx, tp.region.planet))
         self.ops.append(ChooseRegion(ctx, tp.region))
         self.ops.append(ChooseTransportPoint(ctx, tp))
         self.ops.append(WaitInWorld(ctx))
 
+        super().__init__(ctx, len(self.ops))
+        self.tp: TransportPoint = tp
+        self.region: Region = self.tp.region
+        self.planet: Planet = self.region.planet
+
+        log.info('准备传送 %s %s %s', gt(self.planet.cn, 'ui'), gt(self.region.cn, 'ui'), gt(self.tp.cn, 'ui'))
+
     def run(self) -> int:
-        log.info('准备传送 %s %s %s',
-                 gt(self.planet.cn, 'ui'),
-                 gt(self.region.cn, 'ui'),
-                 gt(self.tp.cn, 'ui'))
-        for op in self.ops:
-            r = op.execute()
-            if not r:
-                return Operation.FAIL
-        return Operation.SUCCESS
+        r = self.ops[self.op_round - 1].execute()
+        if not r:
+            return Operation.FAIL
+
+        return Operation.SUCCESS if self.op_round == len(self.ops) else Operation.RETRY
