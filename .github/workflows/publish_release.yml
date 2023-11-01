@@ -4,13 +4,14 @@ on:
   release:
     types:
       - published
+  push:
+    branches:
+      - dev_publish_release
 
 jobs:
-  update_version:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [ "3.11" ]
+  package_exe:
+    runs-on: windows-latest
+    needs: [update_version]
 
     steps:
       - name: Checkout code
@@ -28,25 +29,6 @@ jobs:
           src_time=$(git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- src)
           echo "{\"config\": \"$config_time\", \"data\": \"$data_time\", \"images\": \"$images_time\", \"model\": \"$model_time\", \"requirements\": \"$requirements_time\", \"src\": \"$src_time\"}" > version.json
 
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add version.json
-          git commit -m "Update version.json"
-          git checkout -b temp_version
-          git push origin temp_version:main
-
-  package_exe:
-    runs-on: windows-latest
-    needs: [update_version]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -61,11 +43,11 @@ jobs:
 
       - name: Zip All
         run: |
-          7z a -r StarRailAutoProxy-${{ github.event.release.tag_name }}.zip dist/StarRailAutoProxy
-          7z a -r config.zip config
-          7z a -r data.zip data
-          7z a -r images.zip images
-          7z a -r model.zip model
+          7z a StarRailAutoProxy-${{ github.event.release.tag_name }}.zip dist/StarRailAutoProxy
+          7z a config.zip config
+          7z a data.zip data
+          7z a images.zip images
+          7z a model.zip model
 
       - name: Upload All
         run: |
