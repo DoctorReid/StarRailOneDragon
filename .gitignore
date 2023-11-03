@@ -1,6 +1,7 @@
 .idea
 .env
 .log
+.temp
 __pycache__
 .debug
 out/

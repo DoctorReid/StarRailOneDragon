@@ -1,0 +1,73 @@
+name: Package into exe
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  package_exe:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get latest update time
+        run: |
+          $config_time = git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- config
+          $data_time = git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- data
+          $images_time = git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- images
+          $model_time = git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- model
+          $requirements_time = git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- requirements.txt
+          $src_time = git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- src
+          $version = "${{ github.event.release.tag_name }}"
+          
+          $yaml = @"
+            version: "$version"
+            config: "$config_time"
+            data: "$data_time"
+            images: "$images_time"
+            model: "$model_time"
+            requirements: "$requirements_time"
+            src: "$src_time"
+          "@
+          
+          $yaml | Out-File -FilePath version.yml
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Package Exe by PyInstaller
+        run: pyinstaller src/gui/app.py --noconfirm --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --name StarRailAutoProxy --collect-all cnocr
+
+      - name: Zip All
+        run: |
+          cd dist
+          7z a StarRailAutoProxy-${{ github.event.release.tag_name }}.zip StarRailAutoProxy
+          7z a -r config.zip StarRailAutoProxy/_internal/config/**
+          7z a -r data.zip StarRailAutoProxy/_internal/data/**
+          7z a -r images.zip StarRailAutoProxy/_internal/images/**
+          7z a -r model.zip StarRailAutoProxy/_internal/model/**
+          7z a -r src.zip StarRailAutoProxy/StarRailAutoProxy.exe
+
+      - name: Upload All
+        run: |
+          cd dist
+          gh release upload ${{ github.event.release.tag_name }} StarRailAutoProxy-${{ github.event.release.tag_name }}.zip --clobber
+          gh release upload ${{ github.event.release.tag_name }} config.zip --clobber
+          gh release upload ${{ github.event.release.tag_name }} data.zip --clobber
+          gh release upload ${{ github.event.release.tag_name }} images.zip --clobber
+          gh release upload ${{ github.event.release.tag_name }} model.zip --clobber
+          gh release upload ${{ github.event.release.tag_name }} src.zip --clobber
+          gh release upload ${{ github.event.release.tag_name }} StarRailAutoProxy/_internal/version.yml --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,8 +1,10 @@
 import flet as ft
 import keyboard
+import threading
 
 from basic.i18_utils import gt, update_default_lang
 from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view, world_patrol_whitelist_view, settings_view
+from sr import const
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.context import get_context, Context
@@ -14,7 +16,7 @@ class StarRailAutoProxy:
         self.page: ft.Page = page
         self.ctx: Context = ctx
 
-        page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' v0.5.4'
+        page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' ' + const.SCRIPT_VERSION
 
         self.display_part = ft.Container(content=world_patrol_view.get(page, ctx).component)
 
@@ -93,12 +95,12 @@ class StarRailAutoProxy:
         if self.ctx.running != 0:
             return
         if self.rail_part.selected_index == 0:
-            world_patrol_view.get(self.page, self.ctx).start(None)
+            t = threading.Thread(target=world_patrol_view.get(self.page, self.ctx).start, args=[None])
         elif self.rail_part.selected_index == 1:
-            calibrator_view.get(self.page, self.ctx).start(None)
+            t = threading.Thread(target=calibrator_view.get(self.page, self.ctx).start, args=[None])
         elif self.rail_part.selected_index == 2:
-            world_patrol_draft_route_view.get(self.page, self.ctx).test_existed(None)
-
+            t = threading.Thread(target=world_patrol_draft_route_view.get(self.page, self.ctx).test_existed, args=[None])
+        t.start()
 
 
 def run_app(page: ft.Page):
