@@ -26,13 +26,13 @@ jobs:
           $version = "${{ github.event.release.tag_name }}"
           
           $yaml = @"
-            version: "$version"
-            config: "$config_time"
-            data: "$data_time"
-            images: "$images_time"
-            model: "$model_time"
-            requirements: "$requirements_time"
-            src: "$src_time"
+          version: "$version"
+          config: "$config_time"
+          data: "$data_time"
+          images: "$images_time"
+          model: "$model_time"
+          requirements: "$requirements_time"
+          src: "$src_time"
           "@
           
           $yaml | Out-File -FilePath version.yml
@@ -47,7 +47,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Package Exe by PyInstaller
-        run: pyinstaller src/gui/app.py --noconfirm --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --name StarRailAutoProxy --collect-all cnocr
+        run: pyinstaller src/gui/app.py --noconfirm --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --name StarRailAutoProxy --collect-all cnocr
 
       - name: Zip All
         run: |

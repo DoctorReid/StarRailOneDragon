@@ -1,10 +1,11 @@
-import flet as ft
-import keyboard
 import threading
 
+import flet as ft
+import keyboard
+
 from basic.i18_utils import gt, update_default_lang
-from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view, world_patrol_whitelist_view, settings_view
-from sr import const
+from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view, \
+    world_patrol_whitelist_view, settings_view, version
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.context import get_context, Context
@@ -16,7 +17,7 @@ class StarRailAutoProxy:
         self.page: ft.Page = page
         self.ctx: Context = ctx
 
-        page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' ' + const.SCRIPT_VERSION
+        page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' ' + version.get_current_version()
 
         self.display_part = ft.Container(content=world_patrol_view.get(page, ctx).component)
 
@@ -112,4 +113,4 @@ def run_app(page: ft.Page):
 
 
 if __name__ == '__main__':
-    ft.app(target=run_app)
+    ft.app(target=run_app, name='StarRailAutoProxy')

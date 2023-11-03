@@ -28,6 +28,14 @@ def get_path_under_work_dir(*sub_paths: str) -> str:
     return join_dir_path_with_mk(get_work_dir(), *sub_paths)
 
 
+def run_in_flet_exe() -> bool:
+    """
+    是否在flet打包后的exe中运行
+    :return:
+    """
+    return getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
+
+
 def get_work_dir() -> str:
     """
     返回项目根目录的路径 StarRailCopilot/
@@ -35,7 +43,7 @@ def get_work_dir() -> str:
     """
     dir_path: str = os.path.abspath(__file__)
     # 打包后运行
-    up_times = 2 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') else 3
+    up_times = 2 if run_in_flet_exe() else 3
     for _ in range(up_times):
         dir_path = os.path.dirname(dir_path)
     return dir_path

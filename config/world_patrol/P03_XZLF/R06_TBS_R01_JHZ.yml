@@ -13,11 +13,11 @@ route:
   - op: 'move'
     data: [490, 171]
   - op: 'move'
-    data: [524, 156]
+    data: [520, 156]
   - op: 'move'
-    data: [541, 169]
+    data: [542, 168]
   - op: 'slow_move'
-    data: [585, 170]
+    data: [587, 170]
   - op: 'interact'
     data: '入画'
   - op: 'wait'
