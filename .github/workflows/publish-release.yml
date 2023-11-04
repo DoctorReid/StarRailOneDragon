@@ -47,7 +47,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Package Exe by PyInstaller
-        run: pyinstaller src/gui/app.py --noconfirm --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --name StarRailAutoProxy --collect-all cnocr
+        run: pyinstaller src/gui/app.py --name StarRailAutoProxy --clean --noconfirm --noconsole --icon "images/ui/icon.ico" --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --collect-all cnocr
 
       - name: Zip All
         run: |
