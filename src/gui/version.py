@@ -33,11 +33,9 @@ def get_latest_release_info(proxy: str = None):
     """
     # 仓库信息
     log.info('正在获取最新版本信息')
-    owner = "DoctorReid"  # 替换为仓库所有者的用户名或组织名
-    repo = "StarRailAutoProxy"  # 替换为仓库名称
 
     # 发起API请求获取最新release信息
-    url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+    url = f"https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases/latest" + ('' if os_utils.is_debug() else '?draft=false')
     response = requests.get(url, proxies={'http': proxy, 'https': proxy} if proxy is not None else None)
     if response.status_code != 200:
         log.error('获取最新版本信息失败 %s', response.content)
@@ -57,7 +55,12 @@ def check_new_version(proxy: str = None) -> int:
     for asset in release["assets"]:
         if asset['name'] == 'version.yml':  # 打包上传流程的最后一个文件 用来判断上传是否结束
             asset_ready = True
+            break
+    if not asset_ready:
+        return 0
+
     return 1 if asset_ready and release['tag_name'] != get_current_version() else 0
+
 
 
 def do_update(proxy: str = None):
