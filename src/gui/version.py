@@ -1,4 +1,5 @@
 import os
+import time
 import urllib.request
 import zipfile
 from functools import lru_cache
@@ -25,30 +26,51 @@ def get_current_version() -> str:
         return old_version['version'] if 'version' in old_version else ''
 
 
-def get_latest_release_info(proxy: str = None):
+@lru_cache()
+def get_current_published_at() -> str:
+    old_version_path = os.path.join(os_utils.get_work_dir(), 'version.yml')
+    if not os.path.exists(old_version_path):
+        return ''
+    with open(old_version_path, 'r') as file:
+        old_version = yaml.safe_load(file)
+        return old_version['published_at'] if 'published_at' in old_version else ''
+
+
+def get_latest_release_info(proxy: str = None, pre_release: bool = False):
     """
     获取github上最新的release信息
     :param proxy: 请求时使用的代理地址
+    :param pre_release: 是否使用 pre_release 版本
     :return:
     """
-    # 仓库信息
     log.info('正在获取最新版本信息')
 
-    # 发起API请求获取最新release信息
-    url = f"https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases/latest" + ('' if os_utils.is_debug() else '?prerelease=false')
-    response = requests.get(url, proxies={'http': proxy, 'https': proxy} if proxy is not None else None)
-    if response.status_code != 200:
-        log.error('获取最新版本信息失败 %s', response.content)
-    return response.json() if response.status_code == 200 else None
+    if pre_release:  # 获取pre-release
+        url = 'https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases'
+        response = requests.get(url, proxies={'http': proxy, 'https': proxy} if proxy is not None else None)
+        if response.status_code != 200:
+            log.error('获取最新版本信息失败 %s', response.content)
+            return None
+        else:
+            return response.json()[0]
+    else:  # 获取最新release信息
+        url = 'https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases/latest'
+        response = requests.get(url, proxies={'http': proxy, 'https': proxy} if proxy is not None else None)
+        if response.status_code != 200:
+            log.error('获取最新版本信息失败 %s', response.content)
+            return None
+        else:
+            return response.json()
 
 
-def check_new_version(proxy: str = None) -> int:
+def check_new_version(proxy: str = None, pre_release: bool = False) -> int:
     """
     检查是否有新版本
     :param proxy: 请求时使用的代理地址
+    :param pre_release: 是否使用 pre_release 版本
     :return: 0 - 已是最新版本；1 - 有新版本；2 - 检查更新失败
     """
-    release = get_latest_release_info(proxy)
+    release = get_latest_release_info(proxy=proxy, pre_release=pre_release)
     if release is None:
         return 2
     asset_ready: bool = False
@@ -56,14 +78,23 @@ def check_new_version(proxy: str = None) -> int:
         if asset['name'] == 'version.yml':  # 打包上传流程的最后一个文件 用来判断上传是否结束
             asset_ready = True
             break
-    if not asset_ready:
+
+    if not asset_ready:  # 资源还没有上传完
         return 0
 
-    return 1 if asset_ready and release['tag_name'] != get_current_version() else 0
+    if pre_release and not release['prerelease']:
+        return 0
+
+    if release['tag_name'] != get_current_version():
+        return 1
+
+    if release['tag_name'] == get_current_version() and release['published_at'] != get_current_published_at():
+        return 1
+
+    return 0
 
 
-
-def do_update(proxy: str = None):
+def do_update(proxy: str = None, pre_release: bool = False):
     """
     执行更新
     1. 比较本地和最新的 version.yml
@@ -71,9 +102,10 @@ def do_update(proxy: str = None):
     3. 关闭当前脚本
     4. 复制 .temp 中的内容到当前脚本目录
     :param proxy: 下载时使用的代理地址
+    :param pre_release: 是否使用 pre_release 版本
     :return:
     """
-    release = get_latest_release_info()
+    release = get_latest_release_info(proxy=proxy, pre_release=pre_release)
 
     name_2_url = {}
 
@@ -84,11 +116,11 @@ def do_update(proxy: str = None):
         log.error('新版本文件还没准备好')  # 理论逻辑不应该进入这里
         return
 
-    download_file('version.yml', name_2_url['version.yml'], proxy)  # 第一步必选先下载新版本信息
+    download_file('version.yml', name_2_url['version.yml'], proxy=proxy)  # 第一步必选先下载新版本信息
 
     old_version_path = os.path.join(os_utils.get_work_dir(), 'version.yml')
     if not os.path.exists(old_version_path):
-        download_and_unzip(name_2_url)
+        download_and_unzip(name_2_url, proxy=proxy)
         return
 
     temp_dir = os_utils.get_path_under_work_dir('.temp')
@@ -106,7 +138,7 @@ def do_update(proxy: str = None):
         if key not in old_version or new_version[key] != old_version[key]:
             to_update.add(key)
 
-    download_and_unzip(name_2_url, to_update)
+    download_and_unzip(name_2_url, to_update, proxy=proxy)
     move_temp_and_restart()
 
 
@@ -126,7 +158,13 @@ def download_file(filename, url, proxy: str = None):
     log.info('开始下载 %s', filename)
     temp_dir = os_utils.get_path_under_work_dir('.temp')
     file_path = os.path.join(temp_dir, filename)
+    last_log_time = time.time()
+
     def log_download_progress(block_num, block_size, total_size):
+        nonlocal last_log_time
+        if time.time() - last_log_time < 1:
+            return
+        last_log_time = time.time()
         downloaded = block_num * block_size
         progress = downloaded / total_size * 100
         log.info(f"正在下载 {filename}: {downloaded}/{total_size} bytes ({progress:.2f}%)")

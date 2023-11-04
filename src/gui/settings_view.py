@@ -45,6 +45,7 @@ class SettingsView:
         self.proxy_switch = ft.Switch(label=gt('启用代理', 'ui'), value=False, on_change=self.on_proxy_switch)
         self.proxy_input = ft.TextField(label=gt('代理地址', 'ui'), hint_text='host:port', width=150,
                                         value='http://127.0.0.1:8234', disabled=True)
+        self.pre_release_switch = ft.Switch(label=gt('测试版', 'ui'), value=False, on_change=self.on_prerelease_switch)
         self.check_update_btn = ft.ElevatedButton(text=gt("检查更新", model='ui'), on_click=self.check_update)
         self.update_btn = ft.ElevatedButton(text=gt("更新", model='ui'), on_click=self.do_update, visible=False)
 
@@ -54,7 +55,8 @@ class SettingsView:
         ], spacing=5)
         update_btn_row = ft.Row(controls=[
             self.check_update_btn,
-            self.update_btn
+            self.update_btn,
+            self.pre_release_switch
         ], spacing=5)
 
         self.component = ft.Column(
@@ -102,8 +104,15 @@ class SettingsView:
         self.proxy_input.disabled = not self.proxy_switch.value
         self.page.update()
 
+    def on_prerelease_switch(self, e):
+        if self.pre_release_switch.value:
+            msg: str = gt('测试版可能功能不稳定 如遇问题，可关闭后再次更新', 'ui')
+            snack_bar.show_message(msg, self.page)
+            log.info(msg)
+
     def check_update(self, e):
-        version_result = version.check_new_version(proxy=None if self.proxy_input.disabled else self.proxy_input.value)
+        version_result = version.check_new_version(proxy=None if self.proxy_input.disabled else self.proxy_input.value,
+                                                   pre_release=self.pre_release_switch.value)
         if version_result == 2:
             msg: str = gt('检测更新请求失败', 'ui')
             snack_bar.show_message(msg, self.page)
@@ -129,13 +138,18 @@ class SettingsView:
         msg: str = gt('即将开始更新 更新过程会自动关闭脚本 完成后请自动启动', 'ui')
         snack_bar.show_message(msg, self.page)
         log.info(msg)
+        self.update_btn.disabled = True
+        self.page.update()
         try:
-            version.do_update(proxy=None if self.proxy_input.disabled else self.proxy_input.value)
+            version.do_update(proxy=None if self.proxy_input.disabled else self.proxy_input.value,
+                              pre_release=self.pre_release_switch.value)
             self.page.window_close()
         except Exception:
             msg: str = gt('下载更新失败', 'ui')
             snack_bar.show_message(msg, self.page)
             log.error(msg, exc_info=True)
+            self.update_btn.disabled = False
+            self.page.update()
 
 
 sv: SettingsView = None

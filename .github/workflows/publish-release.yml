@@ -4,6 +4,7 @@ on:
   release:
     types:
       - prereleased
+      - published
 
 jobs:
   package_exe:
@@ -24,9 +25,11 @@ jobs:
           $requirements_time = git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- requirements.txt
           $src_time = git log -1 --format="%ad" --date=format:'%Y-%m-%d %H:%M:%S' -- src
           $version = "${{ github.event.release.tag_name }}"
+          $published_at = "${{ github.event.release.published_at }}"
           
           $yaml = @"
           version: "$version"
+          published_at: "$published_at"
           config: "$config_time"
           data: "$data_time"
           images: "$images_time"
