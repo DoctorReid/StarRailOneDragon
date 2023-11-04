@@ -1,4 +1,5 @@
 import os
+import shutil
 import time
 import urllib.request
 import zipfile
@@ -24,16 +25,6 @@ def get_current_version() -> str:
     with open(old_version_path, 'r') as file:
         old_version = yaml.safe_load(file)
         return old_version['version'] if 'version' in old_version else ''
-
-
-@lru_cache()
-def get_current_published_at() -> str:
-    old_version_path = os.path.join(os_utils.get_work_dir(), 'version.yml')
-    if not os.path.exists(old_version_path):
-        return ''
-    with open(old_version_path, 'r') as file:
-        old_version = yaml.safe_load(file)
-        return old_version['published_at'] if 'published_at' in old_version else ''
 
 
 def get_latest_release_info(proxy: str = None, pre_release: bool = False):
@@ -86,9 +77,6 @@ def check_new_version(proxy: str = None, pre_release: bool = False) -> int:
         return 0
 
     if release['tag_name'] != get_current_version():
-        return 1
-
-    if release['tag_name'] == get_current_version() and release['published_at'] != get_current_published_at():
         return 1
 
     return 0
@@ -188,6 +176,14 @@ def unzip(filename):
     log.info('解压完成 %s', filename)
 
 
+def delete_old_files():
+    """
+    正式下载更新前 删除旧的文件夹内容
+    :return:
+    """
+    shutil.rmtree(os_utils.get_path_under_work_dir('.temp', 'StarRailAutoProxy'))
+
+
 def download_and_unzip(name_2_url: dict[str, str], to_update: set[str] = None, proxy: str = None):
     """
     下载所需的文件到 .temp 并解压
@@ -196,6 +192,7 @@ def download_and_unzip(name_2_url: dict[str, str], to_update: set[str] = None, p
     :param proxy: 下载使用的代理地址
     :return:
     """
+    delete_old_files()
     if to_update is None or 'requirements' in to_update:
         filename, url = None, None
         for i in name_2_url.keys():
