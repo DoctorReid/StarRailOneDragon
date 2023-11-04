@@ -3,7 +3,7 @@ name: Package into exe
 on:
   release:
     types:
-      - created
+      - prereleased
 
 jobs:
   package_exe:

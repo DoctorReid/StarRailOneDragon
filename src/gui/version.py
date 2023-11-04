@@ -35,7 +35,7 @@ def get_latest_release_info(proxy: str = None):
     log.info('正在获取最新版本信息')
 
     # 发起API请求获取最新release信息
-    url = f"https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases/latest" + ('' if os_utils.is_debug() else '?draft=false')
+    url = f"https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases/latest" + ('' if os_utils.is_debug() else '?prerelease=false')
     response = requests.get(url, proxies={'http': proxy, 'https': proxy} if proxy is not None else None)
     if response.status_code != 200:
         log.error('获取最新版本信息失败 %s', response.content)
