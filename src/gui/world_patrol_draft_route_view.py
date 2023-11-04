@@ -37,6 +37,7 @@ class WorldPatrolDraftRouteView:
             label='编辑已有路线',
             on_change=self.on_existed_route_changed
         )
+        self.first_test_route: bool = True
         self.chosen_route_id: WorldPatrolRouteId = None
         self.load_route_id_list()
         self.cancel_edit_existed_btn = ft.ElevatedButton(text='取消编辑已有路线', disabled=True, on_click=self.on_cancel_edit_existed)
@@ -405,8 +406,9 @@ class WorldPatrolDraftRouteView:
         whitelist.type = 'white'
         whitelist.list = [self.chosen_route_id.unique_id]
         app = WorldPatrol(self.ctx, ignore_record=True, whitelist=whitelist)
-        app.first = False
+        app.first = self.first_test_route
         app.execute()
+        self.first_test_route = False
 
     def on_interact(self, e):
         self.route_list.append({'op': operation_const.OP_INTERACT, 'data': self.interact_text.value})
