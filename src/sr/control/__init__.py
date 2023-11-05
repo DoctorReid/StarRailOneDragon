@@ -1,6 +1,8 @@
+from typing import Union
+
 from cv2.typing import MatLike
 
-import basic.cal_utils
+from basic import cal_utils, Point, Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -25,7 +27,7 @@ class GameController:
     def open_map(self) -> bool:
         pass
 
-    def click_ocr(self, screen: MatLike, word: str, threshold: float = 0.5, rect: tuple = None, click_offset: tuple = None,
+    def click_ocr(self, screen: MatLike, word: str, threshold: float = 0.5, rect: Rect = None, click_offset: tuple = None,
                   press_time: float = 0, same_word: bool = False, ignore_case: bool = True, lcs_percent: float = -1,
                   merge_line_distance: float = -1
                   ) -> bool:
@@ -43,10 +45,7 @@ class GameController:
         :param merge_line_distance: 多少行距内合并OCR结果 -1为不合并
         :return:
         """
-        if rect is not None:
-            x1, y1, x2, y2 = rect
-            # cv2_utils.show_image(screen[y1:y2, x1:x2], win_name='ocr_part')
-        km = self.ocr.match_words(screen if rect is None else screen[y1:y2, x1:x2],
+        km = self.ocr.match_words(cv2_utils.crop_image(screen, rect)[0],
                                   words=[word], threshold=threshold, same_word=same_word,
                                   ignore_case=ignore_case, lcs_percent=lcs_percent,
                                   merge_line_distance=merge_line_distance)
@@ -55,15 +54,15 @@ class GameController:
         for v in km.values():
             x, y = v.max.cx, v.max.cy
             if rect is not None:
-                x += rect[0]
-                y += rect[1]
+                x += rect.x1
+                y += rect.y1
             if click_offset is not None:
                 x += click_offset[0]
                 y += click_offset[1]
             log.debug('OCR识别 %s 成功 准备点击 (%d, %d)', gt(word, 'ui'), x, y)
-            return self.click((x, y), press_time=press_time)
+            return self.click(Point(x, y), press_time=press_time)
 
-    def click(self, pos: tuple = None, press_time: float = 0) -> bool:
+    def click(self, pos: Point = None, press_time: float = 0) -> bool:
         """
         点击位置
         :param pos: 点击位置 (x,y) 默认分辨率下的游戏窗口里的坐标
@@ -79,7 +78,7 @@ class GameController:
         """
         pass
 
-    def scroll(self, down: int, pos: tuple = None):
+    def scroll(self, down: int, pos: Point = None):
         """
         向下滚动
         :param down: 负数时为相上滚动
@@ -88,7 +87,7 @@ class GameController:
         """
         pass
 
-    def drag_to(self, end: tuple, start: tuple = None, duration: float = 0.5):
+    def drag_to(self, end: Point, start: Point = None, duration: float = 0.5):
         """
         按住拖拽
         :param end: 拖拽目的点
@@ -142,7 +141,7 @@ class GameController:
         """
         return (self.run_speed if run else self.walk_speed) * seconds
 
-    def move_towards(self, pos1: tuple, pos2: tuple, angle: float, run: bool = False) -> bool:
+    def move_towards(self, pos1: Point, pos2: Point, angle: float, run: bool = False) -> bool:
         """
         朝目标点行走
         :param pos1: 起始点
@@ -154,7 +153,7 @@ class GameController:
         if angle is None:
             log.error('当前角度为空 无法判断移动方向')
             return False
-        target_angle = basic.cal_utils.get_angle_by_pts(pos1, pos2)
+        target_angle = cal_utils.get_angle_by_pts(pos1, pos2)
         # 保证计算的转动角度为正
         delta_angle = target_angle - angle if target_angle >= angle else target_angle + 360 - angle
         # 正方向转太远的话就用负方向转
@@ -173,7 +172,7 @@ class GameController:
         """
         pass
 
-    def interact(self, pos: tuple, wait: int = 0) -> bool:
+    def interact(self, pos: Point, wait: int = 0) -> bool:
         """
         交互
         :param pos: 如果是模拟器的话 需要传入交互内容的坐标

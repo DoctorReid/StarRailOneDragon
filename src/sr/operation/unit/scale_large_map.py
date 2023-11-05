@@ -1,5 +1,6 @@
 import time
 
+from basic import Point
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
@@ -27,7 +28,7 @@ class ScaleLargeMap(Operation):
 
         if self.pos is not None:
             log.info('准备缩放地图 点击 (%d, %d) %s', self.pos.cx, self.pos.cy,
-                     self.ctx.controller.click((self.pos.cx, self.pos.cy)))
+                     self.ctx.controller.click(Point(self.pos.cx, self.pos.cy)))
             time.sleep(0.5)
             self.click_times += 1
             if self.click_times == abs(self.scale):

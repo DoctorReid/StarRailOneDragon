@@ -1,5 +1,6 @@
 import time
 
+from basic import Point
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app import Application
@@ -52,8 +53,8 @@ class LargeMapRecorder(Application):
             win: Window = self.ctx.controller.win
             rect: WinRect = win.get_win_rect()
 
-            center = (rect.w // 2, rect.h // 2)
-            self.ctx.controller.drag_to(end=(rect.w, rect.h), start=center, duration=1)  # 先拉到左上角
+            center = Point(rect.w // 2, rect.h // 2)
+            self.ctx.controller.drag_to(end=Point(rect.w, rect.h), start=center, duration=1)  # 先拉到左上角
             time.sleep(1)
             img = []
             for i in range(10):
@@ -63,9 +64,9 @@ class LargeMapRecorder(Application):
                 cv2_utils.show_image(row_img, win_name='row %d' % i)
                 if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], row_img):
                     img.append(row_img)
-                    self.ctx.controller.drag_to(end=(center[0], center[1] - 200), start=center, duration=1)  # 往下拉一段
+                    self.ctx.controller.drag_to(end=Point(center.x, center.y - 200), start=center, duration=1)  # 往下拉一段
                     time.sleep(1)
-                    self.ctx.controller.drag_to(end=(rect.w, center[1]), start=center, duration=1)  # 往左拉到尽头
+                    self.ctx.controller.drag_to(end=Point(rect.w, center.y), start=center, duration=1)  # 往左拉到尽头
                     time.sleep(1)
                 else:
                     break
@@ -129,7 +130,7 @@ class LargeMapRecorder(Application):
             cv2_utils.show_image(map_part, win_name='screenshot_horizontally_map_part')
             if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], map_part):
                 img.append(map_part)
-                self.ctx.controller.drag_to(end=(center[0] - 200, center[1]), start=center, duration=1)  # 往右拉一段
+                self.ctx.controller.drag_to(end=Point(center.x - 200, center.y), start=center, duration=1)  # 往右拉一段
                 time.sleep(1)
             else:
                 break

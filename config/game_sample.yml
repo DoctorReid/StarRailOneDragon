@@ -9,3 +9,4 @@ server_region: CN
 run_mode: 0
 interact: 'f'
 lang: 'cn'
+game_path: ''

@@ -545,8 +545,8 @@ def draw_route_in_image(ctx: Context, route: WorldPatrolRoute, route_id: WorldPa
 
     last_point = None
     if route.tp is not None:
-        last_point = route.tp.lm_pos
-        cv2.circle(display_image, last_point[:2], 25, color=(0, 255, 0), thickness=3)
+        last_point = (route.tp.lm_pos.x, route.tp.lm_pos.y)
+        cv2.circle(display_image, last_point, 25, color=(0, 255, 0), thickness=3)
     for route_item in route.route_list:
         if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             pos = route_item['data']

@@ -7,7 +7,7 @@ import numpy as np
 from cv2.typing import MatLike
 
 import basic.cal_utils
-from basic import cal_utils
+from basic import cal_utils, Rect, Point
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import const
@@ -21,9 +21,9 @@ cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='cal
 
 def cal_character_pos(im: ImageMatcher,
                       lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                      lm_rect: tuple = None, show: bool = False,
+                      lm_rect: Rect = None, show: bool = False,
                       retry_without_rect: bool = True,
-                      running: bool = False):
+                      running: bool = False) -> Point:
     """
     根据小地图 匹配大地图 判断当前的坐标
     :param im: 图片匹配器
@@ -72,7 +72,7 @@ def cal_character_pos(im: ImageMatcher,
         if lm_rect is not None and retry_without_rect:  # 整张大地图试试
             return cal_character_pos(lm_info, mm_info, running=running, show=show)
         else:
-            return None, None
+            return None
 
     offset_x = result.x
     offset_y = result.y
@@ -86,12 +86,12 @@ def cal_character_pos(im: ImageMatcher,
 
     log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f 置信度 %.2f', center_x, center_y, scale, result.confidence)
 
-    return center_x, center_y
+    return Point(center_x, center_y)
 
 
 @record_performance
 def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                       lm_rect: tuple = None,
+                                       lm_rect: Rect = None,
                                        show: bool = False) -> MatchResult:
     """
     使用特征匹配 在大地图上匹配小地图的位置
@@ -114,7 +114,7 @@ def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapIn
         for i in range(len(source_kps)):
             p: cv2.KeyPoint = source_kps[i]
             d = source_desc[i]
-            if basic.cal_utils.in_rect(p.pt, lm_rect):
+            if basic.cal_utils.in_rect(Point(p.pt[0], p.pt[1]), lm_rect):
                 kps.append(p)
                 desc.append(d)
         source_kps = kps
@@ -156,7 +156,7 @@ def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapIn
 @record_performance
 def cal_character_pos_by_original(im: ImageMatcher,
                                   lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                  lm_rect: tuple = None,
+                                  lm_rect: Rect = None,
                                   running: bool = False,
                                   show: bool = False) -> MatchResult:
     """
@@ -195,8 +195,8 @@ def cal_character_pos_by_original(im: ImageMatcher,
         cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
 
     if target is not None:
-        offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
-        offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
+        offset_x = target.x + (lm_rect.x1 if lm_rect is not None else 0)
+        offset_y = target.y + (lm_rect.y1 if lm_rect is not None else 0)
         return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None
@@ -204,7 +204,7 @@ def cal_character_pos_by_original(im: ImageMatcher,
 
 @record_performance
 def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                   lm_rect: tuple = None,
+                                   lm_rect: Rect = None,
                                    show: bool = False) -> MatchResult:
     """
     根据特殊点 计算小地图在大地图上的位置
@@ -237,8 +237,8 @@ def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
 
             # 通过大地图上相同的特殊点 反推小地图在大地图上的偏移量
             for sp in lm_sp:
-                cal_x = sp.lm_pos[0] - cx
-                cal_y = sp.lm_pos[1] - cy
+                cal_x = sp.lm_pos.x - cx
+                cal_y = sp.lm_pos.y - cy
                 cal_pos_list.append(MatchResult(1, cal_x, cal_y, scaled_width, scaled_height, template_scale=mm_scale))
 
     if len(cal_pos_list) == 0:
@@ -249,7 +249,7 @@ def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
     for pos_1 in cal_pos_list:
         merge = False
         for pos_2 in merge_pos_list:
-            if cal_utils.distance_between((pos_1.x, pos_1.y), (pos_2.x, pos_2.y)) < 10:
+            if cal_utils.distance_between(Point(pos_1.x, pos_1.y), Point(pos_2.x, pos_2.y)) < 10:
                 merge = True
                 pos_2.confidence += 1
 
@@ -274,7 +274,7 @@ def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
 @record_performance
 def cal_character_pos_by_road_mask(im: ImageMatcher,
                                    lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                   lm_rect: tuple = None,
+                                   lm_rect: Rect = None,
                                    running: bool = False,
                                    show: bool = False) -> MatchResult:
     """
@@ -308,8 +308,8 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
         cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
 
     if target is not None:
-        offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
-        offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
+        offset_x = target.x + (lm_rect.x1 if lm_rect is not None else 0)
+        offset_y = target.y + (lm_rect.y1 if lm_rect is not None else 0)
         return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None
@@ -318,7 +318,7 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
 @record_performance
 def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
                                          lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                         lm_rect: tuple = None,
+                                         lm_rect: Rect = None,
                                          running: bool = False,
                                          show: bool = False) -> MatchResult:
     """
@@ -354,8 +354,8 @@ def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
         cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
 
     if target is not None:
-        offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
-        offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
+        offset_x = target.x + (lm_rect.x1 if lm_rect is not None else 0)
+        offset_y = target.y + (lm_rect.y1 if lm_rect is not None else 0)
         return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None
@@ -364,7 +364,7 @@ def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
 @record_performance
 def cal_character_pos_by_edge_mask(im: ImageMatcher,
                                    lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                   lm_rect: tuple = None,
+                                   lm_rect: Rect = None,
                                    running: bool = False,
                                    show: bool = False) -> MatchResult:
     """
@@ -380,7 +380,6 @@ def cal_character_pos_by_edge_mask(im: ImageMatcher,
     """
     source_edge = large_map.get_road_edge_mask(lm_info.mask)
     source, lm_rect = cv2_utils.crop_image(source_edge, lm_rect)
-    target_scale = None
     # 使用道路掩码
     edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)
     template = edge
@@ -400,8 +399,8 @@ def cal_character_pos_by_edge_mask(im: ImageMatcher,
         cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
 
     if target is not None:
-        offset_x = target.x + (lm_rect[0] if lm_rect is not None else 0)
-        offset_y = target.y + (lm_rect[1] if lm_rect is not None else 0)
+        offset_x = target.x + (lm_rect.x1 if lm_rect is not None else 0)
+        offset_y = target.y + (lm_rect.y1 if lm_rect is not None else 0)
         return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None

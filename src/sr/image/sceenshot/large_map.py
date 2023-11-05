@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import os_utils, str_utils
+from basic import os_utils, str_utils, Point, Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -18,13 +18,13 @@ from sr.image.ocr_matcher import OcrMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo
 
-PLANET_NAME_RECT = (100, 60, 350, 100)
-CUT_MAP_RECT = (200, 190, 1300, 900)  # 截取大地图的区域
-EMPTY_MAP_POS = (1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
-TP_BTN_RECT = (1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
-REGION_LIST_RECT = (1480, 200, 1820, 1000)
-REGION_LIST_PART_CENTER = ((REGION_LIST_RECT[0] + REGION_LIST_RECT[2]) // 2, (REGION_LIST_RECT[1] + REGION_LIST_RECT[3]) // 2)
-FLOOR_LIST_PART = (30, 730, 100, 1000)
+PLANET_NAME_RECT = Rect(100, 60, 350, 100)
+CUT_MAP_RECT = Rect(200, 190, 1300, 900)  # 截取大地图的区域
+EMPTY_MAP_POS = Point(1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
+TP_BTN_RECT = Rect(1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
+REGION_LIST_RECT = Rect(1480, 200, 1820, 1000)
+REGION_LIST_PART_CENTER = REGION_LIST_RECT.center
+FLOOR_LIST_PART = Rect(30, 730, 100, 1000)
 
 
 def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
@@ -174,12 +174,13 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     part, _ = cv2_utils.crop_image(screen, REGION_LIST_RECT)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
     left, right, top, bottom = cv2_utils.get_four_corner(bw)
-    rect = (left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
+    if left is None:
+        return None
+    rect = Rect(left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
     to_ocr: MatLike = cv2_utils.crop_image(bw, rect)[0]
-    # cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
+    cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
     lang = game_config.get().lang
-    strict_one_line: bool = lang in [game_config_const.LANG_CN]
-    return ocr.ocr_for_single_line(to_ocr, strict_one_line=strict_one_line)
+    return ocr.ocr_for_single_line(to_ocr, strict_one_line=False)
 
 
 def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> str:
@@ -393,7 +394,7 @@ def get_edge_mask(road_mask: MatLike):
     return edge_mask
 
 
-def get_large_map_rect_by_pos(lm_shape, mm_shape, possible_pos: tuple = None):
+def get_large_map_rect_by_pos(lm_shape, mm_shape, possible_pos: tuple = None) -> Rect:
     """
     :param lm_shape: 大地图尺寸
     :param mm_shape: 小地图尺寸
@@ -418,7 +419,7 @@ def get_large_map_rect_by_pos(lm_shape, mm_shape, possible_pos: tuple = None):
             lm_offset_x2 = lm_shape[1]
         if lm_offset_y2 > lm_shape[0]:
             lm_offset_y2 = lm_shape[0]
-        return lm_offset_x, lm_offset_y, lm_offset_x2, lm_offset_y2
+        return Rect(lm_offset_x, lm_offset_y, lm_offset_x2, lm_offset_y2)
     else:
         return None
 

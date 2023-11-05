@@ -18,11 +18,15 @@ route:
   - op: 'move'
     data: [732, 688]
   - op: 'move'
-    data: [695, 705]
+    data: [706, 705]
+  - op: 'move'
+    data: [687, 709]
   - op: 'patrol'
   - op: 'move'
     data: [642, 742]
   - op: 'patrol'
+  - op: 'move'
+    data: [596, 735]
   - op: 'move'
     data: [555, 720]
   - op: 'move'

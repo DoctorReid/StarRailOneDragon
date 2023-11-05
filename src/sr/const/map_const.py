@@ -1,4 +1,4 @@
-from basic import cal_utils
+from basic import cal_utils, Rect, Point
 from basic.i18_utils import gt
 
 
@@ -195,7 +195,7 @@ class TransportPoint:
         self.region: Region = region  # 所属区域
         self.planet: Planet = region.planet  # 所属星球
         self.template_id: str = template_id  # 匹配模板
-        self.lm_pos: tuple = lm_pos  # 在大地图的坐标
+        self.lm_pos: Point = Point(lm_pos[0], lm_pos[1])  # 在大地图的坐标
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -512,7 +512,7 @@ def region_with_another_floor(region: Region, floor: int) -> Region:
     return get_region_by_cn(region.cn, region.planet, floor)
 
 
-def get_sp_type_in_rect(region: Region, rect: tuple) -> dict:
+def get_sp_type_in_rect(region: Region, rect: Rect) -> dict:
     """
     获取区域特定矩形内的特殊点 按种类分组
     :param region: 区域

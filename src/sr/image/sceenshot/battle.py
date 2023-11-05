@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+from basic import Rect
 from basic.img import MatchResult, cv2_utils
 from sr.image import ImageMatcher
 
@@ -12,13 +13,13 @@ BATTLING = 3
 ENDING_BATTLE_SUCCESS = 4
 ENDING_BATTLE_FAIL = 5
 
-CTRL_RECT = (1620, 30, 1900, 70)
-FAST_BATTLE_RECT = (1620, 30, 1700, 70)  # 二倍速
-AUTO_BATTLE_RECT = (1700, 30, 1800, 70)  # 自动战斗
-PAUSE_BATTLE_RECT = (1800, 30, 1900, 70)  # 暂停
+CTRL_RECT = Rect(1620, 30, 1900, 70)
+FAST_BATTLE_RECT = Rect(1620, 30, 1700, 70)  # 二倍速
+AUTO_BATTLE_RECT = Rect(1700, 30, 1800, 70)  # 自动战斗
+PAUSE_BATTLE_RECT = Rect(1800, 30, 1900, 70)  # 暂停
 
 # 右上方那一行的菜单
-RT_CHARACTER_RECT = (1800, 0, 1900, 90)  # 角色按钮
+RT_CHARACTER_RECT = Rect(1800, 0, 1900, 90)  # 角色按钮
 
 
 def get_battle_status(screen: MatLike, im: ImageMatcher):
@@ -88,7 +89,7 @@ def is_fast_battle_on(screen: MatLike, im: ImageMatcher):
     return False
 
 
-def match_battle_ctrl(screen: MatLike, im: ImageMatcher, template_id: str, rect=CTRL_RECT,
+def match_battle_ctrl(screen: MatLike, im: ImageMatcher, template_id: str, rect: Rect = CTRL_RECT,
                       is_on: bool = True, lower_color: int = None, threshold: float = 0.4) -> MatchResult:
     """
     匹配战斗控制按钮所在位置

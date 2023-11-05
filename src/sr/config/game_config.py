@@ -27,6 +27,7 @@ class GameConfig(ConfigHolder):
         self.server_region: str = game_config_const.SERVER_REGION_CN
         self.run_mode: int = game_config_const.RUN_MODE_OFF
         self.lang: str = game_config_const.LANG_CN
+        self.game_path: str = ''  # 游戏路径
         super().__init__('game')
 
     def init(self):
@@ -41,6 +42,8 @@ class GameConfig(ConfigHolder):
 
         if self.data.get('lang') in game_config_const.LANG_OPTS.values():
             self.lang = self.data.get('lang')
+
+        self.game_path = self.data.get('game_path')
 
     def set_server_region(self, value: str):
         self.server_region = value
@@ -65,6 +68,10 @@ class GameConfig(ConfigHolder):
     @property
     def special_point_lcs_percent(self):
         return ocr_const.SPECIAL_POINT_LCS_PERCENT[self.lang]
+
+    def set_game_path(self, game_path: str):
+        self.game_path = game_path
+        self.data['game_path'] = game_path
 
 
 _gc = None

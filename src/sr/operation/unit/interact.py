@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+from basic import Point, Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -16,7 +17,7 @@ class Interact(Operation):
     点击交互
     """
 
-    rect = [900, 400, 1450, 870]
+    rect = Rect(900, 400, 1450, 870)
     TRY_INTERACT_MOVE = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
 
     def __init__(self, ctx: Context, cn: str, wait: int):
@@ -34,7 +35,7 @@ class Interact(Operation):
         screen = self.screenshot()
         return self.check_on_screen(screen)
 
-    def check_on_screen(self, screen: MatLike):
+    def check_on_screen(self, screen: MatLike) -> int:
         """
         在屏幕上找到交互内容进行交互
         :param screen: 屏幕截图
@@ -54,7 +55,7 @@ class Interact(Operation):
             return Operation.RETRY
         else:
             for r in ocr_result.values():
-                if self.ctx.controller.interact((r.max.cx, r.max.cy), self.wait):
+                if self.ctx.controller.interact(Point(r.max.cx, r.max.cy), self.wait):
                     log.info('交互成功 %s', gt(self.cn))
                     return Operation.SUCCESS
 

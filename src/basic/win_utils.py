@@ -11,6 +11,7 @@ from PIL.Image import Image
 from cv2.typing import MatLike
 from pygetwindow import Win32Window
 
+from basic import Point
 
 SPI_GETMOUSESPEED = 0x0070
 
@@ -124,7 +125,7 @@ def screenshot(left, top, width, height) -> MatLike:
     return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
 
-def click(pos: tuple = None, press_time: float = 0, primary: bool = True):
+def click(pos: Point = None, press_time: float = 0, primary: bool = True):
     """
     点击鼠标
     :param pos: 屏幕坐标
@@ -133,16 +134,18 @@ def click(pos: tuple = None, press_time: float = 0, primary: bool = True):
     :return:
     """
     btn = pyautogui.PRIMARY if primary else pyautogui.SECONDARY
+    if pos is None:
+        pos = get_current_mouse_pos()
     if press_time > 0:
-        pyautogui.moveTo(pos)
+        pyautogui.moveTo(pos.x, pos.y)
         pyautogui.mouseDown(button=btn)
         time.sleep(press_time)
         pyautogui.mouseUp(button=btn)
     else:
-        pyautogui.click(pos, button=btn)
+        pyautogui.click(pos.x, pos.y, button=btn)
 
 
-def drag_mouse(start: tuple, end: tuple, duration: float = 0.5):
+def drag_mouse(start: Point, end: Point, duration: float = 0.5):
     """
     按住鼠标左键进行画面拖动
     :param start: 原位置
@@ -150,8 +153,8 @@ def drag_mouse(start: tuple, end: tuple, duration: float = 0.5):
     :param duration: 拖动鼠标到目标位置，持续秒数
     :return:
     """
-    pyautogui.moveTo(start[0], start[1])  # 将鼠标移动到起始位置
-    pyautogui.dragTo(end[0], end[1], duration=duration)
+    pyautogui.moveTo(start.x, start.y)  # 将鼠标移动到起始位置
+    pyautogui.dragTo(end.x, end.y, duration=duration)
 
 
 def move_mouse_in_place(dx: int, dy: int, duration: float = 0.5):
@@ -179,7 +182,7 @@ def key_down(k: str, t: int, asyn: bool = False):
     pyautogui.keyUp(k)
 
 
-def scroll(clicks: int, pos: tuple = None):
+def scroll(clicks: int, pos: Point = None):
     """
     向下滚动
     :param clicks: 负数时为相上滚动
@@ -187,9 +190,9 @@ def scroll(clicks: int, pos: tuple = None):
     :return:
     """
     if pos is not None:
-        pyautogui.moveTo(pos)
+        pyautogui.moveTo(pos.x, pos.y)
     d = 2000 if get_mouse_sensitivity() <= 10 else 1000
-    pyautogui.scroll(-d * clicks, pos)
+    pyautogui.scroll(-d * clicks, pos.x, pos.y)
 
 
 @lru_cache
@@ -203,3 +206,12 @@ def get_mouse_sensitivity():
     user32.SystemParametersInfoA(SPI_GETMOUSESPEED, 0, ctypes.byref(speed), 0)
     print(speed.value)
     return speed.value
+
+
+def get_current_mouse_pos() -> Point:
+    """
+    获取鼠标当前坐标
+    :return:
+    """
+    pos = pyautogui.position()
+    return Point(pos.x, pos.y)

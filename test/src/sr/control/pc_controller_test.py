@@ -16,11 +16,6 @@ def _test_move_towards():
     ctx.controller.move_towards((0, 0), (0, 90), 270)
 
 
-def _test_scroll():
-    ctrl.init()
-    ctrl.scroll(2000)
-
 
 if __name__ == '__main__':
     ctrl = PcController(Window('微信'), None)
-    _test_scroll()

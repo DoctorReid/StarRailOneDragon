@@ -1,6 +1,6 @@
 import time
 
-from basic import os_utils
+from basic import os_utils, Point
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -30,7 +30,7 @@ class EnableAutoFight(Operation):
             r = battle.match_battle_ctrl(screen, self.ctx.im, 'battle_ctrl_02', is_on=False)
             if r is not None:
                 log.info('启动自动战斗')
-                self.ctx.controller.click((r.cx, r.cy))
+                self.ctx.controller.click(Point(r.cx, r.cy))
                 time.sleep(0.5)
             return Operation.RETRY
 
@@ -41,7 +41,7 @@ class EnableAutoFight(Operation):
             r = battle.match_battle_ctrl(screen, self.ctx.im, 'battle_ctrl_03', is_on=False)
             if r is not None:
                 log.info('启动二倍速战斗')
-                self.ctx.controller.click((r.cx, r.cy))
+                self.ctx.controller.click(Point(r.cx, r.cy))
                 time.sleep(0.5)
             return Operation.RETRY
 

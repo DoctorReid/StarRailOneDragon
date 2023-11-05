@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import str_utils
+from basic import str_utils, Point, Rect
 from basic.i18_utils import gt
 from basic.img import MatchResultList, MatchResult, cv2_utils
 from basic.log_utils import log
@@ -20,7 +20,7 @@ from sr.operation import Operation
 
 class ChooseTransportPoint(Operation):
 
-    tp_name_rect = (1485, 120, 1870, 170)  # 右侧显示传送点名称的区域
+    tp_name_rect = Rect(1485, 120, 1870, 170)  # 右侧显示传送点名称的区域
     drag_distance = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
@@ -45,8 +45,8 @@ class ChooseTransportPoint(Operation):
         self.ctx.controller.click(large_map.EMPTY_MAP_POS)
         time.sleep(0.5)
 
-        mx1, my1, mx2, my2 = large_map.CUT_MAP_RECT
-        screen_map = screen[my1: my2, mx1: mx2]
+        mx1, my1 = large_map.CUT_MAP_RECT.x1, large_map.CUT_MAP_RECT.y1
+        screen_map, _ = cv2_utils.crop_image(screen, large_map.CUT_MAP_RECT)
         # cv2_utils.show_image(screen_map, win_name='ChooseTransportPoint-screen_map')
 
         offset: MatchResult = self.get_map_offset(screen_map)
@@ -65,7 +65,7 @@ class ChooseTransportPoint(Operation):
             else:
                 x = target.cx + mx1
                 y = target.cy + my1
-                self.ctx.controller.click((x, y))
+                self.ctx.controller.click(Point(x, y))
                 time.sleep(0.5)
 
         if dx != 0 or dy != 0:
@@ -110,13 +110,13 @@ class ChooseTransportPoint(Operation):
             if (tp_name_str is not None and
                     str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True, percent=self.gc.special_point_lcs_percent)):
                 # 点击传送
-                tx = large_map.TP_BTN_RECT[0]
-                ty = large_map.TP_BTN_RECT[1]
+                tx = large_map.TP_BTN_RECT.x1
+                ty = large_map.TP_BTN_RECT.y1
                 for r in tp_btn_ocr.values():
                     tx += r.max.cx
                     ty += r.max.cy
                     break
-                return self.ctx.controller.click((tx, ty))
+                return self.ctx.controller.click(Point(tx, ty))
         return False
 
     def get_map_offset(self, screen_map: MatLike) -> MatchResult:
@@ -139,7 +139,7 @@ class ChooseTransportPoint(Operation):
         x1, y1 = offset.x, offset.y
         x2, y2 = x1 + offset.w, y1 + offset.h
         # 目标点坐标
-        x, y = self.tp.lm_pos
+        x, y = self.tp.lm_pos.x, self.tp.lm_pos.y
 
         dx, dy = 0, 0
         if x > x2:
@@ -160,16 +160,16 @@ class ChooseTransportPoint(Operation):
         :return:
         """
         if self.tp.lm_pos is not None:
-            sm_offset_x = self.tp.lm_pos[0] - offset.x
-            sm_offset_y = self.tp.lm_pos[1] - offset.y
-            sp_rect = (sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100)
+            sm_offset_x = self.tp.lm_pos.x - offset.x
+            sm_offset_y = self.tp.lm_pos.y - offset.y
+            sp_rect = Rect(sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100)
             crop_screen_map, sp_rect = cv2_utils.crop_image(screen_map, sp_rect)
             result: MatchResultList = self.ctx.im.match_template(crop_screen_map, self.tp.template_id, threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
 
             if result.max is not None:
                 return MatchResult(result.max.confidence,
-                                   result.max.x + sp_rect[0],
-                                   result.max.y + sp_rect[1],
+                                   result.max.x + sp_rect.x1,
+                                   result.max.y + sp_rect.y1,
                                    result.max.w,
                                    result.max.h
                                    )
@@ -185,10 +185,10 @@ class ChooseTransportPoint(Operation):
         self.drag(dx, dy)
 
     def drag(self, dx: int, dy: int):
-        fx, fy = large_map.EMPTY_MAP_POS
+        fx, fy = large_map.EMPTY_MAP_POS.tuple()
         tx, ty = fx + ChooseTransportPoint.drag_distance * dx, fy + ChooseTransportPoint.drag_distance * dy
         log.info('当前未找到传送点 即将拖动地图 %s -> %s', (fx, fy), (tx, ty))
-        self.ctx.controller.drag_to(end=(tx, ty), start=(fx, fy), duration=1)
+        self.ctx.controller.drag_to(end=Point(tx, ty), start=Point(fx, fy), duration=1)
 
     def check_and_click_sp_cn(self, screen) -> bool:
         """
@@ -210,8 +210,8 @@ class ChooseTransportPoint(Operation):
                                               lcs_percent=self.gc.special_point_lcs_percent)
 
         for r in ocr_result.values():
-            tx = r.max.cx + large_map.CUT_MAP_RECT[0]
-            ty = r.max.cy + large_map.CUT_MAP_RECT[1]
-            return self.ctx.controller.click((tx, ty))
+            tx = r.max.cx + large_map.CUT_MAP_RECT.x1
+            ty = r.max.cy + large_map.CUT_MAP_RECT.y1
+            return self.ctx.controller.click(Point(tx, ty))
 
         return False

@@ -1,5 +1,6 @@
 import flet as ft
 import sys
+import os
 from flet_core import CrossAxisAlignment
 
 from basic import i18_utils, os_utils
@@ -19,26 +20,40 @@ class SettingsView:
         self.ctx = ctx
 
         self.server_region = ft.Dropdown(
-            label=gt("区服", model='ui'), width=200,
+            label=gt("区服", model='ui'), width=150,
             options=[
                 ft.dropdown.Option(text=r, key=r) for r in game_config_const.SERVER_TIME_OFFSET.keys()
             ],
             on_change=self.on_server_region_changed
         )
         self.run_mode_dropdown = ft.Dropdown(
-            label=gt("疾跑设置", model='ui'), width=200,
+            label=gt("疾跑设置", model='ui'), width=150,
             options=[
                 ft.dropdown.Option(text=gt(k, 'ui'), key=v) for k, v in game_config_const.RUN_MODE.items()
             ],
             on_change=self.on_run_mode_changed
         )
         self.lang_dropdown = ft.Dropdown(
-            label=gt("语言", model='ui'), width=200,
+            label=gt("语言", model='ui'), width=150,
             options=[
                 ft.dropdown.Option(text=k, key=v) for k, v in game_config_const.LANG_OPTS.items()
             ],
             on_change=self.on_lang_changed
         )
+        basic_settings_row = ft.Row(controls=[
+            self.server_region,
+            self.run_mode_dropdown,
+            self.lang_dropdown
+        ])
+
+        self.game_path_pick_dialog = ft.FilePicker(on_result=self.on_game_path_pick)
+        self.game_path_text = ft.Text(width=400, overflow=ft.TextOverflow.ELLIPSIS)
+        self.page.overlay.append(self.game_path_pick_dialog)
+        self.game_path_btn = ft.ElevatedButton(text=gt("游戏路径", model='ui'), on_click=self.show_game_path_pick)
+        game_path_row = ft.Row(controls=[
+            self.game_path_text,
+            self.game_path_btn
+        ])
 
         self.save_btn = ft.ElevatedButton(text=gt("保存", model='ui'), on_click=self.save_config)
 
@@ -62,9 +77,8 @@ class SettingsView:
         self.component = ft.Column(
             spacing=20, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
             controls=[
-                ft.Container(content=self.server_region, padding=5),
-                ft.Container(content=self.run_mode_dropdown, padding=5),
-                ft.Container(content=self.lang_dropdown, padding=5),
+                ft.Container(content=basic_settings_row, padding=5),
+                ft.Container(content=game_path_row, padding=5),
                 ft.Container(content=self.save_btn, padding=5),
                 ft.Container(content=proxy_host_row, padding=5),
                 ft.Container(content=update_btn_row, padding=5),
@@ -81,6 +95,7 @@ class SettingsView:
         self.server_region.value = gc.server_region
         self.run_mode_dropdown.value = gc.run_mode
         self.lang_dropdown.value = gc.lang
+        self.game_path_text.value = gc.game_path
 
     def on_server_region_changed(self, e):
         gc: GameConfig = game_config.get()
@@ -149,6 +164,16 @@ class SettingsView:
             snack_bar.show_message(msg, self.page)
             log.error(msg, exc_info=True)
             self.update_btn.disabled = False
+            self.page.update()
+
+    def show_game_path_pick(self, e):
+        self.game_path_pick_dialog.pick_files(allow_multiple=False, allowed_extensions=['exe'])
+
+    def on_game_path_pick(self, e: ft.FilePickerResultEvent):
+        if e.files is not None:
+            self.game_path_text.value = e.files[0].path
+            gc: GameConfig = game_config.get()
+            gc.set_game_path(self.game_path_text.value)
             self.page.update()
 
 

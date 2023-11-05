@@ -1,27 +1,29 @@
 import math
 
+from basic import Point, Rect
 
-def distance_between(pos1: tuple, pos2: tuple) -> float:
+
+def distance_between(pos1: Point, pos2: Point) -> float:
     """
     计算两点之间的距离
     :param pos1:
     :param pos2:
     :return:
     """
-    x1, y1 = pos1
-    x2, y2 = pos2
+    x1, y1 = pos1.x, pos1.y
+    x2, y2 = pos2.x, pos2.y
     return math.sqrt(((x1 - x2) ** 2) + ((y1 - y2) ** 2))
 
 
-def get_angle_by_pts(from_pos: tuple, to_pos: tuple) -> float:
+def get_angle_by_pts(from_pos: Point, to_pos: Point) -> float:
     """
     计算两点形成向量的角度
     :param from_pos: 起始点
     :param to_pos: 结束点
     :return: 角度 正右方为0 顺时针为正
     """
-    x1, y1 = from_pos
-    x2, y2 = to_pos
+    x1, y1 = from_pos.x, from_pos.y
+    x2, y2 = to_pos.x, to_pos.y
     dx = x2 - x1
     dy = y2 - y1
     if dx == 0:
@@ -36,7 +38,7 @@ def get_angle_by_pts(from_pos: tuple, to_pos: tuple) -> float:
             return 0
         else:
             return 180
-    angle = math.degrees(math.atan((dy) / (dx)))
+    angle = math.degrees(math.atan(dy / dx))
     if angle > 0 and (dy < 0 and dx < 0):
         angle += 180
     elif angle < 0 and (dx < 0 and dy > 0):
@@ -46,14 +48,14 @@ def get_angle_by_pts(from_pos: tuple, to_pos: tuple) -> float:
     return angle
 
 
-def in_rect(point: tuple, rect: tuple) -> bool:
+def in_rect(point: Point, rect: Rect) -> bool:
     """
     点是否在矩阵内
     :param point:
     :param rect:
     :return:
     """
-    return rect[0] <= point[0] <= rect[2] and rect[1] <= point[1] <= rect[3]
+    return rect.x1 <= point.x <= rect.x2 and rect.y1 <= point.y <= rect.y2
 
 
 def calculate_overlap_area(rect1, rect2):

@@ -2,6 +2,7 @@ import time
 
 import cv2
 
+from basic import Point, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const.map_const import Planet
@@ -12,7 +13,7 @@ from sr.operation import Operation
 
 class ChoosePlanet(Operation):
 
-    xght_rect = (1580, 120, 1750, 160)  # 星轨航图 所在坐标
+    xght_rect = Rect(1580, 120, 1750, 160)  # 星轨航图 所在坐标
 
     def __init__(self, ctx: Context, planet: Planet):
         """
@@ -66,7 +67,7 @@ class ChoosePlanet(Operation):
             return False
         for v in km.values():
             x, y = v.max.cx, v.max.cy
-            self.ctx.controller.drag_to((x, y - 100), (x, y))
+            self.ctx.controller.drag_to(Point(x, y - 100), Point(x, y))
             time.sleep(0.1)
-            self.ctx.controller.click((x, y - 110), press_time=1)
+            self.ctx.controller.click(Point(x, y - 110), press_time=1)
         return True

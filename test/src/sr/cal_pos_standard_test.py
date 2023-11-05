@@ -3,7 +3,7 @@ import os
 import cv2
 from cv2.typing import MatLike
 
-from basic import cal_utils
+from basic import cal_utils, Point
 from basic.img import cv2_utils
 from basic.img.os import get_test_image_dir
 from basic.log_utils import log
@@ -18,48 +18,48 @@ from sr.image.sceenshot.large_map import get_large_map_rect_by_pos
 
 class TestCase:
 
-    def __init__(self, region: Region, pos: tuple, num: int, running: bool, possible_pos: tuple = None):
+    def __init__(self, region: Region, pos: Point, num: int, running: bool, possible_pos: tuple = None):
         self.region: Region = region
-        self.pos: tuple = pos
+        self.pos: Point = pos
         self.num: int = num
         self.running: bool = running
         self.possible_pos: tuple = pos if possible_pos is None else possible_pos
 
 
 case_list = [
-    TestCase(map_const.P01_R03_L1, (321, 329), 1, False),
-    TestCase(map_const.P01_R03_L1, (306, 422), 2, False),
-    TestCase(map_const.P01_R03_L1, (256, 392), 3, True),
-    TestCase(map_const.P01_R03_L1, (436, 502), 4, True),
-    TestCase(map_const.P01_R03_L1, (538, 551), 5, True),
+    TestCase(map_const.P01_R03_L1, Point(321, 329), 1, False),
+    TestCase(map_const.P01_R03_L1, Point(306, 422), 2, False),
+    TestCase(map_const.P01_R03_L1, Point(256, 392), 3, True),
+    TestCase(map_const.P01_R03_L1, Point(436, 502), 4, True),
+    TestCase(map_const.P01_R03_L1, Point(538, 551), 5, True),
 
-    TestCase(map_const.P01_R03_B1, (254, 356), 1, False),
-    TestCase(map_const.P01_R03_B1, (328, 438), 2, True),
-    TestCase(map_const.P01_R03_B1, (282, 437), 3, True),
-    TestCase(map_const.P01_R03_B1, (256, 315), 4, True),
-    TestCase(map_const.P01_R03_B1, (217, 312), 5, True),
-    TestCase(map_const.P01_R03_B1, (221, 356), 6, True),
+    TestCase(map_const.P01_R03_B1, Point(254, 356), 1, False),
+    TestCase(map_const.P01_R03_B1, Point(328, 438), 2, True),
+    TestCase(map_const.P01_R03_B1, Point(282, 437), 3, True),
+    TestCase(map_const.P01_R03_B1, Point(256, 315), 4, True),
+    TestCase(map_const.P01_R03_B1, Point(217, 312), 5, True),
+    TestCase(map_const.P01_R03_B1, Point(221, 356), 6, True),
 
-    TestCase(map_const.P01_R04_L1, (483, 276), 1, True),
+    TestCase(map_const.P01_R04_L1, Point(483, 276), 1, True),
 
-    TestCase(map_const.P02_R05, (495, 429), 1, True),
-    TestCase(map_const.P02_R05, (242, 1283), 2, True),
-    TestCase(map_const.P02_R05, (488, 1147), 3, False, possible_pos=(488, 1155, 0)),
-    TestCase(map_const.P02_R05, (365, 1176), 4, True, possible_pos=(390, 1176, 52)),
+    TestCase(map_const.P02_R05, Point(495, 429), 1, True),
+    TestCase(map_const.P02_R05, Point(242, 1283), 2, True),
+    TestCase(map_const.P02_R05, Point(488, 1147), 3, False, possible_pos=(488, 1155, 0)),
+    TestCase(map_const.P02_R05, Point(365, 1176), 4, True, possible_pos=(390, 1176, 52)),
 
-    TestCase(map_const.P02_R06, (488, 687), 1, True),
-    TestCase(map_const.P02_R06, (465, 595), 2, True),
+    TestCase(map_const.P02_R06, Point(488, 687), 1, True),
+    TestCase(map_const.P02_R06, Point(465, 595), 2, True),
 
-    TestCase(map_const.P02_R11_L1, (655, 461), 1, True),
-    TestCase(map_const.P02_R11_L1, (707, 406), 2, True),
-    TestCase(map_const.P02_R11_L1, (726, 486), 3, False),
-    TestCase(map_const.P02_R11_L1, (733, 423), 4, False),
-    TestCase(map_const.P02_R11_L1, (740, 556), 5, True, possible_pos=(740, 556, 20)),
+    TestCase(map_const.P02_R11_L1, Point(655, 461), 1, True),
+    TestCase(map_const.P02_R11_L1, Point(707, 406), 2, True),
+    TestCase(map_const.P02_R11_L1, Point(726, 486), 3, False),
+    TestCase(map_const.P02_R11_L1, Point(733, 423), 4, False),
+    TestCase(map_const.P02_R11_L1, Point(740, 556), 5, True, possible_pos=(740, 556, 20)),
 
-    TestCase(map_const.P03_R03_L1, (352, 496), 1, True),
-    TestCase(map_const.P03_R03_L1, (413, 524), 2, True),
+    TestCase(map_const.P03_R03_L1, Point(352, 496), 1, True),
+    TestCase(map_const.P03_R03_L1, Point(413, 524), 2, True),
 
-    TestCase(map_const.P03_R09, (972, 402), 1, True, (963, 360, 30)),
+    TestCase(map_const.P03_R09, Point(972, 402), 1, True, (963, 360, 30)),
 ]
 
 
@@ -81,7 +81,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     if show:
         cv2.waitKey(0)
 
-    error = x is None or cal_utils.distance_between((x,y), c.pos[:2]) > 10
+    error = x is None or cal_utils.distance_between(Point(x, y), c.pos) > 10
     if error:
         log.error('定位错误 %s', (x, y))
     else:

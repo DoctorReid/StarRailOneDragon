@@ -2,11 +2,14 @@ import threading
 
 import keyboard
 import pyautogui
+import subprocess
+import time
 
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.config import game_config
+from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.control import GameController
 from sr.control.pc_controller import PcController
@@ -42,8 +45,8 @@ class Context:
         if self.platform == 'PC':
             self.register_key_press('f12', self.mouse_position)
 
-        self.init_status: int = 0
         self.recorder: PerformanceRecorder = get_recorder()
+        self.open_game_by_script: bool = False  # 脚本启动的游戏
 
     def register_key_press(self, key, callback):
         if key not in self.press_event:
@@ -84,12 +87,14 @@ class Context:
         if self.running == 1:
             log.info('暂停运行')
             self.running = 2
-            for obj_id, callback in self.pause_callback.items():
+            callback_arr = self.pause_callback.copy()
+            for obj_id, callback in callback_arr.items():
                 callback()
         elif self.running == 2:
             log.info('恢复运行')
             self.running = 1
-            for obj_id, callback in self.resume_callback.items():
+            callback_arr = self.resume_callback.copy()
+            for obj_id, callback in callback_arr.items():
                 callback()
 
     def register_pause(self, obj,
@@ -108,16 +113,30 @@ class Context:
             del self.resume_callback[id(obj)]
 
     def init_controller(self, renew: bool = False) -> bool:
+        self.open_game_by_script = False
         if renew:
             self.controller = None
         try:
             if self.controller is None:
                 if self.platform == 'PC':
-                    win = Window(gt('崩坏：星穹铁道', model='ui'))
-                    self.controller = PcController(win=win, ocr=self.ocr)
+                    self.controller = PcController(win=get_game_win(), ocr=self.ocr)
         except pyautogui.PyAutoGUIException:
-            log.error('未开打游戏')
-            return False
+            log.info('未开打游戏')
+            if not try_open_game():
+                return False
+
+            for i in range(10):
+                time.sleep(1)
+                try:
+                    self.controller = PcController(win=get_game_win(), ocr=self.ocr)
+                    break
+                except pyautogui.PyAutoGUIException:
+                    log.info('未检测到游戏窗口 等待中')
+
+            if self.controller is None:
+                log.error('未能检测到游戏窗口')
+                return False
+            self.open_game_by_script = True
         log.info('加载游戏控制器完毕')
         return True
 
@@ -156,6 +175,24 @@ class Context:
         """
         self.init_controller()
         save_debug_image(fill_uid_black(self.controller.screenshot()))
+
+
+def try_open_game() -> bool:
+    """
+    尝试打开游戏 如果有配置游戏路径的话
+    :return:
+    """
+    gc: GameConfig = game_config.get()
+    if gc.game_path == '':
+        log.info('未配置游戏路径 无法自动启动')
+        return False
+    log.info('尝试自动启动游戏 路径为 %s', gc.game_path)
+    subprocess.Popen(gc.game_path)
+    return True
+
+
+def get_game_win() -> Window:
+    return Window(gt('崩坏：星穹铁道', model='ui'))
 
 
 _ocr_matcher = {}

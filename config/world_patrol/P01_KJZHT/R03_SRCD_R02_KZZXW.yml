@@ -27,3 +27,6 @@ route:
   - op: 'move'
     data: [610, 515]
   - op: 'patrol'
+  - op: 'move'
+    data: [610, 543]
+  - op: 'patrol'

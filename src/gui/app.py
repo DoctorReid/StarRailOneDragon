@@ -82,7 +82,7 @@ class StarRailAutoProxy:
             self.display_part.content = settings_view.get(self.page, self.ctx).component
         else:
             self.display_part.content = None
-        self.display_part.update()
+        self.page.update()
 
     def on_key_press(self, event):
         """

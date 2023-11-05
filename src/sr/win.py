@@ -1,8 +1,9 @@
 import ctypes
 import time
 from ctypes.wintypes import RECT
+from typing import Union
 
-from basic import win_utils
+from basic import win_utils, Point
 from basic.log_utils import log
 from sr import const
 
@@ -62,7 +63,7 @@ class Window:
         ctypes.windll.user32.ClientToScreen(self.hWnd, ctypes.byref(left_top_pos))
         return WinRect(left_top_pos.x, left_top_pos.y, client_rect.right, client_rect.bottom)
 
-    def game_pos(self, pos: tuple, inner: bool = True, rect: WinRect = None) -> tuple:
+    def game_pos(self, pos: Union[tuple, Point], inner: bool = True, rect: WinRect = None) -> Point:
         """
         获取在游戏中的坐标
         :param pos: 默认分辨率下的游戏窗口里的坐标
@@ -72,10 +73,13 @@ class Window:
         """
         if rect is None:
             rect = self.get_win_rect()
-        s_pos = (pos[0] * rect.xs, pos[1] * rect.ys)
-        return (None, None) if inner and not self._check_game_pos(s_pos, rect) else s_pos
+        if type(pos) == tuple:
+            s_pos = Point(pos[0] * rect.xs, pos[1] * rect.ys)
+        else:
+            s_pos = Point(pos.x * rect.xs, pos.y * rect.ys)
+        return None if inner and not self._check_game_pos(s_pos, rect) else s_pos
 
-    def _check_game_pos(self, s_pos: tuple, rect: WinRect = None):
+    def _check_game_pos(self, s_pos: Point, rect: WinRect = None):
         """
         判断游戏中坐标是否在游戏窗口内
         :param s_pos: 游戏中坐标 已经缩放
@@ -84,9 +88,9 @@ class Window:
         """
         if rect is None:
             rect = self.get_win_rect()
-        return 0 <= s_pos[0] <= rect.w and 0 <= s_pos[1] <= rect.h
+        return 0 <= s_pos.x <= rect.w and 0 <= s_pos.y <= rect.h
 
-    def game2win_pos(self, pos: tuple, inner: bool = True, rect: WinRect = None):
+    def game2win_pos(self, pos: Point, inner: bool = True, rect: WinRect = None) -> Point:
         """
         获取在屏幕中的坐标
         :param pos: 默认分辨率下的游戏窗口里的坐标
@@ -96,9 +100,9 @@ class Window:
         """
         if rect is None:
             rect = self.get_win_rect()
-        gp = self.game_pos(pos, inner=inner, rect=rect)
+        gp: Point = self.game_pos(pos, inner=inner, rect=rect)
         # 缺少一个屏幕边界判断 游戏窗口拖动后可能会超出整个屏幕
-        return (rect.x + gp[0], rect.y + gp[1]) if gp[0] is not None else (None, None)
+        return Point(rect.x + gp.x, rect.y + gp.y) if gp is not None else None
 
     def get_dpi(self):
         return ctypes.windll.user32.GetDpiForWindow(self.hWnd)

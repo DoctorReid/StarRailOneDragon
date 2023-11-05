@@ -1,9 +1,10 @@
 import time
+from typing import List
 
 from cv2.typing import MatLike
 
 import basic.cal_utils
-from basic import os_utils
+from basic import os_utils, Point, Rect
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -31,17 +32,17 @@ class MoveDirectly(Operation):
 
     def __init__(self, ctx: Context,
                  lm_info: LargeMapInfo,
-                 target: tuple,
+                 target: Point,
                  next_lm_info: LargeMapInfo = None,
-                 start: tuple = None,
+                 start: Point = None,
                  stop_afterwards: bool = True,
                  no_run: bool = False):
         super().__init__(ctx, op_name=gt('移动 %s -> %s') % (start, target))
         self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
         self.region: Region = lm_info.region
-        self.target = target
-        self.pos = []
+        self.target: Point = target
+        self.pos: List[Point] = []
         if start is not None:
             self.pos.append(start)
         self.stuck_times = 0  # 被困次数
@@ -58,11 +59,12 @@ class MoveDirectly(Operation):
         self.last_battle_time = time.time()
 
     def run(self) -> bool:
+        first_pos = None if len(self.pos) == 0 else self.pos[0]
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
 
         # 通过第一个坐标和最后一个坐标的距离 判断是否困住了
         if len(self.pos) >= MoveDirectly.max_len and \
-                basic.cal_utils.distance_between(self.pos[0], self.pos[len(self.pos) - 1]) < MoveDirectly.stuck_distance:
+                basic.cal_utils.distance_between(first_pos, last_pos) < MoveDirectly.stuck_distance:
             self.stuck_times += 1
             if self.stuck_times > 12:
                 log.error('脱困失败')
@@ -105,7 +107,7 @@ class MoveDirectly(Operation):
             return Operation.WAIT
 
         # 根据上一次的坐标和行进距离 计算当前位置
-        lx, ly = last_pos
+        lx, ly = last_pos.x, last_pos.y
         move_distance = 0
         if self.last_rec_time > 0:
             move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
@@ -115,11 +117,11 @@ class MoveDirectly(Operation):
         sp_map = map_const.get_sp_type_in_rect(self.region, lm_rect)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
 
-        x, y = self.get_pos(mm_info, possible_pos, lm_rect)
+        next_pos: Point = self.get_pos(mm_info, lm_rect)
         # log.info('使用上一个坐标为%s', possible_pos)
         # save_debug_image(mm, prefix='cal_pos')
 
-        if x is None or y is None:
+        if next_pos is None:
             log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, now_time - self.last_rec_time, self.ctx.controller.is_moving)
             if now_time - self.last_no_pos_time > 0.5:
                 self.no_pos_times += 1
@@ -135,8 +137,6 @@ class MoveDirectly(Operation):
             return Operation.WAIT
         else:
             self.no_pos_times = 0
-
-        next_pos = (x, y)
 
         if basic.cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             log.info('目标点已到达 %s', self.target)
@@ -225,23 +225,18 @@ class MoveDirectly(Operation):
 
         return 0
 
-    def get_pos(self, mm_info: MiniMapInfo, possible_pos: tuple, lm_rect: tuple):
+    def get_pos(self, mm_info: MiniMapInfo, lm_rect: Rect) -> Point:
         """
         获取当前位置、 下一步方向、 记录时间
         :param mm_info: 小地图
-        :param possible_pos: 上一次的位置
         :param lm_rect: 大地图区域
         :return:
         """
-        x, y = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
-        if x is None and self.next_lm_info is not None:
-            x, y = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
+        pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
+        if pos is None and self.next_lm_info is not None:
+            pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
 
-        # if x is not None and possible_pos[2] > 0 and cal_utils.distance_between((x, y), possible_pos[:2]) > possible_pos[2] * 2:
-        #     x, y = None, None
-        #     log.info('计算位置偏离上一个位置过远 舍弃')
-
-        return x, y
+        return pos
 
     def check_enemy_and_attack(self, mm: MatLike) -> bool:
         """
@@ -256,6 +251,7 @@ class MoveDirectly(Operation):
         # pos_list = mini_map.get_enemy_location(mini_map)
         # if len(pos_list) == 0:
         #     return False
+        self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         fight = EnterAutoFight(self.ctx)
         r = fight.execute()
         self.last_auto_fight_fail = not r

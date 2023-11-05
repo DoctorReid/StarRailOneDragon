@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+from basic import Rect
 from basic.img import MatchResult, MatchResultList
 
 feature_detector = cv2.SIFT_create()
@@ -322,7 +323,7 @@ def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = Tru
     return result
 
 
-def crop_image(img, rect: tuple = None, copy: bool = False):
+def crop_image(img, rect: Rect = None, copy: bool = False):
     """
     裁剪图片
     :param img: 原图
@@ -333,7 +334,7 @@ def crop_image(img, rect: tuple = None, copy: bool = False):
     if rect is None:
         return (img.copy() if copy else img), None
 
-    x1, y1, x2, y2 = rect
+    x1, y1, x2, y2 = rect.x1, rect.y1, rect.x2, rect.y2
     if x1 < 0:
         x1 = 0
     if x2 > img.shape[1]:
@@ -346,7 +347,7 @@ def crop_image(img, rect: tuple = None, copy: bool = False):
     x1, y1 = int(x1), int(y1)
     x2, y2 = int(x2), int(y2)
     crop = img[y1: y2, x1: x2]
-    return (crop.copy() if copy else crop), (x1, y1, x2, y2)
+    return (crop.copy() if copy else crop), Rect(x1, y1, x2, y2)
 
 
 def dilate(img, k):
@@ -491,6 +492,8 @@ def get_four_corner(bw):
     :return:
     """
     white = np.where(bw == 255)
+    if np.sum(bw == 255) == 0:
+        return None, None, None, None
     left = (white[1][np.argmin(white[1])], white[0][np.argmin(white[1])])
     right = (white[1][np.argmax(white[1])], white[0][np.argmax(white[1])])
     top = (white[1][np.argmin(white[0])], white[0][np.argmin(white[0])])

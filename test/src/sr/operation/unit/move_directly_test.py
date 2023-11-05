@@ -1,7 +1,7 @@
+from basic import Point
 from sr.const import map_const
 from sr.const.map_const import Region, TransportPoint
 from sr.context import get_context
-from sr.image.sceenshot import large_map
 from sr.operation.unit.move_directly import MoveDirectly
 
 
@@ -17,5 +17,5 @@ if __name__ == '__main__':
     tp: TransportPoint = map_const.P01_R02_SP01
     lm_info = ctx.ih.get_large_map(r)
 
-    op = MoveDirectly(ctx, lm_info, target=(650, 200), start=tp.lm_pos)
+    op = MoveDirectly(ctx, lm_info, target=Point(650, 200), start=tp.lm_pos)
     _test_whole_op()

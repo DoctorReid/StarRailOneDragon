@@ -3,7 +3,7 @@ import time
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import cal_utils
+from basic import cal_utils, Point, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr import cal_pos
@@ -128,16 +128,16 @@ class Calibrator(Application):
             screen = self.ctx.controller.screenshot()
             mm = mini_map.cut_mini_map(screen)
 
-            lx, ly = last_pos
+            lx, ly = last_pos.x, last_pos.y
             move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - last_record_time, run=True) if last_record_time > 0 else 0
             possible_pos = (lx, ly, move_distance)
-            lm_rect = large_map.get_large_map_rect_by_pos(lm_info.origin.shape[:2], mm.shape[:2], possible_pos)
+            lm_rect: Rect = large_map.get_large_map_rect_by_pos(lm_info.origin.shape[:2], mm.shape[:2], possible_pos)
 
             sp_map = map_const.get_sp_type_in_rect(tp.region, lm_rect)
             mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
-            current_pos = cal_pos.cal_character_pos(self.ctx.im, lm_info, mm_info, lm_rect, retry_without_rect=False, running=True)
+            current_pos: Point = cal_pos.cal_character_pos(self.ctx.im, lm_info, mm_info, lm_rect, retry_without_rect=False, running=True)
 
-            if current_pos[0] is None:
+            if current_pos is None:
                 log.error('判断坐标失败')
                 continue
 

@@ -1,6 +1,6 @@
 import time
 
-from basic import str_utils
+from basic import str_utils, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -55,7 +55,8 @@ class ChooseRegion(Operation):
             if current_floor_str is None:
                 log.error('未找到当前选择的层数')
             target_floor_str = gt('%d层' % self.region.floor, 'ocr')
-            if not str_utils.find_by_lcs(target_floor_str, current_floor_str, 1):
+            log.info('目标层数 %s', target_floor_str)
+            if target_floor_str != current_floor_str:
                 cl = self.click_target_floor(screen, target_floor_str)
                 time.sleep(0.5)
                 if not cl:
@@ -85,6 +86,7 @@ class ChooseRegion(Operation):
         """
         log.info('当前界面未发现 %s 准备滚动', gt(self.region.cn, 'ui'))
         if current_region_name is None and self.scroll_direction is None:  # 判断不了当前选择区域的情况 就先向下滚动5次 再向上滚动5次
+            log.info(self.op_round)
             if self.op_round < 5:
                 self.scroll_region_area()
             elif self.op_round == 5:
@@ -117,9 +119,9 @@ class ChooseRegion(Operation):
         :param d: 滚动距离 正向下 负向上
         :return:
         """
-        x1, y1 = large_map.REGION_LIST_PART_CENTER
+        x1, y1 = large_map.REGION_LIST_PART_CENTER.tuple()
         x2, y2 = x1, y1 + d * -200
-        self.ctx.controller.drag_to(start=(x1, y1), end=(x2, y2), duration=0.5)
+        self.ctx.controller.drag_to(start=Point(x1, y1), end=Point(x2, y2), duration=0.5)
 
     def click_target_floor(self, screen, target_floor_str: str) -> bool:
         """
@@ -128,9 +130,8 @@ class ChooseRegion(Operation):
         :param target_floor_str: 层数
         :return:
         """
-        part, _ = cv2_utils.crop_image(screen, large_map.FLOOR_LIST_PART)
-        return self.ctx.controller.click_ocr(part, target_floor_str, click_offset=large_map.FLOOR_LIST_PART[:2],
-                                             lcs_percent=1)
+        return self.ctx.controller.click_ocr(screen, target_floor_str, rect=large_map.FLOOR_LIST_PART,
+                                             same_word=True)
 
     def check_tp_and_cancel(self, screen) -> bool:
         """

@@ -5,7 +5,7 @@ import cv2
 import pyautogui
 from cv2.typing import MatLike
 
-from basic import win_utils
+from basic import win_utils, Point
 from basic.log_utils import log
 from sr import const
 from sr.config import game_config
@@ -44,23 +44,24 @@ class PcController(GameController):
         pyautogui.press('m')
         return True
 
-    def click(self, pos: tuple = None, press_time: float = 0) -> bool:
+    def click(self, pos: Point = None, press_time: float = 0) -> bool:
         """
         点击位置
         :param pos: 游戏中的位置 (x,y)
         :param press_time: 大于0时长按若干秒
         :return: 不在窗口区域时不点击 返回False
         """
+        click_pos: Point
         if pos is not None:
-            x, y = self.win.game2win_pos(pos)
-            if x is None or y is None:
+            click_pos: Point = self.win.game2win_pos(pos)
+            if click_pos is None:
                 log.error('点击非游戏窗口区域 (%s)', pos)
                 return False
         else:
             point: pyautogui.Point = pyautogui.position()
-            x, y = point.x, point.y
+            click_pos = Point(point.x, point.y)
 
-        win_utils.click((x, y), press_time=press_time)
+        win_utils.click(click_pos, press_time=press_time)
         return True
 
     def screenshot(self) -> MatLike:
@@ -69,23 +70,25 @@ class PcController(GameController):
         :return: 截图
         """
         rect: WinRect = self.win.get_win_rect()
-        pyautogui.moveTo(rect.x + 50, rect.y + rect.h - 50)  # 移动到uid位置
+        pyautogui.moveTo(rect.x + 50, rect.y + rect.h - 30)  # 移动到uid位置
         img = win_utils.screenshot(rect.x, rect.y, rect.w, rect.h)
         result = cv2.resize(img, (const.STANDARD_RESOLUTION_W, const.STANDARD_RESOLUTION_H)) if rect.is_scale() else img
         return result
 
-    def scroll(self, down: int, pos: tuple = None):
+    def scroll(self, down: int, pos: Point = None):
         """
         向下滚动
         :param down: 负数时为相上滚动
         :param pos: 滚动位置 默认分辨率下的游戏窗口里的坐标
         :return:
         """
-        win_pos = self.win.game2win_pos(pos) if pos is not None else (None, None)
+        if pos is None:
+            pos = win_utils.get_current_mouse_pos()
+        win_pos = self.win.game2win_pos(pos)
         # pyautogui.scroll(down, x=win_pos[0], y=win_pos[1])
         win_utils.scroll(down, win_pos)
 
-    def drag_to(self, end: tuple, start: tuple = None, duration: float = 0.5):
+    def drag_to(self, end: Point, start: Point = None, duration: float = 0.5):
         """
         按住拖拽
         :param end: 拖拽目的点
@@ -93,9 +96,9 @@ class PcController(GameController):
         :param duration: 拖拽持续时间
         :return:
         """
+        from_pos: Point
         if start is None:
-            pos = pyautogui.position()
-            from_pos = (pos.x, pos.y)
+            from_pos = win_utils.get_current_mouse_pos()
         else:
             from_pos = self.win.game2win_pos(start)
 
@@ -156,7 +159,7 @@ class PcController(GameController):
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
-    def interact(self, pos: tuple, wait: int = 0) -> bool:
+    def interact(self, pos: Point, wait: int = 0) -> bool:
         """
         交互
         :param pos: 如果是模拟器的话 需要传入交互内容的坐标
