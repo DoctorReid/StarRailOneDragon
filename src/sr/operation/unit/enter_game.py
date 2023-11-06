@@ -33,8 +33,8 @@ class EnterGame(Operation):
             time.sleep(1)  # 暂停一段时间再操作
             return Operation.WAIT
 
-        if enter_game_ui.in_yueka_phase(screen, self.ctx.ocr):  # 出现了小月卡
-            self.ctx.controller.click()
+        if enter_game_ui.in_get_supply_phase(screen, self.ctx.ocr):  # 出现了小月卡
+            self.ctx.controller.click(enter_game_ui.GET_SUPPLY_RECT.center)
             time.sleep(1)  # 暂停一段时间再操作
             return Operation.WAIT
 

@@ -12,6 +12,9 @@ class Point:
     def __str__(self):
         return '(%d, %d)' % (self.x, self.y)
 
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
 
 class Rect:
     def __init__(self, x1, y1, x2, y2):
@@ -26,3 +29,6 @@ class Rect:
 
     def __str__(self):
         return '(%d, %d, %d, %d)' % (self.x1, self.y1, self.x2, self.y2)
+
+    def left_top(self) -> Point:
+        return Point(self.x1, self.y1)

@@ -16,11 +16,11 @@
 
 - 锄大地功能 ```已完成```
 - 模拟宇宙 ```搁置```
-- 日常 ```计划中```
+- 日常 ```进行中```
 
 ![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/draw_route.png)
 
-[当前进度](https://github.com/DoctorReid/StarRailProxy/milestone/3)
+[当前进度](https://github.com/DoctorReid/StarRailProxy/milestone/4)
 
 ## 免责声明
 本软件是一个外部工具旨在自动化崩坏星轨的游戏玩法。它被设计成仅通过现有用户界面与游戏交互,并遵守相关法律法规。该软件包旨在提供简化和用户通过功能与游戏交互,并且它不打算以任何方式破坏游戏平衡或提供任何不公平的优势。该软件包不会以任何方式修改任何游戏文件或游戏代码。

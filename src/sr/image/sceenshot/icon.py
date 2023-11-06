@@ -281,3 +281,40 @@ def init_boss_icon(template_id):
 
     origin, mask = convert_to_standard(raw, mask, width=65, height=65, bg_color=const.COLOR_MAP_ROAD_BGR)
     show_and_save(template_id, origin, mask)
+
+
+def init_phone_menu_icon(template_id: str):
+    """
+    菜单里的图标
+    :param template_id:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id)
+    gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+    bw = cv2.inRange(gray, 50, 255)
+    cv2_utils.show_image(bw, win_name='bw')
+
+    origin, mask = convert_to_standard(raw, bw, width=81, height=81, bg_color=(0, 0, 0))
+    show_and_save(template_id, origin, mask)
+
+
+def init_ui_alert(template_id: str):
+    """
+    提醒的感叹号
+    找红色的部分 然后填充中间的白色
+    :param template_id:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id)
+
+    lower_color = np.array([0, 0, 180], dtype=np.uint8)
+    upper_color = np.array([140, 140, 255], dtype=np.uint8)
+    red_part = cv2.inRange(raw, lower_color, upper_color)
+    cv2_utils.show_image(red_part, win_name='red_part')
+
+    bw = cv2_utils.connection_erase(red_part, 100, erase_white=False)
+    cv2_utils.show_image(bw, win_name='bw')
+
+    origin, mask = convert_to_standard(raw, bw, width=41, height=41, bg_color=(0, 0, 0))
+    show_and_save(template_id, origin, mask)
+

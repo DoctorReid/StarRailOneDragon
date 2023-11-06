@@ -697,3 +697,18 @@ msgstr "F1"
 
 msgid "2层"
 msgstr "F2"
+
+# Enter Game
+msgid "开始游戏"
+msgstr "Start Game"
+
+msgid "点击进入"
+msgstr "Click to Start"
+
+# Phone Menu
+msgid "开拓等级"
+msgstr "Trailblaze Level"
+
+msgid "漫游签证"
+msgstr "Trailblazer Profile"
+

@@ -164,6 +164,7 @@ class Context:
         return result
 
     def mouse_position(self):
+        self.init_controller(False)
         rect = self.controller.win.get_win_rect()
         pos = pyautogui.position()
         log.info('当前鼠标坐标 %s', (pos.x - rect.x, pos.y - rect.y))
@@ -173,7 +174,7 @@ class Context:
         仅供快捷键使用 命令途中获取截图请使用 controller.screenshot()
         :return:
         """
-        self.init_controller()
+        self.init_controller(False)
         save_debug_image(fill_uid_black(self.controller.screenshot()))
 
 

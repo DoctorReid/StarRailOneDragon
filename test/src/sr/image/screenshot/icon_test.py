@@ -6,6 +6,7 @@ import numpy as np
 from basic import os_utils
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
+from sr.const import phone_menu_const
 from sr.image import TemplateImage
 from sr.image.sceenshot import icon
 
@@ -39,10 +40,12 @@ def _test_init_template_feature():
 
 
 if __name__ == '__main__':
-    icon.init_tp_with_background('mm_tp_12', noise_threshold=30)
+    # icon.init_tp_with_background('mm_tp_12', noise_threshold=30)
     # icon.init_sp_with_background('mm_sp_07')
     # _test_init_ui_icon('ui_icon_09')
     # icon.init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
     # icon.init_battle_lock()
     # icon.init_boss_icon('mm_boss_03')
+    icon.init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
+    # icon.init_ui_alert('ui_alert')

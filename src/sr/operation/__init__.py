@@ -2,6 +2,7 @@ import time
 
 from cv2.typing import MatLike
 
+from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.config import game_config
@@ -22,7 +23,7 @@ class Operation:
     FAIL = -1  # 失败
 
     def __init__(self, ctx: Context, try_times: int = 2, op_name: str = ''):
-        self.op_name: str = op_name
+        self.op_name: str = gt(op_name, 'ui')
         self.try_times: int = try_times
         self.op_round: int = 0
         self.ctx: Context = ctx

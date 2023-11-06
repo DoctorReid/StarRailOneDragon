@@ -1,5 +1,7 @@
 from typing import List
 
+from basic import Point
+
 
 class MatchResult:
 
@@ -16,6 +18,9 @@ class MatchResult:
 
     def __str__(self):
         return '(%.2f, %d, %d, %d, %d, %.2f)' % (self.confidence, self.x, self.y, self.w, self.h, self.template_scale)
+
+    def center(self) -> Point:
+        return Point(self.x + self.w // 2, self.y + self.h // 2)
 
 
 class MatchResultList:

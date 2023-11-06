@@ -385,7 +385,7 @@ def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_colo
     min_x = min(white_pixel_coordinates, key=lambda i: i[0])[0]
     min_y = min(white_pixel_coordinates, key=lambda i: i[1])[1]
 
-    # 稍微扩大一下范围
+    # 稍微扩大一下范围 why
     if max_x < mask.shape[1]:
         max_x += min(5, mask.shape[1] - max_x)
     if max_y < mask.shape[0]:

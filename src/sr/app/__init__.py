@@ -6,8 +6,8 @@ from sr.operation.unit.enter_game import EnterGame
 
 class Application(Operation):
 
-    def __init__(self, ctx: Context):
-        super().__init__(ctx)
+    def __init__(self, ctx: Context, op_name: str = None):
+        super().__init__(ctx, op_name=op_name)
 
     def execute(self) -> bool:
         if self.ctx.running != 0:

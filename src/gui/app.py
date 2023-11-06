@@ -5,7 +5,7 @@ import keyboard
 
 from basic.i18_utils import gt, update_default_lang
 from gui import world_patrol_view, log_view, calibrator_view, world_patrol_draft_route_view, \
-    world_patrol_whitelist_view, settings_view, version
+    world_patrol_whitelist_view, settings_view, version, routine_view
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.context import get_context, Context
@@ -32,6 +32,11 @@ class StarRailAutoProxy:
                     icon=ft.icons.RUN_CIRCLE_OUTLINED,
                     selected_icon=ft.icons.RUN_CIRCLE,
                     label=gt('锄大地', model='ui')
+                ),
+                ft.NavigationRailDestination(
+                    icon=ft.icons.TODAY_OUTLINED,
+                    selected_icon=ft.icons.TODAY_ROUNDED,
+                    label=gt('日常', model='ui')
                 ),
                 ft.NavigationRailDestination(
                     icon=ft.icons.ADD_LOCATION_ALT_OUTLINED,
@@ -73,12 +78,14 @@ class StarRailAutoProxy:
         if self.rail_part.selected_index == 0:
             self.display_part.content = world_patrol_view.get(self.page, self.ctx).component
         elif self.rail_part.selected_index == 1:
-            self.display_part.content = calibrator_view.get(self.page, self.ctx).component
+            self.display_part.content = routine_view.get(self.page, self.ctx).component
         elif self.rail_part.selected_index == 2:
-            self.display_part.content = world_patrol_draft_route_view.get(self.page, self.ctx).component
+            self.display_part.content = calibrator_view.get(self.page, self.ctx).component
         elif self.rail_part.selected_index == 3:
-            self.display_part.content = world_patrol_whitelist_view.get(self.page, self.ctx).component
+            self.display_part.content = world_patrol_draft_route_view.get(self.page, self.ctx).component
         elif self.rail_part.selected_index == 4:
+            self.display_part.content = world_patrol_whitelist_view.get(self.page, self.ctx).component
+        elif self.rail_part.selected_index == 5:
             self.display_part.content = settings_view.get(self.page, self.ctx).component
         else:
             self.display_part.content = None
@@ -99,7 +106,7 @@ class StarRailAutoProxy:
             t = threading.Thread(target=world_patrol_view.get(self.page, self.ctx).start, args=[None])
         elif self.rail_part.selected_index == 1:
             t = threading.Thread(target=calibrator_view.get(self.page, self.ctx).start, args=[None])
-        elif self.rail_part.selected_index == 2:
+        elif self.rail_part.selected_index == 3:
             t = threading.Thread(target=world_patrol_draft_route_view.get(self.page, self.ctx).test_existed, args=[None])
         t.start()
 

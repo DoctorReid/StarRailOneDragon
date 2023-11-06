@@ -51,8 +51,8 @@ class SettingsView:
         self.page.overlay.append(self.game_path_pick_dialog)
         self.game_path_btn = ft.ElevatedButton(text=gt("游戏路径", model='ui'), on_click=self.show_game_path_pick)
         game_path_row = ft.Row(controls=[
-            self.game_path_text,
-            self.game_path_btn
+            self.game_path_btn,
+            self.game_path_text
         ])
 
         self.save_btn = ft.ElevatedButton(text=gt("保存", model='ui'), on_click=self.save_config)

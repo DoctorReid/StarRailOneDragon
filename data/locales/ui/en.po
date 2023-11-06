@@ -10,6 +10,9 @@ msgstr "Settings"
 msgid "锄大地"
 msgstr "Patrol"
 
+msgid "日常"
+msgstr "Routine"
+
 msgid "校准"
 msgstr "Calibrate"
 
@@ -697,3 +700,7 @@ msgstr "F1"
 
 msgid "2层"
 msgstr "F2"
+
+# Routine - Assignments
+msgid "委托"
+msgstr "Assignments"
