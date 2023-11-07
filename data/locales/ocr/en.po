@@ -705,10 +705,17 @@ msgstr "Start Game"
 msgid "点击进入"
 msgstr "Click to Start"
 
+msgid "列车补给"
+msgstr "Express Supply"
+
 # Phone Menu
 msgid "开拓等级"
 msgstr "Trailblaze Level"
 
 msgid "漫游签证"
 msgstr "Trailblazer Profile"
+
+# Email
+msgid "全部领取"
+msgstr "Claim All"
 

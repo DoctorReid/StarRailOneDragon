@@ -20,7 +20,7 @@ def _test_in_final_enter_phase():
 
 def _test_in_get_supply_phase():
     screen = get_debug_image('_1699249813322')
-    assert enter_game_ui.in_get_supply_phase(screen, ocr)
+    assert enter_game_ui.in_express_supply_phase(screen, ocr)
 
 
 if __name__ == '__main__':
