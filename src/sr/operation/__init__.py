@@ -54,7 +54,7 @@ class Operation:
             self.op_round += 1
             try:
                 self.last_screenshot = None
-                op_result = self.run()
+                op_result = self._execute_one_round()
             except Exception as e:
                 op_result = Operation.RETRY
                 if self.last_screenshot is not None:
@@ -83,7 +83,7 @@ class Operation:
         self.ctx.unregister(self)
         return result
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         pass
 
     def on_pause(self):

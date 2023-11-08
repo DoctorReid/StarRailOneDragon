@@ -24,7 +24,7 @@ class EnterGame(Operation):
     def init_before_execute(self):
         self.start_time = time.time()
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         screen = self.screenshot()
 
         if battle.IN_WORLD == battle.get_battle_status(screen, self.ctx.im):  # 进入到主界面

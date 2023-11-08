@@ -27,7 +27,7 @@ class LargeMapRecorder(Application):
         self.planet = region.planet
         self.region = region
 
-    def run(self) -> bool:
+    def _execute_one_round(self) -> bool:
         """
         先拉到最左上角 然后一行一行地截图 最后再拼接起来。
         多层数的话需要一次性先将所有楼层截图再处理 保证各楼层大小一致

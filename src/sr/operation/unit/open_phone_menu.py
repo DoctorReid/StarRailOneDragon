@@ -18,7 +18,7 @@ class OpenPhoneMenu(Operation):
     def __init__(self, ctx: Context):
         super().__init__(ctx, try_times=10, op_name=gt('打开菜单', 'ui'))
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()
 
         if phone_menu.in_phone_menu(screen, self.ctx.ocr):

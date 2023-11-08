@@ -22,7 +22,7 @@ class ClickPhoneMenuItem(Operation):
         super().__init__(ctx, try_times=10, op_name=gt('点击菜单 %s', 'ui') % gt(item.cn, 'ui'))
         self.item: PhoneMenuItem = item
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()
 
         result: MatchResult = phone_menu.get_phone_menu_item_pos(screen, self.ctx.im, self.item)

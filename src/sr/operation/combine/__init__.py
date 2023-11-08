@@ -17,7 +17,7 @@ class CombineOperation(Operation):
         super().__init__(ctx, try_times=len(ops), op_name=op_name)
         self.ops: List[Operation] = ops
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         if self.ops is None:  # 初始化指令失败
             return Operation.FAIL
         op = self.ops[self.op_round - 1]

@@ -14,7 +14,7 @@ def _test_check_turning_rate():
     ans = app._check_turning_rate()
 
 def _test_whole_app():
-    app.run()
+    app._execute_one_round()
 
 
 if __name__ == '__main__':

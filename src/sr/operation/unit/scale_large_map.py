@@ -22,7 +22,7 @@ class ScaleLargeMap(Operation):
         self.click_times = 0
         self.pos = None
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         if self.pos is None:
             self.pos = self.get_click_pos()
 

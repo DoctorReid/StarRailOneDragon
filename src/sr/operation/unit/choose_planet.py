@@ -24,7 +24,7 @@ class ChoosePlanet(Operation):
         super().__init__(ctx, 10, op_name=gt('选择星球 %s', 'ui') % planet.display_name)
         self.planet: Planet = planet
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         screen = self.screenshot()
         # 根据左上角判断当前星球是否正确
         planet = large_map.get_planet(screen, self.ctx.ocr)

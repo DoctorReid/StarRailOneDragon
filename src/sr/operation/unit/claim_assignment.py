@@ -27,7 +27,7 @@ class ClaimAssignment(Operation):
     def __init__(self, ctx: Context):
         super().__init__(ctx, try_times=20, op_name=gt('完成委托', 'ui'))
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()
 
         if self.check_claim_and_click(screen):

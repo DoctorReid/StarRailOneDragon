@@ -23,7 +23,7 @@ class ChooseRegion(Operation):
         self.region: Region = region
         self.scroll_direction: int = None
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         screen = self.screenshot()
 
         planet = large_map.get_planet(screen, self.ctx.ocr)

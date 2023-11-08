@@ -18,7 +18,7 @@ class OpenMap(Operation):
         """
         super().__init__(ctx, 10, op_name=gt('打开地图', 'ui'))
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         ctrl: GameController = self.ctx.controller
         ocr: OcrMatcher = self.ctx.ocr
 

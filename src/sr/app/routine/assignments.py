@@ -25,7 +25,7 @@ class Assignments(Application):
     def init_app(self):
         pass
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         if self.phase == 0:
             op = OpenPhoneMenu(self.ctx)
             if op.execute():
@@ -35,7 +35,7 @@ class Assignments(Application):
                 return Operation.FAIL
         elif self.phase == 1:
             screen: MatLike = self.screenshot()
-            result: MatchResult = phone_menu.get_phone_menu_item_pos(screen, self.ctx.im, self.item, alert=True)
+            result: MatchResult = phone_menu.get_phone_menu_item_pos(screen, self.ctx.im, phone_menu_const.ASSIGNMENTS, alert=True)
             if result is None:
                 log.info('检测不到委托红点 跳过')
                 return Operation.SUCCESS
@@ -53,7 +53,7 @@ class Assignments(Application):
                 return Operation.FAIL
         elif self.phase == 3:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.run()
+            r = op.execute()
             if not r:
                 return Operation.FAIL
             else:

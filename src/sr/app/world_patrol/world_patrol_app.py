@@ -58,7 +58,7 @@ class WorldPatrol(Application):
         for i in range(-2, 2):
             mini_map_angle_alas.RotationRemapData((mm_r + i) * 2)
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         self.current_route_idx += 1
         if self.current_route_idx >= len(self.route_id_list):
             log.info('所有线路执行完毕')

@@ -30,7 +30,7 @@ class EnterAutoFight(Operation):
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_in_battle_time = time.time()  # 上次在战斗的时间
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         ctrl: GameController = self.ctx.controller
 
         screen = self.screenshot()

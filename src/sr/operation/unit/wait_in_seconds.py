@@ -19,6 +19,6 @@ class WaitInSeconds(Operation):
         super().__init__(ctx, op_name=gt('等待秒数 %.2f') % seconds)
         self.seconds: float = float(seconds)
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         time.sleep(self.seconds)
         return Operation.SUCCESS

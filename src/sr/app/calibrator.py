@@ -25,7 +25,7 @@ class Calibrator(Application):
     def __init__(self, ctx: Context):
         super().__init__(ctx)
 
-    def run(self):
+    def _execute_one_round(self):
         self._check_mini_map_pos()
         self._check_turning_rate()
         # self._check_running_distance()

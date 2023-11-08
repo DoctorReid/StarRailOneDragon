@@ -58,7 +58,7 @@ class MoveDirectly(Operation):
     def init_before_execute(self):
         self.last_battle_time = time.time()
 
-    def run(self) -> bool:
+    def _execute_one_round(self) -> bool:
         first_pos = None if len(self.pos) == 0 else self.pos[0]
         last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
 

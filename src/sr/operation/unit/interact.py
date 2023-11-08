@@ -30,7 +30,7 @@ class Interact(Operation):
         self.cn = cn
         self.wait = wait
 
-    def run(self):
+    def _execute_one_round(self):
         time.sleep(0.5)  # 稍微等待一下 可能交互按钮还没有出来
         screen = self.screenshot()
         return self.check_on_screen(screen)

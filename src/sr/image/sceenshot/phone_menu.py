@@ -46,8 +46,8 @@ def get_phone_menu_item_pos(screen: MatLike, im: ImageMatcher, item: PhoneMenuIt
     if result is None:
         return None
 
-    result.x += MENU_ITEMS_AT_RIGHT_PART.x1
-    result.y += MENU_ITEMS_AT_RIGHT_PART.y1
+    result.x += MENU_ITEMS_PART.x1
+    result.y += MENU_ITEMS_PART.y1
 
     if alert:
         if is_item_with_alert(screen, im, result, (50, -50)):
@@ -98,7 +98,7 @@ def is_item_with_alert(screen: MatLike, im: ImageMatcher, item_result: MatchResu
     x1, y1 = item_result.x, item_result.y + offset[1]
     x2, y2 = item_result.x + item_result.w + offset[0], item_result.y + item_result.h
     with_alert_part, _ = cv2_utils.crop_image(screen, Rect(x1, y1, x2, y2))
-    # cv2_utils.show_image(with_alert_part, win_name='with_alert_part')
+    cv2_utils.show_image(with_alert_part, win_name='with_alert_part')
     alert_result: MatchResultList = im.match_template(with_alert_part, 'ui_alert', only_best=True)
     return alert_result.max is not None
 

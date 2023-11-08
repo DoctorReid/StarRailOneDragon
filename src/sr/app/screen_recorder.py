@@ -23,7 +23,7 @@ class ScreenRecorder(Application):
         ctx.register_key_press('f11', self.screenshot)
         ctx.register_key_press('f12', self.mouse_position)
 
-    def run(self):
+    def _execute_one_round(self):
         pass
 
     def screenshot(self):

@@ -17,7 +17,7 @@ class EnableAutoFight(Operation):
     def __init__(self, ctx: Context):
         super().__init__(ctx, 5, op_name=gt('打开自动战斗', 'ui'))
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         screen = self.screenshot()
         bs = battle.get_battle_status(screen, self.ctx.im)
         if battle.BATTLING != bs:  # 非战斗状态

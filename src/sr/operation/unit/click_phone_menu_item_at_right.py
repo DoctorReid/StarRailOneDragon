@@ -21,7 +21,7 @@ class ClickPhoneMenuItemAtRight(Operation):
         super().__init__(ctx, try_times=5, op_name=gt('点击菜单侧栏 %s', 'ui') % gt(item.cn, 'ui'))
         self.item: PhoneMenuItem = item
 
-    def run(self) -> int:
+    def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()
 
         result: MatchResult = phone_menu.get_phone_menu_item_pos_at_right(screen, self.ctx.im, self.item)
