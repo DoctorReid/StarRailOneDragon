@@ -3,6 +3,7 @@ import flet as ft
 from basic.i18_utils import gt
 from sr.app.routine.assignments import Assignments
 from sr.app.routine.email import Email
+from sr.app.routine.trailblazer_profile import SupportCharacter
 from sr.context import Context
 
 
@@ -15,9 +16,11 @@ class RoutineView:
         daily_text = ft.Text(value=gt('日常', 'ui'))
         self.assignment_btn = ft.ElevatedButton(text=gt('委托', 'ui'), on_click=self.run_assignment)
         self.email_btn = ft.ElevatedButton(text=gt('邮件', 'ui'), on_click=self.run_email)
+        self.support_character_btn = ft.ElevatedButton(text=gt('支援角色', 'ui'), on_click=self.run_support_character)
         daily_row = ft.Row(controls=[
             self.assignment_btn,
-            self.email_btn
+            self.email_btn,
+            self.support_character_btn,
         ])
 
         weekly_text = ft.Text(value=gt('周常', 'ui'))
@@ -38,6 +41,10 @@ class RoutineView:
 
     def run_email(self, e):
         app = Email(self.ctx)
+        app.execute()
+
+    def run_support_character(self, e):
+        app = SupportCharacter(self.ctx)
         app.execute()
 
 

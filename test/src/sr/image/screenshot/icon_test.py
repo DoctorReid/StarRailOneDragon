@@ -47,5 +47,6 @@ if __name__ == '__main__':
     # _test_init_arrow_template()
     # icon.init_battle_lock()
     # icon.init_boss_icon('mm_boss_03')
-    icon.init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
+    # icon.init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
     # icon.init_ui_alert('ui_alert')
+    icon.init_ui_ellipsis('ui_ellipsis')
