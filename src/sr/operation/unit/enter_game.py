@@ -18,6 +18,8 @@ class EnterGame(Operation):
     def __init__(self, ctx: Context):
         super().__init__(ctx, try_times=2, op_name=gt('进入游戏', 'ui'))
         self.start_time = time.time()
+        self.first_in_world_time: float = 0
+        self.claim_express_supply: bool = False
 
     def init_before_execute(self):
         self.start_time = time.time()
@@ -26,16 +28,29 @@ class EnterGame(Operation):
         screen = self.screenshot()
 
         if battle.IN_WORLD == battle.get_battle_status(screen, self.ctx.im):  # 进入到主界面
-            return Operation.SUCCESS
+            now = time.time()
+            if self.first_in_world_time == 0:
+                self.first_in_world_time = now
 
-        if enter_game_ui.in_final_enter_phase(screen, self.ctx.ocr):  # 右上角有公告 或者 下方有 点击进入 的字样
+            if self.claim_express_supply:  # 已经领取过列车补给
+                return Operation.SUCCESS
+            else:  # 没领列车补给的话 等2秒看看有没有
+                if now - self.first_in_world_time > 2:
+                    return Operation.SUCCESS
+                else:
+                    return Operation.WAIT
+
+        if enter_game_ui.in_final_enter_phase(screen, self.ctx.ocr):  # 下方有 点击进入 的字样
             self.ctx.controller.click(enter_game_ui.FINAL_ENTER_GAME_RECT.center)
             time.sleep(1)  # 暂停一段时间再操作
             return Operation.WAIT
 
-        if enter_game_ui.in_express_supply_phase(screen, self.ctx.ocr):  # 列车补给 - 小月卡
+        if enter_game_ui.in_express_supply_phase(screen, self.ctx.ocr):  # 列车补给(小月卡) - 会先出现主界面
             self.ctx.controller.click(enter_game_ui.EMPTY_POS)
             time.sleep(1)  # 暂停一段时间再操作
+            self.ctx.controller.click(enter_game_ui.EMPTY_POS)  # 领取需要分两个阶段 点击两次
+            time.sleep(1)  # 暂停一段时间再操作
+            self.claim_express_supply = True
             return Operation.WAIT
 
         if enter_game_ui.in_password_phase(screen, self.ctx.ocr):
