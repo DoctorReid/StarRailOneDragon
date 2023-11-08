@@ -30,22 +30,32 @@ def in_phone_menu(screen: MatLike, ocr: OcrMatcher) -> bool:
     return False
 
 
-def get_phone_menu_item_pos(screen: MatLike, im: ImageMatcher, item: PhoneMenuItem) -> MatchResult:
+def get_phone_menu_item_pos(screen: MatLike, im: ImageMatcher, item: PhoneMenuItem, alert: bool = False) -> MatchResult:
     """
     获取菜单中某个具体选项的位置
     :param screen:
     :param im:
     :param item:
+    :param alert: 是否有感叹号红点
     :return:
     """
     part, _ = cv2_utils.crop_image(screen, MENU_ITEMS_PART)
     result_list: MatchResultList = im.match_template(part, item.template_id, only_best=True)
+    result: MatchResult = result_list.max
 
-    if result_list.max is not None:
-        result_list.max.x += MENU_ITEMS_PART.x1
-        result_list.max.y += MENU_ITEMS_PART.y1
+    if result is None:
+        return None
 
-    return result_list.max
+    result.x += MENU_ITEMS_AT_RIGHT_PART.x1
+    result.y += MENU_ITEMS_AT_RIGHT_PART.y1
+
+    if alert:
+        if is_item_with_alert(screen, im, result, (50, -50)):
+            return result
+        else:
+            return None
+    else:
+        return result
 
 
 def get_phone_menu_item_pos_at_right(screen: MatLike, im: ImageMatcher, item: PhoneMenuItem, alert: bool = False) -> MatchResult:
@@ -59,23 +69,37 @@ def get_phone_menu_item_pos_at_right(screen: MatLike, im: ImageMatcher, item: Ph
     """
     part, _ = cv2_utils.crop_image(screen, MENU_ITEMS_AT_RIGHT_PART)
     result_list: MatchResultList = im.match_template(part, item.template_id, only_best=True)
+    result: MatchResult = result_list.max
 
-    if result_list.max is None:
+    if result is None:
         return None
 
-    result_list.max.x += MENU_ITEMS_AT_RIGHT_PART.x1
-    result_list.max.y += MENU_ITEMS_AT_RIGHT_PART.y1
+    result.x += MENU_ITEMS_AT_RIGHT_PART.x1
+    result.y += MENU_ITEMS_AT_RIGHT_PART.y1
 
     if alert:
-        x1, y1 = result_list.max.x, result_list.max.y - 50
-        x2, y2 = result_list.max.x + result_list.max.w + 50, result_list.max.y + result_list.max.h
-        with_alert_part, _ = cv2_utils.crop_image(screen, Rect(x1, y1, x2, y2))
-        cv2_utils.show_image(with_alert_part, win_name='with_alert_part')
-        alert_result: MatchResultList = im.match_template(with_alert_part, 'ui_alert', only_best=True)
-        if alert_result.max is not None:
-            return result_list.max
+        if is_item_with_alert(screen, im, result, (50, -50)):
+            return result
         else:
             return None
     else:
-        return result_list.max
+        return result
+
+
+def is_item_with_alert(screen: MatLike, im: ImageMatcher, item_result: MatchResult, offset: tuple) -> bool:
+    """
+    图标右上角是否有感叹号
+    :param screen: 屏幕截图
+    :param im:
+    :param item_result: 图标匹配结果
+    :param offset: 感叹号在图标右上角的偏移量 x应该为正数 y应该为负数
+    :return:
+    """
+    x1, y1 = item_result.x, item_result.y + offset[1]
+    x2, y2 = item_result.x + item_result.w + offset[0], item_result.y + item_result.h
+    with_alert_part, _ = cv2_utils.crop_image(screen, Rect(x1, y1, x2, y2))
+    # cv2_utils.show_image(with_alert_part, win_name='with_alert_part')
+    alert_result: MatchResultList = im.match_template(with_alert_part, 'ui_alert', only_best=True)
+    return alert_result.max is not None
+
 
