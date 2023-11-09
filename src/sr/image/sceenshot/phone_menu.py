@@ -170,5 +170,5 @@ def get_alert_pos(screen: MatLike, im: ImageMatcher, rect: Rect) -> MatchResultL
     :return: 省略号的位置
     """
     part, _ = cv2_utils.crop_image(screen, rect)
-    cv2_utils.show_image(part, win_name='get_alert_pos')
+    # cv2_utils.show_image(part, win_name='get_alert_pos')
     return im.match_template(part, 'ui_alert')
