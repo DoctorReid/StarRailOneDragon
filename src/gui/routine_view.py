@@ -3,7 +3,7 @@ import flet as ft
 from basic.i18_utils import gt
 from sr.app.routine.assignments import Assignments
 from sr.app.routine.email import Email
-from sr.app.routine.trailblazer_profile import SupportCharacter
+from sr.app.routine.support_character import SupportCharacter
 from sr.context import Context
 
 

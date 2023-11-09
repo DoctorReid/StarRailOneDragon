@@ -47,7 +47,7 @@ class EnterGame(Operation):
 
         if enter_game_ui.in_express_supply_phase(screen, self.ctx.ocr):  # 列车补给(小月卡) - 会先出现主界面
             self.ctx.controller.click(enter_game_ui.EMPTY_POS)
-            time.sleep(1)  # 暂停一段时间再操作
+            time.sleep(3)  # 暂停一段时间再操作
             self.ctx.controller.click(enter_game_ui.EMPTY_POS)  # 领取需要分两个阶段 点击两次
             time.sleep(1)  # 暂停一段时间再操作
             self.claim_express_supply = True

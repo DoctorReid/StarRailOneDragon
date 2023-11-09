@@ -1,0 +1,1 @@
+RAIL_BG_COLOR = "#F3F6FC"

@@ -1,6 +1,4 @@
 import flet as ft
-import sys
-import os
 from flet_core import CrossAxisAlignment
 
 from basic import i18_utils, os_utils

@@ -6,13 +6,10 @@ from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
 from sr.app import Application
-from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
-from sr.operation.combine import CombineOperation
 from sr.operation.unit.claim_assignment import ClaimAssignment
-from sr.operation.unit.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 
 

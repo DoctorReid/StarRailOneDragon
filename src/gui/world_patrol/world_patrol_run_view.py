@@ -9,7 +9,7 @@ from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.context import Context
 
 
-class WorldPatrolView(SrAppView):
+class WorldPatrolRunView(SrAppView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         super().__init__(page, ctx)
@@ -24,6 +24,9 @@ class WorldPatrolView(SrAppView):
             ft.Container(content=settings_text),
             ft.Container(content=self.whitelist_dropdown),
         ])
+
+    def on_rail_chosen(self, e):
+        pass
 
     def load_whitelist_id_list(self):
         self.existed_whitelist_id_list = load_all_whitelist_id()
@@ -42,11 +45,11 @@ class WorldPatrolView(SrAppView):
         app.execute()
 
 
-wpv: WorldPatrolView = None
+wprv: WorldPatrolRunView = None
 
 
 def get(page: ft.Page, ctx: Context):
-    global wpv
-    if wpv is None:
-        wpv = WorldPatrolView(page, ctx)
-    return wpv
+    global wprv
+    if wprv is None:
+        wprv = WorldPatrolRunView(page, ctx)
+    return wprv
