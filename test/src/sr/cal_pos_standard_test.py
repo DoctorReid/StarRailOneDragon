@@ -23,7 +23,7 @@ class TestCase:
         self.pos: Point = pos
         self.num: int = num
         self.running: bool = running
-        self.possible_pos: tuple = pos if possible_pos is None else possible_pos
+        self.possible_pos: tuple = (*pos.tuple(), 0) if possible_pos is None else possible_pos
 
 
 case_list = [
@@ -72,20 +72,20 @@ def get_test_cal_pos_image(r: Region, num: int, suffix: str = '.png') -> MatLike
 
 def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     mm = get_test_cal_pos_image(c.region, c.num)
-    possible_pos = (*c.possible_pos, 0)
+    possible_pos = c.possible_pos
     lm_rect = get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
     mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()))
-    x, y = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
+    result = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
 
     if show:
         cv2.waitKey(0)
 
-    error = x is None or cal_utils.distance_between(Point(x, y), c.pos) > 10
+    error = result is None or cal_utils.distance_between(result, c.pos) > 10
     if error:
-        log.error('定位错误 %s', (x, y))
+        log.error('定位错误 %s', result)
     else:
-        log.info('定位正确 %s', (x, y))
+        log.info('定位正确 %s', result)
 
     return error
 
@@ -100,11 +100,11 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        if c.region != map_const.P02_R11_L1 or c.num != 5:
-            continue
+        # if c.region != map_const.P02_R11_L1 or c.num != 5:
+        #     continue
         if c.region.prl_id not in lm_info_map:
             lm_info_map[c.region.prl_id] = ih.get_large_map(c.region)
-        is_err = test_one(c, lm_info_map[c.region.prl_id], True)
+        is_err = test_one(c, lm_info_map[c.region.prl_id], False)
         if is_err:
             fail_list.append(c)
 

@@ -120,7 +120,7 @@ class Calibrator(Application):
 
         dis_arr = []
         use_time_arr = []
-        last_pos = tp.lm_pos
+        last_pos = tp.tp_pos
         last_record_time = 0
 
         while True:

@@ -44,7 +44,7 @@ class RunPatrolRoute(CombineOperation):
 
         ops.append(Transport(ctx, route.tp, first_route))
 
-        current_pos: Point = route.tp.lm_pos
+        current_pos: Point = route.tp.tp_pos
         current_lm_info = ctx.ih.get_large_map(route.route_id.region)
         for i in range(len(route.route_list)):
             route_item = route.route_list[i]

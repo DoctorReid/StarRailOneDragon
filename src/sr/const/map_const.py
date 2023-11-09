@@ -189,13 +189,14 @@ def get_region_by_cn(cn: str, planet: Planet, floor: int = 0) -> Region:
 
 class TransportPoint:
 
-    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple):
+    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple, tp_pos: tuple=None):
         self.id: str = id  # 英文 用在找图
         self.cn: str = cn  # 中文 用在OCR
         self.region: Region = region  # 所属区域
         self.planet: Planet = region.planet  # 所属星球
         self.template_id: str = template_id  # 匹配模板
         self.lm_pos: Point = Point(lm_pos[0], lm_pos[1])  # 在大地图的坐标
+        self.tp_pos: Point = Point(tp_pos[0], tp_pos[1]) if tp_pos is not None else self.lm_pos  # 传送落地的坐标
 
     def __str__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -204,11 +205,15 @@ class TransportPoint:
     def display_name(self):
         return gt(self.cn, 'ui')
 
+    @property
+    def unique_id(self):
+        return '%s_%s' % (self.region.prl_id, self.id)
+
 
 # 空间站黑塔 - 主控舱段
-P01_R01_SP01 = TransportPoint('JCY', '监察域', P01_R01, 'mm_tp_03', (529, 231))
-P01_R01_SP02 = TransportPoint('HXTL', '核心通路', P01_R01, 'mm_tp_03', (592, 691))
-P01_R01_SP03 = TransportPoint('HTDBGS', '黑塔的办公室', P01_R01, 'mm_tp_04', (245, 796))
+P01_R01_SP01 = TransportPoint('JCY', '监察域', P01_R01, 'mm_tp_03', (529, 231), (562, 243))
+P01_R01_SP02 = TransportPoint('HXTL', '核心通路', P01_R01, 'mm_tp_03', (592, 691), (563, 678))
+P01_R01_SP03 = TransportPoint('HTDBGS', '黑塔的办公室', P01_R01, 'mm_tp_04', (245, 796), (245, 770))  # 这个比较特殊 需要走出办公室才是这个坐标
 P01_R01_SP04 = TransportPoint('FSSQ', '封锁扇区', P01_R01, 'mm_sp_01', (228, 744))
 P01_R01_SP05 = TransportPoint('TKDT', '太空电梯', P01_R01, 'mm_sp_02', (562, 837))
 P01_R01_SP06 = TransportPoint('NGZY', '内购专员', P01_R01, 'mm_sp_04', (535, 628))
