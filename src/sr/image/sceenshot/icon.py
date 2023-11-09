@@ -339,3 +339,26 @@ def init_ui_ellipsis(template_id: str):
 
     origin, mask = convert_to_standard(raw, bw, width=81, height=55, bg_color=(0, 0, 0))
     show_and_save(template_id, origin, mask)
+
+
+def init_nameless_honor_icon(template_id: str):
+    """
+    无名勋礼
+    找灰色的部分
+    :param template_id:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id)
+
+    lower_color = np.array([60, 60, 60], dtype=np.uint8)
+    upper_color = np.array([255, 255, 255], dtype=np.uint8)
+    white_part = cv2.inRange(raw, lower_color, upper_color)
+    cv2_utils.show_image(white_part, win_name='white_part')
+
+    bw = cv2_utils.connection_erase(white_part, 50, erase_white=False)
+    cv2_utils.show_image(bw, win_name='bw')
+
+    origin, mask = convert_to_standard(raw, bw, width=61, height=61, bg_color=(0, 0, 0))
+    show_and_save(template_id, origin, mask)
+
+

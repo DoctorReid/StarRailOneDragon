@@ -14,6 +14,10 @@ MENU_ITEMS_AT_RIGHT_PART = Rect(1810, 230, 1915, 1030)  # 菜单侧栏选项
 ELLIPSIS_PART = Rect(1390, 50, 1810, 350)  # 省略号...的位置
 SUPPORT_CHARACTER_PART = Rect(940, 140, 1700, 520)  # 支援角色的框
 
+NAMELESS_HONOR_TAB_PART = Rect(810, 30, 1110, 100)  # 无名勋礼上方的tab
+NAMELESS_HONOR_TAB_1_CLAIM_PART = Rect(1270, 890, 1530, 950)  # 无名勋礼第1个tab的一键领取按钮
+NAMELESS_HONOR_TAB_2_CLAIM_PART = Rect(1520, 890, 1810, 950)  # 无名勋礼第2个tab的一键领取按钮
+
 
 def in_phone_menu(screen: MatLike, ocr: OcrMatcher) -> bool:
     """
@@ -172,3 +176,74 @@ def get_alert_pos(screen: MatLike, im: ImageMatcher, rect: Rect) -> MatchResultL
     part, _ = cv2_utils.crop_image(screen, rect)
     # cv2_utils.show_image(part, win_name='get_alert_pos')
     return im.match_template(part, 'ui_alert')
+
+
+def get_nameless_honor_tab_pos(screen: MatLike, im: ImageMatcher, tab: int, alert: bool = False) -> MatchResult:  # TODO 下个版本再测试红点
+    """
+    获取 无名勋礼 页面上方 tab图标 的位置
+    :param screen: 屏幕截图
+    :param im: 图片匹配器
+    :param tab: 第几个tab
+    :param alert: 是否有感叹号红点
+    :return: tab的位置
+    """
+    part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_PART)
+    result_list = im.match_template(part, 'nameless_honor_%d' % tab, only_best=True)
+
+    result: MatchResult = result_list.max
+
+    if result is None:
+        return None
+
+    result.x += NAMELESS_HONOR_TAB_PART.x1
+    result.y += NAMELESS_HONOR_TAB_PART.y1
+
+    if alert:
+        if is_item_with_alert(screen, im, result, (50, -50)):
+            return result
+        else:
+            return None
+    else:
+        return result
+
+
+def get_nameless_honor_tab_2_claim_pos(screen: MatLike, ocr: OcrMatcher):
+    """
+    获取无名勋礼第2个tab 任务的【一键领取】按钮位置
+    :param screen: 屏幕截图
+    :param ocr: 文字识别器
+    :return:
+    """
+    part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_2_CLAIM_PART)
+
+    ocr_map = ocr.match_words(part, words=['一键领取'], lcs_percent=0.55)
+    if len(ocr_map) == 0:
+        return None
+
+    result: MatchResult = ocr_map.popitem()[1].max
+
+    result.x += NAMELESS_HONOR_TAB_2_CLAIM_PART.x1
+    result.y += NAMELESS_HONOR_TAB_2_CLAIM_PART.y1
+
+    return result
+
+
+def get_nameless_honor_tab_1_claim_pos(screen: MatLike, ocr: OcrMatcher):
+    """
+    获取无名勋礼第2个tab 任务的【一键领取】按钮位置
+    :param screen: 屏幕截图
+    :param ocr: 文字识别器
+    :return:
+    """
+    part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_1_CLAIM_PART)
+
+    ocr_map = ocr.match_words(part, words=['一键领取'], lcs_percent=0.55)  # TODO 下个版本测试
+    if len(ocr_map) == 0:
+        return None
+
+    result: MatchResult = ocr_map.popitem()[1].max
+
+    result.x += NAMELESS_HONOR_TAB_1_CLAIM_PART.x1
+    result.y += NAMELESS_HONOR_TAB_1_CLAIM_PART.y1
+
+    return result

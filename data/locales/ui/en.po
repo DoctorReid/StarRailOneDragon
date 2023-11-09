@@ -704,3 +704,18 @@ msgstr "F2"
 # Routine - Assignments
 msgid "委托"
 msgstr "Assignments"
+
+msgid "开拓力"
+msgstr "Trailblaze Power"
+
+msgid "实训"
+msgstr "Daily Training"
+
+msgid "历战回响"
+msgstr "Echo of War"
+
+msgid "忘却之庭"
+msgstr "Forgotten Hall"
+
+msgid "模拟宇宙"
+msgstr "Simulated Universe"

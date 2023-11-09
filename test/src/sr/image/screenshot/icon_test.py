@@ -49,4 +49,5 @@ if __name__ == '__main__':
     # icon.init_boss_icon('mm_boss_03')
     # icon.init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
     # icon.init_ui_alert('ui_alert')
-    icon.init_ui_ellipsis('ui_ellipsis')
+    # icon.init_ui_ellipsis('ui_ellipsis')
+    icon.init_nameless_honor_icon('nameless_honor_3')
