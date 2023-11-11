@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Rect
+from basic import Rect, os_utils
 from basic.img import MatchResult, MatchResultList
 
 feature_detector = cv2.SIFT_create()
@@ -35,6 +35,8 @@ def show_image(img: MatLike,
     :param wait:
     :return:
     """
+    if not os_utils.is_debug():  # 只在调试情况下显示图片
+        return
     to_show = img
 
     if rects is not None:

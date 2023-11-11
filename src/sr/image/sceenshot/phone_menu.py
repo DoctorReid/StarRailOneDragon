@@ -1,3 +1,5 @@
+import cv2
+import numpy as np
 from cv2.typing import MatLike
 
 from basic import Rect, str_utils
@@ -17,6 +19,10 @@ SUPPORT_CHARACTER_PART = Rect(940, 140, 1700, 520)  # 支援角色的框
 NAMELESS_HONOR_TAB_PART = Rect(810, 30, 1110, 100)  # 无名勋礼上方的tab
 NAMELESS_HONOR_TAB_1_CLAIM_PART = Rect(1270, 890, 1530, 950)  # 无名勋礼第1个tab的一键领取按钮
 NAMELESS_HONOR_TAB_2_CLAIM_PART = Rect(1520, 890, 1810, 950)  # 无名勋礼第2个tab的一键领取按钮
+
+GUIDE_TRAINING_TASK_RECT = Rect(270, 410, 1560, 890)  # 指南-实训 任务框
+GUIDE_TRAINING_ACTIVITY_CLAIM_RECT = Rect(270, 780, 1560, 890)  # 指南-实训 活跃度领取框
+GUIDE_TRAINING_REWARD_CLAIM_RECT = Rect(420, 270, 1670, 370)  # 指南-实训 奖励领取框
 
 
 def in_phone_menu(screen: MatLike, ocr: OcrMatcher) -> bool:
@@ -101,7 +107,7 @@ def get_phone_menu_ellipsis_pos(screen: MatLike, im: ImageMatcher, alert: bool =
     :return:
     """
     part, _ = cv2_utils.crop_image(screen, ELLIPSIS_PART)
-    cv2_utils.show_image(part, win_name='ELLIPSIS_PART')
+    # cv2_utils.show_image(part, win_name='ELLIPSIS_PART')
     result_list: MatchResultList = im.match_template(part, 'ui_ellipsis', only_best=True, threshold=0.3)
     result: MatchResult = result_list.max
 
@@ -175,7 +181,7 @@ def get_alert_pos(screen: MatLike, im: ImageMatcher, rect: Rect) -> MatchResultL
     """
     part, _ = cv2_utils.crop_image(screen, rect)
     # cv2_utils.show_image(part, win_name='get_alert_pos')
-    return im.match_template(part, 'ui_alert')
+    return im.match_template(part, 'ui_alert', threshold=0.7)
 
 
 def get_nameless_honor_tab_pos(screen: MatLike, im: ImageMatcher, tab: int, alert: bool = False) -> MatchResult:  # TODO 下个版本再测试红点
@@ -245,5 +251,56 @@ def get_nameless_honor_tab_1_claim_pos(screen: MatLike, ocr: OcrMatcher):
 
     result.x += NAMELESS_HONOR_TAB_1_CLAIM_PART.x1
     result.y += NAMELESS_HONOR_TAB_1_CLAIM_PART.y1
+
+    return result
+
+
+def get_training_activity_claim_btn_pos(screen: MatLike, ocr: OcrMatcher):
+    """
+    指南实训页面 获取活跃度【领取】按钮的位置 多个时随便返回一个
+    :param screen:
+    :param ocr:
+    :return:
+    """
+    part, _ = cv2_utils.crop_image(screen, GUIDE_TRAINING_ACTIVITY_CLAIM_RECT)
+    lower_color = np.array([0, 0, 0], dtype=np.uint8)  # 只取黑色部分 避免金色的【已领取】
+    upper_color = np.array([30, 30, 30], dtype=np.uint8)
+    black_part = cv2.inRange(part, lower_color, upper_color)
+    # cv2_utils.show_image(black_part, 'get_nameless_honor_tab_pos')
+
+    ocr_map = ocr.match_words(black_part, words=['领取'], lcs_percent=0.3)
+
+    if len(ocr_map) == 0:
+        return None
+
+    result: MatchResult = ocr_map.popitem()[1].max
+
+    result.x += GUIDE_TRAINING_ACTIVITY_CLAIM_RECT.x1
+    result.y += GUIDE_TRAINING_ACTIVITY_CLAIM_RECT.y1
+
+    return result
+
+
+def get_training_reward_claim_btn_pos(screen: MatLike, im: ImageMatcher):
+    """
+    指南实训页面 获取奖励领取按钮的位置 多个时返回最右边的一个
+    :param screen:
+    :param im:
+    :return:
+    """
+    part, _ = cv2_utils.crop_image(screen, GUIDE_TRAINING_REWARD_CLAIM_RECT)
+
+    result_list: MatchResultList = im.match_template(part, 'training_reward_gift', ignore_template_mask=True)
+
+    if len(result_list) == 0:
+        return None
+
+    result: MatchResult = None
+    for i in result_list:
+        if result is None or i.x > result.x:
+            result = i
+
+    result.x += GUIDE_TRAINING_REWARD_CLAIM_RECT.x1
+    result.y += GUIDE_TRAINING_REWARD_CLAIM_RECT.y1
 
     return result

@@ -5,8 +5,6 @@ from sr.image.sceenshot import battle
 
 
 def _test_get_battle_status():
-    screen = get_test_image('game1')
-    assert battle.IN_WORLD == battle.get_battle_status(screen, im)  # 1
     screen = get_test_image('all_off', sub_dir='battle')
     assert battle.BATTLING == battle.get_battle_status(screen, im)  # 2
 

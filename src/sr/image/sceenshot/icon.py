@@ -362,3 +362,14 @@ def init_nameless_honor_icon(template_id: str):
     show_and_save(template_id, origin, mask)
 
 
+def init_training_reward_gift(template_id: str = 'training_reward_gift'):
+    """
+    实训页面-获取奖励的按钮 暂时没有任何处理
+    :param template_id:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id)
+    origin = cv2.cvtColor(raw, cv2.COLOR_BGRA2BGR)
+    save_template_image(origin, template_id, 'origin')
+
+

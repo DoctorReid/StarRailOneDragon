@@ -719,3 +719,7 @@ msgstr "Trailblazer Profile"
 msgid "全部领取"
 msgstr "Claim All"
 
+# Training
+msgid "领取"
+msgstr "Claim"
+
