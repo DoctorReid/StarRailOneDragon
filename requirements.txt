@@ -5,5 +5,5 @@ opencv-python==4.8.0.76
 whl//Polygon3-3.0.9-cp311-cp311-win_amd64.whl
 cnocr==2.2.4.2
 keyboard==0.13.5
-flet==0.10.3
+flet==0.11.0
 pyinstaller==6.1.0

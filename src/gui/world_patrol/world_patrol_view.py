@@ -2,6 +2,7 @@ import flet as ft
 import threading
 
 from basic.i18_utils import gt
+from gui import gui_const
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.context import Context
 
@@ -13,7 +14,7 @@ class WorldPatrolView:
         self.ctx = ctx
 
         self.rail_part = ft.NavigationRail(
-            bgcolor="#F3F6FC",
+            bgcolor=gui_const.RAIL_BG_COLOR,
             selected_index=0,
             label_type=ft.NavigationRailLabelType.ALL,
             min_width=100,

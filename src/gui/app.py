@@ -4,7 +4,7 @@ import flet as ft
 import keyboard
 
 from basic.i18_utils import gt, update_default_lang
-from gui import log_view, calibrator_view, version, routine_view, one_stop_view
+from gui import log_view, calibrator_view, version, routine_view, one_stop_view, gui_const
 from gui.settings import settings_view
 from gui.world_patrol import world_patrol_view
 from sr.config import game_config
@@ -21,10 +21,10 @@ class StarRailAutoProxy:
         page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' ' + version.get_current_version()
         page.padding = 0
 
-        self.display_part = ft.Container(content=world_patrol_view.get(page, ctx).component)
+        self.display_part = ft.Container(content=world_patrol_view.get(page, ctx).component, bgcolor='#F9F9F9')
 
         self.rail_part = ft.NavigationRail(
-            bgcolor="#F3F6FC",
+            bgcolor=gui_const.RAIL_BG_COLOR,
             selected_index=1,
             label_type=ft.NavigationRailLabelType.ALL,
             min_width=100,
