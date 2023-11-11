@@ -723,3 +723,7 @@ msgstr "Claim All"
 msgid "领取"
 msgstr "Claim"
 
+# Assignments
+msgid "再次派遣"
+msgstr "Dispatch Again"
+

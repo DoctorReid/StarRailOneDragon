@@ -6,6 +6,8 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import MatchResultList, cv2_utils
 from basic.log_utils import log
+from sr.config import game_config
+from sr.const import game_config_const
 from sr.context import Context
 from sr.operation import Operation
 
@@ -49,7 +51,8 @@ class ClaimAssignment(Operation):
         """
         claim_btn_part, _ = cv2_utils.crop_image(screen, ClaimAssignment.CLAIM_BTN_RECT)
         ocr_result = self.ctx.ocr.ocr_for_single_line(claim_btn_part, strict_one_line=True)
-        if str_utils.find_by_lcs(gt('领取', 'ocr'), ocr_result, percent=0.3):
+        lcs_percent = 0.3 if game_config_const.LANG_CN == game_config.get().lang else 0.55
+        if str_utils.find_by_lcs(gt('领取', 'ocr'), ocr_result, percent=lcs_percent):
             self.ctx.controller.click(ClaimAssignment.CLAIM_BTN_RECT.center)
             log.info('检测到【领取】 点击')
             time.sleep(1)
