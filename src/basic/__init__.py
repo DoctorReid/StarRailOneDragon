@@ -30,5 +30,6 @@ class Rect:
     def __str__(self):
         return '(%d, %d, %d, %d)' % (self.x1, self.y1, self.x2, self.y2)
 
+    @property
     def left_top(self) -> Point:
         return Point(self.x1, self.y1)

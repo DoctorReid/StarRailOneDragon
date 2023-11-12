@@ -11,6 +11,9 @@ from sr.image.ocr_matcher import OcrMatcher
 
 class GameController:
 
+    MOVE_INTERACT_TYPE = 0
+    TALK_INTERACT_TYPE = 1
+
     def __init__(self, ocr: OcrMatcher):
         self.ocr: OcrMatcher = ocr
         self.turn_dx: float = None
@@ -172,10 +175,12 @@ class GameController:
         """
         pass
 
-    def interact(self, pos: Point, wait: int = 0) -> bool:
+    def interact(self, pos: Point, interact_type: int = 0,
+                 wait: int = 0) -> bool:
         """
         交互
         :param pos: 如果是模拟器的话 需要传入交互内容的坐标
+        :param interact_type: 交互类型
         :param wait: 交互成功后等待秒数
         :return:
         """

@@ -1,5 +1,6 @@
 import time
 
+import sr.const
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.context import Context
@@ -21,7 +22,7 @@ class EnterGame(Operation):
         self.first_in_world_time: float = 0
         self.claim_express_supply: bool = False
 
-    def init_before_execute(self):
+    def _init_before_execute(self):
         self.start_time = time.time()
 
     def _execute_one_round(self) -> int:
@@ -46,9 +47,9 @@ class EnterGame(Operation):
             return Operation.WAIT
 
         if enter_game_ui.in_express_supply_phase(screen, self.ctx.ocr):  # 列车补给(小月卡) - 会先出现主界面
-            self.ctx.controller.click(enter_game_ui.EMPTY_POS)
+            self.ctx.controller.click(sr.const.CLICK_TO_CONTINUE_POS)
             time.sleep(3)  # 暂停一段时间再操作
-            self.ctx.controller.click(enter_game_ui.EMPTY_POS)  # 领取需要分两个阶段 点击两次
+            self.ctx.controller.click(sr.const.CLICK_TO_CONTINUE_POS)  # 领取需要分两个阶段 点击两次
             time.sleep(1)  # 暂停一段时间再操作
             self.claim_express_supply = True
             return Operation.WAIT

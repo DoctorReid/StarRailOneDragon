@@ -5,6 +5,7 @@ import pyautogui
 import subprocess
 import time
 
+from basic import os_utils
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -34,6 +35,7 @@ class Context:
         self.controller: GameController = None
         self.running: int = 0  # 0-停止 1-运行 2-暂停
         self.press_event: dict = {}
+        self.start_callback: dict = {}
         self.pause_callback: dict = {}
         self.resume_callback: dict = {}
         self.stop_callback: dict = {}
@@ -62,40 +64,98 @@ class Context:
 
     def start_running(self) -> bool:
         if self.running != 0:
-            log.error('不处于停止状态 当前状态(%d) 启动失败', self.running)
+            log.error('请先结束其他运行中的功能 再启动', self.running)
+            return False
+
+        if not self.init_all(renew=True):
+            self.stop_running()
             return False
 
         self.running = 1
         self.controller.init()
+        self._after_start()
         return True
 
+    @property
+    def is_stop(self) -> bool:
+        return self.running == 0
+
+    @property
+    def is_running(self) -> bool:
+        return self.running == 1
+
+    @property
+    def is_pause(self) -> bool:
+        return self.running == 2
+
+    @property
+    def status_text(self) -> str:
+        if self.running == 0:
+            return gt('空闲', 'ui')
+        elif self.running == 1:
+            return gt('运行中', 'ui')
+        elif self.running == 2:
+            return gt('暂停中', 'ui')
+        else:
+            return 'unknow'
+
+    def _after_start(self):
+        for obj_id, callback in self.start_callback.items():
+            t = threading.Thread(target=callback)
+            t.start()
+
     def stop_running(self):
+        if self.running == 0:
+            return
         log.info('停止运行')  # 这里不能先判断 self.running == 0 就退出 因为有可能启动初始化就失败 这时候需要触发 after_stop 回调各方
         if self.running == 1:  # 先触发暂停 让执行中的指令停止
             self.switch()
         self.running = 0
-        t = threading.Thread(target=self.after_stop)
-        t.start()
+        self._after_stop()
 
-    def after_stop(self):
+    def _after_stop(self):
         for obj_id, callback in self.stop_callback.items():
-            callback()
+            t = threading.Thread(target=callback)
+            t.start()
 
-        log_all_performance()
+        if os_utils.is_debug():
+            log_all_performance()
 
     def switch(self):
         if self.running == 1:
             log.info('暂停运行')
             self.running = 2
-            callback_arr = self.pause_callback.copy()
-            for obj_id, callback in callback_arr.items():
-                callback()
+            self._after_pause()
         elif self.running == 2:
             log.info('恢复运行')
             self.running = 1
-            callback_arr = self.resume_callback.copy()
-            for obj_id, callback in callback_arr.items():
-                callback()
+            self._after_resume()
+
+    def _after_pause(self):
+        callback_arr = self.pause_callback.copy()
+        for obj_id, callback in callback_arr.items():
+            t = threading.Thread(target=callback)
+            t.start()
+
+    def _after_resume(self):
+        callback_arr = self.resume_callback.copy()
+        for obj_id, callback in callback_arr.items():
+            t = threading.Thread(target=callback)
+            t.start()
+
+    def register_status_changed_handler(self, obj,
+                                        after_start_callback=None,
+                                        after_pause_callback=None,
+                                        after_resume_callback=None,
+                                        after_stop_callback=None):
+        if after_start_callback is not None:
+            self.start_callback[id(obj)] = after_start_callback
+        if after_pause_callback is not None:
+            self.pause_callback[id(obj)] = after_pause_callback
+        if after_resume_callback is not None:
+            self.resume_callback[id(obj)] = after_resume_callback
+        if after_stop_callback is not None:
+            self.stop_callback[id(obj)] = after_stop_callback
 
     def register_pause(self, obj,
                        pause_callback,
@@ -107,10 +167,14 @@ class Context:
         self.stop_callback[id(obj)] = stop_callback
 
     def unregister(self, obj):
+        if id(obj) in self.start_callback:
+            del self.start_callback[id(obj)]
         if id(obj) in self.pause_callback:
             del self.pause_callback[id(obj)]
         if id(obj) in self.resume_callback:
             del self.resume_callback[id(obj)]
+        if id(obj) in self.stop_callback:
+            del self.stop_callback[id(obj)]
 
     def init_controller(self, renew: bool = False) -> bool:
         self.open_game_by_script = False
@@ -157,10 +221,13 @@ class Context:
         return True
 
     def init_all(self, renew: bool = False) -> bool:
+        log.info('加载工具中')
         result: bool = True
         result = result and self.init_image_matcher(renew)
         result = result and self.init_ocr_matcher(renew)
         result = result and self.init_controller(renew)
+        if result:
+            log.info('加载工具完毕')
         return result
 
     def mouse_position(self):

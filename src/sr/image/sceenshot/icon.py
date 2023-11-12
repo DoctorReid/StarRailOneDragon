@@ -373,3 +373,14 @@ def init_training_reward_gift(template_id: str = 'training_reward_gift'):
     save_template_image(origin, template_id, 'origin')
 
 
+def init_store_buy_num_ctrl(template_id: str):
+    """
+    商店购买时 调整数量的按钮
+    :param template_id:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id)
+    origin = cv2.cvtColor(raw, cv2.COLOR_BGRA2BGR)
+    save_template_image(origin, template_id, 'origin')
+
+

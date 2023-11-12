@@ -16,6 +16,11 @@ from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 
 class Email(Application):
 
+    """
+    收取邮件奖励 但不会删除邮件
+    2023-11-12 中英文最高画质测试通过
+    """
+
     CLAIM_ALL_RECT = Rect(390, 960, 520, 1000)  # 全部领取
 
     def __init__(self, ctx: Context):
@@ -23,7 +28,7 @@ class Email(Application):
 
         self.phase: int = 0
 
-    def init_before_execute(self):
+    def _init_before_execute(self):
         pass
 
     def _execute_one_round(self) -> int:
@@ -43,7 +48,7 @@ class Email(Application):
                 log.info('检测不到邮件红点 跳过')
                 return Operation.SUCCESS
             else:
-                self.ctx.controller.click(email_result.center())
+                self.ctx.controller.click(email_result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT

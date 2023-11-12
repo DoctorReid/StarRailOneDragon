@@ -32,7 +32,7 @@ class ClickPhoneMenuItem(Operation):
             time.sleep(0.5)
             return Operation.RETRY
         else:
-            r = self.ctx.controller.click(result.center())
+            r = self.ctx.controller.click(result.center)
             time.sleep(0.5)
             return Operation.SUCCESS if r else Operation.RETRY
 

@@ -20,9 +20,6 @@ class Assignments(Application):
         super().__init__(ctx, op_name=gt('委托', 'ui'))
         self.phase: int = 0
 
-    def init_app(self):
-        pass
-
     def _execute_one_round(self) -> int:
         if self.phase == 0:
             op = OpenPhoneMenu(self.ctx)
@@ -38,7 +35,7 @@ class Assignments(Application):
                 log.info('检测不到委托红点 跳过')
                 return Operation.SUCCESS
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT

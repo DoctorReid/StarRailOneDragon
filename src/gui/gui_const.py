@@ -1,5 +1,0 @@
-import flet as ft
-
-RAIL_BG_COLOR = '#FFFFFF'
-DIVIDER_COLOR = '#C3C7CF'
-PROGRESS_RING_COLOR = '#D7E3F7'

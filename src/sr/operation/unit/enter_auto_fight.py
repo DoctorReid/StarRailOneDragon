@@ -25,7 +25,7 @@ class EnterAutoFight(Operation):
         self.last_in_battle_time = 0  # 上次在战斗的时间
         self.with_battle: bool = False  # 是否有进入战斗
 
-    def init_before_execute(self):
+    def _init_before_execute(self):
         self.last_attack_time = time.time()
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_in_battle_time = time.time()  # 上次在战斗的时间

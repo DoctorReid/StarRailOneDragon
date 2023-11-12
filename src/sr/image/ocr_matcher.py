@@ -31,7 +31,7 @@ class OcrMatcher:
 
     def match_words(self, image: MatLike, words: List[str], threshold: float = None,
                     same_word: bool = False,
-                    ignore_case: bool = True, lcs_percent: float = -1, merge_line_distance: float = -1) -> dict:
+                    ignore_case: bool = True, lcs_percent: float = -1, merge_line_distance: float = -1) -> dict[str, MatchResultList]:
         """
         在图片中查找关键词 返回所有词对应的位置
         :param image: 图片

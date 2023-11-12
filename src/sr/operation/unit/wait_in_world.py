@@ -21,7 +21,7 @@ class WaitInWorld(Operation):
         self.timeout_seconds: float = float(wait)
         self.start_time = 0
 
-    def init_before_execute(self):
+    def _init_before_execute(self):
         self.start_time = time.time()
 
     def _execute_one_round(self) -> int:

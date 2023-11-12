@@ -39,10 +39,10 @@ msgid "F9 暂停"
 msgstr "F9 Pause"
 
 msgid "F9 继续"
-msgstr "Resume"
+msgstr "F9 Resume"
 
 msgid "F10 结束"
-msgstr "Stop"
+msgstr "F10 Stop"
 
 msgid "结束后关机"
 msgstr "Shutdown after Stop"

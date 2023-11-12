@@ -13,7 +13,6 @@ def _test_run_one_route():
     ctx.start_running()
     ctx.controller.init()
     app.first = False
-    app.init_app()
     app.run_one_route('P02_R03_R01')
 
 

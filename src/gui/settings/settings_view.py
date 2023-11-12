@@ -1,8 +1,8 @@
 import flet as ft
 
 from basic.i18_utils import gt
-from gui import gui_const
-from gui.settings import settings_basic_view
+from gui.settings import settings_basic_view, gui_config
+from gui.settings.gui_config import ThemeColors
 from sr.context import Context
 
 
@@ -12,8 +12,9 @@ class SettingsView:
         self.page = page
         self.ctx = ctx
 
+        theme: ThemeColors = gui_config.theme()
         self.rail_part = ft.NavigationRail(
-            bgcolor=gui_const.RAIL_BG_COLOR,
+            bgcolor=theme['component_bg'],
             selected_index=0,
             label_type=ft.NavigationRailLabelType.ALL,
             min_width=100,

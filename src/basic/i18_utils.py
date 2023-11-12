@@ -21,7 +21,7 @@ def get_translations(model: str, lang: str):
     return translation
 
 
-def gt(msg: str, model: str = 'ocr', lang: str = None):
+def gt(msg: str, model: str = 'ocr', lang: str = None) -> str:
     if lang is None:
         lang = _default_lang
     if model not in _gt:

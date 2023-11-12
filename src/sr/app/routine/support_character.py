@@ -16,11 +16,12 @@ class SupportCharacter(Application):
 
     """
     收取支援角色奖励
+    2023-11-12 中英文最高画质测试通过
     """
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('支援角色奖励', 'ui'))
-        self.phase: int = 3
+        self.phase: int = 0
 
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单
@@ -37,7 +38,7 @@ class SupportCharacter(Application):
                 log.info('检测不到省略号红点 跳过')
                 return Operation.SUCCESS
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
@@ -48,7 +49,7 @@ class SupportCharacter(Application):
                 log.info('检测不到漫游签证红点 跳过')
                 return Operation.SUCCESS
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
@@ -59,7 +60,7 @@ class SupportCharacter(Application):
                 log.info('检测不到支援角色红点 跳过')
                 return Operation.SUCCESS
             else:
-                self.ctx.controller.click(result.center() + phone_menu.SUPPORT_CHARACTER_PART.left_top())
+                self.ctx.controller.click(result.center + phone_menu.SUPPORT_CHARACTER_PART.left_top)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT

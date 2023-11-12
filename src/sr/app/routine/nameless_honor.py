@@ -42,7 +42,7 @@ class ClaimNamelessHonor(Application):
                 log.info('检测不到无名勋礼红点 跳过')
                 return Operation.SUCCESS
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
@@ -54,7 +54,7 @@ class ClaimNamelessHonor(Application):
                 self.phase = 3  # 跳转到在tab1领取奖励
                 return Operation.WAIT
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
@@ -65,7 +65,7 @@ class ClaimNamelessHonor(Application):
                 log.info('检测不到【一键领取】 跳过')
                 return Operation.SUCCESS
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
@@ -76,7 +76,7 @@ class ClaimNamelessHonor(Application):
                 log.info('检测不到奖励图标 跳过')
                 return Operation.FAIL
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
@@ -88,7 +88,7 @@ class ClaimNamelessHonor(Application):
                 self.phase += 1
                 return Operation.WAIT
             else:
-                self.ctx.controller.click(result.center())  # 点击后如果出现要选择的 就先退出 以后再加入选择配置
+                self.ctx.controller.click(result.center)  # 点击后如果出现要选择的 就先退出 以后再加入选择配置
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT

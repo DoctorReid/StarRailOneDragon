@@ -34,7 +34,7 @@ class ClaimTraining(Application):
                 log.info('检测不到【指南红点】跳过')
                 return Operation.SUCCESS
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
@@ -46,7 +46,7 @@ class ClaimTraining(Application):
                 self.phase += 1
                 return Operation.WAIT
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 time.sleep(3)
                 return Operation.WAIT
         elif self.phase == 3:  # 检测领取奖励
@@ -57,7 +57,7 @@ class ClaimTraining(Application):
                 self.phase += 1
                 return Operation.WAIT
             else:
-                self.ctx.controller.click(result.center())
+                self.ctx.controller.click(result.center)
                 time.sleep(1)
                 return Operation.WAIT
         elif self.phase == 4:  # 返回菜单

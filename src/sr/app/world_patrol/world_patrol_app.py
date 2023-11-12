@@ -30,7 +30,7 @@ class WorldPatrol(Application):
         self.ignore_record: bool = ignore_record
         self.current_route_start_time = time.time()  # 当前路线开始时间
 
-    def init_app(self):
+    def _init_before_execute(self):
         if not self.ignore_record:
             try:
                 sr = game_config.get().server_region

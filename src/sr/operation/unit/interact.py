@@ -8,19 +8,23 @@ from basic import Point, Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
+from sr import const
 from sr.context import Context
+from sr.control import GameController
 from sr.operation import Operation
+
+
+INTERACT_RECT = Rect(900, 400, 1760, 870)
 
 
 class Interact(Operation):
     """
-    点击交互
+    移动场景的交互 即跟人物、点位交互
     """
 
-    rect = Rect(900, 400, 1450, 870)
     TRY_INTERACT_MOVE = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
 
-    def __init__(self, ctx: Context, cn: str, wait: int):
+    def __init__(self, ctx: Context, cn: str, wait: int = 0):
         """
         :param ctx:
         :param cn: 需要交互的中文
@@ -45,7 +49,8 @@ class Interact(Operation):
         u = 255
         lower_color = np.array([l, l, l], dtype=np.uint8)
         upper_color = np.array([u, u, u], dtype=np.uint8)
-        white_part = cv2.inRange(cv2_utils.crop_image(screen, Interact.rect)[0], lower_color, upper_color)  # 提取白色部分方便匹配
+        part, _ = cv2_utils.crop_image(screen, INTERACT_RECT)
+        white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
         # cv2_utils.show_image(white_part, wait=0)
 
         ocr_result = self.ctx.ocr.match_words(white_part, words=[self.cn])
@@ -55,8 +60,57 @@ class Interact(Operation):
             return Operation.RETRY
         else:
             for r in ocr_result.values():
-                if self.ctx.controller.interact(Point(r.max.cx, r.max.cy), self.wait):
+                if self.ctx.controller.interact(Point(r.max.cx, r.max.cy),
+                                                GameController.MOVE_INTERACT_TYPE,
+                                                self.wait):
                     log.info('交互成功 %s', gt(self.cn))
+                    return Operation.SUCCESS
+
+        return Operation.RETRY
+
+
+class TalkInteract(Operation):
+
+    """
+    交谈过程中的交互
+    """
+
+    def __init__(self, ctx: Context, option: str,
+                 lcs_percent: float = -1,
+                 conversation_seconds: int = 10):
+        """
+
+        :param ctx:
+        :param option: 交谈中选择的选项
+        :param lcs_percent: 使用LCS匹配的阈值
+        :param conversation_seconds: 交谈最多持续的描述
+        """
+
+        super().__init__(ctx, try_times=conversation_seconds,
+                         op_name=gt('交谈', 'ui') + ' ' + gt(option, 'ocr'))
+
+        self.option: str = option
+        self.lcs_percent: float = lcs_percent
+
+    def _execute_one_round(self) -> int:
+        screen: MatLike = self.screenshot()
+        lower_color = np.array([200, 200, 200], dtype=np.uint8)
+        upper_color = np.array([255, 255, 255], dtype=np.uint8)
+        part, _ = cv2_utils.crop_image(screen, INTERACT_RECT)
+        white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
+        # cv2_utils.show_image(white_part, wait=0)
+
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.option], lcs_percent=self.lcs_percent)
+
+        if len(ocr_result) == 0:  # 目前没有交互按钮 尝试挪动触发交互
+            self.ctx.controller.click(const.CLICK_TO_CONTINUE_POS)
+            time.sleep(1)
+            return Operation.RETRY
+        else:
+            for r in ocr_result.values():
+                to_click: Point = r.max.center + INTERACT_RECT.left_top
+                if self.ctx.controller.interact(to_click, GameController.TALK_INTERACT_TYPE):
+                    log.info('交互成功 %s', gt(self.option))
                     return Operation.SUCCESS
 
         return Operation.RETRY

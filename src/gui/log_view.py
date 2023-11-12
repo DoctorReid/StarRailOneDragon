@@ -4,6 +4,8 @@ import flet as ft
 
 from basic import os_utils
 from basic.log_utils import log
+from gui import components
+from sr.context import Context
 
 
 class GuiHandler(logging.Handler):
@@ -17,14 +19,30 @@ class GuiHandler(logging.Handler):
         if self.list_view.page is not None:
             msg = self.format(record)
             self.list_view.controls.append(ft.Text(msg, size=10))
-            if len(self.list_view.controls) > 1000:  # 日志限制条数
+            if len(self.list_view.controls) > 100:  # 日志限制条数
                 self.list_view.controls.pop(0)
             self.list_view.update()
 
 
-def get(sp: ft.Page):
-    log_list = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
-    log.addHandler(GuiHandler(sp, list_view=log_list))
+class LogView(components.Card):
 
-    log_view = ft.Container(padding=5, content=log_list)
+    def __init__(self, page: ft.Page, ctx: Context):
+        self.page: ft.Page = page
+        self.ctx: Context = ctx
+
+        log_list = ft.ListView(spacing=10, auto_scroll=True)
+        log.addHandler(GuiHandler(page, list_view=log_list))
+
+        title = components.CardTitleText('日志记录')
+
+        super().__init__(log_list, title=title, width=300)
+
+
+log_view: LogView = None
+
+
+def get(page: ft.Page, ctx: Context) -> LogView:
+    global log_view
+    if log_view is None:
+        log_view = LogView(page, ctx)
     return log_view

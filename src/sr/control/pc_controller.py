@@ -159,14 +159,19 @@ class PcController(GameController):
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
-    def interact(self, pos: Point, wait: int = 0) -> bool:
+    def interact(self, pos: Point, interact_type: int = 0,
+                 wait: int = 0) -> bool:
         """
         交互
         :param pos: 如果是模拟器的话 需要传入交互内容的坐标
+        :param interact_type: 交互类型
         :param wait: 交互成功后等待秒数
         :return:
         """
-        pyautogui.press(self.f)
+        if interact_type == GameController.MOVE_INTERACT_TYPE:
+            pyautogui.press(self.f)
+        else:
+            self.click(pos)
         if wait > 0:
             time.sleep(wait)
         return True

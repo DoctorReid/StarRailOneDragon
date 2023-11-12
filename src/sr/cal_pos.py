@@ -10,7 +10,6 @@ import basic.cal_utils
 from basic import cal_utils, Rect, Point
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
-from sr import const
 from sr.const import map_const
 from sr.image import ImageMatcher
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map
@@ -44,6 +43,8 @@ def cal_character_pos(im: ImageMatcher,
     if mm_info.sp_result is not None and len(mm_info.sp_result) > 0:  # 有特殊点的时候 使用特殊点倒推位置
         r1 = cal_character_pos_by_sp_result(lm_info, mm_info, lm_rect=lm_rect, show=show)
         result = r1
+        if result is not None and (result.template_scale > 1.3 or result.template_scale < 0.9):  # 不应该有这样的缩放 放弃这个结果
+            result = None
         # 倒推位置失败 说明大地图附近有多个相同类型的特殊点 这时候使用特征匹配也没用了
         # 只有极少部分情况需要使用特征匹配 所以不需要 mini_map.analyse_mini_map 中对所有情况都分析特征点
         # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map

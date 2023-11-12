@@ -55,7 +55,7 @@ class MoveDirectly(Operation):
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
 
-    def init_before_execute(self):
+    def _init_before_execute(self):
         self.last_battle_time = time.time()
 
     def _execute_one_round(self) -> bool:
@@ -110,7 +110,10 @@ class MoveDirectly(Operation):
         lx, ly = last_pos.x, last_pos.y
         move_distance = 0
         if self.last_rec_time > 0:
-            move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - self.last_rec_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
+            move_time = now_time - self.last_rec_time
+            if move_time < 1:
+                move_time = 1
+            move_distance = self.ctx.controller.cal_move_distance_by_time(move_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
         possible_pos = (lx, ly, move_distance)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 

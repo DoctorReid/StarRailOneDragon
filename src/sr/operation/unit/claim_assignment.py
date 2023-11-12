@@ -19,6 +19,8 @@ class ClaimAssignment(Operation):
     1. 检测当前是否有【领取】按钮，有的话就点击
     2. 检测当前是否有【再次派遣】按钮，有的话就点击
     3. 都没有的情况就在上方找红点，看哪里有可以领取的
+
+    2023-11-12 中英文最高画质测试完毕
     """
 
     CATEGORY_RECT = Rect(320, 190, 1200, 280)  # 上方类目
@@ -83,7 +85,7 @@ class ClaimAssignment(Operation):
         result_list: MatchResultList = self.ctx.im.match_template(category_part, 'ui_alert')
 
         if len(result_list) > 0:  # 有红点
-            self.ctx.controller.click(ClaimAssignment.CATEGORY_RECT.left_top() + result_list.max.center())
+            self.ctx.controller.click(ClaimAssignment.CATEGORY_RECT.left_top + result_list.max.center)
             log.info('检测到【红点】 点击')
             time.sleep(1)
             return True

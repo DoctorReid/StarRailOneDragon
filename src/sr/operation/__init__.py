@@ -31,7 +31,7 @@ class Operation:
         self.last_screenshot: MatLike = None
         self.gc: GameConfig = game_config.get()
 
-    def init_before_execute(self):
+    def _init_before_execute(self):
         """
         执行前的初始化
         """
@@ -41,7 +41,7 @@ class Operation:
         """
         循环执系列动作直到完成为止
         """
-        self.init_before_execute()
+        self._init_before_execute()
         result: bool = False
         while self.op_round < self.try_times:
             if self.ctx.running == 0:
