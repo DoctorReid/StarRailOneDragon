@@ -727,3 +727,15 @@ msgstr "Claim"
 msgid "再次派遣"
 msgstr "Dispatch Again"
 
+# Xianzhou Parcel
+msgid "茂贞"
+msgstr "Maozhen"
+
+msgid "我想买个过期邮包试试手气"
+msgstr "I'd like to buy an abandoned parcel to try my luck"
+
+msgid "逾期未取的贵重邮包"
+msgstr "Unclaimed Valuable Parcel"
+
+msgid "确认"
+msgstr "Confirm"
