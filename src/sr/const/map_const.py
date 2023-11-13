@@ -219,9 +219,9 @@ P01_R01_SP05 = TransportPoint('TKDT', '太空电梯', P01_R01, 'mm_sp_02', (562,
 P01_R01_SP06 = TransportPoint('NGZY', '内购专员', P01_R01, 'mm_sp_04', (535, 628))
 
 # 空间站黑塔 - 基座舱段
-P01_R02_SP01 = TransportPoint('JKS', '监控室', P01_R02, 'mm_tp_03', (635, 143))
-P01_R02_SP02 = TransportPoint('JDZX', '接待中心', P01_R02, 'mm_tp_03', (493, 500))
-P01_R02_SP03 = TransportPoint('KHZX', '空海之形', P01_R02, 'mm_tp_06', (540, 938))
+P01_R02_SP01 = TransportPoint('JKS', '监控室', P01_R02, 'mm_tp_03', (635, 143), (642, 133))
+P01_R02_SP02 = TransportPoint('JDZX', '接待中心', P01_R02, 'mm_tp_03', (493, 500), (503, 496))
+P01_R02_SP03 = TransportPoint('KHZX', '空海之形', P01_R02, 'mm_tp_06', (540, 938), (554, 923))
 P01_R02_SP04 = TransportPoint('TKDT', '太空电梯', P01_R02, 'mm_sp_02', (556, 986))
 
 # 空间站黑塔 - 收容舱段

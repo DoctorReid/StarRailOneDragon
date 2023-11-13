@@ -15,7 +15,8 @@ from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map, large_map, LargeMapInfo
 
 all_tp_list: List[TransportPoint] = [
-    map_const.P01_R01_SP01, map_const.P01_R01_SP02, map_const.P01_R01_SP03
+    map_const.P01_R01_SP01, map_const.P01_R01_SP02, map_const.P01_R01_SP03,
+    map_const.P01_R02_SP01, map_const.P01_R02_SP02, map_const.P01_R02_SP03,
 ]
 
 
@@ -41,10 +42,11 @@ def cal_one(tp: TransportPoint, debug_image: str = None, show: bool = False):
     result = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=False)
 
     log.info('%s 传送落地坐标 %s', tp.display_name, result)
+    cv2.waitKey(0)
 
 
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
 
-    cal_one(map_const.P01_R01_SP03, debug_image='_1699539580504', show=True)
+    cal_one(map_const.P01_R02_SP03, debug_image='_1699889179994', show=True)
