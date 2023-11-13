@@ -2,6 +2,8 @@ import schedule
 import time
 import threading
 
+from basic.log_utils import log
+
 
 def start():
     t = threading.Thread(target=_run_schedule)
@@ -20,5 +22,8 @@ def cancel_with_tag(tag: str):
 
 def _run_schedule():
     while True:
-        schedule.run_pending()
+        try:
+            schedule.run_pending()
+        except Exception:
+            log.error('定时任务出错', exc_info=True)
         time.sleep(1)

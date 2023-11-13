@@ -18,7 +18,7 @@
 - 模拟宇宙 ```搁置```
 - 日常 ```进行中```
 
-![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/draw_route.png)
+![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/app.png)
 
 [当前进度](https://github.com/DoctorReid/StarRailProxy/milestone/4)
 

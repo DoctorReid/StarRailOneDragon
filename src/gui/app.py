@@ -23,7 +23,7 @@ class StarRailAutoProxy:
         page.padding = 0
 
         theme: ThemeColors = gui_config.theme()
-        self.display_part = ft.Container(content=one_stop_view.get(page, ctx), padding=10)
+        self.display_part = ft.Container(content=one_stop_view.get(ctx), padding=10)
 
         self.app_rail = ft.NavigationRail(
             bgcolor=theme['component_bg'],
@@ -140,7 +140,7 @@ class StarRailAutoProxy:
 
     def _get_view_component(self):
         if self.app_rail.selected_index == 0:
-            return one_stop_view.get(self.page, self.ctx)
+            return one_stop_view.get(self.ctx)
         elif self.app_rail.selected_index == 1:
             if self.world_patrol_rail.selected_index == 0:
                 return world_patrol_run_view.get(self.page, self.ctx)
@@ -171,7 +171,7 @@ class StarRailAutoProxy:
             return
         t = None
         if self.app_rail.selected_index == 0:
-            t = threading.Thread(target=one_stop_view.get(self.page, self.ctx).on_click_start, args=[None])
+            t = threading.Thread(target=one_stop_view.get(self.ctx).on_click_start, args=[None])
         elif self.app_rail.selected_index == 1:
             if self.world_patrol_rail.selected_index == 0:
                 t = threading.Thread(target=world_patrol_run_view.get(self.page, self.ctx).start, args=[None])

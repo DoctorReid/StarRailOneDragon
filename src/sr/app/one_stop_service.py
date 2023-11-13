@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from basic.i18_utils import gt
-from sr.app import Application, app_const, AppRunRecord, world_patrol
+from sr.app import Application, app_const, AppRunRecord, world_patrol, app_record_current_dt_str
 from sr.app.app_const import AppDescription
 from sr.app.routine import assignments, email, support_character, nameless_honor, claim_training, buy_parcel
 from sr.app.routine.assignments import Assignments
@@ -44,7 +44,7 @@ class OneStopServiceConfig(ConfigHolder):
 one_stop_service_config: OneStopServiceConfig = None
 
 
-def get_config():
+def get_config() -> OneStopServiceConfig:
     global one_stop_service_config
     if one_stop_service_config is None:
         one_stop_service_config = OneStopServiceConfig()
@@ -53,9 +53,14 @@ def get_config():
 
 class OneStopService(Application):
 
-    def __init__(self, ctx: Context, app_list: List[AppDescription]):
+    def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('一条龙', 'ui'))
-        self.app_list: List[AppDescription] = app_list
+        self.app_list: List[AppDescription] = []
+        for app_id in get_config().order_app_id_list:
+            record = get_app_run_record_by_id(app_id)
+            if record.run_status_under_now != AppRunRecord.STATUS_SUCCESS:
+                self.app_list.append(app_const.get_app_desc_by_id(app_id))
+
         self.app_idx: int = 0
 
     def _init_before_execute(self):

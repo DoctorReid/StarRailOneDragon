@@ -134,6 +134,7 @@ class AppList(ft.ListView):
         self.app_id_list[target_idx - 1] = self.app_id_list[target_idx]
         self.app_id_list[target_idx] = temp
         one_stop_service.get_config().order_app_id_list = self.app_id_list
+        self.update()
 
     def _on_item_click_down(self, e):
         app_id: str = e.control.data
@@ -154,6 +155,7 @@ class AppList(ft.ListView):
         self.app_id_list[target_idx + 1] = self.app_id_list[target_idx]
         self.app_id_list[target_idx] = temp
         one_stop_service.get_config().order_app_id_list = self.app_id_list
+        self.update()
 
     def _on_item_click_settings(self, e):
         pass
@@ -167,8 +169,7 @@ class AppList(ft.ListView):
 
 class OneStopView(ft.Row):
 
-    def __init__(self, page: ft.Page, ctx: Context):
-        self.page: ft.Page = page
+    def __init__(self, ctx: Context):
         self.ctx: Context = ctx
         theme: ThemeColors = gui_config.theme()
 
@@ -284,7 +285,7 @@ class OneStopView(ft.Row):
             return
         self.start_btn.disabled = True
         self.update()
-        self.running_app = OneStopService(self.ctx, app_const.ROUTINE_APP_LIST)
+        self.running_app = OneStopService(self.ctx)
 
         t = threading.Thread(target=self.running_app.execute)
         t.start()
@@ -345,14 +346,15 @@ class OneStopView(ft.Row):
             self.next_job.update_value(self.running_app.next_execution_desc)
 
     def _update_app_list_status(self):
-        self.app_list.update_all_app_status()
+        if self.page is not None:
+            self.app_list.update_all_app_status()
 
 
 osv: OneStopView = None
 
 
-def get(page: ft.Page, ctx: Context):
+def get(ctx: Context):
     global osv
     if osv is None:
-        osv = OneStopView(page, ctx)
+        osv = OneStopView(ctx)
     return osv
