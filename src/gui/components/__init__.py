@@ -35,12 +35,12 @@ class CardTitleText(ft.Text):
 
 
 class Card(ft.Container):
-    def __init__(self, content, title=None, width: int = 500):
+    def __init__(self, content, title=None, width: int = 500, height: int = None):
         theme: ThemeColors = gui_config.theme()
         if title is not None:
             title_container = ft.Container(content=title, width=width, border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])))
-            content_container = ft.Container(content=content, width=width, margin=ft.margin.only(top=5))
-            final_content = ft.Column(controls=[title_container, content_container], spacing=0)
+            content_container = ft.Container(content=content, width=width, margin=ft.margin.only(top=5), expand=1)
+            final_content = ft.Column(controls=[title_container, content_container], spacing=0, height=height)  # 如果一个Column里还要放Column 那外层需要固定高度
         else:
             final_content = content
         super().__init__(content=final_content,

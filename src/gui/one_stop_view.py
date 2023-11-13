@@ -123,7 +123,7 @@ class OneStopView(ft.Row):
         hall_row = ft.Row(controls=[self.hall])
 
         character_info_title = ft.Row(controls=[components.CardTitleText('游戏角色状态(占坑 假的)')])
-        character_info_content = ft.Column(controls=[
+        character_info_content = ft.ListView(controls=[
                 self.update_time,
                 power_row,
                 assignment_row_1,
@@ -131,8 +131,8 @@ class OneStopView(ft.Row):
                 training_row,
                 sim_row,
                 hall_row
-            ], expand=True)
-        character_info_card = components.Card(character_info_content, title=character_info_title, width=info_card_width)
+            ], auto_scroll=True)
+        character_info_card = components.Card(character_info_content, title=character_info_title, width=info_card_width, height=250)
 
         self.running_ring = ft.ProgressRing(width=20, height=20, color=ft.colors.BLUE_300, visible=False)
         status_title_row = ft.Row(controls=[
@@ -154,11 +154,11 @@ class OneStopView(ft.Row):
         ctrl_btn_row = ft.Row(controls=[self.start_btn, self.pause_btn, self.resume_btn, self.stop_btn],
                               alignment=ft.MainAxisAlignment.CENTER)
 
-        status_content = ft.Column(controls=[status_content_row, shutdown_row, ctrl_btn_row])
+        status_content = ft.Column(controls=[status_content_row, shutdown_row, ctrl_btn_row], auto_scroll=True)
 
-        status_card = components.Card(status_content, title=status_title_row, width=info_card_width)
+        status_card = components.Card(status_content, title=status_title_row, width=info_card_width, height=150)
 
-        left_part = ft.Container(content=ft.Column(controls=[character_info_card, status_card], spacing=10))
+        left_part = ft.Container(ft.Column(controls=[character_info_card, status_card], spacing=10))
 
         self.app_list = AppList(run_app_callback=self.run_app)
 
