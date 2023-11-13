@@ -371,7 +371,7 @@ def with_enemy_in_main_road(mm: MatLike):
 
 
 def get_mini_map_scale_list(running: bool):
-    return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05, 1.10, 1.15]
+    return [1.25, 1.20, 1.15, 1.10, 1.05, 1] if running else [1, 1.05, 1.10, 1.15, 1.20, 1.25]
 
 
 @record_performance
