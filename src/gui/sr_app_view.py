@@ -7,11 +7,11 @@ from sentry_sdk.integrations import threading
 from basic import win_utils, os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
-from gui import snack_bar
+from gui import snack_bar, components
 from sr.context import Context
 
 
-class SrAppView:
+class SrAppView(components.Card):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
@@ -41,12 +41,14 @@ class SrAppView:
         ], horizontal_alignment=CrossAxisAlignment.CENTER)
 
         self.diy_part = ft.Container(expand=True)
-        self.component = ft.Column(
+        content = ft.Column(
             spacing=5, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
             controls=[
                 self.diy_part,
                 ft.Container(content=progress_col, expand=True, alignment=ft.alignment.bottom_center),
             ])
+
+        super().__init__(content)
 
     def start(self, e):
         if self.ctx.running != 0:

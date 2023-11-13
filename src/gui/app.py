@@ -5,9 +5,9 @@ import keyboard
 
 from basic.i18_utils import gt, update_default_lang
 from gui import log_view, calibrator_view, version, routine_view, one_stop_view, scheduler
-from gui.settings import settings_view, gui_config
+from gui.settings import gui_config, settings_basic_view
 from gui.settings.gui_config import ThemeColors
-from gui.world_patrol import world_patrol_view
+from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.context import get_context, Context
@@ -25,7 +25,7 @@ class StarRailAutoProxy:
         theme: ThemeColors = gui_config.theme()
         self.display_part = ft.Container(content=one_stop_view.get(page, ctx), padding=10)
 
-        self.rail_part = ft.NavigationRail(
+        self.app_rail = ft.NavigationRail(
             bgcolor=theme['component_bg'],
             selected_index=0,
             label_type=ft.NavigationRailLabelType.ALL,
@@ -61,10 +61,57 @@ class StarRailAutoProxy:
             on_change=self.on_rail_chosen
         )
 
+        self.world_patrol_rail = ft.NavigationRail(
+            bgcolor=theme['component_bg'],
+            selected_index=0,
+            label_type=ft.NavigationRailLabelType.ALL,
+            min_width=100,
+            min_extended_width=400,
+            destinations=[
+                ft.NavigationRailDestination(
+                    icon=ft.icons.PLAY_CIRCLE_OUTLINED,
+                    selected_icon=ft.icons.PLAY_CIRCLE_ROUNDED,
+                    label=gt('运行', model='ui')
+                ),
+                ft.NavigationRailDestination(
+                    icon=ft.icons.DRAW_OUTLINED,
+                    selected_icon=ft.icons.DRAW,
+                    label=gt('路线绘制', model='ui')
+                ),
+                ft.NavigationRailDestination(
+                    icon=ft.icons.PLAYLIST_ADD_CHECK_OUTLINED,
+                    selected_icon=ft.icons.PLAYLIST_ADD_CHECK_CIRCLE_ROUNDED,
+                    label=gt('白名单编辑', model='ui')
+                ),
+            ],
+            on_change=self.on_rail_chosen
+        )
+
+        self.settings_rail = ft.NavigationRail(
+            bgcolor=theme['component_bg'],
+            selected_index=0,
+            label_type=ft.NavigationRailLabelType.ALL,
+            min_width=100,
+            min_extended_width=400,
+            destinations=[
+                ft.NavigationRailDestination(
+                    icon=ft.icons.SETTINGS_INPUT_COMPONENT_OUTLINED,
+                    selected_icon=ft.icons.SETTINGS_INPUT_COMPONENT_ROUNDED,
+                    label=gt('基础', model='ui')
+                ),
+            ],
+            on_change=self.on_rail_chosen
+        )
+
+        self.secondary_rail = ft.Container()
+        self.secondary_rail_divider = ft.VerticalDivider(width=1, visible=False)
+
         page.bgcolor = theme['window_bg']
         page.add(ft.Row([
-            self.rail_part,
+            self.app_rail,
             ft.VerticalDivider(width=1),
+            self.secondary_rail,
+            self.secondary_rail_divider,
             self.display_part,
             ft.Container(content=log_view.get(page, ctx), padding=10)
         ], expand=True, spacing=0))
@@ -72,19 +119,44 @@ class StarRailAutoProxy:
         keyboard.on_press(self.on_key_press)
 
     def on_rail_chosen(self, e):
-        if self.rail_part.selected_index == 0:
-            self.display_part.content = one_stop_view.get(self.page, self.ctx)
-        elif self.rail_part.selected_index == 1:
-            self.display_part.content = world_patrol_view.get(self.page, self.ctx).component
-        elif self.rail_part.selected_index == 2:
-            self.display_part.content = routine_view.get(self.page, self.ctx).component
-        elif self.rail_part.selected_index == 3:
-            self.display_part.content = calibrator_view.get(self.page, self.ctx).component
-        elif self.rail_part.selected_index == 4:
-            self.display_part.content = settings_view.get(self.page, self.ctx).component
-        else:
-            self.display_part.content = None
+        self.display_part.content = self._get_view_component()
+        self.secondary_rail.content = self._get_secondary_rail()
+        self.secondary_rail_divider.visible = self.secondary_rail.content is not None
         self.page.update()
+
+    def _get_secondary_rail(self):
+        if self.app_rail.selected_index == 0:
+            return None
+        elif self.app_rail.selected_index == 1:
+            return self.world_patrol_rail
+        elif self.app_rail.selected_index == 2:
+            return None
+        elif self.app_rail.selected_index == 3:
+            return None
+        elif self.app_rail.selected_index == 4:
+            return self.settings_rail
+        else:
+            return None
+
+    def _get_view_component(self):
+        if self.app_rail.selected_index == 0:
+            return one_stop_view.get(self.page, self.ctx)
+        elif self.app_rail.selected_index == 1:
+            if self.world_patrol_rail.selected_index == 0:
+                return world_patrol_run_view.get(self.page, self.ctx)
+            if self.world_patrol_rail.selected_index == 1:
+                return world_patrol_draft_route_view.get(self.page, self.ctx)
+            if self.world_patrol_rail.selected_index == 2:
+                return world_patrol_whitelist_view.get(self.page, self.ctx)
+        elif self.app_rail.selected_index == 2:
+            return routine_view.get(self.page, self.ctx)
+        elif self.app_rail.selected_index == 3:
+            return calibrator_view.get(self.page, self.ctx)
+        elif self.app_rail.selected_index == 4:
+            if self.settings_rail.selected_index == 0:
+                return settings_basic_view.get(self.page, self.ctx)
+
+        return None
 
     def on_key_press(self, event):
         """
@@ -98,11 +170,11 @@ class StarRailAutoProxy:
         if self.ctx.running != 0:
             return
         t = None
-        if self.rail_part.selected_index == 0:
+        if self.app_rail.selected_index == 0:
             t = threading.Thread(target=one_stop_view.get(self.page, self.ctx).on_click_start, args=[None])
-        elif self.rail_part.selected_index == 1:
+        elif self.app_rail.selected_index == 1:
             t = threading.Thread(target=world_patrol_view.get(self.page, self.ctx).start, args=[None])
-        elif self.rail_part.selected_index == 3:
+        elif self.app_rail.selected_index == 3:
             t = threading.Thread(target=calibrator_view.get(self.page, self.ctx).start, args=[None])
         if t is not None:
             t.start()

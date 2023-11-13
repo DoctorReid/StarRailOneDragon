@@ -11,7 +11,7 @@ from flet_core import ScrollMode
 import sr.const.operation_const
 from basic import os_utils
 from basic.log_utils import log
-from gui import snack_bar
+from gui import snack_bar, components
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolRoute, WorldPatrolWhitelist, load_all_route_id
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.const import map_const, operation_const
@@ -20,7 +20,7 @@ from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_R
 from sr.context import Context
 
 
-class WorldPatrolDraftRouteView:
+class WorldPatrolDraftRouteView(components.Card):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
@@ -112,13 +112,14 @@ class WorldPatrolDraftRouteView:
         )
         self.route_text = ft.TextField(label="路线配置", multiline=True, min_lines=10, max_lines=100, on_blur=self.on_route_text_blur)
 
-        self.component = ft.Row(
+        content = ft.Row(
             controls=[
                 ft.Container(content=display_part),
                 ft.VerticalDivider(width=1),
                 ft.Container(content=self.route_text, alignment=ft.alignment.top_center),
             ]
         )
+        super().__init__(content)
 
         self.author_list: List[str] = [self.author_text.value]
         self.route_list: List = []

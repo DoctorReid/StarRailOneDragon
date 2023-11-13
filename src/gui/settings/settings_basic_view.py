@@ -4,14 +4,14 @@ from flet_core import CrossAxisAlignment
 from basic import i18_utils, os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
-from gui import version, snack_bar
+from gui import version, snack_bar, components
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.context import Context
 
 
-class SettingsView:
+class SettingsView(components.Card):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
@@ -72,7 +72,7 @@ class SettingsView:
             self.pre_release_switch
         ], spacing=5)
 
-        self.component = ft.Column(
+        content = ft.Column(
             spacing=20, horizontal_alignment=CrossAxisAlignment.CENTER, expand=True,
             controls=[
                 ft.Container(content=basic_settings_row, padding=5),
@@ -81,6 +81,8 @@ class SettingsView:
                 ft.Container(content=proxy_host_row, padding=5),
                 ft.Container(content=update_btn_row, padding=5),
             ])
+
+        super().__init__(content)
 
         self.init_with_config()
 

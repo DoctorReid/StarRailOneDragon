@@ -1,6 +1,7 @@
 import flet as ft
 
 from basic.i18_utils import gt
+from gui import components
 from sr.app.routine.assignments import Assignments
 from sr.app.routine.email import Email
 from sr.app.routine.nameless_honor import ClaimNamelessHonor
@@ -8,7 +9,7 @@ from sr.app.routine.support_character import SupportCharacter
 from sr.context import Context
 
 
-class RoutineView:
+class RoutineView(components.Card):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
@@ -30,12 +31,13 @@ class RoutineView:
         weekly_row = ft.Row(controls=[
         ])
 
-        self.component = ft.Column(controls=[
+        content = ft.Column(controls=[
             daily_text,
             daily_row,
             ft.Divider(),
             weekly_text
         ])
+        super().__init__(content)
 
     def run_assignment(self, e):
         app = Assignments(self.ctx)
