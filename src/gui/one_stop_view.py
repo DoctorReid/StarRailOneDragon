@@ -64,7 +64,7 @@ class AppListItem(ft.Row):
         self.run_status_running_icon = ft.Icon(name=ft.icons.ACCESS_TIME_FILLED, size=12, visible=False)
         self.run_status_success_icon = ft.Icon(name=ft.icons.CHECK_CIRCLE, size=12, color=theme['success_icon_color'], visible=False)
         self.run_status_fail_icon = ft.Icon(name=ft.icons.REMOVE_CIRCLE, size=12, color=theme['fail_icon_color'], visible=False)
-        status_row = ft.Row(controls=[self.run_status_success_icon, self.run_status_fail_icon, self.run_status_text], spacing=1,
+        status_row = ft.Row(controls=[self.run_status_running_icon, self.run_status_success_icon, self.run_status_fail_icon, self.run_status_text], spacing=1,
                             vertical_alignment=ft.CrossAxisAlignment.CENTER)
         text_col = ft.Column(controls=[
             ft.Container(content=ft.Text(title, weight=value_font_weight, size=18)),

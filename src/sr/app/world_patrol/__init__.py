@@ -6,9 +6,9 @@ import numpy as np
 from basic import os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import app_record_now_time_str, app_record_current_dt_str, AppRunRecord
-from sr.config import ConfigHolder, game_config
-from sr.const import map_const, game_config_const
+from sr.app import app_record_now_time_str, app_record_current_dt_str, AppRunRecord, app_const
+from sr.config import ConfigHolder
+from sr.const import map_const
 from sr.const.map_const import Planet, Region, TransportPoint, PLANET_2_REGION, REGION_2_SP, PLANET_LIST
 
 
@@ -118,24 +118,18 @@ class WorldPatrolWhitelist(ConfigHolder):
         return self.type in ['white', 'black'] and len(self.list) > 0
 
 
-class WorldPatrolRecord(ConfigHolder, AppRunRecord):
+class WorldPatrolRecord(AppRunRecord):
 
     def __init__(self, ):
         self.current_dt: str = app_record_current_dt_str()
         self.finished: List[str] = []
         self.time_cost: dict[str, List] = {}
-        AppRunRecord.__init__(self, self.current_dt, '-', 0)
-        ConfigHolder.__init__(self, 'world_patrol', sample=False, sub_dir=['app_run_record'])
+        super().__init__(app_const.WORLD_PATROL['id'])
 
     def _init_after_read_file(self):
-        if len(self.data) > 0:
-            self.dt = self.data['dt']
-            self.run_time = self.data['run_time']
-            self.run_status = self.data['run_status']
-            self.finished = self.data['finished']
-            self.time_cost = self.data['time_cost']
-        else:
-            self._reset_for_new_dt()
+        super()._init_after_read_file()
+        self.finished = self.get('finished', [])
+        self.time_cost = self.get('time_cost', {})
 
     def _reset_for_new_dt(self):
         self.run_time = '-'

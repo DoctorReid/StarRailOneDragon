@@ -1,15 +1,32 @@
 import time
+from typing import Optional
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application
+from sr.app import Application, AppRunRecord, app_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+
+
+class SupportCharacterRecord(AppRunRecord):
+
+    def __init__(self):
+        super().__init__(app_const.SUPPORT_CHARACTER['id'])
+
+
+support_character_record: Optional[SupportCharacterRecord] = None
+
+
+def get_record() -> SupportCharacterRecord:
+    global support_character_record
+    if support_character_record is None:
+        support_character_record = SupportCharacterRecord()
+    return support_character_record
 
 
 class SupportCharacter(Application):
@@ -71,3 +88,6 @@ class SupportCharacter(Application):
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
+
+    def _after_stop(self, result: bool):
+        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

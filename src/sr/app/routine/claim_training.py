@@ -1,16 +1,33 @@
 import time
+from typing import Optional
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application
+from sr.app import Application, AppRunRecord, app_const
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+
+
+class ClaimTrainingRecord(AppRunRecord):
+
+    def __init__(self):
+        super().__init__(app_const.CLAIM_TRAINING['id'])
+
+
+claim_training_record: Optional[ClaimTrainingRecord] = None
+
+
+def get_record() -> ClaimTrainingRecord:
+    global claim_training_record
+    if claim_training_record is None:
+        claim_training_record = ClaimTrainingRecord()
+    return claim_training_record
 
 
 class ClaimTraining(Application):
@@ -47,7 +64,7 @@ class ClaimTraining(Application):
                 return Operation.WAIT
             else:
                 self.ctx.controller.click(result.center)
-                time.sleep(3)
+                time.sleep(1)
                 return Operation.WAIT
         elif self.phase == 3:  # 检测领取奖励
             screen: MatLike = self.screenshot()
@@ -67,3 +84,5 @@ class ClaimTraining(Application):
             else:
                 return Operation.FAIL
 
+    def _after_stop(self, result: bool):
+        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from basic import os_utils
 from basic.log_utils import log
-from sr.config import game_config
+from sr.config import game_config, ConfigHolder
 from sr.const import game_config_const
 from sr.context import Context
 from sr.operation import Operation
@@ -78,17 +78,23 @@ class Application(Operation):
         return ''
 
 
-class AppRunRecord:
+class AppRunRecord(ConfigHolder):
 
     STATUS_WAIT = 0
     STATUS_SUCCESS = 1
     STATUS_FAIL = 2
     STATUS_RUNNING = 3
 
-    def __init__(self, dt: str, run_time: str, run_status: int):
-        self.dt: str = dt
-        self.run_time: str = run_time
-        self.run_status: int = run_status  # 0=未运行 1=成功 2=失败 3=运行中
+    def __init__(self, app_id: str):
+        self.dt: str = ''
+        self.run_time: str = ''
+        self.run_status: int = AppRunRecord.STATUS_WAIT  # 0=未运行 1=成功 2=失败 3=运行中
+        super().__init__(app_id, sub_dir=['app_run_record'], sample=False)
+
+    def _init_after_read_file(self):
+        self.dt = self.get('dt', app_record_current_dt_str())
+        self.run_time = self.get('run_time', '-')
+        self.run_status = self.get('run_status', AppRunRecord.STATUS_WAIT)
 
     def reset_if_another_dt(self):
         """
@@ -101,6 +107,14 @@ class AppRunRecord:
             self.dt = current_dt
             self.run_status = AppRunRecord.STATUS_WAIT
             self._reset_for_new_dt()
+
+    def update_status(self, new_status: int):
+        self.run_status = new_status
+        self.run_time = app_record_now_time_str()
+        self.update('run_status', self.run_status, False)
+        self.update('run_time', self.run_time, False)
+
+        self.save()
 
     def _reset_for_new_dt(self):
         """
@@ -117,7 +131,7 @@ class AppRunRecord:
         """
         current_dt = app_record_current_dt_str()
         if self.dt != current_dt:
-            return 0
+            return AppRunRecord.STATUS_WAIT
         else:
             return self.run_status
 

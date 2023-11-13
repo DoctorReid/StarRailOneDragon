@@ -6,8 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, app_record_current_dt_str
-from sr.config import ConfigHolder
+from sr.app import Application, AppRunRecord, app_const
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
@@ -16,19 +15,10 @@ from sr.operation.unit.claim_assignment import ClaimAssignment
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 
 
-class AssignmentsRecord(ConfigHolder, AppRunRecord):
+class AssignmentsRecord(AppRunRecord):
 
     def __init__(self):
-        ConfigHolder.__init__(self, 'assignments', sub_dir=['app_run_record'], sample=False)
-
-    def _init_after_read_file(self):
-        self.dt = self.get('dt', app_record_current_dt_str())
-        self.run_time = self.get('run_time', '-')
-        self.run_status = self.get('run_status', AppRunRecord.STATUS_WAIT)
-
-    def update_status(self, new_status: int):
-        self.run_status = new_status
-        self.update('run_status', new_status)
+        super().__init__(app_const.ASSIGNMENTS['id'])
 
 
 assignments_record: Optional[AssignmentsRecord] = None

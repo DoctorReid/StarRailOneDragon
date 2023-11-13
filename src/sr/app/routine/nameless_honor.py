@@ -1,16 +1,33 @@
 import time
+from typing import Optional
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application
+from sr.app import Application, AppRunRecord, app_const
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+
+
+class NamelessHonorRecord(AppRunRecord):
+
+    def __init__(self):
+        super().__init__(app_const.NAMELESS_HONOR['id'])
+
+
+nameless_honor_record: Optional[NamelessHonorRecord] = None
+
+
+def get_record() -> NamelessHonorRecord:
+    global nameless_honor_record
+    if nameless_honor_record is None:
+        nameless_honor_record = NamelessHonorRecord()
+    return nameless_honor_record
 
 
 class ClaimNamelessHonor(Application):
@@ -99,3 +116,6 @@ class ClaimNamelessHonor(Application):
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
+
+    def _after_stop(self, result: bool):
+        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

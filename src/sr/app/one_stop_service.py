@@ -3,9 +3,9 @@ from typing import List, Optional
 from basic.i18_utils import gt
 from sr.app import Application, app_const, AppRunRecord, world_patrol
 from sr.app.app_const import AppDescription
-from sr.app.routine import assignments
+from sr.app.routine import assignments, email, support_character, nameless_honor, claim_training, buy_parcel
 from sr.app.routine.assignments import Assignments
-from sr.app.routine.buy_xianzhoue_parcel import BuyXianzhouParcel
+from sr.app.routine.buy_parcel import BuyXianzhouParcel
 from sr.app.routine.claim_training import ClaimTraining
 from sr.app.routine.email import Email
 from sr.app.routine.nameless_honor import ClaimNamelessHonor
@@ -74,6 +74,7 @@ class OneStopService(Application):
         else:
             return Operation.WAIT
 
+    @property
     def current_execution_desc(self) -> str:
         """
         当前运行的描述 用于UI展示
@@ -81,6 +82,7 @@ class OneStopService(Application):
         """
         return gt(self.app_list[self.app_idx]['cn'], 'ui')
 
+    @property
     def next_execution_desc(self) -> str:
         """
         下一步运行的描述 用于UI展示
@@ -115,4 +117,14 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
         return world_patrol.get_record()
     elif app_id == app_const.ASSIGNMENTS['id']:
         return assignments.get_record()
+    elif app_id == app_const.EMAIL['id']:
+        return email.get_record()
+    elif app_id == app_const.SUPPORT_CHARACTER['id']:
+        return support_character.get_record()
+    elif app_id == app_const.NAMELESS_HONOR['id']:
+        return nameless_honor.get_record()
+    elif app_id == app_const.CLAIM_TRAINING['id']:
+        return claim_training.get_record()
+    elif app_id == app_const.BUY_XIANZHOU_PARCEL['id']:
+        return buy_parcel.get_record()
     return None

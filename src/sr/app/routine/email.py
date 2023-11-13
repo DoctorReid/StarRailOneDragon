@@ -1,4 +1,5 @@
 import time
+from typing import Optional
 
 from cv2.typing import MatLike
 
@@ -6,12 +7,29 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
-from sr.app import Application
+from sr.app import Application, AppRunRecord, app_record_current_dt_str, app_record_now_time_str, app_const
+from sr.config import ConfigHolder
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+
+
+class EmailRecord(AppRunRecord):
+
+    def __init__(self):
+        super().__init__(app_const.EMAIL['id'])
+
+
+email_record: Optional[EmailRecord] = None
+
+
+def get_record() -> EmailRecord:
+    global email_record
+    if email_record is None:
+        email_record = EmailRecord()
+    return email_record
 
 
 class Email(Application):
@@ -70,3 +88,6 @@ class Email(Application):
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
+
+    def _after_stop(self, result: bool):
+        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

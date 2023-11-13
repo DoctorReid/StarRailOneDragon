@@ -1,6 +1,8 @@
+from typing import Optional
+
 from basic import Point
 from basic.i18_utils import gt
-from sr.app import Application
+from sr.app import Application, AppRunRecord, app_const
 from sr.config import game_config
 from sr.const import game_config_const, map_const
 from sr.context import Context
@@ -13,6 +15,22 @@ from sr.operation.unit.move_directly import MoveDirectly
 from sr.operation.unit.store.buy_store_item import BuyStoreItem
 from sr.operation.unit.store.click_store_item import ClickStoreItem
 from sr.operation.unit.wait_in_seconds import WaitInSeconds
+
+
+class BuyParcelRecord(AppRunRecord):
+
+    def __init__(self):
+        super().__init__(app_const.BUY_XIANZHOU_PARCEL['id'])
+
+
+buy_parcel_record: Optional[BuyParcelRecord] = None
+
+
+def get_record() -> BuyParcelRecord:
+    global buy_parcel_record
+    if buy_parcel_record is None:
+        buy_parcel_record = BuyParcelRecord()
+    return buy_parcel_record
 
 
 class BuyXianzhouParcel(Application):
@@ -51,3 +69,6 @@ class BuyXianzhouParcel(Application):
         elif lang == game_config_const.LANG_EN:
             return 0.8
         return 0.8
+
+    def _after_stop(self, result: bool):
+        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)
