@@ -11,3 +11,4 @@ out/
 config/game.yml
 config/world_patrol/record.yml
 config/world_patrol/whitelist/*.yml
+config/gui.yml
