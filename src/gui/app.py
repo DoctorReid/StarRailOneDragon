@@ -173,7 +173,10 @@ class StarRailAutoProxy:
         if self.app_rail.selected_index == 0:
             t = threading.Thread(target=one_stop_view.get(self.page, self.ctx).on_click_start, args=[None])
         elif self.app_rail.selected_index == 1:
-            t = threading.Thread(target=world_patrol_view.get(self.page, self.ctx).start, args=[None])
+            if self.world_patrol_rail.selected_index == 0:
+                t = threading.Thread(target=world_patrol_run_view.get(self.page, self.ctx).start, args=[None])
+            elif self.world_patrol_rail.selected_index == 1:
+                t = threading.Thread(target=world_patrol_draft_route_view.get(self.page, self.ctx).test_existed, args=[None])
         elif self.app_rail.selected_index == 3:
             t = threading.Thread(target=calibrator_view.get(self.page, self.ctx).start, args=[None])
         if t is not None:
