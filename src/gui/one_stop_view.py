@@ -1,4 +1,5 @@
 import threading
+from typing import List
 
 import flet as ft
 
@@ -8,7 +9,7 @@ from basic.log_utils import log
 from gui import snack_bar, components, scheduler
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
-from sr.app import app_const, Application, one_stop_service
+from sr.app import app_const, Application, one_stop_service, AppRunRecord
 from sr.app.one_stop_service import OneStopService
 from sr.context import Context
 
@@ -53,39 +54,115 @@ class Label2TimeValueRow(ft.Row):
         ], spacing=spacing, width=width)
 
 
-class AppList:
+class AppListItem(ft.Row):
+
+    def __init__(self, title: str, app_id: str,
+                 on_click_run, on_click_up, on_click_down, on_click_settings):
+        self.app_id: str = app_id
+        theme: ThemeColors = gui_config.theme()
+        self.run_status_text = ft.Text(gt('上次', 'ui'), color=label_color, size=12)
+        self.run_status_running_icon = ft.Icon(name=ft.icons.ACCESS_TIME_FILLED, size=12, visible=False)
+        self.run_status_success_icon = ft.Icon(name=ft.icons.CHECK_CIRCLE, size=12, color=theme['success_icon_color'], visible=False)
+        self.run_status_fail_icon = ft.Icon(name=ft.icons.REMOVE_CIRCLE, size=12, color=theme['fail_icon_color'], visible=False)
+        status_row = ft.Row(controls=[self.run_status_success_icon, self.run_status_fail_icon, self.run_status_text], spacing=1,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER)
+        text_col = ft.Column(controls=[
+            ft.Container(content=ft.Text(title, weight=value_font_weight, size=18)),
+            ft.Container(content=status_row)
+        ], spacing=0, alignment=ft.MainAxisAlignment.CENTER)
+        icon_col = ft.Row(controls=[
+            ft.IconButton(icon=ft.icons.PLAY_ARROW_OUTLINED, data=app_id, icon_size=15, on_click=on_click_run),
+            ft.IconButton(icon=ft.icons.ARROW_UPWARD_OUTLINED, data=app_id, icon_size=15, on_click=on_click_up),
+            ft.IconButton(icon=ft.icons.ARROW_DOWNWARD_OUTLINED, data=app_id, icon_size=15, on_click=on_click_down),
+            ft.IconButton(icon=ft.icons.SETTINGS_OUTLINED, data=app_id, icon_size=15, on_click=on_click_settings)
+        ], spacing=0, expand=True, alignment=ft.MainAxisAlignment.END)  # 注意外部需要宽度固定
+        super().__init__(controls=[text_col, icon_col], height=50,
+                         vertical_alignment=ft.CrossAxisAlignment.CENTER)
+
+    def update_status(self, app_record: AppRunRecord):
+        status = app_record.run_status_under_now
+        self.run_status_running_icon.visible = status == AppRunRecord.STATUS_RUNNING
+        self.run_status_success_icon.visible = status == AppRunRecord.STATUS_SUCCESS
+        self.run_status_fail_icon.visible = status == AppRunRecord.STATUS_FAIL
+        self.run_status_text.value = gt('上次', 'ui') + ' ' + app_record.run_time
+        self.update()
+
+
+class AppList(ft.ListView):
 
     def __init__(self, run_app_callback):
-        self.component = ft.ListView()
+        super().__init__()
+        self.item_map: dict[str, AppListItem] = {}
         theme: ThemeColors = gui_config.theme()
 
-        for app in app_const.ROUTINE_APP_LIST:
-            item = ft.Container(self.app_list_item(app['cn'], app['id'], self.get_last_start_time(app['id'])),
-                                border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])))
-            self.component.controls.append(item)
+        self.app_id_list: List[str] = one_stop_service.get_config().order_app_id_list
+        for app_id in self.app_id_list:
+            app = app_const.get_app_desc_by_id(app_id)
+            item = AppListItem(app['cn'], app['id'],
+                               on_click_run=self._on_item_click_run,
+                               on_click_up=self._on_item_click_up,
+                               on_click_down=self._on_item_click_down,
+                               on_click_settings=self._on_item_click_settings
+                               )
+            self.item_map[app['id']] = item
+            self.controls.append(ft.Container(
+                content=item,
+                border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color']))
+            ))
 
         self.run_app_callback = run_app_callback
 
-    def app_list_item(self, title: str, app_id: str, last_run_time: str) -> ft.Row:
-        text_col = ft.Column(controls=[
-            ft.Container(content=ft.Text(title, weight=value_font_weight, size=18)),
-            ft.Container(content=ft.Text('上次 %s' % last_run_time, color=label_color, size=12))
-        ], spacing=0, alignment=ft.MainAxisAlignment.CENTER)
-        icon_col = ft.Row(controls=[
-            ft.IconButton(icon=ft.icons.PLAY_ARROW_OUTLINED, data=app_id, icon_size=15, on_click=self.run_app),
-            ft.IconButton(icon=ft.icons.ARROW_UPWARD_OUTLINED, data=app_id, icon_size=15),
-            ft.IconButton(icon=ft.icons.ARROW_DOWNWARD_OUTLINED, data=app_id, icon_size=15),
-            ft.IconButton(icon=ft.icons.SETTINGS_OUTLINED, data=app_id, icon_size=15)
-        ], spacing=0, expand=True, alignment=ft.MainAxisAlignment.END)  # 注意外部需要宽度固定
-        return ft.Row(controls=[text_col, icon_col], height=50,
-                      vertical_alignment=ft.CrossAxisAlignment.CENTER)
-
-    @staticmethod
-    def get_last_start_time(app_id: str):
-        return '11-11 01:00'
-
-    def run_app(self, e):
+    def _on_item_click_run(self, e):
         self.run_app_callback(e.control.data)
+
+    def _on_item_click_up(self, e):
+        app_id: str = e.control.data
+        target_idx: int = -1
+        for i in range(len(self.controls)):
+            item: AppListItem = self.controls[i].content
+            if item.app_id == app_id:
+                target_idx = i
+                break
+
+        if target_idx <= 0:
+            return
+        temp = self.controls[target_idx - 1]
+        self.controls[target_idx - 1] = self.controls[target_idx]
+        self.controls[target_idx] = temp
+
+        temp = self.app_id_list[target_idx - 1]
+        self.app_id_list[target_idx - 1] = self.app_id_list[target_idx]
+        self.app_id_list[target_idx] = temp
+        one_stop_service.get_config().order_app_id_list = self.app_id_list
+
+    def _on_item_click_down(self, e):
+        app_id: str = e.control.data
+        target_idx: int = len(self.controls)
+        for i in range(len(self.controls)):
+            item: AppListItem = self.controls[i].content
+            if item.app_id == app_id:
+                target_idx = i
+                break
+
+        if target_idx >= len(self.controls) - 1:
+            return
+        temp = self.controls[target_idx + 1]
+        self.controls[target_idx + 1] = self.controls[target_idx]
+        self.controls[target_idx] = temp
+
+        temp = self.app_id_list[target_idx + 1]
+        self.app_id_list[target_idx + 1] = self.app_id_list[target_idx]
+        self.app_id_list[target_idx] = temp
+        one_stop_service.get_config().order_app_id_list = self.app_id_list
+
+    def _on_item_click_settings(self, e):
+        pass
+
+    def update_all_app_status(self):
+        for app_id in self.app_id_list:
+            app_record = one_stop_service.get_app_run_record_by_id(app_id)
+            if app_record is not None:
+                self.item_map[app_id].update_status(app_record)
 
 
 class OneStopView(ft.Row):
@@ -162,7 +239,7 @@ class OneStopView(ft.Row):
 
         self.app_list = AppList(run_app_callback=self.run_app)
 
-        app_list_card = components.Card(self.app_list.component, title=components.CardTitleText('任务列表'), width=300)
+        app_list_card = components.Card(self.app_list, title=components.CardTitleText('任务列表'), width=300)
         app_list_part = ft.Container(content=app_list_card)
 
         super().__init__(controls=[left_part, app_list_part], spacing=10)
@@ -174,7 +251,8 @@ class OneStopView(ft.Row):
                                                  self._after_stop
                                                  )
 
-        self.running_app: Application = None
+        self.running_app: Application
+        scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
 
     def _check_ctx_stop(self) -> bool:
         """
@@ -263,8 +341,11 @@ class OneStopView(ft.Row):
             self.running_status.update_value('')
             self.next_job.update_value(gt('无', 'ui'))
         else:
-            self.running_status.update_value(self.running_app.current_execution_desc())
-            self.next_job.update_value(self.running_app.next_execution_desc())
+            self.running_status.update_value(self.running_app.current_execution_desc)
+            self.next_job.update_value(self.running_app.next_execution_desc)
+
+    def _update_app_list_status(self):
+        self.app_list.update_all_app_status()
 
 
 osv: OneStopView = None

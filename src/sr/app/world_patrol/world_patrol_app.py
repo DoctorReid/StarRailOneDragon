@@ -2,14 +2,12 @@ import threading
 import time
 from typing import List, Iterator
 
-from basic import os_utils
 from basic.log_utils import log
-from sr.app import Application
+from sr.app import Application, AppRunRecord
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolWhitelist, WorldPatrolRecord, \
-    load_all_route_id
+    load_all_route_id, get_record
 from sr.app.world_patrol.run_patrol_route import RunPatrolRoute
 from sr.config import game_config
-from sr.const import game_config_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map_angle_alas
 from sr.operation import Operation
@@ -17,12 +15,11 @@ from sr.operation import Operation
 
 class WorldPatrol(Application):
 
-    def __init__(self, ctx: Context, restart: bool = False, whitelist: WorldPatrolWhitelist = None,
+    def __init__(self, ctx: Context, whitelist: WorldPatrolWhitelist = None,
                  ignore_record: bool = False):
         super().__init__(ctx)
         self.route_id_list: List[WorldPatrolRouteId] = []
         self.first: bool = True
-        self.restart: bool = restart
         self.record: WorldPatrolRecord = None
         self.route_iterator: Iterator = None
         self.whitelist: WorldPatrolWhitelist = whitelist
@@ -32,12 +29,9 @@ class WorldPatrol(Application):
 
     def _init_before_execute(self):
         if not self.ignore_record:
-            try:
-                sr = game_config.get().server_region
-                utc_offset = game_config_const.SERVER_TIME_OFFSET.get(sr)
-                self.record = WorldPatrolRecord(os_utils.get_dt(utc_offset), restart=self.restart)
-            except Exception:
-                log.info('读取运行记录失败 重新开始', exc_info=True)
+            self.record = get_record()
+            self.record.reset_if_another_dt()
+            self.record.update_status(AppRunRecord.STATUS_RUNNING)
 
         self.route_id_list = load_all_route_id(self.whitelist, None if self.record is None else self.record.finished)
 
@@ -99,4 +93,8 @@ class WorldPatrol(Application):
 
         return total
 
-
+    def _after_stop(self, result: bool):
+        if result and len(self.route_id_list) >= len(self.record.finished):
+            self.record.result = AppRunRecord.STATUS_SUCCESS
+        else:
+            self.record.result = AppRunRecord.STATUS_FAIL

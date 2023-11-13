@@ -1,4 +1,4 @@
-from typing import TypedDict, List
+from typing import TypedDict, List, Optional
 
 
 class AppDescription(TypedDict):
@@ -23,3 +23,10 @@ ROUTINE_APP_LIST: List[AppDescription] = [
     CLAIM_TRAINING,
     BUY_XIANZHOU_PARCEL
 ]
+
+
+def get_app_desc_by_id(app_id: str) -> Optional[AppDescription]:
+    for app in ROUTINE_APP_LIST:
+        if app['id'] == app_id:
+            return app
+    return None

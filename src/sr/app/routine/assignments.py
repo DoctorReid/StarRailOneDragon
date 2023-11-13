@@ -1,17 +1,44 @@
 import time
+from typing import Optional
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application
+from sr.app import Application, AppRunRecord, app_record_current_dt_str
+from sr.config import ConfigHolder
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.claim_assignment import ClaimAssignment
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+
+
+class AssignmentsRecord(ConfigHolder, AppRunRecord):
+
+    def __init__(self):
+        ConfigHolder.__init__(self, 'assignments', sub_dir=['app_run_record'], sample=False)
+
+    def _init_after_read_file(self):
+        self.dt = self.get('dt', app_record_current_dt_str())
+        self.run_time = self.get('run_time', '-')
+        self.run_status = self.get('run_status', AppRunRecord.STATUS_WAIT)
+
+    def update_status(self, new_status: int):
+        self.run_status = new_status
+        self.update('run_status', new_status)
+
+
+assignments_record: Optional[AssignmentsRecord] = None
+
+
+def get_record() -> AssignmentsRecord:
+    global assignments_record
+    if assignments_record is None:
+        assignments_record = AssignmentsRecord()
+    return assignments_record
 
 
 class Assignments(Application):
@@ -53,3 +80,20 @@ class Assignments(Application):
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
+
+    def _after_stop(self, result: bool):
+        new_status: Optional[int] = None
+        if not result:
+            new_status = AppRunRecord.STATUS_FAIL
+        elif self.phase == 3:
+            new_status = AppRunRecord.STATUS_SUCCESS
+        if new_status is not None:  # 有可能是没红点跳过了
+            get_record().update_status(new_status)
+
+    @property
+    def current_execution_desc(self) -> str:
+        """
+        当前运行的描述 用于UI展示
+        :return:
+        """
+        return gt('委托', 'ui')

@@ -48,7 +48,7 @@ class Calibrator(Application):
             'y': mm_pos.y,
             'r': mm_pos.r
         })
-        cfg.write_config()
+        cfg.save()
 
         log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', mm_pos.x, mm_pos.y, mm_pos.r)
         return True
@@ -87,7 +87,7 @@ class Calibrator(Application):
         log.info('每度移动距离 %.4f', ans)
         gc: GameConfig = game_config.get()
         gc.update('turn_dx', ans)
-        gc.write_config()
+        gc.save()
         log.info('[转向校准] 完成')
         # cv2.waitKey(0)
         return ans

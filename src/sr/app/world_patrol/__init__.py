@@ -1,13 +1,14 @@
 import os
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
 from basic import os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.config import ConfigHolder
-from sr.const import map_const
+from sr.app import app_record_now_time_str, app_record_current_dt_str, AppRunRecord
+from sr.config import ConfigHolder, game_config
+from sr.const import map_const, game_config_const
 from sr.const.map_const import Planet, Region, TransportPoint, PLANET_2_REGION, REGION_2_SP, PLANET_LIST
 
 
@@ -86,7 +87,7 @@ class WorldPatrolRoute(ConfigHolder):
         self.route_id: WorldPatrolRouteId = route_id
         super().__init__(route_id.raw_id, sample=False, sub_dir=['world_patrol', route_id.planet.np_id])
 
-    def init(self):
+    def _init_after_read_file(self):
         self.init_from_data(**self.data)
 
     def init_from_data(self, author: List[str], planet: str, region: str, tp: str, floor: int, route: List):
@@ -98,6 +99,7 @@ class WorldPatrolRoute(ConfigHolder):
     def display_name(self):
         return self.route_id.display_name
 
+
 class WorldPatrolWhitelist(ConfigHolder):
 
     def __init__(self, file_name: str):
@@ -106,7 +108,7 @@ class WorldPatrolWhitelist(ConfigHolder):
         self.list: List[str] = []
         super().__init__(file_name, sample=False, sub_dir=['world_patrol', 'whitelist'])
 
-    def init(self):
+    def _init_after_read_file(self):
         if self.data is not None:
             self.type = self.data['type']
             self.list = self.data['list']
@@ -116,25 +118,36 @@ class WorldPatrolWhitelist(ConfigHolder):
         return self.type in ['white', 'black'] and len(self.list) > 0
 
 
-class WorldPatrolRecord(ConfigHolder):
+class WorldPatrolRecord(ConfigHolder, AppRunRecord):
 
-    def __init__(self, current_dt: str, restart: bool = False):
-        self.restart = restart
-        self.current_dt: str = current_dt
-        self.dt: str = current_dt
+    def __init__(self, ):
+        self.current_dt: str = app_record_current_dt_str()
         self.finished: List[str] = []
         self.time_cost: dict[str, List] = {}
-        super().__init__('record', sample=False, sub_dir=['world_patrol'])
+        AppRunRecord.__init__(self, self.current_dt, '-', 0)
+        ConfigHolder.__init__(self, 'world_patrol', sample=False, sub_dir=['app_run_record'])
 
-    def init(self):
-        if self.data is not None:
+    def _init_after_read_file(self):
+        if len(self.data) > 0:
             self.dt = self.data['dt']
+            self.run_time = self.data['run_time']
+            self.run_status = self.data['run_status']
             self.finished = self.data['finished']
             self.time_cost = self.data['time_cost']
+        else:
+            self._reset_for_new_dt()
 
-        if self.restart or (self.dt is not None and self.dt != self.current_dt) or self.dt is None:  # 重新开始、新的一天、无记录
-            self.dt = self.current_dt
-            self.finished = []
+    def _reset_for_new_dt(self):
+        self.run_time = '-'
+        self.run_status = 0
+        self.finished = []
+
+        self.update('dt', self.dt, False)
+        self.update('run_time', self.run_time, False)
+        self.update('run_status', self.run_status, False)
+        self.update('finished', self.finished, False)
+
+        self.save()
 
     def add_record(self, route_id: WorldPatrolRouteId, time_cost):
         unique_id = route_id.unique_id
@@ -145,10 +158,11 @@ class WorldPatrolRecord(ConfigHolder):
         while len(self.time_cost[unique_id]) > 3:
             self.time_cost[unique_id].pop(0)
 
-        self.update('dt', self.dt)
-        self.update('finished', self.finished)
-        self.update('time_cost', self.time_cost)
-        self.write_config()
+        self.update('run_time', app_record_now_time_str(), False)
+        self.update('dt', self.dt, False)
+        self.update('finished', self.finished, False)
+        self.update('time_cost', self.time_cost, False)
+        self.save()
 
     def get_estimate_time(self, route_id: WorldPatrolRouteId):
         unique_id = route_id.unique_id
@@ -156,6 +170,17 @@ class WorldPatrolRecord(ConfigHolder):
             return 0
         else:
             return np.mean(self.time_cost[unique_id])
+
+    def update_status(self, new_status: int):
+        self.run_status = new_status
+        self.run_time = app_record_now_time_str()
+
+        self.update('run_status', new_status, False)
+        self.update('run_time', self.run_time, False)
+
+        self.save()
+
+
 
 
 def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str] = None) -> List[WorldPatrolRouteId]:
@@ -207,3 +232,13 @@ def load_all_whitelist_id() -> List[str]:
         whitelist_id_arr.append(filename[0:idx])
 
     return whitelist_id_arr
+
+
+world_patrol_record: Optional[WorldPatrolRecord] = None
+
+
+def get_record() -> WorldPatrolRecord:
+    global world_patrol_record
+    if world_patrol_record is None:
+        world_patrol_record = WorldPatrolRecord()
+    return world_patrol_record

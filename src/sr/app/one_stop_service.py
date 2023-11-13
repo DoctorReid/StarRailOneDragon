@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Optional
 
 from basic.i18_utils import gt
-from sr.app import Application, app_const
+from sr.app import Application, app_const, AppRunRecord, world_patrol
 from sr.app.app_const import AppDescription
+from sr.app.routine import assignments
 from sr.app.routine.assignments import Assignments
 from sr.app.routine.buy_xianzhoue_parcel import BuyXianzhouParcel
 from sr.app.routine.claim_training import ClaimTraining
@@ -10,8 +11,44 @@ from sr.app.routine.email import Email
 from sr.app.routine.nameless_honor import ClaimNamelessHonor
 from sr.app.routine.support_character import SupportCharacter
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
+from sr.config import ConfigHolder
 from sr.context import Context
 from sr.operation import Operation
+
+
+class OneStopServiceConfig(ConfigHolder):
+
+    def __init__(self):
+        super().__init__('one_stop_service')
+
+    def _init_after_read_file(self):
+        current_list = self.order_app_id_list
+        need_update: bool = False
+        for app in app_const.ROUTINE_APP_LIST:
+            if app['id'] not in current_list:
+                current_list.append(app['id'])
+                need_update = True
+        if need_update:
+            self.order_app_id_list = current_list
+
+    @property
+    def order_app_id_list(self) -> List[str]:
+        return self.get('app_order')
+
+    @order_app_id_list.setter
+    def order_app_id_list(self, new_list: List[str]):
+        self.update('app_order', new_list)
+        self.save()
+
+
+one_stop_service_config: OneStopServiceConfig = None
+
+
+def get_config():
+    global one_stop_service_config
+    if one_stop_service_config is None:
+        one_stop_service_config = OneStopServiceConfig()
+    return one_stop_service_config
 
 
 class OneStopService(Application):
@@ -55,7 +92,7 @@ class OneStopService(Application):
             return gt(self.app_list[self.app_idx + 1]['cn'], 'ui')
 
 
-def get_app_by_id(app_id: str, ctx: Context) -> Application:
+def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
     if app_id == app_const.WORLD_PATROL['id']:
         return WorldPatrol(ctx)
     elif app_id == app_const.ASSIGNMENTS['id']:
@@ -70,4 +107,12 @@ def get_app_by_id(app_id: str, ctx: Context) -> Application:
         return ClaimTraining(ctx)
     elif app_id == app_const.BUY_XIANZHOU_PARCEL['id']:
         return BuyXianzhouParcel(ctx)
+    return None
+
+
+def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
+    if app_id == app_const.WORLD_PATROL['id']:
+        return world_patrol.get_record()
+    elif app_id == app_const.ASSIGNMENTS['id']:
+        return assignments.get_record()
     return None

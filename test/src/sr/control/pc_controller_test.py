@@ -12,7 +12,7 @@ def _test_turn_by_distance():
 
 
 def _test_move_towards():
-    ctx.controller.init()
+    ctx.controller._init_after_read_file()
     ctx.controller.move_towards((0, 0), (0, 90), 270)
 
 

@@ -1,3 +1,4 @@
+import flet as ft
 from typing import TypedDict
 
 from sr.config import ConfigHolder
@@ -15,7 +16,7 @@ class GuiConfig(ConfigHolder):
     @theme.setter
     def theme(self, value):
         self.data['theme'] = value
-        self.write_config()
+        self.save()
 
 
 gc = GuiConfig()
@@ -26,13 +27,19 @@ class ThemeColors(TypedDict):
     component_bg: str
     divider_color: str
     progress_ring_color: str
+    card_title_color: str
+    success_icon_color: str
+    fail_icon_color: str
 
 
 light_theme = ThemeColors(
     window_bg='#F9F9F9',
     component_bg='#FFFFFF',
     divider_color='#C3C7CF',
-    progress_ring_color='#D7E3F7'
+    progress_ring_color='#D7E3F7',
+    card_title_color=ft.colors.BLUE_300,
+    success_icon_color=ft.colors.BLUE_300,
+    fail_icon_color=ft.colors.RED
 )
 
 

@@ -30,7 +30,7 @@ class GameConfig(ConfigHolder):
         self.game_path: str = ''  # 游戏路径
         super().__init__('game')
 
-    def init(self):
+    def _init_after_read_file(self):
         mini_map = self.data['mini_map']
         self.mini_map_pos = MiniMapPos(mini_map['x'], mini_map['y'], mini_map['r'])
 

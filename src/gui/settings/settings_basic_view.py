@@ -112,7 +112,7 @@ class SettingsView(components.Card):
 
     def save_config(self, e):
         gc: GameConfig = game_config.get()
-        gc.write_config()
+        gc.save()
         log.info('保存成功')
 
     def on_proxy_switch(self, e):
