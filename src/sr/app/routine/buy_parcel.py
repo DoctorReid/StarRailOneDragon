@@ -1,8 +1,8 @@
 from typing import Optional
 
-from basic import Point
+from basic import Point, os_utils
 from basic.i18_utils import gt
-from sr.app import Application, AppRunRecord, app_const
+from sr.app import Application, AppRunRecord, app_const, app_record_current_dt_str
 from sr.config import game_config
 from sr.const import game_config_const, map_const
 from sr.context import Context
@@ -21,6 +21,19 @@ class BuyParcelRecord(AppRunRecord):
 
     def __init__(self):
         super().__init__(app_const.BUY_XIANZHOU_PARCEL.id)
+
+    @property
+    def run_status_under_now(self):
+        """
+        基于当前时间显示的运行状态
+        :return:
+        """
+        current_dt = app_record_current_dt_str()
+        sunday_dt = os_utils.get_sunday_dt(self.dt)
+        if current_dt > sunday_dt:
+            return AppRunRecord.STATUS_WAIT
+        else:
+            return self.run_status
 
 
 buy_parcel_record: Optional[BuyParcelRecord] = None
