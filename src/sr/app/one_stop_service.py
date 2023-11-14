@@ -10,6 +10,7 @@ from sr.app.routine.claim_training import ClaimTraining
 from sr.app.routine.email import Email
 from sr.app.routine.nameless_honor import ClaimNamelessHonor
 from sr.app.routine.support_character import SupportCharacter
+from sr.app.routine.trailblaze_power import TrailblazePower
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.config import ConfigHolder
 from sr.context import Context
@@ -76,6 +77,8 @@ class OneStopService(Application):
         self.app_idx = 0
 
     def _execute_one_round(self) -> int:
+        if self.app_idx >= len(self.app_list):  # 有可能刚开始就所有任务都已经执行完了
+            return Operation.SUCCESS
         app: Application = get_app_by_id(self.app_list[self.app_idx].id, self.ctx)
         app.init_context_before_start = False  # 一条龙开始时已经初始化了
         app.stop_context_after_stop = self.app_idx >= len(self.app_list)  # 只有最后一个任务结束会停止context
@@ -123,6 +126,8 @@ def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
         return ClaimTraining(ctx)
     elif app_id == app_const.BUY_XIANZHOU_PARCEL.id:
         return BuyXianzhouParcel(ctx)
+    elif app_id == app_const.TRAILBLAZE_POWER.id:
+        return TrailblazePower(ctx)
     return None
 
 

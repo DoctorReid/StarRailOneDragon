@@ -240,7 +240,7 @@ class OneStopView(ft.Row, SrBasicView):
                 training_row,
                 sim_row,
                 hall_row
-            ], auto_scroll=True)
+            ], auto_scroll=True, spacing=10)
         character_info_card = components.Card(character_info_content, title=character_info_title, width=info_card_width, height=250)
 
         self.running_ring = ft.ProgressRing(width=20, height=20, color=ft.colors.BLUE_300, visible=False)
@@ -352,6 +352,7 @@ class OneStopView(ft.Row, SrBasicView):
 
     def _after_start(self):
         self._update_status_component()
+        self.app_list.set_disabled(True)
         scheduler.every_second(self._update_running_app_name, tag='_update_running_app_name')
 
     def _after_pause(self):
@@ -362,6 +363,7 @@ class OneStopView(ft.Row, SrBasicView):
 
     def _after_stop(self):
         self._update_status_component()
+        self.app_list.set_disabled(False)
         scheduler.cancel_with_tag('_update_running_app_name')
         self.running_app = None
         self._update_running_app_name()

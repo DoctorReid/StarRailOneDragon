@@ -111,6 +111,7 @@ class AppRunRecord(ConfigHolder):
     def update_status(self, new_status: int):
         self.run_status = new_status
         self.run_time = app_record_now_time_str()
+        self.update('dt', self.dt, False)
         self.update('run_status', self.run_status, False)
         self.update('run_time', self.run_time, False)
 
