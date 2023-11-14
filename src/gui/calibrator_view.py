@@ -8,7 +8,7 @@ from sr.context import Context
 class CalibratorView(SrAppView):
 
     def __init__(self, page: ft.Page, ctx: Context):
-        super().__init__(page, ctx)
+        SrAppView.__init__(self, page, ctx)
 
     def run_app(self):
         app = Calibrator(self.ctx)

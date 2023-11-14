@@ -9,8 +9,9 @@ from basic.log_utils import log
 from gui import snack_bar, components, scheduler
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
+from gui.sr_basic_view import SrBasicView
 from sr.app import app_const, Application, one_stop_service, AppRunRecord
-from sr.app.one_stop_service import OneStopService
+from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
 from sr.context import Context
 
 info_text_width = 200
@@ -57,7 +58,7 @@ class Label2TimeValueRow(ft.Row):
 class AppListItem(ft.Row):
 
     def __init__(self, title: str, app_id: str,
-                 on_click_run, on_click_up, on_click_down, on_click_settings):
+                 on_click_run, on_click_up, on_click_down, on_switch_change):
         self.app_id: str = app_id
         theme: ThemeColors = gui_config.theme()
         self.run_status_text = ft.Text(gt('上次', 'ui'), color=label_color, size=12)
@@ -70,21 +71,33 @@ class AppListItem(ft.Row):
             ft.Container(content=ft.Text(title, weight=value_font_weight, size=18)),
             ft.Container(content=status_row)
         ], spacing=0, alignment=ft.MainAxisAlignment.CENTER)
+        self.run_app_btn = ft.IconButton(icon=ft.icons.PLAY_ARROW_OUTLINED, data=app_id, icon_size=15, on_click=on_click_run)
+        self.up_app_btn = ft.IconButton(icon=ft.icons.ARROW_UPWARD_OUTLINED, data=app_id, icon_size=15, on_click=on_click_up)
+        self.down_app_btn = ft.IconButton(icon=ft.icons.ARROW_DOWNWARD_OUTLINED, data=app_id, icon_size=15, on_click=on_click_down)
+        self.run_switch = ft.Switch(data=app_id, value=False, on_change=on_switch_change)
         icon_col = ft.Row(controls=[
-            ft.IconButton(icon=ft.icons.PLAY_ARROW_OUTLINED, data=app_id, icon_size=15, on_click=on_click_run),
-            ft.IconButton(icon=ft.icons.ARROW_UPWARD_OUTLINED, data=app_id, icon_size=15, on_click=on_click_up),
-            ft.IconButton(icon=ft.icons.ARROW_DOWNWARD_OUTLINED, data=app_id, icon_size=15, on_click=on_click_down),
-            ft.IconButton(icon=ft.icons.SETTINGS_OUTLINED, data=app_id, icon_size=15, on_click=on_click_settings)
+            self.run_app_btn,
+            self.up_app_btn,
+            self.down_app_btn,
+            self.run_switch
         ], spacing=0, expand=True, alignment=ft.MainAxisAlignment.END)  # 注意外部需要宽度固定
         super().__init__(controls=[text_col, icon_col], height=50,
                          vertical_alignment=ft.CrossAxisAlignment.CENTER)
 
-    def update_status(self, app_record: AppRunRecord):
+    def update_status(self, app_record: AppRunRecord, on: bool):
         status = app_record.run_status_under_now
         self.run_status_running_icon.visible = status == AppRunRecord.STATUS_RUNNING
         self.run_status_success_icon.visible = status == AppRunRecord.STATUS_SUCCESS
         self.run_status_fail_icon.visible = status == AppRunRecord.STATUS_FAIL
         self.run_status_text.value = gt('上次', 'ui') + ' ' + app_record.run_time
+        self.run_switch.value = on
+        self.update()
+
+    def set_disabled(self, disabled: bool):
+        self.run_app_btn.disabled = disabled
+        self.up_app_btn.disabled = disabled
+        self.down_app_btn.disabled = disabled
+        self.run_switch.disabled = disabled
         self.update()
 
 
@@ -98,13 +111,13 @@ class AppList(ft.ListView):
         self.app_id_list: List[str] = one_stop_service.get_config().order_app_id_list
         for app_id in self.app_id_list:
             app = app_const.get_app_desc_by_id(app_id)
-            item = AppListItem(app['cn'], app['id'],
+            item = AppListItem(app.cn, app.id,
                                on_click_run=self._on_item_click_run,
                                on_click_up=self._on_item_click_up,
                                on_click_down=self._on_item_click_down,
-                               on_click_settings=self._on_item_click_settings
+                               on_switch_change=self._on_item_switch_changed
                                )
-            self.item_map[app['id']] = item
+            self.item_map[app.id] = item
             self.controls.append(ft.Container(
                 content=item,
                 border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color']))
@@ -157,17 +170,35 @@ class AppList(ft.ListView):
         one_stop_service.get_config().order_app_id_list = self.app_id_list
         self.update()
 
-    def _on_item_click_settings(self, e):
-        pass
+    def _on_item_switch_changed(self, e):
+        app_id: str = e.control.data
+        on: bool = e.control.value
+        config: OneStopServiceConfig = one_stop_service.get_config()
+        run_app_id_list: List[str] = config.run_app_id_list
+        if on and app_id not in run_app_id_list:
+            run_app_id_list.append(app_id)
+            config.run_app_id_list = run_app_id_list
+        elif not on and app_id in run_app_id_list:
+            run_app_id_list.remove(app_id)
+            config.run_app_id_list = run_app_id_list
 
     def update_all_app_status(self):
+        config: OneStopServiceConfig = one_stop_service.get_config()
+        run_app_id_list: List[str] = config.run_app_id_list
+        for app_id in self.app_id_list:
+            app_record = one_stop_service.get_app_run_record_by_id(app_id)
+            on: bool = app_id in run_app_id_list
+            if app_record is not None:
+                self.item_map[app_id].update_status(app_record, on)
+
+    def set_disabled(self, disabled: bool):
         for app_id in self.app_id_list:
             app_record = one_stop_service.get_app_run_record_by_id(app_id)
             if app_record is not None:
-                self.item_map[app_id].update_status(app_record)
+                self.item_map[app_id].set_disabled(disabled)
 
 
-class OneStopView(ft.Row):
+class OneStopView(ft.Row, SrBasicView):
 
     def __init__(self, ctx: Context):
         self.ctx: Context = ctx
@@ -243,7 +274,7 @@ class OneStopView(ft.Row):
         app_list_card = components.Card(self.app_list, title=components.CardTitleText('任务列表'), width=300)
         app_list_part = ft.Container(content=app_list_card)
 
-        super().__init__(controls=[left_part, app_list_part], spacing=10)
+        ft.Row.__init__(self, controls=[left_part, app_list_part], spacing=10)
 
         self.ctx.register_status_changed_handler(self,
                                                  self._after_start,
@@ -253,7 +284,13 @@ class OneStopView(ft.Row):
                                                  )
 
         self.running_app: Application
+
+    def handle_after_show(self):
+        self._update_app_list_status()
         scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
+
+    def handle_after_hide(self):
+        scheduler.cancel_with_tag('_update_app_list_status')
 
     def _check_ctx_stop(self) -> bool:
         """
@@ -346,7 +383,7 @@ class OneStopView(ft.Row):
             self.next_job.update_value(self.running_app.next_execution_desc)
 
     def _update_app_list_status(self):
-        if self.page is not None:
+        if self.page is not None:  # 切换页面后 page 会变成空 里面的组件也不能再更新了
             self.app_list.update_all_app_status()
 
 

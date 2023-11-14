@@ -20,7 +20,7 @@ from sr.operation.unit.wait_in_seconds import WaitInSeconds
 class BuyParcelRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.BUY_XIANZHOU_PARCEL['id'])
+        super().__init__(app_const.BUY_XIANZHOU_PARCEL.id)
 
 
 buy_parcel_record: Optional[BuyParcelRecord] = None

@@ -8,10 +8,11 @@ from basic import win_utils, os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import snack_bar, components
+from gui.sr_basic_view import SrBasicView
 from sr.context import Context
 
 
-class SrAppView(components.Card):
+class SrAppView(components.Card, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
@@ -48,7 +49,7 @@ class SrAppView(components.Card):
                 ft.Container(content=progress_col, expand=True, alignment=ft.alignment.bottom_center),
             ])
 
-        super().__init__(content)
+        components.Card.__init__(self, content)
 
     def start(self, e):
         if self.ctx.running != 0:

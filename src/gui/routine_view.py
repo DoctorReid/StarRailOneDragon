@@ -2,6 +2,7 @@ import flet as ft
 
 from basic.i18_utils import gt
 from gui import components
+from gui.sr_basic_view import SrBasicView
 from sr.app.routine.assignments import Assignments
 from sr.app.routine.email import Email
 from sr.app.routine.nameless_honor import ClaimNamelessHonor
@@ -9,7 +10,7 @@ from sr.app.routine.support_character import SupportCharacter
 from sr.context import Context
 
 
-class RoutineView(components.Card):
+class RoutineView(components.Card, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
@@ -37,7 +38,7 @@ class RoutineView(components.Card):
             ft.Divider(),
             weekly_text
         ])
-        super().__init__(content)
+        components.Card.__init__(self, content)
 
     def run_assignment(self, e):
         app = Assignments(self.ctx)

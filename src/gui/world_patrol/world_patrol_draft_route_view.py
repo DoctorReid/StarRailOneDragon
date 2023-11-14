@@ -12,6 +12,7 @@ import sr.const.operation_const
 from basic import os_utils
 from basic.log_utils import log
 from gui import snack_bar, components
+from gui.sr_basic_view import SrBasicView
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolRoute, WorldPatrolWhitelist, load_all_route_id
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.const import map_const, operation_const
@@ -20,7 +21,7 @@ from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_R
 from sr.context import Context
 
 
-class WorldPatrolDraftRouteView(components.Card):
+class WorldPatrolDraftRouteView(components.Card, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
@@ -119,7 +120,7 @@ class WorldPatrolDraftRouteView(components.Card):
                 ft.Container(content=self.route_text, alignment=ft.alignment.top_center),
             ]
         )
-        super().__init__(content)
+        components.Card.__init__(self, content)
 
         self.author_list: List[str] = [self.author_text.value]
         self.route_list: List = []

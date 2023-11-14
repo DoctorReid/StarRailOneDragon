@@ -18,7 +18,7 @@ from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 class AssignmentsRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.ASSIGNMENTS['id'])
+        super().__init__(app_const.ASSIGNMENTS.id)
 
 
 assignments_record: Optional[AssignmentsRecord] = None

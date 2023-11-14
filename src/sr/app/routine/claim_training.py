@@ -17,7 +17,7 @@ from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 class ClaimTrainingRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.CLAIM_TRAINING['id'])
+        super().__init__(app_const.CLAIM_TRAINING.id)
 
 
 claim_training_record: Optional[ClaimTrainingRecord] = None

@@ -124,7 +124,7 @@ class WorldPatrolRecord(AppRunRecord):
         self.current_dt: str = app_record_current_dt_str()
         self.finished: List[str] = []
         self.time_cost: dict[str, List] = {}
-        super().__init__(app_const.WORLD_PATROL['id'])
+        super().__init__(app_const.WORLD_PATROL.id)
 
     def _init_after_read_file(self):
         super()._init_after_read_file()

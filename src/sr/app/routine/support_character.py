@@ -16,7 +16,7 @@ from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 class SupportCharacterRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.SUPPORT_CHARACTER['id'])
+        super().__init__(app_const.SUPPORT_CHARACTER.id)
 
 
 support_character_record: Optional[SupportCharacterRecord] = None

@@ -17,7 +17,7 @@ from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 class NamelessHonorRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.NAMELESS_HONOR['id'])
+        super().__init__(app_const.NAMELESS_HONOR.id)
 
 
 nameless_honor_record: Optional[NamelessHonorRecord] = None

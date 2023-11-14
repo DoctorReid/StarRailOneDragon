@@ -25,8 +25,8 @@ class OneStopServiceConfig(ConfigHolder):
         current_list = self.order_app_id_list
         need_update: bool = False
         for app in app_const.ROUTINE_APP_LIST:
-            if app['id'] not in current_list:
-                current_list.append(app['id'])
+            if app.id not in current_list:
+                current_list.append(app.id)
                 need_update = True
         if need_update:
             self.order_app_id_list = current_list
@@ -38,6 +38,15 @@ class OneStopServiceConfig(ConfigHolder):
     @order_app_id_list.setter
     def order_app_id_list(self, new_list: List[str]):
         self.update('app_order', new_list)
+        self.save()
+
+    @property
+    def run_app_id_list(self) -> List[str]:
+        return self.get('app_run')
+
+    @run_app_id_list.setter
+    def run_app_id_list(self, new_list: List[str]):
+        self.update('app_run', new_list)
         self.save()
 
 
@@ -67,7 +76,7 @@ class OneStopService(Application):
         self.app_idx = 0
 
     def _execute_one_round(self) -> int:
-        app: Application = get_app_by_id(self.app_list[self.app_idx]['id'], self.ctx)
+        app: Application = get_app_by_id(self.app_list[self.app_idx].id, self.ctx)
         app.init_context_before_start = False  # 一条龙开始时已经初始化了
         app.stop_context_after_stop = self.app_idx >= len(self.app_list)  # 只有最后一个任务结束会停止context
 
@@ -85,7 +94,7 @@ class OneStopService(Application):
         当前运行的描述 用于UI展示
         :return:
         """
-        return gt(self.app_list[self.app_idx]['cn'], 'ui')
+        return gt(self.app_list[self.app_idx].cn, 'ui')
 
     @property
     def next_execution_desc(self) -> str:
@@ -96,40 +105,40 @@ class OneStopService(Application):
         if self.app_idx >= len(self.app_list) - 1:
             return gt('无', 'ui')
         else:
-            return gt(self.app_list[self.app_idx + 1]['cn'], 'ui')
+            return gt(self.app_list[self.app_idx + 1].cn, 'ui')
 
 
 def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
-    if app_id == app_const.WORLD_PATROL['id']:
+    if app_id == app_const.WORLD_PATROL.id:
         return WorldPatrol(ctx)
-    elif app_id == app_const.ASSIGNMENTS['id']:
+    elif app_id == app_const.ASSIGNMENTS.id:
         return Assignments(ctx)
-    elif app_id == app_const.EMAIL['id']:
+    elif app_id == app_const.EMAIL.id:
         return Email(ctx)
-    elif app_id == app_const.SUPPORT_CHARACTER['id']:
+    elif app_id == app_const.SUPPORT_CHARACTER.id:
         return SupportCharacter(ctx)
-    elif app_id == app_const.NAMELESS_HONOR['id']:
+    elif app_id == app_const.NAMELESS_HONOR.id:
         return ClaimNamelessHonor(ctx)
-    elif app_id == app_const.CLAIM_TRAINING['id']:
+    elif app_id == app_const.CLAIM_TRAINING.id:
         return ClaimTraining(ctx)
-    elif app_id == app_const.BUY_XIANZHOU_PARCEL['id']:
+    elif app_id == app_const.BUY_XIANZHOU_PARCEL.id:
         return BuyXianzhouParcel(ctx)
     return None
 
 
 def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
-    if app_id == app_const.WORLD_PATROL['id']:
+    if app_id == app_const.WORLD_PATROL.id:
         return world_patrol.get_record()
-    elif app_id == app_const.ASSIGNMENTS['id']:
+    elif app_id == app_const.ASSIGNMENTS.id:
         return assignments.get_record()
-    elif app_id == app_const.EMAIL['id']:
+    elif app_id == app_const.EMAIL.id:
         return email.get_record()
-    elif app_id == app_const.SUPPORT_CHARACTER['id']:
+    elif app_id == app_const.SUPPORT_CHARACTER.id:
         return support_character.get_record()
-    elif app_id == app_const.NAMELESS_HONOR['id']:
+    elif app_id == app_const.NAMELESS_HONOR.id:
         return nameless_honor.get_record()
-    elif app_id == app_const.CLAIM_TRAINING['id']:
+    elif app_id == app_const.CLAIM_TRAINING.id:
         return claim_training.get_record()
-    elif app_id == app_const.BUY_XIANZHOU_PARCEL['id']:
+    elif app_id == app_const.BUY_XIANZHOU_PARCEL.id:
         return buy_parcel.get_record()
     return None

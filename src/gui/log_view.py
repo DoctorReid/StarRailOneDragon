@@ -5,6 +5,7 @@ import flet as ft
 from basic import os_utils
 from basic.log_utils import log
 from gui import components
+from gui.sr_basic_view import SrBasicView
 from sr.context import Context
 
 
@@ -24,7 +25,7 @@ class GuiHandler(logging.Handler):
             self.list_view.update()
 
 
-class LogView(components.Card):
+class LogView(components.Card, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page: ft.Page = page
@@ -35,7 +36,7 @@ class LogView(components.Card):
 
         title = components.CardTitleText('日志记录')
 
-        super().__init__(log_list, title=title, width=300)
+        components.Card.__init__(self, log_list, title=title, width=300)
 
 
 log_view: LogView = None

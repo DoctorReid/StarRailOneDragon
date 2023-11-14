@@ -7,6 +7,7 @@ from basic.i18_utils import gt, update_default_lang
 from gui import log_view, calibrator_view, version, routine_view, one_stop_view, scheduler
 from gui.settings import gui_config, settings_basic_view
 from gui.settings.gui_config import ThemeColors
+from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.config import game_config
 from sr.config.game_config import GameConfig
@@ -23,7 +24,8 @@ class StarRailAutoProxy:
         page.padding = 0
 
         theme: ThemeColors = gui_config.theme()
-        self.display_part = ft.Container(content=one_stop_view.get(ctx), padding=10)
+        self.display_view: SrBasicView = one_stop_view.get(ctx)
+        self.display_part = ft.Container(content=self.display_view, padding=10)
 
         self.app_rail = ft.NavigationRail(
             bgcolor=theme['component_bg'],
@@ -116,13 +118,17 @@ class StarRailAutoProxy:
             ft.Container(content=log_view.get(page, ctx), padding=10)
         ], expand=True, spacing=0))
 
+        self.display_view.handle_after_show()
         keyboard.on_press(self.on_key_press)
 
     def on_rail_chosen(self, e):
-        self.display_part.content = self._get_view_component()
+        self.display_view.handle_after_hide()
+        self.display_view = self._get_view_component()
+        self.display_part.content = self.display_view
         self.secondary_rail.content = self._get_secondary_rail()
         self.secondary_rail_divider.visible = self.secondary_rail.content is not None
         self.page.update()
+        self.display_view.handle_after_show()
 
     def _get_secondary_rail(self):
         if self.app_rail.selected_index == 0:
@@ -138,7 +144,7 @@ class StarRailAutoProxy:
         else:
             return None
 
-    def _get_view_component(self):
+    def _get_view_component(self) -> SrBasicView:
         if self.app_rail.selected_index == 0:
             return one_stop_view.get(self.ctx)
         elif self.app_rail.selected_index == 1:

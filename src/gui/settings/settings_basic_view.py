@@ -5,13 +5,14 @@ from basic import i18_utils, os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import version, snack_bar, components
+from gui.sr_basic_view import SrBasicView
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.context import Context
 
 
-class SettingsView(components.Card):
+class SettingsView(components.Card, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
@@ -82,11 +83,12 @@ class SettingsView(components.Card):
                 ft.Container(content=update_btn_row, padding=5),
             ])
 
-        super().__init__(content)
+        components.Card.__init__(self, content)
 
-        self.init_with_config()
+    def handle_after_show(self):
+        self._init_with_config()
 
-    def init_with_config(self):
+    def _init_with_config(self):
         """
         页面初始化加载已有配置
         :return:
@@ -96,6 +98,7 @@ class SettingsView(components.Card):
         self.run_mode_dropdown.value = gc.run_mode
         self.lang_dropdown.value = gc.lang
         self.game_path_text.value = gc.game_path
+        self.update()
 
     def on_server_region_changed(self, e):
         gc: GameConfig = game_config.get()

@@ -19,7 +19,7 @@ from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 class EmailRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.EMAIL['id'])
+        super().__init__(app_const.EMAIL.id)
 
 
 email_record: Optional[EmailRecord] = None

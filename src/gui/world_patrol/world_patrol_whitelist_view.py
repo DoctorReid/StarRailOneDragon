@@ -8,13 +8,14 @@ import flet as ft
 from basic import os_utils
 from basic.log_utils import log
 from gui import components
+from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_draft_route_view
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolRoute, WorldPatrolWhitelist, load_all_route_id, \
     load_all_whitelist_id
 from sr.context import Context
 
 
-class WorldPatrolWhiteListView(components.Card):
+class WorldPatrolWhiteListView(components.Card, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.page: ft.Page = page
@@ -71,7 +72,7 @@ class WorldPatrolWhiteListView(components.Card):
             ft.Container(content=self.display_route_list, padding=5, width=400)
         ])
 
-        super().__init__(content)
+        components.Card.__init__(self, content)
 
     def load_whitelist_id_list(self):
         self.existed_id_list = load_all_whitelist_id()
