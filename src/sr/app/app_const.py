@@ -15,7 +15,7 @@ SUPPORT_CHARACTER = AppDescription(cn='支援角色', id='support_character')
 NAMELESS_HONOR = AppDescription(cn='无名勋礼', id='nameless_honor')
 CLAIM_TRAINING = AppDescription(cn='实训奖励', id='claim_training')
 BUY_XIANZHOU_PARCEL = AppDescription(cn='过期包裹', id='buy_xianzhou_parcel')
-TRAILBLAZE_POWER = AppDescription(cn='开拓力(未完成)', id='trailblaze_power')
+TRAILBLAZE_POWER = AppDescription(cn='开拓力(测试中)', id='trailblaze_power')
 
 ROUTINE_APP_LIST: List[AppDescription] = [
     WORLD_PATROL,
@@ -25,7 +25,7 @@ ROUTINE_APP_LIST: List[AppDescription] = [
     NAMELESS_HONOR,
     CLAIM_TRAINING,
     BUY_XIANZHOU_PARCEL,
-    # TRAILBLAZE_POWER
+    TRAILBLAZE_POWER
 ]
 
 

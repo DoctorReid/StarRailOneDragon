@@ -2,9 +2,10 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Rect
+from basic import Rect, Point
 from basic.img import MatchResult, cv2_utils
 from sr.image import ImageMatcher
+from sr.image.ocr_matcher import OcrMatcher
 
 UNKNOWN = 0
 IN_WORLD = 1
@@ -20,6 +21,9 @@ PAUSE_BATTLE_RECT = Rect(1800, 30, 1900, 70)  # 暂停
 
 # 右上方那一行的菜单
 RT_CHARACTER_RECT = Rect(1800, 0, 1900, 90)  # 角色按钮
+
+AFTER_BATTLE_REWARD_RESULT_RECT = Rect(820, 240, 1100, 320)  # 战斗结束后领奖励页面 上方的结果框
+AFTER_BATTLE_CHALLENGE_AGAIN_BTN_RECT = Rect(1180, 930, 1330, 960)  # 战斗结束后领奖励页面 【再来一次】按钮
 
 
 def get_battle_status(screen: MatLike, im: ImageMatcher):
@@ -124,3 +128,17 @@ def match_battle_ctrl(screen: MatLike, im: ImageMatcher, template_id: str, rect:
         r.y += 30
 
     return r
+
+
+def get_battle_result_str(screen: MatLike, ocr: OcrMatcher) -> str:
+    """
+    战斗结束时，领取奖励的页面
+    获取顶部挑战结果
+    :param screen:
+    :param ocr:
+    :return: "挑战成功" 或 "挑战失败"
+    """
+    part, _ = cv2_utils.crop_image(screen, AFTER_BATTLE_REWARD_RESULT_RECT)
+    # cv2_utils.show_image(part, win_name='get_battle_result_str')
+
+    return ocr.ocr_for_single_line(part, strict_one_line=True)

@@ -14,14 +14,12 @@ from sr.control import GameController
 from sr.operation import Operation
 
 
-INTERACT_RECT = Rect(900, 400, 1760, 870)
-
-
 class Interact(Operation):
     """
     移动场景的交互 即跟人物、点位交互
     """
 
+    INTERACT_RECT = Rect(900, 400, 1450, 870)
     TRY_INTERACT_MOVE = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
 
     def __init__(self, ctx: Context, cn: str, wait: int = 0):
@@ -49,7 +47,7 @@ class Interact(Operation):
         u = 255
         lower_color = np.array([l, l, l], dtype=np.uint8)
         upper_color = np.array([u, u, u], dtype=np.uint8)
-        part, _ = cv2_utils.crop_image(screen, INTERACT_RECT)
+        part, _ = cv2_utils.crop_image(screen, Interact.INTERACT_RECT)
         white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
         # cv2_utils.show_image(white_part, wait=0)
 
@@ -74,6 +72,7 @@ class TalkInteract(Operation):
     """
     交谈过程中的交互
     """
+    INTERACT_RECT = Rect(900, 400, 1760, 870)
 
     def __init__(self, ctx: Context, option: str,
                  lcs_percent: float = -1,
@@ -96,7 +95,7 @@ class TalkInteract(Operation):
         screen: MatLike = self.screenshot()
         lower_color = np.array([200, 200, 200], dtype=np.uint8)
         upper_color = np.array([255, 255, 255], dtype=np.uint8)
-        part, _ = cv2_utils.crop_image(screen, INTERACT_RECT)
+        part, _ = cv2_utils.crop_image(screen, TalkInteract.INTERACT_RECT)
         white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
         # cv2_utils.show_image(white_part, wait=0)
 
@@ -108,7 +107,7 @@ class TalkInteract(Operation):
             return Operation.RETRY
         else:
             for r in ocr_result.values():
-                to_click: Point = r.max.center + INTERACT_RECT.left_top
+                to_click: Point = r.max.center + TalkInteract.INTERACT_RECT.left_top
                 if self.ctx.controller.interact(to_click, GameController.TALK_INTERACT_TYPE):
                     log.info('交互成功 %s', gt(self.option))
                     return Operation.SUCCESS

@@ -30,6 +30,8 @@ class Operation:
         ctx.register_pause(self, self.on_pause, self.on_resume)
         self.last_screenshot: MatLike = None
         self.gc: GameConfig = game_config.get()
+        self.pause_start_time = time.time()
+        self.pause_end_time = time.time()
 
     def _init_before_execute(self):
         """
@@ -88,10 +90,10 @@ class Operation:
         pass
 
     def on_pause(self):
-        pass
+        self.pause_start_time = time.time()
 
     def on_resume(self):
-        pass
+        self.pause_end_time = time.time()
 
     def screenshot(self):
         """

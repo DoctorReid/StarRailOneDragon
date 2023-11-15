@@ -36,7 +36,7 @@ class PlanListItem(ft.Row):
         self.category_dropdown.value = self.chosen_point.category
         self._update_tp_dropdown_list()
         self.tp_dropdown.value = self.chosen_point.unique_id
-        self.team_num_dropdown.value = '1'
+        self.team_num_dropdown.value = self.value['team_num']
         self.plan_times_input.value = self.value['plan_times']
         self.run_times_input.value = self.value['run_times']
         self.value_changed_callback = on_value_changed

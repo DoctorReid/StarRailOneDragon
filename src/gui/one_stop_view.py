@@ -251,6 +251,11 @@ class OneStopView(ft.Row, SrBasicView):
 
         ft.Row.__init__(self, controls=[left_part, app_list_part], spacing=10)
 
+        self.running_app: Application
+
+    def handle_after_show(self):
+        self._update_app_list_status()
+        scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
         self.ctx.register_status_changed_handler(self,
                                                  self._after_start,
                                                  self._after_pause,
@@ -258,14 +263,9 @@ class OneStopView(ft.Row, SrBasicView):
                                                  self._after_stop
                                                  )
 
-        self.running_app: Application
-
-    def handle_after_show(self):
-        self._update_app_list_status()
-        scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
-
     def handle_after_hide(self):
         scheduler.cancel_with_tag('_update_app_list_status')
+        self.ctx.unregister(self)
 
     def _check_ctx_stop(self) -> bool:
         """

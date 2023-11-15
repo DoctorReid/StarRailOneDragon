@@ -1,5 +1,6 @@
 app_order:
   - 'world_patrol'
+  - 'trailblaze_power'
   - 'assignments'
   - 'email'
   - 'support_character'
@@ -8,6 +9,7 @@ app_order:
   - 'buy_xianzhou_parcel'
 app_run:
   - 'world_patrol'
+  - 'trailblaze_power'
   - 'assignments'
   - 'email'
   - 'support_character'

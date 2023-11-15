@@ -3,7 +3,8 @@ from typing import List, Optional
 from basic.i18_utils import gt
 from sr.app import Application, app_const, AppRunRecord, world_patrol, app_record_current_dt_str
 from sr.app.app_const import AppDescription
-from sr.app.routine import assignments, email, support_character, nameless_honor, claim_training, buy_parcel
+from sr.app.routine import assignments, email, support_character, nameless_honor, claim_training, buy_parcel, \
+    trailblaze_power
 from sr.app.routine.assignments import Assignments
 from sr.app.routine.buy_parcel import BuyXianzhouParcel
 from sr.app.routine.claim_training import ClaimTraining
@@ -146,4 +147,6 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
         return claim_training.get_record()
     elif app_id == app_const.BUY_XIANZHOU_PARCEL.id:
         return buy_parcel.get_record()
+    elif app_id == app_const.TRAILBLAZE_POWER.id:
+        return trailblaze_power.get_record()
     return None

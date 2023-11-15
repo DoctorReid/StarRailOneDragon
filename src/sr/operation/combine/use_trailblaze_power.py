@@ -10,6 +10,7 @@ from sr.operation.combine.transport import Transport
 from sr.operation.unit.battle.choose_team import ChooseTeam
 from sr.operation.unit.battle.click_challenge import ClickChallenge
 from sr.operation.unit.battle.click_start_challenge import ClickStartChallenge
+from sr.operation.unit.battle.get_reward_and_retry import GetRewardAndRetry
 from sr.operation.unit.interact import Interact
 
 CATEGORY_1 = '经验信用'
@@ -21,10 +22,11 @@ CATEGORY_LIST = [CATEGORY_1, CATEGORY_2, CATEGORY_3, CATEGORY_4]
 
 class TrailblazePowerPoint:
 
-    def __init__(self, category: str, tp: TransportPoint, remark: str):
+    def __init__(self, category: str, tp: TransportPoint, remark: str, power: int):
         self.category: str = category
         self.tp: TransportPoint = tp
         self.remark: str = remark
+        self.power: int = power
 
     @property
     def unique_id(self) -> str:
@@ -35,35 +37,41 @@ class TrailblazePowerPoint:
         return '%s %s' % (gt(self.tp.cn, 'ui'), gt(self.remark, 'ui'))
 
 
-BUD_OF_MEMORIES = TrailblazePowerPoint(CATEGORY_1, map_const.P02_R02_SP04, '角色经验')
-BUD_OF_AETHER = TrailblazePowerPoint(CATEGORY_1, map_const.P02_R03_SP06, '光锥经验')
-BUD_OF_TREASURES = TrailblazePowerPoint(CATEGORY_1, map_const.P02_R10_SP08, '信用点')
-BUD_OF_DESTRUCTION = TrailblazePowerPoint(CATEGORY_2, map_const.P01_R03_SP05, '毁灭')
-BUD_OF_PRESERVATION = TrailblazePowerPoint(CATEGORY_2, map_const.P01_R04_SP04, '存护')
-BUD_OF_THE_HUNT = TrailblazePowerPoint(CATEGORY_2, map_const.P02_R02_SP03, '巡猎')
-BUD_OF_ABUNDANCE = TrailblazePowerPoint(CATEGORY_2, map_const.P02_R03_SP05, '丰饶')
-BUD_OF_HARMONY = TrailblazePowerPoint(CATEGORY_2, map_const.P02_R12_SP04, '同谐')
-BUD_OF_NIHILITY = TrailblazePowerPoint(CATEGORY_2, map_const.P02_R10_SP07, '虚无')
-SHAPE_OF_QUANTA = TrailblazePowerPoint(CATEGORY_3, map_const.P01_R02_SP03, '量子')
-SHAPE_OF_GUST = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R11_SP04, '风')
-SHAPE_OF_FULMINATION = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R05_SP05, '雷')
-SHAPE_OF_BLAZE = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R04_SP04, '火')
-SHAPE_OF_SPIKE = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R10_SP05, '物理')
-SHAPE_OF_RIME = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R05_SP06, '冰')
-SHAPE_OF_MIRAGE = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R03_SP04, '虚数')
-SHAPE_OF_ICICLE = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R02_SP05, '冰')
-SHAPE_OF_DOOM = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R03_SP05, '雷')
-SHAPE_OF_PUPPETRY = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R07_SP05, '虚数')
-SHAPE_OF_ABOMINATION = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R09_SP04, '量子')
-SHAPE_OF_SCORCH = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R10_SP06, '火')
-SHAPE_OF_CELESTIAL = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R08_SP05, '风')
-PATH_OF_GELID_WIND = TrailblazePowerPoint(CATEGORY_4, map_const.P01_R03_SP06, '猎人 翔鹰')
-PATH_OF_JABBING_PUNCH = TrailblazePowerPoint(CATEGORY_4, map_const.P02_R04_SP05, '拳王 怪盗')
-PATH_OF_DRIFTING = TrailblazePowerPoint(CATEGORY_4, map_const.P02_R05_SP07, '过客 快枪手')
-PATH_OF_PROVIDENCE = TrailblazePowerPoint(CATEGORY_4, map_const.P02_R06_SP03, '铁卫 天才')
-PATH_OF_HOLY_HYMN = TrailblazePowerPoint(CATEGORY_4, map_const.P03_R02_SP06, '圣骑士 乐队')
-PATH_OF_CONFLAGRATION = TrailblazePowerPoint(CATEGORY_4, map_const.P03_R03_SP06, '火匠 废土客')
-PATH_OF_ELIXIR_SEEKERS = TrailblazePowerPoint(CATEGORY_4, map_const.P03_R08_SP06, '莳者 信使')
+BUD_OF_MEMORIES = TrailblazePowerPoint(CATEGORY_1, map_const.P02_R02_SP04, '角色经验', 10)
+BUD_OF_AETHER = TrailblazePowerPoint(CATEGORY_1, map_const.P02_R03_SP06, '光锥经验', 10)
+BUD_OF_TREASURES = TrailblazePowerPoint(CATEGORY_1, map_const.P02_R10_SP08, '信用点', 10)
+
+BUD_OF_DESTRUCTION = TrailblazePowerPoint(CATEGORY_2, map_const.P01_R03_SP05, '毁灭', 10)
+BUD_OF_PRESERVATION = TrailblazePowerPoint(CATEGORY_2, map_const.P01_R04_SP04, '存护', 10)
+BUD_OF_THE_HUNT = TrailblazePowerPoint(CATEGORY_2, map_const.P02_R02_SP03, '巡猎', 10)
+BUD_OF_ABUNDANCE = TrailblazePowerPoint(CATEGORY_2, map_const.P02_R03_SP05, '丰饶', 10)
+BUD_OF_HARMONY = TrailblazePowerPoint(CATEGORY_2, map_const.P02_R12_SP04, '同谐', 10)
+BUD_OF_NIHILITY = TrailblazePowerPoint(CATEGORY_2, map_const.P02_R10_SP07, '虚无', 10)
+SHAPE_OF_QUANTA = TrailblazePowerPoint(CATEGORY_3, map_const.P01_R02_SP03, '量子', 10)
+
+SHAPE_OF_GUST = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R11_SP04, '风', 30)
+SHAPE_OF_FULMINATION = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R05_SP05, '雷', 30)
+SHAPE_OF_BLAZE = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R04_SP04, '火', 30)
+SHAPE_OF_SPIKE = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R10_SP05, '物理', 30)
+SHAPE_OF_RIME = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R05_SP06, '冰', 30)
+SHAPE_OF_MIRAGE = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R03_SP04, '虚数', 30)
+SHAPE_OF_ICICLE = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R02_SP05, '冰', 30)
+SHAPE_OF_DOOM = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R03_SP05, '雷', 30)
+SHAPE_OF_PUPPETRY = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R07_SP05, '虚数', 30)
+SHAPE_OF_ABOMINATION = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R09_SP04, '量子', 30)
+SHAPE_OF_SCORCH = TrailblazePowerPoint(CATEGORY_3, map_const.P02_R10_SP06, '火', 30)
+SHAPE_OF_CELESTIAL = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R08_SP05, '风', 30)
+SHAPE_OF_PERDITION = TrailblazePowerPoint(CATEGORY_3, map_const.P03_R10_SP05, '物理', 30)
+
+PATH_OF_GELID_WIND = TrailblazePowerPoint(CATEGORY_4, map_const.P01_R03_SP06, '猎人 翔鹰', 40)
+PATH_OF_JABBING_PUNCH = TrailblazePowerPoint(CATEGORY_4, map_const.P02_R04_SP05, '拳王 怪盗', 40)
+PATH_OF_DRIFTING = TrailblazePowerPoint(CATEGORY_4, map_const.P02_R05_SP07, '过客 快枪手', 40)
+PATH_OF_PROVIDENCE = TrailblazePowerPoint(CATEGORY_4, map_const.P02_R06_SP03, '铁卫 天才', 40)
+PATH_OF_HOLY_HYMN = TrailblazePowerPoint(CATEGORY_4, map_const.P03_R02_SP06, '圣骑士 乐队', 40)
+PATH_OF_CONFLAGRATION = TrailblazePowerPoint(CATEGORY_4, map_const.P03_R03_SP06, '火匠 废土客', 40)
+PATH_OF_ELIXIR_SEEKERS = TrailblazePowerPoint(CATEGORY_4, map_const.P03_R08_SP06, '莳者 信使', 40)
+PATH_OF_DARKNESS = TrailblazePowerPoint(CATEGORY_4, map_const.P03_R10_SP06, '大公 系囚', 40)
+
 CATEGORY_POINT_MAP: dict[str, List[TrailblazePowerPoint]] = {
     CATEGORY_1: [BUD_OF_MEMORIES, BUD_OF_AETHER, BUD_OF_TREASURES],
     CATEGORY_2: [BUD_OF_DESTRUCTION, BUD_OF_PRESERVATION, BUD_OF_THE_HUNT, BUD_OF_ABUNDANCE, BUD_OF_HARMONY, BUD_OF_NIHILITY],
@@ -93,6 +101,7 @@ class UseTrailblazePower(CombineOperation):
             ClickChallenge(ctx),  # 点击挑战
             ChooseTeam(ctx, team_num),  # 选择配队
             ClickStartChallenge(ctx),  # 开始挑战
+            GetRewardAndRetry(ctx, run_times),  # 领奖 重复挑战
         ]
 
         super().__init__(ctx, ops, op_name='%s %s %d' % (gt(tpp.tp.cn, 'ui'), gt('次数', 'ui'), run_times))

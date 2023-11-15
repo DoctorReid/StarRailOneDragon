@@ -1,10 +1,16 @@
 from typing import Optional, TypedDict, List
 
+from cv2.typing import MatLike
+
+from basic import Rect
 from basic.i18_utils import gt
+from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.app import Application, AppRunRecord, app_const
 from sr.config import ConfigHolder
 from sr.context import Context
 from sr.operation import Operation
+from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower
 from sr.operation.unit.open_map import OpenMap
 
 
@@ -39,7 +45,7 @@ class TrailblazePowerConfig(ConfigHolder):
     def _init_after_read_file(self):
         pass
 
-    def _check_plan_finished(self):
+    def check_plan_finished(self):
         """
         检测计划是否都执行完了
         执行完的话 所有执行次数置为0 重新开始下一轮
@@ -98,10 +104,12 @@ def get_config() -> TrailblazePowerConfig:
 
 class TrailblazePower(Application):
 
+    MAP_POWER_RECT = Rect(1635, 54, 1678, 72)
+
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('开拓力', 'ui'))
         self.phase: int = 0
-        self.power: int = 160
+        self.power: int = 0
 
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开大地图
@@ -112,8 +120,29 @@ class TrailblazePower(Application):
                 self.phase += 1
                 return Operation.WAIT
         elif self.phase == 1:  # 查看剩余体力
-            # TODO
+            screen: MatLike = self.screenshot()
+            part, _ = cv2_utils.crop_image(screen, TrailblazePower.MAP_POWER_RECT)
+            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+            self.power = int(ocr_result)
+            log.info('当前体力 %d', self.power)
             self.phase += 1
             return Operation.WAIT
         elif self.phase == 2:  # 使用体力
-            pass  # TODO
+            config = get_config()
+            config.check_plan_finished()
+            plan: Optional[TrailblazePowerPlanItem] = config.next_plan_item
+            if plan is None:
+                return Operation.SUCCESS
+
+            point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
+            run_times: int = self.power // point.power
+            if run_times == 0:
+                return Operation.SUCCESS
+            if run_times + plan['run_times'] > plan['plan_times']:
+                run_times = plan['plan_times'] - plan['run_times']
+
+            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times)
+            if op.execute():
+                return Operation.WAIT
+            else:
+                return Operation.RETRY
