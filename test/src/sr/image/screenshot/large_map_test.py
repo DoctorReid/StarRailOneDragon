@@ -64,5 +64,5 @@ def _test_init_large_map(region: Region):
 
 
 if __name__ == '__main__':
-    for r in [map_const.P01_R03_B1]:
+    for r in [map_const.P03_R10]:
         _test_init_large_map(r)

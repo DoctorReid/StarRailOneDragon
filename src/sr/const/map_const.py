@@ -159,6 +159,7 @@ P03_R07 = Region(7, "GZS", "工造司", P03)
 P03_R08_L1 = Region(8, "DDS", "丹鼎司", P03, floor=1)
 P03_R08_L2 = Region(8, "DDS", "丹鼎司", P03, floor=2)
 P03_R09 = Region(9, "LYJ", "鳞渊境", P03)
+P03_R10 = Region(10, "SY", "绥园", P03)
 
 # 这里的顺序需要保持和界面上的区域顺序一致
 PLANET_2_REGION = {
@@ -166,7 +167,7 @@ PLANET_2_REGION = {
     P02.np_id: [P02_R01_L1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R06, P02_R07, P02_R08_L2, P02_R09, P02_R10,
                 P02_R11_L1, P02_R11_L2, P02_R12_L1, P02_R12_L2],
     P03.np_id: [P03_R01, P03_R02_L1, P03_R02_L2, P03_R03_L1, P03_R03_L2, P03_R04, P03_R05, P03_R06_L1, P03_R06_L2,
-                P03_R07, P03_R08_L1, P03_R08_L2, P03_R09]
+                P03_R07, P03_R08_L1, P03_R08_L2, P03_R09, P03_R10]
 }
 
 
@@ -463,6 +464,15 @@ P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形', P03_R09, 'mm_tp_06', (917,
 P03_R09_SP05 = TransportPoint('DDS', '丹鼎司', P03_R09, 'mm_sp_02', (1891, 391))
 P03_R09_SP06 = TransportPoint('BSDSS', '不死的神实', P03_R09, 'mm_boss_03', (470, 450))
 
+# 仙舟罗浮 - 绥园
+P03_R10_SP01 = TransportPoint('YXGCL', '偃息馆长廊', P03_R10, 'mm_tp_03', (867, 402), (868, 417))
+P03_R10_SP02 = TransportPoint('THLHM', '谈狐林后门', P03_R10, 'mm_tp_03', (209, 480), (235, 480))
+P03_R10_SP03 = TransportPoint('TQTRK', '青丘台入口', P03_R10, 'mm_tp_03', (606, 646), (617, 647))
+P03_R10_SP04 = TransportPoint('YYTRK', '燕乐亭入口', P03_R10, 'mm_tp_03', (838, 796), (855, 777))
+P03_R10_SP05 = TransportPoint('YFZX', '幽府之形', P03_R10, 'mm_tp_06', (152, 678), (155, 658))
+P03_R10_SP06 = TransportPoint('YMZJ', '幽冥之径', P03_R10, 'mm_tp_09', (418, 462), (423, 459))
+P03_R10_SP07 = TransportPoint('CLT', '长乐天', P03_R10, 'mm_sp_02', (628, 771))
+
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
     P01_R02.pr_id: [P01_R02_SP01, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04],
@@ -494,7 +504,8 @@ REGION_2_SP = {
     P03_R07.pr_id: [P03_R07_SP01, P03_R07_SP02, P03_R07_SP03, P03_R07_SP04, P03_R07_SP05, P03_R07_SP06, P03_R07_SP07],
     P03_R08_L1.pr_id: [P03_R08_SP01, P03_R08_SP02, P03_R08_SP03, P03_R08_SP04, P03_R08_SP05, P03_R08_SP06, P03_R08_SP07, P03_R08_SP08, P03_R08_SP09, P03_R08_SP10,
                        P03_R08_SP11, P03_R08_SP12],
-    P03_R09.pr_id: [P03_R09_SP01, P03_R09_SP02, P03_R09_SP03, P03_R09_SP04, P03_R09_SP05, P03_R09_SP06]
+    P03_R09.pr_id: [P03_R09_SP01, P03_R09_SP02, P03_R09_SP03, P03_R09_SP04, P03_R09_SP05, P03_R09_SP06],
+    P03_R10.pr_id: [P03_R10_SP01, P03_R10_SP02, P03_R10_SP03, P03_R10_SP04, P03_R10_SP05, P03_R10_SP06, P03_R10_SP07]
 }
 
 

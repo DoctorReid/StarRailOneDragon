@@ -76,7 +76,7 @@ class LargeMapRecorder(Application):
                 if i == 0:
                     merge = img[i]
                 else:
-                    merge = cv2_utils.concat_vertically(merge, img[i], decision_height=large_map.CUT_MAP_RECT[3] - large_map.CUT_MAP_RECT[1] - 300)
+                    merge = cv2_utils.concat_vertically(merge, img[i], decision_height=large_map.CUT_MAP_RECT.y2 - large_map.CUT_MAP_RECT.y1 - 300)
 
             raw_img[region.prl_id] = merge
             cv2_utils.show_image(merge, win_name='region.prl_id')
@@ -155,6 +155,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = map_const.P01_R04_L1
+    r = map_const.P03_R10
     app = LargeMapRecorder(ctx, r)
     app.execute()

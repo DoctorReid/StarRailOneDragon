@@ -175,6 +175,9 @@ msgstr "Alchemy Commission"
 msgid "鳞渊境"
 msgstr "Scalegorge Waterscape"
 
+msgid "绥园"
+msgstr "Fyxestroll Garden"
+
 # Special Point - Herta Space Station - Master Control Zone
 msgid "监察域"
 msgstr "Watcher Zone"
@@ -684,6 +687,25 @@ msgstr "Shape of Abomination"
 
 msgid "不死的神实"
 msgstr "Divine Seed"
+
+# Special Point - The Xianzhou Luofu - Fyxestroll Garden
+msgid "偃息馆长廊"
+msgstr "Pavilion of Cessation Corridor"
+
+msgid "谈狐林后门"
+msgstr "Locufox Forest Backdoor"
+
+msgid "青丘台入口"
+msgstr "Verdant Terrace Entrance"
+
+msgid "燕乐亭入口"
+msgstr "Swallowsong Pavilion Entrance"
+
+msgid "幽府之形"
+msgstr "Shape of Perdition"
+
+msgid "幽冥之径"
+msgstr "Path of Darkness"
 
 # Large Map Btn
 msgid "星轨航图"

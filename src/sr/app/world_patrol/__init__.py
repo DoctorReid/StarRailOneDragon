@@ -109,9 +109,8 @@ class WorldPatrolWhitelist(ConfigHolder):
         super().__init__(file_name, sample=False, sub_dir=['world_patrol', 'whitelist'])
 
     def _init_after_read_file(self):
-        if self.data is not None:
-            self.type = self.data['type']
-            self.list = self.data['list']
+        self.type = self.get('type', 'black')
+        self.list = self.get('list', [])
 
     @property
     def valid(self) -> bool:

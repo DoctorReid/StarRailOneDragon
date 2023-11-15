@@ -123,6 +123,7 @@ def get_sp_mask_by_template_match(lm_info: LargeMapInfo, im: ImageMatcher,
             match_result = im.match_image(
                 source, template, mask=template_mask,
                 threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP,
+                only_best=False,
                 ignore_inf=True)
 
             if len(match_result) > 0:
@@ -273,10 +274,10 @@ def get_expand_arr(raw: MatLike):
     bp = 0 if bottom[1] + padding < raw.shape[0] else bottom[1] + padding + 1 - raw.shape[0]
 
     # raw 尺寸至少跟CUT_MAP_RECT一致 所以只有上面没有拓展的情况要
-    if tp == 0 and bp == 0 and raw.shape[0] == CUT_MAP_RECT[3] - CUT_MAP_RECT[1]:
+    if tp == 0 and bp == 0 and raw.shape[0] == CUT_MAP_RECT.y2 - CUT_MAP_RECT.y1:
         tp = 5
         bp = 5
-    if lp == 0 and rp == 0 and raw.shape[1] == CUT_MAP_RECT[2] - CUT_MAP_RECT[0]:
+    if lp == 0 and rp == 0 and raw.shape[1] == CUT_MAP_RECT.x2 - CUT_MAP_RECT.x1:
         lp = 5
         rp = 5
 
