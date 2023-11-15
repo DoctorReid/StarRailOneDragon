@@ -109,6 +109,7 @@ class AppRunRecord(ConfigHolder):
             self._reset_for_new_dt()
 
     def update_status(self, new_status: int):
+        self.dt = app_record_current_dt_str()
         self.run_status = new_status
         self.run_time = app_record_now_time_str()
         self.update('dt', self.dt, False)

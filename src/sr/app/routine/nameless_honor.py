@@ -54,7 +54,7 @@ class ClaimNamelessHonor(Application):
                 return Operation.FAIL
         elif self.phase == 1:  # 检测无名勋礼红点并点击
             screen: MatLike = self.screenshot()
-            result: MatchResult = phone_menu.get_phone_menu_item_pos(screen, self.ctx.im, phone_menu_const.NAMELESS_HONOR, alert=False)  # TODO 下个版本再测试红点
+            result: MatchResult = phone_menu.get_phone_menu_item_pos(screen, self.ctx.im, phone_menu_const.NAMELESS_HONOR, alert=True)
             if result is None:
                 log.info('检测不到无名勋礼红点 跳过')
                 return Operation.SUCCESS
@@ -65,10 +65,10 @@ class ClaimNamelessHonor(Application):
                 return Operation.WAIT
         elif self.phase == 2:  # 检测第2个tab红点并点击
             screen: MatLike = self.screenshot()
-            result: MatchResult = phone_menu.get_nameless_honor_tab_pos(screen, self.ctx.im, 2, alert=False)  # TODO 下个版本再测试红点
+            result: MatchResult = phone_menu.get_nameless_honor_tab_pos(screen, self.ctx.im, 2, alert=True)
             if result is None:
-                log.info('检测不到任务红点 跳过')
-                self.phase = 3  # 跳转到在tab1领取奖励
+                log.info('检测不到任务红点')
+                self.phase = 5  # 跳转到在tab1领取奖励
                 return Operation.WAIT
             else:
                 self.ctx.controller.click(result.center)
@@ -79,7 +79,7 @@ class ClaimNamelessHonor(Application):
             screen: MatLike = self.screenshot()
             result: MatchResult = phone_menu.get_nameless_honor_tab_2_claim_pos(screen, self.ctx.ocr)
             if result is None:
-                log.info('检测不到【一键领取】 跳过')
+                log.info('检测不到【一键领取】')
                 return Operation.SUCCESS
             else:
                 self.ctx.controller.click(result.center)
@@ -88,10 +88,11 @@ class ClaimNamelessHonor(Application):
                 return Operation.WAIT
         elif self.phase == 4:  # 返回tab1
             screen: MatLike = self.screenshot()
-            result: MatchResult = phone_menu.get_nameless_honor_tab_pos(screen, self.ctx.im, 1, alert=False)
+            result: MatchResult = phone_menu.get_nameless_honor_tab_pos(screen, self.ctx.im, 1, alert=True)
             if result is None:
-                log.info('检测不到奖励图标 跳过')
-                return Operation.FAIL
+                log.info('检测不到奖励图标')
+                time.sleep(1)
+                return Operation.RETRY
             else:
                 self.ctx.controller.click(result.center)
                 self.phase += 1
