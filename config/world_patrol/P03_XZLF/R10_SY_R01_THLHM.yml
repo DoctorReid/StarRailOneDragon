@@ -1,0 +1,25 @@
+author: ['DoctorReid']
+planet: '仙舟罗浮'
+region: '绥园'
+floor: 0
+tp: '谈狐林后门'
+route:
+  - op: 'move'
+    data: [234, 444]
+  - op: 'move'
+    data: [234, 375]
+  - op: 'move'
+    data: [234, 330]
+  - op: 'move'
+    data: [275, 326]
+  - op: 'patrol'
+  - op: 'move'
+    data: [293, 327]
+  - op: 'move'
+    data: [293, 357]
+  - op: 'patrol'
+  - op: 'move'
+    data: [293, 327]
+  - op: 'move'
+    data: [368, 335]
+  - op: 'patrol'
