@@ -20,29 +20,27 @@ from sr.operation.unit.wait_in_world import WaitInWorld
 
 class RunPatrolRoute(CombineOperation):
 
-    def __init__(self, ctx: Context, route_id: WorldPatrolRouteId, first_route: bool = False):
+    def __init__(self, ctx: Context, route_id: WorldPatrolRouteId):
         """
         运行一条锄地路线
         :param ctx:
         :param route_id: 路线ID
-        :param first_route: 是否第一条路线
         """
         route: WorldPatrolRoute = WorldPatrolRoute(route_id)
         log.info('准备执行线路 %s', route_id.display_name)
         log.info('感谢以下人员提供本路线 %s', route.author_list)
-        super().__init__(ctx, self.init_ops(ctx, route, first_route), op_name=gt('锄地路线 %s', 'ui') % route.display_name)
+        super().__init__(ctx, self.init_ops(ctx, route), op_name=gt('锄地路线 %s', 'ui') % route.display_name)
 
-    def init_ops(self, ctx: Context, route: WorldPatrolRoute, first_route: bool = False) -> List[Operation]:
+    def init_ops(self, ctx: Context, route: WorldPatrolRoute) -> List[Operation]:
         """
         执行这条路线的所有指令
         :param ctx:
         :param route: 路线实体
-        :param first_route: 是否第一条路线
         :return:
         """
         ops: List[Operation] = []
 
-        ops.append(Transport(ctx, route.tp, first_route))
+        ops.append(Transport(ctx, route.tp))
 
         current_pos: Point = route.tp.tp_pos
         current_lm_info = ctx.ih.get_large_map(route.route_id.region)

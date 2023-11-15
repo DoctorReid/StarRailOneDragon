@@ -18,7 +18,7 @@ class ClickChallenge(Operation):
     CHALLENGE_BTN_RECT = Rect(1360, 950, 1890, 1010)
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('点击挑战', 'ui'))
+        super().__init__(ctx, try_times=5, op_name=gt('点击挑战', 'ui'))  # 交互后打开副本页面大概需要3秒 所以重试设置5次
 
     def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()

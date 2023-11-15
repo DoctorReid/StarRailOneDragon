@@ -58,7 +58,7 @@ class Label2TimeValueRow(ft.Row):
 class AppListItem(ft.Row):
 
     def __init__(self, title: str, app_id: str,
-                 on_click_run, on_click_up, on_click_down, on_switch_change):
+                 on_click_run, on_click_up, on_switch_change):
         self.app_id: str = app_id
         theme: ThemeColors = gui_config.theme()
         self.run_status_text = ft.Text(gt('上次', 'ui'), color=label_color, size=12)
@@ -73,12 +73,10 @@ class AppListItem(ft.Row):
         ], spacing=0, alignment=ft.MainAxisAlignment.CENTER)
         self.run_app_btn = ft.IconButton(icon=ft.icons.PLAY_ARROW_OUTLINED, data=app_id, icon_size=15, on_click=on_click_run)
         self.up_app_btn = ft.IconButton(icon=ft.icons.ARROW_UPWARD_OUTLINED, data=app_id, icon_size=15, on_click=on_click_up)
-        self.down_app_btn = ft.IconButton(icon=ft.icons.ARROW_DOWNWARD_OUTLINED, data=app_id, icon_size=15, on_click=on_click_down)
         self.run_switch = ft.Switch(data=app_id, value=False, on_change=on_switch_change)
         icon_col = ft.Row(controls=[
             self.run_app_btn,
             self.up_app_btn,
-            self.down_app_btn,
             self.run_switch
         ], spacing=0, expand=True, alignment=ft.MainAxisAlignment.END)  # 注意外部需要宽度固定
         super().__init__(controls=[text_col, icon_col], height=50,
@@ -96,7 +94,6 @@ class AppListItem(ft.Row):
     def set_disabled(self, disabled: bool):
         self.run_app_btn.disabled = disabled
         self.up_app_btn.disabled = disabled
-        self.down_app_btn.disabled = disabled
         self.run_switch.disabled = disabled
         self.update()
 
@@ -114,7 +111,6 @@ class AppList(ft.ListView):
             item = AppListItem(app.cn, app.id,
                                on_click_run=self._on_item_click_run,
                                on_click_up=self._on_item_click_up,
-                               on_click_down=self._on_item_click_down,
                                on_switch_change=self._on_item_switch_changed
                                )
             self.item_map[app.id] = item
@@ -145,27 +141,6 @@ class AppList(ft.ListView):
 
         temp = self.app_id_list[target_idx - 1]
         self.app_id_list[target_idx - 1] = self.app_id_list[target_idx]
-        self.app_id_list[target_idx] = temp
-        one_stop_service.get_config().order_app_id_list = self.app_id_list
-        self.update()
-
-    def _on_item_click_down(self, e):
-        app_id: str = e.control.data
-        target_idx: int = len(self.controls)
-        for i in range(len(self.controls)):
-            item: AppListItem = self.controls[i].content
-            if item.app_id == app_id:
-                target_idx = i
-                break
-
-        if target_idx >= len(self.controls) - 1:
-            return
-        temp = self.controls[target_idx + 1]
-        self.controls[target_idx + 1] = self.controls[target_idx]
-        self.controls[target_idx] = temp
-
-        temp = self.app_id_list[target_idx + 1]
-        self.app_id_list[target_idx + 1] = self.app_id_list[target_idx]
         self.app_id_list[target_idx] = temp
         one_stop_service.get_config().order_app_id_list = self.app_id_list
         self.update()
@@ -241,7 +216,7 @@ class OneStopView(ft.Row, SrBasicView):
                 sim_row,
                 hall_row
             ], auto_scroll=True, spacing=10)
-        character_info_card = components.Card(character_info_content, title=character_info_title, width=info_card_width, height=250)
+        character_info_card = components.Card(character_info_content, title=character_info_title, width=info_card_width, height=300)
 
         self.running_ring = ft.ProgressRing(width=20, height=20, color=ft.colors.BLUE_300, visible=False)
         status_title_row = ft.Row(controls=[

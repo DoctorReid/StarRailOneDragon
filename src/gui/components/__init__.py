@@ -11,6 +11,7 @@ class RectOutlinedButton(ft.OutlinedButton):
     def __init__(
             self,
             text: Optional[str] = None,
+            icon: Optional[str] = None,
             visible: Optional[bool] = None,
             disabled: Optional[bool] = None,
             on_click=None,
@@ -30,7 +31,7 @@ class RectOutlinedButton(ft.OutlinedButton):
 
 class CardTitleText(ft.Text):
 
-    def __init__(self, title: str) :
+    def __init__(self, title: str):
         theme: ThemeColors = gui_config.theme()
         super().__init__(title, size=20, weight=ft.FontWeight.W_600, color=theme['card_title_color'])
 

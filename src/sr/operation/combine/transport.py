@@ -16,7 +16,7 @@ from sr.operation.unit.wait_in_world import WaitInWorld
 
 class Transport(CombineOperation):
 
-    def __init__(self, ctx: Context, tp: TransportPoint, first: bool = True):
+    def __init__(self, ctx: Context, tp: TransportPoint):
         """
         :param ctx:
         :param tp:
@@ -24,7 +24,7 @@ class Transport(CombineOperation):
         """
         ops: List[Operation] = []
         ops.append(OpenMap(ctx))
-        if first:
+        if ctx.first_transport:
             ops.append(ScaleLargeMap(ctx, -5))
         ops.append(ChoosePlanet(ctx, tp.region.planet))
         ops.append(ChooseRegion(ctx, tp.region))
@@ -35,3 +35,12 @@ class Transport(CombineOperation):
                          op_name=gt('传送 %s %s %s', 'ui') % (tp.planet.display_name, tp.region.display_name, tp.display_name))
 
         log.info('准备传送 %s %s %s', tp.planet.display_name, tp.region.display_name, tp.display_name)
+
+    def _after_operation_done(self, result: bool):
+        """
+        动作结算后的处理
+        :param result:
+        :return:
+        """
+        if result:
+            self.ctx.first_transport = False  # 后续传送不用缩放地图了

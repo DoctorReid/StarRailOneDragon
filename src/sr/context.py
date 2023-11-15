@@ -49,6 +49,7 @@ class Context:
 
         self.recorder: PerformanceRecorder = get_recorder()
         self.open_game_by_script: bool = False  # 脚本启动的游戏
+        self.first_transport: bool = True  # 第一次传送
 
     def register_key_press(self, key, callback):
         if key not in self.press_event:

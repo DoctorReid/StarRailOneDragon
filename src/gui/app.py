@@ -4,8 +4,8 @@ import flet as ft
 import keyboard
 
 from basic.i18_utils import gt, update_default_lang
-from gui import log_view, calibrator_view, version, routine_view, one_stop_view, scheduler
-from gui.settings import gui_config, settings_basic_view
+from gui import log_view, calibrator_view, version, one_stop_view, scheduler
+from gui.settings import gui_config, settings_basic_view, settings_trailblaze_power_view
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
@@ -43,11 +43,6 @@ class StarRailAutoProxy:
                     icon=ft.icons.RUN_CIRCLE_OUTLINED,
                     selected_icon=ft.icons.RUN_CIRCLE,
                     label=gt('锄大地', model='ui')
-                ),
-                ft.NavigationRailDestination(
-                    icon=ft.icons.TODAY_OUTLINED,
-                    selected_icon=ft.icons.TODAY_ROUNDED,
-                    label=gt('日常', model='ui')
                 ),
                 ft.NavigationRailDestination(
                     icon=ft.icons.ADD_LOCATION_ALT_OUTLINED,
@@ -101,12 +96,18 @@ class StarRailAutoProxy:
                     selected_icon=ft.icons.SETTINGS_INPUT_COMPONENT_ROUNDED,
                     label=gt('基础', model='ui')
                 ),
+                ft.NavigationRailDestination(
+                    icon=ft.icons.SCHEDULE_SEND,
+                    selected_icon=ft.icons.SCHEDULE_SEND_OUTLINED,
+                    label=gt('开拓力', model='ui')
+                ),
             ],
             on_change=self.on_rail_chosen
         )
 
         self.secondary_rail = ft.Container()
         self.secondary_rail_divider = ft.VerticalDivider(width=1, visible=False)
+        self.log_container = ft.Container(content=log_view.get(page, ctx), padding=10)
 
         page.bgcolor = theme['window_bg']
         page.add(ft.Row([
@@ -115,7 +116,7 @@ class StarRailAutoProxy:
             self.secondary_rail,
             self.secondary_rail_divider,
             self.display_part,
-            ft.Container(content=log_view.get(page, ctx), padding=10)
+            self.log_container
         ], expand=True, spacing=0))
 
         self.display_view.handle_after_show()
@@ -127,8 +128,18 @@ class StarRailAutoProxy:
         self.display_part.content = self.display_view
         self.secondary_rail.content = self._get_secondary_rail()
         self.secondary_rail_divider.visible = self.secondary_rail.content is not None
+        self.log_container.visible = self._get_log_visible_by_rail()
         self.page.update()
         self.display_view.handle_after_show()
+
+    def _get_log_visible_by_rail(self) -> bool:
+        if self.app_rail.selected_index == 0:
+            if self.world_patrol_rail.selected_index in [0, 1]:
+                return True
+        elif self.app_rail.selected_index == 2:
+            return True
+        return False
+
 
     def _get_secondary_rail(self):
         if self.app_rail.selected_index == 0:
@@ -138,8 +149,6 @@ class StarRailAutoProxy:
         elif self.app_rail.selected_index == 2:
             return None
         elif self.app_rail.selected_index == 3:
-            return None
-        elif self.app_rail.selected_index == 4:
             return self.settings_rail
         else:
             return None
@@ -155,12 +164,12 @@ class StarRailAutoProxy:
             if self.world_patrol_rail.selected_index == 2:
                 return world_patrol_whitelist_view.get(self.page, self.ctx)
         elif self.app_rail.selected_index == 2:
-            return routine_view.get(self.page, self.ctx)
-        elif self.app_rail.selected_index == 3:
             return calibrator_view.get(self.page, self.ctx)
-        elif self.app_rail.selected_index == 4:
+        elif self.app_rail.selected_index == 3:
             if self.settings_rail.selected_index == 0:
                 return settings_basic_view.get(self.page, self.ctx)
+            elif self.settings_rail.selected_index == 1:
+                return settings_trailblaze_power_view.get(self.ctx)
 
         return None
 
@@ -183,7 +192,7 @@ class StarRailAutoProxy:
                 t = threading.Thread(target=world_patrol_run_view.get(self.page, self.ctx).start, args=[None])
             elif self.world_patrol_rail.selected_index == 1:
                 t = threading.Thread(target=world_patrol_draft_route_view.get(self.page, self.ctx).test_existed, args=[None])
-        elif self.app_rail.selected_index == 3:
+        elif self.app_rail.selected_index == 2:
             t = threading.Thread(target=calibrator_view.get(self.page, self.ctx).start, args=[None])
         if t is not None:
             t.start()

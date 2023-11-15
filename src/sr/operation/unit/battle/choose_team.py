@@ -18,7 +18,7 @@ class ChooseTeam(Operation):
     TEAM_NUM_RECT = Rect(620, 60, 1330, 120)
 
     def __init__(self, ctx: Context, team_num: int):
-        super().__init__(ctx, op_name=gt('选择配队', 'ui'))
+        super().__init__(ctx, try_times=3, op_name=gt('选择配队', 'ui'))
         self.team_num: int = team_num
 
     def _execute_one_round(self) -> int:

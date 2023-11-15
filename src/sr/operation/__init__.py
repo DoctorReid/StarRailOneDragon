@@ -81,6 +81,7 @@ class Operation:
                 result = False
                 break
         self.ctx.unregister(self)
+        self._after_operation_done(result)
         return result
 
     def _execute_one_round(self) -> int:
@@ -113,3 +114,11 @@ class Operation:
         :return:
         """
         return False
+
+    def _after_operation_done(self, result: bool):
+        """
+        动作结算后的处理
+        :param result:
+        :return:
+        """
+        pass

@@ -19,7 +19,6 @@ class WorldPatrol(Application):
                  ignore_record: bool = False):
         super().__init__(ctx)
         self.route_id_list: List[WorldPatrolRouteId] = []
-        self.first: bool = True
         self.record: WorldPatrolRecord = None
         self.route_iterator: Iterator = None
         self.whitelist: WorldPatrolWhitelist = whitelist
@@ -61,10 +60,9 @@ class WorldPatrol(Application):
         route_id = self.route_id_list[self.current_route_idx]
 
         self.current_route_start_time = time.time()
-        op = RunPatrolRoute(self.ctx, route_id, self.first)
+        op = RunPatrolRoute(self.ctx, route_id)
         route_result = op.execute()
         if route_result:
-            self.first = False
             if not self.ignore_record:
                 self.save_record(route_id, time.time() - self.current_route_start_time)
 
