@@ -190,10 +190,13 @@ class Context:
             if not try_open_game():
                 return False
 
-            for i in range(10):
+            for i in range(30):
+                if self.running == 0:
+                    break
                 time.sleep(1)
                 try:
                     self.controller = PcController(win=get_game_win(), ocr=self.ocr)
+                    self.running = 0
                     break
                 except pyautogui.PyAutoGUIException:
                     log.info('未检测到游戏窗口 等待中')
@@ -255,6 +258,7 @@ def try_open_game() -> bool:
     if gc.game_path == '':
         log.info('未配置游戏路径 无法自动启动')
         return False
+    global_context.running = 1
     log.info('尝试自动启动游戏 路径为 %s', gc.game_path)
     subprocess.Popen(gc.game_path)
     return True
