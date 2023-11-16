@@ -94,14 +94,19 @@ class UseTrailblazePower(CombineOperation):
     使用开拓里刷本
     """
 
-    def __init__(self, ctx: Context, tpp: TrailblazePowerPoint, team_num: int, run_times: int):
+    def __init__(self, ctx: Context, tpp: TrailblazePowerPoint, team_num: int, run_times: int,
+                 on_battle_success=None):
         ops: List[Operation] = [
             Transport(ctx, tpp.tp),  # 传送到对应位置
-            Interact(ctx, tpp.tp.cn),  # 交互进入副本
+            Interact(ctx, tpp.tp.cn, 0.5),  # 交互进入副本
             ClickChallenge(ctx),  # 点击挑战
             ChooseTeam(ctx, team_num),  # 选择配队
             ClickStartChallenge(ctx),  # 开始挑战
-            GetRewardAndRetry(ctx, run_times),  # 领奖 重复挑战
+            GetRewardAndRetry(ctx, run_times, ),  # 领奖 重复挑战
         ]
 
         super().__init__(ctx, ops, op_name='%s %s %d' % (gt(tpp.tp.cn, 'ui'), gt('次数', 'ui'), run_times))
+        self.on_battle_success = on_battle_success
+
+    def _on_battle_success(self):
+        self.on_battle_success(self.tpp)

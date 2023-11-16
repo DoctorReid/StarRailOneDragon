@@ -6,18 +6,21 @@ from basic import Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, app_const
+from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.config import ConfigHolder
 from sr.context import Context
 from sr.operation import Operation
 from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower
 from sr.operation.unit.open_map import OpenMap
 
+TRAILBLAZE_POWER = AppDescription(cn='开拓力(测试中)', id='trailblaze_power')
+register_app(TRAILBLAZE_POWER)
+
 
 class TrailblazePowerRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.TRAILBLAZE_POWER.id)
+        super().__init__(TRAILBLAZE_POWER.id)
 
 
 trailblaze_power_record: Optional[TrailblazePowerRecord] = None
@@ -40,7 +43,7 @@ class TrailblazePowerPlanItem(TypedDict):
 class TrailblazePowerConfig(ConfigHolder):
 
     def __init__(self):
-        super().__init__(app_const.TRAILBLAZE_POWER.id)
+        super().__init__(TRAILBLAZE_POWER.id)
 
     def _init_after_read_file(self):
         pass
@@ -141,7 +144,11 @@ class TrailblazePower(Application):
             if run_times + plan['run_times'] > plan['plan_times']:
                 run_times = plan['plan_times'] - plan['run_times']
 
-            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times)
+            def on_battle_success():
+                plan['run_times'] += 1
+                config.save()
+
+            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success)
             if op.execute():
                 return Operation.WAIT
             else:
