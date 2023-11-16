@@ -16,7 +16,7 @@ from sr.operation.unit.store.buy_store_item import BuyStoreItem
 from sr.operation.unit.store.click_store_item import ClickStoreItem
 from sr.operation.unit.wait_in_seconds import WaitInSeconds
 
-BUY_XIANZHOU_PARCEL = AppDescription(cn='过期包裹', id='buy_xianzhou_parcel')
+BUY_XIANZHOU_PARCEL = AppDescription(cn='过期邮包', id='buy_xianzhou_parcel')
 register_app(BUY_XIANZHOU_PARCEL)
 
 
@@ -52,7 +52,7 @@ def get_record() -> BuyParcelRecord:
 class BuyXianzhouParcel(Application):
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('购买过期包裹', 'ui'))
+        super().__init__(ctx, op_name=gt('购买过期邮包', 'ui'))
 
     def _execute_one_round(self) -> int:
         ops = [
