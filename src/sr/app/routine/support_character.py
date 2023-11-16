@@ -6,17 +6,20 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, app_const
+from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 
+SUPPORT_CHARACTER = AppDescription(cn='支援角色', id='support_character')
+register_app(SUPPORT_CHARACTER)
+
 
 class SupportCharacterRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.SUPPORT_CHARACTER.id)
+        super().__init__(SUPPORT_CHARACTER.id)
 
 
 support_character_record: Optional[SupportCharacterRecord] = None

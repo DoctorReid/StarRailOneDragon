@@ -2,7 +2,7 @@ from typing import Optional
 
 from basic import Point, os_utils
 from basic.i18_utils import gt
-from sr.app import Application, AppRunRecord, app_const, app_record_current_dt_str
+from sr.app import Application, AppRunRecord, app_record_current_dt_str, AppDescription, register_app
 from sr.config import game_config
 from sr.const import game_config_const, map_const
 from sr.context import Context
@@ -16,11 +16,14 @@ from sr.operation.unit.store.buy_store_item import BuyStoreItem
 from sr.operation.unit.store.click_store_item import ClickStoreItem
 from sr.operation.unit.wait_in_seconds import WaitInSeconds
 
+BUY_XIANZHOU_PARCEL = AppDescription(cn='过期包裹', id='buy_xianzhou_parcel')
+register_app(BUY_XIANZHOU_PARCEL)
+
 
 class BuyParcelRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.BUY_XIANZHOU_PARCEL.id)
+        super().__init__(BUY_XIANZHOU_PARCEL.id)
 
     @property
     def run_status_under_now(self):

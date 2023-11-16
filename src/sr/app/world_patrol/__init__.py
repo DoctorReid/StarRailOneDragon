@@ -6,10 +6,14 @@ import numpy as np
 from basic import os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import app_record_now_time_str, app_record_current_dt_str, AppRunRecord, app_const
+from sr.app import app_record_now_time_str, app_record_current_dt_str, AppRunRecord, AppDescription, \
+    register_app
 from sr.config import ConfigHolder
 from sr.const import map_const
 from sr.const.map_const import Planet, Region, TransportPoint, PLANET_2_REGION, REGION_2_SP, PLANET_LIST
+
+WORLD_PATROL = AppDescription(cn='锄大地', id='world_patrol')
+register_app(WORLD_PATROL)
 
 
 class WorldPatrolRouteId:
@@ -123,7 +127,7 @@ class WorldPatrolRecord(AppRunRecord):
         self.current_dt: str = app_record_current_dt_str()
         self.finished: List[str] = []
         self.time_cost: dict[str, List] = {}
-        super().__init__(app_const.WORLD_PATROL.id)
+        super().__init__(WORLD_PATROL.id)
 
     def _init_after_read_file(self):
         super()._init_after_read_file()

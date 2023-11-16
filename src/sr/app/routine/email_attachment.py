@@ -7,8 +7,7 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, app_record_current_dt_str, app_record_now_time_str, app_const
-from sr.config import ConfigHolder
+from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
@@ -16,10 +15,14 @@ from sr.operation import Operation
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 
 
+EMAIL = AppDescription(cn='邮件', id='email')
+register_app(EMAIL)
+
+
 class EmailRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.EMAIL.id)
+        super().__init__(EMAIL.id)
 
 
 email_record: Optional[EmailRecord] = None

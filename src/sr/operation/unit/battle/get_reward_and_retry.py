@@ -1,3 +1,5 @@
+import time
+
 from cv2.typing import MatLike
 
 from basic import str_utils
@@ -16,15 +18,17 @@ class GetRewardAndRetry(Operation):
     重复挑战副本
     """
 
-    def __init__(self, ctx: Context, run_times: int):
+    def __init__(self, ctx: Context, run_times: int, success_callback=None):
         """
         :param ctx:
         :param run_times: 包含第一次，总共需要的成功次数
+        :param success_callback: 每一次挑战成功的回调
         """
         super().__init__(ctx, try_times=run_times + 5, op_name=gt('领奖并重复挑战', 'ui'))
         self.run_times: int = run_times
         self.success_times: int = 0
         self.fail_times: int = 0
+        self.success_callback = success_callback
 
     def _execute_one_round(self):
         wait = WaitBattleReward(self.ctx)
@@ -37,6 +41,8 @@ class GetRewardAndRetry(Operation):
 
         if str_utils.find_by_lcs(gt('挑战成功', 'ocr'), battle_result, 0.55):
             self.success_times += 1
+            if self.success_callback is not None:
+                self.success_callback()
         else:
             self.fail_times += 1
 

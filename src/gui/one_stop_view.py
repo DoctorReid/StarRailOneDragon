@@ -3,6 +3,7 @@ from typing import List
 
 import flet as ft
 
+import sr.app
 from basic import win_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
@@ -10,7 +11,7 @@ from gui import snack_bar, components, scheduler
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app import app_const, Application, one_stop_service, AppRunRecord
+from sr.app import Application, one_stop_service, AppRunRecord
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
 from sr.context import Context
 
@@ -107,7 +108,7 @@ class AppList(ft.ListView):
 
         self.app_id_list: List[str] = one_stop_service.get_config().order_app_id_list
         for app_id in self.app_id_list:
-            app = app_const.get_app_desc_by_id(app_id)
+            app = sr.app.get_app_desc_by_id(app_id)
             item = AppListItem(app.cn, app.id,
                                on_click_run=self._on_item_click_run,
                                on_click_up=self._on_item_click_up,

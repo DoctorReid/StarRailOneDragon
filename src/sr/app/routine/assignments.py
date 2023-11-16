@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, app_const
+from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
@@ -15,10 +15,14 @@ from sr.operation.unit.claim_assignment import ClaimAssignment
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 
 
+ASSIGNMENTS = AppDescription(cn='委托', id='assignments')
+register_app(ASSIGNMENTS)
+
+
 class AssignmentsRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.ASSIGNMENTS.id)
+        super().__init__(ASSIGNMENTS.id)
 
 
 assignments_record: Optional[AssignmentsRecord] = None

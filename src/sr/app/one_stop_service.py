@@ -1,17 +1,19 @@
 from typing import List, Optional
 
+import sr.app
+import sr.app.routine.assignments
 from basic.i18_utils import gt
-from sr.app import Application, app_const, AppRunRecord, world_patrol, app_record_current_dt_str
-from sr.app.app_const import AppDescription
-from sr.app.routine import assignments, email, support_character, nameless_honor, claim_training, buy_parcel, \
+from sr.app import Application, AppRunRecord, world_patrol, AppDescription
+from sr.app.routine import assignments, email_attachment, support_character, nameless_honor, claim_training, buy_parcel, \
     trailblaze_power
-from sr.app.routine.assignments import Assignments
-from sr.app.routine.buy_parcel import BuyXianzhouParcel
-from sr.app.routine.claim_training import ClaimTraining
-from sr.app.routine.email import Email
-from sr.app.routine.nameless_honor import ClaimNamelessHonor
-from sr.app.routine.support_character import SupportCharacter
-from sr.app.routine.trailblaze_power import TrailblazePower
+from sr.app.routine.assignments import Assignments, ASSIGNMENTS
+from sr.app.routine.buy_parcel import BuyXianzhouParcel, BUY_XIANZHOU_PARCEL
+from sr.app.routine.claim_training import ClaimTraining, CLAIM_TRAINING
+from sr.app.routine.email_attachment import Email, EMAIL
+from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
+from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
+from sr.app.routine.trailblaze_power import TrailblazePower, TRAILBLAZE_POWER
+from sr.app.world_patrol import WORLD_PATROL
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.config import ConfigHolder
 from sr.context import Context
@@ -26,7 +28,7 @@ class OneStopServiceConfig(ConfigHolder):
     def _init_after_read_file(self):
         current_list = self.order_app_id_list
         need_update: bool = False
-        for app in app_const.ROUTINE_APP_LIST:
+        for app in sr.app.ALL_APP_LIST:
             if app.id not in current_list:
                 current_list.append(app.id)
                 need_update = True
@@ -70,7 +72,7 @@ class OneStopService(Application):
         for app_id in get_config().order_app_id_list:
             record = get_app_run_record_by_id(app_id)
             if record.run_status_under_now != AppRunRecord.STATUS_SUCCESS:
-                self.app_list.append(app_const.get_app_desc_by_id(app_id))
+                self.app_list.append(sr.app.get_app_desc_by_id(app_id))
 
         self.app_idx: int = 0
 
@@ -113,40 +115,40 @@ class OneStopService(Application):
 
 
 def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
-    if app_id == app_const.WORLD_PATROL.id:
+    if app_id == WORLD_PATROL.id:
         return WorldPatrol(ctx)
-    elif app_id == app_const.ASSIGNMENTS.id:
+    elif app_id == ASSIGNMENTS.id:
         return Assignments(ctx)
-    elif app_id == app_const.EMAIL.id:
+    elif app_id == EMAIL.id:
         return Email(ctx)
-    elif app_id == app_const.SUPPORT_CHARACTER.id:
+    elif app_id == SUPPORT_CHARACTER.id:
         return SupportCharacter(ctx)
-    elif app_id == app_const.NAMELESS_HONOR.id:
+    elif app_id == NAMELESS_HONOR.id:
         return ClaimNamelessHonor(ctx)
-    elif app_id == app_const.CLAIM_TRAINING.id:
+    elif app_id == CLAIM_TRAINING.id:
         return ClaimTraining(ctx)
-    elif app_id == app_const.BUY_XIANZHOU_PARCEL.id:
+    elif app_id == BUY_XIANZHOU_PARCEL.id:
         return BuyXianzhouParcel(ctx)
-    elif app_id == app_const.TRAILBLAZE_POWER.id:
+    elif app_id == TRAILBLAZE_POWER.id:
         return TrailblazePower(ctx)
     return None
 
 
 def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
-    if app_id == app_const.WORLD_PATROL.id:
+    if app_id == WORLD_PATROL.id:
         return world_patrol.get_record()
-    elif app_id == app_const.ASSIGNMENTS.id:
+    elif app_id == ASSIGNMENTS.id:
         return assignments.get_record()
-    elif app_id == app_const.EMAIL.id:
+    elif app_id == EMAIL.id:
         return email.get_record()
-    elif app_id == app_const.SUPPORT_CHARACTER.id:
+    elif app_id == SUPPORT_CHARACTER.id:
         return support_character.get_record()
-    elif app_id == app_const.NAMELESS_HONOR.id:
+    elif app_id == NAMELESS_HONOR.id:
         return nameless_honor.get_record()
-    elif app_id == app_const.CLAIM_TRAINING.id:
+    elif app_id == CLAIM_TRAINING.id:
         return claim_training.get_record()
-    elif app_id == app_const.BUY_XIANZHOU_PARCEL.id:
+    elif app_id == BUY_XIANZHOU_PARCEL.id:
         return buy_parcel.get_record()
-    elif app_id == app_const.TRAILBLAZE_POWER.id:
+    elif app_id == TRAILBLAZE_POWER.id:
         return trailblaze_power.get_record()
     return None

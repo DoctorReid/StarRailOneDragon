@@ -6,18 +6,21 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, app_const
+from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 
+NAMELESS_HONOR = AppDescription(cn='无名勋礼', id='nameless_honor')
+register_app(NAMELESS_HONOR)
+
 
 class NamelessHonorRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(app_const.NAMELESS_HONOR.id)
+        super().__init__(NAMELESS_HONOR.id)
 
 
 nameless_honor_record: Optional[NamelessHonorRecord] = None

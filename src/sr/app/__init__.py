@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List, Optional
 
 from basic import os_utils
 from basic.log_utils import log
@@ -155,3 +156,30 @@ def app_record_current_dt_str() -> str:
     sr = game_config.get().server_region
     utc_offset = game_config_const.SERVER_TIME_OFFSET.get(sr)
     return os_utils.get_dt(utc_offset)
+
+
+class AppDescription:
+
+    def __init__(self, cn: str, id: str):
+        self.cn: str = cn
+        self.id: str = id
+
+
+ALL_APP_LIST: List[AppDescription] = [
+]
+
+
+def register_app(app_desc: AppDescription):
+    """
+    注册app 注册后才能在一条龙上看到
+    :param app_desc:
+    :return:
+    """
+    ALL_APP_LIST.append(app_desc)
+
+
+def get_app_desc_by_id(app_id: str) -> Optional[AppDescription]:
+    for app in ALL_APP_LIST:
+        if app.id == app_id:
+            return app
+    return None
