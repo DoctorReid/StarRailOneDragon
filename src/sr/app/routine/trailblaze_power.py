@@ -1,3 +1,4 @@
+import re
 from typing import Optional, TypedDict, List
 
 from cv2.typing import MatLike
@@ -126,7 +127,8 @@ class TrailblazePower(Application):
             screen: MatLike = self.screenshot()
             part, _ = cv2_utils.crop_image(screen, TrailblazePower.MAP_POWER_RECT)
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-            self.power = int(ocr_result)
+            digit_result = re.sub(r"\D", "", ocr_result)
+            self.power = int(digit_result)
             log.info('当前体力 %d', self.power)
             self.phase += 1
             return Operation.WAIT
@@ -145,6 +147,7 @@ class TrailblazePower(Application):
                 run_times = plan['plan_times'] - plan['run_times']
 
             def on_battle_success():
+                self.power -= point.power
                 plan['run_times'] += 1
                 config.save()
 

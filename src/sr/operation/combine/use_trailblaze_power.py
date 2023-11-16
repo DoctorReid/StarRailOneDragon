@@ -102,11 +102,7 @@ class UseTrailblazePower(CombineOperation):
             ClickChallenge(ctx),  # 点击挑战
             ChooseTeam(ctx, team_num),  # 选择配队
             ClickStartChallenge(ctx),  # 开始挑战
-            GetRewardAndRetry(ctx, run_times, ),  # 领奖 重复挑战
+            GetRewardAndRetry(ctx, run_times, on_battle_success),  # 领奖 重复挑战
         ]
 
         super().__init__(ctx, ops, op_name='%s %s %d' % (gt(tpp.tp.cn, 'ui'), gt('次数', 'ui'), run_times))
-        self.on_battle_success = on_battle_success
-
-    def _on_battle_success(self):
-        self.on_battle_success(self.tpp)

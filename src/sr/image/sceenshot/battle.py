@@ -24,6 +24,7 @@ RT_CHARACTER_RECT = Rect(1800, 0, 1900, 90)  # 角色按钮
 
 AFTER_BATTLE_REWARD_RESULT_RECT = Rect(820, 240, 1100, 320)  # 战斗结束后领奖励页面 上方的结果框
 AFTER_BATTLE_CHALLENGE_AGAIN_BTN_RECT = Rect(1180, 930, 1330, 960)  # 战斗结束后领奖励页面 【再来一次】按钮
+AFTER_BATTLE_EXIT_BTN_RECT = Rect(640, 930, 780, 960)  # 战斗结束后领奖励页面 【退出关卡】按钮
 
 
 def get_battle_status(screen: MatLike, im: ImageMatcher):

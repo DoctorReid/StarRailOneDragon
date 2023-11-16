@@ -50,7 +50,12 @@ class GetRewardAndRetry(Operation):
             return Operation.FAIL
 
         if self.success_times >= self.run_times:
-            return Operation.SUCCESS
+            part, _ = cv2_utils.crop_image(screen, battle.AFTER_BATTLE_EXIT_BTN_RECT)
+            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+            if str_utils.find_by_lcs(gt('退出关卡', 'ocr'), ocr_result, 0.5):
+                if self.ctx.controller.click(battle.AFTER_BATTLE_EXIT_BTN_RECT.center):
+                    return Operation.SUCCESS
+            return Operation.RETRY
         else:
             part, _ = cv2_utils.crop_image(screen, battle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN_RECT)
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)

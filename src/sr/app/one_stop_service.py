@@ -4,8 +4,8 @@ import sr.app
 import sr.app.routine.assignments
 from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, world_patrol, AppDescription
-from sr.app.routine import assignments, email_attachment, support_character, nameless_honor, claim_training, buy_parcel, \
-    trailblaze_power
+from sr.app.routine import assignments, support_character, nameless_honor, claim_training, buy_parcel, \
+    trailblaze_power, email_attachment
 from sr.app.routine.assignments import Assignments, ASSIGNMENTS
 from sr.app.routine.buy_parcel import BuyXianzhouParcel, BUY_XIANZHOU_PARCEL
 from sr.app.routine.claim_training import ClaimTraining, CLAIM_TRAINING
@@ -140,7 +140,7 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
     elif app_id == ASSIGNMENTS.id:
         return assignments.get_record()
     elif app_id == EMAIL.id:
-        return email.get_record()
+        return email_attachment.get_record()
     elif app_id == SUPPORT_CHARACTER.id:
         return support_character.get_record()
     elif app_id == NAMELESS_HONOR.id:

@@ -20,7 +20,7 @@ class PlanListItem(ft.Row):
                  on_value_changed=None,
                  on_click_up=None,
                  on_click_del=None):
-        self.value: Optional[TrailblazePowerPlanItem] = item if item is not None else TrailblazePowerPlanItem(point_id=use_trailblaze_power.BUD_OF_MEMORIES.unique_id, plan_times=1, run_times=0)
+        self.value: Optional[TrailblazePowerPlanItem] = item if item is not None else TrailblazePowerPlanItem(point_id=use_trailblaze_power.BUD_OF_MEMORIES.unique_id, plan_times=1, run_times=0, team_num=1)
         self.category_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=i, key=i) for i in
                                                       use_trailblaze_power.CATEGORY_LIST],
                                              label='类目', width=100, on_change=self._on_category_changed)
