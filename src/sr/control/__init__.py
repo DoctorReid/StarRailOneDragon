@@ -175,13 +175,11 @@ class GameController:
         """
         pass
 
-    def interact(self, pos: Point, interact_type: int = 0,
-                 wait: int = 0) -> bool:
+    def interact(self, pos: Point, interact_type: int = 0) -> bool:
         """
         交互
         :param pos: 如果是模拟器的话 需要传入交互内容的坐标
         :param interact_type: 交互类型
-        :param wait: 交互成功后等待秒数
         :return:
         """
         pass

@@ -22,15 +22,15 @@ class Interact(Operation):
     INTERACT_RECT = Rect(900, 400, 1450, 870)
     TRY_INTERACT_MOVE = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
 
-    def __init__(self, ctx: Context, cn: str, wait: int = 0):
+    def __init__(self, ctx: Context, cn: str, lcs_percent: float = -1):
         """
         :param ctx:
         :param cn: 需要交互的中文
-        :param wait: 成功之后等待的秒数
+        :param lcs_percent: ocr匹配阈值
         """
         super().__init__(ctx, try_times=len(Interact.TRY_INTERACT_MOVE), op_name=gt('交互 %s', 'ui') % gt(cn, 'ui'))
-        self.cn = cn
-        self.wait = wait
+        self.cn: str = cn
+        self.lcs_percent: float = lcs_percent
 
     def _execute_one_round(self):
         time.sleep(0.5)  # 稍微等待一下 可能交互按钮还没有出来
@@ -51,7 +51,7 @@ class Interact(Operation):
         white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
         # cv2_utils.show_image(white_part, wait=0)
 
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.cn])
+        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.cn], lcs_percent=self.lcs_percent)
 
         if len(ocr_result) == 0:  # 目前没有交互按钮 尝试挪动触发交互
             self.ctx.controller.move(Interact.TRY_INTERACT_MOVE[self.op_round - 1])
@@ -59,8 +59,7 @@ class Interact(Operation):
         else:
             for r in ocr_result.values():
                 if self.ctx.controller.interact(Point(r.max.cx, r.max.cy),
-                                                GameController.MOVE_INTERACT_TYPE,
-                                                self.wait):
+                                                GameController.MOVE_INTERACT_TYPE):
                     log.info('交互成功 %s', gt(self.cn))
                     return Operation.SUCCESS
 

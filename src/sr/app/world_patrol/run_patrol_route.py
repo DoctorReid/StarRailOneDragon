@@ -114,7 +114,7 @@ class RunPatrolRoute(CombineOperation):
         :param cn: 交互文本
         :return:
         """
-        return Interact(ctx, cn, wait=0)
+        return Interact(ctx, cn)
 
     def wait(self, ctx: Context, wait_type: str, seconds: float) -> Operation:
         """
