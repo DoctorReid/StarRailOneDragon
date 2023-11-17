@@ -1,17 +1,22 @@
 from typing import List, Optional
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.const import map_const
 from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.operation import Operation
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
+from sr.operation.unit.battle.choose_challenge_times import ChooseChallengeTimes
 from sr.operation.unit.battle.choose_team import ChooseTeam
 from sr.operation.unit.battle.click_challenge import ClickChallenge
 from sr.operation.unit.battle.click_start_challenge import ClickStartChallenge
 from sr.operation.unit.battle.get_reward_and_retry import GetRewardAndRetry
+from sr.operation.unit.battle.start_fight import StartFight
+from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.interact import Interact
+from sr.operation.unit.wait_in_world import WaitInWorld
 
 CATEGORY_1 = '经验信用'
 CATEGORY_2 = '光锥技能'
@@ -96,13 +101,96 @@ class UseTrailblazePower(CombineOperation):
 
     def __init__(self, ctx: Context, tpp: TrailblazePowerPoint, team_num: int, run_times: int,
                  on_battle_success=None):
+        self.ctx: Context = ctx
+        self.tpp: TrailblazePowerPoint = tpp
+        self.team_num: int = team_num
+        self.run_times: int = run_times
+        self.on_battle_success = on_battle_success
+
+        self.current_success_round: int = 0  # 第几轮战斗胜利
+        self.trigger_success_times_arr = []  # 每轮战斗胜利触发多少次回调
+
         ops: List[Operation] = [
             Transport(ctx, tpp.tp),  # 传送到对应位置
-            Interact(ctx, tpp.tp.cn, 0.5),  # 交互进入副本
-            ClickChallenge(ctx),  # 点击挑战
-            ChooseTeam(ctx, team_num),  # 选择配队
-            ClickStartChallenge(ctx),  # 开始挑战
-            GetRewardAndRetry(ctx, run_times, on_battle_success),  # 领奖 重复挑战
         ]
 
+        if tpp.category in (CATEGORY_1, CATEGORY_2):
+            times_6 = run_times // 6
+            times_left = run_times % 6
+            if times_6 > 0:
+                for i in self._ops_for_cate_12(6, times_6):
+                    ops.append(i)
+                for _ in range(times_6):
+                    self.trigger_success_times_arr.append(6)
+            if times_left > 0:
+                for i in self._ops_for_cate_12(times_left, 1):
+                    ops.append(i)
+                self.trigger_success_times_arr.append(times_left)
+        elif tpp.category == CATEGORY_3:
+            for i in self._ops_for_cate_3(run_times):
+                ops.append(i)
+            for _ in range(run_times):
+                self.trigger_success_times_arr.append(1)
+        elif tpp.category == CATEGORY_4:
+            for i in self._ops_for_cate_4(run_times):
+                ops.append(i)
+            for _ in range(run_times):
+                self.trigger_success_times_arr.append(1)
+
         super().__init__(ctx, ops, op_name='%s %s %d' % (gt(tpp.tp.cn, 'ui'), gt('次数', 'ui'), run_times))
+
+    def _ops_for_cate_12(self, times_per_round: int, round_num: int) -> List[Operation]:
+        """
+        拟造花萼金的挑战指令 - 经验、信用、光锥技能材料
+        :param times_per_round: 每轮挑战次数
+        :param round_num: 挑战多少轮
+        :return:
+        """
+        return [
+            Interact(self.ctx, self.tpp.tp.cn, 0.5),  # 交互进入副本
+            ChooseChallengeTimes(self.ctx, times_per_round),  # 挑战次数
+            ClickChallenge(self.ctx),  # 点击挑战
+            ChooseTeam(self.ctx, self.team_num),  # 选择配队
+            ClickStartChallenge(self.ctx),  # 开始挑战
+            GetRewardAndRetry(self.ctx, round_num, self._on_battle_success),  # 领奖 重复挑战
+        ]
+
+    def _ops_for_cate_3(self, round_num: int) -> List[Operation]:
+        """
+        凝滞虚影的挑战指令 - 角色突破材料
+        :param round_num: 挑战多少轮
+        :return:
+        """
+        return [
+            Interact(self.ctx, self.tpp.tp.cn, 0.5),  # 交互进入副本
+            ClickChallenge(self.ctx),  # 点击挑战
+            ChooseTeam(self.ctx, self.team_num),  # 选择配队
+            ClickStartChallenge(self.ctx),  # 开始挑战
+            WaitInWorld(self.ctx),  # 等待界面
+            StartFight(self.ctx),  # 主动攻击
+            GetRewardAndRetry(self.ctx, round_num, self._on_battle_success),  # 领奖 重复挑战
+        ]
+
+    def _ops_for_cate_4(self, round_num: int) -> List[Operation]:
+        """
+        侵蚀隧洞的挑战指令 - 遗器
+        :param round_num: 挑战多少轮
+        :return:
+        """
+        return [
+            Interact(self.ctx, self.tpp.tp.cn, 0.5),  # 交互进入副本
+            ClickChallenge(self.ctx),  # 点击挑战
+            ChooseTeam(self.ctx, self.team_num),  # 选择配队
+            ClickStartChallenge(self.ctx),  # 开始挑战
+            GetRewardAndRetry(self.ctx, round_num, self._on_battle_success),  # 领奖 重复挑战
+        ]
+
+    def _on_battle_success(self):
+        if self.on_battle_success is None:
+            return
+        if self.current_success_round < len(self.trigger_success_times_arr):
+            for _ in range(self.trigger_success_times_arr[self.current_success_round]):
+                self.on_battle_success()
+            self.current_success_round += 1
+        else:
+            log.error('胜利次数多余预期 %s %s', self.current_success_round, self.trigger_success_times_arr)

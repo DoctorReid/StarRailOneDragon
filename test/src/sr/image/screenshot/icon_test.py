@@ -52,4 +52,5 @@ if __name__ == '__main__':
     # icon.init_ui_ellipsis('ui_ellipsis')
     # icon.init_nameless_honor_icon('nameless_honor_3')
     # icon.init_training_reward_gift()
-    icon.init_store_buy_num_ctrl('store_buy_max')
+    # icon.init_store_buy_num_ctrl('store_buy_max')
+    icon.init_battle_times_control('battle_times_plus')

@@ -22,7 +22,7 @@ class Operation:
     WAIT = 2  # 等待 本轮不计入
     FAIL = -1  # 失败
 
-    def __init__(self, ctx: Context, try_times: int = 2, op_name: str = ''):
+    def __init__(self, ctx: Context, try_times: int = 2, op_name: str = '', timeout_seconds: float = -1):
         self.op_name: str = gt(op_name, 'ui')
         self.try_times: int = try_times
         self.op_round: int = 0
@@ -30,14 +30,21 @@ class Operation:
         ctx.register_pause(self, self.on_pause, self.on_resume)
         self.last_screenshot: MatLike = None
         self.gc: GameConfig = game_config.get()
-        self.pause_start_time = time.time()
-        self.pause_end_time = time.time()
+
+        self.timeout_seconds: float = -1  # 本操作的超时时间
+        self.operation_start_time: float = 0  # 开始时间
+        self.pause_start_time = time.time()  # 本次暂停的开始时间
+        self.pause_end_time = time.time()  # 本次暂停的结束时间
+        self.pause_total_time = 0  # 暂停的总时间
 
     def _init_before_execute(self):
         """
         执行前的初始化
         """
-        pass
+        now = time.time()
+        self.operation_start_time = now
+        self.pause_start_time = now
+        self.pause_end_time = now
 
     def execute(self) -> bool:
         """
@@ -46,6 +53,9 @@ class Operation:
         self._init_before_execute()
         result: bool = False
         while self.op_round < self.try_times:
+            if self.timeout_seconds != -1 and self._operation_usage_time >= self.timeout_seconds:
+                log.error('%s执行超时', self.display_name, exc_info=True)
+                return False
             if self.ctx.running == 0:
                 break
             elif self.ctx.running == 2:
@@ -62,9 +72,9 @@ class Operation:
                 if self.last_screenshot is not None:
                     to_save = fill_uid_black(self.last_screenshot)
                     file_name = save_debug_image(to_save, prefix=self.__class__.__name__)
-                    log.error('%s执行出错 相关截图保存至 %s', self.get_display_name(), file_name, exc_info=True)
+                    log.error('%s执行出错 相关截图保存至 %s', self.display_name, file_name, exc_info=True)
                 else:
-                    log.error('%s执行出错', self.get_display_name(), exc_info=True)
+                    log.error('%s执行出错', self.display_name, exc_info=True)
             if op_result == Operation.RETRY:
                 continue
             elif op_result == Operation.SUCCESS:
@@ -73,13 +83,13 @@ class Operation:
             elif op_result == Operation.FAIL:
                 result = False
                 if not self.allow_fail():
-                    log.error('%s执行失败', self.get_display_name())
+                    log.error('%s执行失败', self.display_name)
                 break
             elif op_result == Operation.WAIT:
                 self.op_round -= 1
                 continue
             else:
-                log.error('%s执行返回结果错误 %s', self.get_display_name(), result)
+                log.error('%s执行返回结果错误 %s', self.display_name, result)
                 result = False
                 break
         self.ctx.unregister(self)
@@ -94,6 +104,15 @@ class Operation:
 
     def on_resume(self):
         self.pause_end_time = time.time()
+        self.pause_total_time += self.pause_end_time - self.pause_start_time
+
+    @property
+    def _operation_usage_time(self) -> float:
+        """
+        获取指令的耗时
+        :return:
+        """
+        return time.time() - self.operation_start_time - self.pause_start_time
 
     def screenshot(self):
         """
@@ -103,7 +122,8 @@ class Operation:
         self.last_screenshot = self.ctx.controller.screenshot()
         return self.last_screenshot
 
-    def get_display_name(self) -> str:
+    @property
+    def display_name(self) -> str:
         """
         用于展示的名称
         :return:

@@ -17,12 +17,7 @@ class WaitInWorld(Operation):
         :param ctx:
         :param wait: 最多等待多少秒
         """
-        super().__init__(ctx, op_name=gt('等待主界面'))
-        self.timeout_seconds: float = float(wait)
-        self.start_time = 0
-
-    def _init_before_execute(self):
-        self.start_time = time.time()
+        super().__init__(ctx, op_name=gt('等待主界面'), timeout_seconds=wait)
 
     def _execute_one_round(self) -> int:
         screen = self.screenshot()
@@ -31,6 +26,4 @@ class WaitInWorld(Operation):
             return Operation.SUCCESS
 
         time.sleep(1)
-        if time.time() - self.start_time > self.timeout_seconds:
-            return Operation.FAIL
         return Operation.WAIT

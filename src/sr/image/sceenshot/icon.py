@@ -384,3 +384,12 @@ def init_store_buy_num_ctrl(template_id: str):
     save_template_image(origin, template_id, 'origin')
 
 
+def init_battle_times_control(template_id: str):
+    """
+    战斗次数的加减号
+    :param template_id:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id)
+    origin = cv2.cvtColor(raw, cv2.COLOR_BGRA2BGR)
+    save_template_image(origin, template_id, 'origin')

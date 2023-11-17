@@ -3,7 +3,7 @@ from typing import Optional, TypedDict, List
 
 from cv2.typing import MatLike
 
-from basic import Rect
+from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -14,7 +14,7 @@ from sr.operation import Operation
 from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower
 from sr.operation.unit.open_map import OpenMap
 
-TRAILBLAZE_POWER = AppDescription(cn='开拓力(测试中)', id='trailblaze_power')
+TRAILBLAZE_POWER = AppDescription(cn='开拓力', id='trailblaze_power')
 register_app(TRAILBLAZE_POWER)
 
 
@@ -127,8 +127,7 @@ class TrailblazePower(Application):
             screen: MatLike = self.screenshot()
             part, _ = cv2_utils.crop_image(screen, TrailblazePower.MAP_POWER_RECT)
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-            digit_result = re.sub(r"\D", "", ocr_result)
-            self.power = int(digit_result)
+            self.power = str_utils.get_digits(ocr_result)
             log.info('当前体力 %d', self.power)
             self.phase += 1
             return Operation.WAIT

@@ -1,3 +1,8 @@
+import re
+
+from basic.log_utils import log
+
+
 def find(source: str, target: str, ignore_case: bool = False) -> int:
     """
     字符串find的封装 在原目标串中招目标字符串
@@ -57,3 +62,16 @@ def longest_common_subsequence_length(str1: str, str2: str):
                 dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
 
     return dp[m][n]
+
+
+def get_digits(v: str) -> int:
+    """
+    返回字符串中的数字部分
+    :param v:
+    :return:
+    """
+    try:
+        return int(re.sub(r"\D", "", v))
+    except Exception:
+        log.error('目标字符串中没有数字 %s', v)
+        return 0
