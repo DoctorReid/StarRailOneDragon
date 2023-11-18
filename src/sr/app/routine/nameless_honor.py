@@ -101,7 +101,7 @@ class ClaimNamelessHonor(Application):
             if result is None:
                 log.info('检测不到奖励图标')
                 time.sleep(1)
-                return Operation.RETRY
+                return Operation.SUCCESS
             else:
                 self.ctx.controller.click(result.center)
                 time.sleep(1)
