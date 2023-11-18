@@ -3,7 +3,7 @@ import time
 from typing import List, Iterator
 
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord
+from sr.app import Application, AppRunRecord, world_patrol
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolWhitelist, WorldPatrolRecord, \
     load_all_route_id
 from sr.app.world_patrol.run_patrol_route import RunPatrolRoute
@@ -28,6 +28,7 @@ class WorldPatrol(Application):
 
     def _init_before_execute(self):
         if not self.ignore_record:
+            self.record = world_patrol.get_record()
             self.record.update_status(AppRunRecord.STATUS_RUNNING)
 
         self.route_id_list = load_all_route_id(self.whitelist, None if self.record is None else self.record.finished)

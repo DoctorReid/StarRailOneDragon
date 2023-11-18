@@ -115,13 +115,20 @@ class AppRunRecord(ConfigHolder):
             self.run_status = AppRunRecord.STATUS_WAIT
             self._reset_for_new_dt()
 
-    def update_status(self, new_status: int):
-        self.dt = app_record_current_dt_str()
+    def update_status(self, new_status: int, only_status: bool = False):
+        """
+        更新状态
+        :param new_status:
+        :param only_status: 是否只更新状态
+        :return:
+        """
         self.run_status = new_status
-        self.run_time = app_record_now_time_str()
-        self.update('dt', self.dt, False)
         self.update('run_status', self.run_status, False)
-        self.update('run_time', self.run_time, False)
+        if not only_status:
+            self.dt = app_record_current_dt_str()
+            self.run_time = app_record_now_time_str()
+            self.update('dt', self.dt, False)
+            self.update('run_time', self.run_time, False)
 
         self.save()
 

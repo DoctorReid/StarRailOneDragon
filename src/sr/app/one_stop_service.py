@@ -170,11 +170,6 @@ def update_app_run_record_before_start(app_id: str):
     :param app_id:
     :return:
     """
-    if app_id not in [
-        WORLD_PATROL.id,
-        TRAILBLAZE_POWER.id
-    ]:
-        return
     record: Optional[AppRunRecord] = get_app_run_record_by_id(app_id)
     if record is not None:
         record.check_and_update_status()

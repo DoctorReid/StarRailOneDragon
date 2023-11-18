@@ -22,6 +22,10 @@ class NamelessHonorRecord(AppRunRecord):
     def __init__(self):
         super().__init__(NAMELESS_HONOR.id)
 
+    def check_and_update_status(self):
+        super().check_and_update_status()
+        self.update_status(AppRunRecord.STATUS_WAIT)
+
 
 nameless_honor_record: Optional[NamelessHonorRecord] = None
 
@@ -86,8 +90,10 @@ class ClaimNamelessHonor(Application):
                 return Operation.SUCCESS
             else:
                 self.ctx.controller.click(result.center)
-                self.phase += 1
+                time.sleep(2)
+                self.ctx.controller.click(result.center)  # 可能会出现一个升级的画面 多点击一次
                 time.sleep(1)
+                self.phase += 1
                 return Operation.WAIT
         elif self.phase == 4:  # 返回tab1
             screen: MatLike = self.screenshot()
@@ -98,8 +104,8 @@ class ClaimNamelessHonor(Application):
                 return Operation.RETRY
             else:
                 self.ctx.controller.click(result.center)
-                self.phase += 1
                 time.sleep(1)
+                self.phase += 1
                 return Operation.WAIT
         elif self.phase == 5:  # 领取奖励
             screen: MatLike = self.screenshot()

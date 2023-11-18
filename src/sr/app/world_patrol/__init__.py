@@ -163,16 +163,6 @@ class WorldPatrolRecord(AppRunRecord):
         else:
             return np.mean(self.time_cost[unique_id])
 
-    def update_status(self, new_status: int):
-        self.run_status = new_status
-        self.run_time = app_record_now_time_str()
-
-        self.update('run_status', new_status, False)
-        self.update('run_time', self.run_time, False)
-
-        self.save()
-
-
 
 
 def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str] = None) -> List[WorldPatrolRouteId]:

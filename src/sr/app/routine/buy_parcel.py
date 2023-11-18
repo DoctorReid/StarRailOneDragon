@@ -25,6 +25,12 @@ class BuyParcelRecord(AppRunRecord):
     def __init__(self):
         super().__init__(BUY_XIANZHOU_PARCEL.id)
 
+    def check_and_update_status(self):
+        current_dt = app_record_current_dt_str()
+        sunday_dt = os_utils.get_sunday_dt(self.dt)
+        if current_dt > sunday_dt:
+            self.update_status(AppRunRecord.STATUS_WAIT, True)
+
     @property
     def run_status_under_now(self):
         """
