@@ -5,6 +5,8 @@ from basic import i18_utils, os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import version, snack_bar, components
+from gui.settings import gui_config
+from gui.settings.gui_config import GuiConfig
 from gui.sr_basic_view import SrBasicView
 from sr.config import game_config
 from sr.config.game_config import GameConfig
@@ -17,6 +19,8 @@ class SettingsView(components.Card, SrBasicView):
     def __init__(self, page: ft.Page, ctx: Context):
         self.page = page
         self.ctx = ctx
+
+        self.gui_config: GuiConfig = gui_config.get()
 
         self.server_region = ft.Dropdown(
             label=gt("区服", model='ui'), width=150,
@@ -39,10 +43,18 @@ class SettingsView(components.Card, SrBasicView):
             ],
             on_change=self.on_lang_changed
         )
+
+        self.gui_theme_dropdown = ft.Dropdown(
+            label=gt('界面主题', 'ui'), width=150,
+            options=[ft.dropdown.Option(text=gt(i.cn, 'ui'), key=i.id) for i in gui_config.ALL_GUI_THEME_LIST],
+            value=self.gui_config.theme,
+            on_change=self._on_ui_theme_changed
+        )
         basic_settings_row = ft.Row(controls=[
             self.server_region,
             self.run_mode_dropdown,
-            self.lang_dropdown
+            self.lang_dropdown,
+            self.gui_theme_dropdown
         ])
 
         self.game_path_pick_dialog = ft.FilePicker(on_result=self.on_game_path_pick)
@@ -178,6 +190,9 @@ class SettingsView(components.Card, SrBasicView):
             gc: GameConfig = game_config.get()
             gc.set_game_path(self.game_path_text.value)
             self.page.update()
+
+    def _on_ui_theme_changed(self, e):
+        self.gui_config.theme = self.gui_theme_dropdown.value
 
 
 sv: SettingsView = None

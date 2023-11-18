@@ -6,7 +6,7 @@ import keyboard
 from basic.i18_utils import gt, update_default_lang
 from gui import log_view, calibrator_view, version, one_stop_view, scheduler
 from gui.settings import gui_config, settings_basic_view, settings_trailblaze_power_view, settings_echo_of_war_view
-from gui.settings.gui_config import ThemeColors
+from gui.settings.gui_config import ThemeColors, GuiConfig
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.config import game_config
@@ -20,6 +20,8 @@ class StarRailAutoProxy:
         self.page: ft.Page = page
         self.ctx: Context = ctx
 
+        ui_config = gui_config.get()
+        page.theme_mode = ft.ThemeMode.LIGHT if ui_config.theme_usage == ft.ThemeMode.LIGHT.value else ft.ThemeMode.DARK
         page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' ' + version.get_current_version()
         page.padding = 0
 
@@ -97,13 +99,13 @@ class StarRailAutoProxy:
                     label=gt('基础', model='ui')
                 ),
                 ft.NavigationRailDestination(
-                    icon=ft.icons.SCHEDULE_SEND,
-                    selected_icon=ft.icons.SCHEDULE_SEND_OUTLINED,
+                    icon=ft.icons.SCHEDULE_SEND_OUTLINED,
+                    selected_icon=ft.icons.SCHEDULE_SEND,
                     label=gt('开拓力', model='ui')
                 ),
                 ft.NavigationRailDestination(
-                    icon=ft.icons.SURROUND_SOUND,
-                    selected_icon=ft.icons.SURROUND_SOUND_OUTLINED,
+                    icon=ft.icons.SURROUND_SOUND_OUTLINED,
+                    selected_icon=ft.icons.SURROUND_SOUND,
                     label=gt('历战回响', model='ui')
                 ),
             ],
@@ -206,6 +208,9 @@ class StarRailAutoProxy:
 
 
 def run_app(page: ft.Page):
+    ui_config: GuiConfig = gui_config.get()
+    ui_config.init_system_theme(page.platform_brightness.value)
+
     gc: GameConfig = game_config.get()
     update_default_lang(gc.lang)
 
