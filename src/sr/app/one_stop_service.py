@@ -70,7 +70,9 @@ class OneStopService(Application):
         super().__init__(ctx, op_name=gt('一条龙', 'ui'))
         self.app_list: List[AppDescription] = []
         for app_id in get_config().order_app_id_list:
+            update_app_run_record_before_start(app_id)
             record = get_app_run_record_by_id(app_id)
+
             if record.run_status_under_now != AppRunRecord.STATUS_SUCCESS:
                 self.app_list.append(sr.app.get_app_desc_by_id(app_id))
 
@@ -152,3 +154,28 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
     elif app_id == TRAILBLAZE_POWER.id:
         return trailblaze_power.get_record()
     return None
+
+
+def update_app_run_record_before_start(app_id: str):
+    """
+    每次开始前 根据外部信息更新运行状态
+    :param app_id:
+    :return:
+    """
+    if app_id == WORLD_PATROL.id:
+        record = world_patrol.get_record()
+    elif app_id == ASSIGNMENTS.id:
+        record = assignments.get_record()
+    elif app_id == EMAIL.id:
+        record = email_attachment.get_record()
+    elif app_id == SUPPORT_CHARACTER.id:
+        record = support_character.get_record()
+    elif app_id == NAMELESS_HONOR.id:
+        record = nameless_honor.get_record()
+    elif app_id == CLAIM_TRAINING.id:
+        record = claim_training.get_record()
+    elif app_id == BUY_XIANZHOU_PARCEL.id:
+        record = buy_parcel.get_record()
+    elif app_id == TRAILBLAZE_POWER.id:
+        record = trailblaze_power.get_record()
+        record.update_status(AppRunRecord.STATUS_WAIT)

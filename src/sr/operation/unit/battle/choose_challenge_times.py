@@ -52,7 +52,7 @@ class ChooseChallengeTimes(Operation):
         :return: 当前选择次数
         """
         part, _ = cv2_utils.crop_image(screen, ChooseChallengeTimes.CURRENT_TIMES_RECT)
-        cv2_utils.show_image(part, win_name='_get_current_times')
+        # cv2_utils.show_image(part, win_name='_get_current_times')
         ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
         return str_utils.get_digits(ocr_result)
 

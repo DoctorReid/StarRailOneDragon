@@ -153,6 +153,7 @@ class UseTrailblazePower(CombineOperation):
             ChooseTeam(self.ctx, self.team_num),  # 选择配队
             ClickStartChallenge(self.ctx),  # 开始挑战
             GetRewardAndRetry(self.ctx, round_num, self._on_battle_success),  # 领奖 重复挑战
+            WaitInWorld(self.ctx),  # 等待主界面
         ]
 
     def _ops_for_cate_3(self, round_num: int) -> List[Operation]:
@@ -169,6 +170,7 @@ class UseTrailblazePower(CombineOperation):
             WaitInWorld(self.ctx),  # 等待界面
             StartFight(self.ctx),  # 主动攻击
             GetRewardAndRetry(self.ctx, round_num, self._on_battle_success),  # 领奖 重复挑战
+            WaitInWorld(self.ctx),  # 等待主界面
         ]
 
     def _ops_for_cate_4(self, round_num: int) -> List[Operation]:
@@ -183,6 +185,7 @@ class UseTrailblazePower(CombineOperation):
             ChooseTeam(self.ctx, self.team_num),  # 选择配队
             ClickStartChallenge(self.ctx),  # 开始挑战
             GetRewardAndRetry(self.ctx, round_num, self._on_battle_success),  # 领奖 重复挑战
+            WaitInWorld(self.ctx),  # 等待主界面
         ]
 
     def _on_battle_success(self):

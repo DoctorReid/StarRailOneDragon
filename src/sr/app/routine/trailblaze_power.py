@@ -115,6 +115,9 @@ class TrailblazePower(Application):
         self.phase: int = 0
         self.power: int = 0
 
+    def _init_before_execute(self):
+        get_record().update_status(AppRunRecord.STATUS_RUNNING)
+
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开大地图
             op = OpenMap(self.ctx)
@@ -138,6 +141,8 @@ class TrailblazePower(Application):
             if plan is None:
                 return Operation.SUCCESS
 
+            record = get_record()
+
             point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
             run_times: int = self.power // point.power
             if run_times == 0:
@@ -149,9 +154,17 @@ class TrailblazePower(Application):
                 self.power -= point.power
                 plan['run_times'] += 1
                 config.save()
+                record.update_status(AppRunRecord.STATUS_RUNNING)
 
             op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success)
             if op.execute():
                 return Operation.WAIT
             else:
                 return Operation.RETRY
+
+    def _after_stop(self, result: bool):
+        record = get_record()
+        if result:
+            record.update_status(AppRunRecord.STATUS_SUCCESS)
+        else:
+            record.update_status(AppRunRecord.STATUS_FAIL)
