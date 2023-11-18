@@ -1,0 +1,13 @@
+plan_list:
+- point_id: P01_KJZHT_R04_ZYCD_F2_HMDKD
+  team_num: 1
+  plan_times: 3
+  run_times: 0
+- point_id: P02_YLL6_R06_YDL_HCDLM
+  team_num: 1
+  plan_times: 3
+  run_times: 0
+- point_id: P03_XZLF_R09_LYJ_BSDSS
+  team_num: 1
+  plan_times: 3
+  run_times: 0

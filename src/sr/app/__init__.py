@@ -97,7 +97,14 @@ class AppRunRecord(ConfigHolder):
         self.run_time = self.get('run_time', '-')
         self.run_status = self.get('run_status', AppRunRecord.STATUS_WAIT)
 
-    def reset_if_another_dt(self):
+    def check_and_update_status(self):
+        """
+        检查并更新状态 各个app按需实现
+        :return:
+        """
+        self._reset_if_another_dt()
+
+    def _reset_if_another_dt(self):
         """
         如果已经到新的一天了 重置状态
         由app自己控制什么时候重置
@@ -105,7 +112,6 @@ class AppRunRecord(ConfigHolder):
         """
         current_dt = app_record_current_dt_str()
         if self.dt != current_dt:
-            self.dt = current_dt
             self.run_status = AppRunRecord.STATUS_WAIT
             self._reset_for_new_dt()
 

@@ -26,6 +26,8 @@ REGION_LIST_RECT = Rect(1480, 200, 1820, 1000)
 REGION_LIST_PART_CENTER = REGION_LIST_RECT.center
 FLOOR_LIST_PART = Rect(30, 730, 100, 1000)
 
+LARGE_MAP_POWER_RECT = Rect(1635, 54, 1678, 72)  # 大地图上显示体力的位置
+
 
 def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     """

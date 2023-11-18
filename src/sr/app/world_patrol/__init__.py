@@ -135,13 +135,8 @@ class WorldPatrolRecord(AppRunRecord):
         self.time_cost = self.get('time_cost', {})
 
     def _reset_for_new_dt(self):
-        self.run_time = '-'
-        self.run_status = 0
         self.finished = []
 
-        self.update('dt', self.dt, False)
-        self.update('run_time', self.run_time, False)
-        self.update('run_status', self.run_status, False)
         self.update('finished', self.finished, False)
 
         self.save()

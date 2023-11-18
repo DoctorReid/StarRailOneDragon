@@ -5,10 +5,11 @@ import sr.app.routine.assignments
 from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, world_patrol, AppDescription
 from sr.app.routine import assignments, support_character, nameless_honor, claim_training, buy_parcel, \
-    trailblaze_power, email_attachment
+    trailblaze_power, email_attachment, echo_of_war
 from sr.app.routine.assignments import Assignments, ASSIGNMENTS
 from sr.app.routine.buy_parcel import BuyXianzhouParcel, BUY_XIANZHOU_PARCEL
 from sr.app.routine.claim_training import ClaimTraining, CLAIM_TRAINING
+from sr.app.routine.echo_of_war import ECHO_OF_WAR, EchoOfWar
 from sr.app.routine.email_attachment import Email, EMAIL
 from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
 from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
@@ -69,7 +70,10 @@ class OneStopService(Application):
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('一条龙', 'ui'))
         self.app_list: List[AppDescription] = []
+        run_app_list = get_config().run_app_id_list
         for app_id in get_config().order_app_id_list:
+            if app_id not in run_app_list:
+                continue
             update_app_run_record_before_start(app_id)
             record = get_app_run_record_by_id(app_id)
 
@@ -133,6 +137,8 @@ def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
         return BuyXianzhouParcel(ctx)
     elif app_id == TRAILBLAZE_POWER.id:
         return TrailblazePower(ctx)
+    elif app_id == ECHO_OF_WAR.id:
+        return EchoOfWar(ctx)
     return None
 
 
@@ -153,6 +159,8 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
         return buy_parcel.get_record()
     elif app_id == TRAILBLAZE_POWER.id:
         return trailblaze_power.get_record()
+    elif app_id == ECHO_OF_WAR.id:
+        return echo_of_war.get_record()
     return None
 
 
@@ -162,20 +170,11 @@ def update_app_run_record_before_start(app_id: str):
     :param app_id:
     :return:
     """
-    if app_id == WORLD_PATROL.id:
-        record = world_patrol.get_record()
-    elif app_id == ASSIGNMENTS.id:
-        record = assignments.get_record()
-    elif app_id == EMAIL.id:
-        record = email_attachment.get_record()
-    elif app_id == SUPPORT_CHARACTER.id:
-        record = support_character.get_record()
-    elif app_id == NAMELESS_HONOR.id:
-        record = nameless_honor.get_record()
-    elif app_id == CLAIM_TRAINING.id:
-        record = claim_training.get_record()
-    elif app_id == BUY_XIANZHOU_PARCEL.id:
-        record = buy_parcel.get_record()
-    elif app_id == TRAILBLAZE_POWER.id:
-        record = trailblaze_power.get_record()
-        record.update_status(AppRunRecord.STATUS_WAIT)
+    if app_id not in [
+        WORLD_PATROL.id,
+        TRAILBLAZE_POWER.id
+    ]:
+        return
+    record: Optional[AppRunRecord] = get_app_run_record_by_id(app_id)
+    if record is not None:
+        record.check_and_update_status()

@@ -241,7 +241,7 @@ P01_R04_SP02 = TransportPoint('YT', '月台', P01_R04_L2, 'mm_tp_03', (789, 404)
 P01_R04_SP03 = TransportPoint('DLS', '电力室', P01_R04_L2, 'mm_tp_03', (165, 414))
 P01_R04_SP04 = TransportPoint('CHZL', '存护之蕾拟造花萼赤', P01_R04_L2, 'mm_tp_07', (467, 322))
 P01_R04_SP05 = TransportPoint('TKDT', '太空电梯', P01_R04_L2, 'mm_sp_02', (105, 345))
-P01_R04_SP06 = TransportPoint('HMDKD', '毁灭的开端', P01_R04_L2, 'mm_boss_01', (1010, 286))
+P01_R04_SP06 = TransportPoint('HMDKD', '毁灭的开端历战回响', P01_R04_L2, 'mm_boss_01', (1010, 286))
 
 # 雅利洛 - 行政区
 P02_R01_SP01 = TransportPoint('HJGJY', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374))
@@ -306,7 +306,7 @@ P02_R06_SP01 = TransportPoint('GZC', '古战场', P02_R06, 'mm_tp_03', (366, 776
 P02_R06_SP02 = TransportPoint('ZWPT', '造物平台', P02_R06, 'mm_tp_03', (784, 571))
 P02_R06_SP03 = TransportPoint('RZZJ', '睿治之径侵蚀隧洞', P02_R06, 'mm_tp_09', (585, 663))
 P02_R06_SP04 = TransportPoint('CXHL', '残响回廊', P02_R06, 'mm_sp_02', (338, 793))
-P02_R06_SP05 = TransportPoint('HCDLM', '寒潮的落幕', P02_R06, 'mm_boss_02', (814, 701))
+P02_R06_SP05 = TransportPoint('HCDLM', '寒潮的落幕历战回响', P02_R06, 'mm_boss_02', (814, 701))
 
 # 雅利洛 - 造物之柱
 P02_R07_SP01 = TransportPoint('ZWZZRK', '造物之柱入口', P02_R07, 'mm_tp_03', (382, 426))
@@ -462,7 +462,7 @@ P03_R09_SP02 = TransportPoint('GHGX', '古海宫墟', P03_R09, 'mm_tp_03', (1113
 P03_R09_SP03 = TransportPoint('XLDYD', '显龙大雩殿', P03_R09, 'mm_tp_03', (1599, 444))
 P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形凝滞虚影', P03_R09, 'mm_tp_06', (917, 169))
 P03_R09_SP05 = TransportPoint('DDS', '丹鼎司', P03_R09, 'mm_sp_02', (1891, 391))
-P03_R09_SP06 = TransportPoint('BSDSS', '不死的神实', P03_R09, 'mm_boss_03', (470, 450))
+P03_R09_SP06 = TransportPoint('BSDSS', '不死的神实历战回响', P03_R09, 'mm_boss_03', (470, 450))
 
 # 仙舟罗浮 - 绥园
 P03_R10_SP01 = TransportPoint('YXGCL', '偃息馆长廊', P03_R10, 'mm_tp_03', (867, 402), (868, 417))

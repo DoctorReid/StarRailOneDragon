@@ -1,57 +1,85 @@
-import time
 from typing import Optional, TypedDict, List
 
 from cv2.typing import MatLike
 
-from basic import str_utils
+from basic import os_utils, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, AppDescription, register_app
+from sr.app import Application, AppDescription, register_app, AppRunRecord, app_record_current_dt_str
 from sr.config import ConfigHolder
+from sr.const import map_const
+from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
-from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower
+from sr.operation.combine.challenge_ehco_of_war import ChallengeEchoOfWar
 from sr.operation.unit.open_map import OpenMap
 
-TRAILBLAZE_POWER = AppDescription(cn='开拓力', id='trailblaze_power')
-register_app(TRAILBLAZE_POWER)
+ECHO_OF_WAR = AppDescription(cn='历战回响', id='echo_of_war')
+register_app(ECHO_OF_WAR)
+
+WAR_LIST = [
+    map_const.P01_R04_SP06,
+    map_const.P02_R06_SP05,
+    map_const.P03_R09_SP06,
+]
 
 
-class TrailblazePowerRecord(AppRunRecord):
-
-    def __init__(self):
-        super().__init__(TRAILBLAZE_POWER.id)
-
-    def check_and_update_status(self):
-        super().check_and_update_status()
-        self.update_status(AppRunRecord.STATUS_WAIT)  # 每次都检查一遍体力
+def get_point_by_unique_id(unique_id: str) -> TransportPoint:
+    for i in WAR_LIST:
+        if i.unique_id == unique_id:
+            return i
 
 
-trailblaze_power_record: Optional[TrailblazePowerRecord] = None
-
-
-def get_record() -> TrailblazePowerRecord:
-    global trailblaze_power_record
-    if trailblaze_power_record is None:
-        trailblaze_power_record = TrailblazePowerRecord()
-    return trailblaze_power_record
-
-
-class TrailblazePowerPlanItem(TypedDict):
+class EchoOfWarPlanItem(TypedDict):
     point_id: str  # 关卡id
     team_num: int  # 使用配队
     plan_times: int  # 计划通关次数
     run_times: int  # 已经通关次数
 
 
-class TrailblazePowerConfig(ConfigHolder):
+class EchoOfWarRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(TRAILBLAZE_POWER.id)
+        super().__init__(ECHO_OF_WAR.id)
 
-    def _init_after_read_file(self):
+    @property
+    def run_status_under_now(self):
+        """
+        基于当前时间显示的运行状态
+        :return:
+        """
+        current_dt = app_record_current_dt_str()
+        sunday_dt = os_utils.get_sunday_dt(self.dt)
+        if current_dt > sunday_dt:
+            return AppRunRecord.STATUS_WAIT
+        else:
+            return self.run_status
+
+    @property
+    def left_times(self) -> int:
+        return self.get('left_times', 3)
+
+    @left_times.setter
+    def left_times(self, new_value: int):
+        self.update('left_times', new_value)
+
+
+echo_of_war_record: Optional[EchoOfWarRecord] = None
+
+
+def get_record() -> EchoOfWarRecord:
+    global echo_of_war_record
+    if echo_of_war_record is None:
+        echo_of_war_record = EchoOfWarRecord()
+    return echo_of_war_record
+
+
+class EchoOfWarConfig(ConfigHolder):
+
+    def __init__(self):
+        super().__init__(ECHO_OF_WAR.id)
         pass
 
     def check_plan_finished(self):
@@ -60,7 +88,7 @@ class TrailblazePowerConfig(ConfigHolder):
         执行完的话 所有执行次数置为0 重新开始下一轮
         :return:
         """
-        plan_list: List[TrailblazePowerPlanItem] = self.plan_list
+        plan_list: List[EchoOfWarPlanItem] = self.plan_list
         for item in plan_list:
             if item['run_times'] < item['plan_times']:
                 return
@@ -69,10 +97,8 @@ class TrailblazePowerConfig(ConfigHolder):
         for item in plan_list:
             item['run_times'] = 0
 
-        self.plan_list = plan_list
-
     @property
-    def plan_list(self) -> List[TrailblazePowerPlanItem]:
+    def plan_list(self) -> List[EchoOfWarPlanItem]:
         """
         体力规划配置
         :return:
@@ -80,17 +106,17 @@ class TrailblazePowerConfig(ConfigHolder):
         return self.get('plan_list', [])
 
     @plan_list.setter
-    def plan_list(self, new_list: List[TrailblazePowerPlanItem]):
+    def plan_list(self, new_list: List[EchoOfWarPlanItem]):
         self.update('plan_list', new_list)
 
     @property
-    def next_plan_item(self) -> Optional[TrailblazePowerPlanItem]:
+    def next_plan_item(self) -> Optional[EchoOfWarPlanItem]:
         """
         按规划配置列表，找到第一个还没有完成的去执行
         如果都完成了 选择第一个
         :return: 下一个需要执行的计划
         """
-        plan_list: List[TrailblazePowerPlanItem] = self.plan_list
+        plan_list: List[EchoOfWarPlanItem] = self.plan_list
         for item in plan_list:
             if item['run_times'] < item['plan_times']:
                 return item
@@ -101,22 +127,25 @@ class TrailblazePowerConfig(ConfigHolder):
         return None
 
 
-trailblaze_power_config: Optional[TrailblazePowerConfig] = None
+echo_of_war_config: Optional[EchoOfWarConfig] = None
 
 
-def get_config() -> TrailblazePowerConfig:
-    global trailblaze_power_config
-    if trailblaze_power_config is None:
-        trailblaze_power_config = TrailblazePowerConfig()
-    return trailblaze_power_config
+def get_config() -> EchoOfWarConfig:
+    global echo_of_war_config
+    if echo_of_war_config is None:
+        echo_of_war_config = EchoOfWarConfig()
+
+    return echo_of_war_config
 
 
-class TrailblazePower(Application):
+class EchoOfWar(Application):
+
+    POWER_USAGE = 30  # 固定消耗体力30
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('开拓力', 'ui'))
-        self.phase: int = 0
-        self.power: int = 0
+        super().__init__(ctx, op_name=gt('历战回响', 'ui'))
+        self.phase: int = 2
+        self.power: int = 160
 
     def _init_before_execute(self):
         get_record().update_status(AppRunRecord.STATUS_RUNNING)
@@ -140,34 +169,40 @@ class TrailblazePower(Application):
         elif self.phase == 2:  # 使用体力
             config = get_config()
             config.check_plan_finished()
-            plan: Optional[TrailblazePowerPlanItem] = config.next_plan_item
+            plan: Optional[EchoOfWarPlanItem] = config.next_plan_item
             if plan is None:
                 return Operation.SUCCESS
 
-            record = get_record()
+            run_times: int = self.power // EchoOfWar.POWER_USAGE
 
-            point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
-            run_times: int = self.power // point.power
+            record = get_record()
+            if record.left_times < run_times:
+                run_times = record.left_times
+
             if run_times == 0:
                 return Operation.SUCCESS
+
             if run_times + plan['run_times'] > plan['plan_times']:
                 run_times = plan['plan_times'] - plan['run_times']
 
+            point: TransportPoint = get_point_by_unique_id(plan['point_id'])
+
             def on_battle_success():
-                self.power -= point.power
+                self.power -= EchoOfWar.POWER_USAGE
                 plan['run_times'] += 1
+                record.left_times = record.left_times - 1
                 config.save()
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 
-            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success)
+            op = ChallengeEchoOfWar(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success)
             if op.execute():
                 return Operation.WAIT
-            else:
+            else:  # 挑战
                 return Operation.RETRY
 
     def _after_stop(self, result: bool):
         record = get_record()
-        if result:
+        if result and record.left_times == 0:
             record.update_status(AppRunRecord.STATUS_SUCCESS)
         else:
             record.update_status(AppRunRecord.STATUS_FAIL)

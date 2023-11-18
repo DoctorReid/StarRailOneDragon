@@ -17,7 +17,8 @@ class WaitBattleReward(Operation):
     """
 
     def __init__(self, ctx: Context, timeout_seconds: int = 1200):
-        super().__init__(ctx, try_times=3, op_name=gt('等待战斗结束领取奖励', 'ui'))
+        super().__init__(ctx, try_times=3, op_name=gt('等待战斗结束领取奖励', 'ui'),
+                         timeout_seconds=timeout_seconds)
         self.start_time: float = 0
         self.timeout_seconds: int = timeout_seconds
 
@@ -33,15 +34,8 @@ class WaitBattleReward(Operation):
 
         battle_result: str = battle.get_battle_result_str(screen, self.ctx.ocr)
 
-        if str_utils.find_by_lcs(gt('挑战成功', 'ocr'), battle_result, 0.5) or \
-            str_utils.find_by_lcs(gt('挑战失败', 'ocr'), battle_result, 0.5):
+        if battle_result is not None:
             return Operation.SUCCESS
-
-        if time.time() - self.start_time > self.timeout_seconds:  # 应该没有需要真么久的战斗吧
-            return Operation.FAIL
 
         time.sleep(1)
         return Operation.WAIT
-
-    def on_resume(self):
-        self.start_time = self.pause_end_time - (self.pause_start_time - self.start_time)

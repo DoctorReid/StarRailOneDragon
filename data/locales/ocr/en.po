@@ -239,7 +239,7 @@ msgstr "Electrical Room"
 msgid "存护之蕾拟造花萼赤"
 msgstr "Bud of Preservation"
 
-msgid "毁灭的开端"
+msgid "毁灭的开端历战回响"
 msgstr "Destruction's Beginning"
 
 # Interact
@@ -381,7 +381,7 @@ msgstr "Deck of Creation"
 msgid "睿治之径侵蚀隧洞"
 msgstr "Path of Providence"
 
-msgid "寒潮的落幕"
+msgid "寒潮的落幕历战回响"
 msgstr "End of the Eternal Freeze"
 
 # Special Point - Jarilo-VI - Pillars of Creation
@@ -682,7 +682,7 @@ msgstr "Draggonvista Rain Hall"
 msgid "孽兽之形凝滞虚影"
 msgstr "Shape of Abomination"
 
-msgid "不死的神实"
+msgid "不死的神实历战回响"
 msgstr "Divine Seed"
 
 # Special Point - The Xianzhou Luofu - Fyxestroll Garden
