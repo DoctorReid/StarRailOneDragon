@@ -2,7 +2,7 @@ author: ['DoctorReid', '龙女姬']
 planet: '雅利洛'
 region: '残响回廊'
 floor: 0
-tp: '鸣雷之形'
+tp: '鸣雷之形凝滞虚影'
 route:
   - op: 'move'
     data: [520, 610]

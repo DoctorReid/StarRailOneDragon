@@ -2,7 +2,7 @@ author: ['DoctorReid', '龙女姬']
 planet: '空间站黑塔'
 region: '支援舱段'
 floor: 2
-tp: '存护之蕾'
+tp: '存护之蕾拟造花萼赤'
 route:
   - op: 'move'
     data: [473, 388]

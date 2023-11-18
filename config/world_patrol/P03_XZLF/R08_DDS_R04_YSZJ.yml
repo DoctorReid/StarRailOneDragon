@@ -2,7 +2,7 @@ author: ['DoctorReid', '龙女姬']
 planet: '仙舟罗浮'
 region: '丹鼎司'
 floor: 2
-tp: '药使之径'
+tp: '药使之径侵蚀隧洞'
 route:
   - op: 'move'
     data: [669, 1458]

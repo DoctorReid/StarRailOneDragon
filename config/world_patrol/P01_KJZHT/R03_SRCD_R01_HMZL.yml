@@ -2,7 +2,7 @@ author: ['DoctorReid']
 planet: '空间站黑塔'
 region: '收容舱段'
 floor: 1
-tp: '毁灭之蕾'
+tp: '毁灭之蕾拟造花萼赤'
 route:
   - op: 'move'
     data: [318, 445, -1]

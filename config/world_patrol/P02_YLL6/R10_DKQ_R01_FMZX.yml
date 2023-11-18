@@ -2,7 +2,7 @@ author: ['DoctorReid']
 planet: '雅利洛'
 region: '大矿区'
 floor: 0
-tp: '锋芒之形'
+tp: '锋芒之形凝滞虚影'
 route:
   - op: 'move'
     data: [434, 526]
