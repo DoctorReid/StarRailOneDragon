@@ -1,5 +1,6 @@
 import concurrent.futures
 from concurrent.futures import Future
+from functools import lru_cache
 from typing import List
 
 import cv2
@@ -59,9 +60,6 @@ def cal_character_pos(im: ImageMatcher,
     if result is None:  # 使用模板匹配 用道路掩码的
         r3: MatchResult = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
         result = r3
-
-    # if result is None:  # 没有一个计算结果在预估范围内 按优先级返回
-    #     result = cal_utils.coalesce(r1, r2, r3, r4)
 
     # if result is None:
     #     result: MatchResult = cal_character_pos_by_merge_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
@@ -174,11 +172,13 @@ def cal_character_pos_by_original(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
+    radio_to_del = get_radio_to_del(im, mm_info.angle)
     template = cv2.cvtColor(mm_info.origin, cv2.COLOR_BGR2GRAY)
     rough_road_mask = mini_map.get_rough_road_mask(mm_info.origin,
                                                    sp_mask=mm_info.sp_mask,
                                                    arrow_mask=mm_info.arrow_mask,
                                                    angle=mm_info.angle,
+                                                   radio_to_del=radio_to_del,
                                                    another_floor=lm_info.region.another_floor)
     template_mask = cv2.bitwise_and(mm_info.circle_mask, rough_road_mask)
 
@@ -272,6 +272,21 @@ def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
     return None if same_confidence else target_pos
 
 
+@lru_cache
+def get_radio_to_del(im: ImageMatcher, angle: float = None):
+    """
+    根据人物朝向 获取对应的雷达区域颜色
+    :param im:
+    :param angle:
+    :return:
+    """
+    radio_to_del = im.get_template('mini_map_radio').origin
+    if angle is not None:
+        return cv2_utils.image_rotate(radio_to_del, 360 - angle)
+    else:
+        return radio_to_del
+
+
 @record_performance
 def cal_character_pos_by_road_mask(im: ImageMatcher,
                                    lm_info: LargeMapInfo, mm_info: MiniMapInfo,
@@ -291,8 +306,11 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
     # 使用道路掩码
-    template = mini_map.get_mini_map_road_mask(mm_info.origin, sp_mask=mm_info.sp_mask, arrow_mask=mm_info.arrow_mask,
-                                               angle=mm_info.angle, another_floor=lm_info.region.another_floor)
+    radio_to_del = get_radio_to_del(im, mm_info.angle)
+    mm_info.road_mask = mini_map.get_mini_map_road_mask(mm_info.origin, sp_mask=mm_info.sp_mask, arrow_mask=mm_info.arrow_mask,
+                                                        angle=mm_info.angle, radio_to_del=radio_to_del,
+                                                        another_floor=lm_info.region.another_floor)
+    template = mm_info.road_mask
     template_mask = mm_info.circle_mask
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,

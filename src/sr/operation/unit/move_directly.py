@@ -147,10 +147,10 @@ class MoveDirectly(Operation):
                 self.ctx.controller.stop_moving_forward()
             return Operation.SUCCESS
 
-        self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle, run=self.run_mode == game_config_const.RUN_MODE_BTN)
-        # time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
-
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
+            self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle,
+                                             run=self.run_mode == game_config_const.RUN_MODE_BTN)
+            # time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
             self.pos.append(next_pos)
             if len(self.pos) > MoveDirectly.max_len:
                 del self.pos[0]

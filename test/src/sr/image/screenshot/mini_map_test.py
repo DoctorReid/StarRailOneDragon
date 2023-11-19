@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+from basic import os_utils
 from basic.img import cv2_utils
 from basic.img.os import get_debug_image_dir, get_test_image, save_debug_image, get_debug_image
 from basic.log_utils import log
@@ -147,7 +148,68 @@ def _test_is_under_attack():
     log.info('通过测试')
 
 
+def _test_radio_color():
+    """
+    保存一个扇形雷达区域需要叠加的颜色
+    :return:
+    """
+    mm = get_test_image('cal_radio', sub_dir='mini_map')
+
+    cv2_utils.show_image(mm, win_name='mm')
+
+    radius = mm.shape[0] // 2 - 20
+    d = radius * 2 + 1
+    mask = np.zeros((d, d), dtype=np.uint8)
+    center = (d // 2, d // 2)
+    print(radius)
+    start_angle = - 46  # 扇形起始角度（以度为单位）
+    end_angle = 46  # 扇形结束角度（以度为单位）
+    cv2.ellipse(mask, center, (radius, radius), 0, start_angle, end_angle, 255, -1)  # 画扇形
+    cv2_utils.show_image(mask, win_name='mask')
+
+    x1 = mm.shape[1] // 2 - radius
+    x2 = x1 + d
+    y1 = mm.shape[1] // 2 - radius
+    y2 = y1 + d
+
+    to_del = np.zeros((d, d, 3), dtype=np.uint8)
+    to_del[:,:] = mm[y1:y2, x1:x2]
+    to_del -= 55
+    to_del = cv2.bitwise_and(to_del, to_del, mask=mask)
+
+    new_mm = mm.copy()
+    new_mm[y1:y2, x1:x2] = new_mm[y1:y2, x1:x2] - to_del
+    new_mm[np.where(new_mm < 0)] = 0
+
+    cv2_utils.show_image(new_mm, win_name='new_mm', wait=0)
+
+    save_template_image(to_del, 'mini_map_radio', 'origin')
+    save_template_image(mask, 'mini_map_radio', 'mask')
+
+    template = ih.get_template('mini_map_radio')
+    to_del = template.origin
+
+    new_mm_2 = mm.copy()
+    new_mm_2[y1:y2, x1:x2] = new_mm_2[y1:y2, x1:x2] - to_del
+    new_mm_2[np.where(new_mm < 0)] = 0
+
+    cv2_utils.show_image(new_mm_2, win_name='new_mm_2', wait=0)
+
+
+def save_template_image(img: MatLike, template_id: str, tt: str):
+    """
+    保存模板图片
+    :param img: 模板图片
+    :param template_id: 模板id
+    :param tt: 模板类型
+    :return:
+    """
+    path = os_utils.get_path_under_work_dir('images', 'template', template_id)
+    print(path)
+    print(cv2.imwrite(os.path.join(path, '%s.png' % tt), img))
+
+
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    _test_is_under_attack()
+    _test_radio_color()

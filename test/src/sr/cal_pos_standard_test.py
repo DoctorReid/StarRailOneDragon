@@ -60,6 +60,8 @@ case_list = [
     TestCase(map_const.P03_R03_L1, Point(413, 524), 2, True),
 
     TestCase(map_const.P03_R09, Point(972, 402), 1, True, (963, 360, 30)),
+
+    TestCase(map_const.P03_R10, Point(375, 788), 1, True, (400, 744, 29)),
 ]
 
 

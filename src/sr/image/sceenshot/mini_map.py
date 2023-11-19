@@ -406,20 +406,43 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) ->
     return info
 
 
-def get_mini_map_road_mask(origin: MatLike,
+def remove_radio(mm: MatLike, radio_to_del: MatLike) -> MatLike:
+    origin = mm.copy()
+    if radio_to_del is not None:
+        radius = radio_to_del.shape[0] // 2
+        d = radio_to_del.shape[0]
+
+        x1 = origin.shape[1] // 2 - radius
+        x2 = x1 + d
+        y1 = origin.shape[1] // 2 - radius
+        y2 = y1 + d
+
+        overlap = np.zeros_like(radio_to_del, dtype=np.uint8)
+        overlap[:, :] = origin[y1:y2, x1:x2] - radio_to_del
+        overlap[np.where(origin[y1:y2, x1:x2] < radio_to_del)] = 0
+        origin[y1:y2, x1:x2] = overlap
+
+    # cv2_utils.show_image(origin, win_name='origin')
+    return origin
+
+
+def get_mini_map_road_mask(mm: MatLike,
                            sp_mask: MatLike = None,
                            arrow_mask: MatLike = None,
                            angle: float = None,
+                           radio_to_del: MatLike = None,
                            another_floor: bool = True) -> MatLike:
     """
     在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
-    :param origin: 地图图片
+    :param mm: 地图图片
     :param sp_mask: 特殊点的掩码 道路掩码应该排除这部分
     :param arrow_mask: 小箭头的掩码 只有小地图有
     :param angle: 只有小地图上需要传入 表示当前朝向
     :param another_floor: 是否有其它楼层
     :return: 道路掩码图 能走的部分是白色255
     """
+    origin = remove_radio(mm, radio_to_del)
+
     # 按道路颜色圈出 当前层的颜色
     l1 = 45
     u1 = 65
@@ -438,11 +461,7 @@ def get_mini_map_road_mask(origin: MatLike,
     else:
         road_mask = road_mask_1
 
-    # 对于小地图 要特殊扫描中心点附近的区块
-    radio_mask = get_mini_map_radio_mask(origin, angle, another_floor=another_floor)
-    # cv2_utils.show_image(radio_mask, win_name='radio_mask')
-    center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
-    road_mask = cv2.bitwise_or(road_mask, center_mask)
+    road_mask = cv2.bitwise_or(road_mask, arrow_mask)
 
     # 特殊处理敌人红点
     enemy_mask = get_enemy_road_mask(origin)
@@ -482,6 +501,7 @@ def get_rough_road_mask(mm: MatLike,
                         sp_mask: MatLike = None,
                         arrow_mask: MatLike = None,
                         angle: float = None,
+                        radio_to_del: MatLike = None,
                         another_floor: bool = True):
     """
     获取比较粗略的道路掩码 用于原图的模板匹配
@@ -600,26 +620,32 @@ def merge_all_map_mask(gray_image: MatLike,
     return usage, all_mask
 
 
-def get_edge_mask(origin: MatLike, road_mask: MatLike):
+def get_edge_mask(origin: MatLike, road_mask: MatLike, another_floor: bool = False):
     """
     小地图道路边缘掩码 暂时不需要
     :param origin: 小地图图片
     :param road_mask: 道路掩码
+    :param another_floor: 是否有另一层
     :return:
     """
     lower_color = np.array([170, 170, 170], dtype=np.uint8)
     upper_color = np.array([230, 230, 230], dtype=np.uint8)
     edge_mask_1 = cv2.inRange(origin, lower_color, upper_color)
-    lower_color = np.array([100, 100, 100], dtype=np.uint8)
-    upper_color = np.array([130, 130, 130], dtype=np.uint8)
-    edge_mask_2 = cv2.inRange(origin, lower_color, upper_color)
+    if another_floor:
+        lower_color = np.array([100, 100, 100], dtype=np.uint8)
+        upper_color = np.array([130, 130, 130], dtype=np.uint8)
+        edge_mask_2 = cv2.inRange(origin, lower_color, upper_color)
 
-    color_edge_mask = cv2.bitwise_or(edge_mask_1, edge_mask_2)
+        color_edge_mask = cv2.bitwise_or(edge_mask_1, edge_mask_2)
+    else:
+        color_edge_mask = edge_mask_1
     # 稍微膨胀一下
     color_edge_mask = cv2.dilate(color_edge_mask, np.ones((5, 5), np.uint8), iterations=1)
 
     road_edge_mask = cv2.Canny(road_mask, threshold1=200, threshold2=230)
     color_edge_mask = cv2.dilate(color_edge_mask, np.ones((2, 2), np.uint8), iterations=1)
+    cv2_utils.show_image(color_edge_mask, win_name='color_edge_mask')
+    cv2_utils.show_image(road_edge_mask, win_name='road_edge_mask')
 
     final_edge_mask = cv2.bitwise_and(color_edge_mask, road_edge_mask)
 
