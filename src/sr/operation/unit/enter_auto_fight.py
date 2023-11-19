@@ -14,9 +14,10 @@ class EnterAutoFight(Operation):
     """
     根据小地图的红圈
     """
-    attack_interval = 0.5  # 发起攻击的间隔
+    attack_interval = 0.2  # 发起攻击的间隔
     exit_after_no_alter_time = 2  # 多久没警报退出
     exit_after_no_battle_time = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
+    ATTACK_DIRECTION_ARR = ['w', 's', 'a', 'd']
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('进入战斗', 'ui'))
@@ -24,6 +25,7 @@ class EnterAutoFight(Operation):
         self.last_alert_time = 0  # 上次警报时间
         self.last_in_battle_time = 0  # 上次在战斗的时间
         self.with_battle: bool = False  # 是否有进入战斗
+        self.attach_direction: int = 0  # 攻击方向
 
     def _init_before_execute(self):
         self.last_attack_time = time.time()
@@ -66,7 +68,12 @@ class EnterAutoFight(Operation):
 
         if now_time - self.last_attack_time > EnterAutoFight.attack_interval:
             self.last_attack_time = now_time
+            if self.attach_direction > 0:
+                self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attach_direction % 4])
+                time.sleep(0.2)
+            self.attach_direction += 1
             ctrl.initiate_attack()
+            time.sleep(0.5)
 
         if now_time - self.last_in_battle_time > EnterAutoFight.exit_after_no_battle_time:
             return Operation.FAIL

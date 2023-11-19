@@ -267,5 +267,5 @@ class MoveDirectly(Operation):
 
     def on_resume(self):
         super().on_resume()
-        self.last_rec_time = time.time()
-        self.last_battle_time = time.time()
+        self.last_rec_time += self.pause_total_time
+        self.last_battle_time += self.pause_total_time

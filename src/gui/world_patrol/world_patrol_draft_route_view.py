@@ -407,7 +407,7 @@ class WorldPatrolDraftRouteView(components.Card, SrBasicView):
         whitelist: WorldPatrolWhitelist = WorldPatrolWhitelist('0')
         whitelist.type = 'white'
         whitelist.list = [self.chosen_route_id.unique_id]
-        app = WorldPatrol(self.ctx, ignore_record=True, whitelist=whitelist)
+        app = WorldPatrol(self.ctx, ignore_record=True, whitelist=whitelist, team_num=0)
         app.first = self.first_test_route
         app.execute()
         self.first_test_route = False

@@ -15,7 +15,7 @@ class BackToWorld(Operation):
     """
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, try_times=10, op_name=gt('回到主界面', 'ui'))
+        super().__init__(ctx, try_times=5, op_name=gt('回到主界面', 'ui'))
 
     def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()

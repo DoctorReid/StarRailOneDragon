@@ -1,22 +1,25 @@
 import threading
 import time
-from typing import List, Iterator
+from typing import List, Iterator, Optional
 
 from basic.log_utils import log
 from sr.app import Application, AppRunRecord, world_patrol
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolWhitelist, WorldPatrolRecord, \
-    load_all_route_id
+    load_all_route_id, WorldPatrolConfig, get_config
 from sr.app.world_patrol.run_patrol_route import RunPatrolRoute
 from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map_angle_alas
 from sr.operation import Operation
+from sr.operation.combine.choose_team_in_world import ChooseTeamInWorld
 
 
 class WorldPatrol(Application):
 
-    def __init__(self, ctx: Context, whitelist: WorldPatrolWhitelist = None,
-                 ignore_record: bool = False):
+    def __init__(self, ctx: Context,
+                 whitelist: WorldPatrolWhitelist = None,
+                 ignore_record: bool = False,
+                 team_num: Optional[int] = None):
         super().__init__(ctx)
         self.route_id_list: List[WorldPatrolRouteId] = []
         self.record: WorldPatrolRecord = None
@@ -26,6 +29,9 @@ class WorldPatrol(Application):
         self.ignore_record: bool = ignore_record
         self.current_route_start_time = time.time()  # 当前路线开始时间
 
+        self.config: WorldPatrolConfig = get_config()
+        self.team_num: Optional[int] = team_num
+
     def _init_before_execute(self):
         if not self.ignore_record:
             self.record = world_patrol.get_record()
@@ -34,6 +40,9 @@ class WorldPatrol(Application):
         self.route_id_list = load_all_route_id(self.whitelist, None if self.record is None else self.record.finished)
 
         self.current_route_idx = -1
+
+        if self.team_num is None:
+            self.team_num = self.config.team_num
 
         t = threading.Thread(target=self.preheat)
         t.start()
@@ -55,6 +64,11 @@ class WorldPatrol(Application):
         if self.current_route_idx >= len(self.route_id_list):
             log.info('所有线路执行完毕')
             return Operation.SUCCESS
+
+        if self.current_route_idx == 0 and self.team_num != 0:
+            op = ChooseTeamInWorld(self.ctx, self.config.team_num)
+            if not op.execute():
+                return Operation.FAIL
 
         route_id = self.route_id_list[self.current_route_idx]
 
@@ -91,6 +105,8 @@ class WorldPatrol(Application):
         return total
 
     def _after_stop(self, result: bool):
+        if self.ignore_record:
+            return
         if result and len(self.route_id_list) >= len(self.record.finished):
             self.record.update_status(AppRunRecord.STATUS_SUCCESS)
         else:

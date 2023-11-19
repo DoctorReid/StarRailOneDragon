@@ -5,7 +5,8 @@ import keyboard
 
 from basic.i18_utils import gt, update_default_lang
 from gui import log_view, calibrator_view, version, one_stop_view, scheduler
-from gui.settings import gui_config, settings_basic_view, settings_trailblaze_power_view, settings_echo_of_war_view
+from gui.settings import gui_config, settings_basic_view, settings_trailblaze_power_view, settings_echo_of_war_view, \
+    settings_world_patrol_view
 from gui.settings.gui_config import ThemeColors, GuiConfig
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
@@ -99,6 +100,11 @@ class StarRailAutoProxy:
                     label=gt('基础', model='ui')
                 ),
                 ft.NavigationRailDestination(
+                    icon=ft.icons.RUN_CIRCLE_OUTLINED,
+                    selected_icon=ft.icons.RUN_CIRCLE,
+                    label=gt('锄大地', model='ui')
+                ),
+                ft.NavigationRailDestination(
                     icon=ft.icons.SCHEDULE_SEND_OUTLINED,
                     selected_icon=ft.icons.SCHEDULE_SEND,
                     label=gt('开拓力', model='ui')
@@ -176,8 +182,10 @@ class StarRailAutoProxy:
             if self.settings_rail.selected_index == 0:
                 return settings_basic_view.get(self.page, self.ctx)
             elif self.settings_rail.selected_index == 1:
-                return settings_trailblaze_power_view.get(self.ctx)
+                return settings_world_patrol_view.get(self.ctx)
             elif self.settings_rail.selected_index == 2:
+                return settings_trailblaze_power_view.get(self.ctx)
+            elif self.settings_rail.selected_index == 3:
                 return settings_echo_of_war_view.get(self.ctx)
 
         return None

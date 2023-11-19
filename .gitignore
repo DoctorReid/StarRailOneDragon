@@ -16,3 +16,4 @@ config/one_stop_service.yml
 config/app_run_record/
 config/trailblaze_power.yml
 config/echo_of_war.yml
+config/world_patrol.yml

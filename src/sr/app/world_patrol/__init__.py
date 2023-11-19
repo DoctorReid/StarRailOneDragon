@@ -164,7 +164,6 @@ class WorldPatrolRecord(AppRunRecord):
             return np.mean(self.time_cost[unique_id])
 
 
-
 def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str] = None) -> List[WorldPatrolRouteId]:
     """
     加载所有路线
@@ -224,3 +223,27 @@ def get_record() -> WorldPatrolRecord:
     if world_patrol_record is None:
         world_patrol_record = WorldPatrolRecord()
     return world_patrol_record
+
+
+class WorldPatrolConfig(ConfigHolder):
+
+    def __init__(self):
+        super().__init__('world_patrol')
+
+    @property
+    def team_num(self) -> int:
+        return self.get('team_num', 0)
+
+    @team_num.setter
+    def team_num(self, new_value: int):
+        self.update('team_num', new_value)
+
+
+world_patrol_config: Optional[WorldPatrolConfig] = None
+
+
+def get_config() -> WorldPatrolConfig:
+    global world_patrol_config
+    if world_patrol_config is None:
+        world_patrol_config = WorldPatrolConfig()
+    return world_patrol_config
