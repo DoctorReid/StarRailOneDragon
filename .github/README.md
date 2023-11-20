@@ -15,7 +15,7 @@
 ## 项目进度
 
 - [一条龙](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E5%8A%9F%E8%83%BD_%E4%B8%80%E6%9D%A1%E9%BE%99) `进行中`
-- [锄大地](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E9%94%84%E5%A4%A7%E5%9C%B0) 1.5 已完成`
+- [锄大地](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E9%94%84%E5%A4%A7%E5%9C%B0) `1.5 已完成`
 - 模拟宇宙 `搁置`
 - [日常](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8) `进行中`
 
