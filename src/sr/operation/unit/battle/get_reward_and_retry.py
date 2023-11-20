@@ -3,6 +3,7 @@ from cv2.typing import MatLike
 from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import battle
 from sr.operation import Operation
@@ -41,10 +42,12 @@ class GetRewardAndRetry(Operation):
         battle_result: str = battle.get_battle_result_str(screen, self.ctx.ocr)
 
         if gt('挑战成功', 'ocr') == battle_result:
+            log.info('副本挑战成功')
             self.success_times += 1
             if self.success_callback is not None:
                 self.success_callback()
         else:
+            log.info('副本挑战失败')
             self.fail_times += 1
 
         if self.fail_times >= 5:  # 失败太多就退出 不要浪费时间了

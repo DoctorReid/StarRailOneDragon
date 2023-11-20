@@ -48,6 +48,7 @@ class EchoOfWarRecord(AppRunRecord):
         current_dt = app_record_current_dt_str()
         sunday_dt = os_utils.get_sunday_dt(self.dt)
         if current_dt > sunday_dt:
+            self.left_times = 3
             self.update_status(AppRunRecord.STATUS_WAIT, True)
 
     @property
@@ -195,8 +196,11 @@ class EchoOfWar(Application):
 
             def on_battle_success():
                 self.power -= EchoOfWar.POWER_USAGE
+                log.info('消耗体力: %d, 剩余体力: %d', EchoOfWar.POWER_USAGE, self.power)
                 plan['run_times'] += 1
+                log.info('副本完成次数: %d, 计划次数: %d', plan['run_times'], plan['plan_times'])
                 record.left_times = record.left_times - 1
+                log.info('本周历战回响剩余次数: %d', record.left_times)
                 config.save()
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 

@@ -155,7 +155,9 @@ class TrailblazePower(Application):
 
             def on_battle_success():
                 self.power -= point.power
+                log.info('消耗体力: %d, 剩余体力: %d', point.power, self.power)
                 plan['run_times'] += 1
+                log.info('副本完成次数: %d, 计划次数: %d', plan['run_times'], plan['plan_times'])
                 config.save()
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 
