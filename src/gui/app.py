@@ -151,8 +151,10 @@ class StarRailAutoProxy:
                 return True
         elif self.app_rail.selected_index == 2:
             return True
+        elif self.app_rail.selected_index == 3:
+            if self.settings_rail.selected_index == 0:  # 设置 - 基础
+                return True
         return False
-
 
     def _get_secondary_rail(self):
         if self.app_rail.selected_index == 0:

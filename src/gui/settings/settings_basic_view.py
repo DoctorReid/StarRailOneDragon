@@ -71,13 +71,15 @@ class SettingsView(components.Card, SrBasicView):
         self.proxy_switch = ft.Switch(label=gt('启用代理', 'ui'), value=False, on_change=self.on_proxy_switch)
         self.proxy_input = ft.TextField(label=gt('代理地址', 'ui'), hint_text='host:port', width=150,
                                         value='http://127.0.0.1:8234', disabled=True)
+        self.gh_proxy_switch = ft.Switch(label=gt('gh-proxy代理', 'ui'), value=True)
         self.pre_release_switch = ft.Switch(label=gt('测试版', 'ui'), value=False, on_change=self.on_prerelease_switch)
         self.check_update_btn = ft.ElevatedButton(text=gt("检查更新", model='ui'), on_click=self.check_update)
         self.update_btn = ft.ElevatedButton(text=gt("更新", model='ui'), on_click=self.do_update, visible=False)
 
         proxy_host_row = ft.Row(controls=[
             self.proxy_input,
-            self.proxy_switch
+            self.proxy_switch,
+            self.gh_proxy_switch
         ], spacing=5)
         update_btn_row = ft.Row(controls=[
             self.check_update_btn,
@@ -132,6 +134,9 @@ class SettingsView(components.Card, SrBasicView):
 
     def on_proxy_switch(self, e):
         self.proxy_input.disabled = not self.proxy_switch.value
+        self.gh_proxy_switch.disabled = self.proxy_switch.value
+        if self.proxy_input.value:
+            self.gh_proxy_switch.value = False
         self.page.update()
 
     def on_prerelease_switch(self, e):
@@ -172,7 +177,8 @@ class SettingsView(components.Card, SrBasicView):
         self.page.update()
         try:
             version.do_update(proxy=None if self.proxy_input.disabled else self.proxy_input.value,
-                              pre_release=self.pre_release_switch.value)
+                              pre_release=self.pre_release_switch.value,
+                              gh_proxy=self.gh_proxy_switch.value)
             self.page.window_close()
         except Exception:
             msg: str = gt('下载更新失败', 'ui')
