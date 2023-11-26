@@ -395,7 +395,7 @@ class OneStopView(ft.Row, SrBasicView):
         for i in range(4):
             label: Label2TimeValueRow = label_arr[i]
             if len(e_arr) > i:
-                e = StarRailNoteExpedition.model_validate(e_arr[i])
+                e = e_arr[i]
                 label.update_time(e.remaining_time)
             else:
                 label.update_time(0)

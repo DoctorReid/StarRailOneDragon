@@ -10,6 +10,7 @@ from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
+from sr.mystools import mys_config
 from sr.operation import Operation
 from sr.operation.unit.claim_assignment import ClaimAssignment
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
@@ -23,6 +24,22 @@ class AssignmentsRecord(AppRunRecord):
 
     def __init__(self):
         super().__init__(ASSIGNMENTS.id)
+
+    def check_and_update_status(self):
+        """
+        根据米游社便签更新
+        有任何一个委托可以接受
+        :return:
+        """
+        super().check_and_update_status()
+        config = mys_config.get()
+        now = time.time()
+        usage_time = now - config.refresh_time
+        e_arr = config.expeditions
+        for e in e_arr:
+            if e.remaining_time - usage_time <= 0:
+                self.update_status(AppRunRecord.STATUS_WAIT, only_status=True)
+                break
 
 
 assignments_record: Optional[AssignmentsRecord] = None
@@ -40,6 +57,9 @@ class Assignments(Application):
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('委托', 'ui'))
         self.phase: int = 0
+
+    def _init_before_execute(self):
+        get_record().update_status(AppRunRecord.STATUS_RUNNING)
 
     def _execute_one_round(self) -> int:
         if self.phase == 0:

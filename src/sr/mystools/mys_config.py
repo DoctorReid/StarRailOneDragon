@@ -135,7 +135,7 @@ class MysConfig(ConfigHolder):
         便签更新时间 时间戳
         :return:
         """
-        return self.get('refresh_time', time.time())
+        return self.get('refresh_time', 0)
 
     @property
     def refresh_time_str(self) -> str:
@@ -203,8 +203,13 @@ class MysConfig(ConfigHolder):
         return self.get('max_rogue_score', 14000)
 
     @property
-    def expeditions(self) -> List:
-        return self.get('expeditions', [])
+    def expeditions(self) -> List[StarRailNoteExpedition]:
+        e_arr = self.get('expeditions', [])
+        expeditions: List[StarRailNoteExpedition] = []
+        for e in e_arr:
+            expeditions.append(StarRailNoteExpedition.model_validate(e))
+
+        return expeditions
 
 
 _mys_config: Optional[MysConfig] = None
