@@ -1,3 +1,5 @@
+from typing import Optional
+
 import cv2
 import numpy as np
 from cv2.typing import MatLike
@@ -19,6 +21,7 @@ SUPPORT_CHARACTER_PART = Rect(940, 140, 1700, 520)  # 支援角色的框
 NAMELESS_HONOR_TAB_PART = Rect(810, 30, 1110, 100)  # 无名勋礼上方的tab
 NAMELESS_HONOR_TAB_1_CLAIM_PART = Rect(1270, 890, 1530, 950)  # 无名勋礼第1个tab的一键领取按钮
 NAMELESS_HONOR_TAB_2_CLAIM_PART = Rect(1520, 890, 1810, 950)  # 无名勋礼第2个tab的一键领取按钮
+NAMELESS_HONOR_TAB_1_CANCEL_BTN = Rect(620, 970, 790, 1010)  # 无名勋礼第1个tab的一键领取后的【取消】按钮
 
 GUIDE_TRAINING_TASK_RECT = Rect(290, 470, 1560, 680)  # 指南-实训 任务框
 GUIDE_TRAINING_ACTIVITY_CLAIM_RECT = Rect(270, 780, 1560, 890)  # 指南-实训 活跃度领取框
@@ -243,7 +246,7 @@ def get_nameless_honor_tab_1_claim_pos(screen: MatLike, ocr: OcrMatcher):
     """
     part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_1_CLAIM_PART)
 
-    ocr_map = ocr.match_words(part, words=['一键领取'], lcs_percent=0.55)  # TODO 下个版本测试
+    ocr_map = ocr.match_words(part, words=['一键领取'], lcs_percent=0.55)
     if len(ocr_map) == 0:
         return None
 
@@ -253,6 +256,25 @@ def get_nameless_honor_tab_1_claim_pos(screen: MatLike, ocr: OcrMatcher):
     result.y += NAMELESS_HONOR_TAB_1_CLAIM_PART.y1
 
     return result
+
+
+def get_nameless_honor_tab_1_cancel_btn(screen: MatLike, ocr: OcrMatcher) -> Optional[MatchResult]:
+    """
+    获取无名勋礼第1个tab 【一键领取】后出现的取消按钮
+    :param screen: 屏幕截图
+    :param ocr: 文字识别器
+    :return:
+    """
+    part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_1_CANCEL_BTN)
+
+    ocr_result = ocr.ocr_for_single_line(part)
+    if str_utils.find_by_lcs(gt('取消', 'ocr'), ocr_result, percent=0.3):
+        x, y = NAMELESS_HONOR_TAB_1_CANCEL_BTN.left_top.tuple()
+        x2, y2 = NAMELESS_HONOR_TAB_1_CANCEL_BTN.left_top.tuple()
+        w, h = x2 -x, y2 - y
+        return MatchResult(1, x, y, w, h)
+
+    return None
 
 
 def get_training_activity_claim_btn_pos(screen: MatLike, ocr: OcrMatcher):

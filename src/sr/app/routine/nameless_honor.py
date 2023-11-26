@@ -4,12 +4,12 @@ from typing import Optional
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
-from basic.img import MatchResult
+from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import phone_menu_const
 from sr.context import Context
-from sr.image.sceenshot import phone_menu
+from sr.image.sceenshot import phone_menu, secondary_ui
 from sr.operation import Operation
 from sr.operation.unit.open_phone_menu import OpenPhoneMenu
 
@@ -119,7 +119,24 @@ class ClaimNamelessHonor(Application):
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
-        elif self.phase == 6:  # 领取完返回菜单
+        elif self.phase == 6:  # 可能出现选择奖励的框 通过判断左上角标题判断
+            screen = self.screenshot()
+            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, phone_menu_const.NAMELESS_HONOR.cn):
+                self.phase += 1
+                time.sleep(0.2)
+                return Operation.WAIT
+            else:
+                time.sleep(2)
+                screen = self.screenshot()
+                result: MatchResult = phone_menu.get_nameless_honor_tab_1_cancel_btn(screen, self.ctx.ocr)
+                if result is not None:
+                    self.ctx.controller.click(result.center)  # 点击后如果出现要选择的 就先退出 以后再加入选择配置
+                    self.phase += 1
+                    time.sleep(1)
+                    return Operation.WAIT
+                else:
+                    return Operation.FAIL
+        elif self.phase == 7:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
             r = op.execute()
             if not r:

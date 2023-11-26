@@ -33,3 +33,7 @@ class Rect:
     @property
     def left_top(self) -> Point:
         return Point(self.x1, self.y1)
+
+    @property
+    def right_bottom(self) -> Point:
+        return Point(self.x2, self.y2)
