@@ -17,6 +17,9 @@ from sr.image.sceenshot import mini_map, large_map, LargeMapInfo
 all_tp_list: List[TransportPoint] = [
     map_const.P01_R01_SP01, map_const.P01_R01_SP02, map_const.P01_R01_SP03,
     map_const.P01_R02_SP01, map_const.P01_R02_SP02, map_const.P01_R02_SP03,
+    map_const.P01_R03_SP01,
+
+    map_const.P03_R10_SP01, map_const.P03_R10_SP02, map_const.P03_R10_SP03, map_const.P03_R10_SP04, map_const.P03_R10_SP05, map_const.P03_R10_SP06
 ]
 
 
@@ -49,4 +52,4 @@ if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
 
-    cal_one(map_const.P03_R10_SP06, debug_image='_1700056751822', show=True)
+    cal_one(map_const.P01_R03_SP06, debug_image='_1700978104424', show=True)
