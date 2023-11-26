@@ -36,7 +36,7 @@ class Calibrator(Application):
         if screenshot is None:
             tp: TransportPoint = map_const.P01_R02_SP02
             op = Transport(self.ctx, tp)
-            if not op.execute():
+            if not op.execute().result:
                 log.error('传送到 %s %s 失败 小地图定位校准 失败', gt(tp.region.cn, 'ocr'), gt(tp.cn, 'ocr'))
                 return False
 
@@ -65,7 +65,7 @@ class Calibrator(Application):
         if tp:
             p: TransportPoint = map_const.P01_R01_SP03
             op = Transport(self.ctx, p)
-            if not op.execute():
+            if not op.execute().result:
                 log.error('传送到 %s %s 失败 转向校准 失败', gt(p.region.cn), gt(p.cn))
                 return False
         turn_distance = 500
@@ -110,7 +110,7 @@ class Calibrator(Application):
         log.info('疾跑距离校准 开始')
         tp: TransportPoint = map_const.P01_R04_SP02
         op = Transport(self.ctx, tp)
-        if not op.execute():
+        if not op.execute().result:
             log.error('传送到 %s %s 失败 疾跑距离校准 失败', gt(tp.region.cn, 'ocr'), gt(tp.cn, 'ocr'))
             return False
 

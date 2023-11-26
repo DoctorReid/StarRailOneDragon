@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 from cv2.typing import MatLike
 
@@ -23,10 +24,10 @@ class ClaimAssignment(Operation):
     2023-11-12 中英文最高画质测试完毕
     """
 
-    CATEGORY_RECT = Rect(320, 190, 1200, 280)  # 上方类目
-    ITEM_RECT = Rect(330, 280, 800, 860)  # 左边列表
-    CLAIM_BTN_RECT = Rect(1400, 880, 1530, 920)  # 【领取】
-    RESEND_BTN_RECT = Rect(1160, 930, 1290, 970)  # 【再次派遣】
+    CATEGORY_RECT: ClassVar[Rect] = Rect(320, 190, 1200, 280)  # 上方类目
+    ITEM_RECT: ClassVar[Rect] = Rect(330, 280, 800, 860)  # 左边列表
+    CLAIM_BTN_RECT: ClassVar[Rect] = Rect(1400, 880, 1530, 920)  # 【领取】
+    RESEND_BTN_RECT: ClassVar[Rect] = Rect(1160, 930, 1290, 970)  # 【再次派遣】
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, try_times=20, op_name=gt('完成委托', 'ui'))

@@ -6,7 +6,7 @@ from sr.app import Application, AppRunRecord, app_record_current_dt_str, AppDesc
 from sr.config import game_config
 from sr.const import game_config_const, map_const
 from sr.context import Context
-from sr.operation import Operation
+from sr.operation import Operation, OperationResult
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.back_to_world import BackToWorld
@@ -58,7 +58,8 @@ def get_record() -> BuyParcelRecord:
 class BuyXianzhouParcel(Application):
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('购买过期邮包', 'ui'))
+        super().__init__(ctx, op_name=gt('购买过期邮包', 'ui'),
+                         run_record=get_record())
 
     def _execute_one_round(self) -> int:
         ops = [
@@ -79,18 +80,15 @@ class BuyXianzhouParcel(Application):
         op = CombineOperation(self.ctx, ops=ops,
                               op_name=gt('购买过期包裹', 'ui'))
 
-        if op.execute():
+        if op.execute().result:
             return Operation.SUCCESS
         else:
             return Operation.FAIL
 
-    def get_item_name_lcs_percent(self) -> 0.8:
+    def get_item_name_lcs_percent(self) -> float:
         lang = game_config.get().lang
         if lang == game_config_const.LANG_CN:
             return 0.8
         elif lang == game_config_const.LANG_EN:
             return 0.8
         return 0.8
-
-    def _after_stop(self, result: bool):
-        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

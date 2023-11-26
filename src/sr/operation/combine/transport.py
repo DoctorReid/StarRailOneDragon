@@ -4,7 +4,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const.map_const import TransportPoint
 from sr.context import Context
-from sr.operation import Operation
+from sr.operation import Operation, OperationResult
 from sr.operation.combine import CombineOperation
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
@@ -36,11 +36,11 @@ class Transport(CombineOperation):
 
         log.info('准备传送 %s %s %s', tp.planet.display_name, tp.region.display_name, tp.display_name)
 
-    def _after_operation_done(self, result: bool):
+    def _after_operation_done(self, result: OperationResult):
         """
         动作结算后的处理
         :param result:
         :return:
         """
-        if result:
+        if result.result:
             self.ctx.first_transport = False  # 后续传送不用缩放地图了

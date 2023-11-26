@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 import cv2
 
@@ -13,7 +14,7 @@ from sr.operation import Operation
 
 class ChoosePlanet(Operation):
 
-    xght_rect = Rect(1580, 120, 1750, 160)  # 星轨航图 所在坐标
+    xght_rect: ClassVar[Rect] = Rect(1580, 120, 1750, 160)  # 星轨航图 所在坐标
 
     def __init__(self, ctx: Context, planet: Planet):
         """

@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 from cv2.typing import MatLike
 
@@ -15,7 +16,7 @@ class ClickStartChallenge(Operation):
     点击【开始挑战】
     """
 
-    START_CHALLENGE_BTN_RECT = Rect(1500, 960, 1840, 1010)
+    START_CHALLENGE_BTN_RECT: ClassVar[Rect] = Rect(1500, 960, 1840, 1010)
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('点击挑战', 'ui'))

@@ -19,7 +19,7 @@ class OcrMatcher:
         """
         pass
 
-    def run_ocr(self, image: MatLike, threshold: float = None, merge_line_distance: float = -1) -> dict:
+    def run_ocr(self, image: MatLike, threshold: float = None, merge_line_distance: float = -1) -> dict[str, MatchResultList]:
         """
         对图片进行OCR 返回所有匹配结果
         :param image: 图片

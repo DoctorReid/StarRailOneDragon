@@ -10,7 +10,7 @@ from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
-from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 SUPPORT_CHARACTER = AppDescription(cn='支援角色', id='support_character')
 register_app(SUPPORT_CHARACTER)
@@ -40,13 +40,14 @@ class SupportCharacter(Application):
     """
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('支援角色奖励', 'ui'))
+        super().__init__(ctx, op_name=gt('支援角色奖励', 'ui'),
+                         run_record=get_record())
         self.phase: int = 0
 
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单
             op = OpenPhoneMenu(self.ctx)
-            if op.execute():
+            if op.execute().result:
                 self.phase += 1
                 return Operation.WAIT
             else:
@@ -86,11 +87,8 @@ class SupportCharacter(Application):
                 return Operation.WAIT
         elif self.phase == 4:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute()
+            r = op.execute().result
             if not r:
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
-
-    def _after_stop(self, result: bool):
-        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

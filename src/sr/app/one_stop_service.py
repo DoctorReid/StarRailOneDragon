@@ -5,7 +5,7 @@ import sr.app.routine.assignments
 from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, world_patrol, AppDescription
 from sr.app.routine import assignments, support_character, nameless_honor, claim_training, buy_parcel, \
-    trailblaze_power, email_attachment, echo_of_war
+    trailblaze_power, email_attachment, echo_of_war, forgotten_hall_app
 from sr.app.routine.assignments import Assignments, ASSIGNMENTS
 from sr.app.routine.buy_parcel import BuyXianzhouParcel, BUY_XIANZHOU_PARCEL
 from sr.app.routine.claim_training import ClaimTraining, CLAIM_TRAINING
@@ -139,6 +139,8 @@ def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
         return TrailblazePower(ctx)
     elif app_id == ECHO_OF_WAR.id:
         return EchoOfWar(ctx)
+    elif app_id == forgotten_hall_app.FORGOTTEN_HALL.id:
+        return forgotten_hall_app.ForgottenHallApp(ctx)
     return None
 
 
@@ -161,6 +163,8 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
         return trailblaze_power.get_record()
     elif app_id == ECHO_OF_WAR.id:
         return echo_of_war.get_record()
+    elif app_id == forgotten_hall_app.FORGOTTEN_HALL.id:
+        return forgotten_hall_app.get_record()
     return None
 
 

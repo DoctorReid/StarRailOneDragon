@@ -1,3 +1,6 @@
+from pydantic import BaseModel
+
+
 class Point:
     """
     坐标 会转化成整数
@@ -16,12 +19,15 @@ class Point:
         return Point(self.x + other.x, self.y + other.y)
 
 
-class Rect:
+class Rect(BaseModel):
+
+    x1: int
+    y1: int
+    x2: int
+    y2: int
+
     def __init__(self, x1, y1, x2, y2):
-        self.x1: int = int(x1)
-        self.y1: int = int(y1)
-        self.x2: int = int(x2)
-        self.y2: int = int(y2)
+        super().__init__(x1=x1, y1=y1, x2=x2, y2=y2)
 
     @property
     def center(self) -> Point:

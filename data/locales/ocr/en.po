@@ -741,7 +741,20 @@ msgstr "Trailblazer Profile"
 msgid "全部领取"
 msgstr "Claim All"
 
-# Training
+# Interastral Peace Guide - Tab
+msgid "行动摘要"
+msgstr "Operation Briefing"
+
+msgid "每日实训"
+msgstr "Daily Training"
+
+msgid "生存索引"
+msgstr "Survival Index"
+
+msgid "战术训练"
+msgstr "Strategic Training"
+
+# Interastral Peace Guide - Training
 msgid "领取"
 msgstr "Claim"
 

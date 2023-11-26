@@ -1,5 +1,5 @@
 import time
-from typing import Optional
+from typing import Optional, ClassVar
 
 from cv2.typing import MatLike
 
@@ -12,8 +12,7 @@ from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
-from sr.operation.unit.open_phone_menu import OpenPhoneMenu
-
+from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 EMAIL = AppDescription(cn='邮件', id='email')
 register_app(EMAIL)
@@ -42,10 +41,11 @@ class Email(Application):
     2023-11-12 中英文最高画质测试通过
     """
 
-    CLAIM_ALL_RECT = Rect(390, 960, 520, 1000)  # 全部领取
+    CLAIM_ALL_RECT: ClassVar[Rect] = Rect(390, 960, 520, 1000)  # 全部领取
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('收取邮件奖励', 'ui'))
+        super().__init__(ctx, op_name=gt('收取邮件奖励', 'ui'),
+                         run_record=get_record())
 
         self.phase: int = 0
 
@@ -55,7 +55,7 @@ class Email(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute()
+            r = op.execute().result
             if not r:
                 return Operation.FAIL
             else:
@@ -86,11 +86,8 @@ class Email(Application):
                 return Operation.FAIL
         elif self.phase == 3:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute()
+            r = op.execute().result
             if not r:
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
-
-    def _after_stop(self, result: bool):
-        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

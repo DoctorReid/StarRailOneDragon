@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict, List
+from typing import Optional, TypedDict, List, ClassVar
 
 from cv2.typing import MatLike
 
@@ -147,10 +147,11 @@ def get_config() -> EchoOfWarConfig:
 
 class EchoOfWar(Application):
 
-    POWER_USAGE = 30  # 固定消耗体力30
+    POWER_USAGE: ClassVar[int] = 30  # 固定消耗体力30
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('历战回响', 'ui'))
+        super().__init__(ctx, op_name=gt('历战回响', 'ui'),
+                         run_record=get_record())
         self.phase: int = 2
         self.power: int = 160
 
@@ -160,7 +161,7 @@ class EchoOfWar(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开大地图
             op = OpenMap(self.ctx)
-            if not op.execute():
+            if not op.execute().result:
                 return Operation.FAIL
             else:
                 self.phase += 1
@@ -169,7 +170,7 @@ class EchoOfWar(Application):
             screen: MatLike = self.screenshot()
             part, _ = cv2_utils.crop_image(screen, large_map.LARGE_MAP_POWER_RECT)
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-            self.power = str_utils.get_digits(ocr_result)
+            self.power = str_utils.get_positive_digits(ocr_result)
             log.info('当前体力 %d', self.power)
             self.phase += 1
             return Operation.WAIT
@@ -205,14 +206,7 @@ class EchoOfWar(Application):
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 
             op = ChallengeEchoOfWar(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success)
-            if op.execute():
+            if op.execute().result:
                 return Operation.WAIT
             else:  # 挑战
                 return Operation.RETRY
-
-    def _after_stop(self, result: bool):
-        record = get_record()
-        if result and record.left_times == 0:
-            record.update_status(AppRunRecord.STATUS_SUCCESS)
-        else:
-            record.update_status(AppRunRecord.STATUS_FAIL)

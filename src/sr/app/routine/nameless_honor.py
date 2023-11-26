@@ -11,7 +11,7 @@ from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu, secondary_ui
 from sr.operation import Operation
-from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 NAMELESS_HONOR = AppDescription(cn='无名勋礼', id='nameless_honor')
 register_app(NAMELESS_HONOR)
@@ -47,14 +47,15 @@ class ClaimNamelessHonor(Application):
     """
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('收取无名勋礼', 'ui'))
+        super().__init__(ctx, op_name=gt('收取无名勋礼', 'ui'),
+                         run_record=get_record())
 
         self.phase: int = 0
 
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单
             op = OpenPhoneMenu(self.ctx)
-            if op.execute():
+            if op.execute().result:
                 self.phase += 1
                 return Operation.WAIT
             else:
@@ -121,7 +122,7 @@ class ClaimNamelessHonor(Application):
                 return Operation.WAIT
         elif self.phase == 6:  # 可能出现选择奖励的框 通过判断左上角标题判断
             screen = self.screenshot()
-            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, phone_menu_const.NAMELESS_HONOR.cn):
+            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.TITLE_NAMELESS_HONOR.cn):
                 self.phase += 1
                 time.sleep(0.2)
                 return Operation.WAIT
@@ -138,11 +139,8 @@ class ClaimNamelessHonor(Application):
                     return Operation.FAIL
         elif self.phase == 7:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute()
+            r = op.execute().result
             if not r:
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
-
-    def _after_stop(self, result: bool):
-        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

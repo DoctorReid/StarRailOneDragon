@@ -11,9 +11,9 @@ from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.mystools import mys_config
-from sr.operation import Operation
+from sr.operation import Operation, OperationResult
 from sr.operation.unit.claim_assignment import ClaimAssignment
-from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 
 ASSIGNMENTS = AppDescription(cn='委托', id='assignments')
@@ -55,7 +55,8 @@ def get_record() -> AssignmentsRecord:
 class Assignments(Application):
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('委托', 'ui'))
+        super().__init__(ctx, op_name=gt('委托', 'ui'),
+                         run_record=get_record())
         self.phase: int = 0
 
     def _init_before_execute(self):
@@ -64,7 +65,7 @@ class Assignments(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:
             op = OpenPhoneMenu(self.ctx)
-            if op.execute():
+            if op.execute().result:
                 self.phase += 1
                 return Operation.WAIT
             else:
@@ -82,22 +83,22 @@ class Assignments(Application):
                 return Operation.WAIT
         elif self.phase == 2:
             op = ClaimAssignment(self.ctx)
-            if op.execute():
+            if op.execute().result:
                 self.phase += 1
                 return Operation.WAIT
             else:
                 return Operation.FAIL
         elif self.phase == 3:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute()
+            r = op.execute().result
             if not r:
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
 
-    def _after_stop(self, result: bool):
+    def _after_operation_done(self, result: OperationResult):
         new_status: Optional[int] = None
-        if not result:
+        if not result.result:
             new_status = AppRunRecord.STATUS_FAIL
         elif self.phase == 3:
             new_status = AppRunRecord.STATUS_SUCCESS

@@ -7,8 +7,8 @@ from sr.operation import Operation
 from sr.operation.combine import CombineOperation
 from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.battle.choose_team import ChooseTeam
-from sr.operation.unit.click_phone_menu_item import ClickPhoneMenuItem
-from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
+from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 
 class ChooseTeamInWorld(CombineOperation):

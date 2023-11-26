@@ -35,7 +35,7 @@ class GetRewardAndRetry(Operation):
     def _execute_one_round(self):
         wait = WaitBattleReward(self.ctx)
 
-        if not wait.execute():
+        if not wait.execute().result:
             return Operation.RETRY
 
         screen: MatLike = self.screenshot()
@@ -67,7 +67,7 @@ class GetRewardAndRetry(Operation):
                 if self.ctx.controller.click(battle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN_RECT.center):
                     if self.need_confirm:
                         op = ClickChallengeConfirm(self.ctx)
-                        if op.execute():
+                        if op.execute().result:
                             return Operation.WAIT
 
         return Operation.RETRY

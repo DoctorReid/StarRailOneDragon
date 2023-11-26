@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar, List
 
 from basic.i18_utils import gt
 from basic.log_utils import log
@@ -14,10 +15,10 @@ class EnterAutoFight(Operation):
     """
     根据小地图的红圈
     """
-    attack_interval = 0.2  # 发起攻击的间隔
-    exit_after_no_alter_time = 2  # 多久没警报退出
-    exit_after_no_battle_time = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
-    ATTACK_DIRECTION_ARR = ['w', 's', 'a', 'd']
+    attack_interval: ClassVar[float] = 0.2  # 发起攻击的间隔
+    exit_after_no_alter_time: ClassVar[int] = 2  # 多久没警报退出
+    exit_after_no_battle_time: ClassVar[int] = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
+    ATTACK_DIRECTION_ARR: ClassVar[List] = ['w', 's', 'a', 'd']
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('进入战斗', 'ui'))

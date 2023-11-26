@@ -1,6 +1,8 @@
 import time
+from typing import Optional, Union, ClassVar
 
 from cv2.typing import MatLike
+from pydantic import BaseModel
 
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
@@ -11,16 +13,31 @@ from sr.context import Context
 from sr.image.sceenshot import fill_uid_black
 
 
+class OperationOneRoundResult(BaseModel):
+
+    result: int
+    """单轮执行结果 - 框架固定"""
+    status: Optional[str] = None
+    """结果附带状态 - 每个指令独特"""
+
+
+class OperationResult(BaseModel):
+
+    result: bool
+    """指令执行结果 - 框架固定"""
+    status: Optional[str] = None
+    """结果附带状态 - 每个指令独特"""
+
+
 class Operation:
     """
     基础动作
     本身可暂停 但不由自身恢复
     """
-
-    RETRY = 0  # 重试
-    SUCCESS = 1  # 成功
-    WAIT = 2  # 等待 本轮不计入
-    FAIL = -1  # 失败
+    RETRY: ClassVar[int] = 0  # 重试
+    SUCCESS: ClassVar[int] = 1  # 成功
+    WAIT: ClassVar[int] = 2  # 等待 本轮不计入
+    FAIL: ClassVar[int] = -1  # 失败
 
     def __init__(self, ctx: Context, try_times: int = 2, op_name: str = '', timeout_seconds: float = -1):
         self.op_name: str = gt(op_name, 'ui')
@@ -31,7 +48,7 @@ class Operation:
         self.last_screenshot: MatLike = None
         self.gc: GameConfig = game_config.get()
 
-        self.timeout_seconds: float = -1  # 本操作的超时时间
+        self.timeout_seconds: float = timeout_seconds  # 本操作的超时时间
         self.operation_start_time: float = 0  # 开始时间
         self.pause_start_time = time.time()  # 本次暂停的开始时间
         self.pause_end_time = time.time()  # 本次暂停的结束时间
@@ -46,57 +63,64 @@ class Operation:
         self.pause_start_time = now
         self.pause_end_time = now
 
-    def execute(self) -> bool:
+    def execute(self) -> OperationResult:
         """
         循环执系列动作直到完成为止
         """
         self._init_before_execute()
-        result: bool = False
+        result: Optional[OperationResult] = Operation.op_fail('未知失败')
         while self.op_round < self.try_times:
             if self.timeout_seconds != -1 and self._operation_usage_time >= self.timeout_seconds:
                 log.error('%s执行超时', self.display_name, exc_info=True)
-                return False
+                result = self.op_fail('执行超时')
+                break
             if self.ctx.running == 0:
+                result = self.op_fail('人工结束')
                 break
             elif self.ctx.running == 2:
                 time.sleep(1)
                 continue
 
-            op_result: int = Operation.RETRY
+            round_result: Optional[OperationOneRoundResult] = None
             self.op_round += 1
             try:
                 self.last_screenshot = None
-                op_result = self._execute_one_round()
+                round_result = self._execute_one_round()
+                if type(round_result) == OperationOneRoundResult:
+                    round_result = round_result
+                else:
+                    round_result = OperationOneRoundResult(result=round_result, status=None)
             except Exception as e:
-                op_result = Operation.RETRY
+                round_result = self.round_retry('异常')
                 if self.last_screenshot is not None:
                     to_save = fill_uid_black(self.last_screenshot)
                     file_name = save_debug_image(to_save, prefix=self.__class__.__name__)
                     log.error('%s执行出错 相关截图保存至 %s', self.display_name, file_name, exc_info=True)
                 else:
                     log.error('%s执行出错', self.display_name, exc_info=True)
-            if op_result == Operation.RETRY:
+            if round_result.result == Operation.RETRY:
+                result = Operation.op_fail(round_result.status)
                 continue
-            elif op_result == Operation.SUCCESS:
-                result = True
+            elif round_result.result == Operation.SUCCESS:
+                result = self.op_success(round_result.status)
                 break
-            elif op_result == Operation.FAIL:
-                result = False
+            elif round_result.result == Operation.FAIL:
+                result = self.op_fail(round_result.status)
                 if not self.allow_fail():
                     log.error('%s执行失败', self.display_name)
                 break
-            elif op_result == Operation.WAIT:
+            elif round_result.result == Operation.WAIT:
                 self.op_round -= 1
                 continue
             else:
                 log.error('%s执行返回结果错误 %s', self.display_name, result)
-                result = False
+                result = self.op_fail(round_result.status)
                 break
         self.ctx.unregister(self)
         self._after_operation_done(result)
         return result
 
-    def _execute_one_round(self) -> int:
+    def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
         pass
 
     def on_pause(self):
@@ -112,7 +136,7 @@ class Operation:
         获取指令的耗时
         :return:
         """
-        return time.time() - self.operation_start_time - self.pause_start_time
+        return time.time() - self.operation_start_time - self.pause_total_time
 
     def screenshot(self):
         """
@@ -137,10 +161,86 @@ class Operation:
         """
         return False
 
-    def _after_operation_done(self, result: bool):
+    def _after_operation_done(self, result: OperationResult):
         """
         动作结算后的处理
         :param result:
         :return:
         """
         pass
+
+    @staticmethod
+    def round_success(status: str = None) -> OperationOneRoundResult:
+        """
+        单轮成功 - 即整个指令成功
+        :param status: 附带状态
+        :return:
+        """
+        return OperationOneRoundResult(result=Operation.SUCCESS, status=status)
+
+    @staticmethod
+    def round_wait(status: str = None) -> OperationOneRoundResult:
+        """
+        单轮成功 - 即整个指令成功
+        :param status: 附带状态
+        :return:
+        """
+        return OperationOneRoundResult(result=Operation.WAIT, status=status)
+
+    @staticmethod
+    def round_retry(status: str = None) -> OperationOneRoundResult:
+        """
+        单轮成功 - 即整个指令成功
+        :param status: 附带状态
+        :return:
+        """
+        return OperationOneRoundResult(result=Operation.RETRY, status=status)
+
+    @staticmethod
+    def round_fail(status: str = None) -> OperationOneRoundResult:
+        """
+        单轮成功 - 即整个指令成功
+        :param status: 附带状态
+        :return:
+        """
+        return OperationOneRoundResult(result=Operation.FAIL, status=status)
+
+    @staticmethod
+    def op_success(status: str = None) -> OperationResult:
+        """
+        整个指令执行成功
+        :param status: 附带状态
+        :return:
+        """
+        return OperationResult(result=True, status=status)
+
+    @staticmethod
+    def op_fail(status: str = None) -> OperationResult:
+        """
+        整个指令执行成功
+        :param status: 附带状态
+        :return:
+        """
+        return OperationResult(result=False, status=status)
+
+
+class OperationSuccess(Operation):
+    """
+    一个直接返回成功的指令 用于组合指令
+    """
+    def __init__(self, ctx: Context):
+        super().__init__(ctx, op_name=gt('成功结束', 'ui'))
+
+    def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
+        return Operation.round_success()
+
+
+class OperationFail(Operation):
+    """
+    一个直接返回失败的指令 用于组合指令
+    """
+    def __init__(self, ctx: Context):
+        super().__init__(ctx, op_name=gt('成功结束', 'ui'))
+
+    def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
+        return Operation.round_fail()

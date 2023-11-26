@@ -2,6 +2,7 @@ import threading
 import time
 from typing import List, Iterator, Optional
 
+from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import Application, AppRunRecord, world_patrol
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolWhitelist, WorldPatrolRecord, \
@@ -10,7 +11,7 @@ from sr.app.world_patrol.run_patrol_route import RunPatrolRoute
 from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map_angle_alas
-from sr.operation import Operation
+from sr.operation import Operation, OperationResult
 from sr.operation.combine.choose_team_in_world import ChooseTeamInWorld
 
 
@@ -20,7 +21,8 @@ class WorldPatrol(Application):
                  whitelist: WorldPatrolWhitelist = None,
                  ignore_record: bool = False,
                  team_num: Optional[int] = None):
-        super().__init__(ctx)
+        super().__init__(ctx, op_name=gt('锄大地', 'ui'),
+                         run_record=world_patrol.get_record())
         self.route_id_list: List[WorldPatrolRouteId] = []
         self.record: WorldPatrolRecord = None
         self.route_iterator: Iterator = None
@@ -67,14 +69,14 @@ class WorldPatrol(Application):
 
         if self.current_route_idx == 0 and self.team_num != 0:
             op = ChooseTeamInWorld(self.ctx, self.config.team_num)
-            if not op.execute():
+            if not op.execute().result:
                 return Operation.FAIL
 
         route_id = self.route_id_list[self.current_route_idx]
 
         self.current_route_start_time = time.time()
         op = RunPatrolRoute(self.ctx, route_id)
-        route_result = op.execute()
+        route_result = op.execute().result
         if route_result:
             if not self.ignore_record:
                 self.save_record(route_id, time.time() - self.current_route_start_time)
@@ -104,10 +106,10 @@ class WorldPatrol(Application):
 
         return total
 
-    def _after_stop(self, result: bool):
+    def _after_operation_done(self, result: OperationResult):
         if self.ignore_record:
             return
-        if not result:
+        if not result.result:
             self.record.update_status(AppRunRecord.STATUS_FAIL)
             return
 

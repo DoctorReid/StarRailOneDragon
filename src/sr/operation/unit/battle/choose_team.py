@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar, List
 
 from cv2.typing import MatLike
 
@@ -15,17 +16,17 @@ class ChooseTeam(Operation):
     选择配队
     """
 
-    TEAM_NUM_RECT = Rect(620, 60, 1330, 120)
-    TEAM_1_RECT = Rect(620, 60, 700, 120)
-    TEAM_2_RECT = Rect(720, 60, 830, 120)
-    TEAM_3_RECT = Rect(860, 60, 940, 120)
-    TEAM_4_RECT = Rect(980, 60, 1060, 120)
-    TEAM_5_RECT = Rect(1110, 60, 1170, 120)
-    TEAM_6_RECT = Rect(1230, 60, 1300, 120)
+    TEAM_NUM_RECT: ClassVar[Rect] = Rect(620, 60, 1330, 120)
+    TEAM_1_RECT: ClassVar[Rect] = Rect(620, 60, 700, 120)
+    TEAM_2_RECT: ClassVar[Rect] = Rect(720, 60, 830, 120)
+    TEAM_3_RECT: ClassVar[Rect] = Rect(860, 60, 940, 120)
+    TEAM_4_RECT: ClassVar[Rect] = Rect(980, 60, 1060, 120)
+    TEAM_5_RECT: ClassVar[Rect] = Rect(1110, 60, 1170, 120)
+    TEAM_6_RECT: ClassVar[Rect] = Rect(1230, 60, 1300, 120)
 
-    TURN_ON_RECT = Rect(1590, 960, 1760, 1000)
+    TURN_ON_RECT: ClassVar[Rect] = Rect(1590, 960, 1760, 1000)
 
-    RECT_ARR = [
+    RECT_ARR: ClassVar[List[Rect]] = [
         TEAM_1_RECT, TEAM_2_RECT, TEAM_3_RECT,
         TEAM_4_RECT, TEAM_5_RECT, TEAM_6_RECT,
         TEAM_NUM_RECT

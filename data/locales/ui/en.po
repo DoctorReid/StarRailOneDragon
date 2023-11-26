@@ -741,3 +741,20 @@ msgstr "Forgotten Hall"
 
 msgid "模拟宇宙"
 msgstr "Simulated Universe"
+
+# Interastral Peace Guide - Tab
+msgid "行动摘要"
+msgstr "Operation Briefing"
+
+msgid "每日实训"
+msgstr "Daily Training"
+
+msgid "生存索引"
+msgstr "Survival Index"
+
+msgid "战术训练"
+msgstr "Strategic Training"
+
+# Interastral Peace Guide - Training
+msgid "领取"
+msgstr "Claim"

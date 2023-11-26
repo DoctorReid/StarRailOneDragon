@@ -145,7 +145,7 @@ class LargeMapRecorder(Application):
 
     def run_ops(self, ops) -> bool:
         for op in ops:
-            if not op.execute():
+            if not op.execute().result:
                 log.error('前置打开地图失败')
                 return False
         return True

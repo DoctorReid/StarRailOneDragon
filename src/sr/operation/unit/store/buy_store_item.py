@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 from cv2.typing import MatLike
 
@@ -11,8 +12,8 @@ from sr.operation import Operation
 
 class BuyStoreItem(Operation):
 
-    BUY_NUM_CTRL_RECT = Rect(1330, 600, 1500, 660)
-    CONFIRM_BTN_RECT = Rect(1000, 710, 1350, 770)
+    BUY_NUM_CTRL_RECT: ClassVar[Rect] = Rect(1330, 600, 1500, 660)
+    CONFIRM_BTN_RECT: ClassVar[Rect] = Rect(1000, 710, 1350, 770)
 
     def __init__(self, ctx: Context, buy_num: int = 0, buy_max: bool = True):
         """

@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 import cv2
 import numpy as np
@@ -19,8 +20,8 @@ class Interact(Operation):
     移动场景的交互 即跟人物、点位交互
     """
 
-    INTERACT_RECT = Rect(900, 400, 1450, 870)
-    TRY_INTERACT_MOVE = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
+    INTERACT_RECT: ClassVar[Rect] = Rect(900, 400, 1450, 870)
+    TRY_INTERACT_MOVE: ClassVar[str] = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
 
     def __init__(self, ctx: Context, cn: str, lcs_percent: float = -1):
         """
@@ -71,7 +72,7 @@ class TalkInteract(Operation):
     """
     交谈过程中的交互
     """
-    INTERACT_RECT = Rect(900, 400, 1760, 870)
+    INTERACT_RECT: ClassVar[Rect] = Rect(900, 400, 1760, 870)
 
     def __init__(self, ctx: Context, option: str,
                  lcs_percent: float = -1,

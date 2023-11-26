@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 from cv2.typing import MatLike
 
@@ -16,9 +17,9 @@ class ChooseChallengeTimes(Operation):
     选择挑战次数
     """
 
-    CURRENT_TIMES_RECT = Rect(1470, 850, 1620, 890)
-    MINUS_BTN_RECT = Rect(1190, 870, 1300, 930)
-    PLUS_BTN_RECT = Rect(1800, 870, 1900, 930)
+    CURRENT_TIMES_RECT: ClassVar[Rect] = Rect(1470, 850, 1620, 890)
+    MINUS_BTN_RECT: ClassVar[Rect] = Rect(1190, 870, 1300, 930)
+    PLUS_BTN_RECT: ClassVar[Rect] = Rect(1800, 870, 1900, 930)
 
     def __init__(self, ctx: Context, total_times: int):
         """
@@ -54,7 +55,7 @@ class ChooseChallengeTimes(Operation):
         part, _ = cv2_utils.crop_image(screen, ChooseChallengeTimes.CURRENT_TIMES_RECT)
         # cv2_utils.show_image(part, win_name='_get_current_times')
         ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-        return str_utils.get_digits(ocr_result)
+        return str_utils.get_positive_digits(ocr_result)
 
     def _click_plus(self, screen: MatLike, click_times: int) -> bool:
         """

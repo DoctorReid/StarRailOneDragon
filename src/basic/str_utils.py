@@ -64,14 +64,15 @@ def longest_common_subsequence_length(str1: str, str2: str):
     return dp[m][n]
 
 
-def get_digits(v: str) -> int:
+def get_positive_digits(v: str, err: int = 0) -> int:
     """
-    返回字符串中的数字部分
-    :param v:
-    :return:
+    返回字符串中的数字部分 不包含符号
+    :param v: 字符串
+    :param err: 原字符串中没有数字的话返回的值
+    :return: 字符串中的数字
     """
     try:
         return int(re.sub(r"\D", "", v))
     except Exception:
         log.error('目标字符串中没有数字 %s', v)
-        return 0
+        return err

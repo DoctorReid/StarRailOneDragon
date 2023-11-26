@@ -11,7 +11,7 @@ from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
-from sr.operation.unit.open_phone_menu import OpenPhoneMenu
+from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 CLAIM_TRAINING = AppDescription(cn='实训奖励', id='claim_training')
 register_app(CLAIM_TRAINING)
@@ -36,13 +36,14 @@ def get_record() -> ClaimTrainingRecord:
 class ClaimTraining(Application):
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('领取实训奖励', 'ui'))
+        super().__init__(ctx, op_name=gt('领取实训奖励', 'ui'),
+                         run_record=get_record())
         self.phase: int = 0
 
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单
             op = OpenPhoneMenu(self.ctx)
-            if op.execute():
+            if op.execute().result:
                 self.phase += 1
                 return Operation.WAIT
             else:
@@ -82,10 +83,7 @@ class ClaimTraining(Application):
                 return Operation.WAIT
         elif self.phase == 4:  # 返回菜单
             op = OpenPhoneMenu(self.ctx)
-            if op.execute():
+            if op.execute().result:
                 return Operation.SUCCESS
             else:
                 return Operation.FAIL
-
-    def _after_stop(self, result: bool):
-        get_record().update_status(AppRunRecord.STATUS_SUCCESS if result else AppRunRecord.STATUS_FAIL)

@@ -1,8 +1,9 @@
 import time
+from typing import ClassVar
 
-from basic import Point
+from basic import Point, Rect
 from basic.i18_utils import gt
-from basic.img import MatchResult
+from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.operation import Operation
@@ -10,7 +11,7 @@ from sr.operation import Operation
 
 class ScaleLargeMap(Operation):
 
-    rect = (600, 960, 1040, 1020)
+    rect: ClassVar[Rect] = Rect(600, 960, 1040, 1020)
 
     def __init__(self, ctx: Context, scale: int):
         """
@@ -41,8 +42,8 @@ class ScaleLargeMap(Operation):
     def get_click_pos(self) -> MatchResult:
         screen = self.screenshot()
         template_id = 'plus' if self.scale > 0 else 'minus'
-        x1, y1, x2, y2 = ScaleLargeMap.rect
-        source = screen[y1:y2, x1:x2]
+        x1, y1 = ScaleLargeMap.rect.left_top.tuple()
+        source, _ = cv2_utils.crop_image(screen, ScaleLargeMap.rect)
         result = self.ctx.im.match_template(source, template_id, template_type='origin')
         if result.max is not None:
             result.max.x += x1

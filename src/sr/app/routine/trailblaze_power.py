@@ -126,7 +126,8 @@ def get_config() -> TrailblazePowerConfig:
 class TrailblazePower(Application):
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('开拓力', 'ui'))
+        super().__init__(ctx, op_name=gt('开拓力', 'ui'),
+                         run_record=get_record())
         self.phase: int = 0
         self.power: int = 0
         self.last_challenge_point: Optional[TrailblazePowerPoint] = None
@@ -138,7 +139,7 @@ class TrailblazePower(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开大地图
             op = OpenMap(self.ctx)
-            if not op.execute():
+            if not op.execute().result:
                 return Operation.FAIL
             else:
                 self.phase += 1
@@ -147,7 +148,7 @@ class TrailblazePower(Application):
             screen: MatLike = self.screenshot()
             part, _ = cv2_utils.crop_image(screen, large_map.LARGE_MAP_POWER_RECT)
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-            self.power = str_utils.get_digits(ocr_result)
+            self.power = str_utils.get_positive_digits(ocr_result)
             log.info('当前体力 %d', self.power)
             self.phase += 1
             return Operation.WAIT
@@ -177,15 +178,8 @@ class TrailblazePower(Application):
 
             op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success,
                                     need_transport=point != self.last_challenge_point)
-            if op.execute():
+            if op.execute().result:
                 self.last_challenge_point = point
                 return Operation.WAIT
             else:
                 return Operation.RETRY
-
-    def _after_stop(self, result: bool):
-        record = get_record()
-        if result:
-            record.update_status(AppRunRecord.STATUS_SUCCESS)
-        else:
-            record.update_status(AppRunRecord.STATUS_FAIL)

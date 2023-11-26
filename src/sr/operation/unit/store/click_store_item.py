@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 import cv2
 import numpy as np
@@ -17,7 +18,7 @@ class ClickStoreItem(Operation):
     商店购买页面 点击特定的商品
     """
 
-    STORE_ITEM_LIST = Rect(290, 110, 1280, 430)
+    STORE_ITEM_LIST: ClassVar[Rect] = Rect(290, 110, 1280, 430)
 
     def __init__(self, ctx: Context, item_name: str, lcs_percent: float):
         super().__init__(ctx, try_times=5,

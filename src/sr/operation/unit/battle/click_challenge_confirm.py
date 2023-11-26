@@ -1,4 +1,5 @@
 import time
+from typing import ClassVar
 
 from cv2.typing import MatLike
 
@@ -15,7 +16,7 @@ class ClickChallengeConfirm(Operation):
     目前使用的场景有
     - 历战回响 - 没有剩余次数
     """
-    CONFIRM_BTN_RECT = Rect(1020, 660, 1330, 690)  # 确认按钮
+    CONFIRM_BTN_RECT: ClassVar[Rect] = Rect(1020, 660, 1330, 690)  # 确认按钮
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, try_times=4, op_name=gt('确认挑战', 'ui'))

@@ -1,5 +1,6 @@
 import random
 import time
+from typing import ClassVar
 
 import cv2
 import numpy as np
@@ -20,8 +21,8 @@ from sr.operation import Operation
 
 class ChooseTransportPoint(Operation):
 
-    tp_name_rect = Rect(1485, 120, 1870, 170)  # 右侧显示传送点名称的区域
-    drag_distance = -200
+    tp_name_rect: ClassVar[Rect] = Rect(1485, 120, 1870, 170)  # 右侧显示传送点名称的区域
+    drag_distance: ClassVar[int] = -200
 
     def __init__(self, ctx: Context, tp: TransportPoint):
         super().__init__(ctx, 10, op_name=gt('选择传送点 %s') % tp.display_name)
