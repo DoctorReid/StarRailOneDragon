@@ -129,9 +129,11 @@ class TrailblazePower(Application):
         super().__init__(ctx, op_name=gt('开拓力', 'ui'))
         self.phase: int = 0
         self.power: int = 0
+        self.last_challenge_point: Optional[TrailblazePowerPoint] = None
 
     def _init_before_execute(self):
         get_record().update_status(AppRunRecord.STATUS_RUNNING)
+        self.last_challenge_point = None
 
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开大地图
@@ -173,8 +175,10 @@ class TrailblazePower(Application):
                 config.save()
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 
-            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success)
+            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success,
+                                    need_transport=point != self.last_challenge_point)
             if op.execute():
+                self.last_challenge_point = point
                 return Operation.WAIT
             else:
                 return Operation.RETRY

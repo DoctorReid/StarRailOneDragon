@@ -100,7 +100,16 @@ class UseTrailblazePower(CombineOperation):
     """
 
     def __init__(self, ctx: Context, tpp: TrailblazePowerPoint, team_num: int, run_times: int,
-                 on_battle_success=None):
+                 on_battle_success=None, need_transport: bool = True):
+        """
+
+        :param ctx:
+        :param tpp:
+        :param team_num:
+        :param run_times:
+        :param on_battle_success:
+        :param need_transport: 是否需要传送 如果出现连续两次都要挑战同一个副本 可以不传送
+        """
         self.ctx: Context = ctx
         self.tpp: TrailblazePowerPoint = tpp
         self.team_num: int = team_num
@@ -110,9 +119,9 @@ class UseTrailblazePower(CombineOperation):
         self.current_success_round: int = 0  # 第几轮战斗胜利
         self.trigger_success_times_arr = []  # 每轮战斗胜利触发多少次回调
 
-        ops: List[Operation] = [
-            Transport(ctx, tpp.tp),  # 传送到对应位置
-        ]
+        ops: List[Operation] = []
+        if need_transport:  # 传送到对应位置
+            ops.append(Transport(ctx, tpp.tp))
 
         if tpp.category in (CATEGORY_1, CATEGORY_2):
             times_6 = run_times // 6
