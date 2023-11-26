@@ -278,6 +278,7 @@ class OneStopView(ft.Row, SrBasicView):
 
     def handle_after_hide(self):
         scheduler.cancel_with_tag('_update_app_list_status')
+        scheduler.cancel_with_tag('_update_running_app_name')
         self.ctx.unregister(self)
 
     def _check_ctx_stop(self) -> bool:

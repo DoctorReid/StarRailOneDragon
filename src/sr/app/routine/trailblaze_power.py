@@ -11,6 +11,7 @@ from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.config import ConfigHolder
 from sr.context import Context
 from sr.image.sceenshot import large_map
+from sr.mystools import mys_config
 from sr.operation import Operation
 from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower
 from sr.operation.unit.open_map import OpenMap
@@ -25,8 +26,19 @@ class TrailblazePowerRecord(AppRunRecord):
         super().__init__(TRAILBLAZE_POWER.id)
 
     def check_and_update_status(self):
-        super().check_and_update_status()
-        self.update_status(AppRunRecord.STATUS_WAIT)  # 每次都检查一遍体力
+        """
+        根据米游社便签判断是否有足够体力进行下一次副本
+        :return:
+        """
+        mys = mys_config.get()
+        now = time.time()
+        time_usage = now - mys.refresh_time
+        power = mys.current_stamina + time_usage // 360  # 6分钟恢复一点体力
+        config = get_config()
+        if config.next_plan_item is not None:
+            point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(config.next_plan_item['point_id'])
+            if point is not None and power >= point.power:
+                self.update_status(AppRunRecord.STATUS_WAIT, only_status=True)
 
 
 trailblaze_power_record: Optional[TrailblazePowerRecord] = None
