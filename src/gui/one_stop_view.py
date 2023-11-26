@@ -14,6 +14,9 @@ from gui.sr_basic_view import SrBasicView
 from sr.app import Application, one_stop_service, AppRunRecord
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
 from sr.context import Context
+from sr.mystools import mys_config
+from sr.mystools.data_model import StarRailNoteExpedition
+from sr.mystools.mys_config import MysConfig
 
 info_text_width = 200
 info_text_spacing = 5
@@ -54,6 +57,12 @@ class Label2TimeValueRow(ft.Row):
             self.label,
             ft.Row(controls=[self.hour_value, self.hour_label, self.minute_value, self.minute_label], spacing=0)
         ], spacing=spacing, width=width)
+
+    def update_time(self, seconds: int):
+        minutes = seconds // 60 + (1 if seconds % 60 > 0 else 0)
+        self.hour_value.value = '%02d' % (minutes // 60)
+        self.minute_value.value = '%02d' % (minutes % 60)
+        self.update()
 
 
 class AppListItem(ft.Row):
@@ -197,19 +206,21 @@ class OneStopView(ft.Row, SrBasicView):
         assignment_row_2 = ft.Row(controls=[self.assignment_3_label, self.assignment_4_label])
 
         self.training = Label2NormalValueRow('实训', '500', '/500')
-        self.echo = Label2NormalValueRow('历战回响', '3', '/3')
+        self.echo = Label2NormalValueRow('历战回响(本地)', '3', '/3')
         training_row = ft.Row(controls=[self.training, self.echo])
 
         self.sim_rank = Label2NormalValueRow('模拟宇宙', '14000', '/14000')
-        self.sim_times = Label2NormalValueRow('通关次数', '34')
+        self.sim_times = Label2NormalValueRow('通关次数', '未实现')
         sim_row = ft.Row(controls=[self.sim_rank, self.sim_times])
 
-        self.hall = Label2NormalValueRow('忘却之庭', '30', '/30')
+        self.hall = Label2NormalValueRow('忘却之庭', '未实现')
         hall_row = ft.Row(controls=[self.hall])
 
-        character_info_title = ft.Row(controls=[components.CardTitleText('游戏角色状态(占坑 假的)')])
+        self.card_title = components.CardTitleText('游戏角色状态')
+        refresh_btn = ft.IconButton(icon=ft.icons.REFRESH, on_click=self._update_character_status)
+        character_info_title = ft.Row(controls=[self.card_title, refresh_btn], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
         character_info_content = ft.ListView(controls=[
-                self.update_time,
+                ft.Container(content=self.update_time, margin=ft.margin.only(top=10)),
                 power_row,
                 assignment_row_1,
                 assignment_row_2,
@@ -217,7 +228,7 @@ class OneStopView(ft.Row, SrBasicView):
                 sim_row,
                 hall_row
             ], auto_scroll=True, spacing=10)
-        character_info_card = components.Card(character_info_content, title=character_info_title, width=info_card_width, height=300)
+        character_info_card = components.Card(character_info_content, title=character_info_title, width=info_card_width, height=320)
 
         self.running_ring = ft.ProgressRing(width=20, height=20, color=ft.colors.BLUE_300, visible=False)
         status_title_row = ft.Row(controls=[
@@ -256,6 +267,7 @@ class OneStopView(ft.Row, SrBasicView):
 
     def handle_after_show(self):
         self._update_app_list_status()
+        self._update_character_status()
         scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
         self.ctx.register_status_changed_handler(self,
                                                  self._after_start,
@@ -363,6 +375,30 @@ class OneStopView(ft.Row, SrBasicView):
     def _update_app_list_status(self):
         if self.page is not None:  # 切换页面后 page 会变成空 里面的组件也不能再更新了
             self.app_list.update_all_app_status()
+
+    def _update_character_status(self, e=None):
+        config: MysConfig = mys_config.get()
+        config.update_note()
+        if not config.is_login:
+            self.card_title.update_title('游戏角色状态(登录失效)')
+        else:
+            self.card_title.update_title('游戏角色状态')
+        self.update_time.update_value(config.refresh_time_str)
+        self.power.update_value('%d/%d' % (config.current_stamina, config.max_stamina))
+        self.power_recover.update_time(config.stamina_recover_time)
+
+        self.training.update_value(str(config.current_train_score))
+        self.sim_rank.update_value(str(config.current_rogue_score))
+
+        label_arr = [self.assignment_1_label, self.assignment_2_label, self.assignment_3_label, self.assignment_4_label]
+        e_arr = config.expeditions
+        for i in range(4):
+            label: Label2TimeValueRow = label_arr[i]
+            if len(e_arr) > i:
+                e = StarRailNoteExpedition.model_validate(e_arr[i])
+                label.update_time(e.remaining_time)
+            else:
+                label.update_time(0)
 
 
 osv: OneStopView = None

@@ -4,40 +4,11 @@ import flet as ft
 
 from basic.i18_utils import gt
 from gui import components
+from gui.components import SettingsListItem, SettingsList
 from gui.settings import gui_config
 from gui.sr_basic_view import SrBasicView
 from sr.app import world_patrol
 from sr.context import Context
-
-
-class SettingsListItem(ft.Row):
-
-    def __init__(self, label: str, value_component):
-        super().__init__(
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            controls=[ft.Text(label), value_component]
-        )
-
-
-class SettingsList(ft.ListView):
-
-    def __init__(self,
-                 controls: Optional[List[SettingsListItem]] = None,
-                 width: Optional[int] = None):
-        theme = gui_config.theme()
-        container_list = []
-        if controls is not None:
-            for i in controls:
-                container = ft.Container(
-                    content=i,
-                    border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])),
-                    padding=10
-                )
-                container_list.append(container)
-        super().__init__(
-            controls=container_list,
-            width=width
-        )
 
 
 class SettingsWorldPatrolView(SrBasicView, components.Card):

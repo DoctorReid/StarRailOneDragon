@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import flet as ft
 
@@ -35,6 +35,10 @@ class CardTitleText(ft.Text):
         theme: ThemeColors = gui_config.theme()
         super().__init__(title, size=20, weight=ft.FontWeight.W_600, color=theme['card_title_color'])
 
+    def update_title(self, new_value: str):
+        self.value = new_value
+        self.update()
+
 
 class Card(ft.Container):
     def __init__(self, content, title=None, width: int = 500, height: int = None):
@@ -57,3 +61,33 @@ class Card(ft.Container):
                              blur_style=ft.ShadowBlurStyle.OUTER,
                          )
                          )
+
+
+class SettingsListItem(ft.Row):
+
+    def __init__(self, label: str, value_component):
+        super().__init__(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            controls=[ft.Text(label), value_component]
+        )
+
+
+class SettingsList(ft.ListView):
+
+    def __init__(self,
+                 controls: Optional[List[SettingsListItem]] = None,
+                 width: Optional[int] = None):
+        theme = gui_config.theme()
+        container_list = []
+        if controls is not None:
+            for i in controls:
+                container = ft.Container(
+                    content=i,
+                    border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])),
+                    padding=10
+                )
+                container_list.append(container)
+        super().__init__(
+            controls=container_list,
+            width=width
+        )

@@ -8,3 +8,6 @@ keyboard==0.13.5
 flet==0.11.0
 pyinstaller==6.1.0
 schedule==1.2.1
+tenacity==8.2.3
+pydantic-settings==2.1.0
+pydantic==2.5.2

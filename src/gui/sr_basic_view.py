@@ -1,10 +1,15 @@
 from flet_core import Control
+import flet as ft
+
+from sr.context import Context
 
 
 class SrBasicView(Control):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, page: ft.Page, ctx: Context):
+        self.flet_page: ft.Page = page
+        self.sr_ctx: Context = ctx
+        Control.__init__(self)
 
     def handle_after_show(self):
         """
