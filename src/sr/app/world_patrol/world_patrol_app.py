@@ -107,7 +107,13 @@ class WorldPatrol(Application):
     def _after_stop(self, result: bool):
         if self.ignore_record:
             return
-        if result and len(self.route_id_list) >= len(self.record.finished):
-            self.record.update_status(AppRunRecord.STATUS_SUCCESS)
-        else:
+        if not result:
             self.record.update_status(AppRunRecord.STATUS_FAIL)
+            return
+
+        for route_id in self.route_id_list:
+            if route_id.unique_id not in self.record.finished:
+                self.record.update_status(AppRunRecord.STATUS_FAIL)
+            return
+
+        self.record.update_status(AppRunRecord.STATUS_SUCCESS)
