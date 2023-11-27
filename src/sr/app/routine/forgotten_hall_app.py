@@ -91,3 +91,4 @@ class ForgottenHallApp(Application):
         return Operation.FAIL
 
     def _update_star(self, star: int):
+        pass

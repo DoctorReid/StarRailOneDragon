@@ -1,8 +1,8 @@
 import time
 
-from cv2.typing import MatLike, Rect
+from cv2.typing import MatLike
 
-from basic import str_utils
+from basic import str_utils, Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context

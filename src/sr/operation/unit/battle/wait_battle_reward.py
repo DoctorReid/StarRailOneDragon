@@ -2,7 +2,6 @@ import time
 
 from cv2.typing import MatLike
 
-from basic import str_utils
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import battle
@@ -19,11 +18,7 @@ class WaitBattleReward(Operation):
     def __init__(self, ctx: Context, timeout_seconds: int = 1200):
         super().__init__(ctx, try_times=3, op_name=gt('等待战斗结束领取奖励', 'ui'),
                          timeout_seconds=timeout_seconds)
-        self.start_time: float = 0
         self.timeout_seconds: int = timeout_seconds
-
-    def _init_before_execute(self):
-        self.start_time = time.time()
 
     def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()
