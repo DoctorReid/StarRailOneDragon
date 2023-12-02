@@ -18,11 +18,13 @@ class GetRewardAndRetry(Operation):
     重复挑战副本
     """
 
-    def __init__(self, ctx: Context, run_times: int, need_confirm: bool = False,
+    def __init__(self, ctx: Context, run_times: int,
+                 need_confirm: bool = False,
                  success_callback=None):
         """
         :param ctx:
         :param run_times: 包含第一次，总共需要的成功次数
+        :param need_confirm: 是否需要确认 目前只有历战回响没有剩余次数时需要
         :param success_callback: 每一次挑战成功的回调
         """
         super().__init__(ctx, try_times=run_times + 5, op_name=gt('领奖并重复挑战', 'ui'))

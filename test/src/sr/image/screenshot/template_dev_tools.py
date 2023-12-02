@@ -453,5 +453,5 @@ if __name__ == '__main__':
     # init_store_buy_num_ctrl('store_buy_max')
     # init_battle_times_control('battle_times_plus')
     # init_mission_star_active()
-    init_character_avatar_from_alas()
+    # init_character_avatar_from_alas()
     init_character_avatar_feature()

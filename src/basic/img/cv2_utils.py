@@ -304,7 +304,8 @@ def feature_match(source_kp, source_desc, template_kp, template_desc,
 
 def feature_match_for_one(source_kp, source_desc, template_kp, template_desc,
                           template_width: int, template_height: int,
-                          source_mask: Optional[MatLike] = None) -> Optional[MatchResult]:
+                          source_mask: Optional[MatLike] = None,
+                          knn_distance_percent: float = 0.7) -> Optional[MatchResult]:
     """
     使用特征匹配找到一个匹配结果
     :param source_kp: 源图关键点
@@ -316,16 +317,125 @@ def feature_match_for_one(source_kp, source_desc, template_kp, template_desc,
     :param source_mask: 源图掩码
     :return: 缩放后的位置和大小
     """
-    good_matches, offset_x, offset_y, template_scale = feature_match(source_kp, source_desc,
-                                                                     template_kp, template_desc,
-                                                                     source_mask)
-    if offset_x is None:
+    if len(source_kp) == 0 or len(template_kp) == 0:
         return None
+
+    # feature_matcher = cv2.FlannBasedMatcher()
+    feature_matcher = cv2.BFMatcher()
+    matches = feature_matcher.knnMatch(template_desc, source_desc, k=2)
+    # 应用比值测试，筛选匹配点
+    good_matches = []
+    for m, n in matches:
+        if m.distance < knn_distance_percent * n.distance:
+            good_matches.append(m)
+
+    if len(good_matches) < 4:  # 不足4个优秀匹配点时 不能使用RANSAC
+        return None
+
+    # 提取匹配点的坐标
+    template_points = np.float32([template_kp[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 模板的
+    source_points = np.float32([source_kp[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 原图的
+
+    # 使用RANSAC算法估计模板位置和尺度
+    _, mask = cv2.findHomography(template_points, source_points, cv2.RANSAC, 5.0, mask=source_mask)
+    # 获取内点的索引 拿最高置信度的
+    inlier_indices = np.where(mask.ravel() == 1)[0]
+    if len(inlier_indices) == 0:  # mask 里没找到就算了 再用good_matches的结果也是很不准的
+        return None
+
+    # 距离最短 置信度最高的结果
+    best_match = None
+    for i in range(len(good_matches)):
+        if mask[i] == 1 and (best_match is None or good_matches[i].distance < best_match.distance):
+            best_match = good_matches[i]
+
+    query_point = source_kp[best_match.trainIdx].pt  # 原图中的关键点坐标 (x, y)
+    train_point = template_kp[best_match.queryIdx].pt  # 模板中的关键点坐标 (x, y)
+
+    # 获取最佳匹配的特征点的缩放比例
+    query_scale = source_kp[best_match.trainIdx].size
+    train_scale = template_kp[best_match.queryIdx].size
+    template_scale = query_scale / train_scale
+
+    # 模板图缩放后在原图上的偏移量
+    offset_x = query_point[0] - train_point[0] * template_scale
+    offset_y = query_point[1] - train_point[1] * template_scale
 
     scaled_width = int(template_width * template_scale)
     scaled_height = int(template_height * template_scale)
 
     return MatchResult(1, offset_x, offset_y, scaled_width, scaled_height, template_scale)
+
+
+def feature_match_for_multi(
+        source_kp, source_desc, template_kp, template_desc,
+        template_width: int, template_height: int,
+        source_mask: Optional[MatLike] = None,
+        knn_distance_percent: float = 0.7) -> MatchResultList:
+    """
+
+    :param source_kp:
+    :param source_desc:
+    :param template_kp:
+    :param template_desc:
+    :param template_width:
+    :param template_height:
+    :param source_mask:
+    :param knn_distance_percent:
+    :return:
+    """
+    match_result_list = MatchResultList(only_best=False)
+
+    if len(source_kp) == 0 or len(template_kp) == 0:
+        return match_result_list
+
+    # feature_matcher = cv2.FlannBasedMatcher()
+    feature_matcher = cv2.BFMatcher()
+    matches = feature_matcher.knnMatch(template_desc, source_desc, k=3)
+    # 应用比值测试，筛选匹配点
+    good_matches = []
+    for m, n, p in matches:
+        if m.distance < knn_distance_percent * n.distance and m.distance < knn_distance_percent * p.distance:
+            good_matches.append(m)
+
+    if len(good_matches) < 4:  # 不足4个优秀匹配点时 不能使用RANSAC
+        return match_result_list
+
+    # 提取匹配点的坐标
+    template_points = np.float32([template_kp[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 模板的
+    source_points = np.float32([source_kp[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)  # 原图的
+
+    # 使用RANSAC算法估计模板位置和尺度
+    M, mask = cv2.findHomography(template_points, source_points, cv2.RANSAC, 5.0, mask=source_mask)
+    # 获取内点的索引 拿最高置信度的
+    inlier_indices = np.where(mask.ravel() == 1)[0]
+    if len(inlier_indices) == 0:  # mask 里没找到就算了 再用good_matches的结果也是很不准的
+        return match_result_list
+
+    for i in range(len(good_matches)):
+        if mask[i] == 1:
+            match = good_matches[i]
+
+            query_point = source_kp[match.trainIdx].pt  # 原图中的关键点坐标 (x, y)
+            train_point = template_kp[match.queryIdx].pt  # 模板中的关键点坐标 (x, y)
+
+            # 获取最佳匹配的特征点的缩放比例
+            query_scale = source_kp[match.trainIdx].size
+            train_scale = template_kp[match.queryIdx].size
+            template_scale = query_scale / train_scale
+
+            # 模板图缩放后在原图上的偏移量
+            offset_x = query_point[0] - train_point[0] * template_scale
+            offset_y = query_point[1] - train_point[1] * template_scale
+
+            # 缩放后的宽度和高度
+            scaled_width = template_width * template_scale
+            scaled_height = template_height * template_scale
+
+            match_result_list.append(MatchResult(1, offset_x, offset_y, scaled_width, scaled_height))
+
+
+    return match_result_list
 
 
 def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = True,

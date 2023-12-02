@@ -123,14 +123,15 @@ class Operation:
                 op_result = self.op_fail(round_result.status)
                 break
 
-        if op_result is None and self.op_round == self.try_times:  # 理论上只有重试失败的情况op_result为None
-            retry_fail_status = self._retry_fail_to_success()
-            if retry_fail_status is None:
-                op_result = Operation.op_fail(retry_status)
+        if op_result is None:
+            if self.op_round == self.try_times:  # 理论上只有重试失败的情况op_result为None
+                retry_fail_status = self._retry_fail_to_success()
+                if retry_fail_status is None:
+                    op_result = Operation.op_fail(retry_status)
+                else:
+                    op_result = Operation.op_success(retry_fail_status)
             else:
-                op_result = Operation.op_success(retry_fail_status)
-        else:
-            op_result = Operation.op_fail('unknown')
+                op_result = Operation.op_fail('unknown')
 
         self.ctx.unregister(self)
         self._after_operation_done(op_result)

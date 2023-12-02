@@ -3,7 +3,7 @@ from typing import Optional, ClassVar
 
 from cv2.typing import MatLike
 
-from basic import Rect, str_utils, Point
+from basic import Rect, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
@@ -13,7 +13,7 @@ from sr.operation import Operation, OperationOneRoundResult
 
 class ChooseSupport(Operation):
 
-    SUPPORT_BTN_RECT: ClassVar[Rect] = Rect(1670, 690, 1830, 770)  # 【支援】按钮
+    SUPPORT_BTN_RECT: ClassVar[Rect] = Rect(1740, 720, 1830, 750)  # 【支援】按钮
     CHARACTER_LIST_RECT: ClassVar[Rect] = Rect(70, 160, 520, 940)  # 支援角色列表
     JOIN_BTN_RECT: ClassVar[Rect] = Rect(1560, 970, 1840, 1010)  # 【入队】按钮
 
@@ -74,36 +74,50 @@ class ChooseSupport(Operation):
         pos = self._find_character()
         if pos is None:
             drag_from = ChooseSupport.CHARACTER_LIST_RECT.center
-            drag_to = drag_from + Point(0, -200)
+            drag_to = drag_from + Point(0, -400)
             self.ctx.controller.drag_to(drag_to, drag_from)
-            time.sleep(1)
+            time.sleep(2)
             return False
         else:
             return self.ctx.controller.click(pos.center)
 
-
-    def _find_character(self) -> Optional[MatchResult]:
+    def _find_character(self, screen: Optional[MatLike] = None) -> Optional[MatchResult]:
         """
         找到角色头像的位置
         :return:
         """
-        screen: MatLike = self.screenshot()
+        if screen is None:
+            screen: MatLike = self.screenshot()
         part, _ = cv2_utils.crop_image(screen, ChooseSupport.CHARACTER_LIST_RECT)
 
-        source_kps, source_desc = cv2_utils.feature_detect_and_compute(part)
+        # 先找到等级的位置
+        ocr_result_map = self.ctx.ocr.match_words(part, words=[gt('UID', 'ocr')], lcs_percent=0.1)
+        if len(ocr_result_map) == 0:
+            log.error('找不到UID')
+            return
+
         template = self.ctx.ih.get_character_avatar_template(self.character_id)
         if template is None:
             log.error('找不到角色头像模板 %s', self.character_id)
             return None
 
-        pos = cv2_utils.feature_match_for_one(
-            source_kps, source_desc,
-            template.kps, template.desc,
-            template.origin.shape[1], template.origin.shape[0])
+        for k, v in ocr_result_map.items():
+            for pos in v:
+                center = ChooseSupport.CHARACTER_LIST_RECT.left_top + pos.left_top
+                avatar_rect = Rect(center.x - 110, center.y - 60, center.x - 20, center.y + 45)
+                avatar_part, _ = cv2_utils.crop_image(screen, avatar_rect)
+                source_kps, source_desc = cv2_utils.feature_detect_and_compute(avatar_part)
 
-        if pos is not None:
-            lt = ChooseSupport.CHARACTER_LIST_RECT.left_top
-            pos.x += lt.x
-            pos.y += lt.y
+                character_pos = cv2_utils.feature_match_for_one(
+                    source_kps, source_desc,
+                    template.kps, template.desc,
+                    template.origin.shape[1], template.origin.shape[0],
+                    knn_distance_percent=0.5
+                )
 
-        return pos
+                if character_pos is not None:
+                    character_pos.x += avatar_rect.left_top.x
+                    character_pos.y += avatar_rect.left_top.y
+                    return character_pos
+
+        return None

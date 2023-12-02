@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from basic import Point
 
@@ -20,6 +20,10 @@ class MatchResult:
         return '(%.2f, %d, %d, %d, %d, %.2f)' % (self.confidence, self.x, self.y, self.w, self.h, self.template_scale)
 
     @property
+    def left_top(self) -> Point:
+        return Point(self.x, self.y)
+
+    @property
     def center(self) -> Point:
         return Point(self.x + self.w // 2, self.y + self.h // 2)
 
@@ -29,7 +33,7 @@ class MatchResultList:
     def __init__(self, only_best: bool = True):
         self.only_best: bool = only_best
         self.arr: List[MatchResult] = []
-        self.max: MatchResult = None
+        self.max: Optional[MatchResult] = None
 
     def __str__(self):
         return '[%s]' % ', '.join(str(i) for i in self.arr)

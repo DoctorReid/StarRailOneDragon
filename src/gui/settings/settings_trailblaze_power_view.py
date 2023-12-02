@@ -92,6 +92,8 @@ class PlanListItem(ft.Row):
         self._on_value_changed()
 
     def _on_plan_times_changed(self, e):
+        if self.plan_times_input.value == '':
+            self.plan_times_input.value = 0
         if int(self.run_times_input.value) > int(self.plan_times_input.value):
             self.run_times_input.value = 0
             self.update()
@@ -99,7 +101,9 @@ class PlanListItem(ft.Row):
         self._on_value_changed()
 
     def _on_run_times_changed(self, e):
-        if int(self.run_times_input.value) > int(self.plan_times_input.value):
+        if self.run_times_input.value == '':
+            self.run_times_input.value = 0
+        elif int(self.run_times_input.value) > int(self.plan_times_input.value):
             self.run_times_input.value = 0
             self.update()
         self._update_value()
