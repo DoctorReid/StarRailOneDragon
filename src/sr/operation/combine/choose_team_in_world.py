@@ -18,6 +18,6 @@ class ChooseTeamInWorld(CombineOperation):
             BackToWorld(ctx),
             OpenPhoneMenu(ctx),
             ClickPhoneMenuItem(ctx, phone_menu_const.TEAM_SETUP),
-            ChooseTeam(ctx, team_num),
+            ChooseTeam(ctx, team_num, on=True),
         ]
         super().__init__(ctx, ops=ops, op_name=gt('选择配队', 'ui'))
