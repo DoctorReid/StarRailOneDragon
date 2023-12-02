@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 from cv2.typing import MatLike
 
@@ -10,9 +12,9 @@ class TemplateImage:
 
     def __init__(self):
 
-        self.origin = None  # 原图
-        self.gray = None  # 灰度图
-        self.mask = None  # 掩码
+        self.origin: MatLike = None  # 原图
+        self.gray: MatLike = None  # 灰度图
+        self.mask: MatLike = None  # 掩码
         self.kps = None  # 特征点
         self.desc = None  # 描述符
 
@@ -27,10 +29,12 @@ class TemplateImage:
 
 class ImageMatcher:
 
-    def get_template(self, template_id: str) -> TemplateImage:
+    def get_template(self, template_id: str,
+                     template_sub_dir: Optional[str] = None) -> TemplateImage:
         """
         获取对应模板图片
         :param template_id: 模板id
+        :param template_sub_dir: 模板的子文件夹
         :return: 模板图片
         """
         pass
@@ -51,7 +55,10 @@ class ImageMatcher:
         """
         pass
 
-    def match_template(self, source: MatLike, template_id: str, template_type: str = 'origin',
+    def match_template(self, source: MatLike,
+                       template_id: str,
+                       template_sub_dir: Optional[str] = None,
+                       template_type: str = 'origin',
                        threshold: float = 0.5,
                        mask: np.ndarray = None,
                        ignore_template_mask: bool = False,
@@ -61,6 +68,7 @@ class ImageMatcher:
         在原图中 匹配模板 如果模板图中有掩码图 会自动使用
         :param source: 原图
         :param template_id: 模板id
+        :param template_sub_dir: 模板的子文件夹
         :param template_type: 使用哪种类型模板
         :param threshold: 匹配阈值
         :param mask: 额外使用的掩码 与原模板掩码叠加

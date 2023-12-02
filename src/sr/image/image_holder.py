@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import cv2
 
@@ -62,13 +63,14 @@ class ImageHolder:
         else:
             return self.large_map[region.prl_id]
 
-    def load_template(self, template_id: str) -> TemplateImage:
+    def load_template(self, template_id: str, sub_dir: Optional[str] = None) -> Optional[TemplateImage]:
         """
         加载某个模板到内存
         :param template_id: 模板id
+        :param sub_dir: 子文件夹
         :return: 模板图片
         """
-        dir_path = os.path.join(os_utils.get_path_under_work_dir('images', 'template'), template_id)
+        dir_path = os_utils.get_path_under_work_dir('images', 'template', sub_dir, template_id)
         if not os.path.exists(dir_path):
             return None
         template: TemplateImage = TemplateImage()
@@ -87,7 +89,9 @@ class ImageHolder:
         else:
             if template.origin is not None and template.mask is not None:
                 template.kps, template.desc = cv2_utils.feature_detect_and_compute(template.origin, template.mask)
-        self.template[template_id] = template
+
+        key = '%s:%s' % ('' if sub_dir is None else sub_dir, template_id)
+        self.template[key] = template
         return template
 
     def pop_template(self, template_id: str):
@@ -99,43 +103,18 @@ class ImageHolder:
         if template_id in self.template:
             del self.template[template_id]
 
-    def rotate_template(self, template: TemplateImage, rotate_angle: float) -> TemplateImage:
-        """
-        旋转图片
-        :param template:
-        :param rotate_angle:
-        :return:
-        """
-        rotate: TemplateImage = TemplateImage()
-        rotate.origin = cv2_utils.image_rotate(template.origin, rotate_angle)
-        rotate.gray = cv2_utils.image_rotate(template.gray, rotate_angle)
-        rotate.mask = cv2_utils.image_rotate(template.mask, rotate_angle)
-        return rotate
-
-    def get_template(self, template_id: str, rotate_angle: float = 0) -> TemplateImage:
+    def get_template(self, template_id: str, sub_dir: Optional[str] = None) -> TemplateImage:
         """
         获取某个模板
         :param template_id: 模板id
-        :param rotate_angle: 旋转角度 逆时针
+        :param sub_dir: 子文件夹
         :return: 模板图片
         """
-        if rotate_angle == 0:
-            if template_id in self.template:
-                return self.template[template_id]
-            else:
-                return self.load_template(template_id)
+        key = '%s:%s' % ('' if sub_dir is None else sub_dir, template_id)
+        if key in self.template:
+            return self.template[key]
         else:
-            rotate_key = '%s_%d' % (template_id, rotate_angle)
-            if rotate_key in self.template:
-                return self.template[rotate_key]
-            else:
-                template = self.get_template(template_id, 0)
-                if template is not None:
-                    rotate_template = self.rotate_template(template, rotate_angle)
-                    self.template[rotate_key] = rotate_template
-                    return rotate_template
-                else:
-                    return None
+            return self.load_template(template_id, sub_dir)
 
     def preheat_for_world_patrol(self):
         """
@@ -151,3 +130,11 @@ class ImageHolder:
                 t: TemplateImage = self.get_template(template_id)
                 if t is None:
                     break
+
+    def get_character_avatar_template(self, template_id: str) -> TemplateImage:
+        """
+        获取角色头像模板
+        :param template_id: 模板id
+        :return: 模板图片
+        """
+        return self.get_template(template_id, sub_dir='character_avatar')

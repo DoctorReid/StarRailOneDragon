@@ -13,6 +13,8 @@ def join_dir_path_with_mk(path: str, *subs) -> str:
     """
     target_path = path
     for sub in subs:
+        if sub is None:
+            continue
         target_path = os.path.join(target_path, sub)
         if not os.path.exists(target_path):
             os.mkdir(target_path)

@@ -1,5 +1,8 @@
-import cv2
 import os
+import shutil
+from typing import Optional
+
+import cv2
 import numpy as np
 from cv2.typing import MatLike
 
@@ -185,17 +188,17 @@ def save_template_image(img: MatLike, template_id: str, tt: str):
     print(cv2.imwrite(os.path.join(path, '%s.png' % tt), img))
 
 
-def init_template_feature(template_id: str) -> bool:
+def init_template_feature(template_id: str, sub_dir: Optional[str] = None) -> bool:
     """
     初始化模板的特征值
     :return:
     """
     ih = ImageHolder()
-    template = ih.get_template(template_id)
+    template = ih.get_template(template_id, sub_dir=sub_dir)
     if template is None:
         return False
     keypoints, descriptors = cv2_utils.feature_detect_and_compute(template.origin, template.mask)
-    dir_path = os_utils.get_path_under_work_dir('images', 'template', template_id)
+    dir_path = os_utils.get_path_under_work_dir('images', 'template', sub_dir, template_id)
     file_storage = cv2.FileStorage(os.path.join(dir_path, 'features.xml'), cv2.FILE_STORAGE_WRITE)
     # 保存特征点和描述符
     file_storage.write("keypoints", cv2_utils.feature_keypoints_to_np(keypoints))
@@ -393,3 +396,62 @@ def init_battle_times_control(template_id: str):
     raw = _read_template_raw_image(template_id)
     origin = cv2.cvtColor(raw, cv2.COLOR_BGRA2BGR)
     save_template_image(origin, template_id, 'origin')
+
+
+def init_mission_star_active(template_id: str = 'mission_star_active'):
+    raw = _read_template_raw_image(template_id)
+
+    lower_color = np.array([140, 100, 115], dtype=np.uint8)
+    upper_color = np.array([150, 115, 130], dtype=np.uint8)
+    bw = cv2.inRange(raw, lower_color, upper_color)
+    cv2_utils.show_image(bw, win_name='bw')
+
+    origin, mask = convert_to_standard(raw, bw, width=41, height=41, bg_color=(0, 0, 0))
+    show_and_save(template_id, origin, mask)
+
+
+def init_character_avatar_from_alas():
+    """
+    批量将头像创建文件夹并移入 头像从alas复制
+    :return:
+    """
+    dir_path = os_utils.get_path_under_work_dir('images', 'template', 'character_avatar')
+    for file in os.listdir(dir_path):
+        if file.endswith('.png'):
+            name = file.split('.')[0].lower()
+            sub_dir = os.path.join(dir_path, name)
+            if not os.path.exists(sub_dir):
+                os.mkdir(sub_dir)
+            old_file_path = os.path.join(dir_path, file)
+            new_file_path = os.path.join(sub_dir, 'origin.png')
+            shutil.move(old_file_path, new_file_path)
+            # print('%s = Character(id=\'%s\', cn=\'\')' % (name.upper(), name.lower()))
+
+
+def init_character_avatar_feature():
+    dir_path = os_utils.get_path_under_work_dir('images', 'template', 'character_avatar')
+    for character in os.listdir(dir_path):
+        if character.find('.') != -1:
+            continue
+        init_template_feature(character, sub_dir='character_avatar')
+
+
+
+if __name__ == '__main__':
+    # init_tp_with_background('mm_tp_12', noise_threshold=30)
+    # init_sp_with_background('mm_sp_07')
+    # _test_init_ui_icon('ui_icon_09')
+    # init_battle_ctrl_icon('battle_ctrl_02')
+    # _test_init_arrow_template()
+    # init_battle_lock()
+    # init_boss_icon('mm_boss_03')
+    # init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
+    # init_ui_alert('ui_alert')
+    # init_ui_ellipsis('ui_ellipsis')
+    # init_nameless_honor_icon('nameless_honor_3')
+    # init_training_reward_gift()
+    # init_store_buy_num_ctrl('store_buy_max')
+    # init_battle_times_control('battle_times_plus')
+    # init_mission_star_active()
+    init_character_avatar_from_alas()
+    init_character_avatar_feature()

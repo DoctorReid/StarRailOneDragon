@@ -1,8 +1,10 @@
 import threading
+import logging
 
 import flet as ft
 import keyboard
 
+from basic import os_utils
 from basic.i18_utils import gt, update_default_lang
 from gui import log_view, calibrator_view, version, one_stop_view, scheduler
 from gui.settings import gui_config, settings_basic_view, settings_trailblaze_power_view, settings_echo_of_war_view, \
@@ -238,4 +240,6 @@ def run_app(page: ft.Page):
 
 
 if __name__ == '__main__':
+    if os_utils.is_debug():
+        logging.getLogger("flet_core").setLevel(logging.INFO)
     ft.app(target=run_app, name='StarRailAutoProxy')

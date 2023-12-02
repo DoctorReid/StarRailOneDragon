@@ -54,6 +54,7 @@ def get_record() -> TrailblazePowerRecord:
 class TrailblazePowerPlanItem(TypedDict):
     point_id: str  # 关卡id
     team_num: int  # 使用配队
+    support: str
     plan_times: int  # 计划通关次数
     run_times: int  # 已经通关次数
 
@@ -64,7 +65,20 @@ class TrailblazePowerConfig(ConfigHolder):
         super().__init__(TRAILBLAZE_POWER.id)
 
     def _init_after_read_file(self):
-        pass
+        """
+        读取配置后的初始化
+        :return:
+        """
+        # 兼容旧配置 对新增字段进行默认值的填充
+        plan_list = self.plan_list
+        any_changed: bool = False
+        for plan_item in plan_list:
+            if 'support' not in plan_item:
+                plan_item['support'] = 'none'
+                any_changed = True
+
+        if any_changed:
+            self.save()
 
     def check_plan_finished(self):
         """
@@ -176,7 +190,9 @@ class TrailblazePower(Application):
                 config.save()
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 
-            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success,
+            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times,
+                                    support=plan['support'] if plan['support'] != 'none' else None,
+                                    on_battle_success=on_battle_success,
                                     need_transport=point != self.last_challenge_point)
             if op.execute().result:
                 self.last_challenge_point = point

@@ -12,15 +12,17 @@ from sr.operation.unit.enable_auto_fight import EnableAutoFight
 
 
 class EnterAutoFight(Operation):
-    """
-    根据小地图的红圈
-    """
     attack_interval: ClassVar[float] = 0.2  # 发起攻击的间隔
     exit_after_no_alter_time: ClassVar[int] = 2  # 多久没警报退出
     exit_after_no_battle_time: ClassVar[int] = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
     ATTACK_DIRECTION_ARR: ClassVar[List] = ['w', 's', 'a', 'd']
 
+    STATUS_ENEMY_NOT_FOUND: ClassVar[str] = 'enemy_not_found'
+
     def __init__(self, ctx: Context):
+        """
+        根据小地图的红圈 判断是否被敌人锁定 进行主动攻击
+        """
         super().__init__(ctx, op_name=gt('进入战斗', 'ui'))
         self.last_attack_time = 0
         self.last_alert_time = 0  # 上次警报时间
@@ -80,9 +82,9 @@ class EnterAutoFight(Operation):
             return Operation.FAIL
         return Operation.WAIT
 
-    def allow_fail(self) -> bool:
+    def _retry_fail_to_success(self) -> str:
         """
-        该指令是否允许失败
+        本指令允许失败
         :return:
         """
-        return True
+        return EnterAutoFight.STATUS_ENEMY_NOT_FOUND

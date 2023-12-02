@@ -9,17 +9,17 @@ from sr.operation import Operation
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.battle.choose_challenge_times import ChooseChallengeTimes
+from sr.operation.unit.battle.choose_support import ChooseSupport
 from sr.operation.unit.battle.choose_team import ChooseTeam
 from sr.operation.unit.battle.click_challenge import ClickChallenge
 from sr.operation.unit.battle.click_start_challenge import ClickStartChallenge
 from sr.operation.unit.battle.get_reward_and_retry import GetRewardAndRetry
 from sr.operation.unit.battle.start_fight import StartFight
-from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.wait_in_world import WaitInWorld
 
 CATEGORY_1 = '经验信用'
-CATEGORY_2 = '光锥技能'
+CATEGORY_2 = '光锥行迹'
 CATEGORY_3 = '角色突破'
 CATEGORY_4 = '遗器'
 CATEGORY_LIST = [CATEGORY_1, CATEGORY_2, CATEGORY_3, CATEGORY_4]
@@ -39,7 +39,7 @@ class TrailblazePowerPoint:
 
     @property
     def display_name(self) -> str:
-        return '%s %s' % (gt(self.tp.cn, 'ui'), gt(self.remark, 'ui'))
+        return '%s %s' % (gt(self.tp.cn[:4], 'ui'), gt(self.remark, 'ui'))
 
 
 BUD_OF_MEMORIES = TrailblazePowerPoint(CATEGORY_1, map_const.P02_R02_SP04, '角色经验', 10)
@@ -99,20 +99,23 @@ class UseTrailblazePower(CombineOperation):
     使用开拓里刷本
     """
 
-    def __init__(self, ctx: Context, tpp: TrailblazePowerPoint, team_num: int, run_times: int,
+    def __init__(self, ctx: Context, tpp: TrailblazePowerPoint,
+                 team_num: int, run_times: int, support: Optional[str] = None,
                  on_battle_success=None, need_transport: bool = True):
         """
 
-        :param ctx:
-        :param tpp:
-        :param team_num:
-        :param run_times:
-        :param on_battle_success:
+        :param ctx: 上下文
+        :param tpp: 挑战关卡
+        :param team_num: 使用配队编号
+        :param support: 使用支援 传入角色ID
+        :param run_times: 执行次数
+        :param on_battle_success: 战斗成功的回调 用于记录、扣体力等
         :param need_transport: 是否需要传送 如果出现连续两次都要挑战同一个副本 可以不传送
         """
         self.ctx: Context = ctx
         self.tpp: TrailblazePowerPoint = tpp
         self.team_num: int = team_num
+        self.support: Optional[str] = support
         self.run_times: int = run_times
         self.on_battle_success = on_battle_success
 
@@ -160,6 +163,7 @@ class UseTrailblazePower(CombineOperation):
             ChooseChallengeTimes(self.ctx, times_per_round),  # 挑战次数
             ClickChallenge(self.ctx),  # 点击挑战
             ChooseTeam(self.ctx, self.team_num),  # 选择配队
+            ChooseSupport(self.ctx, self.support),  # 选择支援
             ClickStartChallenge(self.ctx),  # 开始挑战
             GetRewardAndRetry(self.ctx, round_num, need_confirm=False, success_callback=self._on_battle_success),  # 领奖 重复挑战
             WaitInWorld(self.ctx),  # 等待主界面
@@ -175,6 +179,7 @@ class UseTrailblazePower(CombineOperation):
             Interact(self.ctx, self.tpp.tp.cn, 0.5),  # 交互进入副本
             ClickChallenge(self.ctx),  # 点击挑战
             ChooseTeam(self.ctx, self.team_num),  # 选择配队
+            ChooseSupport(self.ctx, self.support),  # 选择支援
             ClickStartChallenge(self.ctx),  # 开始挑战
             WaitInWorld(self.ctx),  # 等待界面
             StartFight(self.ctx),  # 主动攻击
@@ -192,6 +197,7 @@ class UseTrailblazePower(CombineOperation):
             Interact(self.ctx, self.tpp.tp.cn, 0.5),  # 交互进入副本
             ClickChallenge(self.ctx),  # 点击挑战
             ChooseTeam(self.ctx, self.team_num),  # 选择配队
+            ChooseSupport(self.ctx, self.support),  # 选择支援
             ClickStartChallenge(self.ctx),  # 开始挑战
             GetRewardAndRetry(self.ctx, round_num, need_confirm=False, success_callback=self._on_battle_success),  # 领奖 重复挑战
             WaitInWorld(self.ctx),  # 等待主界面

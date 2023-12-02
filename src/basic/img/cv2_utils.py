@@ -1,5 +1,5 @@
 import os
-from typing import Union, List
+from typing import Union, List, Optional
 
 import cv2
 import numpy as np
@@ -253,7 +253,8 @@ def feature_keypoints_from_np(np_arr):
                                   response=kp[4], octave=int(kp[5]), class_id=int(kp[6])) for kp in np_arr])
 
 
-def feature_match(source_kp, source_desc, template_kp, template_desc, source_mask):
+def feature_match(source_kp, source_desc, template_kp, template_desc,
+                  source_mask: Optional[MatLike] = None):
     if len(source_kp) == 0 or len(template_kp) == 0:
         return None, None, None, None
 
@@ -299,6 +300,32 @@ def feature_match(source_kp, source_desc, template_kp, template_desc, source_mas
     offset_y = query_point[1] - train_point[1] * template_scale
 
     return good_matches, offset_x, offset_y, template_scale
+
+
+def feature_match_for_one(source_kp, source_desc, template_kp, template_desc,
+                          template_width: int, template_height: int,
+                          source_mask: Optional[MatLike] = None) -> Optional[MatchResult]:
+    """
+    使用特征匹配找到一个匹配结果
+    :param source_kp: 源图关键点
+    :param source_desc: 源图描述子
+    :param template_kp: 目标关键点
+    :param template_desc: 目标描述子
+    :param template_width: 目标原宽度
+    :param template_height: 目标原高度
+    :param source_mask: 源图掩码
+    :return: 缩放后的位置和大小
+    """
+    good_matches, offset_x, offset_y, template_scale = feature_match(source_kp, source_desc,
+                                                                     template_kp, template_desc,
+                                                                     source_mask)
+    if offset_x is None:
+        return None
+
+    scaled_width = int(template_width * template_scale)
+    scaled_height = int(template_height * template_scale)
+
+    return MatchResult(1, offset_x, offset_y, scaled_width, scaled_height, template_scale)
 
 
 def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = True,

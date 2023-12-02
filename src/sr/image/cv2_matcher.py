@@ -1,3 +1,5 @@
+from typing import Optional
+
 import cv2
 import numpy as np
 from cv2.typing import MatLike
@@ -13,13 +15,15 @@ class CvImageMatcher(ImageMatcher):
     def __init__(self, ih: ImageHolder = None):
         self.ih = ImageHolder() if ih is None else ih
 
-    def get_template(self, template_id: str) -> TemplateImage:
+    def get_template(self, template_id: str,
+                     template_sub_dir: Optional[str] = None) -> TemplateImage:
         """
         获取对应模板图片
         :param template_id: 模板id
+        :param template_sub_dir: 模板的子文件夹
         :return: 模板图片
         """
-        return self.ih.get_template(template_id)
+        return self.ih.get_template(template_id, sub_dir=template_sub_dir)
 
     def match_image(self, source: MatLike, template: MatLike,
                     threshold: float = 0.5, mask: np.ndarray = None,
@@ -38,7 +42,9 @@ class CvImageMatcher(ImageMatcher):
         return cv2_utils.match_template(source, template, threshold, mask=mask,
                                         only_best=only_best, ignore_inf=ignore_inf)
 
-    def match_template(self, source: MatLike, template_id: str, template_type: str = None,
+    def match_template(self, source: MatLike, template_id: str,
+                       template_sub_dir: Optional[str] = None,
+                       template_type: str = 'origin',
                        threshold: float = 0.5,
                        mask: np.ndarray = None,
                        ignore_template_mask: bool = False,
@@ -48,6 +54,7 @@ class CvImageMatcher(ImageMatcher):
         在原图中 匹配模板 如果模板图中有掩码图 会自动使用
         :param source: 原图
         :param template_id: 模板id
+        :param template_sub_dir: 模板的子文件夹
         :param template_type: 模板类型
         :param threshold: 匹配阈值
         :param mask: 额外使用的掩码 与原模板掩码叠加
@@ -56,7 +63,7 @@ class CvImageMatcher(ImageMatcher):
         :param ignore_inf: 是否忽略无限大的结果
         :return: 所有匹配结果
         """
-        template: TemplateImage = self.ih.get_template(template_id)
+        template: TemplateImage = self.get_template(template_id, template_sub_dir)
         if template is None:
             log.error('未加载模板 %s' % template_id)
             return MatchResultList()
@@ -68,31 +75,3 @@ class CvImageMatcher(ImageMatcher):
             mask_usage = cv2.bitwise_or(mask_usage, mask) if mask_usage is not None else mask
         return self.match_image(source, template.get(template_type), threshold, mask_usage,
                                 only_best=only_best, ignore_inf=ignore_inf)
-
-    def match_template_with_rotation(self, source: MatLike, template_id: str, template_type: str = None,
-                                     threshold: float = 0.5,
-                                     mask: np.ndarray = None,
-                                     only_best: bool = True,
-                                     ignore_inf: bool = True) -> dict:
-        """
-        在原图中 对模板进行360度旋转匹配
-        :param source: 原图
-        :param template_id: 模板id
-        :param template_type: 模板类型
-        :param threshold: 匹配阈值
-        :param mask: 掩码
-        :param only_best: 只返回最好的结果
-        :param ignore_inf: 是否忽略无限大的结果
-        :return: 每个选择角度的匹配结果
-        """
-        angle_result = {}
-        for i in range(360):
-            rt = self.ih.get_template(template_id, i)
-            mask_usage = rt.mask if mask is None else cv2.bitwise_or(rt.mask, mask)
-            result: MatchResultList = self.match_image(source, rt.get(template_type), threshold=threshold,
-                                                       only_best=only_best, ignore_inf=ignore_inf, mask=mask_usage)
-            if len(result) > 0:
-                angle_result[i] = result
-
-        return angle_result
-

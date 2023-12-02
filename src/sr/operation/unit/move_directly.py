@@ -169,7 +169,6 @@ class MoveDirectly(Operation):
         6. 往右再往后再往左 然后往前走
 
         :param stuck_times: 判断困住多少次了 次数越多 往回走距离越大
-        :param last_pos: 上一次位置 也就是被困的位置
         :return: 这次脱困用了多久
         """
         log.info('尝试脱困第%d次', stuck_times)
@@ -256,8 +255,8 @@ class MoveDirectly(Operation):
         #     return False
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         fight = EnterAutoFight(self.ctx)
-        r = fight.execute().result
-        self.last_auto_fight_fail = not r
+        op_result = fight.execute()
+        self.last_auto_fight_fail = not op_result.result or op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND
 
         return True
 

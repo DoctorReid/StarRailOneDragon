@@ -4,7 +4,9 @@ from typing import Optional, Union, ClassVar
 from cv2.typing import MatLike
 from pydantic import BaseModel
 
+from basic import Rect, str_utils
 from basic.i18_utils import gt
+from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.config import game_config
@@ -39,6 +41,10 @@ class Operation:
     WAIT: ClassVar[int] = 2  # 等待 本轮不计入
     FAIL: ClassVar[int] = -1  # 失败
 
+    OCR_CLICK_SUCCESS: ClassVar[int] = 1  # OCR并点击成功
+    OCR_CLICK_FAIL: ClassVar[int] = 0  # OCR成功但点击失败 基本不会出现
+    OCR_CLICK_NOT_FOUND: ClassVar[int] = -1  # OCR找不到目标
+
     def __init__(self, ctx: Context, try_times: int = 2, op_name: str = '', timeout_seconds: float = -1):
         self.op_name: str = gt(op_name, 'ui')
         self.try_times: int = try_times
@@ -68,14 +74,15 @@ class Operation:
         循环执系列动作直到完成为止
         """
         self._init_before_execute()
-        result: Optional[OperationResult] = Operation.op_fail('未知失败')
+        op_result: Optional[OperationResult] = None
+        retry_status: Optional[str] = None
         while self.op_round < self.try_times:
             if self.timeout_seconds != -1 and self._operation_usage_time >= self.timeout_seconds:
                 log.error('%s执行超时', self.display_name, exc_info=True)
-                result = self.op_fail('执行超时')
+                op_result = self.op_fail('执行超时')
                 break
             if self.ctx.running == 0:
-                result = self.op_fail('人工结束')
+                op_result = self.op_fail('人工结束')
                 break
             elif self.ctx.running == 2:
                 time.sleep(1)
@@ -88,7 +95,7 @@ class Operation:
                 round_result = self._execute_one_round()
                 if type(round_result) == OperationOneRoundResult:
                     round_result = round_result
-                else:
+                else:  # 兼容旧版本的指令
                     round_result = OperationOneRoundResult(result=round_result, status=None)
             except Exception as e:
                 round_result = self.round_retry('异常')
@@ -99,26 +106,35 @@ class Operation:
                 else:
                     log.error('%s执行出错', self.display_name, exc_info=True)
             if round_result.result == Operation.RETRY:
-                result = Operation.op_fail(round_result.status)
+                retry_status = round_result.status
                 continue
             elif round_result.result == Operation.SUCCESS:
-                result = self.op_success(round_result.status)
+                op_result = self.op_success(round_result.status)
                 break
             elif round_result.result == Operation.FAIL:
-                result = self.op_fail(round_result.status)
-                if not self.allow_fail():
-                    log.error('%s执行失败', self.display_name)
+                op_result = self.op_fail(round_result.status)
+                log.error('%s执行失败', self.display_name)
                 break
             elif round_result.result == Operation.WAIT:
                 self.op_round -= 1
                 continue
             else:
-                log.error('%s执行返回结果错误 %s', self.display_name, result)
-                result = self.op_fail(round_result.status)
+                log.error('%s执行返回结果错误 %s', self.display_name, op_result)
+                op_result = self.op_fail(round_result.status)
                 break
+
+        if op_result is None and self.op_round == self.try_times:  # 理论上只有重试失败的情况op_result为None
+            retry_fail_status = self._retry_fail_to_success()
+            if retry_fail_status is None:
+                op_result = Operation.op_fail(retry_status)
+            else:
+                op_result = Operation.op_success(retry_fail_status)
+        else:
+            op_result = Operation.op_fail('unknown')
+
         self.ctx.unregister(self)
-        self._after_operation_done(result)
-        return result
+        self._after_operation_done(op_result)
+        return op_result
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
         pass
@@ -154,12 +170,13 @@ class Operation:
         """
         return '指令[ %s ]' % self.op_name
 
-    def allow_fail(self) -> bool:
+    def _retry_fail_to_success(self) -> Optional[str]:
         """
-        该指令是否允许失败
+        是否允许指令重试失败 返回None代表不允许
+        允许情况下 重试失败会变成返回成功 而附加状态为本函数返回值
         :return:
         """
-        return False
+        return None
 
     def _after_operation_done(self, result: OperationResult):
         """
@@ -222,6 +239,34 @@ class Operation:
         :return:
         """
         return OperationResult(result=False, status=status)
+
+    def ocr_and_click_one_line(
+            self, screen: MatLike, target_cn: str,
+            target_rect: Optional[Rect],
+            lcs_percent: float = 0.1,
+            wait_after_success: Optional[float] = None) -> int:
+        """
+        对图片进行OCR找到目标文字并点击 目标区域中应该只有单行文本
+        :param screen: 屏幕截图
+        :param target_cn: 目标文本-中文
+        :param target_rect: 目标文本所在的区域
+        :param lcs_percent: 使用LCS判断OCR结果的阈值
+        :param wait_after_success: 点击成功后等待的时间 取决于动画时间
+        :return: 是否找到目标文本并点击
+        """
+        part, _ = cv2_utils.crop_image(screen, target_rect)
+
+        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+
+        if str_utils.find_by_lcs(gt(target_cn, 'ocr'), ocr_result, percent=lcs_percent):
+            if self.ctx.controller.click(target_rect.center):
+                if wait_after_success is not None:
+                    time.sleep(wait_after_success)
+                return Operation.OCR_CLICK_SUCCESS
+            else:
+                return Operation.OCR_CLICK_FAIL
+
+        return Operation.OCR_CLICK_NOT_FOUND
 
 
 class OperationSuccess(Operation):

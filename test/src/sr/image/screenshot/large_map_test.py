@@ -9,7 +9,6 @@ from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import large_map, LargeMapInfo
-from sr.image.sceenshot.icon import save_template_image
 
 
 def _test_get_planet_name():
@@ -18,19 +17,6 @@ def _test_get_planet_name():
     ocr = CnOcrMatcher()
     print(large_map.get_planet(screen, ocr))
 
-
-def _test_cut_minus():
-    screen = get_test_image('large_map_1')
-
-    cut, mask = large_map.cut_minus_or_plus(screen)
-    cv2.waitKey(0)
-    save_template_image(cut, 'minus', 'origin')
-    save_template_image(mask, 'minus', 'mask')
-
-    cut, mask = large_map.cut_minus_or_plus(screen, minus=False)
-    cv2.waitKey(0)
-    save_template_image(cut, 'plus', 'origin')
-    save_template_image(mask, 'plus', 'mask')
 
 def _test_get_sp_mask_by_template_match():
     ih = ImageHolder()

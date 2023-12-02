@@ -24,7 +24,7 @@ class CombineOperation(Operation):
             return Operation.FAIL
         op = self.ops[self.op_round - 1]
         result = op.execute()
-        if not result.result and not op.allow_fail:
+        if not result.result:
             return Operation.FAIL
 
         return Operation.RETRY if self.op_round < len(self.ops) else Operation.SUCCESS

@@ -1,3 +1,5 @@
+import logging
+
 from cnocr import CnOcr
 from cv2.typing import MatLike
 
@@ -6,6 +8,9 @@ from basic.i18_utils import gt
 from basic.img import MatchResultList, MatchResult
 from basic.log_utils import log
 from sr.image.ocr_matcher import OcrMatcher, merge_ocr_result_to_single_line
+
+
+logging.getLogger().handlers.clear()  # 不知道为什么 CnOcr模块会引入这个logger 清除掉避免console中有重复日志
 
 
 class CnOcrMatcher(OcrMatcher):
