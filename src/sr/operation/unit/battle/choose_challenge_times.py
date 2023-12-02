@@ -17,7 +17,7 @@ class ChooseChallengeTimes(Operation):
     选择挑战次数
     """
 
-    CURRENT_TIMES_RECT: ClassVar[Rect] = Rect(1470, 850, 1620, 890)
+    CURRENT_TIMES_RECT: ClassVar[Rect] = Rect(1580, 850, 1620, 890)
     MINUS_BTN_RECT: ClassVar[Rect] = Rect(1190, 870, 1300, 930)
     PLUS_BTN_RECT: ClassVar[Rect] = Rect(1800, 870, 1900, 930)
 
@@ -41,10 +41,10 @@ class ChooseChallengeTimes(Operation):
             return Operation.SUCCESS
         elif current < self.total_times:
             if self._click_plus(screen, self.total_times - current):
-                return Operation.WAIT
+                return Operation.SUCCESS
         else:
             if self._click_minus(screen, self.total_times - current):
-                return Operation.WAIT
+                return Operation.SUCCESS
 
     def _get_current_times(self, screen: MatLike) -> int:
         """
