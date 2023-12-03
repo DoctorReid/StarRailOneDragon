@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from basic import Rect, str_utils, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
+from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import secondary_ui
 from sr.operation import Operation, OperationOneRoundResult
@@ -58,10 +59,12 @@ class ChooseSurvivalIndexCategory(Operation):
         screen: MatLike = self.screenshot()
 
         if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.TITLE_GUIDE.cn):
+            log.info('等待生存索引加载')
             time.sleep(1)
             return Operation.round_retry('未在' + secondary_ui.TITLE_GUIDE.cn)
 
         if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, guide.GUIDE_TAB_3.cn):
+            log.info('等待生存索引加载')
             time.sleep(1)
             return Operation.round_retry('未在' + guide.GUIDE_TAB_3.cn)
 
@@ -72,9 +75,11 @@ class ChooseSurvivalIndexCategory(Operation):
             # 看有没有目标
             if str_utils.find_by_lcs(gt(self.category.cn, 'ocr'), k, 0.3):
                 to_click = v.max.center + CATEGORY_LIST_RECT.left_top
+                log.info('生存索引中找到 %s 尝试点击', self.category.cn)
                 if self.ctx.controller.click(to_click):
                     return Operation.round_success()
 
+        log.info('生存索引中未找到 %s 尝试滑动', self.category.cn)
         # 没有目标时候看要往哪个方向滚动
         other_before_target: bool = True  # 由于这里每次打开都是在最顶端 所以应该只需往下滑就好了
         # for item in CATEGORY_LIST:
@@ -118,22 +123,26 @@ class ChooseSurvivalIndexMission(Operation):
         screen: MatLike = self.screenshot()
 
         if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.TITLE_GUIDE.cn):
+            log.info('等待生存索引加载')
             time.sleep(1)
             return Operation.round_retry('未在' + secondary_ui.TITLE_GUIDE.cn)
 
         if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, guide.GUIDE_TAB_3.cn):
+            log.info('等待生存索引加载')
             time.sleep(1)
             return Operation.round_retry('未在' + guide.GUIDE_TAB_3.cn)
 
         tp_point = self._find_transport_btn(screen)
 
         if tp_point is None:  # 由于这里每次打开都是在最顶端 所以应该只需往下滑就好了
+            log.info('生存索引中未找到 %s 尝试滑动', self.mission.cn)
             point_from = MISSION_LIST_RECT.center
             point_to = point_from + Point(0, -200)
             self.ctx.controller.drag_to(point_to, point_from)
             time.sleep(0.5)
             return Operation.round_retry('未找到 ' + self.mission.cn)
         else:
+            log.info('生存索引中找到 %s 尝试传送', self.mission.cn)
             if self.ctx.controller.click(tp_point):
                 return Operation.round_success()
             else:
@@ -168,5 +177,8 @@ class ChooseSurvivalIndexMission(Operation):
                     continue
                 if tp_point is None or tp_point.y > result.center.y:  # 找出在副本名称下方最近的一个传送按钮
                     tp_point = result.center
+
+        if tp_point is not None:
+            tp_point = tp_point + MISSION_LIST_RECT.left_top
 
         return tp_point

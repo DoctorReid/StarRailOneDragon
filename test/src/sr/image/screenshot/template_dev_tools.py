@@ -14,8 +14,8 @@ from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map
 
 
-def _read_template_raw_image(template_id):
-    dir_path = os.path.join(os_utils.get_path_under_work_dir('images', 'template'), template_id)
+def _read_template_raw_image(template_id, sub_dir: Optional[str] = None):
+    dir_path = os_utils.get_path_under_work_dir('images', 'template', sub_dir, template_id)
     if not os.path.exists(dir_path):
         return None
     img = cv2_utils.read_image(os.path.join(dir_path, 'raw.png'))
@@ -141,7 +141,7 @@ def init_ui_icon(template_id: str, noise_threshold: int = 0):
     _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
     if noise_threshold > 0:
         mask = cv2_utils.connection_erase(mask, threshold=noise_threshold)
-    final_origin, final_mask = convert_to_standard(raw, mask, d=65, bg_color=(0, 0, 0))
+    final_origin, final_mask = convert_to_standard(raw, mask, width=65, height=65, bg_color=(0, 0, 0))
     show_and_save(template_id, final_origin, final_mask)
 
 
@@ -161,7 +161,7 @@ def init_battle_ctrl_icon(template_id: str, noise_threshold: int = 0):
     show_and_save(template_id, final_origin, final_mask)
 
 
-def show_and_save(template_id, origin, mask):
+def show_and_save(template_id, origin, mask, sub_dir: Optional[str] = None):
     gray = cv2.cvtColor(origin, cv2.COLOR_BGR2GRAY)
     cv2_utils.show_image(origin, win_name='origin')
     cv2_utils.show_image(gray, win_name='gray')
@@ -169,21 +169,22 @@ def show_and_save(template_id, origin, mask):
 
     cv2.waitKey(0)
 
-    save_template_image(origin, template_id, 'origin')
-    save_template_image(gray, template_id, 'gray')
-    save_template_image(mask, template_id, 'mask')
-    init_template_feature(template_id)
+    save_template_image(origin, template_id, 'origin', sub_dir=sub_dir)
+    save_template_image(gray, template_id, 'gray', sub_dir=sub_dir)
+    save_template_image(mask, template_id, 'mask', sub_dir=sub_dir)
+    init_template_feature(template_id, sub_dir=sub_dir)
 
 
-def save_template_image(img: MatLike, template_id: str, tt: str):
+def save_template_image(img: MatLike, template_id: str, tt: str, sub_dir: Optional[str] = None):
     """
     保存模板图片
     :param img: 模板图片
     :param template_id: 模板id
     :param tt: 模板类型
+    :param sub_dir: 模板子目录
     :return:
     """
-    path = os_utils.get_path_under_work_dir('images', 'template', template_id)
+    path = os_utils.get_path_under_work_dir('images', 'template', sub_dir, template_id)
     print(path)
     print(cv2.imwrite(os.path.join(path, '%s.png' % tt), img))
 
@@ -436,11 +437,20 @@ def init_character_avatar_feature():
         init_template_feature(character, sub_dir='character_avatar')
 
 
+def init_character_combat_type(template_id):
+    raw = _read_template_raw_image(template_id, sub_dir='character_combat_type')
+    gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+    _, bw = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+
+    origin, mask = convert_to_standard(raw, bw, width=51, height=51, bg_color=(0, 0, 0))
+
+    show_and_save(template_id, origin, mask, sub_dir='character_combat_type')
+
 
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_12', noise_threshold=30)
     # init_sp_with_background('mm_sp_07')
-    # _test_init_ui_icon('ui_icon_09')
+    init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
     # init_battle_lock()
@@ -454,4 +464,5 @@ if __name__ == '__main__':
     # init_battle_times_control('battle_times_plus')
     # init_mission_star_active()
     # init_character_avatar_from_alas()
-    init_character_avatar_feature()
+    # init_character_avatar_feature()
+    # init_character_combat_type('quantum')

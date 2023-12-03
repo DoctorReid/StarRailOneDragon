@@ -108,7 +108,7 @@ class Application(Operation):
         if self.ctx.open_game_by_script:
             op = EnterGame(self.ctx)
             result = op.execute()
-            if not result.result:
+            if not result.success:
                 log.error('进入游戏失败')
                 self.ctx.stop_running()
                 return False
@@ -137,7 +137,7 @@ class Application(Operation):
         """
         Operation._after_operation_done(self, result)
         if self.run_record is not None:
-            if result.result:
+            if result.success:
                 self.run_record.update_status(AppRunRecord.STATUS_SUCCESS)
             else:
                 self.run_record.update_status(AppRunRecord.STATUS_FAIL)

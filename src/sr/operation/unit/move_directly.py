@@ -256,7 +256,7 @@ class MoveDirectly(Operation):
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         fight = EnterAutoFight(self.ctx)
         op_result = fight.execute()
-        self.last_auto_fight_fail = not op_result.result or op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND
+        self.last_auto_fight_fail = not op_result.success or op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND
 
         return True
 

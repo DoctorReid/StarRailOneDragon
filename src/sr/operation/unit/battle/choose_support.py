@@ -36,7 +36,7 @@ class ChooseSupport(Operation):
             return Operation.round_success()
 
         if self.phase == 0:  # 点击【支援】按钮
-            click = self.ocr_and_click_one_line(self.screenshot(), '支援', ChooseSupport.SUPPORT_BTN_RECT,
+            click = self.ocr_and_click_one_line('支援', ChooseSupport.SUPPORT_BTN_RECT,
                                                 wait_after_success=1.5)
             if click == Operation.OCR_CLICK_SUCCESS:
                 self.phase += 1
@@ -57,7 +57,7 @@ class ChooseSupport(Operation):
                     return Operation.round_success(ChooseSupport.STATUS_SUPPORT_NOT_FOUND)
                 return Operation.round_wait()
         elif self.phase == 2:  # 点击【入队】按钮
-            click = self.ocr_and_click_one_line(self.screenshot(), '入队', ChooseSupport.JOIN_BTN_RECT,
+            click = self.ocr_and_click_one_line('入队', ChooseSupport.JOIN_BTN_RECT,
                                                 wait_after_success=1.5)
             if click == Operation.OCR_CLICK_SUCCESS:
                 return Operation.round_success()
@@ -90,7 +90,7 @@ class ChooseSupport(Operation):
             screen: MatLike = self.screenshot()
         part, _ = cv2_utils.crop_image(screen, ChooseSupport.CHARACTER_LIST_RECT)
 
-        # 先找到等级的位置
+        # 先找到UID的位置
         ocr_result_map = self.ctx.ocr.match_words(part, words=[gt('UID', 'ocr')], lcs_percent=0.1)
         if len(ocr_result_map) == 0:
             log.error('找不到UID')

@@ -3,6 +3,7 @@ import time
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
@@ -25,6 +26,7 @@ class OpenPhoneMenu(Operation):
             return Operation.SUCCESS
 
         self.ctx.controller.esc()
+        log.info('尝试打开菜单')
         time.sleep(1)
 
         return Operation.RETRY

@@ -161,7 +161,7 @@ class EchoOfWar(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开大地图
             op = OpenMap(self.ctx)
-            if not op.execute().result:
+            if not op.execute().success:
                 return Operation.FAIL
             else:
                 self.phase += 1
@@ -206,7 +206,7 @@ class EchoOfWar(Application):
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 
             op = ChallengeEchoOfWar(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success)
-            if op.execute().result:
+            if op.execute().success:
                 return Operation.WAIT
             else:  # 挑战
                 return Operation.RETRY

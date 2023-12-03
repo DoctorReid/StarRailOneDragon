@@ -153,7 +153,7 @@ class TrailblazePower(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开大地图
             op = OpenMap(self.ctx)
-            if not op.execute().result:
+            if not op.execute().success:
                 return Operation.FAIL
             else:
                 self.phase += 1
@@ -194,7 +194,7 @@ class TrailblazePower(Application):
                                     support=plan['support'] if plan['support'] != 'none' else None,
                                     on_battle_success=on_battle_success,
                                     need_transport=point != self.last_challenge_point)
-            if op.execute().result:
+            if op.execute().success:
                 self.last_challenge_point = point
                 return Operation.WAIT
             else:

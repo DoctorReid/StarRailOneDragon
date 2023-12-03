@@ -43,7 +43,7 @@ class ClaimTraining(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单
             op = OpenPhoneMenu(self.ctx)
-            if op.execute().result:
+            if op.execute().success:
                 self.phase += 1
                 return Operation.WAIT
             else:
@@ -83,7 +83,7 @@ class ClaimTraining(Application):
                 return Operation.WAIT
         elif self.phase == 4:  # 返回菜单
             op = OpenPhoneMenu(self.ctx)
-            if op.execute().result:
+            if op.execute().success:
                 return Operation.SUCCESS
             else:
                 return Operation.FAIL

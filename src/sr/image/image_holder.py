@@ -70,8 +70,8 @@ class ImageHolder:
         :param sub_dir: 子文件夹
         :return: 模板图片
         """
-        dir_path = os_utils.get_path_under_work_dir('images', 'template', sub_dir, template_id)
-        if not os.path.exists(dir_path):
+        dir_path = os.path.join(os_utils.get_path_under_work_dir('images', 'template', sub_dir), template_id)
+        if not os.path.exists(dir_path):  # 注意上方不要直接用get_path_under_work_dir获取全路径 避免创建空文件夹
             return None
         template: TemplateImage = TemplateImage()
         template.origin = cv2_utils.read_image(os.path.join(dir_path, 'origin.png'))
@@ -138,3 +138,11 @@ class ImageHolder:
         :return: 模板图片
         """
         return self.get_template(template_id, sub_dir='character_avatar')
+
+    def get_character_combat_type(self, template_id: str) -> TemplateImage:
+        """
+        获取角色战斗属性模板
+        :param template_id: 模板id
+        :return: 模板图片
+        """
+        return self.get_template(template_id, sub_dir='character_combat_type')

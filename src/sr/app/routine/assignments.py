@@ -65,7 +65,7 @@ class Assignments(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:
             op = OpenPhoneMenu(self.ctx)
-            if op.execute().result:
+            if op.execute().success:
                 self.phase += 1
                 return Operation.WAIT
             else:
@@ -83,22 +83,23 @@ class Assignments(Application):
                 return Operation.WAIT
         elif self.phase == 2:
             op = ClaimAssignment(self.ctx)
-            if op.execute().result:
+            if op.execute().success:
                 self.phase += 1
                 return Operation.WAIT
             else:
                 return Operation.FAIL
         elif self.phase == 3:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute().result
+            r = op.execute().success
             if not r:
                 return Operation.FAIL
             else:
                 return Operation.SUCCESS
 
     def _after_operation_done(self, result: OperationResult):
+        Operation._after_operation_done(self, result)
         new_status: Optional[int] = None
-        if not result.result:
+        if not result.success:
             new_status = AppRunRecord.STATUS_FAIL
         elif self.phase == 3:
             new_status = AppRunRecord.STATUS_SUCCESS

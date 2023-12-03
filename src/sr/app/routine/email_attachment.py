@@ -55,7 +55,7 @@ class Email(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute().result
+            r = op.execute().success
             if not r:
                 return Operation.FAIL
             else:
@@ -86,7 +86,7 @@ class Email(Application):
                 return Operation.FAIL
         elif self.phase == 3:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute().result
+            r = op.execute().success
             if not r:
                 return Operation.FAIL
             else:

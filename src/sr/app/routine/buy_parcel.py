@@ -80,7 +80,7 @@ class BuyXianzhouParcel(Application):
         op = CombineOperation(self.ctx, ops=ops,
                               op_name=gt('购买过期包裹', 'ui'))
 
-        if op.execute().result:
+        if op.execute().success:
             return Operation.SUCCESS
         else:
             return Operation.FAIL

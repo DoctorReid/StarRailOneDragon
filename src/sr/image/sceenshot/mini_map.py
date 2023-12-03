@@ -1,5 +1,5 @@
 import math
-from typing import Set
+from typing import Set, Optional
 
 import cv2
 import numpy as np
@@ -49,10 +49,11 @@ def cal_little_map_pos(screen: MatLike) -> MiniMapPos:
         log.error('无法找到小地图的圆')
 
 
-def cut_mini_map(screen: MatLike, mm_pos: MiniMapPos = None):
+def cut_mini_map(screen: MatLike, mm_pos: Optional[MiniMapPos] = None):
     """
     从整个游戏窗口截图中 裁剪出小地图部分
     :param screen: 屏幕截图
+    :param mm_pos: 小地图位置的配置
     :return:
     """
     if mm_pos is None:
@@ -417,10 +418,11 @@ def remove_radio(mm: MatLike, radio_to_del: MatLike) -> MatLike:
         y1 = origin.shape[1] // 2 - radius
         y2 = y1 + d
 
-        overlap = np.zeros_like(radio_to_del, dtype=np.uint8)
-        overlap[:, :] = origin[y1:y2, x1:x2] - radio_to_del
+        overlap = np.zeros_like(radio_to_del, dtype=np.uint16)
+        overlap[:, :] = origin[y1:y2, x1:x2]
+        overlap[:, :] -= radio_to_del
         overlap[np.where(origin[y1:y2, x1:x2] < radio_to_del)] = 0
-        origin[y1:y2, x1:x2] = overlap
+        origin[y1:y2, x1:x2] = overlap.astype(dtype=np.uint8)
 
     # cv2_utils.show_image(origin, win_name='origin')
     return origin

@@ -32,7 +32,7 @@ class CheckMissionStar(Operation):
         if num_result is None:
             # 找不到目标关卡 往右滑动找找
             point_start = CHOOSE_MISSION_RECT.center
-            point_end = CHOOSE_MISSION_RECT.center + Point(-200, 0)
+            point_end = CHOOSE_MISSION_RECT.center + Point(-400, 0)
             self.ctx.controller.drag_to(point_end, point_start)
             time.sleep(0.5)
             return Operation.round_retry('未找到关卡')
@@ -40,6 +40,9 @@ class CheckMissionStar(Operation):
         star: int = get_mission_star_by_num_pos(self.ctx, screen, num_result)
 
         if self.star_callback is not None:
-            self.star_callback(star)
+            self.star_callback(self.mission_num, star)
 
         return Operation.round_success(str(star))
+
+    def _get_mission_num_pos(self):
+        pass

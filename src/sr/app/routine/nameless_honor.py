@@ -55,7 +55,7 @@ class ClaimNamelessHonor(Application):
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单
             op = OpenPhoneMenu(self.ctx)
-            if op.execute().result:
+            if op.execute().success:
                 self.phase += 1
                 return Operation.WAIT
             else:
@@ -139,7 +139,7 @@ class ClaimNamelessHonor(Application):
                     return Operation.FAIL
         elif self.phase == 7:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
-            r = op.execute().result
+            r = op.execute().success
             if not r:
                 return Operation.FAIL
             else:

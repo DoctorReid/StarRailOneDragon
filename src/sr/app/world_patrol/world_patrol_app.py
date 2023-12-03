@@ -69,14 +69,14 @@ class WorldPatrol(Application):
 
         if self.current_route_idx == 0 and self.team_num != 0:
             op = ChooseTeamInWorld(self.ctx, self.config.team_num)
-            if not op.execute().result:
+            if not op.execute().success:
                 return Operation.FAIL
 
         route_id = self.route_id_list[self.current_route_idx]
 
         self.current_route_start_time = time.time()
         op = RunPatrolRoute(self.ctx, route_id)
-        route_result = op.execute().result
+        route_result = op.execute().success
         if route_result:
             if not self.ignore_record:
                 self.save_record(route_id, time.time() - self.current_route_start_time)
@@ -107,9 +107,10 @@ class WorldPatrol(Application):
         return total
 
     def _after_operation_done(self, result: OperationResult):
+        Operation._after_operation_done(self, result)
         if self.ignore_record:
             return
-        if not result.result:
+        if not result.success:
             self.record.update_status(AppRunRecord.STATUS_FAIL)
             return
 

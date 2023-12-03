@@ -11,6 +11,17 @@ from sr.context import Context
 CHOOSE_MISSION_RECT = Rect(10, 495, 1900, 850)
 
 
+def get_all_mission_num_pos(ctx: Context, mission_num: int, screen: MatLike) -> dict[int, MatchResult]:
+    """
+    获取所有数字对应的位置
+    :param ctx:
+    :param mission_num:
+    :param screen:
+    :return:
+    """
+    pass
+
+
 def get_mission_num_pos(ctx: Context, mission_num: int, screen: MatLike) -> Optional[MatchResult]:
     """
     获取关卡数字所在的位置
@@ -43,7 +54,7 @@ def get_mission_num_pos(ctx: Context, mission_num: int, screen: MatLike) -> Opti
         white_number_part = cv2.inRange(number_part, lower_color, upper_color)
 
         ocr_result = ctx.ocr.ocr_for_single_line(white_number_part)
-        # cv2_utils.show_image(white_number_part, win_name='part', wait=0)
+        cv2_utils.show_image(white_number_part, win_name='part', wait=0)
         if str_utils.find_by_lcs(str(mission_num), ocr_result, percent=0.1):
            return MatchResult(1, rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1)
 
@@ -79,8 +90,8 @@ def get_mission_star_by_num_pos(ctx: Context, screen: MatLike, num_pos: MatchRes
     star_rect = Rect(num_center.x - 70, num_center.y + 20, num_center.x + 90, num_center.y + 80)
     part, _ = cv2_utils.crop_image(screen, star_rect)
 
-    lower_color = np.array([240, 240, 240], dtype=np.uint8)
-    upper_color = np.array([255, 255, 255], dtype=np.uint8)
+    lower_color = np.array([110, 200, 240], dtype=np.uint8)
+    upper_color = np.array([120, 210, 255], dtype=np.uint8)
     # lower_color = np.array([140, 100, 115], dtype=np.uint8)  # 没激活的星星颜色
     # upper_color = np.array([150, 115, 130], dtype=np.uint8)
     white_part = cv2.inRange(part, lower_color, upper_color)

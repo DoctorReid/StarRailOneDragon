@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 from basic import Point
 from basic.i18_utils import gt
 from basic.img import MatchResult
+from basic.log_utils import log
 from sr.const.phone_menu_const import PhoneMenuItem
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
@@ -28,10 +29,12 @@ class ClickPhoneMenuItem(Operation):
         result: MatchResult = phone_menu.get_phone_menu_item_pos(screen, self.ctx.im, self.item)
 
         if result is None:  # 没找到的情况 上下随机滑动
+            log.info('菜单中未找到 %s 尝试滑动', self.item.cn)
             self.scroll_menu_area(1 if self.op_round % 2 == 1 else -1)
             time.sleep(0.5)
             return Operation.RETRY
         else:
+            log.info('菜单中找到 %s 尝试点击', self.item.cn)
             r = self.ctx.controller.click(result.center)
             time.sleep(0.5)
             return Operation.SUCCESS if r else Operation.RETRY

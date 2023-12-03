@@ -13,10 +13,12 @@ from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr.app import Application, one_stop_service, AppRunRecord
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
+from sr.app.routine import echo_of_war, forgotten_hall_app
 from sr.context import Context
 from sr.mystools import mys_config
 from sr.mystools.data_model import StarRailNoteExpedition
 from sr.mystools.mys_config import MysConfig
+from sr.operation.unit import forgotten_hall
 
 info_text_width = 200
 info_text_spacing = 5
@@ -213,7 +215,7 @@ class OneStopView(ft.Row, SrBasicView):
         self.sim_times = Label2NormalValueRow('通关次数', '未实现')
         sim_row = ft.Row(controls=[self.sim_rank, self.sim_times])
 
-        self.hall = Label2NormalValueRow('忘却之庭', '未实现')
+        self.hall = Label2NormalValueRow('忘却之庭(本地)', '0')
         hall_row = ft.Row(controls=[self.hall])
 
         self.card_title = components.CardTitleText('游戏角色状态')
@@ -378,6 +380,19 @@ class OneStopView(ft.Row, SrBasicView):
             self.app_list.update_all_app_status()
 
     def _update_character_status(self, e=None):
+        """
+        更新角色状态
+        :param e:
+        :return:
+        """
+        self._update_character_status_note_part()
+        self._update_character_status_local_part()
+
+    def _update_character_status_note_part(self):
+        """
+        更新角色状态 - 便签部分数据
+        :return:
+        """
         config: MysConfig = mys_config.get()
         config.update_note()
         if not config.is_login:
@@ -400,6 +415,17 @@ class OneStopView(ft.Row, SrBasicView):
                 label.update_time(e.remaining_time)
             else:
                 label.update_time(0)
+
+    def _update_character_status_local_part(self):
+        """
+        更新角色状态 - 本地部分数据
+        :return:
+        """
+        echo_record = echo_of_war.get_record()
+        self.echo.update_value(str(echo_record.left_times))
+
+        forgotten_hall_record = forgotten_hall_app.get_record()
+        self.hall.update_value(str(forgotten_hall_record.star))
 
 
 osv: OneStopView = None

@@ -25,7 +25,7 @@ class OperationOneRoundResult(BaseModel):
 
 class OperationResult(BaseModel):
 
-    result: bool
+    success: bool
     """指令执行结果 - 框架固定"""
     status: Optional[str] = None
     """结果附带状态 - 每个指令独特"""
@@ -113,7 +113,6 @@ class Operation:
                 break
             elif round_result.result == Operation.FAIL:
                 op_result = self.op_fail(round_result.status)
-                log.error('%s执行失败', self.display_name)
                 break
             elif round_result.result == Operation.WAIT:
                 self.op_round -= 1
@@ -185,7 +184,10 @@ class Operation:
         :param result:
         :return:
         """
-        pass
+        if result.success:
+            log.info('指令 %s 执行成功 返回状态 %s', self.display_name, result.status)
+        else:
+            log.error('指令 %s 执行失败 返回状态 %s', self.display_name, result.status)
 
     @staticmethod
     def round_success(status: str = None) -> OperationOneRoundResult:
@@ -230,7 +232,7 @@ class Operation:
         :param status: 附带状态
         :return:
         """
-        return OperationResult(result=True, status=status)
+        return OperationResult(success=True, status=status)
 
     @staticmethod
     def op_fail(status: str = None) -> OperationResult:
@@ -239,22 +241,25 @@ class Operation:
         :param status: 附带状态
         :return:
         """
-        return OperationResult(result=False, status=status)
+        return OperationResult(success=False, status=status)
 
     def ocr_and_click_one_line(
-            self, screen: MatLike, target_cn: str,
-            target_rect: Optional[Rect],
+            self, target_cn: str,
+            target_rect: Rect,
+            screen: Optional[MatLike] = None,
             lcs_percent: float = 0.1,
             wait_after_success: Optional[float] = None) -> int:
         """
         对图片进行OCR找到目标文字并点击 目标区域中应该只有单行文本
-        :param screen: 屏幕截图
         :param target_cn: 目标文本-中文
         :param target_rect: 目标文本所在的区域
+        :param screen: 屏幕截图
         :param lcs_percent: 使用LCS判断OCR结果的阈值
         :param wait_after_success: 点击成功后等待的时间 取决于动画时间
         :return: 是否找到目标文本并点击
         """
+        if screen is None:
+            screen = self.screenshot()
         part, _ = cv2_utils.crop_image(screen, target_rect)
 
         ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
@@ -274,11 +279,12 @@ class OperationSuccess(Operation):
     """
     一个直接返回成功的指令 用于组合指令
     """
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, status: Optional[str] = None):
         super().__init__(ctx, op_name=gt('成功结束', 'ui'))
+        self.status: Optional[str] = status
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
-        return Operation.round_success()
+        return Operation.round_success(self.status)
 
 
 class OperationFail(Operation):

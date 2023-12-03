@@ -24,7 +24,7 @@ class CombineOperation(Operation):
             return Operation.FAIL
         op = self.ops[self.op_round - 1]
         result = op.execute()
-        if not result.result:
+        if not result.success:
             return Operation.FAIL
 
         return Operation.RETRY if self.op_round < len(self.ops) else Operation.SUCCESS
@@ -102,10 +102,11 @@ class StatusCombineOperation(Operation):
                 op_in_map[to_idx] = 0
             op_in_map[to_idx] = op_in_map[to_idx] + 1
 
+        # 找出入度为0的开始点
         for edge in edges:
             from_id = edge.op_from_id
-            if op_in_map[from_id] == 0:
-                if self._start_op is not None:
+            if from_id not in op_in_map or op_in_map[from_id] == 0:
+                if self._start_op is not None and id(self._start_op) != from_id:
                     self._multiple_start = True
                 self._start_op = self._op_map[from_id]
 
@@ -120,12 +121,12 @@ class StatusCombineOperation(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         current_op_result: OperationResult = self._current_op.execute()
 
-        if not current_op_result.result:  # 指令执行失败
-            return Operation.round_fail()
+        if not current_op_result.success:  # 指令执行失败
+            return Operation.round_fail(current_op_result.status)
 
         edges = self._op_edges_map.get(id(self._current_op))
         if edges is None:  # 没有下一个节点了 已经结束了
-            return Operation.round_success()
+            return Operation.round_success(current_op_result.status)
 
         next_op_id: Optional[int] = None
         final_next_op_id: Optional[int] = None  # 兜底指令
@@ -140,7 +141,6 @@ class StatusCombineOperation(Operation):
                 continue
             elif edge.status == current_op_result.status:
                 next_op_id = edge.op_to_id
-                break
 
         next_op: Optional[Operation] = None
         if next_op_id is not None:
@@ -149,7 +149,7 @@ class StatusCombineOperation(Operation):
             next_op = self._op_map[final_next_op_id]
 
         if next_op is None:  # 没有下一个节点了 已经结束了
-            return Operation.round_success()
+            return Operation.round_success(current_op_result.status)
 
         self._current_op = next_op
-        return Operation.round_wait()
+        return Operation.round_wait(current_op_result.status)

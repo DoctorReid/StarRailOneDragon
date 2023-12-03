@@ -33,6 +33,7 @@ class ChooseMission(Operation):
             return Operation.round_retry('未找到关卡')
 
         if self.ctx.controller.click(num_result.center):
+            time.sleep(1.5)  # 等待加载页面
             return Operation.round_success()
         else:
             return Operation.round_retry('点击关卡失败')

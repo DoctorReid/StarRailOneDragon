@@ -42,5 +42,6 @@ class Transport(CombineOperation):
         :param result:
         :return:
         """
-        if result.result:
+        Operation._after_operation_done(self, result)
+        if result.success:
             self.ctx.first_transport = False  # 后续传送不用缩放地图了

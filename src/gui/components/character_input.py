@@ -1,12 +1,12 @@
+import base64
 from typing import List, Optional, Callable
 
-import base64
 import cv2
 import flet as ft
 
 from basic.i18_utils import gt
 from gui import components
-from sr.const.character_const import DESTINY_LIST, ATTACK_LIST, filter_character_list, CHARACTER_LIST, Character
+from sr.const.character_const import DESTINY_LIST, CHARACTER_COMBAT_TYPE_LIST, filter_character_list, Character
 from sr.image.image_holder import ImageHolder
 
 
@@ -59,13 +59,13 @@ class CharacterInput(components.Card):
         self.destiny_input.options.insert(0, ft.dropdown.Option(key='all', text=gt('全部', 'ui')))
         self.destiny_input.value = 'all'
 
-        self.attack_input = ft.Dropdown(
+        self.combat_type_input = ft.Dropdown(
             label=gt('属性', 'ui'), width=120,
-            options=[ft.dropdown.Option(key=i.id, text=gt(i.cn, 'ui')) for i in ATTACK_LIST],
+            options=[ft.dropdown.Option(key=i.id, text=gt(i.cn, 'ui')) for i in CHARACTER_COMBAT_TYPE_LIST],
             on_change=self._update_avatar_grid
         )
-        self.attack_input.options.insert(0, ft.dropdown.Option(key='all', text=gt('全部', 'ui')))
-        self.attack_input.value = 'all'
+        self.combat_type_input.options.insert(0, ft.dropdown.Option(key='all', text=gt('全部', 'ui')))
+        self.combat_type_input.value = 'all'
 
         self.level_input = ft.Dropdown(
             label=gt('星级', 'ui'), width=120,
@@ -88,7 +88,7 @@ class CharacterInput(components.Card):
 
         self.title = components.CardTitleText(title=gt('选择角色', 'ui'))
         content = ft.Column(controls=[
-            ft.Row(controls=[self.name_input, self.destiny_input, self.attack_input, self.level_input]),
+            ft.Row(controls=[self.name_input, self.destiny_input, self.combat_type_input, self.level_input]),
             avatar_grid
         ])
 
@@ -103,7 +103,7 @@ class CharacterInput(components.Card):
     def _update_avatar_grid(self, e):
         to_show_list = filter_character_list(
             destiny_id=self.destiny_input.value if self.destiny_input.value is not None and self.destiny_input.value != 'all' else None,
-            attack_id=self.attack_input.value if self.attack_input.value is not None and self.attack_input.value != 'all' else None,
+            combat_type_id=self.combat_type_input.value if self.combat_type_input.value is not None and self.combat_type_input.value != 'all' else None,
             level=int(self.level_input.value) if self.level_input.value is not None and self.level_input.value != 'all' else None,
             character_name=self.name_input.value if self.name_input.value is not None and self.name_input.value != '' else None,
         )

@@ -2,12 +2,15 @@ from typing import List, Optional
 
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.app import Application, AppRunRecord, AppDescription, register_app
-from sr.const import phone_menu_const
+from sr.const import phone_menu_const, character_const
+from sr.const.character_const import CharacterCombatType
 from sr.context import Context
 from sr.image.sceenshot import secondary_ui
 from sr.operation import Operation, OperationSuccess, OperationFail
-from sr.operation.combine import CombineOperation, StatusCombineOperationEdge
+from sr.operation.combine import CombineOperation, StatusCombineOperationEdge, StatusCombineOperation
+from sr.operation.combine.challenge_forgotten_hall_mission import ChallengeForgottenHallMission
 from sr.operation.unit import guide
 from sr.operation.unit.forgotten_hall.check_forgotten_hall_star import CheckForgottenHallStar
 from sr.operation.unit.guide import survival_index
@@ -29,6 +32,14 @@ class ForgottenHallRecord(AppRunRecord):
     def check_and_update_status(self):
         super().check_and_update_status()
         self.update_status(AppRunRecord.STATUS_WAIT)
+
+    @property
+    def star(self) -> int:
+        return self.get('star', 0)
+
+    @star.setter
+    def star(self, new_value: int):
+        self.update('star', new_value)
 
 
 _forgotten_hall_record: Optional[ForgottenHallRecord] = None
@@ -79,16 +90,42 @@ class ForgottenHallApp(Application):
         op6 = CheckForgottenHallStar(self.ctx, self._update_star)  # 检测星数并更新
         ops.append(op6)
         edges.append(StatusCombineOperationEdge(op_from=op5, op_to=op6))
+
         edges.append(StatusCombineOperationEdge(op_from=op6, op_to=op_success, status='30'))  # 满星的时候直接设置为成功
 
-        edges.append(StatusCombineOperationEdge(op_from=op6, op_to=op_success, status='30'))
+        last_mission = OperationSuccess(self.ctx, '3')  # 模拟上个关卡满星
+        ops.append(last_mission)
+        edges.append(StatusCombineOperationEdge(op_from=op6, op_to=last_mission, ignore_status=True))  # 非满星的时候开始挑战
 
-        combine_op: CombineOperation = CombineOperation(self.ctx, ops, op_name=gt('遗忘之庭', 'ui'))
+        for i in range(10):
+            mission = ChallengeForgottenHallMission(self.ctx, i + 1, 2,
+                                                    self._update_mission_star, self._cal_team_member)
+            ops.append(mission)
+            edges.append(StatusCombineOperationEdge(op_from=last_mission, op_to=mission, status='3'))  # 只有上一次关卡满星再进入下一个关卡
 
-        if combine_op.execute().result:
+            edges.append(StatusCombineOperationEdge(op_from=mission, op_to=op_success, ignore_status=True))  # 没满星就不挑战下一个了
+
+            last_mission = mission
+
+        edges.append(StatusCombineOperationEdge(op_from=last_mission, op_to=op_success, ignore_status=True))  # 最后一关无论结果如何都结束
+
+        combine_op: StatusCombineOperation = StatusCombineOperation(self.ctx, ops, edges,
+                                                                    op_name=gt('遗忘之庭', 'ui'))
+
+        if combine_op.execute().success:
             return Operation.SUCCESS
 
         return Operation.FAIL
 
     def _update_star(self, star: int):
-        pass
+        log.info('忘却之庭 当前总星数 %d', star)
+        self.run_record.star = star
+
+    def _update_mission_star(self, mission_num: int, star: int):
+        log.info('忘却之庭 关卡 %d 当前星数 %d', mission_num, star)
+
+    def _cal_team_member(self, combat_types_of_session: List[List[CharacterCombatType]]):
+        return [
+            [character_const.JINGLIU, character_const.PELA, character_const.SILVERWOLF, character_const.FUXUAN],
+            [character_const.DANHENGIMBIBITORLUNAE, character_const.TINGYUN, character_const.YUKONG, character_const.LUOCHA],
+        ]
