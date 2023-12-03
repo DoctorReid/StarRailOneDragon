@@ -1,9 +1,11 @@
 from typing import List, Optional
 
+from pydantic import BaseModel
 
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import Application, AppRunRecord, AppDescription, register_app
+from sr.config import ConfigHolder
 from sr.const import phone_menu_const, character_const
 from sr.const.character_const import CharacterCombatType
 from sr.context import Context
@@ -20,7 +22,7 @@ from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.operation.unit.wait_in_seconds import WaitInSeconds
 
-FORGOTTEN_HALL = AppDescription(cn='遗忘之庭', id='forgotten_hall')
+FORGOTTEN_HALL = AppDescription(cn='忘却之庭', id='forgotten_hall')
 register_app(FORGOTTEN_HALL)
 
 
@@ -52,10 +54,53 @@ def get_record() -> ForgottenHallRecord:
     return _forgotten_hall_record
 
 
+class ForgottenHallTeam(BaseModel):
+
+    team_name: str
+    """配队名称"""
+
+    character_id_list: List[str]
+    """配队角色列表"""
+
+
+class ForgottenHallConfig(ConfigHolder):
+
+    def __init__(self):
+        ConfigHolder.__init__(self, FORGOTTEN_HALL.id)
+
+    def _init_after_read_file(self):
+        pass
+
+    @property
+    def team_list(self) -> List[ForgottenHallTeam]:
+        arr = self.get('team_list', [])
+        ret = []
+        for i in arr:
+            ret.append(ForgottenHallTeam.model_validate(i))
+        return ret
+
+    @team_list.setter
+    def team_list(self, new_list: List[ForgottenHallTeam]):
+        dict_arr = []
+        for i in new_list:
+            dict_arr.append(i.model_dump())
+        self.update('team_list', dict_arr)
+
+
+_forgotten_hall_config: Optional[ForgottenHallConfig] = None
+
+
+def get_config() -> ForgottenHallConfig:
+    global _forgotten_hall_config
+    if _forgotten_hall_config is None:
+        _forgotten_hall_config = ForgottenHallConfig()
+    return _forgotten_hall_config
+
+
 class ForgottenHallApp(Application):
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('遗忘之庭', 'ui'),
+        super().__init__(ctx, op_name=gt('忘却之庭 任务', 'ui'),
                          run_record=get_record())
 
     def _init_before_execute(self):
@@ -110,7 +155,7 @@ class ForgottenHallApp(Application):
         edges.append(StatusCombineOperationEdge(op_from=last_mission, op_to=op_success, ignore_status=True))  # 最后一关无论结果如何都结束
 
         combine_op: StatusCombineOperation = StatusCombineOperation(self.ctx, ops, edges,
-                                                                    op_name=gt('遗忘之庭', 'ui'))
+                                                                    op_name=gt('忘却之庭 全流程', 'ui'))
 
         if combine_op.execute().success:
             return Operation.SUCCESS

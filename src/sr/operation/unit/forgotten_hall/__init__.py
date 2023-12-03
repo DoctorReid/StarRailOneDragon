@@ -1,3 +1,4 @@
+import time
 from typing import Optional, List
 
 import cv2
@@ -11,24 +12,12 @@ from sr.context import Context
 CHOOSE_MISSION_RECT = Rect(10, 495, 1900, 850)
 
 
-def get_all_mission_num_pos(ctx: Context, mission_num: int, screen: MatLike) -> dict[int, MatchResult]:
+def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchResult]:
     """
-    获取所有数字对应的位置
-    :param ctx:
-    :param mission_num:
-    :param screen:
-    :return:
-    """
-    pass
-
-
-def get_mission_num_pos(ctx: Context, mission_num: int, screen: MatLike) -> Optional[MatchResult]:
-    """
-    获取关卡数字所在的位置
+    获取所有关卡数字对应的位置
     :param ctx: 上下文
-    :param mission_num: 关卡数字
     :param screen: 屏幕截图
-    :return: 数字位置
+    :return: 关卡数字对应的位置
     """
     part, _ = cv2_utils.crop_image(screen, CHOOSE_MISSION_RECT)
 
@@ -36,6 +25,7 @@ def get_mission_num_pos(ctx: Context, mission_num: int, screen: MatLike) -> Opti
     upper_color = np.array([255, 255, 255], dtype=np.uint8)
     white_part = cv2.inRange(part, lower_color, upper_color)
 
+    digit_rect_list: List[Rect] = []
     # 整张图片进行OCR容易出现匹配不到的情况 因为先切割再匹配
     contours, _ = cv2.findContours(white_part, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for contour in contours:
@@ -43,9 +33,30 @@ def get_mission_num_pos(ctx: Context, mission_num: int, screen: MatLike) -> Opti
         lt = Point(x, y) + CHOOSE_MISSION_RECT.left_top
         rb = Point(x + w, y + h) + CHOOSE_MISSION_RECT.left_top
         rect = Rect(lt.x - 5, lt.y - 5, rb.x + 5, rb.y + 5)
-        if w > 25 or w < 10 or h < 30:  # 过滤过大或过小的矩阵
+        # number_part, rect = cv2_utils.crop_image(screen, rect)
+        # cv2_utils.show_image(number_part, win_name='number_part', wait=0)
+        # print(number_part.shape)
+        if w > 40 or w < 10 or h < 30:  # 过滤过大或过小的矩阵
             continue
 
+        merged: bool = False  # 将较近距离的数字合并
+        for another_rect in digit_rect_list:
+            if cal_utils.distance_between(rect.center, another_rect.center) < 50:
+                if rect.x1 < another_rect.x1:
+                    another_rect.x1 = rect.x1
+                if rect.y1 < another_rect.y1:
+                    another_rect.y1 = rect.y1
+                if rect.x2 > another_rect.x2:
+                    another_rect.x2 = rect.x2
+                if rect.y2 > another_rect.y2:
+                    another_rect.y2 = rect.y2
+                merged = True
+
+        if not merged:
+            digit_rect_list.append(rect)
+
+    mission_num_pos: dict[int, MatchResult] = {}
+    for rect in digit_rect_list:
         # 在矩阵中匹配数字
         number_part, rect = cv2_utils.crop_image(screen, rect)
 
@@ -54,11 +65,44 @@ def get_mission_num_pos(ctx: Context, mission_num: int, screen: MatLike) -> Opti
         white_number_part = cv2.inRange(number_part, lower_color, upper_color)
 
         ocr_result = ctx.ocr.ocr_for_single_line(white_number_part)
-        cv2_utils.show_image(white_number_part, win_name='part', wait=0)
-        if str_utils.find_by_lcs(str(mission_num), ocr_result, percent=0.1):
-           return MatchResult(1, rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1)
+        # cv2_utils.show_image(white_number_part, win_name='part', wait=0)
 
-    return None
+        mission_num = str_utils.get_positive_digits(ocr_result, err=-1)
+        if mission_num == -1:
+            continue
+
+        mission_num_pos[mission_num] = MatchResult(1, rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1)
+
+    return mission_num_pos
+
+
+def get_mission_num_pos(ctx: Context, target_mission_num: int, screen: MatLike,
+                        drag_when_not_found: bool = False) -> Optional[MatchResult]:
+    """
+    获取关卡数字所在的位置
+    :param ctx: 上下文
+    :param target_mission_num: 关卡数字
+    :param screen: 屏幕截图
+    :param drag_when_not_found: 找不到后进行滑动
+    :return: 数字位置
+    """
+    mission_num_pos = get_all_mission_num_pos(ctx, screen)
+
+    if target_mission_num in mission_num_pos:
+        return mission_num_pos[target_mission_num]
+    else:
+        if drag_when_not_found:  # 进行滑动
+            existed_larger: bool = False  # 当前屏幕数字是否更大
+            for existed_num in mission_num_pos.keys():
+                if existed_num > target_mission_num:
+                    existed_larger = True
+                    break
+
+            drag_from = CHOOSE_MISSION_RECT.center
+            drag_to = drag_from + Point((400 if existed_larger else -400), 0)
+            ctx.controller.drag_to(drag_to, drag_from)
+            time.sleep(0.5)
+        return None
 
 
 def get_mission_star(ctx: Context, mission_num: int, screen: MatLike) -> Optional[int]:

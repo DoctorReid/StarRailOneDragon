@@ -1,14 +1,12 @@
-import time
 from typing import Callable
 
 from cv2.typing import MatLike
 
-from basic import Point
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from sr.context import Context
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.forgotten_hall import CHOOSE_MISSION_RECT, get_mission_num_pos, get_mission_star_by_num_pos
+from sr.operation.unit.forgotten_hall import get_mission_num_pos, get_mission_star_by_num_pos
 
 
 class CheckMissionStar(Operation):
@@ -28,13 +26,8 @@ class CheckMissionStar(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        num_result: MatchResult = get_mission_num_pos(self.ctx, self.mission_num, screen)
+        num_result: MatchResult = get_mission_num_pos(self.ctx, self.mission_num, screen, drag_when_not_found=True)
         if num_result is None:
-            # 找不到目标关卡 往右滑动找找
-            point_start = CHOOSE_MISSION_RECT.center
-            point_end = CHOOSE_MISSION_RECT.center + Point(-400, 0)
-            self.ctx.controller.drag_to(point_end, point_start)
-            time.sleep(0.5)
             return Operation.round_retry('未找到关卡')
 
         star: int = get_mission_star_by_num_pos(self.ctx, screen, num_result)
@@ -43,6 +36,3 @@ class CheckMissionStar(Operation):
             self.star_callback(self.mission_num, star)
 
         return Operation.round_success(str(star))
-
-    def _get_mission_num_pos(self):
-        pass

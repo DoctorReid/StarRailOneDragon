@@ -36,8 +36,9 @@ class ChooseTeamInForgottenHall(Operation):
     SESSION_1: ClassVar[SessionInfo] = SessionInfo(
         num=1,
         combat_type_rect_list=[
-            Rect(1100, 720, 1140, 770),
+            Rect(1100, 720, 1145, 770),
             Rect(1135, 720, 1180, 770),
+            Rect(1170, 720, 1215, 770),
         ],
         character_rect_list=[
             Rect(1380, 695, 1455, 765),
@@ -50,8 +51,9 @@ class ChooseTeamInForgottenHall(Operation):
     SESSION_2: ClassVar[SessionInfo] = SessionInfo(
         num=2,
         combat_type_rect_list=[
-            Rect(1100, 820, 1140, 870),
+            Rect(1100, 820, 1145, 870),
             Rect(1135, 820, 1180, 870),
+            Rect(1170, 820, 1215, 870),
         ],
         character_rect_list=[
             Rect(1380, 795, 1455, 870),

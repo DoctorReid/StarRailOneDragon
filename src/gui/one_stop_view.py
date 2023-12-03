@@ -16,9 +16,7 @@ from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
 from sr.app.routine import echo_of_war, forgotten_hall_app
 from sr.context import Context
 from sr.mystools import mys_config
-from sr.mystools.data_model import StarRailNoteExpedition
 from sr.mystools.mys_config import MysConfig
-from sr.operation.unit import forgotten_hall
 
 info_text_width = 200
 info_text_spacing = 5
@@ -211,11 +209,11 @@ class OneStopView(ft.Row, SrBasicView):
         self.echo = Label2NormalValueRow('历战回响剩余(本地)', '3', '/3')
         training_row = ft.Row(controls=[self.training, self.echo])
 
-        self.sim_rank = Label2NormalValueRow('模拟宇宙', '14000', '/14000')
+        self.sim_rank = Label2NormalValueRow('模拟宇宙', '0', '/14000')
         self.sim_times = Label2NormalValueRow('通关次数', '未实现')
         sim_row = ft.Row(controls=[self.sim_rank, self.sim_times])
 
-        self.hall = Label2NormalValueRow('忘却之庭(本地)', '0')
+        self.hall = Label2NormalValueRow('忘却之庭(本地)', '0', suffix_label='30')
         hall_row = ft.Row(controls=[self.hall])
 
         self.card_title = components.CardTitleText('游戏角色状态')
@@ -385,6 +383,8 @@ class OneStopView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
+        if self.page is None:
+            return
         self._update_character_status_note_part()
         self._update_character_status_local_part()
 
