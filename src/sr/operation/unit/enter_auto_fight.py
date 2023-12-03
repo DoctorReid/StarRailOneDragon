@@ -7,7 +7,7 @@ from sr.config import game_config
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, battle
-from sr.operation import Operation
+from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.enable_auto_fight import EnableAutoFight
 
 
@@ -35,7 +35,7 @@ class EnterAutoFight(Operation):
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_in_battle_time = time.time()  # 上次在战斗的时间
 
-    def _execute_one_round(self) -> int:
+    def _execute_one_round(self) -> OperationOneRoundResult:
         ctrl: GameController = self.ctx.controller
 
         screen = self.screenshot()
@@ -49,7 +49,7 @@ class EnterAutoFight(Operation):
             self.last_in_battle_time = time.time()
             self.last_alert_time = self.last_in_battle_time
             self.with_battle = True
-            return Operation.WAIT
+            return Operation.round_wait()
 
         mm = mini_map.cut_mini_map(screen)
 
@@ -65,7 +65,7 @@ class EnterAutoFight(Operation):
         if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos, strict=True):
             if now_time - self.last_alert_time > EnterAutoFight.exit_after_no_alter_time:
                 log.info('索敌结束')
-                return Operation.SUCCESS if self.with_battle else Operation.FAIL
+                return Operation.round_success('' if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
         else:
             self.last_alert_time = now_time
 
@@ -79,8 +79,9 @@ class EnterAutoFight(Operation):
             time.sleep(0.5)
 
         if now_time - self.last_in_battle_time > EnterAutoFight.exit_after_no_battle_time:
-            return Operation.FAIL
-        return Operation.WAIT
+            return Operation.round_success('' if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
+
+        return Operation.round_wait()
 
     def _retry_fail_to_success(self) -> str:
         """
