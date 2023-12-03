@@ -448,9 +448,9 @@ def init_character_combat_type(template_id):
 
 
 if __name__ == '__main__':
-    # init_tp_with_background('mm_tp_12', noise_threshold=30)
-    # init_sp_with_background('mm_sp_07')
-    init_ui_icon('ui_icon_10')
+    init_tp_with_background('mm_tp_13', noise_threshold=30)
+    # init_sp_with_background('mm_sp_09')
+    # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
     # init_battle_lock()

@@ -704,6 +704,9 @@ msgstr "Shape of Perdition"
 msgid "幽冥之径侵蚀隧洞"
 msgstr "Path of Darkness"
 
+msgid "集合点"
+msgstr "Meeting Point"
+
 # Large Map Btn
 msgid "星轨航图"
 msgstr "Star Rail Map"
