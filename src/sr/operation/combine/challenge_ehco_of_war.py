@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from basic.i18_utils import gt
 from sr.const.map_const import TransportPoint
@@ -6,6 +6,7 @@ from sr.context import Context
 from sr.operation import Operation
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
+from sr.operation.unit.battle.choose_support import ChooseSupport
 from sr.operation.unit.battle.choose_team import ChooseTeam
 from sr.operation.unit.battle.click_challenge import ClickChallenge
 from sr.operation.unit.battle.click_challenge_confirm import ClickChallengeConfirm
@@ -23,6 +24,7 @@ class ChallengeEchoOfWar(CombineOperation):
     """
 
     def __init__(self, ctx: Context, tp: TransportPoint, team_num: int, run_times: int,
+                 support: Optional[str] = None,
                  on_battle_success=None):
         self.ctx: Context = ctx
         self.tp: TransportPoint = tp
@@ -36,6 +38,7 @@ class ChallengeEchoOfWar(CombineOperation):
             ClickChallenge(self.ctx),  # 点击挑战
             ClickChallengeConfirm(self.ctx),  # 点击确认
             ChooseTeam(self.ctx, self.team_num),  # 选择配队
+            ChooseSupport(self.ctx, support),  # 选择支援
             ClickStartChallenge(self.ctx),  # 开始挑战
             GetRewardAndRetry(self.ctx, run_times, success_callback=on_battle_success, need_confirm=True),  # 领奖 重复挑战
             WaitInWorld(self.ctx),  # 等待主界面

@@ -35,6 +35,7 @@ def get_point_by_unique_id(unique_id: str) -> TransportPoint:
 class EchoOfWarPlanItem(TypedDict):
     point_id: str  # 关卡id
     team_num: int  # 使用配队
+    support: str  # 使用支援
     plan_times: int  # 计划通关次数
     run_times: int  # 已经通关次数
 
@@ -87,7 +88,22 @@ class EchoOfWarConfig(ConfigHolder):
 
     def __init__(self):
         super().__init__(ECHO_OF_WAR.id)
-        pass
+
+    def _init_after_read_file(self):
+        """
+        读取配置后的初始化
+        :return:
+        """
+        # 兼容旧配置 对新增字段进行默认值的填充
+        plan_list = self.plan_list
+        any_changed: bool = False
+        for plan_item in plan_list:
+            if 'support' not in plan_item:
+                plan_item['support'] = 'none'
+                any_changed = True
+
+        if any_changed:
+            self.save()
 
     def check_plan_finished(self):
         """
@@ -205,7 +221,9 @@ class EchoOfWar(Application):
                 config.save()
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 
-            op = ChallengeEchoOfWar(self.ctx, point, plan['team_num'], run_times, on_battle_success=on_battle_success)
+            op = ChallengeEchoOfWar(self.ctx, point, plan['team_num'], run_times,
+                                    support=plan['support'] if plan['support'] != 'none' else None,
+                                    on_battle_success=on_battle_success)
             if op.execute().success:
                 return Operation.WAIT
             else:  # 挑战
