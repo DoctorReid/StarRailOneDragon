@@ -115,6 +115,8 @@ class ChooseTeamInForgottenHall(Operation):
             combat_type_in_session.append(combat_types)
 
         self.teams = self.cal_team_func(combat_type_in_session)
+        if self.teams is None:
+            return False
         for t in self.teams:
             if t is None:
                 return False

@@ -57,7 +57,7 @@ def read_sample_config(name: str, sub_dir: List[str] = None):
     """
     path = get_sample_config_file_path(name, sub_dir=sub_dir)
     if os.path.exists(path):
-        with open(path, 'r') as file:
+        with open(path, 'r', encoding='utf-8') as file:
             return yaml.safe_load(file)
     else:
         return None
@@ -72,7 +72,7 @@ def save_config(name: str, data: dict, sub_dir: str = None):
     :return:
     """
     path = get_config_file_path(name, sub_dir=sub_dir)
-    with open(path, 'w') as file:
+    with open(path, 'w', encoding='utf-8') as file:
         yaml.dump(data, file)
 
 
