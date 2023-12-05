@@ -5,7 +5,7 @@ from sr.operation.unit.forgotten_hall.check_mission_star import CheckMissionStar
 
 
 def _test_get_all_mission_num_pos():
-    screen = get_debug_image('_1701610115616')
+    screen = get_debug_image('_1701790574790')
     print(get_all_mission_num_pos(ctx, screen))
 
 

@@ -185,9 +185,9 @@ class Operation:
         :return:
         """
         if result.success:
-            log.info('指令 %s 执行成功 返回状态 %s', self.display_name, result.status)
+            log.info('%s 执行成功 返回状态 %s', self.display_name, result.status)
         else:
-            log.error('指令 %s 执行失败 返回状态 %s', self.display_name, result.status)
+            log.error('%s 执行失败 返回状态 %s', self.display_name, result.status)
 
     @staticmethod
     def round_success(status: str = None) -> OperationOneRoundResult:

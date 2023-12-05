@@ -8,6 +8,7 @@ app_order:
   - 'nameless_honor'
   - 'claim_training'
   - 'buy_xianzhou_parcel'
+  - 'forgotten_hall'
 app_run:
   - 'world_patrol'
   - 'echo_of_war'
@@ -18,3 +19,4 @@ app_run:
   - 'nameless_honor'
   - 'claim_training'
   - 'buy_xianzhou_parcel'
+  - 'forgotten_hall'

@@ -121,7 +121,9 @@ class TeamListItem(ft.Row):
         :param character_id_list: 角色ID列表
         :return:
         """
-        self.team_value.character_id_list = character_id_list
+        self.team_value.character_id_list.clear()  # 注意不能直接等于 因为这样会共用了同一个数组
+        for character_id in character_id_list:
+            self.team_value.character_id_list.append(character_id)
         self._update_character_dropdown_value()
         self._on_value_changed()
 
@@ -253,7 +255,9 @@ class TeamList(ft.ListView):
 
         if to_del_idx != -1:
             self.controls.pop(to_del_idx)
+            self.update()
             self._on_list_item_value_changed()
+
 
 class SettingsForgottenHallView(SrBasicView, ft.Row):
 

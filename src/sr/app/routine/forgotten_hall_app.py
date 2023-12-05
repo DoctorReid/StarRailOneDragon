@@ -71,11 +71,14 @@ class ForgottenHallRecord(AppRunRecord):
         """
         stars = self.mission_stars
         stars[mission_num] = star
+        if 'mission_stars' not in self.data:
+            self.update('mission_stars', stars, False)
         total_star: int = 0
         for v in stars.values():
             total_star += v
         if total_star > self.star:
             self.star = total_star
+        self.save()
 
 
 _forgotten_hall_record: Optional[ForgottenHallRecord] = None

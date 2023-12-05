@@ -69,12 +69,12 @@ class MoveToEnemy(Operation):
         to_del = cal_pos.get_radio_to_del(self.ctx.im, angle)
 
         mm2 = mini_map.remove_radio(mm, to_del)
-        cv2_utils.show_image(mm2, win_name='mm2')
+        # cv2_utils.show_image(mm2, win_name='mm2')
 
         lower_color = np.array([0, 0, 150], dtype=np.uint8)
         upper_color = np.array([60, 60, 255], dtype=np.uint8)
         red_part = cv2.inRange(mm2, lower_color, upper_color)
-        cv2_utils.show_image(red_part, win_name='red_part')
+        # cv2_utils.show_image(red_part, win_name='red_part')
 
         # 膨胀一下找连通块
         to_check = cv2_utils.dilate(red_part, 5)

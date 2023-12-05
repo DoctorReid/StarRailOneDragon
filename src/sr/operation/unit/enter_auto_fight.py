@@ -24,9 +24,10 @@ class EnterAutoFight(Operation):
         根据小地图的红圈 判断是否被敌人锁定 进行主动攻击
         """
         super().__init__(ctx, op_name=gt('进入战斗', 'ui'))
-        self.last_attack_time = 0
-        self.last_alert_time = 0  # 上次警报时间
-        self.last_in_battle_time = 0  # 上次在战斗的时间
+        self.last_attack_time: float = 0
+        self.last_alert_time: float = 0  # 上次警报时间
+        self.last_in_battle_time: float = 0  # 上次在战斗的时间
+        self.last_check_auto_fight_time: float = 0  # 上次检测自动战斗的时间
         self.with_battle: bool = False  # 是否有进入战斗
         self.attach_direction: int = 0  # 攻击方向
 
@@ -34,6 +35,7 @@ class EnterAutoFight(Operation):
         self.last_attack_time = time.time()
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_in_battle_time = time.time()  # 上次在战斗的时间
+        self.last_check_auto_fight_time = time.time()  # 上次检测自动战斗的时间
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         ctrl: GameController = self.ctx.controller
@@ -43,8 +45,9 @@ class EnterAutoFight(Operation):
         now_time = time.time()
         screen_status = battle.get_battle_status(screen, self.ctx.im)
         if screen_status != battle.IN_WORLD:  # 在战斗界面
-            eaf = EnableAutoFight(self.ctx)
-            eaf.execute()
+            if now_time - self.last_check_auto_fight_time > 10:
+                eaf = EnableAutoFight(self.ctx)
+                eaf.execute()
             time.sleep(0.5)  # 战斗部分
             self.last_in_battle_time = time.time()
             self.last_alert_time = self.last_in_battle_time

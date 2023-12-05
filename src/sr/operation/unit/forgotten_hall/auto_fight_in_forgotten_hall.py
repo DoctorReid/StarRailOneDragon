@@ -1,5 +1,5 @@
 import time
-from typing import Optional, ClassVar
+from typing import Optional, ClassVar, List
 
 from cv2.typing import MatLike
 
@@ -15,8 +15,10 @@ from sr.operation.unit.forgotten_hall.wait_in_session import WaitNodeStart
 
 class AutoFightInForgottenHall(Operation):
 
-    AFTER_BATTLE_RESULT_RECT_1: ClassVar[Rect] = Rect(820, 300, 1100, 370)  # 挑战成功
-    AFTER_BATTLE_RESULT_RECT_2: ClassVar[Rect] = Rect(785, 230, 1155, 310)  # 战斗失败
+    AFTER_BATTLE_RESULT_RECT_1: ClassVar[Rect] = Rect(820, 200, 1100, 270)  # 挑战成功 有奖励
+    AFTER_BATTLE_RESULT_RECT_2: ClassVar[Rect] = Rect(820, 300, 1100, 370)  # 挑战成功 无奖励
+    AFTER_BATTLE_SUCCESS_RECT_LIST: ClassVar[List[Rect]] = [AFTER_BATTLE_RESULT_RECT_1, AFTER_BATTLE_RESULT_RECT_2]
+    AFTER_BATTLE_RESULT_RECT_3: ClassVar[Rect] = Rect(785, 230, 1155, 320)  # 战斗失败
 
     BATTLE_SUCCESS_STATUS: ClassVar[str] = 'battle_success'  # 成功 最后一个节点成功才会出现
     BATTLE_FAIL_STATUS: ClassVar[str] = 'battle_fail'  # 失败 任意一个节点失败都会出现
@@ -30,6 +32,7 @@ class AutoFightInForgottenHall(Operation):
         self.with_battle: bool = False  # 是否有进入战斗
         self.last_attack_time: float = 0  # 上次攻击的时间
         self.last_in_battle_time: float = 0  # 上次在战斗时间
+        self.last_check_auto_fight_time: float = 0  # 上次检测自动战斗的时间
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -47,9 +50,9 @@ class AutoFightInForgottenHall(Operation):
         part, _ = cv2_utils.crop_image(screen, WaitNodeStart.EXIT_BTN)
         match_result_list = self.ctx.im.match_template(part, 'ui_icon_10', only_best=True)
         if len(match_result_list) == 0:  # 在战斗界面
-            log.info('战斗中')
-            eaf = EnableAutoFight(self.ctx)
-            eaf.execute()
+            if now_time - self.last_check_auto_fight_time > 10:
+                eaf = EnableAutoFight(self.ctx)
+                eaf.execute()
             time.sleep(0.5)  # 战斗部分
             self.with_battle = True
             self.last_in_battle_time = now_time
@@ -78,12 +81,13 @@ class AutoFightInForgottenHall(Operation):
         if screen is None:
             screen = self.screenshot()
 
-        part, _ = cv2_utils.crop_image(screen, AutoFightInForgottenHall.AFTER_BATTLE_RESULT_RECT_1)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-        if str_utils.find_by_lcs(gt('挑战成功', 'ocr'), ocr_result, percent=0.1):
-            return AutoFightInForgottenHall.BATTLE_SUCCESS_STATUS
+        for rect in AutoFightInForgottenHall.AFTER_BATTLE_SUCCESS_RECT_LIST:
+            part, _ = cv2_utils.crop_image(screen, rect)
+            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+            if str_utils.find_by_lcs(gt('挑战成功', 'ocr'), ocr_result, percent=0.1):
+                return AutoFightInForgottenHall.BATTLE_SUCCESS_STATUS
 
-        part, _ = cv2_utils.crop_image(screen, AutoFightInForgottenHall.AFTER_BATTLE_RESULT_RECT_2)
+        part, _ = cv2_utils.crop_image(screen, AutoFightInForgottenHall.AFTER_BATTLE_RESULT_RECT_3)
         ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
         if str_utils.find_by_lcs(gt('战斗失败', 'ocr'), ocr_result, percent=0.1):
             return AutoFightInForgottenHall.BATTLE_FAIL_STATUS

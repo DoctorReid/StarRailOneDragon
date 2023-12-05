@@ -55,6 +55,6 @@ class CheckForgottenHallStar(Operation):
         :return: 星数。如果没有获取到就返回-1
         """
         part, _ = cv2_utils.crop_image(screen, CheckForgottenHallStar._STAR_RECT)
-        cv2_utils.show_image(part, win_name='_get_star_cnt')
+        # cv2_utils.show_image(part, win_name='_get_star_cnt')
         ocr_str = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
         return str_utils.get_positive_digits(ocr_str, -1)

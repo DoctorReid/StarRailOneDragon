@@ -9,7 +9,7 @@ from basic import Rect, Point, str_utils, cal_utils
 from basic.img import MatchResult, cv2_utils, MatchResultList
 from sr.context import Context
 
-CHOOSE_MISSION_RECT = Rect(10, 495, 1900, 850)
+CHOOSE_MISSION_RECT = Rect(10, 400, 1900, 850)
 
 
 def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchResult]:
@@ -24,6 +24,7 @@ def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchRes
     lower_color = np.array([240, 240, 240], dtype=np.uint8)
     upper_color = np.array([255, 255, 255], dtype=np.uint8)
     white_part = cv2.inRange(part, lower_color, upper_color)
+    # cv2_utils.show_image(white_part, win_name='white_part', wait=0)
 
     digit_rect_list: List[Rect] = []
     # 整张图片进行OCR容易出现匹配不到的情况 因为先切割再匹配
@@ -99,8 +100,8 @@ def get_mission_num_pos(ctx: Context, target_mission_num: int, screen: MatLike,
                     break
 
             drag_from = CHOOSE_MISSION_RECT.center
-            drag_to = drag_from + Point((400 if existed_larger else -400), 0)
-            ctx.controller.drag_to(drag_to, drag_from)
+            drag_to = drag_from + Point((600 if existed_larger else -600), 0)
+            ctx.controller.drag_to(drag_to, drag_from, duration=0.3)
             time.sleep(0.5)
         return None
 
