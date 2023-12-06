@@ -1,3 +1,5 @@
+from typing import Optional
+
 from basic import cal_utils, Rect, Point
 from basic.i18_utils import gt
 
@@ -190,7 +192,7 @@ def get_region_by_cn(cn: str, planet: Planet, floor: int = 0) -> Region:
 
 class TransportPoint:
 
-    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple, tp_pos: tuple=None):
+    def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple, tp_pos: Optional[tuple] = None):
         self.id: str = id  # 英文 用在找图
         self.cn: str = cn  # 中文 用在OCR
         self.region: Region = region  # 所属区域
@@ -244,9 +246,9 @@ P01_R04_SP05 = TransportPoint('TKDT', '太空电梯', P01_R04_L2, 'mm_sp_02', (1
 P01_R04_SP06 = TransportPoint('HMDKD', '毁灭的开端历战回响', P01_R04_L2, 'mm_boss_01', (1010, 286), (1015, 295))
 
 # 雅利洛 - 行政区
-P02_R01_SP01 = TransportPoint('HJGJY', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374))
-P02_R01_SP02 = TransportPoint('ZYGC', '中央广场', P02_R01_L1, 'mm_tp_03', (487, 806))
-P02_R01_SP03 = TransportPoint('GDBG', '歌德宾馆', P02_R01_L1, 'mm_tp_03', (784, 1173))
+P02_R01_SP01 = TransportPoint('HJGJY', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374), (619, 380))
+P02_R01_SP02 = TransportPoint('ZYGC', '中央广场', P02_R01_L1, 'mm_tp_03', (487, 806), (501, 801))
+P02_R01_SP03 = TransportPoint('GDBG', '歌德宾馆', P02_R01_L1, 'mm_tp_03', (784, 1173), (776, 1183))
 P02_R01_SP04 = TransportPoint('LSWHBWG', '历史文化博物馆', P02_R01_L1, 'mm_tp_05', (395, 771))
 P02_R01_SP05 = TransportPoint('CJXY', '城郊雪原', P02_R01_L1, 'mm_sp_02', (485, 370))
 P02_R01_SP06 = TransportPoint('BYTL', '边缘通路', P02_R01_L1, 'mm_sp_02', (508, 1113))

@@ -44,4 +44,4 @@ if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
 
-    cal_one(map_const.P01_R04_SP06, debug_image='_1701096529805', show=True)
+    cal_one(map_const.P02_R01_SP03, debug_image='_1701873520462', show=True)
