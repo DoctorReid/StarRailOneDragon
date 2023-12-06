@@ -326,7 +326,10 @@ def feature_match_for_one(source_kp, source_desc, template_kp, template_desc,
     matches = feature_matcher.knnMatch(template_desc, source_desc, k=2)
     # 应用比值测试，筛选匹配点
     good_matches = []
-    for m, n in matches:
+    for t in matches:
+        if len(t) < 2:
+            return None
+        m, n = t
         if m.distance < knn_distance_percent * n.distance:
             good_matches.append(m)
 

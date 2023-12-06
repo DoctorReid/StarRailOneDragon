@@ -2,7 +2,7 @@ from sr import performance_recorder
 from sr.app.routine.forgotten_hall_app import ForgottenHallApp, ForgottenHallTeamModule
 from sr.const.character_const import QUANTUM, ICE, SILVERWOLF, FUXUAN, JINGLIU, PELA, SEELE, TINGYUN, \
     DANHENGIMBIBITORLUNAE, LUOCHA, YUKONG, CLARA, ASTA, FIRE, WIND, IMAGINARY, LIGHTNING, CHARACTER_COMBAT_TYPE_LIST, \
-    HUOHUO
+    HUOHUO, PHYSICAL
 
 
 def _test_search_best_mission_team():
@@ -41,8 +41,8 @@ def _test_search_best_mission_team():
 
     for type1 in CHARACTER_COMBAT_TYPE_LIST:
         for type2 in CHARACTER_COMBAT_TYPE_LIST:
-            node1_combat_type = [type1]
-            node2_combat_type = [type2]
+            node1_combat_type = [LIGHTNING, PHYSICAL]
+            node2_combat_type = [IMAGINARY, ICE]
             node_combat_types = [node1_combat_type, node2_combat_type]
             node_team_list = ForgottenHallApp.search_best_mission_team(node_combat_types, module_list)
             cn_list = []

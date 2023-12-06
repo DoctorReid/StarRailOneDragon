@@ -6,7 +6,7 @@ import flet as ft
 
 from basic.i18_utils import gt
 from gui import components
-from sr.const.character_const import DESTINY_LIST, CHARACTER_COMBAT_TYPE_LIST, filter_character_list, Character
+from sr.const.character_const import CHARACTER_PATH_LIST, CHARACTER_COMBAT_TYPE_LIST, filter_character_list, Character
 from sr.image.image_holder import ImageHolder
 
 
@@ -53,7 +53,7 @@ class CharacterInput(components.Card):
 
         self.destiny_input = ft.Dropdown(
             label=gt('命途', 'ui'), width=120,
-            options=[ft.dropdown.Option(key=i.id, text=gt(i.cn, 'ui')) for i in DESTINY_LIST],
+            options=[ft.dropdown.Option(key=i.id, text=gt(i.cn, 'ui')) for i in CHARACTER_PATH_LIST],
             on_change=self._update_avatar_grid
         )
         self.destiny_input.options.insert(0, ft.dropdown.Option(key='all', text=gt('全部', 'ui')))

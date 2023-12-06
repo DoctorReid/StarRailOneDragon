@@ -8,9 +8,9 @@ from basic.log_utils import log
 from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.config import ConfigHolder
 from sr.const import phone_menu_const
-from sr.const.character_const import CharacterCombatType, get_character_by_id, CHARACTER_PATH_PRESERVATION, \
-    CHARACTER_PATH_ABUNDANCE, CHARACTER_PATH_NIHILITY, CHARACTER_PATH_HARMONY, CHARACTER_PATH_DESTRUCTION, \
-    CHARACTER_PATH_HUNT, CHARACTER_PATH_ERUDITION, Character, SILVERWOLF, CharacterPath
+from sr.const.character_const import CharacterCombatType, get_character_by_id, Character, SILVERWOLF, CharacterPath, \
+    ATTACK_PATH_LIST, \
+    SURVIVAL_PATH_LIST, SUPPORT_PATH_LIST, is_attack_character, is_survival_character, is_support_character
 from sr.context import Context
 from sr.operation import Operation, OperationSuccess
 from sr.operation.combine import StatusCombineOperationEdge, StatusCombineOperation
@@ -126,7 +126,10 @@ class ForgottenHallTeamModule(BaseModel):
         是否有输出位
         :return:
         """
-        return self.with_module_type(ATTACK_PATH_LIST)
+        for character_id in self.character_id_list:
+            if is_attack_character(character_id):
+                return True
+        return False
 
     @property
     def with_silver(self) -> bool:
@@ -142,7 +145,10 @@ class ForgottenHallTeamModule(BaseModel):
         是否有生存位
         :return:
         """
-        return self.with_module_type(SURVIVAL_PATH_LIST)
+        for character_id in self.character_id_list:
+            if is_survival_character(character_id):
+                return True
+        return False
 
     @property
     def with_support(self) -> bool:
@@ -150,31 +156,10 @@ class ForgottenHallTeamModule(BaseModel):
         是否有辅助位
         :return:
         """
-        return self.with_module_type(SUPPORT_PATH_LIST)
-
-    def with_module_type(self, path_list: List[CharacterPath]):
-        """
-        使用某款中是否有特定的模块
-        :param path_list: 命途列表
-        :return:
-        """
         for character_id in self.character_id_list:
-            character = get_character_by_id(character_id)
-            if character is None:
-                continue
-            if character.path in path_list:
+            if is_support_character(character_id):
                 return True
         return False
-
-
-ATTACK_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_DESTRUCTION, CHARACTER_PATH_HUNT, CHARACTER_PATH_ERUDITION]
-"""输出命途"""
-
-SURVIVAL_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_PRESERVATION, CHARACTER_PATH_ABUNDANCE]
-"""生存命途"""
-
-SUPPORT_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_NIHILITY, CHARACTER_PATH_HARMONY]
-"""辅助命途"""
 
 
 class ForgottenHallNodeTeam(BaseModel):
@@ -215,7 +200,11 @@ class ForgottenHallNodeTeam(BaseModel):
         是否有输出位
         :return:
         """
-        return self.with_module_type(ATTACK_PATH_LIST)
+        for module in self.module_list:
+            for character_id in module.character_id_list:
+                if is_attack_character(character_id):
+                    return True
+        return False
 
     @property
     def with_silver(self) -> bool:
@@ -234,7 +223,11 @@ class ForgottenHallNodeTeam(BaseModel):
         是否有生存位
         :return:
         """
-        return self.with_module_type(SURVIVAL_PATH_LIST)
+        for module in self.module_list:
+            for character_id in module.character_id_list:
+                if is_survival_character(character_id):
+                    return True
+        return False
 
     @property
     def with_support(self) -> bool:
@@ -242,20 +235,9 @@ class ForgottenHallNodeTeam(BaseModel):
         是否有辅助位
         :return:
         """
-        return self.with_module_type(SUPPORT_PATH_LIST)
-
-    def with_module_type(self, path_list: List[CharacterPath]):
-        """
-        使用某款中是否有特定的模块
-        :param path_list: 命途列表
-        :return:
-        """
         for module in self.module_list:
             for character_id in module.character_id_list:
-                character = get_character_by_id(character_id)
-                if character is None:
-                    continue
-                if character.path in path_list:
+                if is_support_character(character_id):
                     return True
         return False
 
@@ -304,14 +286,20 @@ class ForgottenHallNodeTeamScore(BaseModel):
     survival_cnt: int = 0
     """生存数量"""
 
+    combat_type_not_need_cnt: int = 0
+    """配队中原本多余的属性个数"""
+
     combat_type_attack_cnt: int = 0
     """输出位对应属性的数量"""
+
+    combat_type_attack_cnt_under_silver: int = 0
+    """输出位在拥有银狼情况下对应属性的数量"""
 
     combat_type_other_cnt: int = 0
     """其他位对应属性的数量"""
 
-    combat_type_attack_cnt_under_silver: float = 0
-    """输出位在拥有银狼情况下对应属性的概率"""
+    combat_type_other_cnt_under_silver: int = 0
+    """其它位在拥有银狼情况下对应属性的数量"""
 
     cnt_score: float = 0
     """人数得分"""
@@ -342,7 +330,7 @@ class ForgottenHallNodeTeamScore(BaseModel):
         character_list = node_team.character_list
         cal_combat_type_list = self._cal_need_combat_type(character_list, combat_type_list)
 
-        self._cal_character_cnt(character_list, cal_combat_type_list)
+        self._cal_character_cnt(character_list, combat_type_list, cal_combat_type_list)
         self._cal_total_score()
 
     def _cal_need_combat_type(self,
@@ -354,48 +342,50 @@ class ForgottenHallNodeTeamScore(BaseModel):
         :param need_combat_type_list: 原来需要的属性列表
         :return: 由配队调整后的属性列表
         """
-        if SILVERWOLF in character_list:  # 有银狼的情况 有可能可以添加弱点
+        if SILVERWOLF in character_list:  # 有银狼的情况 可以添加弱点
             team_combat_type_not_in_need: Set[CharacterCombatType] = set()
             for c in character_list:
                 if c.combat_type not in need_combat_type_list:
                     team_combat_type_not_in_need.add(c.combat_type)
-            if len(team_combat_type_not_in_need) == 0:  # 配队中的属性都出现了 银狼效果不考虑
-                return need_combat_type_list
-            self.combat_type_attack_cnt_under_silver = 1.0 / len(team_combat_type_not_in_need)
-            if len(team_combat_type_not_in_need) == 1:  # 配队中只有一个属性没出现时 银狼效果可以生效
-                cal: List[CharacterCombatType] = []
-                for ct in need_combat_type_list:
-                    cal.append(ct)
-                for ct in team_combat_type_not_in_need:
-                    cal.append(ct)
-                return cal
-            else:  # 银狼效果不生效
-                return need_combat_type_list
+            self.combat_type_not_need_cnt = len(team_combat_type_not_in_need)
+            cal: List[CharacterCombatType] = []
+            for ct in need_combat_type_list:
+                cal.append(ct)
+            for ct in team_combat_type_not_in_need:
+                cal.append(ct)
+            return cal
         else:
             return need_combat_type_list
 
     def _cal_character_cnt(self,
                            character_list: List[Character],
-                           combat_type_list: List[CharacterCombatType]):
+                           origin_combat_type_list: List[CharacterCombatType],
+                           cal_combat_type_list: List[CharacterCombatType]):
         """
         统计各种角色的数量
         :param character_list: 角色列表
-        :param combat_type_list: 节点需要的属性
+        :param cal_combat_type_list: 节点需要的属性
         :return:
         """
         for c in character_list:
             if c.path in ATTACK_PATH_LIST:
                 self.attack_cnt += 1
-                if c.combat_type in combat_type_list:
+                if c.combat_type in origin_combat_type_list:
                     self.combat_type_attack_cnt += 1
+                elif c.combat_type in cal_combat_type_list:
+                    self.combat_type_attack_cnt_under_silver += 1
             elif c.path in SURVIVAL_PATH_LIST:
                 self.survival_cnt += 1
-                if c.combat_type in combat_type_list:
+                if c.combat_type in origin_combat_type_list:
                     self.combat_type_other_cnt += 1
+                elif c.combat_type in cal_combat_type_list:
+                    self.combat_type_other_cnt_under_silver += 1
             elif c.path in SUPPORT_PATH_LIST:
                 self.support_cnt += 1
-                if c.combat_type in combat_type_list:
+                if c.combat_type in origin_combat_type_list:
                     self.combat_type_other_cnt += 1
+                elif c.combat_type in cal_combat_type_list:
+                    self.combat_type_other_cnt_under_silver += 1
 
     def _cal_total_score(self):
         """
@@ -408,7 +398,10 @@ class ForgottenHallNodeTeamScore(BaseModel):
 
         # 要有输出位
         # 输出并不是越多越好 有符合属性的输出才是最重要的 同时至少要有一个输出位
-        # 输出分 = 符合属性数量 / 输出位数量 * 符合属性基数 + 输出位基数
+        # 输出分 = 输出位基数 + 输出位属性分
+        # 输出位属性分 =
+        #   1. 有原属性符合的输出 -> 符合属性基数
+        #   2. 无原属性符合的输出 但有银狼 -> 0.9 * 符合属性基数 / 配队中多余的属性个数
         attack_combat_type_base = 1e7  # 符合属性基数
         attack_normal_base = 1e6  # 输出位基数
         self.attack_score = 0
@@ -416,23 +409,26 @@ class ForgottenHallNodeTeamScore(BaseModel):
             self.attack_score += attack_normal_base
         if self.combat_type_attack_cnt > 0:
             self.attack_score += attack_combat_type_base
-        elif self.combat_type_attack_cnt_under_silver > 0:
-            self.attack_score += attack_combat_type_base * self.combat_type_attack_cnt_under_silver
+        elif self.combat_type_attack_cnt_under_silver > 0 and self.combat_type_not_need_cnt > 0:  # 比例 转化 银狼转化的输出分要打一定折扣 优先选原属性就符合的
+            self.attack_score += 0.9 * attack_combat_type_base / self.combat_type_not_need_cnt
 
         # 其次必须要有生存位 但不宜超过一个
-        # 生存分 = 生存位基础基数 - 冗余生存位 * 冗余扣分基数
+        # 生存分 = 生存位基础基数
         survival_base = 1e5
         if self.survival_cnt > 0:
             self.survival_score += survival_base
 
         # 辅助位越多越好
+        # 辅助分 = 辅助数量 * 辅助分基数
         support_base = 1e4
         self.support_score = self.support_cnt * support_base
 
         # 最后看符合属性的数量
-        # 属性分 = 符合属性数量 * 属性基数
+        # 属性分 = 原属性符合的数量 * 属性基数 + 0.9 * 银狼加持下属性符合的数量 * 属性基数 / 配队中多余的属性个数
         combat_type_base = 1e3
         self.combat_type_score = (self.combat_type_attack_cnt + self.combat_type_other_cnt) * combat_type_base
+        if self.combat_type_not_need_cnt > 0:
+            self.combat_type_score += 0.9 * (self.combat_type_attack_cnt_under_silver + self.combat_type_other_cnt_under_silver) * combat_type_base / self.combat_type_not_need_cnt
 
         self.total_score = self.cnt_score + self.attack_score + self.survival_score + self.support_score + self.combat_type_score
 
@@ -683,6 +679,7 @@ class ForgottenHallApp(Application):
         :return:
         """
         module_list = self.config.team_module_list
+        log.info('开始计算配队 所需属性为 %s', node_combat_types)
         return self.search_best_mission_team(node_combat_types, module_list)
 
     @staticmethod

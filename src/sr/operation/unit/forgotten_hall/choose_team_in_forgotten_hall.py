@@ -154,9 +154,10 @@ class ChooseTeamInForgottenHall(Operation):
             if pos is not None:
                 return t
 
-            # result_list = self.ctx.im.match_template(origin, t.id, template_sub_dir='character_combat_type')
-            # if len(result_list) > 0:
-            #     return t
+            # 有时候特征匹配不行 就用模板匹配试一次
+            result_list = self.ctx.im.match_template(origin, t.id, template_sub_dir='character_combat_type')
+            if len(result_list) > 0:
+                return t
 
         return None
 
@@ -195,5 +196,5 @@ if __name__ == '__main__':
 
     op = ChooseTeamInForgottenHall(ctx, None)
 
-    screen = get_debug_image('_1701098324039')
-    print(op._get_boss_combat_type(screen, ChooseTeamInForgottenHall.SESSION_2_COMBAT_TYPE_1_RECT))
+    screen = get_debug_image('ChooseTeamInForgottenHall_1701876719795')
+    print(op._get_boss_combat_type(screen, ChooseTeamInForgottenHall.SESSION_2.combat_type_rect_list[1]))

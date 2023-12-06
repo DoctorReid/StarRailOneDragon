@@ -51,6 +51,7 @@ class AutoFightInForgottenHall(Operation):
         match_result_list = self.ctx.im.match_template(part, 'ui_icon_10', only_best=True)
         if len(match_result_list) == 0:  # 在战斗界面
             if now_time - self.last_check_auto_fight_time > 10:
+                self.last_check_auto_fight_time = now_time
                 eaf = EnableAutoFight(self.ctx)
                 eaf.execute()
             time.sleep(0.5)  # 战斗部分

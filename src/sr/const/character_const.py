@@ -22,7 +22,7 @@ CHARACTER_PATH_NIHILITY = CharacterPath(id='nihility', cn='虚无')
 CHARACTER_PATH_ERUDITION = CharacterPath(id='erudition', cn='智识')
 CHARACTER_PATH_HARMONY = CharacterPath(id='harmony', cn='同谐')
 
-DESTINY_LIST: List[CharacterPath] = [
+CHARACTER_PATH_LIST: List[CharacterPath] = [
     CHARACTER_PATH_DESTRUCTION,
     CHARACTER_PATH_PRESERVATION,
     CHARACTER_PATH_HUNT,
@@ -31,6 +31,15 @@ DESTINY_LIST: List[CharacterPath] = [
     CHARACTER_PATH_ERUDITION,
     CHARACTER_PATH_HARMONY,
 ]
+
+ATTACK_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_DESTRUCTION, CHARACTER_PATH_HUNT, CHARACTER_PATH_ERUDITION]
+"""输出命途"""
+
+SURVIVAL_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_PRESERVATION, CHARACTER_PATH_ABUNDANCE]
+"""生存命途"""
+
+SUPPORT_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_NIHILITY, CHARACTER_PATH_HARMONY]
+"""辅助命途"""
 
 
 class CharacterCombatType(BaseModel):
@@ -201,3 +210,51 @@ def get_character_by_id(c_id: str) -> Optional[Character]:
         if c.id == c_id:
             return c
     return None
+
+
+SPECIAL_ATTACK_CHARACTER_LIST = [
+    KAFKA
+]
+
+
+def is_attack_character(character_id: str) -> bool:
+    """
+    是否输出位角色
+    - 巡猎、毁灭、智识 命途
+    - 其它命途的特殊角色
+    :param character_id:
+    :return:
+    """
+    character = get_character_by_id(character_id)
+    if character is None:
+        return False
+    if character.path in ATTACK_PATH_LIST:
+        return True
+    return character in SPECIAL_ATTACK_CHARACTER_LIST
+
+
+def is_survival_character(character_id: str) -> bool:
+    """
+    是否生存位角色
+    - 存护、丰饶 命途
+    :param character_id:
+    :return:
+    """
+    character = get_character_by_id(character_id)
+    if character is None:
+        return False
+    return character.path in SURVIVAL_PATH_LIST
+
+
+def is_support_character(character_id: str) -> bool:
+    """
+    是否辅助位角色
+    - 同谐、虚无 命途
+    :param character_id:
+    :return:
+    """
+    character = get_character_by_id(character_id)
+    if character is None:
+        return False
+    return character.path in SUPPORT_PATH_LIST
+
