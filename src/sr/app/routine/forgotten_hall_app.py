@@ -5,14 +5,15 @@ from pydantic import BaseModel
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, AppDescription, register_app
+from basic.os_utils import get_sunday_dt, dt_day_diff
+from sr.app import Application, AppRunRecord, AppDescription, register_app, app_record_current_dt_str
 from sr.config import ConfigHolder
 from sr.const import phone_menu_const
 from sr.const.character_const import CharacterCombatType, get_character_by_id, Character, SILVERWOLF, CharacterPath, \
     ATTACK_PATH_LIST, \
     SURVIVAL_PATH_LIST, SUPPORT_PATH_LIST, is_attack_character, is_survival_character, is_support_character
 from sr.context import Context
-from sr.operation import Operation, OperationSuccess
+from sr.operation import Operation, OperationSuccess, OperationResult
 from sr.operation.combine import StatusCombineOperationEdge, StatusCombineOperation
 from sr.operation.combine.challenge_forgotten_hall_mission import ChallengeForgottenHallMission
 from sr.operation.unit import guide
@@ -33,9 +34,33 @@ class ForgottenHallRecord(AppRunRecord):
     def __init__(self):
         super().__init__(FORGOTTEN_HALL.id)
 
-    def check_and_update_status(self):
-        super().check_and_update_status()
-        self.update_status(AppRunRecord.STATUS_WAIT)
+    def _should_reset_by_dt(self):
+        """
+        根据时间判断是否应该重置状态
+        :return:
+        """
+        base_sunday = '20231126'
+
+        old_sunday = get_sunday_dt(self.dt)
+        old_sunday_day_diff = dt_day_diff(old_sunday, base_sunday)
+        old_sunday_week_diff = old_sunday_day_diff // 7
+        old_turn = old_sunday_week_diff // 2
+
+        current_dt = app_record_current_dt_str()
+        current_sunday = get_sunday_dt(current_dt)
+        current_sunday_day_diff = dt_day_diff(current_sunday, base_sunday)
+        current_sunday_week_diff = current_sunday_day_diff // 7
+        current_turn = current_sunday_week_diff // 2
+
+        return current_turn > old_turn
+
+    def _reset_for_new_dt(self):
+        """
+        运行记录重置 非公共部分由各app自行实现
+        :return:
+        """
+        self.star = 0
+        self.update('mission_stars', {})
 
     @property
     def star(self) -> int:
@@ -791,3 +816,9 @@ class ForgottenHallApp(Application):
             return None
         else:
             return best_mission_team.character_list
+
+    def _after_operation_done(self, result: OperationResult):
+        if not result.success or self.run_record.star < 30:
+            self.run_record.update_status(AppRunRecord.STATUS_FAIL)
+        else:
+            self.run_record.update_status(AppRunRecord.STATUS_SUCCESS)

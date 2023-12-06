@@ -33,17 +33,8 @@ class AppRunRecord(ConfigHolder):
         检查并更新状态 各个app按需实现
         :return:
         """
-        self._reset_if_another_dt()
-
-    def _reset_if_another_dt(self):
-        """
-        如果已经到新的一天了 重置状态
-        由app自己控制什么时候重置
-        :return:
-        """
-        current_dt = app_record_current_dt_str()
-        if self.dt != current_dt:
-            self.run_status = AppRunRecord.STATUS_WAIT
+        if self._should_reset_by_dt():
+            self.update_status(AppRunRecord.STATUS_WAIT, only_status=True)
             self._reset_for_new_dt()
 
     def update_status(self, new_status: int, only_status: bool = False):
@@ -65,7 +56,7 @@ class AppRunRecord(ConfigHolder):
 
     def _reset_for_new_dt(self):
         """
-        运行记录重试 非公共部分由各app自行实现
+        运行记录重置 非公共部分由各app自行实现
         :return:
         """
         pass
@@ -76,11 +67,18 @@ class AppRunRecord(ConfigHolder):
         基于当前时间显示的运行状态
         :return:
         """
-        current_dt = app_record_current_dt_str()
-        if self.dt != current_dt:
+        if self._should_reset_by_dt():
             return AppRunRecord.STATUS_WAIT
         else:
             return self.run_status
+
+    def _should_reset_by_dt(self) -> bool:
+        """
+        根据时间判断是否应该重置状态
+        :return:
+        """
+        current_dt = app_record_current_dt_str()
+        return self.dt != current_dt
 
 
 class Application(Operation):

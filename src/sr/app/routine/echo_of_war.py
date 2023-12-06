@@ -45,12 +45,21 @@ class EchoOfWarRecord(AppRunRecord):
     def __init__(self):
         super().__init__(ECHO_OF_WAR.id)
 
-    def check_and_update_status(self):
+    def _should_reset_by_dt(self) -> bool:
+        """
+        根据时间判断是否应该重置状态 每周重置一次
+        :return:
+        """
         current_dt = app_record_current_dt_str()
         sunday_dt = os_utils.get_sunday_dt(self.dt)
-        if current_dt > sunday_dt:
-            self.left_times = 3
-            self.update_status(AppRunRecord.STATUS_WAIT, True)
+        return current_dt > sunday_dt
+
+    def _reset_for_new_dt(self):
+        """
+        运行记录重置 非公共部分由各app自行实现
+        :return:
+        """
+        self.left_times = 3
 
     @property
     def run_status_under_now(self):

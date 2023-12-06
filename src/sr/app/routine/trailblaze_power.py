@@ -25,7 +25,7 @@ class TrailblazePowerRecord(AppRunRecord):
     def __init__(self):
         super().__init__(TRAILBLAZE_POWER.id)
 
-    def check_and_update_status(self):
+    def _should_reset_by_dt(self):
         """
         根据米游社便签判断是否有足够体力进行下一次副本
         :return:
@@ -37,8 +37,8 @@ class TrailblazePowerRecord(AppRunRecord):
         config = get_config()
         if config.next_plan_item is not None:
             point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(config.next_plan_item['point_id'])
-            if point is not None and power >= point.power:
-                self.update_status(AppRunRecord.STATUS_WAIT, only_status=True)
+            return point is not None and power >= point.power
+        return False
 
 
 trailblaze_power_record: Optional[TrailblazePowerRecord] = None

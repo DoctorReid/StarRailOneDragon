@@ -25,21 +25,21 @@ class AssignmentsRecord(AppRunRecord):
     def __init__(self):
         super().__init__(ASSIGNMENTS.id)
 
-    def check_and_update_status(self):
+    def _should_reset_by_dt(self):
         """
         根据米游社便签更新
         有任何一个委托可以接受
         :return:
         """
-        super().check_and_update_status()
+        super()._should_reset_by_dt()
         config = mys_config.get()
         now = time.time()
         usage_time = now - config.refresh_time
         e_arr = config.expeditions
         for e in e_arr:
             if e.remaining_time - usage_time <= 0:
-                self.update_status(AppRunRecord.STATUS_WAIT, only_status=True)
-                break
+                return True
+        return False
 
 
 assignments_record: Optional[AssignmentsRecord] = None

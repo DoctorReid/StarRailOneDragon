@@ -116,6 +116,19 @@ def get_sunday_dt(dt: str) -> str:
     return sunday_date.strftime("%Y%m%d")
 
 
+def dt_day_diff(dt_1: str, dt_2: str) -> int:
+    """
+    计算两个dt之间相差多少天
+    :param dt_1: 被减数
+    :param dt_2: 减数
+    :return:
+    """
+    date1 = datetime.datetime.strptime(dt_1, "%Y%m%d")
+    date2 = datetime.datetime.strptime(dt_2, "%Y%m%d")
+    diff = date1 - date2
+    return diff.days
+
+
 def clear_outdated_debug_files(days: int = 3):
     """
     清理过期的调试临时文件

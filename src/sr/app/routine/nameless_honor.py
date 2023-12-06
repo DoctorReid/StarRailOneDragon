@@ -22,9 +22,12 @@ class NamelessHonorRecord(AppRunRecord):
     def __init__(self):
         super().__init__(NAMELESS_HONOR.id)
 
-    def check_and_update_status(self):
-        super().check_and_update_status()
-        self.update_status(AppRunRecord.STATUS_WAIT)
+    def _should_reset_by_dt(self) -> bool:
+        """
+        根据时间判断是否应该重置状态
+        :return: 总是尝试
+        """
+        return True
 
 
 nameless_honor_record: Optional[NamelessHonorRecord] = None
