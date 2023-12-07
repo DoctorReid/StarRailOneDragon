@@ -1,4 +1,5 @@
 import time
+from typing import Optional
 
 from basic import str_utils, Point
 from basic.i18_utils import gt
@@ -21,7 +22,7 @@ class ChooseRegion(Operation):
         super().__init__(ctx, 20, op_name=gt('选择区域 %s') % region.display_name)
         self.planet: Planet = region.planet
         self.region: Region = region
-        self.scroll_direction: int = None
+        self.scroll_direction: Optional[int] = None
 
     def _execute_one_round(self) -> int:
         screen = self.screenshot()
@@ -88,7 +89,7 @@ class ChooseRegion(Operation):
         if current_region_name is None and self.scroll_direction is None:  # 判断不了当前选择区域的情况 就先向下滚动5次 再向上滚动5次
             log.info(self.op_round)
             if self.op_round < 5:
-                self.scroll_region_area()
+                self.scroll_region_area(1)
             elif self.op_round == 5:
                 for _ in range(self.op_round):  # 回到原点
                     self.scroll_region_area(-1)
@@ -119,9 +120,9 @@ class ChooseRegion(Operation):
         :param d: 滚动距离 正向下 负向上
         :return:
         """
-        x1, y1 = large_map.REGION_LIST_PART_CENTER.tuple()
-        x2, y2 = x1, y1 + d * -200
-        self.ctx.controller.drag_to(start=Point(x1, y1), end=Point(x2, y2), duration=0.5)
+        drag_to = large_map.REGION_LIST_RECT.center
+        drag_from = Point(0, d * -200) + drag_to
+        self.ctx.controller.drag_to(start=drag_from, end=drag_to, duration=0.5)
 
     def click_target_floor(self, screen, target_floor_str: str) -> bool:
         """

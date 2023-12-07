@@ -23,7 +23,6 @@ CUT_MAP_RECT = Rect(200, 190, 1300, 900)  # 截取大地图的区域
 EMPTY_MAP_POS = Point(1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
 TP_BTN_RECT = Rect(1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
 REGION_LIST_RECT = Rect(1480, 200, 1820, 1000)
-REGION_LIST_PART_CENTER = REGION_LIST_RECT.center
 FLOOR_LIST_PART = Rect(30, 730, 100, 1000)
 
 LARGE_MAP_POWER_RECT = Rect(1635, 54, 1678, 72)  # 大地图上显示体力的位置

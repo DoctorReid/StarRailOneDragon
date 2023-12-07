@@ -20,7 +20,7 @@ def find(source: str, target: str, ignore_case: bool = False) -> int:
 
 
 def find_by_lcs(source: str, target: str, percent: float = 0.3,
-                ignore_case: bool = False) -> bool:
+                ignore_case: bool = True) -> bool:
     """
     根据最长公共子序列长度和一定阈值 判断字符串是否有包含关系。
     用于OCR结果和目标的匹配
