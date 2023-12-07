@@ -71,7 +71,7 @@ class ChooseTeamInForgottenHall(Operation):
         :param ctx:
         :param cal_team_member_func:
         """
-        super().__init__(ctx, op_name=gt('忘却之庭配队', 'ui'))
+        super().__init__(ctx, op_name=gt('忘却之庭 选择配队', 'ui'))
         self.cal_team_func: Callable = cal_team_member_func
         self.phase: int = 0
         self.teams: List[List[Character]] = []
@@ -185,7 +185,8 @@ class ChooseTeamInForgottenHall(Operation):
                 ops.append(ChooseCharacterInForgottenHall(self.ctx, character.id))
         op = CombineOperation(
             self.ctx,
-            ops=ops
+            ops=ops,
+            op_name='忘却之庭 选择角色'
         )
         return op.execute().success
 

@@ -47,7 +47,7 @@ class StatusCombineOperationEdge(BaseModel):
     一定要完全一样才会执行 包括None
     """
 
-    ignore_status: bool = False
+    ignore_status: bool
     """
     是否忽略状态进行下一个指令
     一个指令应该最多只有一条边忽略返回状态
@@ -56,11 +56,11 @@ class StatusCombineOperationEdge(BaseModel):
 
     def __init__(self, op_from: Operation, op_to: Operation,
                  status: Optional[str] = None,
-                 ignore_status: bool = False):
+                 ignore_status: bool = True):
         super().__init__(op_from_id=id(op_from),
                          op_to_id=id(op_to),
                          status=status,
-                         ignore_status=ignore_status)
+                         ignore_status=False if status is not None else ignore_status)
 
 
 class StatusCombineOperation(Operation):

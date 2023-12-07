@@ -662,7 +662,10 @@ class ForgottenHallApp(Application):
         ops.append(op6)
         edges.append(StatusCombineOperationEdge(op_from=op5, op_to=op6))
 
-        edges.append(StatusCombineOperationEdge(op_from=op6, op_to=op_success, status='30'))  # 满星的时候直接设置为成功
+        get_reward = GetRewardInForgottenHall(self.ctx)  # 拿奖励
+        ops.append(get_reward)
+
+        edges.append(StatusCombineOperationEdge(op_from=op6, op_to=get_reward, status='30'))  # 满星的时候直接设置为成功
 
         last_mission = OperationSuccess(self.ctx, '3')  # 模拟上个关卡满星
         ops.append(last_mission)
@@ -680,8 +683,11 @@ class ForgottenHallApp(Application):
 
             last_mission = mission
 
-        get_reward = GetRewardInForgottenHall(self.ctx)
         edges.append(StatusCombineOperationEdge(op_from=last_mission, op_to=get_reward, ignore_status=True))  # 最后一关无论结果如何都结束 尝试领取奖励
+
+        back_to_menu = OpenPhoneMenu(self.ctx)
+        ops.append(back_to_menu)
+        edges.append(StatusCombineOperationEdge(op_from=get_reward, op_to=back_to_menu))  # 最后返回菜单
 
         combine_op: StatusCombineOperation = StatusCombineOperation(self.ctx, ops, edges,
                                                                     op_name=gt('忘却之庭 全流程', 'ui'))

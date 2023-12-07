@@ -86,11 +86,13 @@ class AutoFightInForgottenHall(Operation):
             part, _ = cv2_utils.crop_image(screen, rect)
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
             if str_utils.find_by_lcs(gt('挑战成功', 'ocr'), ocr_result, percent=0.1):
+                # cv2_utils.show_image(part, win_name='_check_battle_result')
                 return AutoFightInForgottenHall.BATTLE_SUCCESS_STATUS
 
         part, _ = cv2_utils.crop_image(screen, AutoFightInForgottenHall.AFTER_BATTLE_RESULT_RECT_3)
         ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
         if str_utils.find_by_lcs(gt('战斗失败', 'ocr'), ocr_result, percent=0.1):
+            # cv2_utils.show_image(part, win_name='_check_battle_result')
             return AutoFightInForgottenHall.BATTLE_FAIL_STATUS
 
         return None

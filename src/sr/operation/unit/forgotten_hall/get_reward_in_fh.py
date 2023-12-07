@@ -12,9 +12,9 @@ from sr.operation import Operation, OperationOneRoundResult
 
 class GetRewardInForgottenHall(Operation):
 
-    REWARD_ICON_RECT: ClassVar[Rect] = Rect(1, 2, 3, 4)  # 礼物图标的位置 包含红点
-    CLAIM_REWARD_BTN_RECT: ClassVar[Rect] = Rect(1, 2, 3, 4)  # 可领取的按钮会在最上方 因此只需要判断最上方位置即可
-    EMPTY_POS_AFTER_CLAIM: ClassVar[Point] = Point(1, 2)  # 领取奖励后点击的空白地方
+    REWARD_ICON_RECT: ClassVar[Rect] = Rect(1780, 910, 1890, 1020)  # 礼物图标的位置 包含红点
+    CLAIM_REWARD_BTN_RECT: ClassVar[Rect] = Rect(1330, 360, 1480, 405)  # 可领取的按钮会在最上方 因此只需要判断最上方位置即可
+    EMPTY_POS_AFTER_CLAIM: ClassVar[Point] = Point(965, 950)  # 领取奖励后点击的空白地方
 
     def __init__(self, ctx: Context):
         """
