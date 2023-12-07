@@ -1,4 +1,4 @@
-from typing import Union, ClassVar
+from typing import ClassVar
 
 from basic import Rect
 from basic.i18_utils import gt

@@ -18,6 +18,7 @@ from sr.operation.combine import StatusCombineOperationEdge, StatusCombineOperat
 from sr.operation.combine.challenge_forgotten_hall_mission import ChallengeForgottenHallMission
 from sr.operation.unit import guide
 from sr.operation.unit.forgotten_hall.check_forgotten_hall_star import CheckForgottenHallStar
+from sr.operation.unit.forgotten_hall.get_reward_in_fh import GetRewardInForgottenHall
 from sr.operation.unit.guide import survival_index
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.survival_index import ChooseSurvivalIndexCategory, ChooseSurvivalIndexMission
@@ -679,7 +680,8 @@ class ForgottenHallApp(Application):
 
             last_mission = mission
 
-        edges.append(StatusCombineOperationEdge(op_from=last_mission, op_to=op_success, ignore_status=True))  # 最后一关无论结果如何都结束
+        get_reward = GetRewardInForgottenHall(self.ctx)
+        edges.append(StatusCombineOperationEdge(op_from=last_mission, op_to=get_reward, ignore_status=True))  # 最后一关无论结果如何都结束 尝试领取奖励
 
         combine_op: StatusCombineOperation = StatusCombineOperation(self.ctx, ops, edges,
                                                                     op_name=gt('忘却之庭 全流程', 'ui'))
