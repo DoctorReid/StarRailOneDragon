@@ -10,7 +10,7 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.enable_auto_fight import EnableAutoFight
-from sr.operation.unit.forgotten_hall.wait_in_session import WaitNodeStart
+from sr.operation.unit.forgotten_hall.wait_in_node import WaitNodeStart
 
 
 class AutoFightInForgottenHall(Operation):
@@ -20,8 +20,8 @@ class AutoFightInForgottenHall(Operation):
     AFTER_BATTLE_SUCCESS_RECT_LIST: ClassVar[List[Rect]] = [AFTER_BATTLE_RESULT_RECT_1, AFTER_BATTLE_RESULT_RECT_2]
     AFTER_BATTLE_RESULT_RECT_3: ClassVar[Rect] = Rect(785, 230, 1155, 320)  # 战斗失败
 
-    BATTLE_SUCCESS_STATUS: ClassVar[str] = 'battle_success'  # 成功 最后一个节点成功才会出现
-    BATTLE_FAIL_STATUS: ClassVar[str] = 'battle_fail'  # 失败 任意一个节点失败都会出现
+    BATTLE_SUCCESS_STATUS: ClassVar[str] = '挑战成功'  # 成功 最后一个节点成功才会出现
+    BATTLE_FAIL_STATUS: ClassVar[str] = '战斗失败'  # 失败 任意一个节点失败都会出现
 
     def __init__(self, ctx: Context, timeout_seconds: float = 600):
         """

@@ -1,4 +1,5 @@
 import gettext
+from typing import Optional
 
 from basic import os_utils
 
@@ -29,6 +30,18 @@ def gt(msg: str, model: str = 'ocr', lang: str = None) -> str:
     if lang not in _gt[model]:
         _gt[model][lang] = get_translations(model, lang)
     return _gt[model][lang].gettext(msg)
+
+
+def coalesce_gt(msg: Optional[str], default: str, model: str = 'ocr', lang: str = None) -> str:
+    """
+    带有默认值的获取多语言
+    :param msg: 原字符串
+    :param default: 默认值
+    :param model:
+    :param lang:
+    :return:
+    """
+    return gt(msg if msg is not None else default, model, lang)
 
 
 def update_default_lang(lang: str):

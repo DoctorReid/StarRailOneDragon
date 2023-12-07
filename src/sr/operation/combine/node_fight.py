@@ -6,7 +6,7 @@ from sr.operation import Operation
 from sr.operation.combine import StatusCombineOperation, StatusCombineOperationEdge
 from sr.operation.unit.forgotten_hall.auto_fight_in_forgotten_hall import AutoFightInForgottenHall
 from sr.operation.unit.forgotten_hall.move_to_enemy import MoveToEnemy
-from sr.operation.unit.forgotten_hall.wait_in_session import WaitNodeStart
+from sr.operation.unit.forgotten_hall.wait_in_node import WaitNodeStart
 
 
 class NodeFight(StatusCombineOperation):

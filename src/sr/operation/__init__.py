@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 from pydantic import BaseModel
 
 from basic import Rect, str_utils
-from basic.i18_utils import gt
+from basic.i18_utils import gt, coalesce_gt
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -185,9 +185,9 @@ class Operation:
         :return:
         """
         if result.success:
-            log.info('%s 执行成功 返回状态 %s', self.display_name, result.status)
+            log.info('%s 执行成功 返回状态 %s', self.display_name, coalesce_gt(result.status, '成功', model='ui'))
         else:
-            log.error('%s 执行失败 返回状态 %s', self.display_name, result.status)
+            log.error('%s 执行失败 返回状态 %s', self.display_name, coalesce_gt(result.status, '失败', model='ui'))
 
     @staticmethod
     def round_success(status: str = None) -> OperationOneRoundResult:

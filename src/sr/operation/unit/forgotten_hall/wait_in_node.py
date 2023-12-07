@@ -33,7 +33,7 @@ class WaitNodeStart(Operation):
         match_result_list = self.ctx.im.match_template(part, 'ui_icon_10', only_best=True)
 
         if len(match_result_list) > 0:
-            if self.first:  # 节点1的时候有一个效果提示 TODO 需要判断最后一关有没有
+            if self.first:  # 节点1的时候有一个效果提示
                 click = self.ocr_and_click_one_line('点击空白处关闭', WaitNodeStart.FIRST_CLICK_EMPTY_RECT)
                 if click == Operation.OCR_CLICK_SUCCESS:
                     return Operation.round_success()
