@@ -327,7 +327,7 @@ def feature_match_for_one(source_kp, source_desc, template_kp, template_desc,
     # 应用比值测试，筛选匹配点
     good_matches = []
     for t in matches:
-        if len(t) < 2:
+        if len(t) < 2:  # 没有match的情况
             return None
         m, n = t
         if m.distance < knn_distance_percent * n.distance:

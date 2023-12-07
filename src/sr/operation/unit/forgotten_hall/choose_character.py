@@ -2,7 +2,7 @@ from typing import Optional, ClassVar
 
 from cv2.typing import MatLike
 
-from basic import Rect
+from basic import Rect, Point
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.img.os import get_debug_image
@@ -35,10 +35,12 @@ class ChooseCharacterInForgottenHall(Operation):
             if self.ctx.controller.click(pos.center):
                 return Operation.round_success()
             else:
-                # TODO 滚动找头像
                 return Operation.round_retry('点击头像失败')
         else:
-            return Operation.round_fail('找不到对应头像')
+            drag_from = ChooseCharacterInForgottenHall.CHARACTER_LIST_RECT.center
+            drag_to = drag_from + (Point(0, -200) if self.op_round % 2 == 0 else Point(0, 200))
+            self.ctx.controller.drag_to(drag_to, drag_from)
+            return Operation.round_retry('找不到对应头像')
 
     def _get_character_pos(self, screen: Optional[MatLike] = None) -> Optional[MatchResult]:
         """

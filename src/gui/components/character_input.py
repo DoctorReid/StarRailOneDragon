@@ -10,11 +10,12 @@ from sr.const.character_const import CHARACTER_PATH_LIST, CHARACTER_COMBAT_TYPE_
 from sr.image.image_holder import ImageHolder
 
 
-class CharacterAvatar(ft.Stack):
+class CharacterAvatar(ft.Container):
 
     def __init__(self, ih: ImageHolder,
                  c: Character,
-                 is_chosen: bool = False):
+                 is_chosen: bool = False,
+                 on_click: Optional[Callable] = None):
         avatar_image = ih.get_character_avatar_template(c.id)
         _, buffer = cv2.imencode('.png', avatar_image.origin)
         base64_data = base64.b64encode(buffer)
@@ -22,12 +23,13 @@ class CharacterAvatar(ft.Stack):
 
         self.check = ft.Icon(name=ft.icons.CHECK_CIRCLE, visible=is_chosen, size=20)
 
-        ft.Stack.__init__(self, width=90, height=90,
-                          controls=[
-                              ft.Image(src_base64=base64_string, width=90, height=90),
-                              ft.Container(content=self.check, alignment=ft.alignment.bottom_right),
+        self.stack = ft.Stack(width=90, height=90,
+                              controls=[
+                                  ft.Image(src_base64=base64_string, width=90, height=90),
+                                  ft.Container(content=self.check, alignment=ft.alignment.bottom_right),
                               ],
-                          )
+                              )
+        ft.Container.__init__(self, content=self.stack, on_click=on_click, data=c.id)
 
     def update_chosen(self, is_chosen: bool):
         """
@@ -80,11 +82,9 @@ class CharacterInput(components.Card):
         self.character_image_map: dict[str, CharacterAvatar] = {}
         avatar_grid = ft.GridView(controls=[], max_extent=90, runs_count=4)
         for c in filter_character_list():
-            avatar = CharacterAvatar(self.ih, c)
+            avatar = CharacterAvatar(self.ih, c, on_click=self._on_avatar_click)
             self.character_image_map[c.id] = avatar
-            avatar_grid.controls.append(
-                ft.Container(content=avatar, on_click=self._on_avatar_click, data=c.id)
-            )
+            avatar_grid.controls.append(avatar)
 
         self.title = components.CardTitleText(title=gt('选择角色', 'ui'))
         content = ft.Column(controls=[

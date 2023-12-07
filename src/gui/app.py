@@ -118,8 +118,8 @@ class StarRailAutoProxy:
                     label=gt('历战回响', model='ui')
                 ),
                 ft.NavigationRailDestination(
-                    icon=ft.icons.SURROUND_SOUND_OUTLINED,
-                    selected_icon=ft.icons.SURROUND_SOUND,
+                    icon=ft.icons.BOOKMARKS_OUTLINED,
+                    selected_icon=ft.icons.BOOKMARKS,
                     label=gt('忘却之庭', model='ui')
                 ),
                 ft.NavigationRailDestination(

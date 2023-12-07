@@ -83,19 +83,19 @@ class ChooseTeamInForgottenHall(Operation):
                 return Operation.round_wait()
             else:
                 time.sleep(1)
-                return Operation.round_retry('cal_team_fail')
+                return Operation.round_retry('自动配队失败')
         elif self.phase == 1:  # 取消原有的角色选择
             if self._cancel_all_chosen():
                 self.phase += 1
                 return Operation.round_wait()
             else:
-                return Operation.round_retry('cancel_all_fail')
+                return Operation.round_retry('取消原有选择失败')
         elif self.phase == 2:  # 选择配队:
             if self._choose_character():
                 self.phase += 1
                 return Operation.round_success()
             else:
-                return Operation.round_retry('choose_team_fail')
+                return Operation.round_retry('选择新角色失败')
 
         return Operation.round_retry('unknown')
 
@@ -154,7 +154,7 @@ class ChooseTeamInForgottenHall(Operation):
             if pos is not None:
                 return t
 
-            # 有时候特征匹配不行 就用模板匹配试一次
+            # 有时候特征匹配不行 就用模板匹配试一次 不过这里会有坑 就是模板必须从这个页面截取
             result_list = self.ctx.im.match_template(origin, t.id, template_sub_dir='character_combat_type')
             if len(result_list) > 0:
                 return t

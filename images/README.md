@@ -33,7 +33,7 @@
 - arrow_precise - 每0.1度一张小图(31*31)合成的大图 用于最后精准角度匹配
 
 ## mm_tp_x - 地图上的传送点
-地图缩放到最大，找到深色背景色的传送点截取后，使用 icon.init_tp_with_background 扣图即可。
+地图缩放到最大，找到深色背景色的传送点截取后，使用 `template_dev_tools.init_tp_with_background` 扣图即可。
 
 最后结果调整至 51*51 居中
 
@@ -55,7 +55,7 @@
 ## mm_sp_x - 地图上的特殊点
 包含 商店、挑战点等
 
-地图缩放到最大，找到深色背景色的传送点截取后，使用 icon.init_sp_with_background 扣图即可。
+地图缩放到最大，找到深色背景色的传送点截取后，使用 `template_dev_tools.init_sp_with_background` 扣图即可。
 
 最后结果调整至 51*51 居中
 
@@ -79,7 +79,7 @@
 
 
 ## ui_icon_x - 界面上交互的图标
-界面上用于交互的图标，找个背景颜色较深的地方截取，然后使用 icon.init_ui_icon 抠图即可。
+界面上用于交互的图标，找个背景颜色较深的地方截取，然后使用 `template_dev_tools.init_ui_icon` 抠图即可。
 
 最后结果调整至 65*65 居中
 
@@ -108,3 +108,8 @@
 
 # phone_menu_item_x - 打开手机菜单页面的图标
 最后结果调整至 81*81 居中
+
+# character_avatar - 角色头像
+从alas复制过来的，游戏中各个模块用的头像大小都不太一致，只能通过特征匹配使用。
+
+初始化方法见 `template_dev_tools` 中的 `init_character_avatar_from_alas` 和 `init_character_avatar_feature`
