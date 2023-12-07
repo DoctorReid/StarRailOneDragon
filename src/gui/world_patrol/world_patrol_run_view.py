@@ -18,22 +18,23 @@ class WorldPatrolRunView(SrAppView):
 
         self.whitelist_dropdown = ft.Dropdown(label=gt('路线白名单', 'ui'), width=200, height=70)
         self.existed_whitelist_id_list: List[str] = []
-        self.load_whitelist_id_list()
 
         self.diy_part.content = ft.Column(spacing=5, controls=[
             ft.Container(content=settings_text),
             ft.Container(content=self.whitelist_dropdown),
         ])
 
-    def on_rail_chosen(self, e):
-        pass
+    def handle_after_show(self):
+        self.load_whitelist_id_list()
+        self.update()
 
     def load_whitelist_id_list(self):
         self.existed_whitelist_id_list = load_all_whitelist_id()
         options = []
         options.append(ft.dropdown.Option(text=gt('无', 'ui'), key='none'))
         for i in range(len(self.existed_whitelist_id_list)):
-            opt = ft.dropdown.Option(text=self.existed_whitelist_id_list[i], key=self.existed_whitelist_id_list[i])
+            whitelist = WorldPatrolWhitelist(self.existed_whitelist_id_list[i])
+            opt = ft.dropdown.Option(text=whitelist.name, key=whitelist.id)
             options.append(opt)
         self.whitelist_dropdown.options = options
 

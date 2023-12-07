@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List, Dict
 
 from basic import cal_utils, Rect, Point
 from basic.i18_utils import gt
@@ -164,7 +164,7 @@ P03_R09 = Region(9, "LYJ", "鳞渊境", P03)
 P03_R10 = Region(10, "SY", "绥园", P03)
 
 # 这里的顺序需要保持和界面上的区域顺序一致
-PLANET_2_REGION = {
+PLANET_2_REGION: Dict[str, List[Region]] = {
     P01.np_id: [P01_R01, P01_R02, P01_R03_L1, P01_R03_L2, P01_R03_B1, P01_R04_L1, P01_R04_L2],
     P02.np_id: [P02_R01_L1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R06, P02_R07, P02_R08_L2, P02_R09, P02_R10,
                 P02_R11_L1, P02_R11_L2, P02_R12_L1, P02_R12_L2],

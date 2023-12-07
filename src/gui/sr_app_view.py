@@ -15,8 +15,7 @@ from sr.context import Context
 class SrAppView(components.Card, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
-        self.page = page
-        self.ctx = ctx
+        SrBasicView.__init__(self, page, ctx)
 
         self.start_btn = ft.ElevatedButton(text=gt("F9 开始", model='ui'), on_click=self.start)
         self.pause_btn = ft.ElevatedButton(text=gt("F9 暂停", model='ui'), on_click=self.pause, visible=False)
@@ -52,8 +51,8 @@ class SrAppView(components.Card, SrBasicView):
         components.Card.__init__(self, content)
 
     def start(self, e):
-        if self.ctx.running != 0:
-            snack_bar.show_message(gt('请先结束其他运行中的功能 再启动', 'ui'), self.page)
+        if self.sr_ctx.running != 0:
+            snack_bar.show_message(gt('请先结束其他运行中的功能 再启动', 'ui'), self.flet_page)
             return
 
         self.running_status.value = gt('运行中', model='ui')
@@ -62,10 +61,10 @@ class SrAppView(components.Card, SrBasicView):
         self.pause_btn.visible = True
         self.resume_btn.visible = False
         self.stop_btn.disabled = False
-        self.page.update()
+        self.update()
 
-        self.ctx.register_stop(self, self.after_stop)
-        self.ctx.register_pause(self, self.on_pause, self.on_resume)
+        self.sr_ctx.register_stop(self, self.after_stop)
+        self.sr_ctx.register_pause(self, self.on_pause, self.on_resume)
         t = threading.Thread(target=self.run_app)
         t.start()
 
@@ -76,10 +75,10 @@ class SrAppView(components.Card, SrBasicView):
         self.pause_btn.visible = False
         self.resume_btn.visible = True
         self.stop_btn.disabled = False
-        self.page.update()
+        self.update()
 
     def pause(self, e):
-        self.ctx.switch()
+        self.sr_ctx.switch()
 
     def on_resume(self):
         self.running_status.value = gt('运行中', model='ui')
@@ -88,13 +87,13 @@ class SrAppView(components.Card, SrBasicView):
         self.pause_btn.visible = True
         self.resume_btn.visible = False
         self.stop_btn.disabled = False
-        self.page.update()
+        self.update()
 
     def resume(self, e):
-        self.ctx.switch()
+        self.sr_ctx.switch()
 
     def stop(self, e):
-        self.ctx.stop_running()
+        self.sr_ctx.stop_running()
 
     def run_app(self):
         pass
@@ -106,9 +105,9 @@ class SrAppView(components.Card, SrBasicView):
         self.pause_btn.visible = False
         self.resume_btn.visible = False
         self.stop_btn.disabled = True
-        self.page.update()
+        self.update()
 
-        self.ctx.unregister(self)
+        self.sr_ctx.unregister(self)
 
         if self.shutdown_check.value:
             log.info('执行完毕 准备关机')
