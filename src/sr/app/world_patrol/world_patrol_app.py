@@ -6,7 +6,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import Application, AppRunRecord, world_patrol
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolWhitelist, WorldPatrolRecord, \
-    load_all_route_id, WorldPatrolConfig, get_config
+    load_all_route_id, WorldPatrolConfig, get_config, load_all_whitelist_id
 from sr.app.world_patrol.run_patrol_route import RunPatrolRoute
 from sr.config import game_config
 from sr.context import Context
@@ -18,7 +18,7 @@ from sr.operation.combine.choose_team_in_world import ChooseTeamInWorld
 class WorldPatrol(Application):
 
     def __init__(self, ctx: Context,
-                 whitelist: WorldPatrolWhitelist = None,
+                 whitelist: Optional[WorldPatrolWhitelist] = None,
                  ignore_record: bool = False,
                  team_num: Optional[int] = None):
         super().__init__(ctx, op_name=gt('锄大地', 'ui'),
@@ -26,13 +26,17 @@ class WorldPatrol(Application):
         self.route_id_list: List[WorldPatrolRouteId] = []
         self.record: WorldPatrolRecord = None
         self.route_iterator: Iterator = None
-        self.whitelist: WorldPatrolWhitelist = whitelist
         self.current_route_idx: int = -1
         self.ignore_record: bool = ignore_record
         self.current_route_start_time = time.time()  # 当前路线开始时间
 
         self.config: WorldPatrolConfig = get_config()
         self.team_num: Optional[int] = team_num
+        if whitelist is None:
+            valid_whitelist_id_list = load_all_whitelist_id()
+            if self.config.whitelist_id in valid_whitelist_id_list:
+                whitelist = WorldPatrolWhitelist(self.config.whitelist_id)
+        self.whitelist: WorldPatrolWhitelist = whitelist
 
     def _init_before_execute(self):
         if not self.ignore_record:

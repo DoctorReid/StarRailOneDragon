@@ -256,6 +256,14 @@ class WorldPatrolConfig(ConfigHolder):
     def team_num(self, new_value: int):
         self.update('team_num', new_value)
 
+    @property
+    def whitelist_id(self) -> str:
+        return self.get('whitelist_id', '')
+
+    @whitelist_id.setter
+    def whitelist_id(self, new_value: str):
+        self.update('whitelist_id', new_value)
+
 
 world_patrol_config: Optional[WorldPatrolConfig] = None
 
