@@ -121,7 +121,7 @@ class ChooseRegion(Operation):
         :return:
         """
         drag_to = large_map.REGION_LIST_RECT.center
-        drag_from = Point(0, d * -200) + drag_to
+        drag_from = Point(0, d * 200) + drag_to
         self.ctx.controller.drag_to(start=drag_from, end=drag_to, duration=0.5)
 
     def click_target_floor(self, screen, target_floor_str: str) -> bool:
