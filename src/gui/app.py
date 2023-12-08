@@ -160,9 +160,11 @@ class StarRailAutoProxy:
 
     def _get_log_visible_by_rail(self) -> bool:
         if self.app_rail.selected_index == 0:
+            return True
+        elif self.app_rail.selected_index == 1:  # 锄大地
             if self.world_patrol_rail.selected_index in [0, 1]:
                 return True
-        elif self.app_rail.selected_index == 2:
+        elif self.app_rail.selected_index == 2:  # 校准
             return True
         elif self.app_rail.selected_index == 3:
             if self.settings_rail.selected_index == 0:  # 设置 - 基础

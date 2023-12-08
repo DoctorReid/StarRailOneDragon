@@ -21,7 +21,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
 
         self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i))for i in range(7)],
                                              on_change=self._on_team_num_changed)
-        self.whitelist_dropdown = ft.Dropdown(on_change=self._on_team_num_changed)
+        self.whitelist_dropdown = ft.Dropdown(on_change=self._on_whitelist_changed)
         self.plan_list = SettingsList(
             controls=[
                 SettingsListItem('使用配队', self.team_num_dropdown),
