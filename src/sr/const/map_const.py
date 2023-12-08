@@ -267,10 +267,10 @@ P02_R01_SP18 = TransportPoint('PYZ', '磐岩镇', P02_R01_B1, 'mm_sp_02', (641, 
 P02_R01_SP19 = TransportPoint('SHJ3', '售货机3', P02_R01_B1, 'mm_sp_03', (516, 864))
 
 # 雅利洛 - 城郊雪原
-P02_R02_SP01 = TransportPoint('CP', '长坡', P02_R02, 'mm_tp_03', (1035, 319))
-P02_R02_SP02 = TransportPoint('ZLD', '着陆点', P02_R02, 'mm_tp_03', (1283, 367))
-P02_R02_SP03 = TransportPoint('XLZL', '巡猎之蕾拟造花萼赤', P02_R02, 'mm_tp_07', (946, 244))
-P02_R02_SP04 = TransportPoint('HYZL', '回忆之蕾拟造花萼金', P02_R02, 'mm_tp_08', (1098, 391))
+P02_R02_SP01 = TransportPoint('CP', '长坡', P02_R02, 'mm_tp_03', (1035, 319), (1023, 321))
+P02_R02_SP02 = TransportPoint('ZLD', '着陆点', P02_R02, 'mm_tp_03', (1283, 367), (1271, 384))
+P02_R02_SP03 = TransportPoint('XLZL', '巡猎之蕾拟造花萼赤', P02_R02, 'mm_tp_07', (946, 244), (947, 253))
+P02_R02_SP04 = TransportPoint('HYZL', '回忆之蕾拟造花萼金', P02_R02, 'mm_tp_08', (1098, 391), (1103, 399))
 P02_R02_SP05 = TransportPoint('XZQ', '行政区', P02_R02, 'mm_sp_02', (444, 109))
 P02_R02_SP06 = TransportPoint('LK', '玲可', P02_R02, 'mm_sp_03', (1032, 342))
 
