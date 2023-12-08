@@ -46,7 +46,8 @@ class ChooseRegion(Operation):
                 self.scroll_when_no_target_region(current_region_name)
                 return Operation.RETRY
             else:
-                time.sleep(0.5)
+                self.ctx.controller.click(large_map.EMPTY_MAP_POS)  # 将鼠标移开 防止OCR时候有一条白线 影响OCR结果
+                time.sleep(1)
                 return Operation.RETRY
 
         # 需要选择层数
