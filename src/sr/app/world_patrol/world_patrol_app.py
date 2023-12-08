@@ -124,3 +124,11 @@ class WorldPatrol(Application):
             return
 
         self.record.update_status(AppRunRecord.STATUS_SUCCESS)
+
+    @property
+    def current_execution_desc(self) -> str:
+        """
+        当前运行的描述 用于UI展示
+        :return:
+        """
+        return gt('锄大地', 'ui')
