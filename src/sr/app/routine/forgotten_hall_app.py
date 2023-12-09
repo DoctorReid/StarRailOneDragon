@@ -712,7 +712,7 @@ class ForgottenHallApp(Application):
         :return:
         """
         module_list = self.config.team_module_list
-        log.info('开始计算配队 所需属性为 %s', node_combat_types)
+        log.info('开始计算配队 所需属性为 %s', [i.cn for combat_types in node_combat_types for i in combat_types])
         return self.search_best_mission_team(node_combat_types, module_list)
 
     @staticmethod

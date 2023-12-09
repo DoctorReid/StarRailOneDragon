@@ -38,7 +38,7 @@ class CnOcrMatcher(OcrMatcher):
         """
         if strict_one_line:
             result = self.ocr.ocr_for_single_line(image)
-            log.debug('OCR结果 %s', result.keys())
+            log.debug('OCR结果 %s', result['text'])
             return result['text'] if threshold is None or result['score'] >= threshold else None
         else:
             ocr_map: dict = self.run_ocr(image, threshold)

@@ -9,7 +9,7 @@ from sr.operation.unit.forgotten_hall.after_fight_to_hall import AfterFightToHal
 from sr.operation.unit.forgotten_hall.auto_fight_in_forgotten_hall import AutoFightInForgottenHall
 from sr.operation.unit.forgotten_hall.check_mission_star import CheckMissionStar
 from sr.operation.unit.forgotten_hall.choose_mission import ChooseMission
-from sr.operation.unit.forgotten_hall.choose_team_in_forgotten_hall import ChooseTeamInForgottenHall
+from sr.operation.unit.forgotten_hall.choose_team_in_fh import ChooseTeamInForgottenHall
 from sr.operation.unit.forgotten_hall.click_challenge_in_forgotten_hall import ClickChallengeInForgottenHall
 
 

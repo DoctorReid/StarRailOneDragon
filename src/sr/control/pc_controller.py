@@ -31,6 +31,7 @@ class PcController(GameController):
         self.is_moving: bool = False
         self.is_running: bool = False  # 是否在疾跑
         self.f = gc.get('interact')
+        self.technique_key: str = gc.get('technique', 'e')
 
     def init(self):
         self.win.active()
@@ -187,3 +188,19 @@ class PcController(GameController):
             win_utils.click(primary=False)
             self.is_running = False
 
+    def switch_character(self, idx: int):
+        """
+        切换角色
+        :param idx: 第几位角色 从1开始
+        :return:
+        """
+        log.info('切换角色 %s', str(idx))
+        pyautogui.press(str(idx))
+
+    def use_technique(self):
+        """
+        使用秘技
+        :return:
+        """
+        log.info('使用秘技')
+        pyautogui.press(self.technique_key)

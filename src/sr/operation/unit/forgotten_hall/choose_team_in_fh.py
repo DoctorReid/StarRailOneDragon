@@ -56,10 +56,10 @@ class ChooseTeamInForgottenHall(Operation):
             Rect(1170, 820, 1215, 870),
         ],
         character_rect_list=[
-            Rect(1380, 795, 1455, 870),
-            Rect(1480, 795, 1555, 870),
-            Rect(1580, 795, 1655, 870),
-            Rect(1680, 795, 1755, 870),
+            Rect(1380, 795, 1455, 865),
+            Rect(1480, 795, 1555, 865),
+            Rect(1580, 795, 1655, 865),
+            Rect(1680, 795, 1755, 865),
         ]
     )
 
@@ -105,14 +105,7 @@ class ChooseTeamInForgottenHall(Operation):
         :return:
         """
         screen: MatLike = self.screenshot()
-        combat_type_in_session = []
-        for session in ChooseTeamInForgottenHall.ALL_SESSION_LIST:
-            combat_types = []
-            for rect in session.combat_type_rect_list:
-                t = self._get_boss_combat_type(screen, rect)
-                if t is not None:
-                    combat_types.append(t)
-            combat_type_in_session.append(combat_types)
+        combat_type_in_session = self._get_all_node_combat_types(screen)
 
         self.teams = self.cal_team_func(combat_type_in_session)
         if self.teams is None:
@@ -122,6 +115,24 @@ class ChooseTeamInForgottenHall(Operation):
                 return False
 
         return True
+
+    def _get_all_node_combat_types(self, screen: Optional[MatLike] = None) -> List[List[CharacterCombatType]]:
+        """
+        获取全部BOSS对应的属性
+        :param screen: 屏幕截图
+        :return:
+        """
+        if screen is None:
+            screen = self.screenshot()
+        node_combat_types = []
+        for session in ChooseTeamInForgottenHall.ALL_SESSION_LIST:
+            combat_types = []
+            for rect in session.combat_type_rect_list:
+                t = self._get_boss_combat_type(screen, rect)
+                if t is not None:
+                    combat_types.append(t)
+            node_combat_types.append(combat_types)
+        return node_combat_types
 
     def _get_boss_combat_type(self, screen: MatLike, rect: Rect) -> Optional[CharacterCombatType]:
         """
@@ -137,12 +148,14 @@ class ChooseTeamInForgottenHall(Operation):
         bw = cv2_utils.connection_erase(bw)
         origin, mask = cv2_utils.convert_to_standard(part, bw, width=55, height=55, bg_color=(0, 0, 0))  # 扣出属性图标
         source_kps, source_desc = cv2_utils.feature_detect_and_compute(origin, mask)
+        # cv2_utils.show_image(origin, win_name='_get_boss_combat_type_source')
 
         for t in CHARACTER_COMBAT_TYPE_LIST:
             template = self.ctx.ih.get_character_combat_type(t.id)
             if template is None:
                 log.error('找不到属性模板 %s', t.id)
                 continue
+            # cv2_utils.show_image(template.origin, win_name='_get_boss_combat_type_template')
 
             pos = cv2_utils.feature_match_for_one(
                 source_kps, source_desc,

@@ -75,6 +75,20 @@ CHARACTER_COMBAT_TYPE_LIST = [
 ]
 
 
+class CharacterTechniqueType(BaseModel):
+
+    id: str
+    """唯一标识"""
+
+    remark: str
+    """备注"""
+
+
+TECHNIQUE_BUFF = CharacterTechniqueType(id='buff', remark='BUFF类')
+TECHNIQUE_BUFF_ATTACK = CharacterTechniqueType(id='buff_attack', remark='需攻击触发BUFF类')
+TECHNIQUE_ATTACK = CharacterTechniqueType(id='attack', remark='攻击类')
+
+
 class Character(BaseModel):
 
     id: str
@@ -87,6 +101,8 @@ class Character(BaseModel):
     """属性"""
     level: int
     """星级"""
+    technique_type: CharacterTechniqueType
+    """秘技类型"""
 
     def __lt__(self, other):
         return self.level > other.level \
@@ -99,45 +115,45 @@ class Character(BaseModel):
         return self.level > other.level or (self.level == other.level and self.id < other.id)
 
 
-ARLAN = Character(id='arlan', cn='阿兰', path=CHARACTER_PATH_DESTRUCTION, combat_type=LIGHTNING, level=4)
-ASTA = Character(id='asta', cn='艾丝妲', path=CHARACTER_PATH_HARMONY, combat_type=FIRE, level=4)
-BAILU = Character(id='bailu', cn='白露', path=CHARACTER_PATH_ABUNDANCE, combat_type=LIGHTNING, level=5)
-BLADE = Character(id='blade', cn='刃', path=CHARACTER_PATH_DESTRUCTION, combat_type=WIND, level=5)
-BRONYA = Character(id='bronya', cn='布洛妮娅', path=CHARACTER_PATH_HARMONY, combat_type=WIND, level=5)
-CAELUMDESTRUCTION = Character(id='caelumdestruction', cn='男主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4)
-CAELUMPRESERVATION = Character(id='caelumpreservation', cn='男主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4)
-CLARA = Character(id='clara', cn='卡拉拉', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5)
-DANHENG = Character(id='danheng', cn='丹恒', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=4)
-DANHENGIMBIBITORLUNAE = Character(id='danhengimbibitorlunae', cn='丹恒·饮月', path=CHARACTER_PATH_DESTRUCTION, combat_type=IMAGINARY, level=5)
-FUXUAN = Character(id='fuxuan', cn='符玄', path=CHARACTER_PATH_PRESERVATION, combat_type=QUANTUM, level=5)
-GEPARD = Character(id='gepard', cn='杰帕德', path=CHARACTER_PATH_PRESERVATION, combat_type=ICE, level=5)
-GUINAIFEN = Character(id='guinaifen', cn='桂乃芬', path=CHARACTER_PATH_NIHILITY, combat_type=FIRE, level=4)
-HERTA = Character(id='herta', cn='黑塔', path=CHARACTER_PATH_ERUDITION, combat_type=ICE, level=4)
-HIMEKO = Character(id='himeko', cn='姬子', path=CHARACTER_PATH_ERUDITION, combat_type=FIRE, level=5)
-HOOK = Character(id='hook', cn='虎克', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=4)
-HUOHUO = Character(id='huohuo', cn='霍霍', path=CHARACTER_PATH_ABUNDANCE, combat_type=WIND, level=4)
-JINGLIU = Character(id='jingliu', cn='镜流', path=CHARACTER_PATH_DESTRUCTION, combat_type=ICE, level=5)
-JINGYUAN = Character(id='jingyuan', cn='景元', path=CHARACTER_PATH_ERUDITION, combat_type=LIGHTNING, level=5)
-KAFKA = Character(id='kafka', cn='卡芙卡', path=CHARACTER_PATH_NIHILITY, combat_type=LIGHTNING, level=5)
-LUKA = Character(id='luka', cn='卢卡', path=CHARACTER_PATH_NIHILITY, combat_type=PHYSICAL, level=4)
-LUOCHA = Character(id='luocha', cn='罗刹', path=CHARACTER_PATH_ABUNDANCE, combat_type=IMAGINARY, level=5)
-LYNX = Character(id='lynx', cn='玲可', path=CHARACTER_PATH_ABUNDANCE, combat_type=QUANTUM, level=4)
-MARCH7TH = Character(id='march7th', cn='三月七', path=CHARACTER_PATH_PRESERVATION, combat_type=ICE, level=4)
-NATASHA = Character(id='natasha', cn='娜塔莎', path=CHARACTER_PATH_ABUNDANCE, combat_type=PHYSICAL, level=4)
-PELA = Character(id='pela', cn='佩拉', path=CHARACTER_PATH_NIHILITY, combat_type=ICE, level=4)
-QINGQUE = Character(id='qingque', cn='青雀', path=CHARACTER_PATH_ERUDITION, combat_type=QUANTUM, level=4)
-SAMPO = Character(id='sampo', cn='桑博', path=CHARACTER_PATH_NIHILITY, combat_type=WIND, level=4)
-SEELE = Character(id='seele', cn='希儿', path=CHARACTER_PATH_HUNT, combat_type=QUANTUM, level=5)
-SERVAL = Character(id='serval', cn='希露瓦', path=CHARACTER_PATH_ERUDITION, combat_type=LIGHTNING, level=4)
-SILVERWOLF = Character(id='silverwolf', cn='银狼', path=CHARACTER_PATH_NIHILITY, combat_type=QUANTUM, level=5)
-STELLEDESTRUCTION = Character(id='stelledestruction', cn='女主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4)
-STELLEPRESERVATION = Character(id='stellepreservation', cn='女主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4)
-SUSHANG = Character(id='sushang', cn='素裳', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=4)
-TINGYUN = Character(id='tingyun', cn='停云', path=CHARACTER_PATH_HARMONY, combat_type=LIGHTNING, level=4)
-TOPAZNUMBY = Character(id='topaznumby', cn='托帕&账账', path=CHARACTER_PATH_HUNT, combat_type=FIRE, level=5)
-WELT = Character(id='welt', cn='瓦尔特', path=CHARACTER_PATH_NIHILITY, combat_type=IMAGINARY, level=5)
-YANQING = Character(id='yanqing', cn='彦卿', path=CHARACTER_PATH_HUNT, combat_type=ICE, level=5)
-YUKONG = Character(id='yukong', cn='驭空', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4)
+ARLAN = Character(id='arlan', cn='阿兰', path=CHARACTER_PATH_DESTRUCTION, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_ATTACK)
+ASTA = Character(id='asta', cn='艾丝妲', path=CHARACTER_PATH_HARMONY, combat_type=FIRE, level=4, technique_type=TECHNIQUE_ATTACK)
+BAILU = Character(id='bailu', cn='白露', path=CHARACTER_PATH_ABUNDANCE, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_BUFF)
+BLADE = Character(id='blade', cn='刃', path=CHARACTER_PATH_DESTRUCTION, combat_type=WIND, level=5, technique_type=TECHNIQUE_ATTACK)
+BRONYA = Character(id='bronya', cn='布洛妮娅', path=CHARACTER_PATH_HARMONY, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
+CAELUMDESTRUCTION = Character(id='caelumdestruction', cn='男主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
+CAELUMPRESERVATION = Character(id='caelumpreservation', cn='男主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
+CLARA = Character(id='clara', cn='卡拉拉', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_ATTACK)
+DANHENG = Character(id='danheng', cn='丹恒', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=4, technique_type=TECHNIQUE_BUFF)
+DANHENGIMBIBITORLUNAE = Character(id='danhengimbibitorlunae', cn='丹恒·饮月', path=CHARACTER_PATH_DESTRUCTION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+FUXUAN = Character(id='fuxuan', cn='符玄', path=CHARACTER_PATH_PRESERVATION, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF)
+GEPARD = Character(id='gepard', cn='杰帕德', path=CHARACTER_PATH_PRESERVATION, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
+GUINAIFEN = Character(id='guinaifen', cn='桂乃芬', path=CHARACTER_PATH_NIHILITY, combat_type=FIRE, level=4, technique_type=TECHNIQUE_ATTACK)
+HERTA = Character(id='herta', cn='黑塔', path=CHARACTER_PATH_ERUDITION, combat_type=ICE, level=4, technique_type=TECHNIQUE_BUFF)
+HIMEKO = Character(id='himeko', cn='姬子', path=CHARACTER_PATH_ERUDITION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
+HOOK = Character(id='hook', cn='虎克', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_ATTACK)
+HUOHUO = Character(id='huohuo', cn='霍霍', path=CHARACTER_PATH_ABUNDANCE, combat_type=WIND, level=4, technique_type=TECHNIQUE_BUFF)
+JINGLIU = Character(id='jingliu', cn='镜流', path=CHARACTER_PATH_DESTRUCTION, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+JINGYUAN = Character(id='jingyuan', cn='景元', path=CHARACTER_PATH_ERUDITION, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_BUFF)
+KAFKA = Character(id='kafka', cn='卡芙卡', path=CHARACTER_PATH_NIHILITY, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
+LUKA = Character(id='luka', cn='卢卡', path=CHARACTER_PATH_NIHILITY, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
+LUOCHA = Character(id='luocha', cn='罗刹', path=CHARACTER_PATH_ABUNDANCE, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
+LYNX = Character(id='lynx', cn='玲可', path=CHARACTER_PATH_ABUNDANCE, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_BUFF)
+MARCH7TH = Character(id='march7th', cn='三月七', path=CHARACTER_PATH_PRESERVATION, combat_type=ICE, level=4, technique_type=TECHNIQUE_ATTACK)
+NATASHA = Character(id='natasha', cn='娜塔莎', path=CHARACTER_PATH_ABUNDANCE, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
+PELA = Character(id='pela', cn='佩拉', path=CHARACTER_PATH_NIHILITY, combat_type=ICE, level=4, technique_type=TECHNIQUE_ATTACK)
+QINGQUE = Character(id='qingque', cn='青雀', path=CHARACTER_PATH_ERUDITION, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_BUFF)
+SAMPO = Character(id='sampo', cn='桑博', path=CHARACTER_PATH_NIHILITY, combat_type=WIND, level=4, technique_type=TECHNIQUE_BUFF)
+SEELE = Character(id='seele', cn='希儿', path=CHARACTER_PATH_HUNT, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+SERVAL = Character(id='serval', cn='希露瓦', path=CHARACTER_PATH_ERUDITION, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_ATTACK)
+SILVERWOLF = Character(id='silverwolf', cn='银狼', path=CHARACTER_PATH_NIHILITY, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_ATTACK)
+STELLEDESTRUCTION = Character(id='stelledestruction', cn='女主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
+STELLEPRESERVATION = Character(id='stellepreservation', cn='女主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
+SUSHANG = Character(id='sushang', cn='素裳', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
+TINGYUN = Character(id='tingyun', cn='停云', path=CHARACTER_PATH_HARMONY, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_BUFF)
+TOPAZNUMBY = Character(id='topaznumby', cn='托帕&账账', path=CHARACTER_PATH_HUNT, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
+WELT = Character(id='welt', cn='瓦尔特', path=CHARACTER_PATH_NIHILITY, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
+YANQING = Character(id='yanqing', cn='彦卿', path=CHARACTER_PATH_HUNT, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
+YUKONG = Character(id='yukong', cn='驭空', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
 
 CHARACTER_LIST: List[Character] = [
     ARLAN,

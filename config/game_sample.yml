@@ -8,5 +8,6 @@ turn_dx: 0
 server_region: CN
 run_mode: 0
 interact: 'f'
+technique: 'e'
 lang: 'cn'
 game_path: ''

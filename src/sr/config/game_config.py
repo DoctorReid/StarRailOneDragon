@@ -69,6 +69,10 @@ class GameConfig(ConfigHolder):
     def special_point_lcs_percent(self):
         return ocr_const.SPECIAL_POINT_LCS_PERCENT[self.lang]
 
+    @property
+    def character_name_lcs_percent(self):
+        return ocr_const.CHARACTER_NAME_LCS_PERCENT[self.lang]
+
     def set_game_path(self, game_path: str):
         self.game_path = game_path
         self.data['game_path'] = game_path

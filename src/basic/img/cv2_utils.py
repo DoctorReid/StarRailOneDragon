@@ -517,29 +517,32 @@ def convert_to_standard(origin, mask, width: int = 51, height: int = 51, bg_colo
     final_mask = np.zeros((height, width), dtype=np.uint8)
     bw = np.where(mask == 255)
     if len(bw[0]) == 0:  # 遇袭情况下 有可能小地图上使用颜色扣图会完全扣不到 掩码全黑
-        return origin, final_mask
+        cx = mask.shape[1] // 2
+        cy = mask.shape[0] // 2
+        min_x, min_y = 0, 0
+        max_x, max_y = mask.shape[1], mask.shape[0]
+    else:
+        white_pixel_coordinates = list(zip(bw[1], bw[0]))
 
-    white_pixel_coordinates = list(zip(bw[1], bw[0]))
+        # 找到最大最小坐标值
+        max_x = max(white_pixel_coordinates, key=lambda i: i[0])[0]
+        max_y = max(white_pixel_coordinates, key=lambda i: i[1])[1]
 
-    # 找到最大最小坐标值
-    max_x = max(white_pixel_coordinates, key=lambda i: i[0])[0]
-    max_y = max(white_pixel_coordinates, key=lambda i: i[1])[1]
+        min_x = min(white_pixel_coordinates, key=lambda i: i[0])[0]
+        min_y = min(white_pixel_coordinates, key=lambda i: i[1])[1]
 
-    min_x = min(white_pixel_coordinates, key=lambda i: i[0])[0]
-    min_y = min(white_pixel_coordinates, key=lambda i: i[1])[1]
+        # 稍微扩大一下范围 why
+        if max_x < mask.shape[1]:
+            max_x += min(5, mask.shape[1] - max_x)
+        if max_y < mask.shape[0]:
+            max_y += min(5, mask.shape[0] - max_y)
+        if min_x > 0:
+            min_x -= min(5, min_x)
+        if min_y > 0:
+            min_y -= min(5, min_y)
 
-    # 稍微扩大一下范围 why
-    if max_x < mask.shape[1]:
-        max_x += min(5, mask.shape[1] - max_x)
-    if max_y < mask.shape[0]:
-        max_y += min(5, mask.shape[0] - max_y)
-    if min_x > 0:
-        min_x -= min(5, min_x)
-    if min_y > 0:
-        min_y -= min(5, min_y)
-
-    cx = (min_x + max_x) // 2
-    cy = (min_y + max_y) // 2
+        cx = (min_x + max_x) // 2
+        cy = (min_y + max_y) // 2
 
     x1, y1 = cx - min_x, cy - min_y
     x2, y2 = max_x - cx, max_y - cy

@@ -5,6 +5,7 @@ from sr.context import Context
 from sr.operation import Operation
 from sr.operation.combine import StatusCombineOperation, StatusCombineOperationEdge
 from sr.operation.unit.forgotten_hall.auto_fight_in_forgotten_hall import AutoFightInForgottenHall
+from sr.operation.unit.forgotten_hall.enter_fight_in_fh import EnterFightInForgottenHall
 from sr.operation.unit.forgotten_hall.move_to_enemy import MoveToEnemy
 from sr.operation.unit.forgotten_hall.wait_in_node import WaitNodeStart
 
@@ -31,8 +32,12 @@ class NodeFight(StatusCombineOperation):
         ops.append(move)
         edges.append(StatusCombineOperationEdge(op_from=node_start, op_to=move))
 
-        fight = AutoFightInForgottenHall(ctx)  # 进入战斗
-        ops.append(fight)
-        edges.append(StatusCombineOperationEdge(op_from=move, op_to=fight))
+        enter_fight = EnterFightInForgottenHall(ctx)  # 使用秘技并进入战斗
+        ops.append(enter_fight)
+        edges.append(StatusCombineOperationEdge(op_from=move, op_to=enter_fight))
+
+        auto_fight = AutoFightInForgottenHall(ctx)  # 进入战斗
+        ops.append(auto_fight)
+        edges.append(StatusCombineOperationEdge(op_from=enter_fight, op_to=auto_fight))
 
         super().__init__(ctx, ops, edges, op_name=gt('忘却之庭 节点挑战', 'ui'))

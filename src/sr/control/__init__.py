@@ -183,3 +183,18 @@ class GameController:
         :return:
         """
         pass
+
+    def switch_character(self, idx: int):
+        """
+        切换角色
+        :param idx: 第几位角色 从1开始
+        :return:
+        """
+        pass
+
+    def use_technique(self):
+        """
+        使用秘技
+        :return:
+        """
+        pass
