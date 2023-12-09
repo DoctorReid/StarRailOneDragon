@@ -42,7 +42,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         :return:
         """
         whitelist_id_list = load_all_whitelist_id()
-        options = []
+        options = [ft.dropdown.Option(text='无', key='none')]
         for whitelist_id in whitelist_id_list:
             whitelist = WorldPatrolWhitelist(whitelist_id)
             opt = ft.dropdown.Option(text=whitelist.name, key=whitelist.id)

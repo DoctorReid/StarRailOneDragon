@@ -1,5 +1,5 @@
 import threading
-from typing import List
+from typing import List, Optional
 
 import flet as ft
 
@@ -263,7 +263,7 @@ class OneStopView(ft.Row, SrBasicView):
 
         ft.Row.__init__(self, controls=[left_part, app_list_part], spacing=10)
 
-        self.running_app: Application
+        self.running_app: Optional[Application] = None
 
     def handle_after_show(self):
         self._update_app_list_status()
@@ -297,7 +297,9 @@ class OneStopView(ft.Row, SrBasicView):
         if not self._check_ctx_stop():
             return
 
-        self.running_app: Application = one_stop_service.get_app_by_id(app_id, self.ctx)
+        run_record = one_stop_service.get_app_run_record_by_id(app_id)
+        run_record.check_and_update_status()
+        self.running_app = one_stop_service.get_app_by_id(app_id, self.ctx)
         if self.running_app is None:
             log.error('非法的任务入参')
             self.running_app = None
