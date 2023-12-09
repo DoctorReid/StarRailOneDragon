@@ -1,7 +1,9 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 
 import flet as ft
+from flet_core import OptionalNumber
 
+from basic.i18_utils import gt
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 
@@ -15,6 +17,8 @@ class RectOutlinedButton(ft.OutlinedButton):
             visible: Optional[bool] = None,
             disabled: Optional[bool] = None,
             on_click=None,
+            data: Any = None,
+            width: OptionalNumber = None,
     ):
         style = ft.ButtonStyle(
             shape={
@@ -22,11 +26,13 @@ class RectOutlinedButton(ft.OutlinedButton):
                 ft.MaterialState.DEFAULT: ft.RoundedRectangleBorder(radius=0),
             }
         )
-        super().__init__(text=text,
+        super().__init__(text=gt(text, 'ui'),
                          on_click=on_click,
+                         data=data,
                          visible=visible,
                          disabled=disabled,
-                         style=style)
+                         style=style,
+                         width=width)
 
 
 class CardTitleText(ft.Text):
@@ -69,6 +75,15 @@ class SettingsListItem(ft.Row):
         super().__init__(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[ft.Text(label), value_component]
+        )
+
+
+class SettingsListGroupTitle(ft.Row):
+
+    def __init__(self, title: str):
+        super().__init__(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            controls=[CardTitleText(title)]
         )
 
 

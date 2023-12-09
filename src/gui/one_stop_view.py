@@ -243,10 +243,10 @@ class OneStopView(ft.Row, SrBasicView):
         self.shutdown_check = ft.Checkbox(label=gt("结束后关机", model='ui'), value=False, on_change=self.on_shutdown_changed)
         shutdown_row = ft.Row(controls=[self.shutdown_check], alignment=ft.MainAxisAlignment.CENTER)
 
-        self.start_btn = components.RectOutlinedButton(text=gt("F9 开始", model='ui'), on_click=self.on_click_start)
-        self.pause_btn = components.RectOutlinedButton(text=gt("F9 暂停", model='ui'), on_click=self.on_click_pause, visible=False)
-        self.resume_btn = components.RectOutlinedButton(text=gt("F9 继续", model='ui'), on_click=self.on_click_resume, visible=False)
-        self.stop_btn = components.RectOutlinedButton(text=gt("F10 结束", model='ui'), on_click=self.on_click_stop, disabled=True)
+        self.start_btn = components.RectOutlinedButton(text="F9 开始", on_click=self.on_click_start)
+        self.pause_btn = components.RectOutlinedButton(text="F9 暂停", on_click=self.on_click_pause, visible=False)
+        self.resume_btn = components.RectOutlinedButton(text="F9 继续", on_click=self.on_click_resume, visible=False)
+        self.stop_btn = components.RectOutlinedButton(text="F10 结束", on_click=self.on_click_stop, disabled=True)
         ctrl_btn_row = ft.Row(controls=[self.start_btn, self.pause_btn, self.resume_btn, self.stop_btn],
                               alignment=ft.MainAxisAlignment.CENTER)
 

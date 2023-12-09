@@ -4,6 +4,7 @@ import time
 import urllib.request
 import zipfile
 from functools import lru_cache
+from typing import Optional
 
 import requests
 import subprocess
@@ -11,9 +12,6 @@ import yaml
 
 from basic import os_utils
 from basic.log_utils import log
-
-
-GH_PROXY_PREFIX = 'https://gh-proxy.com/'
 
 
 @lru_cache
@@ -30,7 +28,7 @@ def get_current_version() -> str:
         return old_version['version'] if 'version' in old_version else ''
 
 
-def get_latest_release_info(proxy: str = None, pre_release: bool = False):
+def get_latest_release_info(proxy: Optional[str] = None, pre_release: bool = False):
     """
     获取github上最新的release信息
     :param proxy: 请求时使用的代理地址
@@ -57,7 +55,7 @@ def get_latest_release_info(proxy: str = None, pre_release: bool = False):
             return response.json()
 
 
-def check_new_version(proxy: str = None, pre_release: bool = False) -> int:
+def check_new_version(proxy: Optional[str] = None, pre_release: bool = False) -> int:
     """
     检查是否有新版本
     :param proxy: 请求时使用的代理地址
@@ -85,8 +83,7 @@ def check_new_version(proxy: str = None, pre_release: bool = False) -> int:
     return 0
 
 
-def do_update(proxy: str = None, pre_release: bool = False,
-              gh_proxy: bool = True):
+def do_update(proxy: Optional[str] = None, pre_release: bool = False):
     """
     执行更新
     1. 比较本地和最新的 version.yml
@@ -95,7 +92,6 @@ def do_update(proxy: str = None, pre_release: bool = False,
     4. 复制 .temp 中的内容到当前脚本目录
     :param proxy: 下载时使用的代理地址
     :param pre_release: 是否使用 pre_release 版本
-    :param gh_proxy: 是否使用gh_proxy 只有proxy为空时才会生效
     :return:
     """
     release = get_latest_release_info(proxy=proxy, pre_release=pre_release)
@@ -109,11 +105,11 @@ def do_update(proxy: str = None, pre_release: bool = False,
         log.error('新版本文件还没准备好')  # 理论逻辑不应该进入这里
         return
 
-    download_file('version.yml', name_2_url['version.yml'], proxy=proxy, gh_proxy=gh_proxy)  # 第一步必选先下载新版本信息
+    download_file('version.yml', name_2_url['version.yml'], proxy=proxy)  # 第一步必选先下载新版本信息
 
     old_version_path = os.path.join(os_utils.get_work_dir(), 'version.yml')
     if not os.path.exists(old_version_path):
-        download_and_unzip(name_2_url, proxy=proxy, gh_proxy=gh_proxy)
+        download_and_unzip(name_2_url, proxy=proxy)
         return
 
     temp_dir = os_utils.get_path_under_work_dir('.temp')
@@ -131,18 +127,17 @@ def do_update(proxy: str = None, pre_release: bool = False,
         if key not in old_version or new_version[key] != old_version[key]:
             to_update.add(key)
 
-    download_and_unzip(name_2_url, to_update, proxy=proxy, gh_proxy=gh_proxy)
+    download_and_unzip(name_2_url, to_update, proxy=proxy)
     move_temp_and_restart()
 
 
 def download_file(filename, url,
-                  proxy: str = None, gh_proxy: bool = True):
+                  proxy: Optional[str] = None,):
     """
     下载文件到 .temp 文件夹中
     :param filename: 保存的文件名
     :param url: 下载地址
     :param proxy: 下载使用的代理地址
-    :param gh_proxy: 是否使用gh_proxy 只有proxy为空时才会生效
     :return:
     """
     if proxy is not None:
@@ -150,8 +145,6 @@ def download_file(filename, url,
             {'http': proxy, 'https': proxy})
         opener = urllib.request.build_opener(proxy_handler)
         urllib.request.install_opener(opener)
-    elif gh_proxy:
-        url = GH_PROXY_PREFIX + url
     log.info('开始下载 %s %s', filename, url)
     temp_dir = os_utils.get_path_under_work_dir('.temp')
     file_path = os.path.join(temp_dir, filename)
@@ -195,13 +188,12 @@ def delete_old_files():
 
 
 def download_and_unzip(name_2_url: dict[str, str], to_update: set[str] = None,
-                       proxy: str = None, gh_proxy: bool = True):
+                       proxy: Optional[str] = None):
     """
     下载所需的文件到 .temp 并解压
     :param name_2_url: 文件名对应的下载路径
     :param to_update: 需要更新的模块
     :param proxy: 下载使用的代理地址
-    :param gh_proxy: 是否使用gh_proxy 只有proxy为空时才会生效
     :return:
     """
     delete_old_files()
@@ -211,7 +203,7 @@ def download_and_unzip(name_2_url: dict[str, str], to_update: set[str] = None,
             if i.startswith('StarRailAutoProxy') and i.endswith('.zip'):
                 filename = i
                 url = name_2_url[i]
-        download_file(filename, url, proxy, gh_proxy=gh_proxy)
+        download_file(filename, url, proxy)
         unzip(filename)
     else:
         for module in to_update:
@@ -219,7 +211,7 @@ def download_and_unzip(name_2_url: dict[str, str], to_update: set[str] = None,
             if filename not in name_2_url:
                 continue
             url = name_2_url[filename]
-            download_file(filename, url, proxy, gh_proxy=gh_proxy)
+            download_file(filename, url, proxy)
             unzip(filename)
 
 

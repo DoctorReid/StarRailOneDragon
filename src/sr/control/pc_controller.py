@@ -30,8 +30,8 @@ class PcController(GameController):
         self.walk_speed: float = gc.get('walk_speed')
         self.is_moving: bool = False
         self.is_running: bool = False  # 是否在疾跑
-        self.f = gc.get('interact')
-        self.technique_key: str = gc.get('technique', 'e')
+        self.key_interact = gc.key_interact
+        self.key_technique: str = gc.key_technique
 
     def init(self):
         self.win.active()
@@ -168,7 +168,7 @@ class PcController(GameController):
         :return:
         """
         if interact_type == GameController.MOVE_INTERACT_TYPE:
-            pyautogui.press(self.f)
+            pyautogui.press(self.key_interact)
         else:
             self.click(pos)
         return True
@@ -203,4 +203,4 @@ class PcController(GameController):
         :return:
         """
         log.info('使用秘技')
-        pyautogui.press(self.technique_key)
+        pyautogui.press(self.key_technique)
