@@ -121,7 +121,7 @@ class WorldPatrol(Application):
         for route_id in self.route_id_list:
             if route_id.unique_id not in self.record.finished:
                 self.record.update_status(AppRunRecord.STATUS_FAIL)
-            return
+                return
 
         self.record.update_status(AppRunRecord.STATUS_SUCCESS)
 
