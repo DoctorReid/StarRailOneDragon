@@ -54,11 +54,12 @@ class EchoOfWarRecord(AppRunRecord):
         sunday_dt = os_utils.get_sunday_dt(self.dt)
         return current_dt > sunday_dt
 
-    def _reset_for_new_dt(self):
+    def reset_record(self):
         """
         运行记录重置 非公共部分由各app自行实现
         :return:
         """
+        super().reset_record()
         self.left_times = 3
 
     @property

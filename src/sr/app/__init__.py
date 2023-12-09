@@ -34,8 +34,7 @@ class AppRunRecord(ConfigHolder):
         :return:
         """
         if self._should_reset_by_dt():
-            self.update_status(AppRunRecord.STATUS_WAIT, only_status=True)
-            self._reset_for_new_dt()
+            self.reset_record()
 
     def update_status(self, new_status: int, only_status: bool = False):
         """
@@ -54,12 +53,12 @@ class AppRunRecord(ConfigHolder):
 
         self.save()
 
-    def _reset_for_new_dt(self):
+    def reset_record(self):
         """
         运行记录重置 非公共部分由各app自行实现
         :return:
         """
-        pass
+        self.update_status(AppRunRecord.STATUS_WAIT, only_status=True)
 
     @property
     def run_status_under_now(self):

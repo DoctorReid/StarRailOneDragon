@@ -55,11 +55,12 @@ class ForgottenHallRecord(AppRunRecord):
 
         return current_turn > old_turn
 
-    def _reset_for_new_dt(self):
+    def reset_record(self):
         """
         运行记录重置 非公共部分由各app自行实现
         :return:
         """
+        super().reset_record()
         self.star = 0
         self.update('mission_stars', {})
 
