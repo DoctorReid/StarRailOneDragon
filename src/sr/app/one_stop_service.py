@@ -46,7 +46,7 @@ class OneStopServiceConfig(ConfigHolder):
                 need_update = True
 
         if need_update:
-            self.order_app_id_list = current_list
+            self.order_app_id_list = new_list
 
     @property
     def order_app_id_list(self) -> List[str]:
