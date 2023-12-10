@@ -17,7 +17,7 @@ class TestGetTeamMemberInWorld(unittest.TestCase, test.SrTestBase):
         self.op = GetTeamMemberInWorld(ctx, 1)
 
     def test_get_character_id(self):
-        screen = self.get_test_image('1')
+        screen = self._get_test_image('1')
 
         self.op.character_num = 1
         self.assertEquals(TINGYUN.id, self.op._get_character_id(screen))

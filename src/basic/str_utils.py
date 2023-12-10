@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 
 from basic.log_utils import log
 
@@ -64,7 +65,7 @@ def longest_common_subsequence_length(str1: str, str2: str):
     return dp[m][n]
 
 
-def get_positive_digits(v: str, err: int = 0) -> int:
+def get_positive_digits(v: str, err: Optional[int] = 0) -> Optional[int]:
     """
     返回字符串中的数字部分 不包含符号
     :param v: 字符串

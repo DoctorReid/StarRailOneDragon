@@ -118,6 +118,8 @@ class AppList(ft.ListView):
         self.app_id_list: List[str] = one_stop_service.get_config().order_app_id_list
         for app_id in self.app_id_list:
             app = sr.app.get_app_desc_by_id(app_id)
+            if app is None:
+                continue
             item = AppListItem(app.cn, app.id,
                                on_click_run=self._on_item_click_run,
                                on_click_up=self._on_item_click_up,

@@ -4,11 +4,10 @@ import sr.app
 import sr.app.routine.assignments
 from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, world_patrol, AppDescription
-from sr.app.routine import assignments, support_character, nameless_honor, claim_training, buy_parcel, \
+from sr.app.routine import assignments, support_character, nameless_honor, daily_training_app, buy_parcel, \
     trailblaze_power, email_attachment, echo_of_war, forgotten_hall_app
 from sr.app.routine.assignments import Assignments, ASSIGNMENTS
 from sr.app.routine.buy_parcel import BuyXianzhouParcel, BUY_XIANZHOU_PARCEL
-from sr.app.routine.claim_training import ClaimTraining, CLAIM_TRAINING
 from sr.app.routine.echo_of_war import ECHO_OF_WAR, EchoOfWar
 from sr.app.routine.email_attachment import Email, EMAIL
 from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
@@ -33,6 +32,19 @@ class OneStopServiceConfig(ConfigHolder):
             if app.id not in current_list:
                 current_list.append(app.id)
                 need_update = True
+
+        new_list = []
+        for app_id in current_list:
+            valid = False
+            for app in sr.app.ALL_APP_LIST:
+                if app_id == app.id:
+                    valid = True
+                    break
+            if valid:
+                new_list.append(app_id)
+            else:
+                need_update = True
+
         if need_update:
             self.order_app_id_list = current_list
 
@@ -131,8 +143,8 @@ def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
         return SupportCharacter(ctx)
     elif app_id == NAMELESS_HONOR.id:
         return ClaimNamelessHonor(ctx)
-    elif app_id == CLAIM_TRAINING.id:
-        return ClaimTraining(ctx)
+    elif app_id == daily_training_app.DAILY_TRAINING.id:
+        return daily_training_app.DailyTrainingApp(ctx)
     elif app_id == BUY_XIANZHOU_PARCEL.id:
         return BuyXianzhouParcel(ctx)
     elif app_id == TRAILBLAZE_POWER.id:
@@ -155,8 +167,8 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
         return support_character.get_record()
     elif app_id == NAMELESS_HONOR.id:
         return nameless_honor.get_record()
-    elif app_id == CLAIM_TRAINING.id:
-        return claim_training.get_record()
+    elif app_id == daily_training_app.DAILY_TRAINING.id:
+        return daily_training_app.get_record()
     elif app_id == BUY_XIANZHOU_PARCEL.id:
         return buy_parcel.get_record()
     elif app_id == TRAILBLAZE_POWER.id:

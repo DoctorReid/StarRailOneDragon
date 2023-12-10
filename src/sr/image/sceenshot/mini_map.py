@@ -124,8 +124,8 @@ def get_angle_from_arrow(arrow: MatLike,
 
     d = const.TEMPLATE_ARROW_LEN_PLUS
 
-    row = result.max.cy // d
-    col = result.max.cx // d
+    row = result.max.center.y // d
+    col = result.max.center.x // d
     rough_angle = (row * 11 + col) * 3
 
     rough_arrow = cv2_utils.image_rotate(arrow, -rough_angle)
@@ -138,8 +138,8 @@ def get_angle_from_arrow(arrow: MatLike,
     if len(result2) == 0:
         precise_angle = rough_angle
     else:
-        row = result2.max.cy // d
-        col = result2.max.cx // d
+        row = result2.max.center.y // d
+        col = result2.max.center.x // d
         precise_delta_angle = (row * 11 + col - 60) / 10.0
         precise_angle = rough_angle + precise_delta_angle
 

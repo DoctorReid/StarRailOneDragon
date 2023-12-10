@@ -11,8 +11,6 @@ class MatchResult:
         self.y = int(y)
         self.w = int(w)
         self.h = int(h)
-        self.cx = int(self.x + self.w // 2)
-        self.cy = int(self.y + self.h // 2)
         self.template_scale = template_scale
         self.data: str = data
 
@@ -26,6 +24,10 @@ class MatchResult:
     @property
     def center(self) -> Point:
         return Point(self.x + self.w // 2, self.y + self.h // 2)
+
+    def add_offset(self, p: Point):
+        self.x += p.x
+        self.y += p.y
 
 
 class MatchResultList:

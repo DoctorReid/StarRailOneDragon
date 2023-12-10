@@ -74,13 +74,13 @@ def merge_ocr_result_to_single_line(ocr_map, join_space: bool = True) -> str:
     :param join_space: 连接时是否加入空格
     :return:
     """
-    lines = []
+    lines: List[List[MatchResult]] = []
     for text, result_list in ocr_map.items():
         for result in result_list:
             in_line: int = -1
             for line_idx in range(len(lines)):
                 for line_item in lines[line_idx]:
-                    if abs(line_item.cy - result.cy) <= 5:
+                    if abs(line_item.center.y - result.center.y) <= 5:
                         in_line = line_idx
                         break
                 if in_line != -1:
@@ -93,7 +93,7 @@ def merge_ocr_result_to_single_line(ocr_map, join_space: bool = True) -> str:
 
     result_str: str = None
     for line in lines:
-        sorted_line = sorted(line, key=lambda x: x.cx)
+        sorted_line = sorted(line, key=lambda x: x.center.x)
         for result_item in sorted_line:
             if result_str is None:
                 result_str = result_item.data
@@ -117,7 +117,7 @@ def merge_ocr_result_to_multiple_line(ocr_map, join_space: bool = True, merge_li
             in_line: int = -1
             for line_idx in range(len(lines)):
                 for line_item in lines[line_idx]:
-                    if abs(line_item.cy - result.cy) <= merge_line_distance:
+                    if abs(line_item.center.y - result.center.y) <= merge_line_distance:
                         in_line = line_idx
                         break
                 if in_line != -1:
@@ -147,8 +147,6 @@ def merge_ocr_result_to_multiple_line(ocr_map, join_space: bool = True, merge_li
                 merge_result.h = ocr_result.y + ocr_result.h - merge_result.y
 
         merge_result.data = merge_ocr_result_to_single_line(line_ocr_map, join_space=join_space)
-        merge_result.cx = merge_result.x + merge_result.w // 2
-        merge_result.cy = merge_result.y + merge_result.h // 2
         if merge_result.data not in merge_ocr_result_map:
             merge_ocr_result_map[merge_result.data] = MatchResultList()
         merge_ocr_result_map[merge_result.data].append(merge_result)

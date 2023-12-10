@@ -234,7 +234,7 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
         i: int = 0
         for k, v in info.sp_result.items():
             for vs in v:
-                log.info("SP%02d = TransportPoint('', '', , '%s', (%d, %d))", i+1, k, vs.cx, vs.cy)
+                log.info("SP%02d = TransportPoint('', '', , '%s', %s)", i+1, k, vs.center)
                 i += 1
 
         cv2.waitKey(0)

@@ -18,9 +18,8 @@ class Transport(CombineOperation):
 
     def __init__(self, ctx: Context, tp: TransportPoint):
         """
-        :param ctx:
-        :param tp:
-        :param first: 是否第一次传送
+        :param ctx: 上下文
+        :param tp: 传送点
         """
         ops: List[Operation] = []
         ops.append(OpenMap(ctx))

@@ -87,9 +87,10 @@ class EnterAutoFight(Operation):
 
         return Operation.round_wait()
 
-    def _retry_fail_to_success(self) -> str:
+    def _retry_fail_to_success(self, retry_status: str) -> str:
         """
         本指令允许失败
+        :retry_status: 重试返回的状态
         :return:
         """
         return EnterAutoFight.STATUS_ENEMY_NOT_FOUND

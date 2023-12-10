@@ -35,9 +35,10 @@ class ClickChallengeConfirm(Operation):
         time.sleep(0.5)
         return Operation.RETRY
 
-    def _retry_fail_to_success(self) -> str:
+    def _retry_fail_to_success(self, retry_status: str) -> str:
         """
         这个动作允许失败 为了兼容不知道是否会出现对话框的场景
+        :retry_status: 重试返回的状态
         :return:
         """
         return ClickChallengeConfirm.STATUS_NO_DIALOG

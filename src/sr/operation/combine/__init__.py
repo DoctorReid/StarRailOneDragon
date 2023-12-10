@@ -41,6 +41,9 @@ class StatusCombineOperationEdge(BaseModel):
     op_to_id: int
     """下一个指令"""
 
+    success: bool
+    """是否成功才执行下一个指令"""
+
     status: Optional[str] = None
     """
     执行下一个指令的条件状态 
@@ -55,10 +58,12 @@ class StatusCombineOperationEdge(BaseModel):
     """
 
     def __init__(self, op_from: Operation, op_to: Operation,
+                 success: bool = True,
                  status: Optional[str] = None,
                  ignore_status: bool = True):
         super().__init__(op_from_id=id(op_from),
                          op_to_id=id(op_to),
+                         success=success,
                          status=status,
                          ignore_status=False if status is not None else ignore_status)
 
@@ -71,13 +76,14 @@ class StatusCombineOperation(Operation):
     def __init__(self, ctx: Context,
                  ops: List[Operation],
                  edges: List[StatusCombineOperationEdge],
-                 try_times: int = 2, op_name: str = '', timeout_seconds: float = -1):
+                 try_times: int = 2, op_name: str = '', timeout_seconds: float = -1,
+                 start_op: Optional[Operation] = None):
         Operation.__init__(self, ctx,
                            try_times=try_times,
                            op_name=op_name,
                            timeout_seconds=timeout_seconds)
 
-        self._start_op: Optional[Operation] = None  # 开始指令
+        self._start_op: Optional[Operation] = start_op  # 开始指令
         self._op_map: dict[int, Operation] = {}  # 指令集合
         self._op_edges_map: dict[int, List[StatusCombineOperationEdge]] = {}  # 下一个指令的集合
         self._multiple_start: bool = False  # 多个开始节点
@@ -102,15 +108,17 @@ class StatusCombineOperation(Operation):
                 op_in_map[to_idx] = 0
             op_in_map[to_idx] = op_in_map[to_idx] + 1
 
-        # 找出入度为0的开始点
-        for edge in edges:
-            from_id = edge.op_from_id
-            if from_id not in op_in_map or op_in_map[from_id] == 0:
-                if self._start_op is not None and id(self._start_op) != from_id:
-                    self._multiple_start = True
-                self._start_op = self._op_map[from_id]
+        if self._start_op is None:  # 没有指定开始节点时 自动判断
+            # 找出入度为0的开始点
+            for edge in edges:
+                from_id = edge.op_from_id
+                if from_id not in op_in_map or op_in_map[from_id] == 0:
+                    if self._start_op is not None and id(self._start_op) != from_id:
+                        self._multiple_start = True
+                    self._start_op = self._op_map[from_id]
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         self._current_op = self._start_op
 
     def execute(self) -> OperationResult:
@@ -131,6 +139,9 @@ class StatusCombineOperation(Operation):
         next_op_id: Optional[int] = None
         final_next_op_id: Optional[int] = None  # 兜底指令
         for edge in edges:
+            if edge.success != current_op_result.success:
+                continue
+
             if edge.ignore_status:
                 final_next_op_id = edge.op_to_id
 

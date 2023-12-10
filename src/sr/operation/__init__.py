@@ -68,6 +68,7 @@ class Operation:
         self.operation_start_time = now
         self.pause_start_time = now
         self.pause_end_time = now
+        self.op_round: int = 0  # 这里要做初始化 方便一个操作重复使用
 
     def execute(self) -> OperationResult:
         """
@@ -124,7 +125,7 @@ class Operation:
 
         if op_result is None:
             if self.op_round == self.try_times:  # 理论上只有重试失败的情况op_result为None
-                retry_fail_status = self._retry_fail_to_success()
+                retry_fail_status = self._retry_fail_to_success(retry_status)
                 if retry_fail_status is None:
                     op_result = Operation.op_fail(retry_status)
                 else:
@@ -170,10 +171,11 @@ class Operation:
         """
         return '指令[ %s ]' % self.op_name
 
-    def _retry_fail_to_success(self) -> Optional[str]:
+    def _retry_fail_to_success(self, retry_status: str) -> Optional[str]:
         """
         是否允许指令重试失败 返回None代表不允许
         允许情况下 重试失败会变成返回成功 而附加状态为本函数返回值
+        :retry_status: 重试返回的状态
         :return:
         """
         return None
@@ -190,39 +192,51 @@ class Operation:
             log.error('%s 执行失败 返回状态 %s', self.display_name, coalesce_gt(result.status, '失败', model='ui'))
 
     @staticmethod
-    def round_success(status: str = None) -> OperationOneRoundResult:
+    def round_success(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
+        :param wait: 等待秒数
         :return:
         """
+        if wait is not None:
+            time.sleep(wait)
         return OperationOneRoundResult(result=Operation.SUCCESS, status=status)
 
     @staticmethod
-    def round_wait(status: str = None) -> OperationOneRoundResult:
+    def round_wait(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
+        :param wait: 等待秒数
         :return:
         """
+        if wait is not None:
+            time.sleep(wait)
         return OperationOneRoundResult(result=Operation.WAIT, status=status)
 
     @staticmethod
-    def round_retry(status: str = None) -> OperationOneRoundResult:
+    def round_retry(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
+        :param wait: 等待秒数
         :return:
         """
+        if wait is not None:
+            time.sleep(wait)
         return OperationOneRoundResult(result=Operation.RETRY, status=status)
 
     @staticmethod
-    def round_fail(status: str = None) -> OperationOneRoundResult:
+    def round_fail(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
+        :param wait: 等待秒数
         :return:
         """
+        if wait is not None:
+            time.sleep(wait)
         return OperationOneRoundResult(result=Operation.FAIL, status=status)
 
     @staticmethod

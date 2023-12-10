@@ -41,7 +41,7 @@ class EnableAutoFight(Operation):
             r = battle.match_battle_ctrl(screen, self.ctx.im, 'battle_ctrl_03', is_on=False)
             if r is not None:
                 log.info('启动二倍速战斗')
-                self.ctx.controller.click(Point(r.cx, r.cy))
+                self.ctx.controller.click(r.center)
                 time.sleep(0.5)
             return Operation.RETRY
 

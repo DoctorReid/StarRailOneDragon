@@ -59,7 +59,7 @@ class CnOcrMatcher(OcrMatcher):
             if threshold is not None and r['score'] < threshold:
                 continue
             if r['text'] not in result_map:
-                result_map[r['text']] = MatchResultList()
+                result_map[r['text']] = MatchResultList(only_best=False)
             result_map[r['text']].append(MatchResult(r['score'],
                                                      r['position'][0][0],
                                                      r['position'][0][1],

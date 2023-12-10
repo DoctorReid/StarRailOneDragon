@@ -17,6 +17,8 @@ TITLE_GUIDE = SecondaryUiTitle(cn="星际和平指南")
 TITLE_NAMELESS_HONOR = SecondaryUiTitle(cn="无名勋礼")
 TITLE_FORGOTTEN_HALL = SecondaryUiTitle(cn="忘却之庭")
 
+TITLE_INVENTORY = SecondaryUiTitle(cn="背包")
+
 
 TITLE_RECT = Rect(98, 39, 350, 100)
 

@@ -1,13 +1,14 @@
 from pydantic import BaseModel
 
 
-class Point:
-    """
-    坐标 会转化成整数
-    """
+class Point(BaseModel):
+    """坐标 会转化成整数"""
+
+    x: int
+    y: int
+
     def __init__(self, x, y):
-        self.x: int = int(x)
-        self.y: int = int(y)
+        super().__init__(x=int(x), y=int(y))
 
     def tuple(self):
         return self.x, self.y

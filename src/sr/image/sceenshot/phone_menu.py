@@ -303,7 +303,7 @@ def get_training_activity_claim_btn_pos(screen: MatLike, ocr: OcrMatcher):
     return result
 
 
-def get_training_reward_claim_btn_pos(screen: MatLike, im: ImageMatcher):
+def get_training_reward_claim_btn_pos(screen: MatLike, im: ImageMatcher) -> Optional[MatchResult]:
     """
     指南实训页面 获取奖励领取按钮的位置 多个时返回最右边的一个
     :param screen:

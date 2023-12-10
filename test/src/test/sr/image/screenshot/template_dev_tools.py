@@ -448,6 +448,16 @@ def init_character_combat_type(template_id):
     show_and_save(template_id, origin, mask, sub_dir='character_combat_type')
 
 
+def init_inventory_category(template_id, ):
+    raw = _read_template_raw_image(template_id, sub_dir='inventory')
+    gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+    _, bw = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+
+    origin, mask = convert_to_standard(raw, bw, width=55, height=55, bg_color=(0, 0, 0))
+
+    show_and_save(template_id, origin, mask, sub_dir='character_combat_type')
+
+
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_13', noise_threshold=30)
     # init_sp_with_background('mm_sp_09')
@@ -466,4 +476,5 @@ if __name__ == '__main__':
     # init_mission_star_active()
     # init_character_avatar_from_alas()
     # init_character_avatar_feature()
-    init_character_combat_type('lightning')
+    # init_character_combat_type('lightning')
+    init_inventory_category('valuables')

@@ -46,7 +46,6 @@ class ChooseTransportPoint(Operation):
         self.ctx.controller.click(large_map.EMPTY_MAP_POS)
         time.sleep(0.5)
 
-        mx1, my1 = large_map.CUT_MAP_RECT.x1, large_map.CUT_MAP_RECT.y1
         screen_map, _ = cv2_utils.crop_image(screen, large_map.CUT_MAP_RECT)
         # cv2_utils.show_image(screen_map, win_name='ChooseTransportPoint-screen_map')
 
@@ -64,9 +63,8 @@ class ChooseTransportPoint(Operation):
             if target is None:  # 没找到的话 随机滑动一下
                 self.random_drag()
             else:
-                x = target.cx + mx1
-                y = target.cy + my1
-                self.ctx.controller.click(Point(x, y))
+                to_click = target.center + large_map.CUT_MAP_RECT.left_top
+                self.ctx.controller.click(to_click)
                 time.sleep(0.5)
 
         if dx != 0 or dy != 0:
@@ -111,13 +109,11 @@ class ChooseTransportPoint(Operation):
             if (tp_name_str is not None and
                     str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True, percent=self.gc.special_point_lcs_percent)):
                 # 点击传送
-                tx = large_map.TP_BTN_RECT.x1
-                ty = large_map.TP_BTN_RECT.y1
+                to_click = large_map.TP_BTN_RECT.left_top
                 for r in tp_btn_ocr.values():
-                    tx += r.max.cx
-                    ty += r.max.cy
+                    to_click = to_click + r.max.center
                     break
-                return self.ctx.controller.click(Point(tx, ty))
+                return self.ctx.controller.click(to_click)
         return False
 
     def get_map_offset(self, screen_map: MatLike) -> MatchResult:
@@ -211,8 +207,7 @@ class ChooseTransportPoint(Operation):
                                               lcs_percent=self.gc.special_point_lcs_percent)
 
         for r in ocr_result.values():
-            tx = r.max.cx + large_map.CUT_MAP_RECT.x1
-            ty = r.max.cy + large_map.CUT_MAP_RECT.y1
-            return self.ctx.controller.click(Point(tx, ty))
+            to_click = r.max.center + large_map.CUT_MAP_RECT.left_top
+            return self.ctx.controller.click(to_click)
 
         return False

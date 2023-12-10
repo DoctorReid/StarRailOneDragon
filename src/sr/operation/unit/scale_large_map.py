@@ -28,8 +28,8 @@ class ScaleLargeMap(Operation):
             self.pos = self.get_click_pos()
 
         if self.pos is not None:
-            log.info('准备缩放地图 点击 (%d, %d) %s', self.pos.cx, self.pos.cy,
-                     self.ctx.controller.click(Point(self.pos.cx, self.pos.cy)))
+            log.info('准备缩放地图 点击 %s %s', self.pos.center,
+                     self.ctx.controller.click(self.pos.center))
             time.sleep(0.5)
             self.click_times += 1
             if self.click_times == abs(self.scale):
@@ -48,8 +48,6 @@ class ScaleLargeMap(Operation):
         if result.max is not None:
             result.max.x += x1
             result.max.y += y1
-            result.max.cx += x1
-            result.max.cy += y1
         return result.max
 
     def on_resume(self):

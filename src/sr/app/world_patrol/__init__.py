@@ -213,7 +213,7 @@ def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str
 
             route_id_arr.append(route_id)
     log.info('最终加载 %d 条线路 过滤已完成 %d 条 使用名单 %s',
-             len(route_id_arr), len(finished_unique_id), 'None' if whitelist is None else whitelist.id)
+             len(route_id_arr), len(finished_unique_id), 'None' if whitelist is None else whitelist.name)
 
     return route_id_arr
 

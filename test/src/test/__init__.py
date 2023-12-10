@@ -30,8 +30,22 @@ class SrTestBase:
             self.resources_sub_dirs.append(sub)
         self.resources_sub_dirs.append(os.path.basename(sub_file_path)[:-3])
 
-    def get_test_image(self, file_name: str, suffix: str = '.png') -> MatLike:
-        dir_path = os_utils.get_path_under_work_dir(*self.resources_sub_dirs)
-        img_path = os.path.join(dir_path, '%s%s' % (file_name, suffix))
-        print(img_path)
+    def _get_test_image(self, file_name: str, suffix: str = '.png') -> MatLike:
+        """
+        获取测试图片
+        :param file_name: 文件名
+        :param suffix: 后缀
+        :return:
+        """
+        img_path = self._get_test_image_path(file_name, suffix)
         return cv2_utils.read_image(img_path)
+
+    def _get_test_image_path(self, file_name: str, suffix: str = '.png') -> str:
+        """
+        获取测试图片的路径
+        :param file_name: 文件名
+        :param suffix: 后缀
+        :return:
+        """
+        dir_path = os_utils.get_path_under_work_dir(*self.resources_sub_dirs)
+        return os.path.join(dir_path, '%s%s' % (file_name, suffix))

@@ -86,7 +86,7 @@ class Application(Operation):
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None):
-        super().__init__(ctx, op_name=op_name)
+        super().__init__(ctx, try_times=1, op_name=op_name)  # 应用只是组装指令 不应该有重试
         self.init_context_before_start: bool = init_context_before_start
         self.stop_context_after_stop: bool = stop_context_after_stop
         self.run_record: Optional[AppRunRecord] = run_record

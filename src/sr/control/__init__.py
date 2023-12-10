@@ -55,15 +55,14 @@ class GameController:
         if len(km) == 0:
             return False
         for v in km.values():
-            x, y = v.max.cx, v.max.cy
+            point = v.max.center
             if rect is not None:
-                x += rect.x1
-                y += rect.y1
+                point = point + rect.left_top
             if click_offset is not None:
-                x += click_offset[0]
-                y += click_offset[1]
-            log.debug('OCR识别 %s 成功 准备点击 (%d, %d)', gt(word, 'ui'), x, y)
-            return self.click(Point(x, y), press_time=press_time)
+                point.x += click_offset[0]
+                point.y += click_offset[1]
+            log.debug('OCR识别 %s 成功 准备点击 %s', gt(word, 'ui'), point)
+            return self.click(point, press_time=press_time)
 
     def click(self, pos: Point = None, press_time: float = 0) -> bool:
         """

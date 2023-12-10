@@ -59,7 +59,7 @@ class Interact(Operation):
             return Operation.RETRY
         else:
             for r in ocr_result.values():
-                if self.ctx.controller.interact(Point(r.max.cx, r.max.cy),
+                if self.ctx.controller.interact(r.max.center,
                                                 GameController.MOVE_INTERACT_TYPE):
                     log.info('交互成功 %s', gt(self.cn))
                     return Operation.SUCCESS

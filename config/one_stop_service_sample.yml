@@ -6,7 +6,7 @@ app_order:
   - 'email'
   - 'support_character'
   - 'nameless_honor'
-  - 'claim_training'
+  - 'daily_training'
   - 'buy_xianzhou_parcel'
   - 'forgotten_hall'
 app_run:
@@ -17,6 +17,6 @@ app_run:
   - 'email'
   - 'support_character'
   - 'nameless_honor'
-  - 'claim_training'
+  - 'daily_training'
   - 'buy_xianzhou_parcel'
   - 'forgotten_hall'
