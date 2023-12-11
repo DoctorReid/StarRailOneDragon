@@ -154,6 +154,8 @@ TOPAZNUMBY = Character(id='topaznumby', cn='托帕&账账', path=CHARACTER_PATH_
 WELT = Character(id='welt', cn='瓦尔特', path=CHARACTER_PATH_NIHILITY, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 YANQING = Character(id='yanqing', cn='彦卿', path=CHARACTER_PATH_HUNT, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
 YUKONG = Character(id='yukong', cn='驭空', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
+ARGENTI = Character(id='argenti', cn='银枝', path=CHARACTER_PATH_ERUDITION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+HANYA = Character(id='hanya', cn='寒鸦', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
 
 CHARACTER_LIST: List[Character] = [
     ARLAN,
@@ -195,6 +197,8 @@ CHARACTER_LIST: List[Character] = [
     WELT,
     YANQING,
     YUKONG,
+    ARGENTI,
+    HANYA,
 ]
 
 
@@ -207,7 +211,7 @@ def filter_character_list(destiny_id: Optional[str] = None,
     for c in CHARACTER_LIST:
         if destiny_id is not None and c.path.id != destiny_id:
             continue
-        if combat_type_id is not None and c.combatType.id != combat_type_id:
+        if combat_type_id is not None and c.combat_type.id != combat_type_id:
             continue
         if level is not None and c.level != level:
             continue

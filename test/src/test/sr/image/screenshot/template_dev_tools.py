@@ -419,22 +419,15 @@ def init_character_avatar_from_alas():
     dir_path = os_utils.get_path_under_work_dir('images', 'template', 'character_avatar')
     for file in os.listdir(dir_path):
         if file.endswith('.png'):
-            name = file.split('.')[0].lower()
-            sub_dir = os.path.join(dir_path, name)
+            character = file.split('.')[0].lower()
+            sub_dir = os.path.join(dir_path, character)
             if not os.path.exists(sub_dir):
                 os.mkdir(sub_dir)
             old_file_path = os.path.join(dir_path, file)
             new_file_path = os.path.join(sub_dir, 'origin.png')
             shutil.move(old_file_path, new_file_path)
-            # print('%s = Character(id=\'%s\', cn=\'\')' % (name.upper(), name.lower()))
 
-
-def init_character_avatar_feature():
-    dir_path = os_utils.get_path_under_work_dir('images', 'template', 'character_avatar')
-    for character in os.listdir(dir_path):
-        if character.find('.') != -1:
-            continue
-        init_template_feature(character, sub_dir='character_avatar')
+            init_template_feature(character, sub_dir='character_avatar')
 
 
 def init_character_combat_type(template_id):
@@ -474,7 +467,6 @@ if __name__ == '__main__':
     # init_store_buy_num_ctrl('store_buy_max')
     # init_battle_times_control('battle_times_plus')
     # init_mission_star_active()
-    # init_character_avatar_from_alas()
-    # init_character_avatar_feature()
+    init_character_avatar_from_alas()
     # init_character_combat_type('lightning')
-    init_inventory_category('valuables')
+    # init_inventory_category('valuables')
