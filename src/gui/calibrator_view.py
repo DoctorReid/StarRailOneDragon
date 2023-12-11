@@ -11,7 +11,7 @@ class CalibratorView(SrAppView):
         SrAppView.__init__(self, page, ctx)
 
     def run_app(self):
-        app = Calibrator(self.ctx)
+        app = Calibrator(self.sr_ctx)
         app.execute()
 
 
