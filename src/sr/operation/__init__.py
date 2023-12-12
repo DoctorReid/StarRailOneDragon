@@ -57,7 +57,6 @@ class Operation:
         self.timeout_seconds: float = timeout_seconds  # 本操作的超时时间
         self.operation_start_time: float = 0  # 开始时间
         self.pause_start_time = time.time()  # 本次暂停的开始时间
-        self.pause_end_time = time.time()  # 本次暂停的结束时间
         self.pause_total_time = 0  # 暂停的总时间
 
     def _init_before_execute(self):
@@ -67,7 +66,6 @@ class Operation:
         now = time.time()
         self.operation_start_time = now
         self.pause_start_time = now
-        self.pause_end_time = now
         self.op_round: int = 0  # 这里要做初始化 方便一个操作重复使用
 
     def execute(self) -> OperationResult:
@@ -79,7 +77,7 @@ class Operation:
         retry_status: Optional[str] = None
         while self.op_round < self.try_times:
             if self.timeout_seconds != -1 and self._operation_usage_time >= self.timeout_seconds:
-                log.error('%s执行超时', self.display_name, exc_info=True)
+                log.error('%s 执行超时', self.display_name, exc_info=True)
                 op_result = self.op_fail('执行超时')
                 break
             if self.ctx.running == 0:
@@ -98,14 +96,16 @@ class Operation:
                     round_result = round_result
                 else:  # 兼容旧版本的指令
                     round_result = OperationOneRoundResult(result=round_result, status=None)
+                if self.ctx.running == 2:  # 有可能触发暂停的时候仍在执行指令 执行完成后 再次触发暂停回调 保证操作的暂停回调真正生效
+                    self.on_pause()
             except Exception as e:
                 round_result = self.round_retry('异常')
                 if self.last_screenshot is not None:
                     to_save = fill_uid_black(self.last_screenshot)
                     file_name = save_debug_image(to_save, prefix=self.__class__.__name__)
-                    log.error('%s执行出错 相关截图保存至 %s', self.display_name, file_name, exc_info=True)
+                    log.error('%s 执行出错 相关截图保存至 %s', self.display_name, file_name, exc_info=True)
                 else:
-                    log.error('%s执行出错', self.display_name, exc_info=True)
+                    log.error('%s 执行出错', self.display_name, exc_info=True)
             if round_result.result == Operation.RETRY:
                 retry_status = round_result.status
                 continue
@@ -119,7 +119,7 @@ class Operation:
                 self.op_round -= 1
                 continue
             else:
-                log.error('%s执行返回结果错误 %s', self.display_name, op_result)
+                log.error('%s 执行返回结果错误 %s', self.display_name, op_result)
                 op_result = self.op_fail(round_result.status)
                 break
 
@@ -131,7 +131,7 @@ class Operation:
                 else:
                     op_result = Operation.op_success(retry_fail_status)
             else:
-                op_result = Operation.op_fail('unknown')
+                op_result = Operation.op_fail('未知原因')
 
         self.ctx.unregister(self)
         self._after_operation_done(op_result)
@@ -141,11 +141,16 @@ class Operation:
         pass
 
     def on_pause(self):
+        """
+        暂停运行时触发的回调
+        由于触发时，操作有机会仍在执行逻辑，因此_execute_one_round后会判断一次暂停状态触发on_pause
+        子类需要保证多次触发不会有问题
+        :return:
+        """
         self.pause_start_time = time.time()
 
     def on_resume(self):
-        self.pause_end_time = time.time()
-        self.pause_total_time += self.pause_end_time - self.pause_start_time
+        self.pause_total_time += time.time() - self.pause_start_time
 
     @property
     def _operation_usage_time(self) -> float:
@@ -306,7 +311,7 @@ class OperationFail(Operation):
     一个直接返回失败的指令 用于组合指令
     """
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('成功结束', 'ui'))
+        super().__init__(ctx, op_name=gt('失败结束', 'ui'))
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
         return Operation.round_fail()
