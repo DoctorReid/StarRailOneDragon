@@ -1,7 +1,5 @@
 import time
-from typing import Union, Optional
 
-from cv2.typing import MatLike
 from pydantic import BaseModel
 
 from basic import Point
@@ -46,7 +44,7 @@ class ChooseInventoryCategory(Operation):
         self.category: InventoryCategory = category
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-        screen = self.ctx.screenshot()
+        screen = self.screenshot()
         if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, title_cn=secondary_ui.TITLE_INVENTORY):
             time.sleep(1)
             return Operation.round_retry('未在背包页面')
