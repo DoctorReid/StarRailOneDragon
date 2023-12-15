@@ -161,6 +161,22 @@ class GameConfig(ConfigHolder):
         return None
 
     @property
+    def transport_timeout(self) -> float:
+        """
+        传送超时时间
+        :return:
+        """
+        return self.get('transport_timeout', 20)
+    
+    @transport_timeout.setter
+    def transport_timeout(self, new_value: float):
+        """
+        更新传送超时时间
+        :return:
+        """
+        self.update('transport_timeout', new_value)
+        
+    @property
     def key_interact(self) -> str:
         """
         交互按钮

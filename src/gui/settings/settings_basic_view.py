@@ -69,6 +69,8 @@ class SettingsView(components.Card, SrBasicView):
         self.personal_proxy_input = ft.TextField(hint_text='host:port', width=150,
                                                  value='http://127.0.0.1:8234', disabled=True,
                                                  on_change=self._on_personal_proxy_changed)
+        self.transport_timeout_input = ft.TextField(hint_text='20', width=150,
+                                                    value='20', on_change=self._on_transport_timeout_changed)
 
         settings_list = SettingsList(
             controls=[
@@ -78,6 +80,7 @@ class SettingsView(components.Card, SrBasicView):
                 SettingsListItem('游戏区服', self.server_region_dropdown),
                 SettingsListItem('语言', self.lang_dropdown),
                 SettingsListItem('疾跑', self.run_mode_dropdown),
+                SettingsListItem('传送超时时间（秒）', self.transport_timeout_input),
                 SettingsListGroupTitle('按键'),
                 SettingsListItem('交互', self.interact_btn),
                 SettingsListItem('秘技', self.technique_btn),
@@ -111,6 +114,7 @@ class SettingsView(components.Card, SrBasicView):
 
         self.proxy_type_dropdown.value = self.game_config.proxy_type
         self.personal_proxy_input.value = self.game_config.personal_proxy
+        self.transport_timeout_input.value = self.game_config.transport_timeout
         self._update_proxy_part_display()
 
         self.update()
@@ -230,6 +234,11 @@ class SettingsView(components.Card, SrBasicView):
     def _on_personal_proxy_changed(self, e):
         self.game_config.personal_proxy = self.personal_proxy_input.value
 
+    def _on_transport_timeout_changed(self, e):
+        try:
+            self.game_config.transport_timeout = float(self.transport_timeout_input.value)
+        except ValueError:
+            pass
 
 sv: SettingsView = None
 

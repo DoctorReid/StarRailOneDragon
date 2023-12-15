@@ -6,6 +6,7 @@ walk_speed: 20
 run_speed: 25
 turn_dx: 0
 server_region: CN
+transport_timeout: 20.0
 run_mode: 0
 key_interact: 'f'
 key_technique: 'e'

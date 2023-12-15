@@ -2,6 +2,8 @@ from typing import List
 
 from basic.i18_utils import gt
 from basic.log_utils import log
+from sr.config import game_config
+from sr.config.game_config import GameConfig
 from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.operation import Operation, OperationResult
@@ -21,6 +23,7 @@ class Transport(CombineOperation):
         :param ctx: 上下文
         :param tp: 传送点
         """
+        self.gc: GameConfig = game_config.get()
         ops: List[Operation] = []
         ops.append(OpenMap(ctx))
         if ctx.first_transport:
@@ -28,7 +31,7 @@ class Transport(CombineOperation):
         ops.append(ChoosePlanet(ctx, tp.region.planet))
         ops.append(ChooseRegion(ctx, tp.region))
         ops.append(ChooseTransportPoint(ctx, tp))
-        ops.append(WaitInWorld(ctx))
+        ops.append(WaitInWorld(ctx, self.gc.transport_timeout))
 
         super().__init__(ctx, ops,
                          op_name=gt('传送 %s %s %s', 'ui') % (tp.planet.display_name, tp.region.display_name, tp.display_name))
