@@ -13,9 +13,13 @@ route:
   - op: 'move'
     data: [703, 283]
   - op: 'move'
-    data: [672, 283]
+    data: [672, 285]
+  - op: 'wait'
+    data: ['seconds', '1']
   - op: 'move'
-    data: [673, 301]
+    data: [670, 298]
+  - op: 'wait'
+    data: ['seconds', '1']
   - op: 'move'
     data: [710, 299]
   - op: 'patrol'

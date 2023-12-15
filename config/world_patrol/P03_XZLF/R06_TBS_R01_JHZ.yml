@@ -5,17 +5,23 @@ floor: 1
 tp: '界寰阵'
 route:
   - op: 'move'
-    data: [390, 240]
+    data: [383, 240]
   - op: 'move'
-    data: [396, 208]
+    data: [387, 220]
+  - op: 'wait'
+    data: ['seconds', '1']
   - op: 'move'
     data: [431, 173]
   - op: 'move'
     data: [490, 171]
   - op: 'move'
     data: [520, 156]
+  - op: 'wait'
+    data: ['seconds', '1']
   - op: 'move'
-    data: [542, 168]
+    data: [540, 169]
+  - op: 'wait'
+    data: ['seconds', '1']
   - op: 'slow_move'
     data: [587, 170]
   - op: 'interact'
@@ -32,11 +38,15 @@ route:
     data: [736, 271]
   - op: 'patrol'
   - op: 'move'
-    data: [780, 314]
+    data: [781, 314]
+  - op: 'wait'
+    data: ['seconds', '1']
   - op: 'move'
-    data: [787, 379]
+    data: [782, 379]
   - op: 'move'
     data: [759, 415]
+  - op: 'wait'
+    data: ['seconds', '1']
   - op: 'move'
     data: [835, 415]
   - op: 'move'
