@@ -56,7 +56,9 @@ class MoveDirectly(Operation):
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
 
     def _init_before_execute(self):
-        self.last_battle_time = time.time()
+        now = time.time()
+        self.last_rec_time = now - 1
+        self.last_battle_time = now
 
     def _execute_one_round(self) -> bool:
         first_pos = None if len(self.pos) == 0 else self.pos[0]
@@ -108,13 +110,16 @@ class MoveDirectly(Operation):
 
         # 根据上一次的坐标和行进距离 计算当前位置
         lx, ly = last_pos.x, last_pos.y
-        move_distance = 0
         if self.last_rec_time > 0:
             move_time = now_time - self.last_rec_time
             if move_time < 1:
                 move_time = 1
-            move_distance = self.ctx.controller.cal_move_distance_by_time(move_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
+        else:
+            move_time = 1
+        move_distance = self.ctx.controller.cal_move_distance_by_time(move_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
         possible_pos = (lx, ly, move_distance)
+        log.debug('准备计算人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos,
+                  move_time, self.ctx.controller.is_moving)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
         sp_map = map_const.get_sp_type_in_rect(self.region, lm_rect)
@@ -125,7 +130,7 @@ class MoveDirectly(Operation):
         # save_debug_image(mm, prefix='cal_pos')
 
         if next_pos is None:
-            log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, now_time - self.last_rec_time, self.ctx.controller.is_moving)
+            log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, move_time, self.ctx.controller.is_moving)
             if now_time - self.last_no_pos_time > 0.5:
                 self.no_pos_times += 1
                 self.last_no_pos_time = now_time
@@ -266,5 +271,7 @@ class MoveDirectly(Operation):
 
     def on_resume(self):
         super().on_resume()
-        self.last_rec_time += self.pause_total_time
-        self.last_battle_time += self.pause_total_time
+        log.info('last_rec_time %.2f', self.last_rec_time)
+        log.info('current_pause_time %.2f', self.current_pause_time)
+        self.last_rec_time += self.current_pause_time
+        self.last_battle_time += self.current_pause_time

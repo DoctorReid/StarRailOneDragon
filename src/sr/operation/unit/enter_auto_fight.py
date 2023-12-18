@@ -69,7 +69,7 @@ class EnterAutoFight(Operation):
         if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos, strict=True):
             if now_time - self.last_alert_time > EnterAutoFight.exit_after_no_alter_time:
                 log.info('索敌结束')
-                return Operation.round_success('' if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
+                return Operation.round_success(None if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
         else:
             self.last_alert_time = now_time
 
@@ -83,7 +83,7 @@ class EnterAutoFight(Operation):
             time.sleep(0.5)
 
         if now_time - self.last_in_battle_time > EnterAutoFight.exit_after_no_battle_time:
-            return Operation.round_success('' if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
+            return Operation.round_success(None if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
 
         return Operation.round_wait()
 

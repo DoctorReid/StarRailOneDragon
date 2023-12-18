@@ -50,13 +50,13 @@ class Operation:
         self.try_times: int = try_times
         self.op_round: int = 0
         self.ctx: Context = ctx
-        ctx.register_pause(self, self.on_pause, self.on_resume)
         self.last_screenshot: MatLike = None
         self.gc: GameConfig = game_config.get()
 
         self.timeout_seconds: float = timeout_seconds  # 本操作的超时时间
         self.operation_start_time: float = 0  # 开始时间
         self.pause_start_time = time.time()  # 本次暂停的开始时间
+        self.current_pause_time = 0  # 本次暂停的总时间
         self.pause_total_time = 0  # 暂停的总时间
 
     def _init_before_execute(self):
@@ -67,6 +67,7 @@ class Operation:
         self.operation_start_time = now
         self.pause_start_time = now
         self.op_round: int = 0  # 这里要做初始化 方便一个操作重复使用
+        self.ctx.register_pause(self, self.on_pause, self.on_resume)
 
     def execute(self) -> OperationResult:
         """
@@ -133,7 +134,6 @@ class Operation:
             else:
                 op_result = Operation.op_fail('未知原因')
 
-        self.ctx.unregister(self)
         self._after_operation_done(op_result)
         return op_result
 
@@ -147,10 +147,12 @@ class Operation:
         子类需要保证多次触发不会有问题
         :return:
         """
+        self.current_pause_time = 0
         self.pause_start_time = time.time()
 
     def on_resume(self):
-        self.pause_total_time += time.time() - self.pause_start_time
+        self.current_pause_time = time.time() - self.pause_start_time
+        self.pause_total_time += self.current_pause_time
 
     @property
     def _operation_usage_time(self) -> float:
@@ -191,6 +193,7 @@ class Operation:
         :param result:
         :return:
         """
+        self.ctx.unregister(self)
         if result.success:
             log.info('%s 执行成功 返回状态 %s', self.display_name, coalesce_gt(result.status, '成功', model='ui'))
         else:
