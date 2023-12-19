@@ -275,12 +275,12 @@ P02_R02_SP05 = TransportPoint('XZQ', '行政区', P02_R02, 'mm_sp_02', (444, 109
 P02_R02_SP06 = TransportPoint('LK', '玲可', P02_R02, 'mm_sp_03', (1032, 342))
 
 # 雅利洛 - 边缘通路
-P02_R03_SP01 = TransportPoint('HCGC', '候车广场', P02_R03, 'mm_tp_03', (598, 832))
-P02_R03_SP02 = TransportPoint('XXGC', '休闲广场', P02_R03, 'mm_tp_03', (690, 480))
-P02_R03_SP03 = TransportPoint('GDJZ', '歌德旧宅', P02_R03, 'mm_tp_03', (811, 259))
-P02_R03_SP04 = TransportPoint('HGZX', '幻光之形凝滞虚影', P02_R03, 'mm_tp_06', (450, 840))
-P02_R03_SP05 = TransportPoint('FRZL', '丰饶之蕾拟造花萼赤', P02_R03, 'mm_tp_07', (659, 509))
-P02_R03_SP06 = TransportPoint('YTZL', '以太之蕾拟造花萼金', P02_R03, 'mm_tp_08', (596, 194))
+P02_R03_SP01 = TransportPoint('HCGC', '候车广场', P02_R03, 'mm_tp_03', (598, 832), (580, 833))
+P02_R03_SP02 = TransportPoint('XXGC', '休闲广场', P02_R03, 'mm_tp_03', (690, 480), (701, 491))
+P02_R03_SP03 = TransportPoint('GDJZ', '歌德旧宅', P02_R03, 'mm_tp_03', (811, 259), (800, 267))
+P02_R03_SP04 = TransportPoint('HGZX', '幻光之形凝滞虚影', P02_R03, 'mm_tp_06', (450, 840), (474, 842))
+P02_R03_SP05 = TransportPoint('FRZL', '丰饶之蕾拟造花萼赤', P02_R03, 'mm_tp_07', (659, 509), (669, 510))
+P02_R03_SP06 = TransportPoint('YTZL', '以太之蕾拟造花萼金', P02_R03, 'mm_tp_08', (596, 194), (606, 195))
 
 # 雅利洛 - 铁卫禁区
 P02_R04_SP01 = TransportPoint('JQGS', '禁区岗哨', P02_R04, 'mm_tp_03', (1162, 576))
