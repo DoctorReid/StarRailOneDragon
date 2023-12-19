@@ -31,7 +31,13 @@ class MatchResult:
 
 
 class MatchResultList:
-
+    """
+    一个检测目标的多种可能结果。
+    一张图片可能有多个检测目标。
+    
+    该类主张描述 ["绥园", "妥园"], 而非记录各个检测对象OCR结果 ["绥园", "迴星港"]
+    然而大部分情况OCR模型最后一层都会做softmax整合, 一个检测对象, 只会返回最好的情况, 故其len常常为1
+    """
     def __init__(self, only_best: bool = True):
         self.only_best: bool = only_best
         self.arr: List[MatchResult] = []

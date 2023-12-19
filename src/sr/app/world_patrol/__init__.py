@@ -19,8 +19,15 @@ register_app(WORLD_PATROL)
 class WorldPatrolRouteId:
 
     def __init__(self, planet: Planet, raw_id: str):
+        """
+        :param planet: 星球
+        :param raw_id: config\world_patrol\{planet}\{raw_id}.yml
+        """
         idx = -1
         idx_cnt = 0
+        # 统计字符串中含有多少个'_'字符,
+        # idx = {字符数} - 1
+        # 不需要分层的路线, idx_cnt = 2, 反之 idx_cnt=3
         while True:
             idx = raw_id.find('_', idx + 1)
             if idx == -1:
