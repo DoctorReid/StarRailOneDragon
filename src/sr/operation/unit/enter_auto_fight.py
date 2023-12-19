@@ -45,10 +45,11 @@ class EnterAutoFight(Operation):
         now_time = time.time()
         screen_status = battle.get_battle_status(screen, self.ctx.im)
         if screen_status != battle.IN_WORLD:  # 在战斗界面
-            if now_time - self.last_check_auto_fight_time > 10:
-                self.last_check_auto_fight_time = now_time
-                eaf = EnableAutoFight(self.ctx)
-                eaf.execute()
+            # 取消检测自动战斗
+            # if now_time - self.last_check_auto_fight_time > 10:
+            #     self.last_check_auto_fight_time = now_time
+            #     eaf = EnableAutoFight(self.ctx)
+            #     eaf.execute()
             time.sleep(0.5)  # 战斗部分
             self.last_in_battle_time = time.time()
             self.last_alert_time = self.last_in_battle_time

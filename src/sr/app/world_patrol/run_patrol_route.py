@@ -16,6 +16,7 @@ from sr.operation.unit.interact import Interact
 from sr.operation.unit.move_directly import MoveDirectly
 from sr.operation.unit.wait_in_seconds import WaitInSeconds
 from sr.operation.unit.wait_in_world import WaitInWorld
+from sr.operation.unit.use_recipe import UseRecipe
 
 
 class RunPatrolRoute(CombineOperation):
@@ -70,7 +71,15 @@ class RunPatrolRoute(CombineOperation):
 
             if op is not None:
                 ops.append(op)
-        return ops
+        
+        new_ops = []
+        for op in ops:
+            # 比较粗糙，不打算优化了，在雅利洛使用秘技进入战斗，足够托帕使用
+            # 托帕满级后也不会带托帕锄大地了
+            if op.op_name == gt('进入战斗', 'ui') and route.route_id.planet.num == 2:
+                new_ops.append(self.recipe(ctx))
+            new_ops.append(op)
+        return new_ops
 
     def move(self, ctx: Context, route_item, next_route_item,
              current_pos: Point, current_lm_info: LargeMapInfo):
@@ -133,3 +142,26 @@ class RunPatrolRoute(CombineOperation):
             log.error('错误的wait类型 %s', wait_type)
 
         return op
+    
+    def recipe(self, ctx: Context) -> Operation:
+        """
+        使用秘技
+        :param ctx:
+        :return:
+        """
+        return UseRecipe(ctx)
+
+
+if __name__ == '__main__':
+    '''
+    测试单条路线, 运行前需要校准
+    '''
+    from sr.context import get_context
+
+    ctx = get_context()
+    ctx.init_all(renew=True)
+    ctx.controller.init()
+    ctx.running = 1
+    P02 = map_const.P02
+    app = RunPatrolRoute(ctx=ctx, route_id=WorldPatrolRouteId(P02, "R12_JXJL_R01_TXZL"))
+    app.execute()
