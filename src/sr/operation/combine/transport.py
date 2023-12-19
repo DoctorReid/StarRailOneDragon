@@ -28,12 +28,10 @@ class Transport(CombineOperation):
         ops.append(ChoosePlanet(ctx, tp.region.planet))
         ops.append(ChooseRegion(ctx, tp.region))
         ops.append(ChooseTransportPoint(ctx, tp))
-        ops.append(WaitInWorld(ctx))
+        ops.append(WaitInWorld(ctx, 100))  # 传送部分加大超时限制 防止部分极低配置机型无法在限定时间内完成加载
 
         super().__init__(ctx, ops,
                          op_name=gt('传送 %s %s %s', 'ui') % (tp.planet.display_name, tp.region.display_name, tp.display_name))
-
-        log.info('准备传送 %s %s %s', tp.planet.display_name, tp.region.display_name, tp.display_name)
 
     def _after_operation_done(self, result: OperationResult):
         """
