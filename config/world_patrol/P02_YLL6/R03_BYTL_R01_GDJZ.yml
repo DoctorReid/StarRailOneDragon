@@ -17,15 +17,20 @@ route:
   - op: 'move'
     data: [665, 516]
   - op: 'move'
-    data: [662, 635]
+    data: [660, 610]
   - op: 'patrol'
+  - op: 'move'
+    data: [662, 635]
   - op: 'move'
     data: [746, 640]
   - op: 'move'
     data: [746, 680]
   - op: 'patrol'
   - op: 'move'
-    data: [746, 835]
+    data: [747, 717]
+  - op: 'patrol'
+  - op: 'move'
+    data: [746, 788]
   - op: 'patrol'
   - op: 'move'
     data: [686, 851]

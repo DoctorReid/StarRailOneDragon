@@ -6,7 +6,10 @@ tp: '谈狐林后门'
 route:
   - op: 'move'
     data: [234, 549]
-  - op: 'move'
+  - op: 'slow_move'
+    data: [253, 552]
+  - op: 'patrol'
+  - op: 'slow_move'
     data: [234, 567]
   - op: 'patrol'
   - op: 'move'
@@ -26,4 +29,14 @@ route:
     data: [368, 841]
   - op: 'move'
     data: [360, 860]
+  - op: 'patrol'
+  - op: 'move'
+    data: [295, 863]
+  - op: 'patrol'
+  - op: 'slow_move'
+    data: [219, 845]
+  - op: 'move'
+    data: [204, 809]
+  - op: 'slow_move'
+    data: [236, 756]
   - op: 'patrol'

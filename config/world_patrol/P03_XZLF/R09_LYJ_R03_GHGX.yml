@@ -29,8 +29,8 @@ route:
   - op: 'patrol'
   - op: 'move'
     data: [919, 607]
-  - op: 'move'
-    data: [917, 696]
+  - op: 'slow_move'
+    data: [917, 676]
   - op: 'patrol'
   - op: 'move'
     data: [882, 671]
@@ -39,7 +39,9 @@ route:
   - op: 'move'
     data: [793, 602]
   - op: 'move'
-    data: [698, 586]
+    data: [734, 591]
+  - op: 'slow_move'
+    data: [711, 585]
   - op: 'patrol'
   - op: 'move'
     data: [692, 549]

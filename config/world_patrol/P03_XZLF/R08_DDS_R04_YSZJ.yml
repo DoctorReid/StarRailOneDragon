@@ -31,12 +31,16 @@ route:
   - op: 'move'
     data: [725, 1224]
   - op: 'move'
-    data: [744, 1155]
+    data: [742, 1132]
   - op: 'patrol'
   - op: 'move'
     data: [781, 1155]
+  - op: 'patrol'
   - op: 'move'
     data: [782, 1106]
+  - op: 'patrol'
+  - op: 'move'
+    data: [741, 1103]
   - op: 'patrol'
   - op: 'move'
     data: [754, 1053]

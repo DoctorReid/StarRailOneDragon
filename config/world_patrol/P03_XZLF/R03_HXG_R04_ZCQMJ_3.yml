@@ -39,14 +39,14 @@ route:
     data: [394, 756]
   - op: 'move'
     data: [309, 753]
-  - op: 'move'
+  - op: 'slow_move'
     data: [312, 784]
   - op: 'slow_move'
     data: [325, 784]
   - op: 'patrol'
   - op: 'slow_move'
     data: [312, 784]
-  - op: 'move'
+  - op: 'slow_move'
     data: [309, 753]
   - op: 'move'
     data: [394, 756]

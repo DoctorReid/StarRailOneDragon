@@ -13,27 +13,31 @@ route:
     data: [402, 533]
   - op: 'move'
     data: [410, 485]
-  - op: 'move'
+  - op: 'slow_move'
     data: [410, 420]
   - op: 'patrol'
-  - op: 'move'
+  - op: 'slow_move'
     data: [415, 482]
-  - op: 'move'
+  - op: 'slow_move'
     data: [433, 482]
   - op: 'move'
     data: [612, 487]
-  - op: 'move'
+  - op: 'slow_move'
     data: [635, 486]
-  - op: 'move'
+  - op: 'slow_move'
     data: [676, 493]
-  - op: 'move'
+  - op: 'slow_move'
     data: [724, 451]
   - op: 'patrol'
-  - op: 'move'
+  - op: 'slow_move'
     data: [715, 423]
+  - op: 'slow_move'
+    data: [688, 419]
   - op: 'patrol'
-  - op: 'move'
+  - op: 'slow_move'
+    data: [715, 423]
+  - op: 'slow_move'
     data: [737, 477]
-  - op: 'move'
+  - op: 'slow_move'
     data: [771, 500]
   - op: 'patrol'
