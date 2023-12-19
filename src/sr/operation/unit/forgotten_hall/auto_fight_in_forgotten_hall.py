@@ -53,7 +53,7 @@ class AutoFightInForgottenHall(Operation):
             if now_time - self.last_check_auto_fight_time > 10:
                 self.last_check_auto_fight_time = now_time
                 eaf = EnableAutoFight(self.ctx)
-                eaf.execute()
+                # eaf.execute()
             time.sleep(0.5)  # 战斗部分
             self.with_battle = True
             self.last_in_battle_time = now_time
