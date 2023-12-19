@@ -25,7 +25,7 @@ TP_BTN_RECT = Rect(1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
 REGION_LIST_RECT = Rect(1480, 200, 1820, 1000)
 FLOOR_LIST_PART = Rect(30, 730, 100, 1000)
 
-LARGE_MAP_POWER_RECT = Rect(1635, 54, 1678, 72)  # 大地图上显示体力的位置
+LARGE_MAP_POWER_RECT = Rect(1650, 54, 1690, 75)  # 大地图上显示体力的位置
 
 
 def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
@@ -36,11 +36,7 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
     :return: 星球名称
     """
     planet_name_part, _ = cv2_utils.crop_image(screen, PLANET_NAME_RECT)
-    lower_color = np.array([220, 220, 220], dtype=np.uint8)
-    upper_color = np.array([255, 255, 255], dtype=np.uint8)
-    white_part = cv2.inRange(planet_name_part, lower_color, upper_color)
-    # cv2_utils.show_image(white_part, win_name='white_part')
-    planet_name_str: str = ocr.ocr_for_single_line(white_part)
+    planet_name_str: str = ocr.ocr_for_single_line(planet_name_part)
 
     log.debug('屏幕左上方获取星球结果 %s', planet_name_str)
     if planet_name_str is not None:

@@ -11,7 +11,7 @@ from sr.operation import Operation, OperationOneRoundResult
 
 class GetTrainingScore(Operation):
 
-    SCORE_RECT: ClassVar[Rect] = Rect(305, 345, 385, 370)
+    SCORE_RECT: ClassVar[Rect] = Rect(320, 345, 370, 370)
 
     def __init__(self, ctx: Context, score_callback: Optional[Callable] = None):
         """
