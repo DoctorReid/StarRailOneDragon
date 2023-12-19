@@ -24,6 +24,7 @@ MISSION_SALVAGE_RELIC = DailyTrainingMission(id_cn='分解遗器', desc_cn='分�
 MISSION_WEAKNESS_BREAK = DailyTrainingMission(id_cn='触发弱点', desc_cn='单场战斗中，触发3种不同属性的弱点击破', able=False)
 MISSION_DEFEAT_ENEMY = DailyTrainingMission(id_cn='消灭敌人', desc_cn='累计消灭20个敌人', able=False)
 MISSION_DESTRUCTIBLE_OBJECTS = DailyTrainingMission(id_cn='可破坏物', desc_cn='累计击碎3个可破坏物', able=True)
+MISSION_USE_TECHNIQUE = DailyTrainingMission(id_cn='施放秘技', desc_cn='累计施放2次秘技', able=True)
 
 
 ALL_MISSION_LIST = [
@@ -37,4 +38,5 @@ ALL_MISSION_LIST = [
     MISSION_WEAKNESS_BREAK,
     MISSION_DEFEAT_ENEMY,
     MISSION_DESTRUCTIBLE_OBJECTS,
+    MISSION_USE_TECHNIQUE,
 ]

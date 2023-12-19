@@ -3,11 +3,12 @@ from typing import Optional
 from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import phone_menu_const
-from sr.const.traing_mission_const import MISSION_SALVAGE_RELIC, MISSION_DESTRUCTIBLE_OBJECTS
+from sr.const.traing_mission_const import MISSION_SALVAGE_RELIC, MISSION_DESTRUCTIBLE_OBJECTS, MISSION_USE_TECHNIQUE
 from sr.context import Context
 from sr.operation import Operation, OperationSuccess, OperationOneRoundResult
 from sr.operation.combine import StatusCombineOperationEdge, StatusCombineOperation
 from sr.operation.combine.destory_objects import DestroyObjects
+from sr.operation.combine.dt_use_2_technique import Use2Technique
 from sr.operation.combine.salvage_relic import SalvageRelic
 from sr.operation.unit.guide import GUIDE_TAB_2
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
@@ -115,6 +116,12 @@ class DailyTrainingApp(Application):
         edges.append(StatusCombineOperationEdge(get_mission, destroy_objects, status=MISSION_DESTRUCTIBLE_OBJECTS.id_cn))
         edges.append(StatusCombineOperationEdge(destroy_objects, final_claim_reward, success=False))  # 执行失败
         edges.append(StatusCombineOperationEdge(destroy_objects, open_menu))  # 执行成功 从头开始
+
+        use_2_technique = Use2Technique(self.ctx)  # 施放秘技
+        ops.append(use_2_technique)
+        edges.append(StatusCombineOperationEdge(get_mission, use_2_technique, status=MISSION_USE_TECHNIQUE.id_cn))
+        edges.append(StatusCombineOperationEdge(use_2_technique, final_claim_reward, success=False))  # 执行失败
+        edges.append(StatusCombineOperationEdge(use_2_technique, open_menu))  # 执行成功 从头开始
 
         self.op = StatusCombineOperation(self.ctx, ops, edges, start_op=open_menu,
                                          op_name='%s %s' % (gt('每日实训', 'ui'), gt('执行', 'ui')))
