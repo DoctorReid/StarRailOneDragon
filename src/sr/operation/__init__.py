@@ -256,7 +256,7 @@ class Operation:
     @staticmethod
     def op_fail(status: str = None) -> OperationResult:
         """
-        整个指令执行成功
+        整个指令执行失败
         :param status: 附带状态
         :return:
         """

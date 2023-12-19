@@ -38,7 +38,7 @@ class OpenMap(Operation):
 
         planet = large_map.get_planet(screen, ocr)
         log.info('当前大地图所处星球 %s', planet)
-        if planet is not None:  # 左上角找到星球名字的化 证明在在大地图页面了
+        if planet is not None:  # 左上角找到星球名字的话 证明在在大地图页面了
             return Operation.SUCCESS
 
         # 其他情况都需要通过返回上级菜单再尝试打开大地图
