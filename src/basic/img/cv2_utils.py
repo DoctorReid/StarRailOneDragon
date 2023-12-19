@@ -4,6 +4,7 @@ from typing import Union, List, Optional
 import cv2
 import numpy as np
 from cv2.typing import MatLike
+from PIL import Image
 
 from basic import Rect, os_utils
 from basic.img import MatchResult, MatchResultList
@@ -659,3 +660,25 @@ def scale_image(img: MatLike, scale: float = None, copy: bool = True):
         return img.copy() if copy else img
     target_size = (int(img.shape[0] * scale), int(img.shape[1] * scale))
     return cv2.resize(img, target_size)
+
+
+def show_image_ipython(img: MatLike,
+               rects: Union[MatchResult, MatchResultList] = None) -> Image.Image:
+    """
+    显示一张图片,方便在jupyter窗口中显示
+    :param img: 图片
+    :param rects: 需要画出来的框
+    :return:
+    """
+    to_show = img
+
+    if rects is not None:
+        to_show = img.copy()
+        if type(rects) == MatchResult:
+            cv2.rectangle(to_show, (rects.x, rects.y), (rects.x + rects.w, rects.y + rects.h), (255, 255, 255), 1)
+        elif type(rects) == MatchResultList:
+            for i in rects:
+                cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (255, 255, 255), 1)
+
+    opencv_image_rgb = cv2.cvtColor(to_show, cv2.COLOR_BGR2RGB)
+    return Image.fromarray(opencv_image_rgb)

@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 
 import cv2
 from cv2.typing import MatLike
@@ -44,7 +45,11 @@ def get_test_image(filename, suffix: str = '.png', sub_dir: str = None) -> MatLi
 
 
 def save_debug_image(image, prefix: str = '') -> str:
-    file_name = '%s_%d' % (prefix, round(time.time() * 1000))
+
+    dt_object = datetime.fromtimestamp(time.time())
+
+    formatted_time = dt_object.strftime('%Y-%m-%d_%H-%M-%S')
+    file_name = '{}_{}'.format(prefix, formatted_time)
     path = get_debug_image_path(file_name)
     log.debug('临时图片保存 %s', path)
     cv2.imwrite(path, image)
