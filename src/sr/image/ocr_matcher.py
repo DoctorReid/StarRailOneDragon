@@ -65,6 +65,15 @@ class OcrMatcher:
                             match_key.add(k)
 
         return {key: all_match_result[key] for key in match_key if key in all_match_result}
+    
+    def run_ocr_without_det(self, image: MatLike, threshold: float = None) -> str:
+        """
+        单文字OCR
+        :param image: 图片
+        :param threshold: 匹配阈值
+        :return: [("text", "score"),]
+        """
+        pass
 
 
 def merge_ocr_result_to_single_line(ocr_map, join_space: bool = True) -> str:
