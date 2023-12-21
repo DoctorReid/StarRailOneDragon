@@ -7,7 +7,7 @@ route:
   - op: 'move'
     data: [318, 445, -1]
   - op: 'move'
-    data: [257, 445]
+    data: [257, 440]
   - op: 'move'
     data: [257, 325]
   - op: 'move'

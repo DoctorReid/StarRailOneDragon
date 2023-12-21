@@ -283,11 +283,11 @@ P02_R03_SP05 = TransportPoint('FRZL', '丰饶之蕾拟造花萼赤', P02_R03, 'm
 P02_R03_SP06 = TransportPoint('YTZL', '以太之蕾拟造花萼金', P02_R03, 'mm_tp_08', (596, 194), (606, 195))
 
 # 雅利洛 - 铁卫禁区
-P02_R04_SP01 = TransportPoint('JQGS', '禁区岗哨', P02_R04, 'mm_tp_03', (1162, 576))
-P02_R04_SP02 = TransportPoint('JQQX', '禁区前线', P02_R04, 'mm_tp_03', (538, 596))
-P02_R04_SP03 = TransportPoint('NYSN', '能源枢纽', P02_R04, 'mm_tp_03', (750, 1102))
-P02_R04_SP04 = TransportPoint('YHZX', '炎华之形凝滞虚影', P02_R04, 'mm_tp_06', (463, 442))
-P02_R04_SP05 = TransportPoint('XQZJ', '迅拳之径侵蚀隧洞', P02_R04, 'mm_tp_09', (1143, 624))
+P02_R04_SP01 = TransportPoint('JQGS', '禁区岗哨', P02_R04, 'mm_tp_03', (1162, 576), (1158, 586))
+P02_R04_SP02 = TransportPoint('JQQX', '禁区前线', P02_R04, 'mm_tp_03', (538, 596), (530, 587))
+P02_R04_SP03 = TransportPoint('NYSN', '能源枢纽', P02_R04, 'mm_tp_03', (750, 1102), (767, 1064))
+P02_R04_SP04 = TransportPoint('YHZX', '炎华之形凝滞虚影', P02_R04, 'mm_tp_06', (463, 442), (464, 465))
+P02_R04_SP05 = TransportPoint('XQZJ', '迅拳之径侵蚀隧洞', P02_R04, 'mm_tp_09', (1143, 624), (1145, 617))
 P02_R04_SP06 = TransportPoint('YYHY', '以眼还眼', P02_R04, 'mm_sp_01', (438, 578))
 P02_R04_SP07 = TransportPoint('DBJXQ', '冬兵进行曲', P02_R04, 'mm_sp_01', (723, 1073))
 P02_R04_SP08 = TransportPoint('CXHL', '残响回廊', P02_R04, 'mm_sp_02', (314, 589))
