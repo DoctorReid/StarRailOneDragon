@@ -1,8 +1,8 @@
 import time
-from typing import Optional, Union, ClassVar
+from typing import Optional, Union, ClassVar, Callable
 
 from cv2.typing import MatLike
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from basic import Rect, str_utils
 from basic.i18_utils import gt, coalesce_gt
@@ -31,7 +31,7 @@ class OperationResult(BaseModel):
     """结果附带状态 - 每个指令独特"""
 
 
-class Operation:
+class Operation(BaseModel):
     """
     基础动作
     本身可暂停 但不由自身恢复
@@ -45,28 +45,70 @@ class Operation:
     OCR_CLICK_FAIL: ClassVar[int] = 0  # OCR成功但点击失败 基本不会出现
     OCR_CLICK_NOT_FOUND: ClassVar[int] = -1  # OCR找不到目标
 
-    def __init__(self, ctx: Context, try_times: int = 2, op_name: str = '', timeout_seconds: float = -1):
-        self.op_name: str = gt(op_name, 'ui')
-        self.try_times: int = try_times
-        self.op_round: int = 0
-        self.ctx: Context = ctx
-        self.last_screenshot: MatLike = None
-        self.gc: GameConfig = game_config.get()
+    op_name: str
+    """指令名称"""
 
-        self.timeout_seconds: float = timeout_seconds  # 本操作的超时时间
-        self.operation_start_time: float = 0  # 开始时间
-        self.pause_start_time = time.time()  # 本次暂停的开始时间
-        self.current_pause_time = 0  # 本次暂停的总时间
-        self.pause_total_time = 0  # 暂停的总时间
+    try_times: int
+    """尝试次数"""
+
+    op_round: int = 0
+    """当前执行轮次"""
+
+    ctx: Context
+    """上下文"""
+
+    last_screenshot: Optional[MatLike] = None
+    """上一次的截图 用于出错时保存"""
+
+    gc: GameConfig
+    """游戏配置"""
+
+    timeout_seconds: float
+    """指令超时时间"""
+
+    operation_start_time: float = 0
+    """指令开始执行的时间"""
+
+    pause_start_time: float = 0
+    """本次暂停开始的时间 on_pause时填入"""
+
+    current_pause_time: float = 0
+    """本次暂停的总时间 on_resume时填入"""
+
+    pause_total_time: float = 0
+    """暂停的总时间"""
+
+    executing: bool = False
+    """是否正在执行 用于判断能否进行初始化 暂停时也算是在执行"""
+
+    op_callback: Optional[Callable[[OperationResult], None]] = None
+    """该节点结束后的回调"""
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    def __init__(self, ctx: Context, try_times: int = 2, op_name: str = '', timeout_seconds: float = -1,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
+        super().__init__(
+            op_name=op_name,
+            try_times=try_times,
+            ctx=ctx,
+            gc=game_config.get(),
+            timeout_seconds=timeout_seconds,
+            op_callback=op_callback
+        )
 
     def _init_before_execute(self):
         """
-        执行前的初始化
+        执行前的初始化 注意初始化要全面 方便一个指令重复使用
         """
         now = time.time()
         self.operation_start_time = now
         self.pause_start_time = now
-        self.op_round: int = 0  # 这里要做初始化 方便一个操作重复使用
+        self.current_pause_time = 0
+        self.pause_total_time = 0
+        self.op_round = 0
+        self.executing = True
         self.ctx.register_pause(self, self.on_pause, self.on_resume)
 
     def execute(self) -> OperationResult:
@@ -194,10 +236,14 @@ class Operation:
         :return:
         """
         self.ctx.unregister(self)
+        self.executing = False
         if result.success:
             log.info('%s 执行成功 返回状态 %s', self.display_name, coalesce_gt(result.status, '成功', model='ui'))
         else:
             log.error('%s 执行失败 返回状态 %s', self.display_name, coalesce_gt(result.status, '失败', model='ui'))
+
+        if self.op_callback is not None:
+            self.op_callback(result)
 
     @staticmethod
     def round_success(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:

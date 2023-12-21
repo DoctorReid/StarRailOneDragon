@@ -1,9 +1,9 @@
+import subprocess
 import threading
+import time
 
 import keyboard
 import pyautogui
-import subprocess
-import time
 
 from basic import os_utils
 from basic.i18_utils import gt

@@ -7,12 +7,12 @@ from basic import cal_utils, Point
 from basic.img import cv2_utils
 from basic.img.os import get_test_image_dir
 from basic.log_utils import log
-from sr import const, cal_pos, performance_recorder
+from sr import cal_pos, performance_recorder
 from sr.const import map_const
 from sr.const.map_const import Region
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
-from sr.image.sceenshot import LargeMapInfo, mini_map, large_map, mini_map_angle_alas
+from sr.image.sceenshot import LargeMapInfo, mini_map, mini_map_angle_alas
 from sr.image.sceenshot.large_map import get_large_map_rect_by_pos
 
 
