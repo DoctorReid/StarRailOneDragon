@@ -11,16 +11,19 @@ from sr.operation.unit.guide import GuideTab
 
 
 class ChooseGuideTab(Operation):
-    """
-    使用前需要已经打开【星际和平指南】
 
-    选择对应的TAB
-    """
     def __init__(self, ctx: Context, target: GuideTab):
+        """
+        使用前需要已经打开【星际和平指南】
+
+        选择对应的TAB
+        """
         super().__init__(ctx, try_times=5,
-                         op_name=gt('打开指南', 'ui') + ' ' + gt(target.cn, 'ui'))
+                         op_name=gt('打开指南', 'ui') + ' ' + gt(target.cn, 'ui'),
+                         )
 
         self.target: GuideTab = target
+        """需要选择的分类"""
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()

@@ -1,10 +1,9 @@
 import time
-from typing import Callable, Union, ClassVar, Optional, List
+from typing import Callable, ClassVar, Optional, List
 
 import cv2
 import numpy as np
 from cv2.typing import MatLike
-from pydantic import BaseModel
 
 from basic import Rect
 from basic.i18_utils import gt
@@ -19,16 +18,18 @@ from sr.operation.unit.click import Click
 from sr.operation.unit.forgotten_hall.choose_character import ChooseCharacterInForgottenHall
 
 
-class SessionInfo(BaseModel):  # 关卡的信息
+class SessionInfo:  # 关卡的信息
 
-    num: int
-    """关卡编码"""
+    def __init__(self, num: int, combat_type_rect_list: List[Rect], character_rect_list: List[Rect]):
 
-    combat_type_rect_list: List[Rect]
-    """属性框"""
+        self.num: int = num
+        """关卡编码"""
 
-    character_rect_list: List[Rect]
-    """角色框"""
+        self.combat_type_rect_list: List[Rect] = combat_type_rect_list
+        """属性框"""
+
+        self.character_rect_list: List[Rect] = character_rect_list
+        """角色框"""
 
 
 class ChooseTeamInForgottenHall(Operation):

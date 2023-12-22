@@ -2,11 +2,10 @@ import time
 from typing import List, Optional
 
 from cv2.typing import MatLike
-from pydantic import BaseModel
 
 from basic import Rect, str_utils, Point
 from basic.i18_utils import gt
-from basic.img import cv2_utils, MatchResult
+from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import secondary_ui
@@ -14,11 +13,14 @@ from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit import guide
 
 
-class SurvivalIndexCategory(BaseModel):
-    """
-    生存索引左侧的类目
-    """
-    cn: str
+class SurvivalIndexCategory:
+
+    def __init__(self, cn: str):
+        """
+        生存索引左侧的类目
+        """
+        self.cn: str = cn
+        """中文"""
 
 
 CATEGORY_ROGUE = SurvivalIndexCategory(cn='模拟宇宙')
@@ -97,11 +99,14 @@ class ChooseSurvivalIndexCategory(Operation):
         return Operation.round_retry('未找到目标')
 
 
-class SurvivalIndexMission(BaseModel):
-    """
-    生存索引右侧的副本
-    """
-    cn: str
+class SurvivalIndexMission:
+
+    def __init__(self, cn: str):
+        """
+        生存索引右侧的副本
+        """
+        self.cn: str = cn
+        """中文"""
 
 
 MISSION_FORGOTTEN_HALL = SurvivalIndexMission(cn='忘却之庭')

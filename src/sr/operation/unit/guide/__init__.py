@@ -1,18 +1,18 @@
-from pydantic import BaseModel
-
 from basic import Rect
 
 
-class GuideTab(BaseModel):
+class GuideTab:
 
-    cn: str
-    """中文"""
+    def __init__(self, cn: str, num: int, rect: Rect):
 
-    num: int
-    """TAB顺序"""
+        self.cn: str = cn
+        """中文"""
 
-    rect: Rect
-    """按钮位置"""
+        self.num: int = num
+        """TAB顺序"""
+
+        self.rect: Rect = rect
+        """按钮位置"""
 
 
 GUIDE_TAB_1 = GuideTab(cn='行动摘要', num=1, rect=Rect(280, 178, 402, 245))

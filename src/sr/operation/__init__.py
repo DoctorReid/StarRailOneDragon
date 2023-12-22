@@ -2,7 +2,6 @@ import time
 from typing import Optional, Union, ClassVar, Callable
 
 from cv2.typing import MatLike
-from pydantic import BaseModel, ConfigDict
 
 from basic import Rect, str_utils
 from basic.i18_utils import gt, coalesce_gt
@@ -15,23 +14,37 @@ from sr.context import Context
 from sr.image.sceenshot import fill_uid_black
 
 
-class OperationOneRoundResult(BaseModel):
+class OperationOneRoundResult:
 
-    result: int
-    """单轮执行结果 - 框架固定"""
-    status: Optional[str] = None
-    """结果附带状态 - 每个指令独特"""
+    def __init__(self, result: int, status: Optional[str] = None):
+        """
+        指令单轮执行的结果
+        :param result: 结果
+        :param status: 附带状态
+        """
+
+        self.result: int = result
+        """单轮执行结果 - 框架固定"""
+        self.status: Optional[str] = status
+        """结果附带状态 - 每个指令独特"""
 
 
-class OperationResult(BaseModel):
+class OperationResult:
 
-    success: bool
-    """指令执行结果 - 框架固定"""
-    status: Optional[str] = None
-    """结果附带状态 - 每个指令独特"""
+    def __init__(self, success: bool, status: Optional[str] = None):
+        """
+        指令最后的结果
+        :param success: 指令执行结果
+        :param status: 附带状态
+        """
+
+        self.success: bool = success
+        """指令执行结果 - 框架固定"""
+        self.status: Optional[str] = status
+        """结果附带状态 - 每个指令独特"""
 
 
-class Operation(BaseModel):
+class Operation:
     """
     基础动作
     本身可暂停 但不由自身恢复
@@ -45,58 +58,46 @@ class Operation(BaseModel):
     OCR_CLICK_FAIL: ClassVar[int] = 0  # OCR成功但点击失败 基本不会出现
     OCR_CLICK_NOT_FOUND: ClassVar[int] = -1  # OCR找不到目标
 
-    op_name: str
-    """指令名称"""
-
-    try_times: int
-    """尝试次数"""
-
-    op_round: int = 0
-    """当前执行轮次"""
-
-    ctx: Context
-    """上下文"""
-
-    last_screenshot: Optional[MatLike] = None
-    """上一次的截图 用于出错时保存"""
-
-    gc: GameConfig
-    """游戏配置"""
-
-    timeout_seconds: float
-    """指令超时时间"""
-
-    operation_start_time: float = 0
-    """指令开始执行的时间"""
-
-    pause_start_time: float = 0
-    """本次暂停开始的时间 on_pause时填入"""
-
-    current_pause_time: float = 0
-    """本次暂停的总时间 on_resume时填入"""
-
-    pause_total_time: float = 0
-    """暂停的总时间"""
-
-    executing: bool = False
-    """是否正在执行 用于判断能否进行初始化 暂停时也算是在执行"""
-
-    op_callback: Optional[Callable[[OperationResult], None]] = None
-    """该节点结束后的回调"""
-
-    class Config:
-        arbitrary_types_allowed = True
-
     def __init__(self, ctx: Context, try_times: int = 2, op_name: str = '', timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
-        super().__init__(
-            op_name=op_name,
-            try_times=try_times,
-            ctx=ctx,
-            gc=game_config.get(),
-            timeout_seconds=timeout_seconds,
-            op_callback=op_callback
-        )
+        self.op_name: str = op_name
+        """指令名称"""
+
+        self.try_times: int = try_times
+        """尝试次数"""
+
+        self.op_round: int = 0
+        """当前执行轮次"""
+
+        self.ctx: Context = ctx
+        """上下文"""
+
+        self.last_screenshot: Optional[MatLike] = None
+        """上一次的截图 用于出错时保存"""
+
+        self.gc: GameConfig = game_config.get()
+        """游戏配置"""
+
+        self.timeout_seconds: float = timeout_seconds
+        """指令超时时间"""
+
+        self.operation_start_time: float = 0
+        """指令开始执行的时间"""
+
+        self.pause_start_time: float = 0
+        """本次暂停开始的时间 on_pause时填入"""
+
+        self.current_pause_time: float = 0
+        """本次暂停的总时间 on_resume时填入"""
+
+        self.pause_total_time: float = 0
+        """暂停的总时间"""
+
+        self.executing: bool = False
+        """是否正在执行 用于判断能否进行初始化 暂停时也算是在执行"""
+
+        self.op_callback: Optional[Callable[[OperationResult], None]] = op_callback
+        """该节点结束后的回调"""
 
     def _init_before_execute(self):
         """

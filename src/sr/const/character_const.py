@@ -1,17 +1,23 @@
 from typing import List, Optional
 
-from pydantic import BaseModel
 
 from basic import str_utils
 from basic.i18_utils import gt
 
 
-class CharacterPath(BaseModel):
+class CharacterPath:
 
-    id: str
-    """命途唯一标识"""
-    cn: str
-    """命途中文名称"""
+    def __init__(self, id: str, cn: str):
+        """
+        角色命途
+        :param id: 唯一标识
+        :param cn: 中文名称
+        """
+
+        self.id: str = id
+        """命途唯一标识"""
+        self.cn: str = cn
+        """命途中文名称"""
 
 
 CHARACTER_PATH_DESTRUCTION = CharacterPath(id='destruction', cn='毁灭')
@@ -42,12 +48,19 @@ SUPPORT_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_NIHILITY, CHARACTER_PAT
 """辅助命途"""
 
 
-class CharacterCombatType(BaseModel):
+class CharacterCombatType:
 
-    id: str
-    """属性唯一标识"""
-    cn: str
-    """属性中文名称"""
+    def __init__(self, id: str, cn: str):
+        """
+        角色属性
+        :param id: 唯一标识
+        :param cn: 中文名称
+        """
+
+        self.id: str = id
+        """属性唯一标识"""
+        self.cn: str = cn
+        """属性中文名称"""
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -75,13 +88,19 @@ CHARACTER_COMBAT_TYPE_LIST = [
 ]
 
 
-class CharacterTechniqueType(BaseModel):
+class CharacterTechniqueType:
 
-    id: str
-    """唯一标识"""
+    def __init__(self, id: str, remark: str):
+        """
+        角色秘技类型
+        :param id: 唯一标识
+        :param remark: 备注
+        """
 
-    remark: str
-    """备注"""
+        self.id: str = id
+        """唯一标识"""
+        self.remark: str = remark
+        """备注"""
 
 
 TECHNIQUE_BUFF = CharacterTechniqueType(id='buff', remark='BUFF类')
@@ -89,20 +108,31 @@ TECHNIQUE_BUFF_ATTACK = CharacterTechniqueType(id='buff_attack', remark='需攻�
 TECHNIQUE_ATTACK = CharacterTechniqueType(id='attack', remark='攻击类')
 
 
-class Character(BaseModel):
+class Character:
 
-    id: str
-    """角色唯一标识"""
-    cn: str
-    """角色中文名称"""
-    path: CharacterPath
-    """命途"""
-    combat_type: CharacterCombatType
-    """属性"""
-    level: int
-    """星级"""
-    technique_type: CharacterTechniqueType
-    """秘技类型"""
+    def __init__(self, id: str, cn: str, path: CharacterPath, combat_type: CharacterCombatType, level: int, technique_type: CharacterTechniqueType):
+        """
+        角色秘技类型
+        :param id: 角色唯一标识
+        :param cn: 备注
+        :param path: 命途
+        :param combat_type: 属性
+        :param level:
+        :param technique_type:
+        """
+
+        self.id: str = id
+        """角色唯一标识"""
+        self.cn: str = cn
+        """角色中文名称"""
+        self.path: CharacterPath = path
+        """命途"""
+        self.combat_type: CharacterCombatType = combat_type
+        """属性"""
+        self.level: int = level
+        """星级"""
+        self.technique_type: CharacterTechniqueType = technique_type
+        """秘技类型"""
 
     def __lt__(self, other):
         return self.level > other.level \

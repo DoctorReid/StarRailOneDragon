@@ -14,14 +14,15 @@ from sr.operation import Operation
 
 class ClickPhoneMenuItem(Operation):
 
-    """
-    点击菜单中的某个特定的项（中间大图标那块）
-    需要先保证在菜单页面上
-    """
-
     def __init__(self, ctx: Context, item: PhoneMenuItem):
+        """
+        点击菜单中的某个特定的项（中间大图标那块）
+        需要先保证在菜单页面上
+        """
         super().__init__(ctx, try_times=10, op_name=gt('点击菜单 %s', 'ui') % gt(item.cn, 'ui'))
+
         self.item: PhoneMenuItem = item
+        """需要点击的菜单"""
 
     def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()

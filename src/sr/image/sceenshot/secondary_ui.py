@@ -1,6 +1,5 @@
 """判断二级UI的地方"""
 from cv2.typing import MatLike
-from pydantic import BaseModel
 
 from basic import Rect
 from basic.i18_utils import gt
@@ -8,9 +7,11 @@ from basic.img import cv2_utils
 from sr.image.ocr_matcher import OcrMatcher
 
 
-class SecondaryUiTitle(BaseModel):
-    cn: str
-    """标题中文"""
+class SecondaryUiTitle:
+
+    def __init__(self, cn: str):
+        self.cn: str = cn
+        """标题中文"""
 
 
 TITLE_GUIDE = SecondaryUiTitle(cn="星际和平指南")

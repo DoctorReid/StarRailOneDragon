@@ -1,16 +1,13 @@
 import time
 from typing import List, Optional, Set
 
-from pydantic import BaseModel
-
 from basic.i18_utils import gt
 from basic.log_utils import log
 from basic.os_utils import get_sunday_dt, dt_day_diff
 from sr.app import Application, AppRunRecord, AppDescription, register_app, app_record_current_dt_str
 from sr.config import ConfigHolder
 from sr.const import phone_menu_const
-from sr.const.character_const import CharacterCombatType, get_character_by_id, Character, SILVERWOLF, CharacterPath, \
-    ATTACK_PATH_LIST, \
+from sr.const.character_const import CharacterCombatType, get_character_by_id, Character, SILVERWOLF, ATTACK_PATH_LIST, \
     SURVIVAL_PATH_LIST, SUPPORT_PATH_LIST, is_attack_character, is_survival_character, is_support_character
 from sr.context import Context
 from sr.operation import Operation, OperationSuccess, OperationResult
@@ -118,13 +115,15 @@ def get_record() -> ForgottenHallRecord:
     return _forgotten_hall_record
 
 
-class ForgottenHallTeamModuleType(BaseModel):
+class ForgottenHallTeamModuleType:
 
-    module_type: str
-    """模块类型 唯一"""
+    def __init__(self, module_type: str, module_name_cn: str):
 
-    module_name_cn: str
-    """模块名称"""
+        self.module_type: str = module_type
+        """模块类型 唯一"""
+
+        self.module_name_cn: str = module_name_cn
+        """模块名称"""
 
 
 TEAM_MODULE_ATTACK = ForgottenHallTeamModuleType(module_type='attack', module_name_cn='输出')
@@ -133,19 +132,21 @@ TEAM_MODULE_SUPPORT = ForgottenHallTeamModuleType(module_type='support', module_
 TEAM_MODULE_LIST = [TEAM_MODULE_ATTACK, TEAM_MODULE_SURVIVAL, TEAM_MODULE_SUPPORT]
 
 
-class ForgottenHallTeamModule(BaseModel):
+class ForgottenHallTeamModule:
 
-    module_name: str
-    """配队名称"""
+    def __init__(self, module_name: str, combat_type: str, module_type: str, character_id_list: List[str]):
 
-    combat_type: str
-    """应对属性 暂时不使用"""
+        self.module_name: str = module_name
+        """配队名称"""
 
-    module_type: str
-    """配队模块 暂时不使用"""
+        self.combat_type: str = combat_type
+        """应对属性 暂时不使用"""
 
-    character_id_list: List[str]
-    """配队角色列表"""
+        self.module_type: str = module_type
+        """配队模块 暂时不使用"""
+
+        self.character_id_list: List[str] = character_id_list
+        """配队角色列表"""
 
     @property
     def with_attack(self) -> bool:
@@ -189,16 +190,18 @@ class ForgottenHallTeamModule(BaseModel):
         return False
 
 
-class ForgottenHallNodeTeam(BaseModel):
+class ForgottenHallNodeTeam:
 
-    module_list: List[ForgottenHallTeamModule] = []
-    """使用的配队模块"""
+    def __init__(self):
 
-    character_id_set: Set[str] = set()
-    """角色ID集合"""
+        self.module_list: List[ForgottenHallTeamModule] = []
+        """使用的配队模块"""
 
-    node_dfs_phase: int = 0
-    """搜索状态 模块需要按影响得分顺序添加 输出 -> 银狼 -> 生存 -> 辅助"""
+        self.character_id_set: Set[str] = set()
+        """角色ID集合"""
+
+        self.node_dfs_phase: int = 0
+        """搜索状态 模块需要按影响得分顺序添加 输出 -> 银狼 -> 生存 -> 辅助"""
 
     @property
     def character_list(self) -> List[Character]:
@@ -302,49 +305,7 @@ class ForgottenHallNodeTeam(BaseModel):
             return False
 
 
-class ForgottenHallNodeTeamScore(BaseModel):
-
-    attack_cnt: int = 0
-    """输出数量"""
-
-    support_cnt: int = 0
-    """支援数量"""
-
-    survival_cnt: int = 0
-    """生存数量"""
-
-    combat_type_not_need_cnt: int = 0
-    """配队中原本多余的属性个数"""
-
-    combat_type_attack_cnt: int = 0
-    """输出位对应属性的数量"""
-
-    combat_type_attack_cnt_under_silver: int = 0
-    """输出位在拥有银狼情况下对应属性的数量"""
-
-    combat_type_other_cnt: int = 0
-    """其他位对应属性的数量"""
-
-    combat_type_other_cnt_under_silver: int = 0
-    """其它位在拥有银狼情况下对应属性的数量"""
-
-    cnt_score: float = 0
-    """人数得分"""
-
-    attack_score: float = 0
-    """输出位得分"""
-
-    survival_score: float = 0
-    """生存位得分"""
-
-    support_score: float = 0
-    """辅助位得分"""
-
-    combat_type_score: float = 0
-    """对应属性得分"""
-
-    total_score: float = 0
-    """总得分"""
+class ForgottenHallNodeTeamScore:
 
     def __init__(self, node_team: ForgottenHallNodeTeam, combat_type_list: List[CharacterCombatType]):
         """
@@ -352,7 +313,48 @@ class ForgottenHallNodeTeamScore(BaseModel):
         :param node_team: 节点配队
         :param combat_type_list: 节点需要的属性
         """
-        super().__init__()
+
+        self.attack_cnt: int = 0
+        """输出数量"""
+
+        self.support_cnt: int = 0
+        """支援数量"""
+
+        self.survival_cnt: int = 0
+        """生存数量"""
+
+        self.combat_type_not_need_cnt: int = 0
+        """配队中原本多余的属性个数"""
+
+        self.combat_type_attack_cnt: int = 0
+        """输出位对应属性的数量"""
+
+        self.combat_type_attack_cnt_under_silver: int = 0
+        """输出位在拥有银狼情况下对应属性的数量"""
+
+        self.combat_type_other_cnt: int = 0
+        """其他位对应属性的数量"""
+
+        self.combat_type_other_cnt_under_silver: int = 0
+        """其它位在拥有银狼情况下对应属性的数量"""
+
+        self.cnt_score: float = 0
+        """人数得分"""
+
+        self.attack_score: float = 0
+        """输出位得分"""
+
+        self.survival_score: float = 0
+        """生存位得分"""
+
+        self.support_score: float = 0
+        """辅助位得分"""
+
+        self.combat_type_score: float = 0
+        """对应属性得分"""
+
+        self.total_score: float = 0
+        """总得分"""
 
         character_list = node_team.character_list
         cal_combat_type_list = self._cal_need_combat_type(character_list, combat_type_list)
@@ -460,41 +462,40 @@ class ForgottenHallNodeTeamScore(BaseModel):
         self.total_score = self.cnt_score + self.attack_score + self.survival_score + self.support_score + self.combat_type_score
 
 
-class ForgottenHallMissionTeam(BaseModel):
-
-    total_node_cnt: int
-    """总节点数"""
-
-    node_combat_types: List[List[CharacterCombatType]]
-    """节点对应属性"""
-
-    node_team_list: List[ForgottenHallNodeTeam]
-    """节点队伍列表"""
-
-    cnt_score: float = 0
-    """人数得分"""
-
-    attack_score: float = 0
-    """输出位得分"""
-
-    survival_score: float = 0
-    """生存位得分"""
-
-    support_score: float = 0
-    """辅助位得分"""
-
-    combat_type_score: float = 0
-    """对应属性得分"""
-
-    total_score: float = 0
-    """总得分"""
+class ForgottenHallMissionTeam:
 
     def __init__(self, node_combat_types: List[List[CharacterCombatType]]):
         total_node_cnt: int = len(node_combat_types)
         node_team_list = []
         for _ in range(total_node_cnt):
             node_team_list.append(ForgottenHallNodeTeam())
-        super().__init__(total_node_cnt=total_node_cnt, node_combat_types=node_combat_types, node_team_list=node_team_list)
+
+        self.total_node_cnt: int = total_node_cnt
+        """总节点数"""
+
+        self.node_combat_types: List[List[CharacterCombatType]] = node_combat_types
+        """节点对应属性"""
+
+        self.node_team_list: List[ForgottenHallNodeTeam] = node_team_list
+        """节点队伍列表"""
+
+        self.cnt_score: float = 0
+        """人数得分"""
+
+        self.attack_score: float = 0
+        """输出位得分"""
+
+        self.survival_score: float = 0
+        """生存位得分"""
+
+        self.support_score: float = 0
+        """辅助位得分"""
+
+        self.combat_type_score: float = 0
+        """对应属性得分"""
+
+        self.total_score: float = 0
+        """总得分"""
 
     def existed_characters(self, character_id_list: List[str]) -> bool:
         """

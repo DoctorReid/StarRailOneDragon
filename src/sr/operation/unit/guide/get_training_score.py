@@ -11,7 +11,7 @@ from sr.operation import Operation, OperationOneRoundResult
 
 class GetTrainingScore(Operation):
 
-    SCORE_RECT: ClassVar[Rect] = Rect(305, 345, 385, 370)
+    SCORE_RECT: ClassVar[Rect] = Rect(315, 345, 375, 370)
 
     def __init__(self, ctx: Context, score_callback: Optional[Callable] = None):
         """
@@ -33,7 +33,7 @@ class GetTrainingScore(Operation):
         score = self._get_score()
 
         if score is None:
-            return Operation.round_retry('识别不到数字')
+            return Operation.round_retry('识别不到数字', 1)
         else:
             if self.score_callback is not None:
                 self.score_callback(score)

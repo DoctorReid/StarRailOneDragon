@@ -24,7 +24,7 @@ class CheckTechniquePoint(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        if battle.IN_WORLD == battle.get_battle_status(screen, self.ctx.im):
+        if battle.IN_WORLD != battle.get_battle_status(screen, self.ctx.im):
             time.sleep(1)
             return Operation.round_retry('未在大世界界面')
 

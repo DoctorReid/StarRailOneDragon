@@ -1,14 +1,19 @@
-from pydantic import BaseModel
+from typing import Union
 
 
-class Point(BaseModel):
-    """坐标 会转化成整数"""
+class Point:
 
-    x: int
-    y: int
+    def __init__(self, x: Union[int, float], y: Union[int, float]):
+        """
+        一个点 坐标会转化成整数
+        :param x: 横坐标
+        :param y: 纵坐标
+        """
 
-    def __init__(self, x, y):
-        super().__init__(x=int(x), y=int(y))
+        self.x: int = int(x)
+        """横坐标"""
+        self.y: int = int(y)
+        """纵坐标"""
 
     def tuple(self):
         return self.x, self.y
@@ -20,15 +25,21 @@ class Point(BaseModel):
         return Point(self.x + other.x, self.y + other.y)
 
 
-class Rect(BaseModel):
+class Rect:
 
-    x1: int
-    y1: int
-    x2: int
-    y2: int
+    def __init__(self, x1: Union[int, float], y1: Union[int, float], x2: Union[int, float], y2: Union[int, float]):
+        """
+        一个矩形 坐标会转化成整数
+        :param x1: 左上角 横坐标
+        :param y1: 左上角 纵坐标
+        :param x2: 右下角 横坐标
+        :param y2: 右下角 纵坐标
+        """
 
-    def __init__(self, x1, y1, x2, y2):
-        super().__init__(x1=x1, y1=y1, x2=x2, y2=y2)
+        self.x1: int = int(x1)
+        self.y1: int = int(y1)
+        self.x2: int = int(x2)
+        self.y2: int = int(y2)
 
     @property
     def center(self) -> Point:

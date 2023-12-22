@@ -1,6 +1,4 @@
-from typing import List, Optional, Union, Callable
-
-from pydantic import BaseModel
+from typing import List, Optional, Callable
 
 from basic.log_utils import log
 from sr.context import Context
@@ -31,42 +29,42 @@ class CombineOperation(Operation):
         return Operation.RETRY if self.op_round < len(self.ops) else Operation.SUCCESS
 
 
-class StatusCombineOperationEdge(BaseModel):
-    """
-    指令节点
-    """
-
-    op_from_id: int
-    """上一个指令"""
-
-    op_to_id: int
-    """下一个指令"""
-
-    success: bool
-    """是否成功才执行下一个指令"""
-
-    status: Optional[str] = None
-    """
-    执行下一个指令的条件状态 
-    一定要完全一样才会执行 包括None
-    """
-
-    ignore_status: bool
-    """
-    是否忽略状态进行下一个指令
-    一个指令应该最多只有一条边忽略返回状态
-    忽略返回状态只有在所有需要匹配的状态都匹配不到时才会用做兜底
-    """
+class StatusCombineOperationEdge:
 
     def __init__(self, op_from: Operation, op_to: Operation,
                  success: bool = True,
                  status: Optional[str] = None,
                  ignore_status: bool = True):
-        super().__init__(op_from_id=id(op_from),
-                         op_to_id=id(op_to),
-                         success=success,
-                         status=status,
-                         ignore_status=False if status is not None else ignore_status)
+        """
+        指令节点
+        :param op_from:
+        :param op_to:
+        :param success:
+        :param status:
+        :param ignore_status:
+        """
+
+        self.op_from_id: int = id(op_from)
+        """上一个指令"""
+
+        self.op_to_id: int = id(op_to)
+        """下一个指令"""
+
+        self.success: bool = success
+        """是否成功才执行下一个指令"""
+
+        self.status: Optional[str] = status
+        """
+        执行下一个指令的条件状态 
+        一定要完全一样才会执行 包括None
+        """
+
+        self.ignore_status: bool = False if status is not None else ignore_status
+        """
+        是否忽略状态进行下一个指令
+        一个指令应该最多只有一条边忽略返回状态
+        忽略返回状态只有在所有需要匹配的状态都匹配不到时才会用做兜底
+        """
 
 
 class StatusCombineOperation(Operation):
@@ -167,16 +165,18 @@ class StatusCombineOperation(Operation):
         return Operation.round_wait(current_op_result.status)
 
 
-class StatusCombineOperationNode(BaseModel):
+class StatusCombineOperationNode:
 
-    node_id: str
-    """节点ID"""
+    def __init__(self, node_id: str, op_func: Optional[Callable[[], Operation]] = None, op: Optional[Operation] = None):
 
-    op_func: Optional[Callable[[], Operation]] = None
-    """该节点对应指令的生成器 与具体指令只需其中一个"""
+        self.node_id: str = node_id
+        """节点ID"""
 
-    op: Optional[Operation] = None
-    """该节点对应的指令 与指令指令生成器只需其中一个"""
+        self.op_func: Optional[Callable[[], Operation]] = op_func
+        """该节点对应指令的生成器 与具体指令只需其中一个"""
+
+        self.op: Optional[Operation] = op
+        """该节点对应的指令 与指令指令生成器只需其中一个"""
 
     def get_operation(self) -> Operation:
         """
@@ -186,61 +186,66 @@ class StatusCombineOperationNode(BaseModel):
         return self.op_func() if self.op is None else self.op
 
 
-class StatusCombineOperationEdge2(BaseModel):
+class StatusCombineOperationEdge2:
 
-    node_from: StatusCombineOperationNode
-    """上一个指令"""
+    def __init__(self, node_from: StatusCombineOperationNode, node_to: StatusCombineOperationNode,
+                 success: bool = True, status: Optional[str] = None, ignore_status: bool = True):
 
-    node_to: StatusCombineOperationNode
-    """下一个指令"""
+        self.node_from: StatusCombineOperationNode = node_from
+        """上一个指令"""
 
-    success: bool = True
-    """是否成功才执行下一个指令"""
+        self.node_to: StatusCombineOperationNode = node_to
+        """下一个指令"""
 
-    status: Optional[str] = None
-    """
-    执行下一个指令的条件状态 
-    一定要完全一样才会执行 包括None
-    """
+        self.success: bool = success
+        """是否成功才执行下一个指令"""
 
-    ignore_status: bool = False
-    """
-    是否忽略状态进行下一个指令
-    一个指令应该最多只有一条边忽略返回状态
-    忽略返回状态只有在所有需要匹配的状态都匹配不到时才会用做兜底
-    """
+        self.status: Optional[str] = status
+        """
+        执行下一个指令的条件状态 
+        一定要完全一样才会执行 包括None
+        """
+
+        self.ignore_status: bool = False if status is not None else ignore_status
+        """
+        是否忽略状态进行下一个指令
+        一个指令应该最多只有一条边忽略返回状态
+        忽略返回状态只有在所有需要匹配的状态都匹配不到时才会用做兜底
+        """
 
 
 class StatusCombineOperation2(Operation):
 
-    edge_list: List[StatusCombineOperationEdge2] = []
-    """边列表"""
-
-    _node_edges_map: dict[str, List[StatusCombineOperationEdge2]] = {}
-    """下一个节点的集合"""
-
-    _node_map: dict[str, StatusCombineOperationNode] = {}
-    """节点"""
-
-    _specified_start_node: Optional[StatusCombineOperationNode] = None
-    """指定的开始节点 当网络存在环时 需要自己指定"""
-
-    _start_node: Optional[StatusCombineOperationNode] = None
-    """其实节点 初始化后才会有"""
-
-    _multiple_start: bool = False
-    """是否有多个开始节点 属于异常情况"""
-
-    _current_node: Optional[StatusCombineOperationNode] = None
-    """当前执行的节点"""
-
     def __init__(self, ctx: Context, op_name: str,
                  timeout_seconds: float = -1,
-                 edges: Optional[List[StatusCombineOperationEdge2]] = None):
+                 edges: Optional[List[StatusCombineOperationEdge2]] = None,
+                 specified_start_node: Optional[StatusCombineOperationNode] = None):
         Operation.__init__(self, ctx,
                            try_times=1,  # 组合指令运行 作为一个框架不应该有出错重试
                            op_name=op_name,
-                           timeout_seconds=timeout_seconds)
+                           timeout_seconds=timeout_seconds,
+                           )
+        self.edge_list: List[StatusCombineOperationEdge2] = []
+        """边列表"""
+
+        self._node_edges_map: dict[str, List[StatusCombineOperationEdge2]] = {}
+        """下一个节点的集合"""
+
+        self._node_map: dict[str, StatusCombineOperationNode] = {}
+        """节点"""
+
+        self._specified_start_node: Optional[StatusCombineOperationNode] = specified_start_node
+        """指定的开始节点 当网络存在环时 需要自己指定"""
+
+        self._start_node: Optional[StatusCombineOperationNode] = None
+        """其实节点 初始化后才会有"""
+
+        self._multiple_start: bool = False
+        """是否有多个开始节点 属于异常情况"""
+
+        self._current_node: Optional[StatusCombineOperationNode] = None
+        """当前执行的节点"""
+
         if edges is not None:
             for edge in edges:
                 self._register_edge(edge)
@@ -317,12 +322,9 @@ class StatusCombineOperation2(Operation):
         current_op = self._current_node.get_operation()
         current_op_result: OperationResult = current_op.execute()
 
-        if not current_op_result.success:  # 指令执行失败
-            return Operation.round_fail(current_op_result.status)
-
         edges = self._node_edges_map.get(self._current_node.node_id)
         if edges is None:  # 没有下一个节点了 已经结束了
-            return Operation.round_success(current_op_result.status)
+            return self.round_result_by_op(current_op_result)
 
         next_node_id: Optional[str] = None
         final_next_node_id: Optional[str] = None  # 兜底指令
@@ -348,7 +350,13 @@ class StatusCombineOperation2(Operation):
             next_node = self._node_map[final_next_node_id]
 
         if next_node is None:  # 没有下一个节点了 已经结束了
-            return Operation.round_success(current_op_result.status)
+            return self.round_result_by_op(current_op_result)
 
         self._current_node = next_node
         return Operation.round_wait(current_op_result.status)
+
+    def round_result_by_op(self, op_result: OperationResult) -> OperationOneRoundResult:
+        if op_result.success:
+            return self.round_success(op_result.status)
+        else:
+            return self.round_fail(op_result.status)

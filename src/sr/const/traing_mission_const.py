@@ -1,17 +1,21 @@
-from pydantic import BaseModel
+class DailyTrainingMission:
 
+    def __init__(self, id_cn: str, desc_cn: str, able: bool):
+        """
+        实训任务
+        :param id_cn: 类型名称
+        :param desc_cn: 任务描述
+        :param able: 是否可以执行
+        """
 
-class DailyTrainingMission(BaseModel):
-    """实训任务类型"""
+        self.id_cn: str = id_cn
+        """类型名称"""
 
-    id_cn: str
-    """类型名称"""
+        self.desc_cn: str = desc_cn
+        """任务描述"""
 
-    desc_cn: str
-    """任务描述"""
-
-    able: bool
-    """是否可以执行"""
+        self.able: bool = able
+        """是否可以执行"""
 
 
 MISSION_DAILY_MISSION = DailyTrainingMission(id_cn='日常任务', desc_cn='完成1个日常任务', able=False)
@@ -25,6 +29,7 @@ MISSION_WEAKNESS_BREAK = DailyTrainingMission(id_cn='触发弱点', desc_cn='单
 MISSION_DEFEAT_ENEMY = DailyTrainingMission(id_cn='消灭敌人', desc_cn='累计消灭20个敌人', able=False)
 MISSION_DESTRUCTIBLE_OBJECTS = DailyTrainingMission(id_cn='可破坏物', desc_cn='累计击碎3个可破坏物', able=True)
 MISSION_USE_TECHNIQUE = DailyTrainingMission(id_cn='施放秘技', desc_cn='累计施放2次秘技', able=True)
+MISSION_TAKE_PHOTO = DailyTrainingMission(id_cn='拍照', desc_cn='拍照1次', able=True)
 
 
 ALL_MISSION_LIST = [
@@ -39,4 +44,5 @@ ALL_MISSION_LIST = [
     MISSION_DEFEAT_ENEMY,
     MISSION_DESTRUCTIBLE_OBJECTS,
     MISSION_USE_TECHNIQUE,
+    MISSION_TAKE_PHOTO,
 ]
