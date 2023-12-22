@@ -293,13 +293,13 @@ P02_R04_SP07 = TransportPoint('DBJXQ', '冬兵进行曲', P02_R04, 'mm_sp_01', (
 P02_R04_SP08 = TransportPoint('CXHL', '残响回廊', P02_R04, 'mm_sp_02', (314, 589))
 
 # 雅利洛 - 残响回廊
-P02_R05_SP01 = TransportPoint('ZCLY', '筑城领域', P02_R05, 'mm_tp_03', (770, 442))
-P02_R05_SP02 = TransportPoint('WRGC', '污染广场', P02_R05, 'mm_tp_03', (381, 655))
-P02_R05_SP03 = TransportPoint('ZZZHS', '作战指挥室', P02_R05, 'mm_tp_03', (495, 856))
-P02_R05_SP04 = TransportPoint('GZCQX', '古战场前线', P02_R05, 'mm_tp_03', (570, 1243))
-P02_R05_SP05 = TransportPoint('MLZX', '鸣雷之形凝滞虚影', P02_R05, 'mm_tp_06', (526, 640))
-P02_R05_SP06 = TransportPoint('SJZX', '霜晶之形凝滞虚影', P02_R05, 'mm_tp_06', (681, 1231))
-P02_R05_SP07 = TransportPoint('PBZJ', '漂泊之径侵蚀隧洞', P02_R05, 'mm_tp_09', (654, 242))
+P02_R05_SP01 = TransportPoint('ZCLY', '筑城领域', P02_R05, 'mm_tp_03', (770, 442), (781, 426))
+P02_R05_SP02 = TransportPoint('WRGC', '污染广场', P02_R05, 'mm_tp_03', (381, 655), (392, 642))
+P02_R05_SP03 = TransportPoint('ZZZHS', '作战指挥室', P02_R05, 'mm_tp_03', (495, 856), (511, 849))
+P02_R05_SP04 = TransportPoint('GZCQX', '古战场前线', P02_R05, 'mm_tp_03', (570, 1243), (580, 1232))
+P02_R05_SP05 = TransportPoint('MLZX', '鸣雷之形凝滞虚影', P02_R05, 'mm_tp_06', (526, 640), (505, 639))
+P02_R05_SP06 = TransportPoint('SJZX', '霜晶之形凝滞虚影', P02_R05, 'mm_tp_06', (681, 1231), (657, 1238))
+P02_R05_SP07 = TransportPoint('PBZJ', '漂泊之径侵蚀隧洞', P02_R05, 'mm_tp_09', (654, 242), (660, 246))
 P02_R05_SP08 = TransportPoint('TWJQ', '铁卫禁区', P02_R05, 'mm_sp02', (389, 626))
 P02_R05_SP09 = TransportPoint('YDL', '永冬岭', P02_R05, 'mm_sp02', (733, 1280))  # 这里旁边站着一个传送到造物之柱的士兵
 
