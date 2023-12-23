@@ -1,0 +1,59 @@
+name: Export wiki to pdf
+
+on:
+  gollum
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - name: Checkout wiki
+        uses: actions/checkout@v4
+        with:
+          repository: DoctorReid/StarRailAutoProxy.wiki
+          ref: master
+          fetch-depth: 1
+          path: wiki
+
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+
+      - name: Install TeX Live
+        run: |
+          sudo apt-get install -y texlive-xetex
+          sudo apt-get install -y texlive-lang-chinese
+
+      - name: Install Noto Font
+        run: sudo apt-get install -y fonts-noto
+
+      - name: Execute fc-list command  # https://github.com/jgm/pandoc/wiki/Pandoc-with-Chinese
+        run: |
+          output=$(fc-list :lang=zh)
+          echo "$output"
+
+      - name: Convert Markdown to PDF
+        run: |
+          cd wiki
+          if [ ! -d "output" ]; then
+            mkdir output
+          fi
+          cat -T "Home.md" "功能_校准.md" "功能_锄大地.md" "功能_日常.md" "功能_忘却之庭.md" "功能_一条龙.md" "设置.md"> output/user_guide.md
+          pandoc output/user_guide.md -o output/user_guide.pdf --pdf-engine=xelatex --variable mainfont='Noto Serif CJK SC'
+
+      - name: Commit changes
+        run: |
+          cd wiki
+          ls -al "output"
+          if ! git diff --quiet output/user_guide.pdf; then
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git add output/user_guide.pdf
+            git commit -m "#126 自动转化wiki成pdf提交 $(date +%Y-%m-%d)"
+            git push
+          else
+            echo "No file modifications"
+          fi

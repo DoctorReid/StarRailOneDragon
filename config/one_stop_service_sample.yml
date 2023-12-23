@@ -11,12 +11,3 @@ app_order:
   - 'forgotten_hall'
 app_run:
   - 'world_patrol'
-  - 'echo_of_war'
-  - 'trailblaze_power'
-  - 'assignments'
-  - 'email'
-  - 'support_character'
-  - 'nameless_honor'
-  - 'daily_training'
-  - 'buy_xianzhou_parcel'
-  - 'forgotten_hall'

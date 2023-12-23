@@ -18,7 +18,7 @@ class DailyTrainingMission:
         """是否可以执行"""
 
 
-MISSION_DAILY_MISSION = DailyTrainingMission(id_cn='日常任务', desc_cn='完成1个日常任务', able=True)
+MISSION_DAILY_MISSION = DailyTrainingMission(id_cn='日常任务', desc_cn='完成1个日常任务', able=False)
 MISSION_PATH = DailyTrainingMission(id_cn='侵蚀隧洞', desc_cn='完成1次侵蚀隧洞', able=False)
 # MISSION_BUD1 = DailyTrainingMission(id_cn='拟造花萼金', desc_cn='完成1次拟造花萼金', able=False)
 MISSION_BUD2 = DailyTrainingMission(id_cn='拟造花萼赤', desc_cn='完成1次拟造花萼赤', able=False)
