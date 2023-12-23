@@ -97,3 +97,7 @@ class MoveToEnemy(Operation):
         center_y = int(centroids[largest_label, 1])
 
         return Point(center_x, center_y)
+
+    def on_pause(self):
+        super().on_pause()
+        self.ctx.stop_running()

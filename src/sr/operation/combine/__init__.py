@@ -76,11 +76,14 @@ class StatusCombineOperation(Operation):
                  ops: List[Operation],
                  edges: List[StatusCombineOperationEdge],
                  op_name: str = '', timeout_seconds: float = -1,
-                 start_op: Optional[Operation] = None):
+                 start_op: Optional[Operation] = None,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None
+                 ):
         Operation.__init__(self, ctx,
                            try_times=1,  # 组合指令运行 作为一个框架不应该有出错重试
                            op_name=op_name,
-                           timeout_seconds=timeout_seconds)
+                           timeout_seconds=timeout_seconds,
+                           op_callback=op_callback)
 
         self._start_op: Optional[Operation] = start_op  # 开始指令
         self._op_map: dict[int, Operation] = {}  # 指令集合
@@ -167,7 +170,7 @@ class StatusCombineOperation(Operation):
 
 class StatusCombineOperationNode:
 
-    def __init__(self, node_id: str, op_func: Optional[Callable[[], Operation]] = None, op: Optional[Operation] = None):
+    def __init__(self, node_id: str, op: Optional[Operation] = None, op_func: Optional[Callable[[], Operation]] = None):
 
         self.node_id: str = node_id
         """节点ID"""
@@ -312,6 +315,9 @@ class StatusCombineOperation2(Operation):
             self._start_node = self._specified_start_node
 
     def _init_before_execute(self):
+        """
+        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        """
         super()._init_before_execute()
         self._init_network()
         self._current_node = self._start_node

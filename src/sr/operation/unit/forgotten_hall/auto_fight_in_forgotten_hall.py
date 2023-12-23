@@ -28,7 +28,7 @@ class AutoFightInForgottenHall(Operation):
         需要在忘却之前敌人面前使用
         主动攻击进入战斗 然后等战斗结束
         """
-        super().__init__(ctx, op_name=gt('忘却之庭进入战斗', 'ui'), timeout_seconds=timeout_seconds)
+        super().__init__(ctx, op_name=gt('忘却之庭 进入战斗', 'ui'), timeout_seconds=timeout_seconds)
         self.with_battle: bool = False  # 是否有进入战斗
         self.last_attack_time: float = 0  # 上次攻击的时间
         self.last_in_battle_time: float = 0  # 上次在战斗时间
@@ -85,13 +85,13 @@ class AutoFightInForgottenHall(Operation):
         for rect in AutoFightInForgottenHall.AFTER_BATTLE_SUCCESS_RECT_LIST:
             part, _ = cv2_utils.crop_image(screen, rect)
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-            if str_utils.find_by_lcs(gt('挑战成功', 'ocr'), ocr_result, percent=0.1):
+            if str_utils.find_by_lcs(gt('挑战成功', 'ocr'), ocr_result, percent=0.3):  # 战斗过程中有可能错误识别文字 稍微提高阈值
                 # cv2_utils.show_image(part, win_name='_check_battle_result')
                 return AutoFightInForgottenHall.BATTLE_SUCCESS_STATUS
 
         part, _ = cv2_utils.crop_image(screen, AutoFightInForgottenHall.AFTER_BATTLE_RESULT_RECT_3)
         ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-        if str_utils.find_by_lcs(gt('战斗失败', 'ocr'), ocr_result, percent=0.1):
+        if str_utils.find_by_lcs(gt('战斗失败', 'ocr'), ocr_result, percent=0.3):
             # cv2_utils.show_image(part, win_name='_check_battle_result')
             return AutoFightInForgottenHall.BATTLE_FAIL_STATUS
 

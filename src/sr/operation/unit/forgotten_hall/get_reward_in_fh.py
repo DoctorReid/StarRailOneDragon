@@ -22,7 +22,7 @@ class GetRewardInForgottenHall(Operation):
         点击右下角领取奖励
         :param ctx:
         """
-        super().__init__(ctx, op_name=gt('忘却之庭 领取星数奖励', 'ui'))
+        super().__init__(ctx, try_times=5, op_name=gt('忘却之庭 领取星数奖励', 'ui'))
         self.phase: int = 0
 
     def _execute_one_round(self) -> OperationOneRoundResult:
@@ -39,7 +39,7 @@ class GetRewardInForgottenHall(Operation):
                 time.sleep(1)
                 return Operation.round_wait()
             elif click == Operation.OCR_CLICK_NOT_FOUND:
-                return Operation.round_success('领取完毕')
+                return Operation.round_retry('领取完毕')
             else:
                 return Operation.round_retry('领取奖励失败')
 
@@ -54,3 +54,9 @@ class GetRewardInForgottenHall(Operation):
         part, _ = cv2_utils.crop_image(screen, GetRewardInForgottenHall.REWARD_ICON_RECT)
         match_result_list = self.ctx.im.match_template(part, 'ui_alert', threshold=0.7)
         return len(match_result_list) > 0
+
+    def _retry_fail_to_success(self, retry_status: str) -> Optional[str]:
+        if '领取完毕' == retry_status:
+            return '领取完毕'
+        else:
+            return None

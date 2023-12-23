@@ -1,17 +1,19 @@
+import copy
 import time
 from typing import List, Optional, Set
 
 from basic.i18_utils import gt
 from basic.log_utils import log
 from basic.os_utils import get_sunday_dt, dt_day_diff
-from sr.app import Application, AppRunRecord, AppDescription, register_app, app_record_current_dt_str
+from sr.app import AppRunRecord, AppDescription, register_app, app_record_current_dt_str, Application2
 from sr.config import ConfigHolder
 from sr.const import phone_menu_const
 from sr.const.character_const import CharacterCombatType, get_character_by_id, Character, SILVERWOLF, ATTACK_PATH_LIST, \
     SURVIVAL_PATH_LIST, SUPPORT_PATH_LIST, is_attack_character, is_survival_character, is_support_character
 from sr.context import Context
-from sr.operation import Operation, OperationSuccess, OperationResult
-from sr.operation.combine import StatusCombineOperationEdge, StatusCombineOperation
+from sr.operation import OperationSuccess, OperationResult
+from sr.operation.combine import StatusCombineOperationEdge2, \
+    StatusCombineOperationNode
 from sr.operation.combine.challenge_forgotten_hall_mission import ChallengeForgottenHallMission
 from sr.operation.unit import guide
 from sr.operation.unit.forgotten_hall.check_forgotten_hall_star import CheckForgottenHallStar
@@ -131,6 +133,11 @@ TEAM_MODULE_SURVIVAL = ForgottenHallTeamModuleType(module_type='survival', modul
 TEAM_MODULE_SUPPORT = ForgottenHallTeamModuleType(module_type='support', module_name_cn='辅助')
 TEAM_MODULE_LIST = [TEAM_MODULE_ATTACK, TEAM_MODULE_SURVIVAL, TEAM_MODULE_SUPPORT]
 
+NODE_PHASE_ATTACK: int = 1  # 攻击
+NODE_PHASE_CHANGE: int = 2  # 改变弱点
+NODE_PHASE_SURVIVAL: int = 3  # 生存
+NODE_PHASE_SUPPORT: int = 4  # 辅助
+
 
 class ForgottenHallTeamModule:
 
@@ -188,6 +195,24 @@ class ForgottenHallTeamModule:
             if is_support_character(character_id):
                 return True
         return False
+
+    @property
+    def module_node_phase(self) -> int:
+        """
+        返回这个模块处于的配队节点状态
+        :return:
+        """
+        with_attack = self.with_attack
+        with_silver = self.with_silver
+        with_survival = self.with_survival
+        next_node_phase = NODE_PHASE_ATTACK
+        if not with_attack:
+            next_node_phase = NODE_PHASE_CHANGE
+        if not with_attack and not with_silver:
+            next_node_phase = NODE_PHASE_SURVIVAL
+        if not with_attack and not with_silver and not with_survival:
+            next_node_phase = NODE_PHASE_SUPPORT
+        return next_node_phase
 
 
 class ForgottenHallNodeTeam:
@@ -603,14 +628,14 @@ class ForgottenHallConfig(ConfigHolder):
         arr = self.get('team_module_list', [])
         ret = []
         for i in arr:
-            ret.append(ForgottenHallTeamModule.model_validate(i))
+            ret.append(ForgottenHallTeamModule(**i))
         return ret
 
     @team_module_list.setter
     def team_module_list(self, new_list: List[ForgottenHallTeamModule]):
         dict_arr = []
         for i in new_list:
-            dict_arr.append(i.model_dump())
+            dict_arr.append(vars(i))
         self.update('team_module_list', dict_arr)
 
 
@@ -624,80 +649,53 @@ def get_config() -> ForgottenHallConfig:
     return _forgotten_hall_config
 
 
-class ForgottenHallApp(Application):
+class ForgottenHallApp(Application2):
 
     def __init__(self, ctx: Context):
-        self.run_record: ForgottenHallRecord = None
-        super().__init__(ctx, op_name=gt('忘却之庭 任务', 'ui'),
-                         run_record=get_record())
-        self.config: ForgottenHallConfig = get_config()
+        self.run_record: Optional[ForgottenHallRecord] = get_record()
+        edges: List[StatusCombineOperationEdge2] = []
 
-    def _init_before_execute(self):
-        self.run_record.update_status(AppRunRecord.STATUS_RUNNING)
+        open_menu = StatusCombineOperationNode('打开菜单', OpenPhoneMenu(ctx))
+        choose_guide = StatusCombineOperationNode('选择【指南】', ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
+        edges.append(StatusCombineOperationEdge2(open_menu, choose_guide))
 
-    def _execute_one_round(self) -> int:
-        ops: List[Operation] = []
-        edges: List[StatusCombineOperationEdge] = []
+        choose_survival = StatusCombineOperationNode('选择【生存索引】', ChooseGuideTab(ctx, guide.GUIDE_TAB_3))
+        edges.append(StatusCombineOperationEdge2(choose_guide, choose_survival))
 
-        op_success = OperationSuccess(self.ctx)  # 操作成功的终点
-        ops.append(op_success)
+        choose_fh = StatusCombineOperationNode('选择【忘却之庭】', ChooseSurvivalIndexCategory(ctx, survival_index.CATEGORY_FORGOTTEN_HALL))
+        edges.append(StatusCombineOperationEdge2(choose_survival, choose_fh))
 
-        op1 = OpenPhoneMenu(self.ctx)  # 打开菜单
-        op2 = ClickPhoneMenuItem(self.ctx, phone_menu_const.INTERASTRAL_GUIDE)  # 选择【指南】
-        ops.append(op1)
-        ops.append(op2)
-        edges.append(StatusCombineOperationEdge(op_from=op1, op_to=op2))
+        fh_tp = StatusCombineOperationNode('传送', ChooseSurvivalIndexMission(ctx, survival_index.MISSION_FORGOTTEN_HALL))
+        edges.append(StatusCombineOperationEdge2(choose_fh, fh_tp))
 
-        op3 = ChooseGuideTab(self.ctx, guide.GUIDE_TAB_3)  # 选择【生存索引】
-        ops.append(op3)
-        edges.append(StatusCombineOperationEdge(op_from=op2, op_to=op3))
+        get_reward = StatusCombineOperationNode('领取奖励', GetRewardInForgottenHall(ctx))
 
-        op4 = ChooseSurvivalIndexCategory(self.ctx, survival_index.CATEGORY_FORGOTTEN_HALL)  # 左边选择忘却之庭
-        ops.append(op4)
-        edges.append(StatusCombineOperationEdge(op_from=op3, op_to=op4))
+        check_total_star = StatusCombineOperationNode('检测总星数', CheckForgottenHallStar(ctx, self._update_star))
+        edges.append(StatusCombineOperationEdge2(fh_tp, check_total_star))  # 满星的时候直接设置为成功
+        edges.append(StatusCombineOperationEdge2(check_total_star, get_reward, status='30'))  # 满星的时候直接设置为成功
 
-        op5 = ChooseSurvivalIndexMission(self.ctx, survival_index.MISSION_FORGOTTEN_HALL)  # 右侧选择忘却之庭传送
-        ops.append(op5)
-        edges.append(StatusCombineOperationEdge(op_from=op4, op_to=op5))
+        last_mission = StatusCombineOperationNode('模拟上个关卡满星', OperationSuccess(ctx, '3'))
+        edges.append(StatusCombineOperationEdge2(check_total_star, last_mission, ignore_status=True))  # 非满星的时候开始挑战
 
-        op6 = CheckForgottenHallStar(self.ctx, self._update_star)  # 检测星数并更新
-        ops.append(op6)
-        edges.append(StatusCombineOperationEdge(op_from=op5, op_to=op6))
-
-        get_reward = GetRewardInForgottenHall(self.ctx)  # 拿奖励
-        ops.append(get_reward)
-
-        edges.append(StatusCombineOperationEdge(op_from=op6, op_to=get_reward, status='30'))  # 满星的时候直接设置为成功
-
-        last_mission = OperationSuccess(self.ctx, '3')  # 模拟上个关卡满星
-        ops.append(last_mission)
-        edges.append(StatusCombineOperationEdge(op_from=op6, op_to=last_mission, ignore_status=True))  # 非满星的时候开始挑战
-
-        for i in range(10):
+        for i in range(10):  # 循环挑战10个关卡
             if self.run_record.get_mission_star(i + 1) == 3:  # 已经满星就跳过
                 continue
-            mission = ChallengeForgottenHallMission(self.ctx, i + 1, 2,
-                                                    self._update_mission_star, self._cal_team_member)
-            ops.append(mission)
-            edges.append(StatusCombineOperationEdge(op_from=last_mission, op_to=mission, status='3'))  # 只有上一次关卡满星再进入下一个关卡
+            mission = StatusCombineOperationNode(
+                '挑战关卡 %d' % (i + 1),
+                ChallengeForgottenHallMission(ctx, i + 1, 2,
+                                              cal_team_func=self._cal_team_member,
+                                              mission_star_callback=self._update_mission_star))
+            edges.append(StatusCombineOperationEdge2(last_mission, mission, status='3'))  # 只有上一次关卡满星再进入下一个关卡
 
-            edges.append(StatusCombineOperationEdge(op_from=mission, op_to=op_success, ignore_status=True))  # 没满星就不挑战下一个了
+            edges.append(StatusCombineOperationEdge2(mission, get_reward, ignore_status=True))  # 没满星就不挑战下一个了
 
             last_mission = mission
 
-        edges.append(StatusCombineOperationEdge(op_from=last_mission, op_to=get_reward, ignore_status=True))  # 最后一关无论结果如何都结束 尝试领取奖励
+        edges.append(StatusCombineOperationEdge2(last_mission, get_reward, ignore_status=True))  # 最后一关无论结果如何都结束 尝试领取奖励
 
-        back_to_menu = OpenPhoneMenu(self.ctx)
-        ops.append(back_to_menu)
-        edges.append(StatusCombineOperationEdge(op_from=get_reward, op_to=back_to_menu))  # 最后返回菜单
-
-        combine_op: StatusCombineOperation = StatusCombineOperation(self.ctx, ops, edges,
-                                                                    op_name=gt('忘却之庭 全流程', 'ui'))
-
-        if combine_op.execute().success:
-            return Operation.SUCCESS
-
-        return Operation.FAIL
+        super().__init__(ctx, op_name=gt('忘却之庭', 'ui'),
+                         run_record=self.run_record, edges=edges)
+        self.config: ForgottenHallConfig = get_config()
 
     def _update_star(self, star: int):
         log.info('忘却之庭 当前总星数 %d', star)
@@ -730,6 +728,9 @@ class ForgottenHallApp(Application):
         """
         total_node_cnt: int = len(node_combat_types)
         best_mission_team: Optional[ForgottenHallMissionTeam] = None
+
+        # 先排序 保证可以按阶段搜索
+        sorted_config_module_list = sorted(config_module_list, key=lambda x: x.module_node_phase)
 
         def impossibly_greater(current_mission_team: ForgottenHallMissionTeam) -> bool:
             """
@@ -779,29 +780,19 @@ class ForgottenHallApp(Application):
             :param current_module_idx: 当前使用的模块下标
             :return:
             """
-            if current_module_idx == len(config_module_list):  #
+            if current_module_idx == len(sorted_config_module_list):
                 if current_mission_team.valid_mission_team:
                     current_mission_team.update_score()
                     nonlocal best_mission_team
                     if best_mission_team is None or current_mission_team.total_score > best_mission_team.total_score:
-                        best_mission_team = current_mission_team.model_copy(deep=True)
+                        best_mission_team = copy.deepcopy(current_mission_team)
                 return
 
             if impossibly_greater(current_mission_team):
                 return
 
-            module = config_module_list[current_module_idx]
-            attack = module.with_attack
-            with_silver = module.with_silver
-            survival = module.with_survival
-            support = module.with_support
-            next_node_phase = 0
-            if not attack:
-                next_node_phase = 1
-            if not attack and not with_silver:
-                next_node_phase = 2
-            if not attack and not with_silver and not survival:
-                next_node_phase = 3
+            module = sorted_config_module_list[current_module_idx]
+            next_node_phase = module.module_node_phase
 
             for node_idx in range(total_node_cnt):  # 使用当前模块加入
                 node_team = current_mission_team.node_team_list[node_idx]
@@ -827,7 +818,12 @@ class ForgottenHallApp(Application):
         else:
             return best_mission_team.character_list
 
-    def _after_operation_done(self, result: OperationResult):
+    def _update_record_stop(self, result: OperationResult):
+        """
+        应用停止后的对运行记录的更新
+        :param result: 运行结果
+        :return:
+        """
         if not result.success or self.run_record.star < 30:
             self.run_record.update_status(AppRunRecord.STATUS_FAIL)
         else:

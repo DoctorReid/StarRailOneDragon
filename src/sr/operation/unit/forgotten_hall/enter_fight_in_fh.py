@@ -2,6 +2,7 @@ import time
 from typing import List, Optional
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.const.character_const import get_character_by_id, Character, TECHNIQUE_BUFF, TECHNIQUE_ATTACK, \
     TECHNIQUE_BUFF_ATTACK, is_attack_character, SILVERWOLF, CharacterTechniqueType
 from sr.context import Context
@@ -11,18 +12,29 @@ from sr.operation.unit.get_team_member_in_world import GetTeamMemberInWorld
 
 class EnterFightInForgottenHall(Operation):
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, character_list: Optional[List[Character]] = None):
         """
         需要在忘却之庭节点内 靠近敌人 在准备开始战斗前使用
         上BUFF之后进入战斗
         优先使用上BUFF不触发战斗的秘技 最后再使用开战技能
         :param ctx:
+        :param character_list: 当前配队 无传入时自动识别 但不准
         """
         super().__init__(ctx, op_name=gt('忘却之庭 使用秘技并进入战斗', 'ui'))
         self.phase: int = 0
+        self.character_list_from_param: Optional[List[Character]] = character_list
         self.character_list: List[Character] = []
         self.technique_order: List[int] = []
         self.need_attack_finally: bool = False  # 最后需要攻击
+
+    def _init_before_execute(self):
+        """
+        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        """
+        super()._init_before_execute()
+        self.character_list = []
+        self.technique_order = []
+        self.need_attack_finally = False
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 判断当前角色
@@ -43,14 +55,17 @@ class EnterFightInForgottenHall(Operation):
         获取当前队伍的角色
         :return:
         """
-        for i in range(4):
-            op = GetTeamMemberInWorld(self.ctx, i + 1)
-            op_result = op.execute()
-            character: Optional[Character] = None
-            if op_result.success:
-                character = get_character_by_id(op_result.status)
-
-            self.character_list.append(character)
+        if self.character_list_from_param is None:
+            for i in range(4):
+                op = GetTeamMemberInWorld(self.ctx, i + 1)
+                op_result = op.execute()
+                character: Optional[Character] = None
+                if op_result.success:
+                    character = get_character_by_id(op_result.status)
+                self.character_list.append(character)
+        else:
+            for c in self.character_list_from_param:
+                self.character_list.append(c)
 
     def _get_technique_order(self):
         """
@@ -92,6 +107,7 @@ class EnterFightInForgottenHall(Operation):
         按顺序使用秘技
         :return:
         """
+        log.info('准备使用秘技 当前配队 %s', [i.cn for i in self.character_list])
         for idx in self.technique_order:
             self._use_technique_by_one(idx)
             character = self.character_list[idx]

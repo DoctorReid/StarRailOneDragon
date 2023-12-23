@@ -66,16 +66,19 @@ class ChooseTeamInForgottenHall(Operation):
 
     ALL_SESSION_LIST: ClassVar[List[SessionInfo]] = [SESSION_1, SESSION_2]
 
-    def __init__(self, ctx: Context, cal_team_member_func: Callable):
+    def __init__(self, ctx: Context, cal_team_member_func: Callable,
+                 choose_team_callback: Optional[Callable[[List[List[Character]]], None]] = None):
         """
         需要已经在
         :param ctx:
         :param cal_team_member_func:
+        :param choose_team_callback: 计算得到配队后的回调
         """
         super().__init__(ctx, op_name=gt('忘却之庭 选择配队', 'ui'))
         self.cal_team_func: Callable = cal_team_member_func
         self.phase: int = 0
         self.teams: List[List[Character]] = []
+        self.choose_team_callback: Optional[Callable[[List[List[Character]]], None]] = choose_team_callback
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 按照BOSS属性计算配队
@@ -114,6 +117,9 @@ class ChooseTeamInForgottenHall(Operation):
         for t in self.teams:
             if t is None:
                 return False
+
+        if self.choose_team_callback is not None:
+            self.choose_team_callback(self.teams)
 
         return True
 

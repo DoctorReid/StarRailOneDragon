@@ -173,7 +173,8 @@ class Application2(StatusCombineOperation2):
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None):
-        super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=specified_start_node)
+        StatusCombineOperation2.__init__(self, ctx, op_name=op_name,
+                                         edges=edges, specified_start_node=specified_start_node)
 
         self.run_record: Optional[AppRunRecord] = run_record
         """运行记录"""
@@ -205,14 +206,18 @@ class Application2(StatusCombineOperation2):
 
         return True
 
+    def _init_before_execute(self):
+        StatusCombineOperation2._init_before_execute(self)
+        self.run_record.update_status(AppRunRecord.STATUS_RUNNING)
+
     def execute(self) -> OperationResult:
         if not self._init_context():
             return Operation.op_fail('初始化失败')
-        result: OperationResult = super().execute()
+        result: OperationResult = StatusCombineOperation2.execute(self)
         return result
 
     def on_resume(self):
-        super().on_resume()
+        StatusCombineOperation2.on_resume(self)
         self.ctx.controller.init()
 
     def _stop_context(self):
@@ -224,13 +229,21 @@ class Application2(StatusCombineOperation2):
         停止后的处理
         :return:
         """
-        Operation._after_operation_done(self, result)
+        StatusCombineOperation2._after_operation_done(self, result)
+        self._update_record_stop(result)
+        self._stop_context()
+
+    def _update_record_stop(self, result: OperationResult):
+        """
+        应用停止后的对运行记录的更新
+        :param result: 运行结果
+        :return:
+        """
         if self.run_record is not None:
             if result.success:
                 self.run_record.update_status(AppRunRecord.STATUS_SUCCESS)
             else:
                 self.run_record.update_status(AppRunRecord.STATUS_FAIL)
-        self._stop_context()
 
     @property
     def current_execution_desc(self) -> str:
