@@ -1,7 +1,12 @@
 name: Export wiki to pdf
 
+#on:
+#  gollum
+
 on:
-  gollum
+  push:
+    branches:
+      - export_pdf
 
 jobs:
   job1:
@@ -35,25 +40,41 @@ jobs:
           output=$(fc-list :lang=zh)
           echo "$output"
 
+#      - name: Get default template
+#        run: |
+#          cd wiki
+#          echo "\\usepackage{ctex}\n" > output/default.latex
+#          pandoc -D latex >> ./default.latex
+#          if ! git diff --quiet output/README.pdf; then
+#            git config user.name github-actions
+#            git config user.email github-actions@github.com
+#            git add output/default.latex
+#            git commit -m "#126 默认的latex模板 $(date +%Y-%m-%d)"
+#            git push
+#          else
+#            echo "No modifications in default.latex"
+#          fi
+
       - name: Convert Markdown to PDF
         run: |
           cd wiki
           if [ ! -d "output" ]; then
             mkdir output
           fi
-          cat -T "Home.md" "功能_校准.md" "功能_锄大地.md" "功能_日常.md" "功能_忘却之庭.md" "功能_一条龙.md" "设置.md"> output/user_guide.md
-          pandoc output/user_guide.md -o output/user_guide.pdf --pdf-engine=xelatex --columns=25 --wrap=auto --variable mainfont='Noto Serif CJK SC'
+          echo 
+          cat -T "output/README_header.md" "Home.md" "功能_校准.md" "功能_锄大地.md" "功能_日常.md" "功能_忘却之庭.md" "功能_一条龙.md" "设置.md" > output/README.md
+          pandoc output/README.md -o output/README.pdf --pdf-engine=xelatex --columns=25 --wrap=auto --variable mainfont='Noto Serif CJK SC'
 
       - name: Commit changes
         run: |
           cd wiki
           ls -al "output"
-          if ! git diff --quiet output/user_guide.pdf; then
+          if ! git diff --quiet output/README.pdf; then
             git config user.name github-actions
             git config user.email github-actions@github.com
-            git add output/user_guide.pdf
+            git add output/README.pdf
             git commit -m "#126 自动转化wiki成pdf提交 $(date +%Y-%m-%d)"
             git push
           else
-            echo "No file modifications"
+            echo "No modifications in README.pdf"
           fi
