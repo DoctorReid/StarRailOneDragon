@@ -304,9 +304,9 @@ P02_R05_SP08 = TransportPoint('TWJQ', '铁卫禁区', P02_R05, 'mm_sp02', (389, 
 P02_R05_SP09 = TransportPoint('YDL', '永冬岭', P02_R05, 'mm_sp02', (733, 1280))  # 这里旁边站着一个传送到造物之柱的士兵
 
 # 雅利洛 - 永冬岭
-P02_R06_SP01 = TransportPoint('GZC', '古战场', P02_R06, 'mm_tp_03', (366, 776))
-P02_R06_SP02 = TransportPoint('ZWPT', '造物平台', P02_R06, 'mm_tp_03', (784, 571))
-P02_R06_SP03 = TransportPoint('RZZJ', '睿治之径侵蚀隧洞', P02_R06, 'mm_tp_09', (585, 663))
+P02_R06_SP01 = TransportPoint('GZC', '古战场', P02_R06, 'mm_tp_03', (366, 776), (392, 768))
+P02_R06_SP02 = TransportPoint('ZWPT', '造物平台', P02_R06, 'mm_tp_03', (784, 571), (791, 586))
+P02_R06_SP03 = TransportPoint('RZZJ', '睿治之径侵蚀隧洞', P02_R06, 'mm_tp_09', (585, 663), (581, 661))
 P02_R06_SP04 = TransportPoint('CXHL', '残响回廊', P02_R06, 'mm_sp_02', (338, 793))
 P02_R06_SP05 = TransportPoint('HCDLM', '寒潮的落幕历战回响', P02_R06, 'mm_boss_02', (814, 701))
 

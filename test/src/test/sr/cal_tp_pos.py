@@ -45,22 +45,14 @@ if __name__ == '__main__':
     im = CvImageMatcher(ih)
 
     sp_list = [
-        map_const.P02_R05_SP01,
-        map_const.P02_R05_SP02,
-        map_const.P02_R05_SP03,
-        map_const.P02_R05_SP04,
-        map_const.P02_R05_SP05,
-        map_const.P02_R05_SP06,
-        map_const.P02_R05_SP07
+        map_const.P02_R06_SP01,
+        map_const.P02_R06_SP02,
+        map_const.P02_R06_SP03,
     ]
     img_list = [
-        '_1703253969816',
-        '_1703253978250',
-        '_1703253988568',
-        '_1703253995201',
-        '_1703254006303',
-        '_1703254015336',
-        '_1703254024823',
+        '_1703306707225',
+        '_1703306715110',
+        '_1703306721342',
     ]
     for i in range(len(sp_list)):
         cal_one(sp_list[i], debug_image=img_list[i], show=True)
