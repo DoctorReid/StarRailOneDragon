@@ -1,12 +1,12 @@
 name: Export wiki to pdf
 
-#on:
-#  gollum
-
 on:
-  push:
-    branches:
-      - export_pdf
+  gollum
+
+#on:
+#  push:
+#    branches:
+#      - export_pdf
 
 jobs:
   job1:
