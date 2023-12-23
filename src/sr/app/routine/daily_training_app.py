@@ -91,7 +91,7 @@ class DailyTrainingApp(Application2):
         edges.append(StatusCombineOperationEdge2(node_from=get_mission, node_to=final_claim_reward, success=False, ignore_status=True))  # 没有可执行的任务
 
         salvage_relic = StatusCombineOperationNode(node_id='salvage_relic', op=SalvageRelic(ctx))  # 遗器分解
-        edges.append(StatusCombineOperationEdge2(node_from=get_mission, node_to=salvage_relic, status=MISSION_DAILY_MISSION.id_cn))
+        edges.append(StatusCombineOperationEdge2(node_from=get_mission, node_to=salvage_relic, status=MISSION_SALVAGE_RELIC.id_cn))
         edges.append(StatusCombineOperationEdge2(node_from=salvage_relic, node_to=back_to, success=False))  # 执行失败
         edges.append(StatusCombineOperationEdge2(node_from=salvage_relic, node_to=open_menu))  # 执行成功 从头开始
 

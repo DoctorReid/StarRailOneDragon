@@ -19,10 +19,11 @@ from sr.operation.unit.ocr_click_one_line import OcrClickOneLine
 
 class DoSalvageRelic(Operation):
 
-    FILTER_POS: ClassVar[Point] = Point(1321, 1008)
-    RARITY_RECT: ClassVar[Rect] = Rect(1406, 321, 1821, 435)
+    FILTER_POS: ClassVar[Point] = Point(547, 988)  # 左下角筛选的按钮
+    FILTER_RULE_RECT: ClassVar[Rect] = Rect(1406, 99, 1540, 138)  # 右侧 筛选规则 为时
+    RARITY_RECT: ClassVar[Rect] = Rect(1406, 321, 1821, 435)  # 右侧 稀有度筛选框
     ALL_RECT: ClassVar[Rect] = Rect(984, 967, 1048, 999)
-    SALVAGE_RECT: ClassVar[Rect] = Rect(906, 234, 1008, 278)
+    SALVAGE_RECT: ClassVar[Rect] = Rect(1589, 970, 1740, 1003)
     CONFIRM_RECT: ClassVar[Rect] = Rect(1095, 801, 1250, 836)
     CONTINUE_RECT: ClassVar[Rect] = Rect(688, 918, 1236, 977)
 
@@ -41,6 +42,7 @@ class DoSalvageRelic(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 点击过滤
             self.ctx.controller.click(DoSalvageRelic.FILTER_POS)
+            time.sleep(2)
             if self._filter_shown():
                 self.phase += 1
                 return Operation.round_wait(wait=1)
@@ -96,7 +98,7 @@ class DoSalvageRelic(Operation):
         if screen is None:
             screen = self.screenshot()
 
-        part, _ = cv2_utils.crop_image(screen, DoSalvageRelic.RARITY_RECT)
+        part, _ = cv2_utils.crop_image(screen, DoSalvageRelic.FILTER_RULE_RECT)
         ocr_str = self.ctx.ocr.ocr_for_single_line(part)
 
         return str_utils.find_by_lcs(gt('筛选规则', 'ocr'), ocr_str, percent=0.1)
@@ -124,7 +126,7 @@ class DoSalvageRelic(Operation):
             if mrl.max is not None:
                 find = True
                 if click:
-                    self.ctx.controller.click(mrl.max.center)
+                    self.ctx.controller.click(DoSalvageRelic.RARITY_RECT.left_top + mrl.max.center)
                     time.sleep(0.5)
 
         return find
@@ -142,11 +144,12 @@ class DoSalvageRelic(Operation):
         if click_all != Operation.OCR_CLICK_SUCCESS:
             return False
 
-        time.sleep(0.5)
+        time.sleep(1.5)
         click_salvage = self.ocr_and_click_one_line('分解', DoSalvageRelic.SALVAGE_RECT, screen)
         if click_salvage != Operation.OCR_CLICK_SUCCESS:
             return False
 
+        time.sleep(1.5)
         return True
 
     def _tip_shown(self, screen: Optional[MatLike] = None) -> bool:
