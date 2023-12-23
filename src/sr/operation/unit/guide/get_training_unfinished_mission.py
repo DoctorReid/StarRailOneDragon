@@ -69,9 +69,20 @@ class GetTrainingUnfinishedMission(Operation):
         ocr_result_map = self.ctx.ocr.run_ocr(part, merge_line_distance=40)
         # cv2_utils.show_image(part, win_name='_get_mission', wait=0)
         for key in ocr_result_map.keys():
+            target_mission = None  # 找一个匹配度最高的结果
+            target_lcs_percent = None
             for mission in ALL_MISSION_LIST:
-                if str_utils.find_by_lcs(gt(mission.desc_cn, 'ocr'), key, percent=0.51):
-                    return mission
+                target_word = gt(mission.desc_cn, 'ocr')
+                lcs = str_utils.longest_common_subsequence_length(target_word, key)
+                lcs_percent = lcs / len(target_word)
+                if lcs_percent < 0.5:  # 最低要求
+                    continue
+                if target_mission is None or lcs_percent > target_lcs_percent:
+                    target_mission = mission
+                    target_lcs_percent = lcs_percent
+
+            if target_mission is not None:
+                return target_mission
         return None
 
     def _get_go_pos(self, screen: Optional[MatLike] = None) -> List[MatchResult]:

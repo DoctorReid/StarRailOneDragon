@@ -4,12 +4,13 @@ from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, AppDescription, register_app, Application2
 from sr.const import phone_menu_const
 from sr.const.traing_mission_const import MISSION_SALVAGE_RELIC, MISSION_DESTRUCTIBLE_OBJECTS, MISSION_USE_TECHNIQUE, \
-    MISSION_DAILY_MISSION, MISSION_TAKE_PHOTO
+    MISSION_DAILY_MISSION, MISSION_TAKE_PHOTO, MISSION_SYNTHESIZE_CONSUMABLE
 from sr.context import Context
 from sr.operation import Operation, OperationSuccess, OperationOneRoundResult
 from sr.operation.combine import StatusCombineOperationEdge, StatusCombineOperation, StatusCombineOperationNode, \
     StatusCombineOperationEdge2
 from sr.operation.combine.destory_objects import DestroyObjects
+from sr.operation.combine.dt_synthesize_consumable import DtSynthesizeConsumable
 from sr.operation.combine.dt_take_photo import DtTakePhoto
 from sr.operation.combine.dt_use_2_technique import Use2Technique
 from sr.operation.combine.salvage_relic import SalvageRelic
@@ -90,7 +91,7 @@ class DailyTrainingApp(Application2):
         edges.append(StatusCombineOperationEdge2(node_from=get_mission, node_to=final_claim_reward, success=False, ignore_status=True))  # 没有可执行的任务
 
         salvage_relic = StatusCombineOperationNode(node_id='salvage_relic', op=SalvageRelic(ctx))  # 遗器分解
-        edges.append(StatusCombineOperationEdge2(node_from=get_mission, node_to=salvage_relic, status=MISSION_SALVAGE_RELIC.id_cn))
+        edges.append(StatusCombineOperationEdge2(node_from=get_mission, node_to=salvage_relic, status=MISSION_DAILY_MISSION.id_cn))
         edges.append(StatusCombineOperationEdge2(node_from=salvage_relic, node_to=back_to, success=False))  # 执行失败
         edges.append(StatusCombineOperationEdge2(node_from=salvage_relic, node_to=open_menu))  # 执行成功 从头开始
 
@@ -108,6 +109,11 @@ class DailyTrainingApp(Application2):
         edges.append(StatusCombineOperationEdge2(node_from=get_mission, node_to=take_photo, status=MISSION_TAKE_PHOTO.id_cn))
         edges.append(StatusCombineOperationEdge2(node_from=take_photo, node_to=final_claim_reward, success=False))  # 执行失败
         edges.append(StatusCombineOperationEdge2(node_from=take_photo, node_to=open_menu))  # 执行成功 从头开始
+
+        synthesize_consumable = StatusCombineOperationNode('合成消耗品', DtSynthesizeConsumable(ctx))
+        edges.append(StatusCombineOperationEdge2(node_from=get_mission, node_to=synthesize_consumable, status=MISSION_SYNTHESIZE_CONSUMABLE.id_cn))
+        edges.append(StatusCombineOperationEdge2(node_from=synthesize_consumable, node_to=final_claim_reward, success=False))  # 执行失败
+        edges.append(StatusCombineOperationEdge2(node_from=synthesize_consumable, node_to=open_menu))  # 执行成功 从头开始
 
         super().__init__(ctx,
                          op_name='%s %s' % (gt('每日实训', 'ui'), gt('应用', 'ui')),

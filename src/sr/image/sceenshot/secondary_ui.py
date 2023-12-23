@@ -20,6 +20,8 @@ TITLE_FORGOTTEN_HALL = SecondaryUiTitle(cn="忘却之庭")
 
 TITLE_INVENTORY = SecondaryUiTitle(cn="背包")
 
+TITLE_SYNTHESIZE = SecondaryUiTitle(cn="合成")
+
 
 TITLE_RECT = Rect(98, 39, 350, 100)
 
