@@ -30,7 +30,9 @@ class CnOcrMatcher(OcrMatcher):
             # 类似"开拓等级 70"这类文本，可以调用 ocr_for_single_line 使用人工规则合并
             self.ocr = PaddleOCR(use_angle_cls=False, lang="ch", use_gpu=False, use_space_char=False, drop_score=0.5,
                                  det_model_dir=os_utils.get_path_under_work_dir('model', 'ch_PP-OCRv4_det_infer'),
-                                 rec_model_dir=os_utils.get_path_under_work_dir('model', 'ch_PP-OCRv4_rec_infer'))
+                                 rec_model_dir=os_utils.get_path_under_work_dir('model', 'ch_PP-OCRv4_rec_infer'),
+                                 cls_model_dir=os_utils.get_path_under_work_dir('model', 'ch_ppocr_mobile_v2.0_cls_infer')
+                                 )
         except Exception:
             log.error('OCR模型加载出错', exc_info=True)
     
