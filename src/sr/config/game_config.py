@@ -192,6 +192,38 @@ class GameConfig(ConfigHolder):
         """
         self.update('key_technique', new_value)
 
+    @property
+    def key_open_map(self) -> str:
+        """
+        秘技按钮
+        :return:
+        """
+        return self.get('key_open_map', 'm')
+
+    @key_open_map.setter
+    def key_open_map(self, new_value):
+        """
+        更新秘技按钮
+        :return:
+        """
+        self.update('key_open_map', new_value)
+
+    @property
+    def key_esc(self) -> str:
+        """
+        秘技按钮
+        :return:
+        """
+        return self.get('key_esc', 'esc')
+
+    @key_esc.setter
+    def key_esc(self, new_value):
+        """
+        更新秘技按钮
+        :return:
+        """
+        self.update('key_esc', new_value)
+
 
 _gc = None
 

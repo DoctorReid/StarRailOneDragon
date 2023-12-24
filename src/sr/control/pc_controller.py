@@ -24,25 +24,23 @@ class PcController(GameController):
     def __init__(self, win: Window, ocr: OcrMatcher):
         super().__init__(ocr)
         self.win: Window = win
-        gc: GameConfig = game_config.get()
-        self.turn_dx: float = gc.get('turn_dx')
-        self.run_speed: float = gc.get('run_speed')
-        self.walk_speed: float = gc.get('walk_speed')
+        self.gc: GameConfig = game_config.get()
+        self.turn_dx: float = self.gc.get('turn_dx')
+        self.run_speed: float = self.gc.get('run_speed')
+        self.walk_speed: float = self.gc.get('walk_speed')
         self.is_moving: bool = False
         self.is_running: bool = False  # 是否在疾跑
-        self.key_interact = gc.key_interact
-        self.key_technique: str = gc.key_technique
 
     def init(self):
         self.win.active()
         time.sleep(0.5)
 
     def esc(self) -> bool:
-        pyautogui.press('esc')
+        pyautogui.press(self.gc.key_esc)
         return True
 
     def open_map(self) -> bool:
-        pyautogui.press('m')
+        pyautogui.press(self.gc.key_open_map)
         return True
 
     def click(self, pos: Point = None, press_time: float = 0) -> bool:
@@ -168,7 +166,7 @@ class PcController(GameController):
         :return:
         """
         if interact_type == GameController.MOVE_INTERACT_TYPE:
-            pyautogui.press(self.key_interact)
+            pyautogui.press(self.gc.key_interact)
         else:
             self.click(pos)
         return True
@@ -203,4 +201,4 @@ class PcController(GameController):
         :return:
         """
         log.info('使用秘技')
-        pyautogui.press(self.key_technique)
+        pyautogui.press(self.gc.key_technique)

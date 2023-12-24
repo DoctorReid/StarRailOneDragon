@@ -9,6 +9,8 @@ server_region: CN
 run_mode: 0
 key_interact: 'f'
 key_technique: 'e'
+key_open_map: 'm'
+key_esc: 'esc'
 lang: 'cn'
 game_path: ''
 proxy_type: 'none'

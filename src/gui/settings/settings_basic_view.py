@@ -112,6 +112,8 @@ class SettingsView(components.Card, SrBasicView):
 
         self.interact_btn.text = self.game_config.key_interact
         self.technique_btn.text = self.game_config.key_technique
+        self.open_map_btn.text = self.game_config.key_open_map
+        self.esc_btn.text = self.game_config.key_esc
 
         self.proxy_type_dropdown.value = self.game_config.proxy_type
         self.personal_proxy_input.value = self.game_config.personal_proxy
