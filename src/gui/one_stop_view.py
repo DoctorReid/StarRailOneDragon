@@ -187,9 +187,8 @@ class AppList(ft.ListView):
 
 class OneStopView(ft.Row, SrBasicView):
 
-    def __init__(self, ctx: Context):
-        self.ctx: Context = ctx
-        theme: ThemeColors = gui_config.theme()
+    def __init__(self, page: ft.Page, ctx: Context):
+        SrBasicView.__init__(self, page, ctx)
 
         self.update_time = Label2NormalValueRow('数据更新时间', '2023-11-09 00:00:00', width=info_text_width*2)
         self.power = Label2NormalValueRow('开拓力', '200/240')
@@ -271,7 +270,7 @@ class OneStopView(ft.Row, SrBasicView):
         self._update_app_list_status()
         self._update_character_status()
         scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
-        self.ctx.register_status_changed_handler(self,
+        self.sr_ctx.register_status_changed_handler(self,
                                                  self._after_start,
                                                  self._after_pause,
                                                  self._after_resume,
@@ -281,14 +280,14 @@ class OneStopView(ft.Row, SrBasicView):
     def handle_after_hide(self):
         scheduler.cancel_with_tag('_update_app_list_status')
         scheduler.cancel_with_tag('_update_running_app_name')
-        self.ctx.unregister(self)
+        self.sr_ctx.unregister(self)
 
     def _check_ctx_stop(self) -> bool:
         """
         检查是否在停止状态
         :return: 是否在停止状态
         """
-        if not self.ctx.is_stop:
+        if not self.sr_ctx.is_stop:
             msg: str = '其它任务正在执行 请先完成或停止'
             snack_bar.show_message(msg, self.page)
             log.info(msg)
@@ -301,7 +300,7 @@ class OneStopView(ft.Row, SrBasicView):
 
         run_record = one_stop_service.get_app_run_record_by_id(app_id)
         run_record.check_and_update_status()
-        self.running_app = one_stop_service.get_app_by_id(app_id, self.ctx)
+        self.running_app = one_stop_service.get_app_by_id(app_id, self.sr_ctx)
         if self.running_app is None:
             log.error('非法的任务入参')
             self.running_app = None
@@ -315,32 +314,32 @@ class OneStopView(ft.Row, SrBasicView):
             return
         self.start_btn.disabled = True
         self.update()
-        self.running_app = OneStopService(self.ctx)
+        self.running_app = OneStopService(self.sr_ctx)
 
         t = threading.Thread(target=self.running_app.execute)
         t.start()
 
     def on_click_pause(self, e):
-        self.ctx.switch()
+        self.sr_ctx.switch()
 
     def on_click_resume(self, e):
-        self.ctx.switch()
+        self.sr_ctx.switch()
 
     def on_click_stop(self, e):
-        self.ctx.stop_running()
+        self.sr_ctx.stop_running()
 
     def _update_status_component(self):
         """
         更新显示状态相关的组件
         :return:
         """
-        self.start_btn.visible = self.ctx.is_stop
+        self.start_btn.visible = self.sr_ctx.is_stop
         self.start_btn.disabled = False
-        self.pause_btn.visible = self.ctx.is_running
-        self.resume_btn.visible = self.ctx.is_pause
-        self.stop_btn.disabled = self.ctx.is_stop
-        self.running_ring.visible = self.ctx.is_running
-        self.running_status.update_label(self.ctx.status_text)
+        self.pause_btn.visible = self.sr_ctx.is_running
+        self.resume_btn.visible = self.sr_ctx.is_pause
+        self.stop_btn.disabled = self.sr_ctx.is_stop
+        self.running_ring.visible = self.sr_ctx.is_running
+        self.running_status.update_label(self.sr_ctx.status_text)
         self.update()
 
     def _after_start(self):
@@ -440,8 +439,8 @@ class OneStopView(ft.Row, SrBasicView):
 osv: OneStopView = None
 
 
-def get(ctx: Context):
+def get(page: ft.Page, ctx: Context):
     global osv
     if osv is None:
-        osv = OneStopView(ctx)
+        osv = OneStopView(page, ctx)
     return osv
