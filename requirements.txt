@@ -2,8 +2,6 @@ polib==1.2.0
 pyautogui==0.9.54
 onnxruntime==1.16.0
 opencv-python==4.8.0.76
-# whl//Polygon3-3.0.9-cp311-cp311-win_amd64.whl  经过测试,该包无用
-cnocr==2.2.4.2
 keyboard==0.13.5
 flet==0.11.0
 pyinstaller==6.1.0

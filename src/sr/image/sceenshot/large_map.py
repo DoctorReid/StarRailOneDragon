@@ -191,8 +191,8 @@ def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> str:
     :param ocr: ocr
     :return: 当前选择区域
     """
-    lower = 40
-    upper = 80
+    lower = 0
+    upper = 90
     part, _ = cv2_utils.crop_image(screen, FLOOR_LIST_PART)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
     km = ocr.run_ocr(bw)

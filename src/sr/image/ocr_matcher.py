@@ -14,7 +14,7 @@ class OcrMatcher:
         识别单行文本
         :param image: 图片
         :param threshold: 阈值
-        :param strict_one_line: 是否严格单行 非严格情况下会
+        :param strict_one_line: True时认为当前只有单行文本 False时依赖程序合并成一行
         :return:
         """
         pass

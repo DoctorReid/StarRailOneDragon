@@ -12,7 +12,7 @@ from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
 
 
-TRAILBLAZE_LEVEL_PART = Rect(1280, 240, 1460, 270)  # 等级
+TRAILBLAZE_LEVEL_PART = Rect(1280, 240, 1505, 275)  # 等级
 MENU_ITEMS_PART = Rect(1270, 300, 1810, 1070)  # 菜单选项
 MENU_ITEMS_AT_RIGHT_PART = Rect(1810, 230, 1915, 1030)  # 菜单侧栏选项
 ELLIPSIS_PART = Rect(1390, 50, 1810, 350)  # 省略号...的位置
@@ -37,6 +37,7 @@ def in_phone_menu(screen: MatLike, ocr: OcrMatcher) -> bool:
     """
     part, _ = cv2_utils.crop_image(screen, TRAILBLAZE_LEVEL_PART)
 
+    # cv2_utils.show_image(part, win_name='in_phone_menu')
     ocr_result: str = ocr.ocr_for_single_line(part)
 
     if str_utils.find_by_lcs(gt('开拓等级', 'ocr'), ocr_result, percent=0.55):

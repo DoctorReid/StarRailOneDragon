@@ -48,6 +48,8 @@ class SettingsView(components.Card, SrBasicView):
         self.game_config: GameConfig = game_config.get()
         self.interact_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_interact')
         self.technique_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_technique')
+        self.open_map_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_open_map')
+        self.esc_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_esc')
         self.selected_key_btn: Optional[components.RectOutlinedButton] = None
 
         self.game_path_text = ft.Text(width=230, overflow=ft.TextOverflow.ELLIPSIS)
@@ -81,6 +83,8 @@ class SettingsView(components.Card, SrBasicView):
                 SettingsListGroupTitle('按键'),
                 SettingsListItem('交互', self.interact_btn),
                 SettingsListItem('秘技', self.technique_btn),
+                SettingsListItem('打开地图', self.open_map_btn),
+                SettingsListItem('返回', self.esc_btn),
                 SettingsListGroupTitle('更新'),
                 SettingsListItem('测试版本', self.pre_release_switch),
                 SettingsListItem('代理类型', self.proxy_type_dropdown),

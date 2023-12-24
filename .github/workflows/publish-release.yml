@@ -4,6 +4,9 @@ on:
   release:
     types:
       - published
+  push:
+    branches:
+      - dev_ocr_paddle
 
 jobs:
   package_exe:
@@ -47,10 +50,19 @@ jobs:
           pip install -r requirements.txt
 
       - name: Package Exe by PyInstaller
-        run: pyinstaller src/gui/app.py --name StarRailAutoProxy --clean --noconfirm --noconsole --icon "images/ui/icon.ico" --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --collect-all cnocr
+        run: pyinstaller src/gui/app.py --name StarRailAutoProxy --clean --noconfirm --noconsole --icon "images/ui/icon.ico" --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --collect-all paddle --collect-all paddleocr --collect-all shapely --collect-all pyclipper --collect-all skimage --collect-all imghdr --collect-all imgaug --collect-all lmdb
+
+      - name: Checkout wiki
+        uses: actions/checkout@v4
+        with:
+          repository: DoctorReid/StarRailAutoProxy.wiki
+          ref: master
+          fetch-depth: 1
+          path: wiki
 
       - name: Zip All
         run: |
+          cp ./wiki/output/README.pdf ./dist/StarRailAutoProxy/
           cd dist
           7z a StarRailAutoProxy-${{ github.event.release.tag_name }}.zip StarRailAutoProxy
           7z a -r config.zip StarRailAutoProxy/_internal/config/**

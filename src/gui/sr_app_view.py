@@ -1,8 +1,7 @@
-import os
+import threading
 
 import flet as ft
 from flet_core import CrossAxisAlignment, MainAxisAlignment
-from sentry_sdk.integrations import threading
 
 from basic import win_utils, os_utils
 from basic.i18_utils import gt

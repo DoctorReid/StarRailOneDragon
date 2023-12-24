@@ -1,8 +1,8 @@
-from typing import Union
+from typing import Union, Optional
 
 from cv2.typing import MatLike
 
-from basic import cal_utils, Point, Rect
+from basic import cal_utils, Point, Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -30,12 +30,12 @@ class GameController:
     def open_map(self) -> bool:
         pass
 
-    def click_ocr(self, screen: MatLike, word: str, threshold: float = 0.5, rect: Rect = None, click_offset: tuple = None,
+    def click_ocr(self, screen: MatLike, word: str, threshold: float = 0.5, rect: Rect = None, click_offset: Optional[Point] = None,
                   press_time: float = 0, same_word: bool = False, ignore_case: bool = True, lcs_percent: float = -1,
                   merge_line_distance: float = -1
                   ) -> bool:
         """
-        在屏幕中点击关键词所在位置 多个关键词时随机点击一个
+        在屏幕中点击关键词所在位置 多个关键词时点击公共子串最长的一个
         :param screen: 屏幕截图
         :param word: 关键词
         :param threshold: 阈值
@@ -48,21 +48,34 @@ class GameController:
         :param merge_line_distance: 多少行距内合并OCR结果 -1为不合并
         :return:
         """
-        km = self.ocr.match_words(cv2_utils.crop_image(screen, rect)[0],
+        part, _ = cv2_utils.crop_image(screen, rect)
+        km = self.ocr.match_words(part,
                                   words=[word], threshold=threshold, same_word=same_word,
                                   ignore_case=ignore_case, lcs_percent=lcs_percent,
                                   merge_line_distance=merge_line_distance)
         if len(km) == 0:
             return False
-        for v in km.values():
-            point = v.max.center
-            if rect is not None:
-                point = point + rect.left_top
-            if click_offset is not None:
-                point.x += click_offset[0]
-                point.y += click_offset[1]
-            log.debug('OCR识别 %s 成功 准备点击 %s', gt(word, 'ui'), point)
-            return self.click(point, press_time=press_time)
+
+        target_point = None
+        target_lcs_percent = None
+
+        target_word = gt(word, 'ocr')
+        for ocr_str, match_result_list in km.items():
+            lcs = str_utils.longest_common_subsequence_length(target_word, ocr_str)
+            lcs_percent = lcs / len(target_word)
+
+            if target_point is None or target_lcs_percent is None or lcs_percent > target_lcs_percent:
+                target_point = match_result_list.max.center
+                target_lcs_percent = lcs_percent
+
+        if target_point is None:
+            return False
+        if rect is not None:
+            target_point = target_point + rect.left_top
+        if click_offset is not None:
+            target_point = target_point + click_offset
+        log.debug('OCR识别 %s 成功 准备点击 %s', gt(word, 'ui'), target_point)
+        return self.click(target_point, press_time=press_time)
 
     def click(self, pos: Point = None, press_time: float = 0) -> bool:
         """
