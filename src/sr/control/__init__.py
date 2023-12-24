@@ -210,3 +210,10 @@ class GameController:
         :return:
         """
         pass
+
+    def close_game(self):
+        """
+        关闭游戏
+        :return:
+        """
+        pass

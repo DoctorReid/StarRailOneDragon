@@ -28,7 +28,7 @@ class SrAppView(components.Card, SrBasicView):
             ft.Container(content=self.stop_btn),
         ], alignment=MainAxisAlignment.CENTER)
 
-        self.shutdown_check = ft.Checkbox(label=gt("结束后关机", model='ui'), value=False, on_change=self.on_shutdown_changed)
+        self.after_done_dropdown = components.AfterDone(self._on_after_done_changed)
 
         self.running = ft.ProgressRing(width=16, height=16, stroke_width=2, visible=False)
         self.running_status = ft.Text(value=gt('未开始', model='ui'))
@@ -36,7 +36,7 @@ class SrAppView(components.Card, SrBasicView):
             ft.Container(content=self.running, height=20),
             ft.Container(content=self.running_status),
             ft.Container(content=ctrl_row),
-            ft.Container(content=self.shutdown_check)
+            ft.Container(content=self.after_done_dropdown)
         ], horizontal_alignment=CrossAxisAlignment.CENTER)
 
         self.diy_part = ft.Container(expand=True)
@@ -108,14 +108,16 @@ class SrAppView(components.Card, SrBasicView):
 
         self.sr_ctx.unregister(self)
 
-        if self.shutdown_check.value:
+        if self.after_done_dropdown.value == 'shutdown':
             log.info('执行完毕 准备关机')
             win_utils.shutdown_sys(60)
+        elif self.after_done_dropdown.value == 'close':
+            log.info('执行完毕 关闭游戏')
+            if self.sr_ctx.controller is not None:
+                self.sr_ctx.controller.close_game()
 
         os_utils.clear_outdated_debug_files(3)
 
-    def on_shutdown_changed(self, e):
-        if not self.shutdown_check.value:
-            log.info('已取消关机计划')
+    def _on_after_done_changed(self, e):
+        if self.after_done_dropdown.value != 'shutdown':
             win_utils.cancel_shutdown_sys()
-

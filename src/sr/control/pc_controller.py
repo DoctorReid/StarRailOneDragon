@@ -202,3 +202,14 @@ class PcController(GameController):
         """
         log.info('使用秘技')
         pyautogui.press(self.gc.key_technique)
+
+    def close_game(self):
+        """
+        关闭游戏
+        :return:
+        """
+        try:
+            self.win.win.close()
+            log.info('关闭游戏成功')
+        except:
+            log.error('关闭游戏失败', exc_info=True)

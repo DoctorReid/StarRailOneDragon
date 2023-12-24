@@ -242,8 +242,8 @@ class OneStopView(ft.Row, SrBasicView):
         self.next_job = Label2NormalValueRow('下一个', '无')
         status_content_row = ft.Row(controls=[self.running_status, self.next_job])
 
-        self.shutdown_check = ft.Checkbox(label=gt("结束后关机", model='ui'), value=False, on_change=self.on_shutdown_changed)
-        shutdown_row = ft.Row(controls=[self.shutdown_check], alignment=ft.MainAxisAlignment.CENTER)
+        self.after_done_dropdown = components.AfterDone(self._on_after_done_changed)
+        after_done_row = ft.Row(controls=[self.after_done_dropdown], alignment=ft.MainAxisAlignment.CENTER)
 
         self.start_btn = components.RectOutlinedButton(text="F9 开始", on_click=self.on_click_start)
         self.pause_btn = components.RectOutlinedButton(text="F9 暂停", on_click=self.on_click_pause, visible=False)
@@ -252,9 +252,9 @@ class OneStopView(ft.Row, SrBasicView):
         ctrl_btn_row = ft.Row(controls=[self.start_btn, self.pause_btn, self.resume_btn, self.stop_btn],
                               alignment=ft.MainAxisAlignment.CENTER)
 
-        status_content = ft.Column(controls=[status_content_row, shutdown_row, ctrl_btn_row], auto_scroll=True)
+        status_content = ft.Column(controls=[status_content_row, after_done_row, ctrl_btn_row], auto_scroll=True)
 
-        status_card = components.Card(status_content, title=status_title_row, width=info_card_width, height=150)
+        status_card = components.Card(status_content, title=status_title_row, width=info_card_width, height=180)
 
         left_part = ft.Container(ft.Column(controls=[character_info_card, status_card], spacing=10))
 
@@ -360,12 +360,17 @@ class OneStopView(ft.Row, SrBasicView):
         scheduler.cancel_with_tag('_update_running_app_name')
         self.running_app = None
         self._update_running_app_name()
-        if self.shutdown_check.value:
+
+        if self.after_done_dropdown.value == 'shutdown':
             log.info('执行完毕 准备关机')
             win_utils.shutdown_sys(60)
+        elif self.after_done_dropdown.value == 'close':
+            log.info('执行完毕 关闭游戏')
+            if self.sr_ctx.controller is not None:
+                self.sr_ctx.controller.close_game()
 
-    def on_shutdown_changed(self, e):
-        if not self.shutdown_check.value:
+    def _on_after_done_changed(self, e):
+        if not self.after_done_dropdown.value != 'shutdown':
             log.info('已取消关机计划')
             win_utils.cancel_shutdown_sys()
 

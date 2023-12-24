@@ -1,4 +1,4 @@
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Callable
 
 import flet as ft
 from flet_core import OptionalNumber
@@ -106,3 +106,13 @@ class SettingsList(ft.ListView):
             controls=container_list,
             width=width
         )
+
+
+class AfterDone(ft.Dropdown):
+
+    def __init__(self, on_change: Optional[Callable] = None):
+        super().__init__(options=[
+            ft.dropdown.Option(key='none', text=gt('无', 'ui')),
+            ft.dropdown.Option(key='shutdown', text=gt('关机', 'ui')),
+            ft.dropdown.Option(key='close', text=gt('关游戏', 'ui'))
+        ], label=gt('结束后'), value='none', on_change=on_change, width=200, text_size=14, height=50)
