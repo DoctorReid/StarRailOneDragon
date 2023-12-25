@@ -55,6 +55,9 @@ class GetTrainingScore(Operation):
             if ocr_result.find(str(i)) != -1:
                 return i * 100
 
+        # 特殊处理 将出现的字母O转化成0
+        ocr_result = ocr_result.replace('o', '0').replace('O', '0')
+
         if str_utils.get_positive_digits(ocr_result, None) is None:
             return None
         else:
