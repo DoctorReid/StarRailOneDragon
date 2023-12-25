@@ -12,6 +12,7 @@ import yaml
 
 from basic import os_utils
 from basic.log_utils import log
+from sr.const.game_config_const import GH_PROXY_URL
 
 
 @lru_cache
@@ -37,9 +38,12 @@ def get_latest_release_info(proxy: Optional[str] = None, pre_release: bool = Fal
     """
     log.info('正在获取最新版本信息')
 
+    proxy_to_use = None if proxy == GH_PROXY_URL else proxy
+    proxies = {'http': proxy_to_use, 'https': proxy_to_use} if proxy_to_use is not None else None
+
     if pre_release:  # 获取pre-release
         url = 'https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases'
-        response = requests.get(url, proxies={'http': proxy, 'https': proxy} if proxy is not None else None)
+        response = requests.get(url, proxies=proxies)
         if response.status_code != 200:
             log.error('获取最新版本信息失败 %s', response.content)
             return None
@@ -47,7 +51,7 @@ def get_latest_release_info(proxy: Optional[str] = None, pre_release: bool = Fal
             return response.json()[0]
     else:  # 获取最新release信息
         url = 'https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases/latest'
-        response = requests.get(url, proxies={'http': proxy, 'https': proxy} if proxy is not None else None)
+        response = requests.get(url, proxies=proxies)
         if response.status_code != 200:
             log.error('获取最新版本信息失败 %s', response.content)
             return None

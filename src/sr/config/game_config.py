@@ -154,7 +154,7 @@ class GameConfig(ConfigHolder):
         if proxy_type == game_config_const.PROXY_TYPE_NONE.id:
             return None
         elif proxy_type == game_config_const.PROXY_TYPE_GHPROXY.id:
-            return 'https://gh-proxy.com/'
+            return game_config_const.GH_PROXY_URL
         elif proxy_type == game_config_const.PROXY_TYPE_PERSONAL.id:
             proxy = self.personal_proxy
             return None if proxy == '' else proxy

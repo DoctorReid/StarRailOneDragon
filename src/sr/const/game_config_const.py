@@ -51,6 +51,8 @@ class ProxyType:
 
 PROXY_TYPE_NONE = ProxyType(id='none', cn='无')
 PROXY_TYPE_PERSONAL = ProxyType(id='personal', cn='个人代理')
-PROXY_TYPE_GHPROXY = ProxyType(id='ghproxy', cn='gh-proxy')  # 似乎失效了
+PROXY_TYPE_GHPROXY = ProxyType(id='ghproxy', cn='ghproxy')  # 似乎失效了
 
-PROXY_TYPE_LIST: List[ProxyType] = [PROXY_TYPE_NONE, PROXY_TYPE_PERSONAL,]
+PROXY_TYPE_LIST: List[ProxyType] = [PROXY_TYPE_NONE, PROXY_TYPE_PERSONAL, PROXY_TYPE_GHPROXY]
+
+GH_PROXY_URL = 'https://mirror.ghproxy.com/'
