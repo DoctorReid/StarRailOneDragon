@@ -311,13 +311,13 @@ P02_R06_SP04 = TransportPoint('CXHL', '残响回廊', P02_R06, 'mm_sp_02', (338,
 P02_R06_SP05 = TransportPoint('HCDLM', '寒潮的落幕历战回响', P02_R06, 'mm_boss_02', (814, 701))
 
 # 雅利洛 - 造物之柱
-P02_R07_SP01 = TransportPoint('ZWZZRK', '造物之柱入口', P02_R07, 'mm_tp_03', (382, 426))
-P02_R07_SP02 = TransportPoint('ZWZZSGC', '造物之柱施工场', P02_R07, 'mm_tp_03', (660, 616))
+P02_R07_SP01 = TransportPoint('ZWZZRK', '造物之柱入口', P02_R07, 'mm_tp_03', (382, 426), (373, 426))
+P02_R07_SP02 = TransportPoint('ZWZZSGC', '造物之柱施工场', P02_R07, 'mm_tp_03', (660, 616), (647, 597))
 P02_R07_SP03 = TransportPoint('CXHL', '残响回廊', P02_R07, 'mm_sp_02', (313, 346))
 
 # 雅利洛 - 旧武器试验场
-P02_R08_SP01 = TransportPoint('JSQDZX', '决胜庆典中心', P02_R08_L2, 'mm_tp_03', (583, 836))
-P02_R08_SP02 = TransportPoint('YTZXZD', '以太战线终端', P02_R08_L2, 'mm_tp_12', (525, 792))
+P02_R08_SP01 = TransportPoint('JSQDZX', '决胜庆典中心', P02_R08_L2, 'mm_tp_03', (583, 836), (572, 837))
+P02_R08_SP02 = TransportPoint('YTZXZD', '以太战线终端', P02_R08_L2, 'mm_tp_12', (525, 792), (539, 792))
 P02_R08_SP03 = TransportPoint('MDZ', '铆钉镇', P02_R08_L2, 'mm_sp_02', (591, 1032))
 
 # 雅利洛 - 磐岩镇
