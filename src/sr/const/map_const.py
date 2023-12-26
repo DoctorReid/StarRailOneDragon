@@ -321,9 +321,9 @@ P02_R08_SP02 = TransportPoint('YTZXZD', '以太战线终端', P02_R08_L2, 'mm_tp
 P02_R08_SP03 = TransportPoint('MDZ', '铆钉镇', P02_R08_L2, 'mm_sp_02', (591, 1032))
 
 # 雅利洛 - 磐岩镇
-P02_R09_SP01 = TransportPoint('GDDFD', '歌德大饭店', P02_R09, 'mm_tp_03', (614, 236))
-P02_R09_SP02 = TransportPoint('BJQLB', '搏击俱乐部', P02_R09, 'mm_tp_03', (419, 251))
-P02_R09_SP03 = TransportPoint('NTSDZS', '娜塔莎的诊所', P02_R09, 'mm_tp_03', (416, 417))
+P02_R09_SP01 = TransportPoint('GDDFD', '歌德大饭店', P02_R09, 'mm_tp_03', (614, 236), (632, 236))
+P02_R09_SP02 = TransportPoint('BJQLB', '搏击俱乐部', P02_R09, 'mm_tp_03', (419, 251), (409, 238))
+P02_R09_SP03 = TransportPoint('NTSDZS', '娜塔莎的诊所', P02_R09, 'mm_tp_03', (416, 417), (418, 434))
 P02_R09_SP04 = TransportPoint('PYZCJLS', '磐岩镇超级联赛', P02_R09, 'mm_tp_10', (358, 262))
 P02_R09_SP05 = TransportPoint('MDZ', '铆钉镇', P02_R09, 'mm_sp_02', (630, 114))
 P02_R09_SP06 = TransportPoint('DKQ', '大矿区', P02_R09, 'mm_sp_02', (453, 595))
