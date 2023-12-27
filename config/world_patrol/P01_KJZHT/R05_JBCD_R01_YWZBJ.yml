@@ -1,0 +1,24 @@
+author: ['DoctorReid']
+planet: '空间站黑塔'
+region: '禁闭舱段'
+floor: 2
+tp: '药物制备间'
+route:
+  - op: 'move'
+    data: [472, 748]
+  - op: 'move'
+    data: [433, 794]
+  - op: 'move'
+    data: [401, 770]
+  - op: 'move'
+    data: [428, 725]
+  - op: 'move'
+    data: [411, 711]
+  - op: 'move'
+    data: [338, 600]
+  - op: 'move'
+    data: [324, 485]
+  - op: 'patrol'
+  - op: 'move'
+    data: [380, 387]
+  - op: 'patrol'

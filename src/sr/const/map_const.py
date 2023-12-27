@@ -129,6 +129,9 @@ P01_R03_L1 = Region(3, "SRCD", "收容舱段", P01, 1)
 P01_R03_L2 = Region(3, "SRCD", "收容舱段", P01, 2)
 P01_R04_L1 = Region(4, "ZYCD", "支援舱段", P01, 1)
 P01_R04_L2 = Region(4, "ZYCD", "支援舱段", P01, 2)
+P01_R05_L1 = Region(5, "JBCD", "禁闭舱段", P01, 1)
+P01_R05_L2 = Region(5, "JBCD", "禁闭舱段", P01, 2)
+P01_R05_L3 = Region(5, "JBCD", "禁闭舱段", P01, 3)
 
 # 雅利洛
 P02_R01_L1 = Region(1, "XZQ", "行政区", P02, floor=1)
@@ -165,7 +168,7 @@ P03_R10 = Region(10, "SY", "绥园", P03)
 
 # 这里的顺序需要保持和界面上的区域顺序一致
 PLANET_2_REGION: Dict[str, List[Region]] = {
-    P01.np_id: [P01_R01, P01_R02, P01_R03_L1, P01_R03_L2, P01_R03_B1, P01_R04_L1, P01_R04_L2],
+    P01.np_id: [P01_R01, P01_R02, P01_R03_L1, P01_R03_L2, P01_R03_B1, P01_R04_L1, P01_R04_L2, P01_R05_L1, P01_R05_L2, P01_R05_L3],
     P02.np_id: [P02_R01_L1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R06, P02_R07, P02_R08_L2, P02_R09, P02_R10,
                 P02_R11_L1, P02_R11_L2, P02_R12_L1, P02_R12_L2],
     P03.np_id: [P03_R01, P03_R02_L1, P03_R02_L2, P03_R03_L1, P03_R03_L2, P03_R04, P03_R05, P03_R06_L1, P03_R06_L2,
@@ -244,6 +247,13 @@ P01_R04_SP03 = TransportPoint('DLS', '电力室', P01_R04_L2, 'mm_tp_03', (165, 
 P01_R04_SP04 = TransportPoint('CHZL', '存护之蕾拟造花萼赤', P01_R04_L2, 'mm_tp_07', (467, 322), (476, 330))
 P01_R04_SP05 = TransportPoint('TKDT', '太空电梯', P01_R04_L2, 'mm_sp_02', (105, 345))
 P01_R04_SP06 = TransportPoint('HMDKD', '毁灭的开端历战回响', P01_R04_L2, 'mm_boss_01', (1010, 286), (1015, 295))
+
+# 空间站黑塔 - 禁闭舱段
+P01_R05_SP01 = TransportPoint('WC', '温床', P01_R05_L2, 'mm_tp_03', (684, 306), (710, 309))
+P01_R05_SP02 = TransportPoint('WC', '集散中心', P01_R05_L3, 'mm_tp_03', (642, 500), (609, 481))
+P01_R05_SP03 = TransportPoint('PYM', '培养皿', P01_R05_L1, 'mm_tp_03', (669, 560), (677, 540))
+P01_R05_SP04 = TransportPoint('YWZBJ', '药物制备间', P01_R05_L2, 'mm_tp_03', (541, 796), (530, 800))
+P01_R05_SP05 = TransportPoint('ZXDJY', '蛀星的旧靥历战回响', P01_R05_L1, 'mm_boss_04', (571, 526), (582, 529))
 
 # 雅利洛 - 行政区
 P02_R01_SP01 = TransportPoint('HJGJY', '黄金歌剧院', P02_R01_L1, 'mm_tp_03', (603, 374), (619, 380))
@@ -489,6 +499,7 @@ REGION_2_SP = {
     P01_R02.pr_id: [P01_R02_SP01, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04],
     P01_R03_L1.pr_id: [P01_R03_SP01, P01_R03_SP02, P01_R03_SP03, P01_R03_SP04, P01_R03_SP05, P01_R03_SP06, P01_R03_SP07],
     P01_R04_L1.pr_id: [P01_R04_SP01, P01_R04_SP02, P01_R04_SP03, P01_R04_SP04, P01_R04_SP05, P01_R04_SP06],
+    P01_R05_L1.pr_id: [P01_R05_SP01, P01_R05_SP02, P01_R05_SP03, P01_R05_SP04, P01_R05_SP05],
     P02_R01_L1.pr_id: [
         P02_R01_SP01, P02_R01_SP02, P02_R01_SP03, P02_R01_SP04, P02_R01_SP05, P02_R01_SP06, P02_R01_SP07, P02_R01_SP08, P02_R01_SP09, P02_R01_SP10,
         P02_R01_SP11, P02_R01_SP12, P02_R01_SP13, P02_R01_SP14, P02_R01_SP15, P02_R01_SP16, P02_R01_SP17, P02_R01_SP18, P02_R01_SP19],

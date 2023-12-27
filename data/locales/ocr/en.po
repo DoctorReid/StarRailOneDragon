@@ -109,6 +109,9 @@ msgstr "Storage"
 msgid "支援舱段"
 msgstr "Supply"
 
+msgid "禁闭舱段"
+msgstr "Seclusion"
+
 msgid "行政区"
 msgstr "Administrative District"
 
@@ -245,6 +248,22 @@ msgstr "Destruction's Beginning"
 # Interact
 msgid "配控装置"
 msgstr "Control Device"
+
+# Special Point - Herta Space Station - Seclusion Zone
+msgid "温床"
+msgstr "Breeding Ground"
+
+msgid "集散中心"
+msgstr "Distribution Center"
+
+msgid "培养皿"
+msgstr "Incubator"
+
+msgid "药物制备间"
+msgstr "Pharmaceutical Room"
+
+msgid "蛀星的旧靥历战回响"
+msgstr "Borehole Planet's Old Crater"
 
 # Special Point - Jarilo-VI - Administrative District
 msgid "黄金歌剧院"

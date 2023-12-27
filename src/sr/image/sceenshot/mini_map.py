@@ -515,7 +515,10 @@ def get_rough_road_mask(mm: MatLike,
     :param another_floor: 是否有其它楼层
     :return:
     """
-    b, g, r = cv2.split(mm)
+    origin = remove_radio(mm, radio_to_del) if radio_to_del is not None else mm
+    # cv2_utils.show_image(origin, win_name='get_rough_road_mask_origin')
+
+    b, g, r = cv2.split(origin)
     avg_b = np.mean(b)
     avg_g = np.mean(g)
     avg_r = np.mean(r)
@@ -526,13 +529,16 @@ def get_rough_road_mask(mm: MatLike,
     ur = 55 if avg_r < 70 else 100
     lower_color = np.array([45, 45, 45], dtype=np.uint8)
     upper_color = np.array([ub, ug, ur], dtype=np.uint8)
-    road_mask_1 = cv2.inRange(mm, lower_color, upper_color)
+    road_mask_1 = cv2.inRange(origin, lower_color, upper_color)
     # cv2_utils.show_image(road_mask_1, win_name='road_mask_1')
 
-    radio_mask = get_mini_map_radio_mask(mm, angle, another_floor)
-    # cv2_utils.show_image(radio_mask, win_name='radio_mask')
+    if radio_to_del is None:
+        radio_mask = get_mini_map_radio_mask(mm, angle, another_floor)
+        # cv2_utils.show_image(radio_mask, win_name='radio_mask')
 
-    center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
+        center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
+    else:
+        center_mask = arrow_mask
     road_mask = cv2.bitwise_or(road_mask_1, center_mask)
     road_mask = cv2.bitwise_or(road_mask, sp_mask)
     # cv2_utils.show_image(road_mask, win_name='road_mask')

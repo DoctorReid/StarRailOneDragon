@@ -23,6 +23,7 @@ WAR_LIST = [
     map_const.P01_R04_SP06,
     map_const.P02_R06_SP05,
     map_const.P03_R09_SP06,
+    map_const.P01_R05_SP05,
 ]
 
 

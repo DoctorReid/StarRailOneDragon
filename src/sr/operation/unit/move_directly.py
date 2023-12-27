@@ -157,6 +157,7 @@ class MoveDirectly(Operation):
                                              run=self.run_mode == game_config_const.RUN_MODE_BTN)
             # time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
             self.pos.append(next_pos)
+            log.debug('记录坐标 %s', next_pos)
             if len(self.pos) > MoveDirectly.max_len:
                 del self.pos[0]
             self.last_rec_time = now_time

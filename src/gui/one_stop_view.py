@@ -369,7 +369,7 @@ class OneStopView(ft.Row, SrBasicView):
                 self.sr_ctx.controller.close_game()
 
     def _on_after_done_changed(self, e):
-        if not self.after_done_dropdown.value != 'shutdown':
+        if self.after_done_dropdown.value != 'shutdown':
             log.info('已取消关机计划')
             win_utils.cancel_shutdown_sys()
 

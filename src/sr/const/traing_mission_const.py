@@ -20,7 +20,7 @@ class DailyTrainingMission:
 
 MISSION_DAILY_MISSION = DailyTrainingMission(id_cn='日常任务', desc_cn='完成1个日常任务', able=False)
 MISSION_PATH = DailyTrainingMission(id_cn='侵蚀隧洞', desc_cn='完成1次侵蚀隧洞', able=False)
-# MISSION_BUD1 = DailyTrainingMission(id_cn='拟造花萼金', desc_cn='完成1次拟造花萼金', able=False)
+MISSION_BUD1 = DailyTrainingMission(id_cn='拟造花萼金', desc_cn='完成1次拟造花萼金', able=False)
 MISSION_BUD2 = DailyTrainingMission(id_cn='拟造花萼赤', desc_cn='完成1次拟造花萼赤', able=False)
 MISSION_FORGOTTEN_HALL = DailyTrainingMission(id_cn='忘却之庭', desc_cn='完成1次忘却之庭', able=False)
 MISSION_SYNTHESIZE_CONSUMABLE = DailyTrainingMission(id_cn='合成消耗品', desc_cn='合成1次消耗品', able=True)
@@ -36,7 +36,7 @@ MISSION_TAKE_PHOTO = DailyTrainingMission(id_cn='拍照', desc_cn='拍照1次', 
 ALL_MISSION_LIST = [
     MISSION_DAILY_MISSION,
     MISSION_PATH,
-    # MISSION_BUD1,
+    MISSION_BUD1,
     MISSION_BUD2,
     MISSION_FORGOTTEN_HALL,
     MISSION_USE_CONSUMABLE,

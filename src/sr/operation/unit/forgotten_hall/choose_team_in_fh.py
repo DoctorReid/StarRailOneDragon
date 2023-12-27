@@ -14,7 +14,7 @@ from sr.const.character_const import CharacterCombatType, CHARACTER_COMBAT_TYPE_
 from sr.context import Context, get_context
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.combine import CombineOperation
-from sr.operation.unit.click import Click
+from sr.operation.unit.click import ClickPoint
 from sr.operation.unit.forgotten_hall.choose_character import ChooseCharacterInForgottenHall
 
 
@@ -200,7 +200,7 @@ class ChooseTeamInForgottenHall(Operation):
         for session in ChooseTeamInForgottenHall.ALL_SESSION_LIST:
             idx += 1
             team = self.teams[idx]
-            ops.append(Click(self.ctx, session.character_rect_list[0].center))
+            ops.append(ClickPoint(self.ctx, session.character_rect_list[0].center))
             for character in team:
                 ops.append(ChooseCharacterInForgottenHall(self.ctx, character.id))
         op = CombineOperation(

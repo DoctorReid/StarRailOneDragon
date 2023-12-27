@@ -1,0 +1,28 @@
+author: ['DoctorReid']
+planet: '空间站黑塔'
+region: '禁闭舱段'
+floor: 2
+tp: '温床'
+route:
+  - op: 'move'
+    data: [754, 350]
+  - op: 'move'
+    data: [772, 370]
+  - op: 'move'
+    data: [797, 409]
+  - op: 'move'
+    data: [816, 453]
+  - op: 'move'
+    data: [829, 523]
+  - op: 'move'
+    data: [824, 580]
+  - op: 'move'
+    data: [810, 629]
+  - op: 'patrol'
+  - op: 'move'
+    data: [773, 688]
+  - op: 'move'
+    data: [722, 735]
+  - op: 'move'
+    data: [683, 759]
+  - op: 'patrol'

@@ -1,5 +1,5 @@
 import time
-from typing import Optional, Union, ClassVar, Callable
+from typing import Optional, Union, ClassVar, Callable, List
 
 from cv2.typing import MatLike
 
@@ -365,3 +365,177 @@ class OperationFail(Operation):
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
         return Operation.round_fail()
+
+
+class StateOperationNode:
+
+    def __init__(self, cn: str, func: Callable[[], OperationOneRoundResult]):
+        """
+        带状态指令的节点
+        :param cn: 节点名称
+        :param func: 该节点用于处理指令的函数
+        """
+
+        self.cn: str = cn
+        """节点名称"""
+
+        self.func: Callable[[], OperationOneRoundResult] = func
+        """节点处理函数"""
+
+
+class StateOperationEdge:
+
+    def __init__(self, node_from: StateOperationNode, node_to: StateOperationNode,
+                 success: bool = True, status: Optional[str] = None, ignore_status: bool = True):
+        """
+        带状态指令的边
+        :param node_from: 上一个指令
+        :param node_to: 下一个指令
+        :param success: 是否成功才进入下一个节点
+        :param status: 上一个节点的结束状态 符合时才进入下一个节点
+        :param ignore_status: 是否忽略状态进行下一个节点 不会忽略success
+        """
+
+        self.node_from: StateOperationNode = node_from
+        """上一个节点"""
+
+        self.node_to: StateOperationNode = node_to
+        """下一个节点"""
+
+        self.success: bool = success
+        """是否成功才执行下一个节点"""
+
+        self.status: Optional[str] = status
+        """
+        执行下一个节点的条件状态 
+        一定要完全一样才会执行 包括None
+        """
+
+        self.ignore_status: bool = False if status is not None else ignore_status
+        """
+        是否忽略状态进行下一个节点
+        一个节点应该最多只有一条边忽略返回状态
+        忽略返回状态只有在所有需要匹配的状态都匹配不到时才会用做兜底
+        """
+
+class StateOperation(Operation):
+
+    def __init__(self, ctx: Context, op_name: str, try_times: int = 2,
+                 nodes: Optional[List[StateOperationNode]] = None,
+                 edges: Optional[List[StateOperationEdge]] = None,
+                 specified_start_node: Optional[StateOperationNode] = None):
+        """
+        带有状态的指令
+        :param ctx: 上下文
+        :param op_name: 指令名称
+        :param try_times: 重试次数，所有节点共享
+        :param nodes: 指令的节点 与edges至少传入一个。只传入nodes认为按顺序执行
+        :param edges: 指令的边 与nodes至少传入一个。传入edges时，忽略传入的nodes。根据edges构建执行的网图
+        :param specified_start_node: 指定的开始节点。当网图有环时候使用，指定后脚本不会根据网图入度自动判断开始节点。
+        """
+        super().__init__(ctx, op_name=op_name, try_times=try_times)
+
+        self.edge_list: List[StateOperationEdge] = []
+        """边列表"""
+
+        self._node_edges_map: dict[str, List[StateOperationEdge]] = {}
+        """下一个节点的集合"""
+
+        self._node_map: dict[str, StateOperationNode] = {}
+        """节点"""
+
+        self._specified_start_node: Optional[StateOperationNode] = specified_start_node
+        """指定的开始节点 当网络存在环时 需要自己指定"""
+
+        self._start_node: Optional[StateOperationNode] = None
+        """其实节点 初始化后才会有"""
+
+        self._multiple_start: bool = False
+        """是否有多个开始节点 属于异常情况"""
+
+        self._current_node: Optional[StateOperationNode] = None
+        """当前执行的节点"""
+
+        if edges is not None:
+            for edge in edges:
+                self.register_edge(edge)
+        elif nodes is not None:
+            pass
+
+    def register_edge(self, edge: StateOperationEdge):
+        """
+        注册一条边
+        :param edge:
+        :return:
+        """
+        if self.executing:
+            log.error('%s 正在执行 无法进行节点注册', self.display_name)
+            return
+        self.edge_list.append(edge)
+
+    def set_specified_start_node(self, start_node: StateOperationNode):
+        """
+        设置开始节点
+        :param start_node: 开始节点
+        :return:
+        """
+        if self.executing:
+            log.error('%s 正在执行 无法设置开始节点', self.display_name)
+            return
+        self._specified_start_node = start_node
+
+    def _init_network(self):
+        """
+        进行节点网络的初始化
+        :return:
+        """
+        self._node_edges_map = {}
+        self._node_map = {}
+        self._start_node = None
+        self._multiple_start = False
+
+        op_in_map: dict[str, int] = {}  # 入度
+
+        for edge in self.edge_list:
+            from_id = edge.node_from.cn
+            if from_id not in self._node_edges_map:
+                self._node_edges_map[from_id] = []
+            self._node_edges_map[from_id].append(edge)
+
+            to_id = edge.node_to.cn
+            if to_id not in op_in_map:
+                op_in_map[to_id] = 0
+            op_in_map[to_id] = op_in_map[to_id] + 1
+
+            self._node_map[from_id] = edge.node_from
+            self._node_map[to_id] = edge.node_to
+
+        if self._specified_start_node is None:  # 没有指定开始节点时 自动判断
+            # 找出入度为0的开始点
+            for edge in self.edge_list:
+                from_id = edge.node_from.cn
+                if from_id not in op_in_map or op_in_map[from_id] == 0:
+                    if self._start_node is not None and self._start_node.cn != from_id:
+                        self._start_node = None
+                        break
+                    self._start_node = self._node_map[from_id]
+        else:
+            self._start_node = self._specified_start_node
+
+    def _init_before_execute(self):
+        """
+        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        """
+        super()._init_before_execute()
+        self._init_network()
+        self._current_node = self._start_node
+
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        if self._current_node is None:
+            return Operation.round_fail('无开始节点')
+        current_op = self._current_node.func
+        current_round_result: OperationOneRoundResult = current_op()
+
+        edges = self._node_edges_map.get(self._current_node.cn)
+        if edges is None:  # 没有下一个节点了 已经结束了
+            return Operation.round_success()
