@@ -24,8 +24,8 @@ class PerformanceRecord:
         return self.total / self.cnt if self.cnt > 0 else 0
 
     def __str__(self):
-        return ('[%s] 次数: %d 平均耗时: %.6f 最高耗时: %.6f, 最低耗时: %.6f' %
-                (self.id, self.cnt, self.avg(), self.max, self.min))
+        return ('[%s] 次数: %d 平均耗时: %.6f 最高耗时: %.6f, 最低耗时: %.6f, 总耗时: %.6f' %
+                (self.id, self.cnt, self.avg(), self.max, self.min, self.total))
 
 
 class PerformanceRecorder:
@@ -77,6 +77,6 @@ def log_all_performance():
     log.debug(get('analyse_mini_map'))
     log.debug(get('cal_character_pos_by_sp_result'))
     log.debug(get('cal_character_pos_by_feature_match'))
-    log.debug(get('cal_character_pos_by_gray_mask'))
+    log.debug(get('cal_character_pos_by_gray'))
     log.debug(get('cal_character_pos_by_road_mask'))
     log.debug(get('cal_character_pos_by_original'))

@@ -1,6 +1,5 @@
 import concurrent.futures
 from concurrent.futures import Future
-from functools import lru_cache
 from typing import List, Optional
 
 import cv2
@@ -170,15 +169,13 @@ def cal_character_pos_by_gray(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
-    radio_to_del = get_radio_to_del(im, mm_info.angle)
-    mm = mini_map.remove_radio(mm_info.origin, radio_to_del)
-    template = cv2.cvtColor(mm, cv2.COLOR_BGR2GRAY)
-    road_mask = mini_map.get_rough_road_mask(mm_info.origin,
-                                                   sp_mask=mm_info.sp_mask,
-                                                   arrow_mask=mm_info.arrow_mask,
-                                                   angle=mm_info.angle,
-                                                   radio_to_del=radio_to_del,
-                                                   another_floor=lm_info.region.another_floor)
+    mm = mm_info.origin_del_radio
+    template = cv2.cvtColor(mm_info.origin_del_radio, cv2.COLOR_BGR2GRAY)
+    road_mask = mini_map.get_rough_road_mask(mm,
+                                             sp_mask=mm_info.sp_mask,
+                                             arrow_mask=mm_info.arrow_mask,
+                                             angle=mm_info.angle,
+                                             another_floor=lm_info.region.another_floor)
     road_mask = cv2_utils.dilate(road_mask, 3)  # 把白色边缘包括进来
     template_mask = cv2.bitwise_and(mm_info.circle_mask, road_mask)
 
@@ -222,12 +219,11 @@ def cal_character_pos_by_original(im: ImageMatcher,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     # 使用道路掩码
-    radio_to_del = get_radio_to_del(im, mm_info.angle)
-    template = mini_map.remove_radio(mm_info.origin, radio_to_del)
-    road_mask = mini_map.get_road_mask_v3(mm_info.origin,
+    template = mm_info.origin_del_radio
+    road_mask = mini_map.get_road_mask_v4(mm_info.origin_del_radio,
                                           sp_mask=mm_info.sp_mask,
-                                          arrow_mask=mm_info.arrow_mask,
-                                          radio_to_del=radio_to_del)
+                                          arrow_mask=mm_info.arrow_mask
+                                          )
     dilate_road_mask = cv2_utils.dilate(road_mask, 3)
     template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
 
@@ -321,19 +317,6 @@ def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
     return None if same_confidence else target_pos
 
 
-@lru_cache
-def get_radio_to_del(im: ImageMatcher, angle: float = None):
-    """
-    根据人物朝向 获取对应的雷达区域颜色
-    :param im:
-    :param angle:
-    :return:
-    """
-    radio_to_del = im.get_template('mini_map_radio').origin
-    if angle is not None:
-        return cv2_utils.image_rotate(radio_to_del, 360 - angle)
-    else:
-        return radio_to_del
 
 
 @record_performance
@@ -355,109 +338,13 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
     # 使用道路掩码
-    radio_to_del = get_radio_to_del(im, mm_info.angle)
-    # mm_info.road_mask = mini_map.get_mini_map_road_mask(mm_info.origin, sp_mask=mm_info.sp_mask,
-    #                                                     arrow_mask=mm_info.arrow_mask,
-    #                                                     angle=mm_info.angle, radio_to_del=radio_to_del,
-    #                                                     another_floor=lm_info.region.another_floor)
-    mm_info.road_mask = mini_map.get_road_mask_v4(mm_info.origin,
+    mm_info.road_mask = mini_map.get_road_mask_v4(mm_info.origin_del_radio,
                                                   sp_mask=mm_info.sp_mask,
                                                   arrow_mask=mm_info.arrow_mask,
-                                                  center_mask=mm_info.center_mask,
-                                                  radio_to_del=radio_to_del)
+                                                  center_mask=mm_info.center_mask
+                                                  )
     template = mm_info.road_mask
     template_mask = mm_info.circle_mask
-
-    target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
-                                                                   mini_map.get_mini_map_scale_list(running),
-                                                                   0.4)
-
-    if show:
-        scale = target.template_scale if target is not None else 1
-        template_usage = cv2_utils.scale_image(template, scale, copy=False)
-        template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
-        cv2_utils.show_image(source, win_name='template_match_source')
-        cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
-        cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
-
-    if target is not None:
-        offset_x = target.x + (lm_rect.x1 if lm_rect is not None else 0)
-        offset_y = target.y + (lm_rect.y1 if lm_rect is not None else 0)
-        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
-    else:
-        return None
-
-
-@record_performance
-def cal_character_pos_by_merge_road_mask(im: ImageMatcher,
-                                         lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                         lm_rect: Rect = None,
-                                         running: bool = False,
-                                         show: bool = False) -> MatchResult:
-    """
-    使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
-    使用处理过后的道路灰度图
-    :param im: 图片匹配器
-    :param lm_info: 大地图信息
-    :param mm_info: 小地图信息
-    :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param running: 任务是否在跑动
-    :param show: 是否显示调试结果
-    :return:
-    """
-    source_edge = large_map.get_road_edge_mask(lm_info.mask)
-    source = merge_road_mask(lm_info.mask, source_edge)
-    source, lm_rect = cv2_utils.crop_image(source, lm_rect)
-    # 使用道路掩码
-    edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)
-    template = merge_road_mask(mm_info.road_mask, edge)
-    template_mask = mm_info.center_mask
-
-    target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
-                                                                   mini_map.get_mini_map_scale_list(running),
-                                                                   0.4)
-
-    if show:
-        scale = target.template_scale if target is not None else 1
-        template_usage = cv2_utils.scale_image(template, scale, copy=False)
-        template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
-        cv2_utils.show_image(source, win_name='template_match_source')
-        cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
-        cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
-
-    if target is not None:
-        offset_x = target.x + (lm_rect.x1 if lm_rect is not None else 0)
-        offset_y = target.y + (lm_rect.y1 if lm_rect is not None else 0)
-        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
-    else:
-        return None
-
-
-@record_performance
-def cal_character_pos_by_edge_mask(im: ImageMatcher,
-                                   lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                   lm_rect: Rect = None,
-                                   running: bool = False,
-                                   show: bool = False) -> MatchResult:
-    """
-    使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
-    使用边缘掩码图
-    :param im: 图片匹配器
-    :param lm_info: 大地图信息
-    :param mm_info: 小地图信息
-    :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param running: 任务是否在跑动
-    :param show: 是否显示调试结果
-    :return:
-    """
-    source_edge = large_map.get_road_edge_mask(lm_info.mask)
-    source, lm_rect = cv2_utils.crop_image(source_edge, lm_rect)
-    # 使用道路掩码
-    edge = mini_map.get_edge_mask(mm_info.origin, mm_info.road_mask)
-    template = edge
-    template_mask = mm_info.center_mask
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
                                                                    mini_map.get_mini_map_scale_list(running),

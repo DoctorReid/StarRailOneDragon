@@ -1,10 +1,13 @@
 import math
+from collections import deque
+from functools import lru_cache
 from typing import Set, Optional
 
 import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+from basic import cal_utils, Point
 from basic.img import cv2_utils, MatchResultList, MatchResult
 from basic.log_utils import log
 from sr import const
@@ -375,6 +378,21 @@ def get_mini_map_scale_list(running: bool):
     return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05, 1.10, 1.15, 1.20, 1.25]
 
 
+@lru_cache
+def get_radio_to_del(im: ImageMatcher, angle: Optional[float] = None):
+    """
+    根据人物朝向 获取对应的雷达区域颜色
+    :param im: 图片匹配器
+    :param angle: 人物朝向
+    :return:
+    """
+    radio_to_del = im.get_template('mini_map_radio').origin
+    if angle is not None:
+        return cv2_utils.image_rotate(radio_to_del, 360 - angle)
+    else:
+        return radio_to_del
+
+
 @record_performance
 def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) -> MiniMapInfo:
     """
@@ -382,14 +400,13 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) ->
     :param origin: 小地图 左上角的一个正方形区域
     :param im: 图片匹配器
     :param sp_types: 特殊点种类
-    :param another_floor: 是否有其它楼层
     :return:
     """
     info = MiniMapInfo()
     info.origin = origin
     info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin, im)
+    info.origin_del_radio = remove_radio(info.origin, get_radio_to_del(im, info.angle))
 
-    # 小地图要只判断中间正方形 圆形边缘会扭曲原来特征
     h, w = origin.shape[1], origin.shape[0]
     cx, cy = w // 2, h // 2
     r = math.floor(h / math.sqrt(2) / 2) - 8
@@ -502,7 +519,6 @@ def get_rough_road_mask(mm: MatLike,
                         sp_mask: MatLike = None,
                         arrow_mask: MatLike = None,
                         angle: float = None,
-                        radio_to_del: Optional[MatLike] = None,
                         another_floor: bool = True):
     """
     获取比较粗略的道路掩码 用于原图的模板匹配
@@ -514,10 +530,7 @@ def get_rough_road_mask(mm: MatLike,
     :param another_floor: 是否有其它楼层
     :return:
     """
-    origin = remove_radio(mm, radio_to_del) if radio_to_del is not None else mm
-    # cv2_utils.show_image(origin, win_name='get_rough_road_mask_origin')
-
-    b, g, r = cv2.split(origin)
+    b, g, r = cv2.split(mm)
     avg_b = np.mean(b)
     avg_g = np.mean(g)
     avg_r = np.mean(r)
@@ -528,19 +541,12 @@ def get_rough_road_mask(mm: MatLike,
     ur = 55 if avg_r < 70 else 100
     lower_color = np.array([45, 45, 45], dtype=np.uint8)
     upper_color = np.array([ub, ug, ur], dtype=np.uint8)
-    road_mask_1 = cv2.inRange(origin, lower_color, upper_color)
+    road_mask_1 = cv2.inRange(mm, lower_color, upper_color)
     # cv2_utils.show_image(road_mask_1, win_name='road_mask_1')
 
-    if radio_to_del is None:
-        radio_mask = get_mini_map_radio_mask(mm, angle, another_floor)
-        # cv2_utils.show_image(radio_mask, win_name='radio_mask')
-
-        center_mask = cv2.bitwise_or(arrow_mask, radio_mask)
-    else:
-        center_mask = arrow_mask
-    road_mask = cv2.bitwise_or(road_mask_1, center_mask)
+    road_mask = cv2.bitwise_or(road_mask_1, arrow_mask)
     road_mask = cv2.bitwise_or(road_mask, sp_mask)
-    cv2_utils.show_image(road_mask, win_name='road_mask')
+    # cv2_utils.show_image(road_mask, win_name='road_mask')
 
     # 非道路连通块 < 50的，认为是噪点 加入道路
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(road_mask), connectivity=4)
@@ -568,96 +574,25 @@ def get_rough_road_mask(mm: MatLike,
     return real_road_mask
 
 
-def get_road_mask_v3(mm: MatLike,
-                     sp_mask: MatLike,
-                     arrow_mask: MatLike,
-                     radio_to_del: MatLike
-                     ):
-    """
-    获取道路掩码 只获取人物所在地方的最大连通块
-    :param mm: 小地图截图
-    :param sp_mask: 特殊点的掩码
-    :param arrow_mask: 小箭头的掩码 只有小地图有
-    :param radio_to_del: 雷达部分颜色
-    :return:
-    """
-    origin = remove_radio(mm, radio_to_del) if radio_to_del is not None else mm
-
-    ub = 65
-    ug = 65
-    ur = 65
-    lower_color = np.array([45, 45, 45], dtype=np.uint8)
-    upper_color = np.array([ub, ug, ur], dtype=np.uint8)
-    road_mask_1 = cv2.inRange(origin, lower_color, upper_color)
-
-    # 合并小箭头和特殊点
-    dilate_arrow_mask = cv2_utils.dilate(arrow_mask, 5)
-    special_mask = cv2.bitwise_or(sp_mask, dilate_arrow_mask)
-    road_mask_2 = cv2.bitwise_or(road_mask_1, special_mask)
-    cv2_utils.show_image(road_mask_2, win_name='road_mask_2')
-
-    # 过滤掉白色的边
-    lower_color = np.array([190, 190, 190], dtype=np.uint8)
-    upper_color = np.array([255, 255, 255], dtype=np.uint8)
-    white_mask = cv2.inRange(origin, lower_color, upper_color)
-    white_mask = cv2_utils.dilate(white_mask, 5)  # 白色边膨胀 方便切割
-    cv2_utils.show_image(white_mask, win_name='white_mask')
-
-    road_mask_2[np.where(white_mask == 255)] = 0
-    cv2_utils.show_image(road_mask_2, win_name='road_mask_3')
-
-    # 非道路连通块 < 50的，认为是噪点 加入道路
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(road_mask_2), connectivity=4)
-    large_components = []
-    for label in range(1, num_labels):
-        if stats[label, cv2.CC_STAT_AREA] < 50:
-            large_components.append(label)
-    for label in large_components:
-        road_mask_2[labels == label] = 255
-
-    cv2_utils.show_image(road_mask_2, win_name='road_mask_4')
-
-    # 获取中心点坐标
-    center_x = mm.shape[1] // 2
-    center_y = mm.shape[0] // 2
-
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask_2, connectivity=8)
-    # 找到包含中心点的最大连通块
-    max_area = -1
-    max_label = -1
-    for label in range(1, num_labels):
-        area = stats[label, cv2.CC_STAT_AREA]
-        if area > max_area and labels[center_y, center_x] == label:
-            max_area = area
-            max_label = label
-
-    # 创建一个黑色图像，仅包含最大连通块
-    road_mask = np.zeros_like(road_mask_2)
-    road_mask[labels == max_label] = 255
-
-    road_mask = cv2_utils.dilate(road_mask, 5)  # 将白色边裁剪的部分膨胀回来
-
-    cv2_utils.show_image(road_mask, win_name='road_mask')
-
-    return road_mask
-
-
 def get_road_mask_v4(mm: MatLike,
                      sp_mask: MatLike,
                      arrow_mask: MatLike,
-                     center_mask: MatLike,
-                     radio_to_del: MatLike
+                     center_mask: MatLike
                      ):
     """
-    获取道路掩码 通过找最深色的模块 然后按一定色差往外拓展 避免不同背景色下道路颜色差异
+    获取道路掩码 只包含圆中的正方形部分
+    通过找最深色的模块 然后按一定色差往外拓展 避免不同背景色下道路颜色差异
     :param mm: 小地图截图
     :param sp_mask: 特殊点的掩码
     :param arrow_mask: 小箭头的掩码 只有小地图有
-    :param radio_to_del: 雷达部分颜色
+    :param center_mask: 中间正方形部分的掩码 用于道路区域
     :return:
     """
-    origin = remove_radio(mm, radio_to_del)
-    cv2_utils.show_image(origin, win_name='origin')
+    # 小地图大小
+    mm_h, mm_w = mm.shape[:2]
+    mm_cx = mm_w // 2
+    mm_cy = mm_h // 2
+    mm_r = mm_cx
 
     # 选取小箭头附近有黑色边框 需要忽略
     check_start_mask = center_mask.copy()
@@ -665,24 +600,22 @@ def get_road_mask_v4(mm: MatLike,
     check_start_mask[np.where(dilate_arrow_mask == 255)] = 0
 
     # 的最深颜色开始
-    cv2_utils.show_image(check_start_mask, win_name='check_start_mask')
-    b, g, r = cv2.split(origin)
+    # cv2_utils.show_image(check_start_mask, win_name='check_start_mask')
+    b, g, r = cv2.split(mm)
     min_color = 45  # 地图上有纯黑色的边 因此过滤一些太深色的部分
     min_b = np.min(b[np.where(np.logical_and(check_start_mask == 255, b > min_color))])
     min_g = np.min(g[np.where(np.logical_and(check_start_mask == 255, g > min_color))])
     min_r = np.min(r[np.where(np.logical_and(check_start_mask == 255, r > min_color))])
     log.debug('最深颜色 (%d, %d, %d)', min_b, min_g, min_r)
 
-    color_threshold = 3
+    color_threshold = 5
     # 找出最深色的模块
     lower_color = np.array([min_b, min_g, min_r], dtype=np.uint8)
     upper_color = np.array([min_b + color_threshold, min_g + color_threshold, min_r + color_threshold], dtype=np.uint8)
-    start_mask = cv2.inRange(origin, lower_color, upper_color)
+    start_mask = cv2.inRange(mm, lower_color, upper_color)
     start_mask = cv2.bitwise_and(center_mask, start_mask)
 
-    cv2_utils.show_image(start_mask, win_name='start_mask')
-
-    cv2_utils.show_image(cv2.bitwise_and(origin, origin, mask=cv2_utils.dilate(start_mask, 0)), win_name='start_origin')
+    # cv2_utils.show_image(cv2.bitwise_and(mm, mm, mask=cv2_utils.dilate(start_mask, 0)), win_name='start_mm')
 
     height, width = start_mask.shape
 
@@ -690,48 +623,57 @@ def get_road_mask_v4(mm: MatLike,
     # 将坐标转置为(x, y)格式
     white_pixel_coordinates = list(zip(white_pixels[1], white_pixels[0]))
 
-    # BFS
-    visited = np.zeros(start_mask.shape, dtype=np.ubyte)  # 访问标记
-    bfs_queue = []
+    # BFS搜索 这里不能用numpy的数组 访问效率太低了
+    img = mm.tolist()
+    visited = np.zeros(start_mask.shape, dtype=np.uint8).tolist()  # 访问标记
+    bfs_queue = deque()
     for c in white_pixel_coordinates:
         bfs_queue.append(c)
+        visited[c[1]][c[0]] = 255
 
     # 向4个方向拓展
     directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
     while len(bfs_queue) > 0:
-        current_p = bfs_queue.pop(0)
+        current_p = bfs_queue.popleft()
 
-        if visited[current_p[1], current_p[0]] == 1:
-            # 已经搜索过了
-            continue
-
-        visited[current_p[1], current_p[0]] = 1
         for i in range(len(directions)):
             next_p = (current_p[0] + directions[i][0], current_p[1] + directions[i][1])
+            if ((next_p[0] - mm_cx) ** 2) + ((next_p[1] - mm_cy) ** 2) > ((mm_r - 10) ** 2):
+                # 超出边界了 小地图圆的边缘变暗 容易扩散到外景 因此只搜索圆中一个正方形
+                continue
             if next_p[0] < 0 or next_p[0] >= width or next_p[1] < 0 or next_p[1] >= height:
-                # 超出图片边界了
+                # 超出边界了 小地图圆的边缘变暗 容易扩散到外景 因此只搜索圆中一个正方形
                 continue
 
-            current_color = origin[current_p[1], current_p[0]].astype(dtype=np.int16)
-            next_color = origin[next_p[1], next_p[0]].astype(dtype=np.int16)
-            if abs(current_color[0] - next_color[0]) > color_threshold \
-                    or abs(current_color[1] - next_color[1]) > color_threshold \
-                    or abs(current_color[1] - next_color[1]) > color_threshold:
-                # 忽略色差过大的
+            if visited[next_p[1]][next_p[0]] == 255:
+                # 已经进入过列表了
+                continue
+
+            current_color = img[current_p[1]][current_p[0]]
+            next_color = img[next_p[1]][next_p[0]]
+
+            diff = False
+            for j in range(3):
+                # 原类型是 uint 的 避免类型转换可以节省点时间
+                dc = current_color[j] - next_color[j] if current_color[j] > next_color[j] else next_color[j] - current_color[j]
+                if dc > color_threshold:
+                    diff = True
+                    break
+            if diff:  # 过滤色差较大的
                 continue
 
             bfs_queue.append(next_p)
+            visited[next_p[1]][next_p[0]] = 255
 
-    road_mask = np.zeros(start_mask.shape, dtype=np.uint8)
-    road_mask[np.where(visited == 1)] = 255
-    cv2_utils.show_image(road_mask, win_name='road_mask')
+    road_mask = np.array(visited, dtype=np.uint8)
+    # cv2_utils.show_image(road_mask, win_name='road_mask')
 
     special_mask = cv2.bitwise_or(sp_mask, dilate_arrow_mask)
     road_mask_2 = cv2.bitwise_or(road_mask, special_mask)  # 合并箭头和特殊点
 
     # 50以下的黑点认为是噪点 加入道路
     road_mask_3 = cv2_utils.connection_erase(road_mask_2, threshold=50, erase_white=False, connectivity=4)
-    cv2_utils.show_image(road_mask_3, win_name='road_mask_3')
+    # cv2_utils.show_image(road_mask_3, win_name='road_mask_3')
 
     # 获取中心点坐标
     center_x = mm.shape[1] // 2
@@ -755,9 +697,9 @@ def get_road_mask_v4(mm: MatLike,
     # 只保留连通块平均颜色与中心块差不多的
     final_road_mask = np.zeros(start_mask.shape, dtype=np.uint8)
     for label in range(1, num_labels):
-        # tmp = np.zeros(origin.shape, dtype=np.uint8)
+        # tmp = np.zeros(mm.shape, dtype=np.uint8)
         cond = np.where(np.logical_and(labels == label, special_mask == 0))
-        # tmp[cond] = origin[cond]
+        # tmp[cond] = mm[cond]
         # cv2_utils.show_image(tmp, win_name='tmp')
 
         avg_b2 = np.mean(b[cond])
@@ -771,7 +713,7 @@ def get_road_mask_v4(mm: MatLike,
 
         final_road_mask[np.where(labels == label)] = 255
 
-    cv2_utils.show_image(final_road_mask, win_name='final_road_mask')
+    # cv2_utils.show_image(final_road_mask, win_name='final_road_mask')
 
     return final_road_mask
 
