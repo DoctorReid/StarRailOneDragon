@@ -77,5 +77,6 @@ def log_all_performance():
     log.debug(get('analyse_mini_map'))
     log.debug(get('cal_character_pos_by_sp_result'))
     log.debug(get('cal_character_pos_by_feature_match'))
+    log.debug(get('cal_character_pos_by_gray_mask'))
     log.debug(get('cal_character_pos_by_road_mask'))
     log.debug(get('cal_character_pos_by_original'))

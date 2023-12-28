@@ -44,7 +44,7 @@ case_list = [
 
     TestCase(map_const.P01_R05_L2, Point(381, 669), 1, True, possible_pos=(386, 678, 25)),
     TestCase(map_const.P01_R05_L2, Point(332, 525), 2, True, possible_pos=(302, 554, 25)),
-    TestCase(map_const.P01_R05_L2, Point(332, 525), 3, True, possible_pos=(298, 530, 60)),
+    TestCase(map_const.P01_R05_L2, Point(350, 502), 3, True, possible_pos=(298, 530, 60)),
 
     TestCase(map_const.P02_R05, Point(497, 440), 1, True),
     TestCase(map_const.P02_R05, Point(242, 1283), 2, True),
@@ -81,6 +81,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     possible_pos = c.possible_pos
     lm_rect = get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
+    log.info('特殊点种类 %d', len(sp_map))
     mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()))
     result = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
 
@@ -106,11 +107,11 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != map_const.P03_R10 or c.num != 1:
-        #     continue
+        if c.region != map_const.P01_R05_L2 or c.num != 3:
+            continue
         if c.region.prl_id not in lm_info_map:
             lm_info_map[c.region.prl_id] = ih.get_large_map(c.region)
-        is_err = test_one(c, lm_info_map[c.region.prl_id], False)
+        is_err = test_one(c, lm_info_map[c.region.prl_id], True)
         if is_err:
             fail_list.append(c)
 

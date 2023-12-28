@@ -503,7 +503,7 @@ def get_rough_road_mask(mm: MatLike,
                         sp_mask: MatLike = None,
                         arrow_mask: MatLike = None,
                         angle: float = None,
-                        radio_to_del: MatLike = None,
+                        radio_to_del: Optional[MatLike] = None,
                         another_floor: bool = True):
     """
     获取比较粗略的道路掩码 用于原图的模板匹配
@@ -541,7 +541,7 @@ def get_rough_road_mask(mm: MatLike,
         center_mask = arrow_mask
     road_mask = cv2.bitwise_or(road_mask_1, center_mask)
     road_mask = cv2.bitwise_or(road_mask, sp_mask)
-    # cv2_utils.show_image(road_mask, win_name='road_mask')
+    cv2_utils.show_image(road_mask, win_name='road_mask')
 
     # 非道路连通块 < 50的，认为是噪点 加入道路
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(road_mask), connectivity=4)
@@ -567,6 +567,80 @@ def get_rough_road_mask(mm: MatLike,
     # cv2_utils.show_image(real_road_mask, win_name='road_mask_2')
 
     return real_road_mask
+
+
+def get_road_mask_v3(mm: MatLike,
+                     sp_mask: MatLike,
+                     arrow_mask: MatLike,
+                     radio_to_del: MatLike
+                     ):
+    """
+    获取道路掩码 只获取人物所在地方的最大连通块
+    :param mm: 小地图截图
+    :param sp_mask: 特殊点的掩码
+    :param arrow_mask: 小箭头的掩码 只有小地图有
+    :param radio_to_del: 雷达部分颜色
+    :return:
+    """
+    origin = remove_radio(mm, radio_to_del) if radio_to_del is not None else mm
+
+    ub = 65
+    ug = 65
+    ur = 65
+    lower_color = np.array([45, 45, 45], dtype=np.uint8)
+    upper_color = np.array([ub, ug, ur], dtype=np.uint8)
+    road_mask_1 = cv2.inRange(origin, lower_color, upper_color)
+
+    # 合并小箭头和特殊点
+    dilate_arrow_mask = cv2_utils.dilate(arrow_mask, 5)
+    special_mask = cv2.bitwise_or(sp_mask, dilate_arrow_mask)
+    road_mask_2 = cv2.bitwise_or(road_mask_1, special_mask)
+    cv2_utils.show_image(road_mask_2, win_name='road_mask_2')
+
+    # 过滤掉白色的边
+    lower_color = np.array([190, 190, 190], dtype=np.uint8)
+    upper_color = np.array([255, 255, 255], dtype=np.uint8)
+    white_mask = cv2.inRange(origin, lower_color, upper_color)
+    white_mask = cv2_utils.dilate(white_mask, 5)  # 白色边膨胀 方便切割
+    cv2_utils.show_image(white_mask, win_name='white_mask')
+
+    road_mask_2[np.where(white_mask == 255)] = 0
+    cv2_utils.show_image(road_mask_2, win_name='road_mask_3')
+
+    # 非道路连通块 < 50的，认为是噪点 加入道路
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(road_mask_2), connectivity=4)
+    large_components = []
+    for label in range(1, num_labels):
+        if stats[label, cv2.CC_STAT_AREA] < 50:
+            large_components.append(label)
+    for label in large_components:
+        road_mask_2[labels == label] = 255
+
+    cv2_utils.show_image(road_mask_2, win_name='road_mask_4')
+
+    # 获取中心点坐标
+    center_x = mm.shape[1] // 2
+    center_y = mm.shape[0] // 2
+
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask_2, connectivity=8)
+    # 找到包含中心点的最大连通块
+    max_area = -1
+    max_label = -1
+    for label in range(1, num_labels):
+        area = stats[label, cv2.CC_STAT_AREA]
+        if area > max_area and labels[center_y, center_x] == label:
+            max_area = area
+            max_label = label
+
+    # 创建一个黑色图像，仅包含最大连通块
+    road_mask = np.zeros_like(road_mask_2)
+    road_mask[labels == max_label] = 255
+
+    road_mask = cv2_utils.dilate(road_mask, 5)  # 将白色边裁剪的部分膨胀回来
+
+    cv2_utils.show_image(road_mask, win_name='road_mask')
+
+    return road_mask
 
 
 def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: bool = True):
