@@ -500,6 +500,8 @@ def dilate(img, k):
     :param k:
     :return:
     """
+    if k == 0:
+        return img
     kernel = np.ones((k, k), np.uint8)
     return cv2.dilate(src=img, kernel=kernel, iterations=1)
 
@@ -647,7 +649,7 @@ def get_four_corner(bw):
     return left, right, top, bottom
 
 
-def scale_image(img: MatLike, scale: float = None, copy: bool = True):
+def scale_image(img: Optional[MatLike] = None, scale: Optional[float] = None, copy: bool = True) -> Optional[MatLike]:
     """
     按比例缩放图片
     :param img: 原图
@@ -655,6 +657,8 @@ def scale_image(img: MatLike, scale: float = None, copy: bool = True):
     :param copy: 是否复制新图
     :return: 缩放后图片
     """
+    if img is None:
+        return None
     if scale is None or scale == 1:
         return img.copy() if copy else img
     target_size = (int(img.shape[0] * scale), int(img.shape[1] * scale))

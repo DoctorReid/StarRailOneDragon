@@ -53,8 +53,8 @@ def cal_character_pos(im: ImageMatcher,
         result = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
 
     # 上面灰度图中 道理掩码部分有些楼梯扣不出来 所以下面用两个都扣不出楼梯的掩码图来匹配
-    # if result is None:  # 使用模板匹配 用道路掩码的
-    #     result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+    if result is None:  # 使用模板匹配 用道路掩码的
+        result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
     #
     # if result is None:  # 使用模板匹配 用原图的
     #     result = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
@@ -356,10 +356,15 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
     # 使用道路掩码
     radio_to_del = get_radio_to_del(im, mm_info.angle)
-    mm_info.road_mask = mini_map.get_mini_map_road_mask(mm_info.origin, sp_mask=mm_info.sp_mask,
-                                                        arrow_mask=mm_info.arrow_mask,
-                                                        angle=mm_info.angle, radio_to_del=radio_to_del,
-                                                        another_floor=lm_info.region.another_floor)
+    # mm_info.road_mask = mini_map.get_mini_map_road_mask(mm_info.origin, sp_mask=mm_info.sp_mask,
+    #                                                     arrow_mask=mm_info.arrow_mask,
+    #                                                     angle=mm_info.angle, radio_to_del=radio_to_del,
+    #                                                     another_floor=lm_info.region.another_floor)
+    mm_info.road_mask = mini_map.get_road_mask_v4(mm_info.origin,
+                                                  sp_mask=mm_info.sp_mask,
+                                                  arrow_mask=mm_info.arrow_mask,
+                                                  center_mask=mm_info.center_mask,
+                                                  radio_to_del=radio_to_del)
     template = mm_info.road_mask
     template_mask = mm_info.circle_mask
 
@@ -504,12 +509,14 @@ def template_match_with_scale_list_parallely(im: ImageMatcher,
     for future in future_list:
         try:
             result: MatchResult = future.result(1)
-            if result is not None and (target is None or result.confidence > target.confidence):
-                target = result
+            if result is not None:
+                log.debug('缩放比例 %.2f 置信度 %.2f', result.template_scale, result.confidence)
+                if target is None or result.confidence > target.confidence:
+                    target = result
         except concurrent.futures.TimeoutError:
             log.error('模板匹配超时', exc_info=True)
 
-    return target;
+    return target
 
 
 def template_match_with_scale(im: ImageMatcher,
@@ -525,8 +532,24 @@ def template_match_with_scale(im: ImageMatcher,
     :param threshold: 匹配阈值
     :return:
     """
-    template_usage = cv2_utils.scale_image(template, scale, copy=False)
-    template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
+    template_scale = cv2_utils.scale_image(template, scale, copy=False)
+    template_mask_scale = cv2_utils.scale_image(template_mask, scale, copy=False)
+
+    # 放大后 截取中心部分来匹配 防止放大后的图片超过了原图的范围
+    template_usage = np.zeros_like(template, dtype=np.uint8)
+    template_mask_usage = np.zeros_like(template_mask, dtype=np.uint8)
+
+    height, width = template.shape[:2]
+    scale_height, scale_width = template_scale.shape[:2]
+    cx = scale_width // 2
+    cy = scale_height // 2
+    sx = cx - width // 2
+    ex = sx + width
+    sy = cy - width // 2
+    ey = sy + height
+
+    template_usage[:, :] = template_scale[sy:ey, sx:ex]
+    template_mask_usage[:, :] = template_mask_scale[sy:ey, sx:ex]
 
     result = im.match_image(source, template_usage, mask=template_mask_usage, threshold=threshold,
                             only_best=True, ignore_inf=True)

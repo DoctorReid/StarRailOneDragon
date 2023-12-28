@@ -172,7 +172,7 @@ def _test_radio_color():
     y1 = mm.shape[1] // 2 - radius
     y2 = y1 + d
 
-    to_del = np.zeros((d, d, 3), dtype=np.uint8)
+    to_del = np.zeros((d, d, 3), dtype=np.int8)
     to_del[:,:] = mm[y1:y2, x1:x2]
     to_del -= 55
     to_del = cv2.bitwise_and(to_del, to_del, mask=mask)
