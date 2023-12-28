@@ -113,6 +113,21 @@ class EchoOfWarConfig(ConfigHolder):
                 plan_item['support'] = 'none'
                 any_changed = True
 
+        # 兼容旧配置 将新增的历战回响加入
+        for i in WAR_LIST:
+            existed = False
+            for plan_item in plan_list:
+                if i.unique_id == plan_item['point_id']:
+                    existed = True
+                    break
+            if not existed:
+                plan_list.append(EchoOfWarPlanItem(point_id=i.unique_id,
+                                                   team_num=1,
+                                                   support='none',
+                                                   plan_times=0,
+                                                   run_times=0
+                                                   ))
+
         if any_changed:
             self.save()
 

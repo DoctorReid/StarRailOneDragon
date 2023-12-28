@@ -3,15 +3,19 @@ plan_list:
   team_num: 1
   plan_times: 3
   run_times: 0
+  support: none
 - point_id: P02_YLL6_R06_YDL_HCDLM
   team_num: 1
   plan_times: 3
   run_times: 0
+  support: none
 - point_id: P03_XZLF_R09_LYJ_BSDSS
   team_num: 1
   plan_times: 3
   run_times: 0
+  support: none
 - point_id: P01_KJZHT_R05_JBCD_F1_ZXDJY
   team_num: 1
   plan_times: 3
   run_times: 0
+  support: none
