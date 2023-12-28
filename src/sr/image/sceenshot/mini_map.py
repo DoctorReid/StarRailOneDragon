@@ -615,7 +615,8 @@ def get_road_mask_v4(mm: MatLike,
     start_mask = cv2.inRange(mm, lower_color, upper_color)
     start_mask = cv2.bitwise_and(center_mask, start_mask)
 
-    # cv2_utils.show_image(cv2.bitwise_and(mm, mm, mask=cv2_utils.dilate(start_mask, 0)), win_name='start_mm')
+    # cv2_utils.show_image(start_mask, win_name='start_mask')
+    # cv2_utils.show_image(cv2.bitwise_and(mm, mm, mask=cv2_utils.dilate(start_mask, 5)), win_name='start_mm')
 
     height, width = start_mask.shape
 

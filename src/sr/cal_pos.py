@@ -8,7 +8,7 @@ from cv2.typing import MatLike
 
 import basic.cal_utils
 from basic import cal_utils, Rect, Point
-from basic.img import MatchResult, cv2_utils
+from basic.img import MatchResult, cv2_utils, MatchResultList
 from basic.log_utils import log
 from sr.const import map_const
 from sr.image import ImageMatcher
@@ -222,7 +222,8 @@ def cal_character_pos_by_original(im: ImageMatcher,
     template = mm_info.origin_del_radio
     road_mask = mini_map.get_road_mask_v4(mm_info.origin_del_radio,
                                           sp_mask=mm_info.sp_mask,
-                                          arrow_mask=mm_info.arrow_mask
+                                          arrow_mask=mm_info.arrow_mask,
+                                          center_mask=mm_info.center_mask
                                           )
     dilate_road_mask = cv2_utils.dilate(road_mask, 3)
     template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
@@ -438,9 +439,13 @@ def template_match_with_scale(im: ImageMatcher,
     template_usage[:, :] = template_scale[sy:ey, sx:ex]
     template_mask_usage[:, :] = template_mask_scale[sy:ey, sx:ex]
 
-    result = im.match_image(source, template_usage, mask=template_mask_usage, threshold=threshold,
-                            only_best=True, ignore_inf=True)
+    result: MatchResultList = im.match_image(source, template_usage, mask=template_mask_usage, threshold=threshold,
+                                             only_best=True, ignore_inf=True)
     if result.max is not None:
+        result.max.x -= sx
+        result.max.y -= sy
+        result.max.w = scale_width
+        result.max.h = scale_height
         result.max.template_scale = scale
 
     return result.max

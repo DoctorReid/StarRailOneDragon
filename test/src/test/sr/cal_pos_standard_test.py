@@ -45,6 +45,7 @@ case_list = [
     TestCase(map_const.P01_R05_L2, Point(381, 669), 1, True, possible_pos=(386, 678, 25)),
     TestCase(map_const.P01_R05_L2, Point(332, 525), 2, True, possible_pos=(302, 544, 25)),
     TestCase(map_const.P01_R05_L2, Point(350, 502), 3, True, possible_pos=(298, 530, 60)),
+    TestCase(map_const.P01_R05_L2, Point(350, 502), 4, True, possible_pos=(826, 576, 50)),
 
     TestCase(map_const.P02_R05, Point(497, 440), 1, True),
     TestCase(map_const.P02_R05, Point(242, 1283), 2, True),
@@ -62,6 +63,8 @@ case_list = [
 
     TestCase(map_const.P03_R03_L1, Point(352, 496), 1, True),
     TestCase(map_const.P03_R03_L1, Point(413, 524), 2, True),
+
+    TestCase(map_const.P03_R08_L2, Point(547, 846), 1, True, (600, 900, 49)),
 
     TestCase(map_const.P03_R09, Point(972, 402), 1, True, (963, 360, 30)),
 
@@ -107,7 +110,7 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != map_const.P02_R05 or c.num != 4:
+        # if c.region != map_const.P03_R08_L2 or c.num != 1:
         #     continue
         if c.region.prl_id not in lm_info_map:
             lm_info_map[c.region.prl_id] = ih.get_large_map(c.region)
