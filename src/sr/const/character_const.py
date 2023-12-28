@@ -186,6 +186,9 @@ YANQING = Character(id='yanqing', cn='彦卿', path=CHARACTER_PATH_HUNT, combat_
 YUKONG = Character(id='yukong', cn='驭空', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
 ARGENTI = Character(id='argenti', cn='银枝', path=CHARACTER_PATH_ERUDITION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 HANYA = Character(id='hanya', cn='寒鸦', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
+RUANMEI = Character(id='ruanmei', cn='阮梅', path=CHARACTER_PATH_HARMONY, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
+XUEYI = Character(id='xueyi', cn='雪衣', path=CHARACTER_PATH_DESTRUCTION, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_ATTACK)
+
 
 CHARACTER_LIST: List[Character] = [
     ARLAN,
@@ -229,6 +232,8 @@ CHARACTER_LIST: List[Character] = [
     YUKONG,
     ARGENTI,
     HANYA,
+    RUANMEI,
+    XUEYI,
 ]
 
 
