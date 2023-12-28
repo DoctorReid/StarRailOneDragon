@@ -7,18 +7,13 @@
 
 目前支持`锄大地`、`体力刷本规划`、`忘却之庭自动配队`等日常功能。下载、运行及使用方式，见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)。
 
-## 使用指南
-仅支持```16:9```系列的分辨率，理论上可在```1920*1080```及以上分辨率以及```非常低```画质下运行。游戏分辨率比显示器分辨率低时，请使用```窗口模式```。画质越好脚本出错概率越低。
-
-目前只支持```简体中文```，运行过程请保证```游戏窗口完整在屏幕内```，部分系统中需要使用```管理员```权限运行脚本。
-
 如果喜欢本项目，可右上角送作者一个```Star```
 
 如有疑问，可以提ISSUE或进QQ群```743525216```咨询。~~__(虽然上班搬砖时间回复较慢，下班写代码时间也回复较慢__~~
 
 ## 项目进度
 
-- [锄大地](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E9%94%84%E5%A4%A7%E5%9C%B0) `1.5 已完成`
+- [锄大地](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E9%94%84%E5%A4%A7%E5%9C%B0) `1.6 已完成`
 - [日常](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8) `收尾中`
 - 模拟宇宙 `计划中`
 
