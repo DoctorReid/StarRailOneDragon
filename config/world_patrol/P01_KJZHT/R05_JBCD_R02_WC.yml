@@ -5,9 +5,9 @@ floor: 2
 tp: '温床'
 route:
   - op: 'move'
-    data: [754, 350]
+    data: [757, 350]
   - op: 'move'
-    data: [772, 370]
+    data: [773, 370]
   - op: 'move'
     data: [797, 409]
   - op: 'move'

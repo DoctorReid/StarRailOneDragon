@@ -17,7 +17,7 @@ route:
   - op: 'move'
     data: [338, 600]
   - op: 'move'
-    data: [324, 485]
+    data: [336, 503]
   - op: 'patrol'
   - op: 'move'
     data: [380, 387]
