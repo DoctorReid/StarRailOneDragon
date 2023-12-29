@@ -27,11 +27,11 @@ class TestCase:
 
 
 case_list = [
-    TestCase(map_const.P01_R03_L1, Point(321, 329), 1, False),
-    TestCase(map_const.P01_R03_L1, Point(306, 422), 2, False),
-    TestCase(map_const.P01_R03_L1, Point(256, 392), 3, True),
-    TestCase(map_const.P01_R03_L1, Point(436, 502), 4, True),
-    TestCase(map_const.P01_R03_L1, Point(538, 551), 5, True),
+    TestCase(map_const.P01_R03_F1, Point(321, 329), 1, False),
+    TestCase(map_const.P01_R03_F1, Point(306, 422), 2, False),
+    TestCase(map_const.P01_R03_F1, Point(256, 392), 3, True),
+    TestCase(map_const.P01_R03_F1, Point(436, 502), 4, True),
+    TestCase(map_const.P01_R03_F1, Point(538, 551), 5, True),
 
     TestCase(map_const.P01_R03_B1, Point(254, 356), 1, False),
     TestCase(map_const.P01_R03_B1, Point(328, 438), 2, True),
@@ -40,12 +40,12 @@ case_list = [
     TestCase(map_const.P01_R03_B1, Point(217, 312), 5, True),
     TestCase(map_const.P01_R03_B1, Point(221, 356), 6, True),
 
-    TestCase(map_const.P01_R04_L1, Point(483, 276), 1, True),
+    TestCase(map_const.P01_R04_F1, Point(483, 276), 1, True),
 
-    TestCase(map_const.P01_R05_L2, Point(381, 669), 1, True, possible_pos=(386, 678, 25)),
-    TestCase(map_const.P01_R05_L2, Point(332, 525), 2, True, possible_pos=(302, 544, 25)),
-    TestCase(map_const.P01_R05_L2, Point(350, 502), 3, True, possible_pos=(298, 530, 60)),
-    TestCase(map_const.P01_R05_L2, Point(350, 502), 4, True, possible_pos=(826, 576, 50)),
+    TestCase(map_const.P01_R05_F2, Point(381, 669), 1, True, possible_pos=(386, 678, 25)),
+    TestCase(map_const.P01_R05_F2, Point(332, 525), 2, True, possible_pos=(302, 544, 25)),
+    TestCase(map_const.P01_R05_F2, Point(350, 502), 3, True, possible_pos=(298, 530, 60)),
+    TestCase(map_const.P01_R05_F2, Point(822, 589), 4, True, possible_pos=(826, 576, 50)),
 
     TestCase(map_const.P02_R05, Point(497, 440), 1, True),
     TestCase(map_const.P02_R05, Point(242, 1283), 2, True),
@@ -55,16 +55,16 @@ case_list = [
     TestCase(map_const.P02_R06, Point(488, 687), 1, True),
     TestCase(map_const.P02_R06, Point(465, 595), 2, True),
 
-    TestCase(map_const.P02_R11_L1, Point(655, 461), 1, True),
-    TestCase(map_const.P02_R11_L1, Point(707, 406), 2, True),
-    TestCase(map_const.P02_R11_L1, Point(726, 486), 3, False),
-    TestCase(map_const.P02_R11_L1, Point(734, 433), 4, False),
-    TestCase(map_const.P02_R11_L1, Point(740, 556), 5, True, possible_pos=(740, 556, 20)),
+    TestCase(map_const.P02_R11_F1, Point(655, 461), 1, True),
+    TestCase(map_const.P02_R11_F1, Point(707, 406), 2, True),
+    TestCase(map_const.P02_R11_F1, Point(726, 486), 3, False),
+    TestCase(map_const.P02_R11_F1, Point(734, 433), 4, False),
+    TestCase(map_const.P02_R11_F1, Point(740, 556), 5, True, possible_pos=(740, 556, 20)),
 
-    TestCase(map_const.P03_R03_L1, Point(352, 496), 1, True),
-    TestCase(map_const.P03_R03_L1, Point(413, 524), 2, True),
+    TestCase(map_const.P03_R03_F1, Point(352, 496), 1, True),
+    TestCase(map_const.P03_R03_F1, Point(413, 524), 2, True),
 
-    TestCase(map_const.P03_R08_L2, Point(547, 846), 1, True, (600, 900, 49)),
+    TestCase(map_const.P03_R08_F2, Point(547, 846), 1, True, (600, 900, 49)),
 
     TestCase(map_const.P03_R09, Point(972, 402), 1, True, (963, 360, 30)),
 
@@ -110,11 +110,11 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != map_const.P03_R08_L2 or c.num != 1:
-        #     continue
+        if c.region != map_const.P01_R05_F2 or c.num != 4:
+            continue
         if c.region.prl_id not in lm_info_map:
             lm_info_map[c.region.prl_id] = ih.get_large_map(c.region)
-        is_err = test_one(c, lm_info_map[c.region.prl_id], False)
+        is_err = test_one(c, lm_info_map[c.region.prl_id], True)
         if is_err:
             fail_list.append(c)
 
