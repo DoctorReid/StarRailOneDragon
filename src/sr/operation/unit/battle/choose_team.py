@@ -1,32 +1,21 @@
 import time
-from typing import ClassVar, List, Optional
+from typing import ClassVar, Optional
 
 from cv2.typing import MatLike
 
-from basic import Rect, Point
+from basic import Rect, Point, str_utils
 from basic.i18_utils import gt
-from basic.img import cv2_utils, MatchResult
+from basic.img import cv2_utils
 from sr.context import Context
-from sr.operation import Operation
+from sr.image.sceenshot import secondary_ui
+from sr.image.sceenshot.secondary_ui import TITLE_TEAM
+from sr.operation import Operation, OperationOneRoundResult
 
 
 class ChooseTeam(Operation):
 
-    TEAM_NUM_RECT: ClassVar[Rect] = Rect(620, 60, 1330, 120)
-    TEAM_1_RECT: ClassVar[Rect] = Rect(620, 60, 700, 120)
-    TEAM_2_RECT: ClassVar[Rect] = Rect(720, 60, 830, 120)
-    TEAM_3_RECT: ClassVar[Rect] = Rect(860, 60, 940, 120)
-    TEAM_4_RECT: ClassVar[Rect] = Rect(980, 60, 1060, 120)
-    TEAM_5_RECT: ClassVar[Rect] = Rect(1110, 60, 1170, 120)
-    TEAM_6_RECT: ClassVar[Rect] = Rect(1230, 60, 1300, 120)
-
+    TEAM_NUM_RECT: ClassVar[Rect] = Rect(505, 50, 1380, 95)  # 配队号码
     TURN_ON_RECT: ClassVar[Rect] = Rect(1590, 960, 1760, 1000)  # 【启用】按钮
-
-    RECT_ARR: ClassVar[List[Rect]] = [
-        TEAM_1_RECT, TEAM_2_RECT, TEAM_3_RECT,
-        TEAM_4_RECT, TEAM_5_RECT, TEAM_6_RECT,
-        TEAM_NUM_RECT
-    ]
 
     def __init__(self, ctx: Context, team_num: int, on: bool = False):
         """
@@ -39,25 +28,71 @@ class ChooseTeam(Operation):
         self.team_num: int = team_num
         self.on: bool = on
 
-    def _execute_one_round(self) -> int:
+    def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        for rect in ChooseTeam.RECT_ARR:
-            part, _ = cv2_utils.crop_image(screen, rect)
-            ocr_result = self.ctx.ocr.match_words(part, ['%d' % self.team_num])
+        if not self.in_secondary_ui(screen):
+            return Operation.round_retry('未在配队页面')
 
-            if len(ocr_result) == 0:
-                continue
+        num_pos = self.get_all_num_pos(screen)
 
-            result: MatchResult = ocr_result.popitem()[1].max
-            to_click: Point = rect.left_top + result.center
+        if self.team_num not in num_pos:
+            with_larger: bool = False  # 是否有存在比目标数字大的
+            for num in num_pos.keys():
+                if num > self.team_num:
+                    with_larger = True
+                    break
+
+            drag_from = ChooseTeam.TEAM_NUM_RECT.center
+            drag_to = drag_from + (Point(200, 0) if with_larger else Point(-200, 0))
+            self.ctx.controller.drag_to(drag_to, drag_from)
+
+            return Operation.round_retry('未找到配队', wait=0.5)
+        else:
+            to_click: Point = num_pos[self.team_num]
             if self.ctx.controller.click(to_click):
                 time.sleep(0.5)
                 if not self.on:
-                    return Operation.SUCCESS
+                    return Operation.round_success()
                 if self.ctx.controller.click(ChooseTeam.TURN_ON_RECT.center):
                     # 因为有可能本次选择配队没有改变队伍 即有可能不需要点启用 这里就偷懒不判断启用按钮是否出现了
-                    return Operation.SUCCESS
+                    return Operation.round_success()
 
-        time.sleep(1)
-        return Operation.RETRY
+            return Operation.round_retry('点击配队失败')
+
+    def in_secondary_ui(self, screen: Optional[MatLike] = None) -> bool:
+        """
+        是否在组队的界面
+        :param screen: 屏幕截图
+        :return:
+        """
+        if screen is None:
+            screen = self.screenshot()
+
+        return secondary_ui.in_secondary_ui(screen, self.ctx.ocr, TITLE_TEAM.cn)
+
+    def get_all_num_pos(self, screen: Optional[MatLike] = None) -> dict[int, Point]:
+        """
+        获取所有数字的位置
+        :param screen: 屏幕截图
+        :return:
+        """
+        if screen is None:
+            screen = self.screenshot()
+
+        part, _ = cv2_utils.crop_image(screen, ChooseTeam.TEAM_NUM_RECT)
+
+        ocr_map = self.ctx.ocr.run_ocr(part)
+
+        team_num_pos: dict[int, Point] = {}
+
+        for word, mrl in ocr_map.items():
+            if mrl.max is None:
+                continue
+            team_num = str_utils.get_positive_digits(word, err=None)
+            if team_num is None:
+                continue
+
+            team_num_pos[team_num] = mrl.max.center
+
+        return team_num_pos

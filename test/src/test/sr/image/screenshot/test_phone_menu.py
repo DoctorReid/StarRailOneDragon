@@ -14,7 +14,7 @@ class TestOperation(unittest.TestCase, test.SrTestBase):
     def test_in_phone_menu(self):
         i18_utils.update_default_lang('en')
         ocr = EnOcrMatcher()
-        img = self._get_test_image('en_1')
+        img = self.get_test_image('en_1')
 
         self.assertTrue(phone_menu.in_phone_menu(img, ocr))
 

@@ -16,5 +16,5 @@ class TestGetTrainingScore(unittest.TestCase, test.SrTestBase):
         self.op = GetTrainingScore(ctx)
 
     def test_get_score(self):
-        screen = self._get_test_image('1')
+        screen = self.get_test_image('1')
         self.assertEquals(200, self.op._get_score(screen))

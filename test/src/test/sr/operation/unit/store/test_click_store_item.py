@@ -18,7 +18,7 @@ class TestGetTeamMemberInWorld(unittest.TestCase, test.SrTestBase):
 
     def test_parcel(self):
         """逾期未取的贵重邮包"""
-        screen = self._get_test_image('parcel')
+        screen = self.get_test_image('parcel')
         best_result = self.op._get_item_pos(screen)
         self.assertIsNotNone(best_result)
         self.assertTrue(cal_utils.distance_between(Point(430, 640), best_result.center) < 20)

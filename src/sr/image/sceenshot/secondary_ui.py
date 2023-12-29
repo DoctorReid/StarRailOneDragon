@@ -19,6 +19,7 @@ TITLE_NAMELESS_HONOR = SecondaryUiTitle(cn="无名勋礼")
 TITLE_FORGOTTEN_HALL = SecondaryUiTitle(cn="忘却之庭")
 
 TITLE_INVENTORY = SecondaryUiTitle(cn="背包")
+TITLE_TEAM = SecondaryUiTitle(cn="队伍")
 
 TITLE_SYNTHESIZE = SecondaryUiTitle(cn="合成")
 

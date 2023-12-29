@@ -32,7 +32,7 @@ class TestGetTrainingUnfinishedMission(unittest.TestCase, test.SrTestBase):
 
     def test_get_go_pos(self):
         for pic in range(len(self.go_points)):
-            screen = self._get_test_image(str(pic + 1))
+            screen = self.get_test_image(str(pic + 1))
             go_points = self.go_points[pic]
             go_pos_list = self.op._get_go_pos(screen)
             self.assertEquals(4, len(go_pos_list))
@@ -41,7 +41,7 @@ class TestGetTrainingUnfinishedMission(unittest.TestCase, test.SrTestBase):
 
     def test_get_mission(self):
         for pic in range(len(self.go_points)):
-            screen = self._get_test_image(str(pic + 1))
+            screen = self.get_test_image(str(pic + 1))
             go_points = self.go_points[pic]
             missions = self.missions[pic]
 

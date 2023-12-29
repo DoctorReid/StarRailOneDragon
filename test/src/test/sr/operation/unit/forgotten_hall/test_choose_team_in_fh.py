@@ -20,7 +20,7 @@ class TestChooseTeamInForgottenHall(unittest.TestCase, test.SrTestBase):
         self.op = ChooseTeamInForgottenHall(ctx, app._cal_team_member)
 
     def test_get_all_node_combat_types(self):
-        screen = self._get_test_image('1')
+        screen = self.get_test_image('1')
         node_combat_types = self.op._get_all_node_combat_types(screen)
 
         self.assertEquals(2, len(node_combat_types))
