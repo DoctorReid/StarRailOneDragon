@@ -23,7 +23,7 @@ class PlanListItem(ft.Row):
         self.value: EchoOfWarPlanItem = item
         self.war_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=i.cn, key=str(i.unique_id)) for i in echo_of_war.WAR_LIST],
                                         label='挑战关卡', width=200, value=item['point_id'])
-        self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 7)],
+        self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 10)],
                                              label='使用配队', width=100, on_change=self._on_team_num_changed)
         self.support_dropdown = ft.Dropdown(label='支援', value='none', disabled=True, width=80,
                                             options=[ft.dropdown.Option(text='无', key='none')])

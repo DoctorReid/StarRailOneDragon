@@ -33,7 +33,7 @@ class PlanListItem(ft.Row):
                                                       use_trailblaze_power.CATEGORY_LIST],
                                              label='类目', width=100, on_change=self._on_category_changed)
         self.tp_dropdown = ft.Dropdown(label='挑战关卡', width=180, on_change=self._on_tp_changed)
-        self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 7)],
+        self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 10)],
                                              label='使用配队', width=80, on_change=self._on_team_num_changed)
         self.support_dropdown = ft.Dropdown(label='支援', value='none', disabled=True, width=80,
                                             options=[ft.dropdown.Option(text='无', key='none')])
