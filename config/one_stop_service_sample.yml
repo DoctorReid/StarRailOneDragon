@@ -11,3 +11,5 @@ app_order:
   - 'forgotten_hall'
 app_run:
   - 'world_patrol'
+schedule_hour_1: 'none'
+schedule_hour_2: 'none'

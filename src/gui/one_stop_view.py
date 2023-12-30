@@ -1,5 +1,5 @@
 import threading
-from typing import List, Optional
+from typing import List, Optional, Callable
 
 import flet as ft
 
@@ -185,6 +185,18 @@ class AppList(ft.ListView):
                 self.item_map[app_id].set_disabled(disabled)
 
 
+class ScheduleHour(ft.Dropdown):
+
+    def __init__(self, label: str,
+                 on_change: Optional[Callable] = None):
+        opts = [ft.dropdown.Option(key='none', text=gt('无', 'ui'))]
+        for i in range(24):
+            opts.append(ft.dropdown.Option(key=str(i), text=str(i)))
+        super().__init__(options=opts, value='none',
+                         label=label,
+                         on_change=on_change, width=100, text_size=14, height=50)
+
+
 class OneStopView(ft.Row, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
@@ -241,8 +253,11 @@ class OneStopView(ft.Row, SrBasicView):
         self.next_job = Label2NormalValueRow('下一个', '无')
         status_content_row = ft.Row(controls=[self.running_status, self.next_job])
 
-        self.after_done_dropdown = components.AfterDone(self._on_after_done_changed)
-        after_done_row = ft.Row(controls=[self.after_done_dropdown], alignment=ft.MainAxisAlignment.CENTER)
+        self.schedule_1_dropdown = ScheduleHour('定时启动1', on_change=self._on_schedule_changed)
+        self.schedule_2_dropdown = ScheduleHour('定时启动2', on_change=self._on_schedule_changed)
+        self.after_done_dropdown = components.AfterDone(on_change=self._on_after_done_changed, width=100)
+        schedule_row = ft.Row(controls=[self.schedule_1_dropdown, self.schedule_2_dropdown, self.after_done_dropdown],
+                              alignment=ft.MainAxisAlignment.CENTER)
 
         self.start_btn = components.RectOutlinedButton(text="F9 开始", on_click=self.on_click_start)
         self.pause_btn = components.RectOutlinedButton(text="F9 暂停", on_click=self.on_click_pause, visible=False)
@@ -251,7 +266,7 @@ class OneStopView(ft.Row, SrBasicView):
         ctrl_btn_row = ft.Row(controls=[self.start_btn, self.pause_btn, self.resume_btn, self.stop_btn],
                               alignment=ft.MainAxisAlignment.CENTER)
 
-        status_content = ft.Column(controls=[status_content_row, after_done_row, ctrl_btn_row], auto_scroll=True)
+        status_content = ft.Column(controls=[status_content_row, schedule_row, ctrl_btn_row], auto_scroll=True)
 
         status_card = components.Card(status_content, title=status_title_row, width=info_card_width, height=180)
 
@@ -269,13 +284,15 @@ class OneStopView(ft.Row, SrBasicView):
     def handle_after_show(self):
         self._update_app_list_status()
         self._update_character_status()
+        self._update_schedule_dropdown()
+        self._set_schedule()
         scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
         self.sr_ctx.register_status_changed_handler(self,
-                                                 self._after_start,
-                                                 self._after_pause,
-                                                 self._after_resume,
-                                                 self._after_stop
-                                                 )
+                                                    self._after_start,
+                                                    self._after_pause,
+                                                    self._after_resume,
+                                                    self._after_stop
+                                                    )
 
     def handle_after_hide(self):
         scheduler.cancel_with_tag('_update_app_list_status')
@@ -314,10 +331,21 @@ class OneStopView(ft.Row, SrBasicView):
             return
         self.start_btn.disabled = True
         self.update()
+        self._start_one_stop_app(True)
+
+    def _start_one_stop_app(self, asyn: bool = False):
+        """
+        启动一条龙
+        :param asyn: 异步启动
+        :return:
+        """
         self.running_app = OneStopService(self.sr_ctx)
 
-        t = threading.Thread(target=self.running_app.execute)
-        t.start()
+        if asyn:
+            t = threading.Thread(target=self.running_app.execute)
+            t.start()
+        else:
+            self.running_app.execute()
 
     def on_click_pause(self, e):
         self.sr_ctx.switch()
@@ -434,6 +462,43 @@ class OneStopView(ft.Row, SrBasicView):
 
         forgotten_hall_record = forgotten_hall_app.get_record()
         self.hall.update_value(str(forgotten_hall_record.star))
+
+    def _update_schedule_dropdown(self):
+        """
+        初始化定时启动下拉框的值
+        :return:
+        """
+        config: OneStopServiceConfig = one_stop_service.get_config()
+        self.schedule_1_dropdown.value = config.schedule_hour_1
+        self.schedule_1_dropdown.update()
+        self.schedule_2_dropdown.value = config.schedule_hour_2
+        self.schedule_2_dropdown.update()
+
+    def _set_schedule(self):
+        """
+        设置定时启动
+        :return:
+        """
+        scheduler.cancel_with_tag('schedule_1')
+        if self.schedule_1_dropdown.value != 'none':
+            scheduler.by_hour(int(self.schedule_1_dropdown.value), self._start_one_stop_app, 'schedule_1')
+
+        scheduler.cancel_with_tag('schedule_2')
+        if self.schedule_2_dropdown.value != 'none':
+            scheduler.by_hour(int(self.schedule_2_dropdown.value), self._start_one_stop_app, 'schedule_2')
+
+    def _on_schedule_changed(self, e):
+        """
+        定时启动改变
+        :param e:
+        :return:
+        """
+        config: OneStopServiceConfig = one_stop_service.get_config()
+        if e.control == self.schedule_1_dropdown:
+            config.schedule_hour_1 = self.schedule_1_dropdown.value
+        else:
+            config.schedule_hour_2 = self.schedule_2_dropdown.value
+        self._set_schedule()
 
 
 osv: OneStopView = None

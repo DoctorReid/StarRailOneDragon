@@ -66,6 +66,22 @@ class OneStopServiceConfig(ConfigHolder):
         self.update('app_run', new_list)
         self.save()
 
+    @property
+    def schedule_hour_1(self):
+        return self.get('schedule_hour_1', 'none')
+
+    @schedule_hour_1.setter
+    def schedule_hour_1(self, new_value: str):
+        self.update('schedule_hour_1', new_value)
+
+    @property
+    def schedule_hour_2(self):
+        return self.get('schedule_hour_2', 'none')
+
+    @schedule_hour_2.setter
+    def schedule_hour_2(self, new_value: str):
+        self.update('schedule_hour_2', new_value)
+
 
 one_stop_service_config: OneStopServiceConfig = None
 
