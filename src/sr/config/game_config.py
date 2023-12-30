@@ -146,6 +146,23 @@ class GameConfig(ConfigHolder):
         self.update('personal_proxy', new_value)
 
     @property
+    def game_account(self) -> str:
+        return self.get('game_account', '')
+
+    @game_account.setter
+    def game_account(self, new_value: str):
+        self.update('game_account', new_value)
+
+    @property
+    def game_account_password(self):
+        return self.get('game_account_password', '')
+
+    @game_account_password.setter
+    def game_account_password(self, new_value: str):
+        self.update('game_account_password', new_value)
+
+
+    @property
     def proxy_address(self) -> Optional[str]:
         """
         :return: 真正使用的代理地址

@@ -3,9 +3,10 @@ import time
 import sr.const
 from basic.i18_utils import gt
 from basic.log_utils import log
+from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import battle, enter_game_ui
-from sr.operation import Operation
+from sr.operation import Operation, OperationOneRoundResult
 
 
 class EnterGame(Operation):
@@ -17,15 +18,18 @@ class EnterGame(Operation):
     """
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, try_times=2, op_name=gt('进入游戏', 'ui'))
-        self.start_time = time.time()
+        super().__init__(ctx, try_times=2, op_name=gt('进入游戏', 'ui'), timeout_seconds=180)
         self.first_in_world_time: float = 0
         self.claim_express_supply: bool = False
+        self.try_login: bool = False  # 是否已经尝试过登录了
 
     def _init_before_execute(self):
-        self.start_time = time.time()
+        super()._init_before_execute()
+        self.first_in_world_time = 0
+        self.claim_express_supply = False
+        self.try_login = False
 
-    def _execute_one_round(self) -> int:
+    def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
         if battle.IN_WORLD == battle.get_battle_status(screen, self.ctx.im):  # 进入到主界面
@@ -34,17 +38,17 @@ class EnterGame(Operation):
                 self.first_in_world_time = now
 
             if self.claim_express_supply:  # 已经领取过列车补给
-                return Operation.SUCCESS
+                return Operation.round_success()
             else:  # 没领列车补给的话 等2秒看看有没有
                 if now - self.first_in_world_time > 2:
-                    return Operation.SUCCESS
+                    return Operation.round_success()
                 else:
-                    return Operation.WAIT
+                    return Operation.round_wait()
 
         if enter_game_ui.in_final_enter_phase(screen, self.ctx.ocr):  # 下方有 点击进入 的字样
             self.ctx.controller.click(enter_game_ui.FINAL_ENTER_GAME_RECT.center)
             time.sleep(1)  # 暂停一段时间再操作
-            return Operation.WAIT
+            return Operation.round_wait()
 
         if enter_game_ui.in_express_supply_phase(screen, self.ctx.ocr):  # 列车补给(小月卡) - 会先出现主界面
             self.ctx.controller.click(sr.const.CLICK_TO_CONTINUE_POS)
@@ -52,21 +56,47 @@ class EnterGame(Operation):
             self.ctx.controller.click(sr.const.CLICK_TO_CONTINUE_POS)  # 领取需要分两个阶段 点击两次
             time.sleep(1)  # 暂停一段时间再操作
             self.claim_express_supply = True
-            return Operation.WAIT
+            return Operation.round_wait()
 
-        if enter_game_ui.in_password_phase(screen, self.ctx.ocr):
-            log.error('请自行输入密码登录后再启动脚本')
-            return Operation.FAIL
+        if enter_game_ui.in_login_phase(screen, self.ctx.ocr):
+            gc = game_config.get()
+            if len(gc.game_account) == 0 or len(gc.game_account_password) == 0:
+                log.error('未配置账号密码 请自行输入密码登录后再启动脚本')
+                return Operation.round_wait()
+            else:
+                if self.try_login:  # 已经尝试过登录了 但没成功 就不再尝试 避免账号异常
+                    return Operation.round_fail('登录失败')
+
+                # 尝试点击切换到账号密码 偷懒不判断是否成功了
+                self.ocr_and_click_one_line('账号密码', enter_game_ui.LOGIN_SWITCH_PASSWORD_RECT,
+                                            screen=screen, lcs_percent=0.1, wait_after_success=1)
+
+                # 输入账号
+                self.ctx.controller.click(enter_game_ui.LOGIN_ACCOUNT_RECT.center)
+                time.sleep(0.5)
+                self.ctx.controller.input_str(gc.game_account)
+                time.sleep(0.5)
+
+                # 输入密码
+                self.ctx.controller.click(enter_game_ui.LOGIN_PASSWORD_RECT.center)
+                time.sleep(0.5)
+                self.ctx.controller.input_str(gc.game_account)
+                time.sleep(0.5)
+
+                # 同意协议
+                self.ctx.controller.click(enter_game_ui.LOGIN_ACCEPT_POINT)
+                time.sleep(0.5)
+
+                # 进入游戏
+                self.ctx.controller.click(enter_game_ui.LOGIN_ENTER_GAME_RECT.center)
+
+                self.try_login = True
+                return Operation.round_wait(wait=3)
 
         if enter_game_ui.in_server_phase(screen, self.ctx.ocr):
             self.ctx.controller.click(enter_game_ui.SERVER_ENTER_GAME_RECT.center)
             time.sleep(1)  # 暂停一段时间再操作
-            return Operation.WAIT
-
-        if time.time() - self.start_time > 180:  # 不应该这么久都没加载完游戏
-            log.error('进入游戏超时')
-            return Operation.FAIL
+            return Operation.round_wait()
 
         time.sleep(1)  # 暂停一段时间再操作
-        return Operation.WAIT
-
+        return Operation.round_wait()

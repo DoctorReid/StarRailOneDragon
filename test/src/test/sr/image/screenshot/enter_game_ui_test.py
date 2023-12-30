@@ -5,7 +5,7 @@ from sr.image.sceenshot import enter_game_ui
 
 def _test_in_password_phase():
     screen = get_debug_image('_1699191894611')
-    assert enter_game_ui.in_password_phase(screen, ocr)
+    assert enter_game_ui.in_login_phase(screen, ocr)
 
 
 def _test_in_server_phase():

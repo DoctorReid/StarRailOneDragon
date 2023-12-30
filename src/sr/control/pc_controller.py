@@ -213,3 +213,12 @@ class PcController(GameController):
             log.info('关闭游戏成功')
         except:
             log.error('关闭游戏失败', exc_info=True)
+
+    def input_str(self, to_input: str, interval: float = 0.1):
+        """
+        输入文本 需要自己先选择好输入框
+        :param to_input: 文本
+        :param interval: 输入间隙 秒
+        :return:
+        """
+        pyautogui.typewrite(to_input, interval)

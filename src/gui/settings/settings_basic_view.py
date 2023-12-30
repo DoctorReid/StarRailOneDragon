@@ -72,6 +72,9 @@ class SettingsView(components.Card, SrBasicView):
                                                  value='http://127.0.0.1:8234', disabled=True,
                                                  on_change=self._on_personal_proxy_changed)
 
+        self.account_input = ft.TextField(on_change=self._on_account_change)
+        self.password_input = ft.TextField(on_change=self._on_password_change)
+
         settings_list = SettingsList(
             controls=[
                 SettingsListGroupTitle('基础'),
@@ -80,6 +83,9 @@ class SettingsView(components.Card, SrBasicView):
                 SettingsListItem('游戏区服', self.server_region_dropdown),
                 SettingsListItem('语言', self.lang_dropdown),
                 SettingsListItem('疾跑', self.run_mode_dropdown),
+                SettingsListGroupTitle('自动登录'),
+                SettingsListItem('账号', self.account_input),
+                SettingsListItem('密码', self.password_input),
                 SettingsListGroupTitle('按键'),
                 SettingsListItem('交互', self.interact_btn),
                 SettingsListItem('秘技', self.technique_btn),
@@ -109,6 +115,9 @@ class SettingsView(components.Card, SrBasicView):
         self.run_mode_dropdown.value = self.game_config.run_mode
         self.lang_dropdown.value = self.game_config.lang
         self.game_path_text.value = self.game_config.game_path
+
+        self.account_input.value = self.game_config.game_account
+        self.password_input.value = self.game_config.game_account_password
 
         self.interact_btn.text = self.game_config.key_interact
         self.technique_btn.text = self.game_config.key_technique
@@ -235,6 +244,12 @@ class SettingsView(components.Card, SrBasicView):
 
     def _on_personal_proxy_changed(self, e):
         self.game_config.personal_proxy = self.personal_proxy_input.value
+
+    def _on_account_change(self, e):
+        self.game_config.game_account = self.account_input.value
+
+    def _on_password_change(self, e):
+        self.game_config.game_account_password = self.password_input.value
 
 
 sv: SettingsView = None

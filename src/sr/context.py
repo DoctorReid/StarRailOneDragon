@@ -1,6 +1,7 @@
 import subprocess
 import threading
 import time
+from typing import Optional
 
 import keyboard
 import pyautogui
@@ -30,9 +31,9 @@ class Context:
     def __init__(self):
         self.platform: str = 'PC'
         self.ih: ImageHolder = ImageHolder()
-        self.im: ImageMatcher = None
-        self.ocr: OcrMatcher = None
-        self.controller: GameController = None
+        self.im: Optional[ImageMatcher] = None
+        self.ocr: Optional[OcrMatcher] = None
+        self.controller: Optional[GameController] = None
         self.running: int = 0  # 0-停止 1-运行 2-暂停
         self.press_event: dict = {}
         self.start_callback: dict = {}
