@@ -700,6 +700,11 @@ class ForgottenHallApp(Application2):
     def _update_mission_star(self, mission_num: int, star: int):
         log.info('忘却之庭 关卡 %d 当前星数 %d', mission_num, star)
         self.run_record.update_mission_star(mission_num, star)
+        if mission_num <= 7:  # 第7关前可以使用最后一关的星数
+            for i in range(mission_num):
+                previous_mission_star = self.run_record.get_mission_star(i + 1)
+                if previous_mission_star == 0:  # 不可能有0星还能完成后面的
+                    self.run_record.update_mission_star(i + 1, star)
 
     def _cal_team_member(self, node_combat_types: List[List[CharacterCombatType]]) -> Optional[List[List[Character]]]:
         """
