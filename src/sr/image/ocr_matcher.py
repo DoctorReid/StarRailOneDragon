@@ -94,6 +94,22 @@ class OcrMatcher:
                 target_lcs_percent = current_lcs_percent
 
         return target_result
+
+    def match_word_in_one_line(self, image: MatLike, word: str,
+                               threshold: float = None, strict_one_line: bool = True,
+                               lcs_percent: Optional[float] = 1) -> bool:
+        """
+        应该在只有单行文本的图片中使用
+        判断图中的文本是否是目标文本
+        :param image: 图片
+        :param word: 目标文本
+        :param threshold: OCR识别的阈值
+        :param strict_one_line: True时认为当前只有单行文本 False时依赖程序合并成一行
+        :param lcs_percent: 需要满足的最长公共子序列长度百分比
+        :return:
+        """
+        ocr_result = self.ocr_for_single_line(image, threshold=threshold, strict_one_line=strict_one_line)
+        return str_utils.find_by_lcs(gt(word, 'ocr'), ocr_result, percent=lcs_percent)
     
     def run_ocr_without_det(self, image: MatLike, threshold: float = None) -> str:
         """

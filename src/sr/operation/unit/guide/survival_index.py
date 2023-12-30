@@ -61,12 +61,10 @@ class ChooseSurvivalIndexCategory(Operation):
         screen: MatLike = self.screenshot()
 
         if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.TITLE_GUIDE.cn):
-            log.info('等待生存索引加载')
             time.sleep(1)
             return Operation.round_retry('未在' + secondary_ui.TITLE_GUIDE.cn)
 
         if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, guide.GUIDE_TAB_3.cn):
-            log.info('等待生存索引加载')
             time.sleep(1)
             return Operation.round_retry('未在' + guide.GUIDE_TAB_3.cn)
 

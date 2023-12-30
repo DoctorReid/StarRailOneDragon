@@ -1,5 +1,5 @@
 import time
-from typing import Optional, Union, ClassVar, Callable, List
+from typing import Optional, Union, ClassVar, Callable, List, Any
 
 from cv2.typing import MatLike
 
@@ -16,7 +16,7 @@ from sr.image.sceenshot import fill_uid_black
 
 class OperationOneRoundResult:
 
-    def __init__(self, result: int, status: Optional[str] = None):
+    def __init__(self, result: int, status: Optional[str] = None, data: Any = None):
         """
         指令单轮执行的结果
         :param result: 结果
@@ -26,12 +26,14 @@ class OperationOneRoundResult:
         self.result: int = result
         """单轮执行结果 - 框架固定"""
         self.status: Optional[str] = status
-        """结果附带状态 - 每个指令独特"""
+        """结果状态 - 每个指令独特"""
+        self.data: Any = data
+        """返回数据"""
 
 
 class OperationResult:
 
-    def __init__(self, success: bool, status: Optional[str] = None):
+    def __init__(self, success: bool, status: Optional[str] = None, data: Any = None):
         """
         指令最后的结果
         :param success: 指令执行结果
@@ -41,7 +43,9 @@ class OperationResult:
         self.success: bool = success
         """指令执行结果 - 框架固定"""
         self.status: Optional[str] = status
-        """结果附带状态 - 每个指令独特"""
+        """结果状态 - 每个指令独特"""
+        self.data: Any = data
+        """返回数据"""
 
 
 class Operation:

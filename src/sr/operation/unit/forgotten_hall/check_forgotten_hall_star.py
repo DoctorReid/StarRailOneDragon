@@ -3,7 +3,7 @@ from typing import ClassVar
 
 from cv2.typing import MatLike
 
-from basic import str_utils, Rect
+from basic import str_utils, Rect, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -20,6 +20,7 @@ class CheckForgottenHallStar(Operation):
     """
 
     _STAR_RECT: ClassVar[Rect] = Rect(1665, 950, 1725, 995)
+    EMPTY_POINT: ClassVar[Point] = Point(900, 100)
 
     def __init__(self, ctx: Context, star_callback=None):
         super().__init__(ctx, try_times=5,
@@ -31,9 +32,9 @@ class CheckForgottenHallStar(Operation):
         screen: MatLike = self.screenshot()
 
         if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.TITLE_FORGOTTEN_HALL.cn):
+            self.ctx.controller.click(CheckForgottenHallStar.EMPTY_POINT)  # 有可能时在显示说明 点击空白地方跳过
             log.info('等待忘却之庭加载')
-            time.sleep(1)
-            return Operation.round_retry('未进入 ' + secondary_ui.TITLE_FORGOTTEN_HALL.cn)
+            return Operation.round_retry('未进入 ' + secondary_ui.TITLE_FORGOTTEN_HALL.cn, 1)
 
         star = self._get_star_cnt(screen)
 

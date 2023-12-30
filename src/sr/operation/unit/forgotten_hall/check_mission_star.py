@@ -16,7 +16,7 @@ class CheckMissionStar(Operation):
         找到关卡的数字 判断下方的星星数量
         返回附加状态为星数
         :param ctx: 应用上下文
-        :param mission_num: 扫描哪个关卡 1~10
+        :param mission_num: 扫描哪个关卡 1~12
         :param star_callback: 获取到星数后的回调
         """
         super().__init__(ctx, try_times=10, op_name='%s %d' % (gt('忘却之庭 获取关卡星数', 'ui'), mission_num))
