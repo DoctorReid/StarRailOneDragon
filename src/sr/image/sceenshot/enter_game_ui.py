@@ -7,10 +7,11 @@ from sr.image.ocr_matcher import OcrMatcher
 
 FINAL_ENTER_GAME_RECT = Rect(890, 1000, 1030, 1030)  # 无需密码 无需选区服的情况 【点击进入】
 LOGIN_ENTER_GAME_RECT = Rect(900, 650, 1020, 680)  # 登录框的【进入游戏】
-LOGIN_SWITCH_PASSWORD_RECT = Rect(0, 0, 0, 0)  # 登录框里的选择【账号密码】
-LOGIN_ACCOUNT_RECT = Rect(0, 0, 0, 0)  # 登录框里的选择【输入手机号/邮箱】
-LOGIN_PASSWORD_RECT = Rect(0, 0, 0, 0)  # 登录框里的选择【输入密码】
-LOGIN_ACCEPT_POINT = Point(0, 0)  # 登录框里的选择【同意协议】
+LOGIN_SWITCH_PASSWORD_RECT_1 = Rect(934, 743, 1025, 763)  # 登录框里的选择【账号密码】 - 登出的时候
+LOGIN_SWITCH_PASSWORD_RECT_2 = Rect(854, 743, 944, 763)  # 登录框里的选择【账号密码】 - 第一次进游戏的时候
+LOGIN_ACCOUNT_RECT = Rect(696, 423, 1225, 463)  # 登录框里的选择【输入手机号/邮箱】
+LOGIN_PASSWORD_RECT = Rect(696, 503, 1225, 551)  # 登录框里的选择【输入密码】
+LOGIN_ACCEPT_POINT = Point(696, 587)  # 登录框里的选择【同意协议】
 SERVER_ENTER_GAME_RECT = Rect(820, 810, 1110, 860)  # 选择区服时的【进入游戏】
 EXPRESS_SUPPLY_RECT = Rect(870, 80, 1050, 130)  # 刚进入游戏时的领取月卡 【列车补给】
 
@@ -56,8 +57,15 @@ def in_login_captcha_phase(screen: MatLike, ocr: OcrMatcher) -> bool:
     :param ocr:
     :return:
     """
-    part, _ = cv2_utils.crop_image(screen, LOGIN_SWITCH_PASSWORD_RECT)
-    return ocr.match_word_in_one_line(part, '账号密码', strict_one_line=True, lcs_percent=0.1)
+    part, _ = cv2_utils.crop_image(screen, LOGIN_SWITCH_PASSWORD_RECT_1)
+    if ocr.match_word_in_one_line(part, '账号密码', strict_one_line=True, lcs_percent=0.1):
+        return True
+
+    part, _ = cv2_utils.crop_image(screen, LOGIN_SWITCH_PASSWORD_RECT_2)
+    if ocr.match_word_in_one_line(part, '账号密码', strict_one_line=True, lcs_percent=0.1):
+        return True
+
+    return False
 
 
 def in_server_phase(screen: MatLike, ocr: OcrMatcher) -> bool:

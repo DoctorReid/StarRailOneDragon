@@ -18,7 +18,7 @@ class EnterGame(Operation):
     """
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, try_times=2, op_name=gt('进入游戏', 'ui'), timeout_seconds=180)
+        super().__init__(ctx, try_times=3, op_name=gt('进入游戏', 'ui'), timeout_seconds=180)
         self.first_in_world_time: float = 0
         self.claim_express_supply: bool = False
         self.try_login: bool = False  # 是否已经尝试过登录了
@@ -67,9 +67,13 @@ class EnterGame(Operation):
                 if self.try_login:  # 已经尝试过登录了 但没成功 就不再尝试 避免账号异常
                     return Operation.round_fail('登录失败')
 
-                # 尝试点击切换到账号密码 偷懒不判断是否成功了
-                self.ocr_and_click_one_line('账号密码', enter_game_ui.LOGIN_SWITCH_PASSWORD_RECT,
-                                            screen=screen, lcs_percent=0.1, wait_after_success=1)
+                # 尝试点击切换到账号密码
+                click1 = self.ocr_and_click_one_line('账号密码', enter_game_ui.LOGIN_SWITCH_PASSWORD_RECT_1,
+                                                     screen=screen, lcs_percent=0.1, wait_after_success=1)
+                click2 = self.ocr_and_click_one_line('账号密码', enter_game_ui.LOGIN_SWITCH_PASSWORD_RECT_2,
+                                                     screen=screen, lcs_percent=0.1, wait_after_success=1)
+                if click1 != Operation.OCR_CLICK_NOT_FOUND or click2 != Operation.OCR_CLICK_NOT_FOUND:
+                    return Operation.round_wait(wait=1)
 
                 # 输入账号
                 self.ctx.controller.click(enter_game_ui.LOGIN_ACCOUNT_RECT.center)
@@ -80,7 +84,7 @@ class EnterGame(Operation):
                 # 输入密码
                 self.ctx.controller.click(enter_game_ui.LOGIN_PASSWORD_RECT.center)
                 time.sleep(0.5)
-                self.ctx.controller.input_str(gc.game_account)
+                self.ctx.controller.input_str(gc.game_account_password)
                 time.sleep(0.5)
 
                 # 同意协议
