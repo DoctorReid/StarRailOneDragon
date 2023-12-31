@@ -23,7 +23,7 @@ class WaitInHall(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.TITLE_FORGOTTEN_HALL.cn):
+        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_FORGOTTEN_HALL.value):
             time.sleep(1)
             return Operation.round_retry()
         else:

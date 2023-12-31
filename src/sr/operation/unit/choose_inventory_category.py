@@ -44,7 +44,7 @@ class ChooseInventoryCategory(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, title_cn=secondary_ui.TITLE_INVENTORY.cn):
+        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, title_cn=secondary_ui.SecondaryUiTitle.TITLE_INVENTORY.value):
             time.sleep(1)
             return Operation.round_retry('未在背包页面')
 

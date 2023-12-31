@@ -31,10 +31,10 @@ class CheckForgottenHallStar(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.TITLE_FORGOTTEN_HALL.cn):
+        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_FORGOTTEN_HALL.value):
             self.ctx.controller.click(CheckForgottenHallStar.EMPTY_POINT)  # 有可能时在显示说明 点击空白地方跳过
             log.info('等待忘却之庭加载')
-            return Operation.round_retry('未进入 ' + secondary_ui.TITLE_FORGOTTEN_HALL.cn, 1)
+            return Operation.round_retry('未进入 ' + secondary_ui.SecondaryUiTitle.TITLE_FORGOTTEN_HALL.value, 1)
 
         star = self._get_star_cnt(screen)
 

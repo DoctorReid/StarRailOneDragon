@@ -125,7 +125,7 @@ class ClaimNamelessHonor(Application):
                 return Operation.WAIT
         elif self.phase == 6:  # 可能出现选择奖励的框 通过判断左上角标题判断
             screen = self.screenshot()
-            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.TITLE_NAMELESS_HONOR.cn):
+            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_NAMELESS_HONOR.value):
                 self.phase += 1
                 time.sleep(0.2)
                 return Operation.WAIT

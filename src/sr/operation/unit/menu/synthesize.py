@@ -4,7 +4,6 @@ from basic import Rect
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import secondary_ui
-from sr.image.sceenshot.secondary_ui import TITLE_SYNTHESIZE
 from sr.operation import Operation, OperationOneRoundResult
 
 
@@ -33,7 +32,7 @@ class DoSynthesize(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 需要在合成页面
             screen = self.screenshot()
-            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, TITLE_SYNTHESIZE.cn):
+            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_SYNTHESIZE.value):
                 self.phase += 1
                 return Operation.round_wait()
             else:

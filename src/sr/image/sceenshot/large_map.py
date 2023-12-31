@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 
 import cv2
 import numpy as np
@@ -28,7 +28,7 @@ FLOOR_LIST_PART = Rect(30, 730, 100, 1000)
 LARGE_MAP_POWER_RECT = Rect(1635, 54, 1678, 72)  # 大地图上显示体力的位置
 
 
-def get_planet(screen: MatLike, ocr: OcrMatcher) -> Planet:
+def get_planet(screen: MatLike, ocr: OcrMatcher) -> Optional[Planet]:
     """
     从屏幕左上方 获取当前星球的名字
     :param screen: 屏幕截图

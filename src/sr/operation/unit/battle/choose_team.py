@@ -8,7 +8,6 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot import secondary_ui
-from sr.image.sceenshot.secondary_ui import TITLE_TEAM
 from sr.operation import Operation, OperationOneRoundResult
 
 
@@ -69,7 +68,7 @@ class ChooseTeam(Operation):
         if screen is None:
             screen = self.screenshot()
 
-        return secondary_ui.in_secondary_ui(screen, self.ctx.ocr, TITLE_TEAM.cn)
+        return secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_TEAM.value)
 
     def get_all_num_pos(self, screen: Optional[MatLike] = None) -> dict[int, Point]:
         """

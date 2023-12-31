@@ -1,4 +1,6 @@
 """判断二级UI的地方"""
+from enum import Enum
+
 from cv2.typing import MatLike
 
 from basic import Rect
@@ -7,23 +9,15 @@ from basic.img import cv2_utils
 from sr.image.ocr_matcher import OcrMatcher
 
 
-class SecondaryUiTitle:
+class SecondaryUiTitle(Enum):
 
-    def __init__(self, cn: str):
-        self.cn: str = cn
-        """标题中文"""
-
-
-TITLE_GUIDE = SecondaryUiTitle(cn="星际和平指南")
-TITLE_NAMELESS_HONOR = SecondaryUiTitle(cn="无名勋礼")
-
-TITLE_ZGJJ = SecondaryUiTitle(cn="逐光捡金")
-TITLE_FORGOTTEN_HALL = SecondaryUiTitle(cn="忘却之庭")
-
-TITLE_INVENTORY = SecondaryUiTitle(cn="背包")
-TITLE_TEAM = SecondaryUiTitle(cn="队伍")
-
-TITLE_SYNTHESIZE = SecondaryUiTitle(cn="合成")
+    TITLE_GUIDE: str = '星际和平指南'
+    TITLE_NAMELESS_HONOR: str = '无名勋礼'
+    TITLE_ZGJJ: str = '逐光捡金'
+    TITLE_FORGOTTEN_HALL: str = '忘却之庭'
+    TITLE_INVENTORY: str = '背包'
+    TITLE_SYNTHESIZE: str = '合成'
+    TITLE_TEAM: str = '队伍'
 
 
 TITLE_RECT = Rect(98, 39, 350, 100)
