@@ -75,7 +75,7 @@ class GetTrainingUnfinishedMission(Operation):
                 target_word = gt(mission.desc_cn, 'ocr')
                 lcs = str_utils.longest_common_subsequence_length(target_word, key)
                 lcs_percent = lcs / len(target_word)
-                if lcs_percent < 0.5:  # 最低要求
+                if lcs_percent < 0.51:  # 最低要求
                     continue
                 if target_mission is None or lcs_percent > target_lcs_percent:
                     target_mission = mission
