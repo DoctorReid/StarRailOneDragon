@@ -31,7 +31,7 @@ class ChooseTeam(Operation):
         screen: MatLike = self.screenshot()
 
         if not self.in_secondary_ui(screen):
-            return Operation.round_retry('未在配队页面')
+            return Operation.round_retry('未在配队页面', wait=1)
 
         num_pos = self.get_all_num_pos(screen)
 
@@ -92,6 +92,6 @@ class ChooseTeam(Operation):
             if team_num is None:
                 continue
 
-            team_num_pos[team_num] = mrl.max.center
+            team_num_pos[team_num] = mrl.max.center + ChooseTeam.TEAM_NUM_RECT.left_top
 
         return team_num_pos

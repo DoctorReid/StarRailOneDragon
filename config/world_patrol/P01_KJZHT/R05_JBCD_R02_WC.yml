@@ -9,9 +9,9 @@ route:
   - op: 'move'
     data: [773, 370]
   - op: 'move'
-    data: [797, 409]
+    data: [800, 409]
   - op: 'move'
-    data: [816, 453]
+    data: [818, 453]
   - op: 'move'
     data: [829, 523]
   - op: 'move'
