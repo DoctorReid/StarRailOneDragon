@@ -343,14 +343,14 @@ P02_R09_SP09 = TransportPoint('GDDFD', '歌德大饭店', P02_R09, 'mm_sp_05', (
 P02_R09_SP10 = TransportPoint('NTSDZSRK', '娜塔莎的诊所入口', P02_R09, 'mm_sp_05', (393, 475))
 
 # 雅利洛 - 大矿区
-P02_R10_SP01 = TransportPoint('RK', '入口', P02_R10, 'mm_tp_03', (333, 166))
-P02_R10_SP02 = TransportPoint('LLZBNS', '流浪者避难所', P02_R10, 'mm_tp_03', (778, 349))
-P02_R10_SP03 = TransportPoint('FKD', '俯瞰点', P02_R10, 'mm_tp_03', (565, 641))
-P02_R10_SP04 = TransportPoint('ZKD', '主矿道', P02_R10, 'mm_tp_03', (530, 757))
-P02_R10_SP05 = TransportPoint('FMZX', '锋芒之形凝滞虚影', P02_R10, 'mm_tp_06', (561, 536))
-P02_R10_SP06 = TransportPoint('FZZX', '燔灼之形凝滞虚影', P02_R10, 'mm_tp_06', (836, 630))
-P02_R10_SP07 = TransportPoint('XWZL', '虚无之蕾拟造花萼赤', P02_R10, 'mm_tp_07', (295, 243))
-P02_R10_SP08 = TransportPoint('CZZL', '藏珍之蕾拟造花萼金', P02_R10, 'mm_tp_08', (554, 686))
+P02_R10_SP01 = TransportPoint('RK', '入口', P02_R10, 'mm_tp_03', (333, 166), (344, 179))
+P02_R10_SP02 = TransportPoint('LLZBNS', '流浪者避难所', P02_R10, 'mm_tp_03', (778, 349), (769, 334))
+P02_R10_SP03 = TransportPoint('FKD', '俯瞰点', P02_R10, 'mm_tp_03', (565, 641), (575, 634))
+P02_R10_SP04 = TransportPoint('ZKD', '主矿道', P02_R10, 'mm_tp_03', (530, 757), (525, 747))
+P02_R10_SP05 = TransportPoint('FMZX', '锋芒之形凝滞虚影', P02_R10, 'mm_tp_06', (561, 536), (560, 558))
+P02_R10_SP06 = TransportPoint('FZZX', '燔灼之形凝滞虚影', P02_R10, 'mm_tp_06', (836, 630), (836, 650))
+P02_R10_SP07 = TransportPoint('XWZL', '虚无之蕾拟造花萼赤', P02_R10, 'mm_tp_07', (295, 243), (307, 242))
+P02_R10_SP08 = TransportPoint('CZZL', '藏珍之蕾拟造花萼金', P02_R10, 'mm_tp_08', (554, 686), (557, 691))
 P02_R10_SP09 = TransportPoint('PYZ', '磐岩镇', P02_R10, 'mm_sp_02', (351, 144))
 
 # 雅利洛 - 铆钉镇
