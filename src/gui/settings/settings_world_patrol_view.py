@@ -25,7 +25,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         self.plan_list = SettingsList(
             controls=[
                 SettingsListItem('使用配队', self.team_num_dropdown),
-                SettingsListItem('路线名单', self.whitelist_dropdown)
+                SettingsListItem('特定路线名单', self.whitelist_dropdown)
             ],
             width=400
         )
@@ -65,7 +65,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
 
     def _on_whitelist_changed(self, e):
         """
-        路线名单变更
+        特定路线名单变更
         :param e:
         :return:
         """

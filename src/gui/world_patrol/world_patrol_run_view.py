@@ -27,7 +27,7 @@ class WorldPatrolRunView(SrAppView):
         settings_list = components.SettingsList(
             controls=[
                 components.SettingsListGroupTitle('设置'),
-                components.SettingsListItem('路线名单', self.whitelist_dropdown),
+                components.SettingsListItem('特定路线名单', self.whitelist_dropdown),
                 components.SettingsListItem('重置记录', self.reset_btn)
             ],
             width=400

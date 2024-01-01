@@ -84,7 +84,7 @@ class StarRailAutoProxy:
                 ft.NavigationRailDestination(
                     icon=ft.icons.PLAYLIST_ADD_CHECK_OUTLINED,
                     selected_icon=ft.icons.PLAYLIST_ADD_CHECK_CIRCLE_ROUNDED,
-                    label=gt('白名单编辑', model='ui')
+                    label=gt('特定路线名单', model='ui')
                 ),
             ],
             on_change=self.on_rail_chosen
