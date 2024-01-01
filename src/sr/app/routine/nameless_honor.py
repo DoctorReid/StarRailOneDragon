@@ -140,7 +140,9 @@ class ClaimNamelessHonor(Application):
                     time.sleep(1)
                     return Operation.WAIT
                 else:
-                    return Operation.FAIL
+                    self.phase += 1
+                    time.sleep(1)
+                    return Operation.WAIT
         elif self.phase == 7:  # 领取完返回菜单
             op = OpenPhoneMenu(self.ctx)
             r = op.execute().success
