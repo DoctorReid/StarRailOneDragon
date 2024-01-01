@@ -4,7 +4,7 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from sr.context import Context
-from sr.image.sceenshot import secondary_ui
+from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
 
 
@@ -23,7 +23,7 @@ class WaitInHall(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_FORGOTTEN_HALL.value):
+        if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.FORGOTTEN_HALL.value):
             time.sleep(1)
             return Operation.round_retry()
         else:

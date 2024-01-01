@@ -20,17 +20,20 @@ class TestChooseTeamInForgottenHall(unittest.TestCase, test.SrTestBase):
         self.op = ChooseTeamInForgottenHall(ctx, app._cal_team_member)
 
     def test_get_all_node_combat_types(self):
+        """
+        1.6版本更新
+        """
         screen = self.get_test_image('1')
         node_combat_types = self.op._get_all_node_combat_types(screen)
 
-        self.assertEquals(2, len(node_combat_types))
+        self.assertEqual(2, len(node_combat_types))
 
         node1 = node_combat_types[0]
-        self.assertEquals(2, len(node1))
-        self.assertEquals(character_const.IMAGINARY, node1[0])
-        self.assertEquals(character_const.PHYSICAL, node1[1])
+        self.assertEqual(2, len(node1))
+        self.assertEqual(character_const.ICE, node1[0])
+        self.assertEqual(character_const.FIRE, node1[1])
 
         node2 = node_combat_types[1]
-        self.assertEquals(2, len(node2))
-        self.assertEquals(character_const.QUANTUM, node2[0])
-        self.assertEquals(character_const.ICE, node2[1])
+        self.assertEqual(2, len(node2))
+        self.assertEqual(character_const.QUANTUM, node2[0])
+        self.assertEqual(character_const.WIND, node2[1])

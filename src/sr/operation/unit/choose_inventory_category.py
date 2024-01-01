@@ -3,7 +3,7 @@ import time
 from basic import Point
 from basic.i18_utils import gt
 from sr.context import Context
-from sr.image.sceenshot import secondary_ui
+from sr.image.sceenshot.screen_state import ScreenState, in_secondary_ui
 from sr.operation import Operation, OperationOneRoundResult
 
 
@@ -44,11 +44,11 @@ class ChooseInventoryCategory(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, title_cn=secondary_ui.SecondaryUiTitle.TITLE_INVENTORY.value):
+        if not in_secondary_ui(screen, self.ctx.ocr, title_cn=ScreenState.INVENTORY.value):
             time.sleep(1)
             return Operation.round_retry('未在背包页面')
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, title_cn=self.category.cn):
+        if not in_secondary_ui(screen, self.ctx.ocr, title_cn=self.category.cn):
             click = self.ctx.controller.click(self.category.pos)
             time.sleep(1)
             if click:

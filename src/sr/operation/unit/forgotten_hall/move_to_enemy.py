@@ -66,7 +66,7 @@ class MoveToEnemy(Operation):
             mm = mini_map.cut_mini_map(screen)
 
         _, _, angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
-        to_del = cal_pos.get_radio_to_del(self.ctx.im, angle)
+        to_del = mini_map.get_radio_to_del(self.ctx.im, angle)
 
         mm2 = mini_map.remove_radio(mm, to_del)
         # cv2_utils.show_image(mm2, win_name='mm2')
@@ -97,7 +97,3 @@ class MoveToEnemy(Operation):
         center_y = int(centroids[largest_label, 1])
 
         return Point(center_x, center_y)
-
-    def on_pause(self):
-        super().on_pause()
-        self.ctx.stop_running()

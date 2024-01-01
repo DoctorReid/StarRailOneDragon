@@ -1,9 +1,9 @@
-from typing import ClassVar, Union
+from typing import ClassVar
 
 from basic import Rect
 from basic.i18_utils import gt
 from sr.context import Context
-from sr.image.sceenshot import secondary_ui
+from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
 
 
@@ -32,11 +32,11 @@ class DoSynthesize(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 需要在合成页面
             screen = self.screenshot()
-            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_SYNTHESIZE.value):
+            if in_secondary_ui(screen, self.ctx.ocr, ScreenState.SYNTHESIZE.value):
                 self.phase += 1
                 return Operation.round_wait()
             else:
-                return Operation.round_retry('未在合成页面', 1)
+                return Operation.round_retry('未在合成页面', wait=1)
         elif self.phase == 1:  # 点击合成
             click = self.ocr_and_click_one_line('合成', DoSynthesize.SYNTHESIZE_BTN_RECT)
             if click == Operation.OCR_CLICK_SUCCESS:

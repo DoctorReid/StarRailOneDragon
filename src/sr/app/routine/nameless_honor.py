@@ -4,12 +4,13 @@ from typing import Optional
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
-from basic.img import MatchResult, cv2_utils
+from basic.img import MatchResult
 from basic.log_utils import log
 from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import phone_menu_const
 from sr.context import Context
-from sr.image.sceenshot import phone_menu, secondary_ui
+from sr.image.sceenshot import phone_menu
+from sr.image.sceenshot.screen_state import ScreenState, in_secondary_ui
 from sr.operation import Operation
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
@@ -125,7 +126,7 @@ class ClaimNamelessHonor(Application):
                 return Operation.WAIT
         elif self.phase == 6:  # 可能出现选择奖励的框 通过判断左上角标题判断
             screen = self.screenshot()
-            if secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_NAMELESS_HONOR.value):
+            if in_secondary_ui(screen, self.ctx.ocr, ScreenState.NAMELESS_HONOR.value):
                 self.phase += 1
                 time.sleep(0.2)
                 return Operation.WAIT

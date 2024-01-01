@@ -13,6 +13,7 @@ from sr.operation.unit.forgotten_hall.check_mission_star import CheckMissionStar
 from sr.operation.unit.forgotten_hall.choose_mission import ChooseMission
 from sr.operation.unit.forgotten_hall.choose_team_in_fh import ChooseTeamInForgottenHall
 from sr.operation.unit.forgotten_hall.click_challenge_in_forgotten_hall import ClickChallengeInForgottenHall
+from sr.operation.unit.forgotten_hall.wait_in_hall import WaitInHall
 
 
 class ChallengeForgottenHallMission(StatusCombineOperation2):
@@ -31,11 +32,13 @@ class ChallengeForgottenHallMission(StatusCombineOperation2):
         :param mission_star_callback: 获取到的关卡星数回调
         :param cal_team_func:
         """
-
-        ops: List[Operation] = []
         edges: List[StatusCombineOperationEdge2] = []
 
+        wait_in_hall = StatusCombineOperationNode('等待忘却之庭界面', WaitInHall(ctx))
+
         check_star = StatusCombineOperationNode('检查星数', CheckMissionStar(ctx, mission_num, mission_star_callback))
+        edges.append(StatusCombineOperationEdge2(wait_in_hall, check_star))
+
         full_star = StatusCombineOperationNode('满星结束', OperationSuccess(ctx, '3'))
         edges.append(StatusCombineOperationEdge2(check_star, full_star, status='3'))  # 3颗满了就可以跳过本次挑战了
 

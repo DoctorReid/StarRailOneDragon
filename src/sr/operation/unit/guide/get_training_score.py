@@ -33,7 +33,7 @@ class GetTrainingScore(Operation):
         score = self._get_score()
 
         if score is None:
-            return Operation.round_retry('识别不到数字', 1)
+            return Operation.round_retry('识别不到数字', wait=1)
         else:
             if self.score_callback is not None:
                 self.score_callback(score)

@@ -8,7 +8,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
-from sr.image.sceenshot import secondary_ui
+from sr.image.sceenshot.screen_state import ScreenState, in_secondary_ui
 from sr.operation import Operation, OperationOneRoundResult
 
 
@@ -31,10 +31,10 @@ class CheckForgottenHallStar(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_FORGOTTEN_HALL.value):
+        if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.FORGOTTEN_HALL.value):
             self.ctx.controller.click(CheckForgottenHallStar.EMPTY_POINT)  # 有可能时在显示说明 点击空白地方跳过
             log.info('等待忘却之庭加载')
-            return Operation.round_retry('未进入 ' + secondary_ui.SecondaryUiTitle.TITLE_FORGOTTEN_HALL.value, 1)
+            return Operation.round_retry('未进入 ' + ScreenState.FORGOTTEN_HALL.value, wait=1)
 
         star = self._get_star_cnt(screen)
 

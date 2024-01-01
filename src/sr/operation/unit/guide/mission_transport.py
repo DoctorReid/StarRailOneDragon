@@ -8,31 +8,34 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
-from sr.image.sceenshot import secondary_ui
+from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit import guide
 
 
-class SurvivalIndexCategory:
+class GuideMissionCategory:
 
-    def __init__(self, cn: str):
+    def __init__(self, tab: ScreenState, cn: str):
         """
         生存索引左侧的类目
         """
+        self.tab: ScreenState = tab
+        """指南上的TAB"""
+
         self.cn: str = cn
         """中文"""
 
 
-CATEGORY_ROGUE = SurvivalIndexCategory(cn='模拟宇宙')
-CATEGORY_BUD_1 = SurvivalIndexCategory(cn='拟造花萼金')
-CATEGORY_BUD_2 = SurvivalIndexCategory(cn='拟造花萼赤')
-CATEGORY_SHAPE = SurvivalIndexCategory(cn='凝滞虚影')
-CATEGORY_PATH = SurvivalIndexCategory(cn='侵蚀虫洞')
-CATEGORY_ECHO_OF_WAR = SurvivalIndexCategory(cn='历战回响')
-CATEGORY_FORGOTTEN_HALL = SurvivalIndexCategory(cn='忘却之庭')
+CATEGORY_ROGUE = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='模拟宇宙')
+CATEGORY_BUD_1 = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='拟造花萼金')
+CATEGORY_BUD_2 = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='拟造花萼赤')
+CATEGORY_SHAPE = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='凝滞虚影')
+CATEGORY_PATH = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='侵蚀虫洞')
+CATEGORY_ECHO_OF_WAR = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='历战回响')
+CATEGORY_FORGOTTEN_HALL = GuideMissionCategory(tab=ScreenState.GUIDE_TREASURES_LIGHTWARD, cn='忘却之庭')
 
 # 需要按顺序 方便滚动查找
-CATEGORY_LIST: List[SurvivalIndexCategory] = [
+CATEGORY_LIST: List[GuideMissionCategory] = [
     CATEGORY_ROGUE,
     CATEGORY_BUD_1,
     CATEGORY_BUD_2,
@@ -46,27 +49,27 @@ CATEGORY_LIST: List[SurvivalIndexCategory] = [
 CATEGORY_LIST_RECT = Rect(270, 300, 680, 910)
 
 
-class ChooseSurvivalIndexCategory(Operation):
+class ChooseGuideMissionCategory(Operation):
     """
-    需要先在【星际和平指引】-【生存索引】位置
+    需要先在【星际和平指引】和对应TAB的位置
 
     选择左侧对应类目
     """
 
-    def __init__(self, ctx: Context, category: SurvivalIndexCategory):
-        super().__init__(ctx, try_times=5, op_name='%s %s' % (gt('生存索引', 'ui'), gt(category.cn, 'ui')))
-        self.category: SurvivalIndexCategory = category
+    def __init__(self, ctx: Context, category: GuideMissionCategory):
+        super().__init__(ctx, try_times=5, op_name='%s %s' % (gt(category.tab.value, 'ui'), gt(category.cn, 'ui')))
+        self.category: GuideMissionCategory = category
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_GUIDE.value):
+        if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.GUIDE.value):
             time.sleep(1)
-            return Operation.round_retry('未在' + secondary_ui.SecondaryUiTitle.TITLE_GUIDE.value)
+            return Operation.round_retry('未在' + ScreenState.GUIDE.value)
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, guide.GUIDE_TAB_3.cn):
+        if not in_secondary_ui(screen, self.ctx.ocr, self.category.tab.value):
             time.sleep(1)
-            return Operation.round_retry('未在' + guide.GUIDE_TAB_3.cn)
+            return Operation.round_retry('未在' + self.category.tab.value)
 
         part, _ = cv2_utils.crop_image(screen, CATEGORY_LIST_RECT)
         ocr_result_map = self.ctx.ocr.run_ocr(part)
@@ -97,43 +100,45 @@ class ChooseSurvivalIndexCategory(Operation):
         return Operation.round_retry('未找到目标')
 
 
-class SurvivalIndexMission:
+class GuideMission:
 
-    def __init__(self, cn: str):
+    def __init__(self, category: GuideMissionCategory, cn: str):
         """
         生存索引右侧的副本
         """
+        self.category: GuideMissionCategory = category
+        """分类"""
         self.cn: str = cn
         """中文"""
 
 
-MISSION_FORGOTTEN_HALL = SurvivalIndexMission(cn='忘却之庭')
+MISSION_FORGOTTEN_HALL = GuideMission(category=CATEGORY_FORGOTTEN_HALL, cn='混沌回忆')
 
 
 MISSION_LIST_RECT = Rect(695, 295, 1655, 930)  # 副本列表的位置
 
 
-class ChooseSurvivalIndexMission(Operation):
+class ChooseGuideMission(Operation):
     """
     需要先在【星际和平指引】-【生存索引】位置 且左侧类目已经选好了
     在右边选择对应副本进行传送
     """
-    def __init__(self, ctx: Context, mission: SurvivalIndexMission):
-        super().__init__(ctx, try_times=5, op_name='%s %s' % (gt('生存索引', 'ui'), gt(mission.cn, 'ui')))
-        self.mission: SurvivalIndexMission = mission
+    def __init__(self, ctx: Context, mission: GuideMission):
+        super().__init__(ctx, try_times=5, op_name='%s %s' % (gt(mission.category.tab.value, 'ui'), gt(mission.cn, 'ui')))
+        self.mission: GuideMission = mission
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_GUIDE.value):
+        if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.GUIDE.value):
             log.info('等待生存索引加载')
             time.sleep(1)
-            return Operation.round_retry('未在' + secondary_ui.SecondaryUiTitle.TITLE_GUIDE.value)
+            return Operation.round_retry('未在' + ScreenState.GUIDE.value)
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, guide.GUIDE_TAB_3.cn):
+        if not in_secondary_ui(screen, self.ctx.ocr, self.mission.category.tab.value):
             log.info('等待生存索引加载')
             time.sleep(1)
-            return Operation.round_retry('未在' + guide.GUIDE_TAB_3.cn)
+            return Operation.round_retry('未在' + self.mission.category.tab.value)
 
         tp_point = self._find_transport_btn(screen)
 

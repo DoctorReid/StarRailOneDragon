@@ -19,9 +19,9 @@ from sr.operation.unit import guide
 from sr.operation.unit.forgotten_hall.check_forgotten_hall_star import CheckForgottenHallStar
 from sr.operation.unit.forgotten_hall.check_next_challenge_mission import CheckMaxUnlockMission
 from sr.operation.unit.forgotten_hall.get_reward_in_fh import GetRewardInForgottenHall
-from sr.operation.unit.guide import survival_index
+from sr.operation.unit.guide import mission_transport
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
-from sr.operation.unit.guide.survival_index import ChooseSurvivalIndexCategory, ChooseSurvivalIndexMission
+from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory, ChooseGuideMission
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.performance_recorder import record_performance
@@ -663,10 +663,10 @@ class ForgottenHallApp(Application2):
         choose_survival = StatusCombineOperationNode('选择【逐光捡金】', ChooseGuideTab(ctx, guide.GUIDE_TAB_4))
         edges.append(StatusCombineOperationEdge2(choose_guide, choose_survival))
 
-        choose_fh = StatusCombineOperationNode('选择【忘却之庭】', ChooseSurvivalIndexCategory(ctx, survival_index.CATEGORY_FORGOTTEN_HALL))
+        choose_fh = StatusCombineOperationNode('选择【忘却之庭】', ChooseGuideMissionCategory(ctx, mission_transport.CATEGORY_FORGOTTEN_HALL))
         edges.append(StatusCombineOperationEdge2(choose_survival, choose_fh))
 
-        fh_tp = StatusCombineOperationNode('传送', ChooseSurvivalIndexMission(ctx, survival_index.MISSION_FORGOTTEN_HALL))
+        fh_tp = StatusCombineOperationNode('传送', ChooseGuideMission(ctx, mission_transport.MISSION_FORGOTTEN_HALL))
         edges.append(StatusCombineOperationEdge2(choose_fh, fh_tp))
 
         get_reward = StatusCombineOperationNode('领取奖励', GetRewardInForgottenHall(ctx))
@@ -683,6 +683,9 @@ class ForgottenHallApp(Application2):
 
         edges.append(StatusCombineOperationEdge2(challenge_mission, challenge_mission, status='3'))  # 循环挑战到满星
         edges.append(StatusCombineOperationEdge2(challenge_mission, get_reward, ignore_status=True))  # 没满星就不挑战下一个了
+
+        back_menu = StatusCombineOperationNode('返回菜单', OpenPhoneMenu(ctx))
+        edges.append(StatusCombineOperationEdge2(get_reward, back_menu))
 
         super().__init__(ctx, op_name=gt('忘却之庭', 'ui'),
                          run_record=self.run_record, edges=edges)
@@ -705,6 +708,9 @@ class ForgottenHallApp(Application2):
                 previous_mission_star = self.run_record.get_mission_star(i + 1)
                 if previous_mission_star == 0:  # 不可能有0星还能完成后面的
                     self.run_record.update_mission_star(i + 1, star)
+
+        if mission_num == self._current_mission_num and star == 3:  # 进入下一关
+            self._current_mission_num += 1
 
     def _cal_team_member(self, node_combat_types: List[List[CharacterCombatType]]) -> Optional[List[List[Character]]]:
         """

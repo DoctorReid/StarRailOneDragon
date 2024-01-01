@@ -1,11 +1,12 @@
 from typing import Optional, Callable
 
-from cv2.typing import MatLike, Rect, Point
+from cv2.typing import MatLike
 
+from basic import Point, Rect
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from sr.context import Context
-from sr.image.sceenshot import secondary_ui
+from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.operation.unit.forgotten_hall import get_all_mission_num_pos
 
@@ -28,15 +29,15 @@ class CheckMaxUnlockMission(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_FORGOTTEN_HALL.value):
-            return Operation.round_retry('未进入 ' + secondary_ui.SecondaryUiTitle.TITLE_FORGOTTEN_HALL.value, 1)
+        if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.FORGOTTEN_HALL.value):
+            return Operation.round_retry('未进入 ' + ScreenState.FORGOTTEN_HALL.value, wait=1)
 
         max_unlock_num = self.get_max_unlock_num(screen)
 
         if max_unlock_num is None:
             return Operation.round_retry('未找到已解锁关卡')
         else:
-            return Operation.round_success()
+            return Operation.round_success(data=max_unlock_num)
 
     def get_max_unlock_num(self, screen: Optional[MatLike]) -> Optional[int]:
         """

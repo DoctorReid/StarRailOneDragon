@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Rect
+from basic import Rect, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.img.os import get_debug_image
@@ -37,9 +37,9 @@ class ChooseTeamInForgottenHall(Operation):
     SESSION_1: ClassVar[SessionInfo] = SessionInfo(
         num=1,
         combat_type_rect_list=[
-            Rect(1100, 720, 1145, 770),
-            Rect(1135, 720, 1180, 770),
-            Rect(1170, 720, 1215, 770),
+            Rect(1150, 760, 1185, 790),
+            Rect(1185, 760, 1220, 790),
+            Rect(1220, 760, 1255, 790),
         ],
         character_rect_list=[
             Rect(1380, 695, 1455, 765),
@@ -52,9 +52,9 @@ class ChooseTeamInForgottenHall(Operation):
     SESSION_2: ClassVar[SessionInfo] = SessionInfo(
         num=2,
         combat_type_rect_list=[
-            Rect(1100, 820, 1145, 870),
-            Rect(1135, 820, 1180, 870),
-            Rect(1170, 820, 1215, 870),
+            Rect(1150, 870, 1185, 900),
+            Rect(1185, 870, 1220, 900),
+            Rect(1220, 870, 1255, 900),
         ],
         character_rect_list=[
             Rect(1380, 795, 1455, 865),
@@ -63,6 +63,8 @@ class ChooseTeamInForgottenHall(Operation):
             Rect(1680, 795, 1755, 865),
         ]
     )
+
+    CLEAR_ALL_CHARACTERS: ClassVar[Point] = Point(1829, 676)
 
     ALL_SESSION_LIST: ClassVar[List[SessionInfo]] = [SESSION_1, SESSION_2]
 
@@ -164,6 +166,20 @@ class ChooseTeamInForgottenHall(Operation):
                 continue
             # cv2_utils.show_image(template.origin, win_name='_get_boss_combat_type_template')
 
+            # 模板匹配试一次 不过这里会有坑 就是模板必须从这个页面截取
+            result_list = self.ctx.im.match_template(origin, t.id, template_sub_dir='character_combat_type')
+            if len(result_list) > 0:
+                return t
+
+            # TODO 改用颜色平均值匹配 这个应该简单准确率又高
+
+        # 特征匹配准确率不够高
+        for t in CHARACTER_COMBAT_TYPE_LIST:
+            template = self.ctx.ih.get_character_combat_type(t.id)
+            if template is None:
+                log.error('找不到属性模板 %s', t.id)
+                continue
+
             pos = cv2_utils.feature_match_for_one(
                 source_kps, source_desc,
                 template.kps, template.desc,
@@ -174,11 +190,6 @@ class ChooseTeamInForgottenHall(Operation):
             if pos is not None:
                 return t
 
-            # 有时候特征匹配不行 就用模板匹配试一次 不过这里会有坑 就是模板必须从这个页面截取
-            result_list = self.ctx.im.match_template(origin, t.id, template_sub_dir='character_combat_type')
-            if len(result_list) > 0:
-                return t
-
         return None
 
     def _cancel_all_chosen(self) -> bool:
@@ -186,12 +197,7 @@ class ChooseTeamInForgottenHall(Operation):
         取消原有的所有选择
         :return:
         """
-        for session in ChooseTeamInForgottenHall.ALL_SESSION_LIST:
-            for rect in session.character_rect_list:
-                if not self.ctx.controller.click(rect.center):
-                    return False
-                time.sleep(0.2)
-        return True
+        return self.ctx.controller.click(ChooseTeamInForgottenHall.CLEAR_ALL_CHARACTERS)
 
     def _choose_character(self) -> bool:
         ops: List[Operation] = []

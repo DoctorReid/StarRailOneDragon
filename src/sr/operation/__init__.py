@@ -158,10 +158,10 @@ class Operation:
                 retry_status = round_result.status
                 continue
             elif round_result.result == Operation.SUCCESS:
-                op_result = self.op_success(round_result.status)
+                op_result = self.op_success(round_result.status, round_result.data)
                 break
             elif round_result.result == Operation.FAIL:
-                op_result = self.op_fail(round_result.status)
+                op_result = self.op_fail(round_result.status, round_result.data)
                 break
             elif round_result.result == Operation.WAIT:
                 self.op_round -= 1
@@ -251,70 +251,76 @@ class Operation:
             self.op_callback(result)
 
     @staticmethod
-    def round_success(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_success(status: str = None, data: Any = None, wait: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
+        :param data: 返回数据
         :param wait: 等待秒数
         :return:
         """
         if wait is not None:
             time.sleep(wait)
-        return OperationOneRoundResult(result=Operation.SUCCESS, status=status)
+        return OperationOneRoundResult(result=Operation.SUCCESS, status=status, data=data)
 
     @staticmethod
-    def round_wait(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_wait(status: str = None, data: Any = None, wait: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
+        :param data: 返回数据
         :param wait: 等待秒数
         :return:
         """
         if wait is not None:
             time.sleep(wait)
-        return OperationOneRoundResult(result=Operation.WAIT, status=status)
+        return OperationOneRoundResult(result=Operation.WAIT, status=status, data=data)
 
     @staticmethod
-    def round_retry(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_retry(status: str = None, data: Any = None, wait: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
+        :param data: 返回数据
         :param wait: 等待秒数
         :return:
         """
         if wait is not None:
             time.sleep(wait)
-        return OperationOneRoundResult(result=Operation.RETRY, status=status)
+        return OperationOneRoundResult(result=Operation.RETRY, status=status, data=data)
 
     @staticmethod
-    def round_fail(status: str = None, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_fail(status: str = None, data: Any = None, wait: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
+        :param data: 返回数据
         :param wait: 等待秒数
         :return:
         """
         if wait is not None:
             time.sleep(wait)
-        return OperationOneRoundResult(result=Operation.FAIL, status=status)
+        return OperationOneRoundResult(result=Operation.FAIL, status=status, data=data)
 
     @staticmethod
-    def op_success(status: str = None) -> OperationResult:
+    def op_success(status: str = None, data: Any = None) -> OperationResult:
         """
         整个指令执行成功
         :param status: 附带状态
+        :param data: 返回数据
         :return:
         """
-        return OperationResult(success=True, status=status)
+        return OperationResult(success=True, status=status, data=data)
 
     @staticmethod
-    def op_fail(status: str = None) -> OperationResult:
+    def op_fail(status: str = None, data: Any = None) -> OperationResult:
         """
         整个指令执行失败
         :param status: 附带状态
+        :param data: 返回数据
         :return:
         """
-        return OperationResult(success=False, status=status)
+        return OperationResult(success=False, status=status, data=data)
 
     def ocr_and_click_one_line(
             self, target_cn: str,

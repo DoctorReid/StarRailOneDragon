@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.context import Context
-from sr.image.sceenshot import secondary_ui
+from sr.image.sceenshot.screen_state import ScreenState, in_secondary_ui
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.guide import GuideTab
 
@@ -28,11 +28,11 @@ class ChooseGuideTab(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, secondary_ui.SecondaryUiTitle.TITLE_GUIDE.value):
+        if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.GUIDE.value):
             log.info('等待指南加载')
             return Operation.round_retry()
 
-        if not secondary_ui.in_secondary_ui(screen, self.ctx.ocr, self.target.cn):
+        if not in_secondary_ui(screen, self.ctx.ocr, self.target.cn):
             log.info('指南中点击 %s', self.target.cn)
             self.ctx.controller.click(self.target.rect.center)
             time.sleep(1)
