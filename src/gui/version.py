@@ -161,7 +161,7 @@ def download_file(filename, url,
         last_log_time = time.time()
         downloaded = block_num * block_size / 1024.0 / 1024.0
         total_size_mb = total_size / 1024.0 / 1024.0
-        progress = downloaded / total_size * 100
+        progress = downloaded / total_size_mb * 100
         log.info(f"正在下载 {filename}: {downloaded:.2f}/{total_size_mb:.2f} MB ({progress:.2f}%)")
 
     urllib.request.urlretrieve(url, file_path, log_download_progress)
