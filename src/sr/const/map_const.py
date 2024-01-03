@@ -356,11 +356,11 @@ P02_R10_SP08 = TransportPoint('CZZL', '藏珍之蕾拟造花萼金', P02_R10, 'm
 P02_R10_SP09 = TransportPoint('PYZ', '磐岩镇', P02_R10, 'mm_sp_02', (351, 144))
 
 # 雅利洛 - 铆钉镇
-P02_R11_SP01 = TransportPoint('GEY', '孤儿院', P02_R11_F1, 'mm_tp_03', (600, 211))
-P02_R11_SP02 = TransportPoint('FQSJ', '废弃市集', P02_R11_F1, 'mm_tp_03', (465, 374))
-P02_R11_SP03 = TransportPoint('RK', '入口', P02_R11_F1, 'mm_tp_03', (613, 675))
-P02_R11_SP04 = TransportPoint('XFZX', '巽风之形凝滞虚影', P02_R11_F1, 'mm_tp_06', (580, 374))
-P02_R11_SP05 = TransportPoint('ZSZL', '智识之蕾拟造花萼赤', P02_R11_F1, 'mm_tp_07', (609, 608))
+P02_R11_SP01 = TransportPoint('GEY', '孤儿院', P02_R11_F1, 'mm_tp_03', (600, 211), (603, 225))
+P02_R11_SP02 = TransportPoint('FQSJ', '废弃市集', P02_R11_F1, 'mm_tp_03', (465, 374), (474, 363))
+P02_R11_SP03 = TransportPoint('RK', '入口', P02_R11_F1, 'mm_tp_03', (613, 675), (601, 663))
+P02_R11_SP04 = TransportPoint('XFZX', '巽风之形凝滞虚影', P02_R11_F1, 'mm_tp_06', (580, 374), (582, 398))
+P02_R11_SP05 = TransportPoint('ZSZL', '智识之蕾拟造花萼赤', P02_R11_F1, 'mm_tp_07', (609, 608), (610, 616))
 P02_R11_SP06 = TransportPoint('JWQSYC', '旧武器试验场', P02_R11_F1, 'mm_sp_02', (767, 244))  # 与 机械聚落 重合
 P02_R11_SP07 = TransportPoint('PYZ', '磐岩镇', P02_R11_F1, 'mm_sp_02', (597, 698))
 
