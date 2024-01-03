@@ -112,6 +112,7 @@ class OneStopService(Application):
         self.app_idx: int = 0
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         self.app_idx = 0
 
     def _execute_one_round(self) -> int:
@@ -135,7 +136,10 @@ class OneStopService(Application):
         当前运行的描述 用于UI展示
         :return:
         """
-        return gt(self.app_list[self.app_idx].cn, 'ui')
+        if self.app_idx >= len(self.app_list):
+            return gt('无', 'ui')
+        else:
+            return gt(self.app_list[self.app_idx].cn, 'ui')
 
     @property
     def next_execution_desc(self) -> str:
