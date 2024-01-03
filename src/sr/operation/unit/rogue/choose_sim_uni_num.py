@@ -12,9 +12,10 @@ from sr.operation import Operation, OperationOneRoundResult
 
 class ChooseSimUniNum(Operation):
 
-    CURRENT_NUM_RECT: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 当前宇宙文本的位置
-    PREVIOUS_BTN: ClassVar[Point] = Point(0, 0)  # 点一个换到上一个宇宙
-    NEXT_BTN: ClassVar[Point] = Point(0, 0)  # 点一个换到下一个宇宙
+    CURRENT_NUM_RECT: ClassVar[Rect] = Rect(805, 515, 945, 552)  # 当前宇宙文本的位置
+    CURRENT_BTN: ClassVar[Point] = Point(1276, 567)  # 选择当前宇宙
+    PREVIOUS_BTN: ClassVar[Point] = Point(1216, 198)  # 换到上一个宇宙
+    NEXT_BTN: ClassVar[Point] = Point(1173, 929)  # 换到下一个宇宙
     NUM_CN: ClassVar[dict[int, str]] = {
         1: '一',
         2: '二',
@@ -49,14 +50,14 @@ class ChooseSimUniNum(Operation):
         if current_num is None:
             return Operation.round_retry('未识别到模拟宇宙数字', wait=1)
         elif current_num == self.num:
-            self.ctx.controller.click(ChooseSimUniNum.CURRENT_NUM_RECT.center)
-            return Operation.round_success()
+            self.ctx.controller.click(ChooseSimUniNum.CURRENT_BTN)
+            return Operation.round_success(wait=3)
         elif current_num > self.num:
             self.ctx.controller.click(ChooseSimUniNum.PREVIOUS_BTN)
-            return Operation.round_retry('未选择目标宇宙', wait=1)
+            return Operation.round_retry('未选择目标宇宙', wait=2)
         else:
             self.ctx.controller.click(ChooseSimUniNum.NEXT_BTN)
-            return Operation.round_retry('未选择目标宇宙', wait=1)
+            return Operation.round_retry('未选择目标宇宙', wait=2)
 
     def _get_current_num(self, screen: Optional[MatLike]) -> Optional[int]:
         """
@@ -67,7 +68,7 @@ class ChooseSimUniNum(Operation):
         if screen is None:
             screen = self.screenshot()
 
-        part, _ = cv2_utils.crop_image(screen)
+        part, _ = cv2_utils.crop_image(screen, ChooseSimUniNum.CURRENT_NUM_RECT)
 
         ocr_result = self.ctx.ocr.ocr_for_single_line(part)
 

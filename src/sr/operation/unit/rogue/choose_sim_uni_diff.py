@@ -1,10 +1,9 @@
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 from cv2.typing import MatLike
 
-from basic import Point, Rect, str_utils
+from basic import Point
 from basic.i18_utils import gt
-from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
@@ -13,11 +12,11 @@ from sr.operation import Operation, OperationOneRoundResult
 class ChooseSimUniDiff(Operation):
 
     DIFF_POINT_MAP: ClassVar[dict[int, Point]] = {
-        1: Point(0, 0),
-        2: Point(0, 0),
-        3: Point(0, 0),
-        4: Point(0, 0),
-        5: Point(0, 0),
+        1: Point(132, 166),
+        2: Point(132, 269),
+        3: Point(132, 380),
+        4: Point(132, 485),
+        5: Point(132, 597),
     }
 
     def __init__(self, ctx: Context, num: int):
@@ -41,4 +40,4 @@ class ChooseSimUniDiff(Operation):
         if not self.ctx.controller.click(ChooseSimUniDiff.DIFF_POINT_MAP[self.num]):
             return Operation.round_retry('点击难度失败', wait=1)
 
-        return Operation.round_success()
+        return Operation.round_success(wait=1)

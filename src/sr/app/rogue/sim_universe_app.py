@@ -11,11 +11,11 @@ from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
     MISSION_SIM_UNIVERSE
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
-from sr.rogue import SimUniverseType
-from sr.rogue.choose_sim_uni_num import ChooseSimUniNum
-from sr.rogue.choose_sim_uni_type import ChooseSimUniType
-from sr.rogue.choose_sum_uni_diff import ChooseSimUniDiff
-from sr.rogue.start_sim_uni import StartSimUni
+from sr.operation.unit.rogue import SimUniverseType
+from sr.operation.unit.rogue.choose_sim_uni_diff import ChooseSimUniDiff
+from sr.operation.unit.rogue.choose_sim_uni_num import ChooseSimUniNum
+from sr.operation.unit.rogue.choose_sim_uni_type import ChooseSimUniType
+from sr.operation.unit.rogue.start_sim_uni import StartSimUni
 
 SIM_UNIVERSE = AppDescription(cn='模拟宇宙', id='sim_universe')
 register_app(SIM_UNIVERSE)
@@ -65,14 +65,15 @@ class SimUniverseApp(Application2):
         choose_universe_num = StatusCombineOperationNode('选择世界', ChooseSimUniNum(ctx, 7))
         edges.append(StatusCombineOperationEdge2(choose_normal_universe, choose_universe_num))
 
-        choose_universe_diff = StatusCombineOperationNode('选择难度', ChooseSimUniDiff(ctx, 5))
+        choose_universe_diff = StatusCombineOperationNode('选择难度', ChooseSimUniDiff(ctx, 4))
         edges.append(StatusCombineOperationEdge2(choose_universe_num, choose_universe_diff))
 
         start_sim = StatusCombineOperationNode('开始挑战', StartSimUni(ctx))
         edges.append(StatusCombineOperationEdge2(choose_universe_diff, start_sim))
 
         super().__init__(ctx, op_name=gt(SIM_UNIVERSE.cn, 'ui'),
-                         edges=edges)
+                         edges=edges,
+                         run_record=get_record())
 
     def _init_before_execute(self):
         super()._init_before_execute()

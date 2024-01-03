@@ -96,16 +96,6 @@ class Assignments(Application):
             else:
                 return Operation.SUCCESS
 
-    def _after_operation_done(self, result: OperationResult):
-        Operation._after_operation_done(self, result)
-        new_status: Optional[int] = None
-        if not result.success:
-            new_status = AppRunRecord.STATUS_FAIL
-        elif self.phase == 3:
-            new_status = AppRunRecord.STATUS_SUCCESS
-        if new_status is not None:  # 有可能是没红点跳过了
-            get_record().update_status(new_status)
-
     @property
     def current_execution_desc(self) -> str:
         """

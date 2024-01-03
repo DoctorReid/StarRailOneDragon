@@ -1,10 +1,9 @@
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 from cv2.typing import MatLike
 
-from basic import Point, Rect, str_utils
+from basic import Rect
 from basic.i18_utils import gt
-from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
@@ -15,7 +14,7 @@ class StartSimUni(Operation):
     STATUS_RESTART: ClassVar[str] = '开始'
     STATUS_CONTINUE: ClassVar[str] = '继续'
 
-    RESTART_BTN: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 重新开始
+    RESTART_BTN: ClassVar[Rect] = Rect(1418, 970, 1656, 997)  # 下载初始角色
     CONTINUE_BTN: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 继续
 
     def __init__(self, ctx: Context):

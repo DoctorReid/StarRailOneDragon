@@ -7,12 +7,12 @@ from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
-from sr.rogue import SimUniverseType
+from sr.operation.unit.rogue import SimUniverseType
 
 
 class ChooseSimUniType(Operation):
 
-    SWITCH_TYPE_BTN: ClassVar[Point] = Point(0, 0)  # 还类型的按钮
+    SWITCH_TYPE_BTN: ClassVar[Point] = Point(242, 809)  # 还类型的按钮
 
     def __init__(self, ctx: Context, target: SimUniverseType):
         """

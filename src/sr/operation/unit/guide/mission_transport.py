@@ -112,7 +112,7 @@ class GuideMission:
 
 
 MISSION_FORGOTTEN_HALL = GuideMission(category=CATEGORY_FORGOTTEN_HALL, cn='混沌回忆')
-MISSION_SIM_UNIVERSE = GuideMission(category=CATEGORY_ROGUE, cn='当前总计')  # 模拟宇宙最上方总分的传送
+MISSION_SIM_UNIVERSE = GuideMission(category=CATEGORY_ROGUE, cn='本周积分')  # 模拟宇宙最上方总分的传送
 
 
 MISSION_LIST_RECT = Rect(695, 295, 1655, 930)  # 副本列表的位置
