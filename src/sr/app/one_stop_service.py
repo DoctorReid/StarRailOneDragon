@@ -4,6 +4,7 @@ import sr.app
 import sr.app.routine.assignments
 from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, world_patrol, AppDescription
+from sr.app.rogue import sim_universe_app
 from sr.app.routine import assignments, support_character, nameless_honor, daily_training_app, buy_parcel, \
     trailblaze_power, email_attachment, echo_of_war, forgotten_hall_app
 from sr.app.routine.assignments import Assignments, ASSIGNMENTS
@@ -169,6 +170,8 @@ def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
         return EchoOfWar(ctx)
     elif app_id == forgotten_hall_app.FORGOTTEN_HALL.id:
         return forgotten_hall_app.ForgottenHallApp(ctx)
+    elif app_id == sim_universe_app.SIM_UNIVERSE.id:
+        return sim_universe_app.SimUniverseApp(ctx)
     return None
 
 
@@ -193,6 +196,8 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
         return echo_of_war.get_record()
     elif app_id == forgotten_hall_app.FORGOTTEN_HALL.id:
         return forgotten_hall_app.get_record()
+    elif app_id == sim_universe_app.SIM_UNIVERSE.id:
+        return sim_universe_app.get_record()
     return None
 
 

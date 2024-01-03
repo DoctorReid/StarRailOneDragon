@@ -68,6 +68,12 @@ class ScreenState(Enum):
     TEAM: str = '队伍'
     """队伍"""
 
+    SIM_TYPE_NORMAL = '模拟宇宙'
+    """模拟宇宙 - 普通"""
+
+    SIM_TYPE_EXTEND = '扩展装置'
+    """模拟宇宙 - 拓展装置"""
+
 
 class TargetRect(Enum):
 
