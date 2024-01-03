@@ -262,6 +262,9 @@ msgstr "Incubator"
 msgid "药物制备间"
 msgstr "Pharmaceutical Room"
 
+msgid "生物烘焙箱"
+msgstr "Lifeform Oven"
+
 msgid "蛀星的旧靥历战回响"
 msgstr "Borehole Planet's Old Crater"
 
