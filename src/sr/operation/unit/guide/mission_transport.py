@@ -10,7 +10,6 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit import guide
 
 
 class GuideMissionCategory:
@@ -113,6 +112,7 @@ class GuideMission:
 
 
 MISSION_FORGOTTEN_HALL = GuideMission(category=CATEGORY_FORGOTTEN_HALL, cn='混沌回忆')
+MISSION_SIM_UNIVERSE = GuideMission(category=CATEGORY_ROGUE, cn='当前总计')  # 模拟宇宙最上方总分的传送
 
 
 MISSION_LIST_RECT = Rect(695, 295, 1655, 930)  # 副本列表的位置
