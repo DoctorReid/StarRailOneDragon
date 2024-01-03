@@ -40,7 +40,7 @@ def by_hour(hour_num: int, func: Callable, tag: Optional[str] = None):
     :param tag: 任务标签
     :return:
     """
-    s = schedule.every().day.at('%02d:00' % hour_num).do(func)
+    s = schedule.every().day.at('%02d:00:01' % hour_num).do(func)  # 加一秒 避免完全整点运行。例如每天4点刷新运行记录 刷新后再运行脚本
     # s = schedule.every().day.at('11:46').do(func)  # 测试代码
     # s = schedule.every().day.at('11:47').do(func)
     if tag is not None:
