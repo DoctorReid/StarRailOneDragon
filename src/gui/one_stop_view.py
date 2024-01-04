@@ -485,7 +485,8 @@ class OneStopView(ft.Row, SrBasicView):
 
         scheduler.cancel_with_tag('schedule_2')
         if self.schedule_2_dropdown.value != 'none':
-            scheduler.by_hour(int(self.schedule_2_dropdown.value), self._start_one_stop_app, 'schedule_2')
+            if self.schedule_2_dropdown.value != self.schedule_1_dropdown.value:
+                scheduler.by_hour(int(self.schedule_2_dropdown.value), self._start_one_stop_app, 'schedule_2')
 
     def _on_schedule_changed(self, e):
         """
