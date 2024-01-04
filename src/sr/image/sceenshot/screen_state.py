@@ -74,6 +74,9 @@ class ScreenState(Enum):
     SIM_TYPE_EXTEND = '扩展装置'
     """模拟宇宙 - 拓展装置"""
 
+    SIM_PATH = '命途'
+    """模拟宇宙 - 命途"""
+
 
 class TargetRect(Enum):
 

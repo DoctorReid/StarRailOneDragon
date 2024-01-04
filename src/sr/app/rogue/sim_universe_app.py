@@ -11,9 +11,10 @@ from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
     MISSION_SIM_UNIVERSE
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
-from sr.operation.unit.rogue import SimUniverseType
+from sr.operation.unit.rogue import SimUniverseType, SimUniversePath
 from sr.operation.unit.rogue.choose_sim_uni_diff import ChooseSimUniDiff
 from sr.operation.unit.rogue.choose_sim_uni_num import ChooseSimUniNum
+from sr.operation.unit.rogue.choose_sim_uni_path import ChooseSimUniPath
 from sr.operation.unit.rogue.choose_sim_uni_type import ChooseSimUniType
 from sr.operation.unit.rogue.start_sim_uni import StartSimUni
 
@@ -70,6 +71,9 @@ class SimUniverseApp(Application2):
 
         start_sim = StatusCombineOperationNode('开始挑战', StartSimUni(ctx))
         edges.append(StatusCombineOperationEdge2(choose_universe_diff, start_sim))
+
+        choose_path = StatusCombineOperationNode('选择命途', ChooseSimUniPath(ctx, SimUniversePath.FY))
+        edges.append(StatusCombineOperationEdge2(start_sim, choose_path, status=StartSimUni.STATUS_RESTART))
 
         super().__init__(ctx, op_name=gt(SIM_UNIVERSE.cn, 'ui'),
                          edges=edges,

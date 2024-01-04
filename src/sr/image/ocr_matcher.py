@@ -111,7 +111,7 @@ class OcrMatcher:
         :return:
         """
         img_to_ocr = image if part_rect is None else cv2_utils.crop_image(image, part_rect)[0]
-        ocr_result = self.ocr_for_single_line(image, threshold=threshold, strict_one_line=strict_one_line)
+        ocr_result = self.ocr_for_single_line(img_to_ocr, threshold=threshold, strict_one_line=strict_one_line)
         return str_utils.find_by_lcs(gt(word, 'ocr'), ocr_result, percent=lcs_percent)
     
     def run_ocr_without_det(self, image: MatLike, threshold: float = None) -> str:

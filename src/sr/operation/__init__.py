@@ -428,6 +428,7 @@ class StateOperationEdge:
         忽略返回状态只有在所有需要匹配的状态都匹配不到时才会用做兜底
         """
 
+
 class StateOperation(Operation):
 
     def __init__(self, ctx: Context, op_name: str, try_times: int = 2,
@@ -470,7 +471,14 @@ class StateOperation(Operation):
             for edge in edges:
                 self.register_edge(edge)
         elif nodes is not None:
-            pass
+            if len(nodes) == 1:
+                self._specified_start_node = nodes[0]
+            else:
+                last_node = None
+                for node in nodes:
+                    if last_node is not None:
+                        self.register_edge(StateOperationEdge(last_node, node))
+                    last_node = node
 
     def register_edge(self, edge: StateOperationEdge):
         """
@@ -546,6 +554,39 @@ class StateOperation(Operation):
         current_op = self._current_node.func
         current_round_result: OperationOneRoundResult = current_op()
 
+        if current_round_result.status == Operation.WAIT or current_round_result.status == Operation.RETRY:
+            # 等待或重试的 直接返回
+            return current_round_result
+
         edges = self._node_edges_map.get(self._current_node.cn)
-        if edges is None:  # 没有下一个节点了 已经结束了
-            return Operation.round_success()
+        if edges is None:  # 没有下一个节点了 已经结束了 当前返回就是什么
+            return current_round_result
+
+        next_node_id: Optional[str] = None
+        final_next_node_id: Optional[str] = None  # 兜底指令
+        for edge in edges:
+            if edge.success != (current_round_result.result == Operation.SUCCESS):
+                continue
+
+            if edge.ignore_status:
+                final_next_node_id = edge.node_to.cn
+
+            if edge.status is None and current_round_result.status is None:
+                next_node_id = edge.node_to.cn
+                break
+            elif edge.status is None or current_round_result.status is None:
+                continue
+            elif edge.status == current_round_result.status:
+                next_node_id = edge.node_to.cn
+
+        next_node: Optional[StateOperationNode] = None
+        if next_node_id is not None:
+            next_node = self._node_map[next_node_id]
+        elif final_next_node_id is not None:
+            next_node = self._node_map[final_next_node_id]
+
+        if next_node is None:  # 没有下一个节点了 已经结束了
+            return current_round_result
+
+        self._current_node = next_node
+        return Operation.round_wait()
