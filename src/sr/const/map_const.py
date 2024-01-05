@@ -371,9 +371,9 @@ P02_R12_SP03 = TransportPoint('NYZHSS', '能源转换设施', P02_R12_F1, 'mm_tp
 P02_R12_SP04 = TransportPoint('TXZL', '同谐之蕾拟造花萼赤', P02_R12_F1, 'mm_tp_07', (298, 564), (308, 557))
 
 # 仙舟罗浮 - 星槎海中枢
-P03_R01_SP01 = TransportPoint('XCMT', '星槎码头', P03_R01, 'mm_tp_03', (443, 341))
-P03_R01_SP02 = TransportPoint('KYT', '坤舆台', P03_R01, 'mm_tp_03', (700, 370))
-P03_R01_SP03 = TransportPoint('XYDD', '宣夜大道', P03_R01, 'mm_tp_03', (428, 622))
+P03_R01_SP01 = TransportPoint('XCMT', '星槎码头', P03_R01, 'mm_tp_03', (443, 341), (454, 343))
+P03_R01_SP02 = TransportPoint('KYT', '坤舆台', P03_R01, 'mm_tp_03', (700, 370), (698, 375))
+P03_R01_SP03 = TransportPoint('XYDD', '宣夜大道', P03_R01, 'mm_tp_03', (428, 622), (423, 628))
 P03_R01_SP04 = TransportPoint('TKZY', '天空之眼', P03_R01, 'mm_sp_01', (616, 409))
 P03_R01_SP05 = TransportPoint('LYD', '流云渡', P03_R01, 'mm_sp_02', (849, 168))
 P03_R01_SP06 = TransportPoint('CLT', '长乐天', P03_R01, 'mm_sp_02', (539, 231))
@@ -387,6 +387,7 @@ P03_R01_SP13 = TransportPoint('SZG', '赎珠阁', P03_R01, 'mm_sp_04', (375, 595
 P03_R01_SP14 = TransportPoint('SHJ4', '售货机4', P03_R01, 'mm_sp_03', (316, 698))
 P03_R01_SP15 = TransportPoint('XCT', '小吃摊', P03_R01, 'mm_sp_03', (436, 702))
 P03_R01_SP16 = TransportPoint('SCG', '司辰宫', P03_R01, 'mm_sp_05', (673, 487))
+P03_R01_SP17 = TransportPoint('PSQT', '评书奇谭', P03_R01, 'mm_tp_15', (353, 503), (353, 499))
 
 # 仙舟罗浮 - 流云渡
 P03_R02_SP01 = TransportPoint('LYDHD', '流云渡货道', P03_R02_F2, 'mm_tp_03', (704, 422))

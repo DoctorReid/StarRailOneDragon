@@ -155,6 +155,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = map_const.P01_R05_F1
+    r = map_const.P03_R01
     app = LargeMapRecorder(ctx, r)
     app.execute()
