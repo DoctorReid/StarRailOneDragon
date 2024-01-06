@@ -51,6 +51,11 @@ class StarRailAutoProxy:
                     label=gt('锄大地', model='ui')
                 ),
                 ft.NavigationRailDestination(
+                    icon=ft.icons.RUN_CIRCLE_OUTLINED,
+                    selected_icon=ft.icons.RUN_CIRCLE,
+                    label=gt('模拟宇宙', model='ui')
+                ),
+                ft.NavigationRailDestination(
                     icon=ft.icons.ADD_LOCATION_ALT_OUTLINED,
                     selected_icon=ft.icons.ADD_LOCATION_ALT_ROUNDED,
                     label=gt('校准', model='ui')
@@ -164,9 +169,9 @@ class StarRailAutoProxy:
         elif self.app_rail.selected_index == 1:  # 锄大地
             if self.world_patrol_rail.selected_index in [0, 1]:
                 return True
-        elif self.app_rail.selected_index == 2:  # 校准
+        elif self.app_rail.selected_index == 3:  # 校准
             return True
-        elif self.app_rail.selected_index == 3:
+        elif self.app_rail.selected_index == 4:
             if self.settings_rail.selected_index == 0:  # 设置 - 基础
                 return True
         return False
@@ -176,9 +181,9 @@ class StarRailAutoProxy:
             return None
         elif self.app_rail.selected_index == 1:
             return self.world_patrol_rail
-        elif self.app_rail.selected_index == 2:
-            return None
         elif self.app_rail.selected_index == 3:
+            return None
+        elif self.app_rail.selected_index == 4:
             return self.settings_rail
         else:
             return None
@@ -193,9 +198,9 @@ class StarRailAutoProxy:
                 return world_patrol_draft_route_view.get(self.page, self.ctx)
             if self.world_patrol_rail.selected_index == 2:
                 return world_patrol_whitelist_view.get(self.page, self.ctx)
-        elif self.app_rail.selected_index == 2:
-            return calibrator_view.get(self.page, self.ctx)
         elif self.app_rail.selected_index == 3:
+            return calibrator_view.get(self.page, self.ctx)
+        elif self.app_rail.selected_index == 4:
             if self.settings_rail.selected_index == 0:
                 return settings_basic_view.get(self.page, self.ctx)
             elif self.settings_rail.selected_index == 1:
@@ -230,7 +235,7 @@ class StarRailAutoProxy:
                 t = threading.Thread(target=world_patrol_run_view.get(self.page, self.ctx).start, args=[None])
             elif self.world_patrol_rail.selected_index == 1:
                 t = threading.Thread(target=world_patrol_draft_route_view.get(self.page, self.ctx).test_existed, args=[None])
-        elif self.app_rail.selected_index == 2:
+        elif self.app_rail.selected_index == 3:
             t = threading.Thread(target=calibrator_view.get(self.page, self.ctx).start, args=[None])
         if t is not None:
             t.start()

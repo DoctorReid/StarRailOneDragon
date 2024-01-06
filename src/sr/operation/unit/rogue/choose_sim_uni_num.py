@@ -8,6 +8,7 @@ from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
+from sr.operation.unit.rogue import UNI_NUM_CN
 
 
 class ChooseSimUniNum(Operation):
@@ -18,16 +19,6 @@ class ChooseSimUniNum(Operation):
     CURRENT_BTN: ClassVar[Point] = Point(1276, 567)  # 选择当前宇宙
     PREVIOUS_BTN: ClassVar[Point] = Point(1216, 198)  # 换到上一个宇宙
     NEXT_BTN: ClassVar[Point] = Point(1173, 929)  # 换到下一个宇宙
-    NUM_CN: ClassVar[dict[int, str]] = {
-        1: '一',
-        2: '二',
-        3: '三',
-        4: '四',
-        5: '五',
-        6: '六',
-        7: '七',
-        8: '八',
-    }
 
     def __init__(self, ctx: Context, num: int):
         """
@@ -80,7 +71,7 @@ class ChooseSimUniNum(Operation):
 
         ocr_result = self.ctx.ocr.ocr_for_single_line(part)
 
-        for num, word in ChooseSimUniNum.NUM_CN.items():
+        for num, word in UNI_NUM_CN.items():
             if str_utils.find_by_lcs(gt(word, 'ocr'), ocr_result, percent=1):
                 return num
 

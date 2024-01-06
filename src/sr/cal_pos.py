@@ -205,7 +205,8 @@ def cal_character_pos_by_original(im: ImageMatcher,
                                   lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                   lm_rect: Rect = None,
                                   running: bool = False,
-                                  show: bool = False) -> MatchResult:
+                                  show: bool = False,
+                                  scale_list: List[float] = None) -> MatchResult:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用小地图原图 - 需要到这一步 说明背景比较杂乱 因此道路掩码只使用中心点包含的连通块
@@ -215,6 +216,7 @@ def cal_character_pos_by_original(im: ImageMatcher,
     :param lm_rect: 圈定的大地图区域 传入后更准确
     :param running: 任务是否在跑动
     :param show: 是否显示调试结果
+    :param scale_list: 缩放比例
     :return:
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
@@ -323,7 +325,8 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
                                    lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                    lm_rect: Rect = None,
                                    running: bool = False,
-                                   show: bool = False) -> Optional[MatchResult]:
+                                   show: bool = False,
+                                   scale_list: List[float] = None) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用处理过后的道路掩码图
@@ -345,8 +348,11 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     template = mm_info.road_mask
     template_mask = mm_info.circle_mask
 
+    if scale_list is None:
+        scale_list = mini_map.get_mini_map_scale_list(running)
+
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
-                                                                   mini_map.get_mini_map_scale_list(running),
+                                                                   scale_list,
                                                                    0.4)
 
     if show:

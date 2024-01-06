@@ -3,6 +3,7 @@ from typing import Optional
 import cv2
 from cv2.typing import MatLike
 
+from basic import Point
 from sr.const.map_const import Region
 from sr.win import Window
 
@@ -50,3 +51,23 @@ class LargeMapInfo:
         self.sp_result: dict = None  # 特殊点坐标
         self.kps = None  # 特征点 用于特征匹配
         self.desc = None  # 描述子 用于特征匹配
+
+
+class SimUniLevelInfo:
+
+    def __init__(self):
+        """
+        模拟宇宙中每层的信息
+        """
+
+        self.initial_mm: Optional[MatLike] = None
+        """刚进入这层 小地图的截图"""
+
+        self.uni_num: Optional[int] = None
+        """属于第几个宇宙的"""
+
+        self.lm_info: Optional[LargeMapInfo] = None
+        """该层对应的大地图"""
+
+        self.start_pos: Optional[Point] = None
+        """刚进入这层所在的位置"""
