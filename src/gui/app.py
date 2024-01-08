@@ -11,6 +11,7 @@ from gui import log_view, calibrator_view, version, one_stop_view, scheduler
 from gui.settings import gui_config, settings_basic_view, settings_trailblaze_power_view, settings_echo_of_war_view, \
     settings_world_patrol_view, settings_mys_view, settings_forgotten_hall_view
 from gui.settings.gui_config import ThemeColors, GuiConfig
+from gui.sim_uni import sim_uni_draft_route_view
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.config import game_config
@@ -90,6 +91,22 @@ class StarRailAutoProxy:
                     icon=ft.icons.PLAYLIST_ADD_CHECK_OUTLINED,
                     selected_icon=ft.icons.PLAYLIST_ADD_CHECK_CIRCLE_ROUNDED,
                     label=gt('特定路线名单', model='ui')
+                ),
+            ],
+            on_change=self.on_rail_chosen
+        )
+
+        self.sim_uni_rail = ft.NavigationRail(
+            bgcolor=theme['component_bg'],
+            selected_index=0,
+            label_type=ft.NavigationRailLabelType.ALL,
+            min_width=100,
+            min_extended_width=400,
+            destinations=[
+                ft.NavigationRailDestination(
+                    icon=ft.icons.DRAW_OUTLINED,
+                    selected_icon=ft.icons.DRAW,
+                    label=gt('路线绘制', model='ui')
                 ),
             ],
             on_change=self.on_rail_chosen
@@ -181,6 +198,8 @@ class StarRailAutoProxy:
             return None
         elif self.app_rail.selected_index == 1:
             return self.world_patrol_rail
+        elif self.app_rail.selected_index == 2:
+            return self.sim_uni_rail
         elif self.app_rail.selected_index == 3:
             return None
         elif self.app_rail.selected_index == 4:
@@ -198,6 +217,9 @@ class StarRailAutoProxy:
                 return world_patrol_draft_route_view.get(self.page, self.ctx)
             if self.world_patrol_rail.selected_index == 2:
                 return world_patrol_whitelist_view.get(self.page, self.ctx)
+        elif self.app_rail.selected_index == 2:
+            if self.sim_uni_rail.selected_index == 0:
+                return sim_uni_draft_route_view.get(self.page, self.ctx)
         elif self.app_rail.selected_index == 3:
             return calibrator_view.get(self.page, self.ctx)
         elif self.app_rail.selected_index == 4:

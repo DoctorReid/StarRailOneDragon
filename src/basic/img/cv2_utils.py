@@ -1,3 +1,4 @@
+import base64
 import os
 from typing import Union, List, Optional
 
@@ -663,3 +664,14 @@ def scale_image(img: Optional[MatLike] = None, scale: Optional[float] = None, co
         return img.copy() if copy else img
     target_size = (int(img.shape[0] * scale), int(img.shape[1] * scale))
     return cv2.resize(img, target_size)
+
+
+def to_base64(img: MatLike) -> str:
+    """
+    将图片转化成base64编码展示
+    :param img:
+    :return:
+    """
+    _, buffer = cv2.imencode('.png', img)
+    base64_data = base64.b64encode(buffer)
+    return base64_data.decode("utf-8")
