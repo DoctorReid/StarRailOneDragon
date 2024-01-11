@@ -41,10 +41,20 @@ def get_battle_status(screen: MatLike, im: ImageMatcher):
     """
     if is_character_icon_at_right_top(screen, im):
         return IN_WORLD
-    if match_battle_ctrl(screen, im, 'battle_ctrl_01', rect=PAUSE_BATTLE_RECT) is not None:
+    if in_battle(screen, im):
         return BATTLING
 
     return UNKNOWN
+
+
+def in_battle(screen: MatLike, im: ImageMatcher) -> bool:
+    """
+    是否在战斗画面
+    :param screen: 屏幕截图
+    :param im: 图片匹配器
+    :return:
+    """
+    return match_battle_ctrl(screen, im, 'battle_ctrl_01', rect=PAUSE_BATTLE_RECT) is not None
 
 
 def is_character_icon_at_right_top(screen: MatLike, im: ImageMatcher):

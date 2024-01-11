@@ -7,7 +7,7 @@ from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.rogue import SimUniverseType
+from sr.const.rogue_const import SimUniverseType
 
 
 class ChooseSimUniType(Operation):

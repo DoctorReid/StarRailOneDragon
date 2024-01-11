@@ -52,8 +52,8 @@ class StarRailAutoProxy:
                     label=gt('锄大地', model='ui')
                 ),
                 ft.NavigationRailDestination(
-                    icon=ft.icons.RUN_CIRCLE_OUTLINED,
-                    selected_icon=ft.icons.RUN_CIRCLE,
+                    icon=ft.icons.ACCOUNT_TREE_OUTLINED,
+                    selected_icon=ft.icons.ACCOUNT_TREE,
                     label=gt('模拟宇宙', model='ui')
                 ),
                 ft.NavigationRailDestination(
@@ -184,7 +184,10 @@ class StarRailAutoProxy:
         if self.app_rail.selected_index == 0:
             return True
         elif self.app_rail.selected_index == 1:  # 锄大地
-            if self.world_patrol_rail.selected_index in [0, 1]:
+            if self.world_patrol_rail.selected_index in [0, 1]:  # 运行、路线绘制
+                return True
+        elif self.app_rail.selected_index == 2:  # 模拟宇宙
+            if self.sim_uni_rail.selected_index == 0:  # 路线绘制
                 return True
         elif self.app_rail.selected_index == 3:  # 校准
             return True

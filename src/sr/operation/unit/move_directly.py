@@ -1,12 +1,10 @@
 import time
-from typing import List
+from typing import List, Optional, Tuple
 
 from cv2.typing import MatLike
 
-import basic.cal_utils
-from basic import os_utils, Point, Rect
+from basic import Point, cal_utils
 from basic.i18_utils import gt
-from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
 from sr.config import game_config
@@ -14,9 +12,87 @@ from sr.const import map_const, game_config_const
 from sr.const.map_const import Region
 from sr.context import Context
 from sr.control import GameController
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, battle, large_map
-from sr.operation import Operation
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state
+from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
+
+
+class GetRidOfStuck(Operation):
+
+    def __init__(self, ctx: Context, stuck_times: int):
+        """
+        简单的脱困指令
+        返回数据为脱困使用的时间
+        以下方式各尝试2遍
+        1. 往左 然后往前走
+        2. 往右 然后往前走
+        3. 往后再往左 然后往前走
+        4. 往后再往右 然后往前走
+        5. 往左再往后再往右 然后往前走
+        6. 往右再往后再往左 然后往前走
+        :param ctx:
+        :param stuck_times: 被困次数 1~12
+        """
+        super().__init__(ctx, op_name='%s %d' % (gt('尝试脱困', 'ui'), stuck_times))
+        self.stuck_times: int = stuck_times
+
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        ctrl: GameController = self.ctx.controller
+
+        ctrl.stop_moving_forward()
+
+        move_unit_sec = 0.25
+        try_move_unit = self.stuck_times % 2 if self.stuck_times % 2 != 0 else 2
+        try_method = (self.stuck_times + 1) // 2
+
+        if try_method == 1:  # 左 前
+            walk_sec = try_move_unit * move_unit_sec
+            ctrl.move('a', walk_sec)
+            ctrl.start_moving_forward()  # 多往前走1秒再判断是否被困
+            time.sleep(1)
+            total_time = walk_sec + 1
+        elif try_method == 2:  # 右 前
+            walk_sec = try_move_unit * move_unit_sec
+            ctrl.move('d', walk_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            total_time = walk_sec + 1
+        elif try_method == 3:  # 后左 前
+            walk_sec = try_move_unit * move_unit_sec
+            ctrl.move('s', walk_sec)
+            ctrl.move('a', walk_sec)
+            ctrl.move('w', walk_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            total_time = walk_sec * 3 + 1
+        elif try_method == 4:  # 后右 前
+            walk_sec = try_move_unit * move_unit_sec
+            ctrl.move('s', walk_sec)
+            ctrl.move('d', walk_sec)
+            ctrl.move('w', walk_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            total_time = walk_sec * 3 + 1
+        elif try_method == 5:  # 左后右 前
+            walk_sec = try_move_unit * move_unit_sec
+            ctrl.move('a', walk_sec)
+            ctrl.move('s', walk_sec)
+            ctrl.move('d', walk_sec + move_unit_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            total_time = walk_sec * 3 + move_unit_sec + 1
+        elif try_method == 6:  # 右后左 前
+            walk_sec = try_move_unit * move_unit_sec
+            ctrl.move('d', walk_sec)
+            ctrl.move('s', walk_sec)
+            ctrl.move('a', walk_sec + move_unit_sec)
+            ctrl.start_moving_forward()
+            time.sleep(1)
+            total_time = walk_sec * 3 + move_unit_sec + 1
+        else:
+            total_time = 0
+
+        return Operation.round_success(data=total_time)
 
 
 class MoveDirectly(Operation):
@@ -32,9 +108,9 @@ class MoveDirectly(Operation):
 
     def __init__(self, ctx: Context,
                  lm_info: LargeMapInfo,
+                 start: Point,
                  target: Point,
-                 next_lm_info: LargeMapInfo = None,
-                 start: Point = None,
+                 next_lm_info: Optional[LargeMapInfo] = None,
                  stop_afterwards: bool = True,
                  no_run: bool = False):
         super().__init__(ctx, op_name=gt('移动 %s -> %s') % (start, target))
@@ -42,9 +118,8 @@ class MoveDirectly(Operation):
         self.next_lm_info: LargeMapInfo = next_lm_info
         self.region: Region = lm_info.region
         self.target: Point = target
+        self.start_pos: Point = start
         self.pos: List[Point] = []
-        if start is not None:
-            self.pos.append(start)
         self.stuck_times = 0  # 被困次数
         self.last_rec_time = 0  # 上一次记录坐标的时间
         self.no_pos_times = 0  # 累计算不到坐标的次数
@@ -56,28 +131,16 @@ class MoveDirectly(Operation):
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         now = time.time()
         self.last_rec_time = now - 1
         self.last_battle_time = now
+        self.pos = [self.start_pos]
 
-    def _execute_one_round(self) -> bool:
-        first_pos = None if len(self.pos) == 0 else self.pos[0]
-        last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
-
-        # 通过第一个坐标和最后一个坐标的距离 判断是否困住了
-        if len(self.pos) >= MoveDirectly.max_len and \
-                basic.cal_utils.distance_between(first_pos, last_pos) < MoveDirectly.stuck_distance:
-            self.stuck_times += 1
-            if self.stuck_times > 12:
-                log.error('脱困失败')
-                if os_utils.is_debug():
-                    screen = self.screenshot()
-                    save_debug_image(screen, prefix=self.__class__.__name__ + "_stuck")
-                return Operation.FAIL
-            walk_sec = self.get_rid_of_stuck(self.stuck_times)
-            self.last_rec_time += walk_sec
-        else:
-            self.stuck_times = 0
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
+        if stuck is not None:
+            return stuck
 
         # 如果使用小箭头计算方向 则需要前进一步 保证小箭头方向就是人物朝向
         # if not self.ctx.controller.is_moving:
@@ -86,30 +149,105 @@ class MoveDirectly(Operation):
         now_time = time.time()
 
         if now_time - self.last_battle_time > MoveDirectly.fail_after_no_battle:
-            log.error('移动执行超时')
-            return Operation.FAIL
+            return Operation.round_fail('移动超时')
 
         screen = self.screenshot()
 
-        # 可能被怪攻击了
-        if battle.IN_WORLD != battle.get_battle_status(screen, self.ctx.im):
+        be_attacked = self.be_attacked(screen)  # 查看是否被攻击
+        if be_attacked is not None:
+            return be_attacked
+
+        mm = mini_map.cut_mini_map(screen)
+
+        check_enemy = self.check_enemy_and_attack(mm)  # 根据小地图判断是否被怪锁定 是的话停下来处理敌人
+        if check_enemy is not None:
+            return check_enemy
+
+        next_pos, mm_info = self.cal_pos(mm, now_time)  # 计算当前坐标
+
+        check_no_pos = self.check_no_pos(next_pos, now_time)  # 坐标计算失败处理
+        if check_no_pos is not None:
+            return check_no_pos
+
+        check_arrive = self.check_arrive(next_pos)  # 判断是否到达
+        if check_arrive is not None:
+            return check_arrive
+
+        self.move(next_pos, now_time, mm_info)
+
+        return Operation.round_wait()
+
+    def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
+        """
+        判断是否被困且进行移动
+        :return: 如果被困次数过多就返回失败
+        """
+        first_pos = None if len(self.pos) == 0 else self.pos[0]
+        last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
+
+        # 通过第一个坐标和最后一个坐标的距离 判断是否困住了
+        if len(self.pos) >= MoveDirectly.max_len and \
+                cal_utils.distance_between(first_pos, last_pos) < MoveDirectly.stuck_distance:
+            self.stuck_times += 1
+            if self.stuck_times > 12:
+                return Operation.round_fail('脱困失败')
+            get_rid_of_stuck = GetRidOfStuck(self.ctx, self.stuck_times)
+            stuck_op_result = get_rid_of_stuck.execute()
+            if stuck_op_result.success:
+                self.last_rec_time += stuck_op_result.data
+        else:
+            self.stuck_times = 0
+
+        return None
+
+    def be_attacked(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
+        """
+        判断当前是否在不在宇宙移动的画面
+        即被怪物攻击了 等待至战斗完成
+        :param screen: 屏幕截图
+        :return:
+        """
+        if not screen_state.is_normal_in_world(screen, self.ctx.im):
             self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
             fight = EnterAutoFight(self.ctx)
-            fight.execute()
+            fight_result = fight.execute()
+            if not fight_result.success:
+                return Operation.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = time.time()
             self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
-            return Operation.WAIT
+            return Operation.round_wait()
+        return None
 
-        mm = mini_map.cut_mini_map(screen)
-        # 根据小地图判断是否被怪锁定 是的话停下来处理敌人
-        if self.check_enemy_and_attack(mm):
-            self.last_battle_time = time.time()
-            self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
-            return Operation.WAIT
+    def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
+        """
+        从小地图检测敌人 如果有的话 进入索敌
+        :param mm:
+        :return: 是否有敌人
+        """
+        if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
+            return None
+        if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos):
+            return None
+        self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
+        fight = EnterAutoFight(self.ctx)
+        op_result = fight.execute()
+        if not op_result.success:
+            return Operation.round_fail(status=op_result.status, data=op_result.data)
+        self.last_auto_fight_fail = (op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
+        self.last_battle_time = time.time()
+        self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
 
+        return Operation.round_wait()
+
+    def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
+        """
+        根据上一次的坐标和行进距离 计算当前位置坐标
+        :param mm: 小地图截图
+        :param now_time: 当前时间
+        :return:
+        """
         # 根据上一次的坐标和行进距离 计算当前位置
-        lx, ly = last_pos.x, last_pos.y
         if self.last_rec_time > 0:
             move_time = now_time - self.last_rec_time
             if move_time < 1:
@@ -117,7 +255,8 @@ class MoveDirectly(Operation):
         else:
             move_time = 1
         move_distance = self.ctx.controller.cal_move_distance_by_time(move_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
-        possible_pos = (lx, ly, move_distance)
+        last_pos = self.pos[len(self.pos) - 1]
+        possible_pos = (last_pos.x, last_pos.y, move_distance)
         log.debug('准备计算人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos,
                   move_time, self.ctx.controller.is_moving)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
@@ -125,33 +264,56 @@ class MoveDirectly(Operation):
         sp_map = map_const.get_sp_type_in_rect(self.region, lm_rect)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
 
-        next_pos: Point = self.get_pos(mm_info, lm_rect)
-        # log.info('使用上一个坐标为%s', possible_pos)
-        # save_debug_image(mm, prefix='cal_pos')
-
+        next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect,
+                                             retry_without_rect=False, running=self.ctx.controller.is_moving)
+        if next_pos is None and self.next_lm_info is not None:
+            next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect,
+                                                 retry_without_rect=False, running=self.ctx.controller.is_moving)
         if next_pos is None:
-            log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, move_time, self.ctx.controller.is_moving)
+            log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, move_time,
+                      self.ctx.controller.is_moving)
+        return next_pos, mm_info
+
+    def check_no_pos(self, next_pos: Point, now_time: float) -> Optional[OperationOneRoundResult]:
+        """
+        并判断是否识别不到坐标
+        过长时间无法识别需要停止角色移动 甚至错误退出
+        :param next_pos: 计算得到的坐标
+        :param now_time: 当前时间
+        :return:
+        """
+        if next_pos is None:
             if now_time - self.last_no_pos_time > 0.5:
                 self.no_pos_times += 1
                 self.last_no_pos_time = now_time
-                if os_utils.is_debug():
-                    save_debug_image(mm, prefix='cal_pos')
-                if self.no_pos_times >= 5:  # 不要再乱走了
+                if self.no_pos_times >= 3:  # 不要再乱走了
                     self.ctx.controller.stop_moving_forward()
                 if self.no_pos_times >= 10:
-                    log.error('持续无法判断当前人物坐标 退出本次移动')
-                    self.ctx.controller.stop_moving_forward()
-                    return Operation.FAIL
-            return Operation.WAIT
+                    return Operation.round_fail('无法识别坐标')
+            return Operation.round_wait()
         else:
             self.no_pos_times = 0
 
-        if basic.cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
-            log.info('目标点已到达 %s', self.target)
+    def check_arrive(self, next_pos: Point) -> Optional[OperationOneRoundResult]:
+        """
+        检查是否已经到达目标点
+        :param next_pos:
+        :return:
+        """
+        if cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
-            return Operation.SUCCESS
+            return Operation.round_success()
+        return None
 
+    def move(self, next_pos: Point, now_time: float, mm_info: MiniMapInfo):
+        """
+        移动
+        :param next_pos:
+        :param now_time:
+        :param mm_info:
+        :return:
+        """
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
             self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle,
                                              run=self.run_mode == game_config_const.RUN_MODE_BTN)
@@ -162,117 +324,11 @@ class MoveDirectly(Operation):
                 del self.pos[0]
             self.last_rec_time = now_time
 
-        return Operation.WAIT
-
-    def get_rid_of_stuck(self, stuck_times: int):
-        """
-        尝试脱困 以下方式各尝试2遍
-        1. 往左 然后往前走
-        2. 往右 然后往前走
-        3. 往后再往左 然后往前走
-        4. 往后再往右 然后往前走
-        5. 往左再往后再往右 然后往前走
-        6. 往右再往后再往左 然后往前走
-
-        :param stuck_times: 判断困住多少次了 次数越多 往回走距离越大
-        :return: 这次脱困用了多久
-        """
-        log.info('尝试脱困第%d次', stuck_times)
-        ctrl: GameController = self.ctx.controller
-
-        ctrl.stop_moving_forward()
-
-        move_unit_sec = 0.25
-        try_move_unit = stuck_times % 2 if stuck_times % 2 != 0 else 2
-        try_method = (stuck_times + 1) // 2
-
-        if try_method == 1:  # 左 前
-            walk_sec = try_move_unit * move_unit_sec
-            ctrl.move('a', walk_sec)
-            ctrl.start_moving_forward()  # 多往前走1秒再判断是否被困
-            time.sleep(1)
-            return walk_sec + 1
-        elif try_method == 2:  # 右 前
-            walk_sec = try_move_unit * move_unit_sec
-            ctrl.move('d', walk_sec)
-            ctrl.start_moving_forward()
-            time.sleep(1)
-            return walk_sec + 1
-        elif try_method == 3:  # 后左 前
-            walk_sec = try_move_unit * move_unit_sec
-            ctrl.move('s', walk_sec)
-            ctrl.move('a', walk_sec)
-            ctrl.move('w', walk_sec)
-            ctrl.start_moving_forward()
-            time.sleep(1)
-            return walk_sec * 3 + 1
-        elif try_method == 4:  # 后右 前
-            walk_sec = try_move_unit * move_unit_sec
-            ctrl.move('s', walk_sec)
-            ctrl.move('d', walk_sec)
-            ctrl.move('w', walk_sec)
-            ctrl.start_moving_forward()
-            time.sleep(1)
-            return walk_sec * 3 + 1
-        elif try_method == 5:  # 左后右 前
-            walk_sec = try_move_unit * move_unit_sec
-            ctrl.move('a', walk_sec)
-            ctrl.move('s', walk_sec)
-            ctrl.move('d', walk_sec + move_unit_sec)
-            ctrl.start_moving_forward()
-            time.sleep(1)
-            return walk_sec * 3 + move_unit_sec + 1
-        elif try_method == 6:  # 右后左 前
-            walk_sec = try_move_unit * move_unit_sec
-            ctrl.move('d', walk_sec)
-            ctrl.move('s', walk_sec)
-            ctrl.move('a', walk_sec + move_unit_sec)
-            ctrl.start_moving_forward()
-            time.sleep(1)
-            return walk_sec * 3 + move_unit_sec + 1
-
-        return 0
-
-    def get_pos(self, mm_info: MiniMapInfo, lm_rect: Rect) -> Point:
-        """
-        获取当前位置、 下一步方向、 记录时间
-        :param mm_info: 小地图
-        :param lm_rect: 大地图区域
-        :return:
-        """
-        pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
-        if pos is None and self.next_lm_info is not None:
-            pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect, retry_without_rect=False, running=self.ctx.controller.is_moving)
-
-        return pos
-
-    def check_enemy_and_attack(self, mm: MatLike) -> bool:
-        """
-        从小地图检测敌人 如果有的话 进入索敌
-        :param mm:
-        :return: 是否有敌人
-        """
-        if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
-            return False
-        if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos):
-            return False
-        # pos_list = mini_map.get_enemy_location(mini_map)
-        # if len(pos_list) == 0:
-        #     return False
-        self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
-        fight = EnterAutoFight(self.ctx)
-        op_result = fight.execute()
-        self.last_auto_fight_fail = not op_result.success or op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND
-
-        return True
-
     def on_pause(self):
         super().on_pause()
         self.ctx.controller.stop_moving_forward()
 
     def on_resume(self):
         super().on_resume()
-        log.info('last_rec_time %.2f', self.last_rec_time)
-        log.info('current_pause_time %.2f', self.current_pause_time)
         self.last_rec_time += self.current_pause_time
         self.last_battle_time += self.current_pause_time

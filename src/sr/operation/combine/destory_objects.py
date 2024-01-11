@@ -18,7 +18,7 @@ class DestroyObjects(CombineOperation):
         会传送到【空间站黑塔】-【支援舱段】-【月台】
         """
         tp = map_const.P01_R04_SP02
-        lm_info: LargeMapInfo = ctx.ih.get_large_map(tp.region)
+        lm_info: LargeMapInfo = ctx.ih.get_large_map(tp.start_region)
 
         ops = [
             Transport(ctx, tp),  # 传送

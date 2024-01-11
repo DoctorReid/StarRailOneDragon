@@ -8,7 +8,7 @@ from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import StateOperation, StateOperationEdge, StateOperationNode, OperationOneRoundResult, Operation
-from sr.operation.unit.rogue import SimUniversePath
+from sr.const.rogue_const import SimUniversePath
 
 
 class ChooseSimUniPath(StateOperation):

@@ -8,7 +8,7 @@ from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.rogue import UNI_NUM_CN
+from sr.const.rogue_const import UNI_NUM_CN
 
 
 class ChooseSimUniNum(Operation):

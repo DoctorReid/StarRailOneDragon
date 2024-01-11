@@ -77,6 +77,9 @@ class ScreenState(Enum):
     SIM_PATH = '命途'
     """模拟宇宙 - 命途"""
 
+    BATTLE = '战斗'
+    """所有战斗画面通用 - 右上角有暂停符号"""
+
 
 class TargetRect(Enum):
 

@@ -192,12 +192,12 @@ class WorldPatrolDraftRouteView(components.Card, SrBasicView):
 
     def update_sp_list_by_floor(self):
         sp_arr = REGION_2_SP.get(self.chosen_region.pr_id)
-        self.tp_dropdown.options = [ft.dropdown.Option(text=sp.cn, key=sp.cn) for sp in sp_arr if sp.region == self.chosen_region]
+        self.tp_dropdown.options = [ft.dropdown.Option(text=sp.cn, key=sp.cn) for sp in sp_arr if sp.start_region == self.chosen_region]
 
     def on_sp_change(self, e):
         sp_arr = REGION_2_SP.get(self.chosen_region.pr_id)
         for sp in sp_arr:
-            if sp.region == self.chosen_region and sp.cn == self.tp_dropdown.value:
+            if sp.start_region == self.chosen_region and sp.cn == self.tp_dropdown.value:
                 self.chosen_sp = sp
                 break
 

@@ -42,7 +42,7 @@ P03 = Planet(3, "XZLF", "仙舟罗浮")
 PLANET_LIST = [P01, P02, P03]
 
 
-def get_planet_by_cn(cn: str) -> Planet:
+def get_planet_by_cn(cn: str) -> Optional[Planet]:
     """
     根据星球的中文 获取对应常量
     :param cn: 星球中文
@@ -117,7 +117,10 @@ class Region:
 
     @property
     def display_name(self) -> str:
-        return gt(self.cn, 'ui')
+        if self.another_floor:
+            return '%s %s' % (gt(self.cn, 'ui'), gt('%d层' % self.floor, 'ocr'))
+        else:
+            return gt(self.cn, 'ui')
 
 
 # 空间站黑塔

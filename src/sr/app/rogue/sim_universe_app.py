@@ -11,7 +11,7 @@ from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
     MISSION_SIM_UNIVERSE
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
-from sr.operation.unit.rogue import SimUniverseType, SimUniversePath
+from sr.const.rogue_const import SimUniverseType, SimUniversePath
 from sr.operation.unit.rogue.choose_sim_uni_diff import ChooseSimUniDiff
 from sr.operation.unit.rogue.choose_sim_uni_num import ChooseSimUniNum
 from sr.operation.unit.rogue.choose_sim_uni_path import ChooseSimUniPath

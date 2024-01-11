@@ -221,6 +221,7 @@ class StatusCombineOperation2(Operation):
 
     def __init__(self, ctx: Context, op_name: str,
                  timeout_seconds: float = -1,
+                 nodes: Optional[List[StatusCombineOperationNode]] = None,
                  edges: Optional[List[StatusCombineOperationEdge2]] = None,
                  specified_start_node: Optional[StatusCombineOperationNode] = None):
         Operation.__init__(self, ctx,
@@ -252,6 +253,15 @@ class StatusCombineOperation2(Operation):
         if edges is not None:
             for edge in edges:
                 self._register_edge(edge)
+        elif nodes is not None:
+            if len(nodes) == 1:
+                self._specified_start_node = nodes[0]
+            else:
+                last_node = None
+                for node in nodes:
+                    if last_node is not None:
+                        self._register_edge(StatusCombineOperationEdge2(last_node, node))
+                    last_node = node
 
     def _register_edge(self, edge: StatusCombineOperationEdge2):
         """

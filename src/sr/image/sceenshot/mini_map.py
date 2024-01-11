@@ -201,7 +201,7 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
     sp_mask = np.zeros_like(mm_info.circle_mask)
     sp_match_result = {}
 
-    if sp_types is not None and len(sp_types) == 0:  # 特征点为空 不匹配了
+    if sp_types is None or len(sp_types) == 0:  # 没有特殊点
         return sp_mask, sp_match_result
 
     source = mm_info.origin

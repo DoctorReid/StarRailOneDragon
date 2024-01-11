@@ -168,13 +168,14 @@ class Application(Operation):
 class Application2(StatusCombineOperation2):
 
     def __init__(self, ctx: Context, op_name: str = None,
+                 nodes: Optional[List[StatusCombineOperationNode]] = None,
                  edges: Optional[List[StatusCombineOperationEdge2]] = None,
                  specified_start_node: Optional[StatusCombineOperationNode] = None,
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None):
         StatusCombineOperation2.__init__(self, ctx, op_name=op_name,
-                                         edges=edges, specified_start_node=specified_start_node)
+                                         nodes=nodes, edges=edges, specified_start_node=specified_start_node)
 
         self.run_record: Optional[AppRunRecord] = run_record
         """运行记录"""

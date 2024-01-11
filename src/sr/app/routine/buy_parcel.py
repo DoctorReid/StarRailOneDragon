@@ -68,7 +68,7 @@ class BuyXianzhouParcel(Application):
         ops = [
             Transport(self.ctx, map_const.P03_R02_SP02),
             MoveDirectly(self.ctx,
-                         lm_info=self.ctx.ih.get_large_map(map_const.P03_R02_SP02.region),
+                         lm_info=self.ctx.ih.get_large_map(map_const.P03_R02_SP02.start_region),
                          target=Point(390, 780),
                          start=map_const.P03_R02_SP02.tp_pos),
             Interact(self.ctx, '茂贞'),

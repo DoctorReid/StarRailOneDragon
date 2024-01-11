@@ -206,7 +206,8 @@ def cal_character_pos_by_original(im: ImageMatcher,
                                   lm_rect: Rect = None,
                                   running: bool = False,
                                   show: bool = False,
-                                  scale_list: List[float] = None) -> MatchResult:
+                                  scale_list: List[float] = None,
+                                  match_threshold: float = 0.3) -> MatchResult:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用小地图原图 - 需要到这一步 说明背景比较杂乱 因此道路掩码只使用中心点包含的连通块
@@ -217,6 +218,7 @@ def cal_character_pos_by_original(im: ImageMatcher,
     :param running: 任务是否在跑动
     :param show: 是否显示调试结果
     :param scale_list: 缩放比例
+    :param match_threshold: 模板匹配的阈值
     :return:
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
@@ -230,9 +232,11 @@ def cal_character_pos_by_original(im: ImageMatcher,
     dilate_road_mask = cv2_utils.dilate(road_mask, 3)
     template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
 
+    if scale_list is None:
+        scale_list = mini_map.get_mini_map_scale_list(running)
+
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
-                                                                   mini_map.get_mini_map_scale_list(running),
-                                                                   0.3)
+                                                                   scale_list, match_threshold)
 
     if show:
         scale = target.template_scale if target is not None else 1
@@ -453,3 +457,104 @@ def template_match_with_scale(im: ImageMatcher,
         result.max.template_scale = scale
 
     return result.max
+
+
+def cal_character_pos_for_sim_uni(
+        im: ImageMatcher,
+        lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+        lm_rect: Rect = None, show: bool = False,
+        running: bool = False) -> Optional[Point]:
+    """
+    根据小地图 匹配大地图 判断当前的坐标。模拟宇宙中使用
+    :param im: 图片匹配器
+    :param lm_info: 大地图信息
+    :param mm_info: 小地图信息
+    :param lm_rect: 大地图特定区域
+    :param show: 是否显示结果
+    :param running: 角色是否在移动 移动时候小地图会缩小
+    :return:
+    """
+    # 匹配结果 是缩放后的 offset 和宽高
+    result: Optional[MatchResult] = None
+
+    # 模拟宇宙中不需要考虑特殊点
+
+
+    # 使用模板匹配 道路掩码误。报率高 仅在限定范围时可使用
+    if result is None and lm_rect is not None:
+        result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+
+    if result is None:  # 使用模板匹配 用原图的
+        result = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+
+    if result is None:
+        return None
+
+    offset_x = result.x
+    offset_y = result.y
+    scale = result.template_scale
+    # 小地图缩放后中心点在大地图的位置 即人物坐标
+    center_x = offset_x + result.w // 2
+    center_y = offset_y + result.h // 2
+
+    if show:
+        cv2_utils.show_overlap(lm_info.origin, mm_info.origin, offset_x, offset_y, template_scale=scale, win_name='overlap')
+
+    log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f 置信度 %.2f', center_x, center_y, scale, result.confidence)
+
+    return Point(center_x, center_y)
+
+
+@record_performance
+def cal_character_pos_by_gray_2(im: ImageMatcher,
+                                lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+                                lm_rect: Rect = None,
+                                running: bool = False,
+                                show: bool = False,
+                                scale_list: List[float] = None,
+                                match_threshold: float = 0.3) -> MatchResult:
+    """
+    使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
+    使用灰度图进行匹配 使用v4的道路掩码 适合在单层地图中使用
+    :param im: 图片匹配器
+    :param lm_info: 大地图信息
+    :param mm_info: 小地图信息
+    :param lm_rect: 圈定的大地图区域 传入后更准确
+    :param running: 任务是否在跑动
+    :param show: 是否显示调试结果
+    :param scale_list: 缩放比例
+    :param match_threshold: 模板匹配的阈值
+    :return:
+    """
+    source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
+    source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
+    # 使用道路掩码
+    mm = mm_info.origin_del_radio
+    template = cv2.cvtColor(mm_info.origin_del_radio, cv2.COLOR_BGR2GRAY)
+    road_mask = mini_map.get_road_mask_v4(mm,
+                                          sp_mask=mm_info.sp_mask,
+                                          arrow_mask=mm_info.arrow_mask,
+                                          center_mask=mm_info.center_mask
+                                          )
+    dilate_road_mask = cv2_utils.dilate(road_mask, 3)  # 把白色边缘包括进来
+    template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
+
+    if scale_list is None:
+        scale_list = mini_map.get_mini_map_scale_list(running)
+    target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask, scale_list, match_threshold)
+
+    if show:
+        scale = target.template_scale if target is not None else 1
+        template_usage = cv2_utils.scale_image(template, scale, copy=False)
+        template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
+        cv2_utils.show_image(mm, win_name='mini_map')
+        cv2_utils.show_image(source, win_name='template_match_source')
+        cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
+        cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
+
+    if target is not None:
+        offset_x = target.x + (lm_rect.x1 if lm_rect is not None else 0)
+        offset_y = target.y + (lm_rect.y1 if lm_rect is not None else 0)
+        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
+    else:
+        return None

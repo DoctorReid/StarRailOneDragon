@@ -17,7 +17,7 @@ class EnterAutoFight(Operation):
     exit_after_no_battle_time: ClassVar[int] = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
     ATTACK_DIRECTION_ARR: ClassVar[List] = ['w', 's', 'a', 'd']
 
-    STATUS_ENEMY_NOT_FOUND: ClassVar[str] = 'enemy_not_found'
+    STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
 
     def __init__(self, ctx: Context):
         """

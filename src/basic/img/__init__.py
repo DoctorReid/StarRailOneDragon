@@ -1,18 +1,18 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from basic import Point
 
 
 class MatchResult:
 
-    def __init__(self, c, x, y, w, h, template_scale: float = 1, data: str = None):
+    def __init__(self, c, x, y, w, h, template_scale: float = 1, data: Any = None):
         self.confidence = c
         self.x = int(x)
         self.y = int(y)
         self.w = int(w)
         self.h = int(h)
         self.template_scale = template_scale
-        self.data: str = data
+        self.data: Any = data
 
     def __str__(self):
         return '(%.2f, %d, %d, %d, %d, %.2f)' % (self.confidence, self.x, self.y, self.w, self.h, self.template_scale)
