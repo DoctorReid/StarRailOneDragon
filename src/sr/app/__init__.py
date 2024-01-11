@@ -209,7 +209,8 @@ class Application2(StatusCombineOperation2):
 
     def _init_before_execute(self):
         StatusCombineOperation2._init_before_execute(self)
-        self.run_record.update_status(AppRunRecord.STATUS_RUNNING)
+        if self.run_record is not None:
+            self.run_record.update_status(AppRunRecord.STATUS_RUNNING)
 
     def execute(self) -> OperationResult:
         if not self._init_context():

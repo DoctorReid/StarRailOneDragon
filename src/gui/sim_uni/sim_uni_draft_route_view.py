@@ -4,6 +4,7 @@ from typing import Optional, List
 import cv2
 import flet as ft
 import keyboard
+import yaml
 from cv2.typing import MatLike
 
 from basic import Point
@@ -130,10 +131,10 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
     def handle_after_show(self):
         self.keyboard_hook = keyboard.on_press(self._on_key_press)
-        screen = get_debug_image('1')
-        if screen is not None:
-            self.mini_map_image = mini_map.cut_mini_map(screen)
-            self._show_screenshot_mm()
+        # screen = get_debug_image('1')
+        # if screen is not None:
+        #     self.mini_map_image = mini_map.cut_mini_map(screen)
+        #     self._show_screenshot_mm()
 
     def handle_after_hide(self):
         keyboard.unhook(self.keyboard_hook)
@@ -155,6 +156,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         screen = self.sr_ctx.controller.screenshot()
         self.mini_map_image = mini_map.cut_mini_map(screen)
         self._show_screenshot_mm()
+        self._update_screenshot_row()
 
     def _show_screenshot_mm(self):
         """
@@ -182,8 +184,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         for _, region_list in map_const.PLANET_2_REGION.items():
             for region in region_list:
-                if region.planet != map_const.P03:
-                    continue
+                # if region.planet != map_const.P03:
+                #     continue
                 log.info('匹配中 %s', region.display_name)
                 lm_info = self.sr_ctx.ih.get_large_map(region)
                 pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(self.sr_ctx.im, lm_info, mm_info,
@@ -194,8 +196,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
                 pos.data = region
                 pos_list.append(pos)
-                if len(pos_list) > 1:  # TODO 测试节省时间
-                    break
+                # if len(pos_list) > 1:  # TODO 测试节省时间
+                #     break
 
         self.start_pos_list = sorted(pos_list, key=lambda x: x.confidence, reverse=True)
         self.chosen_start_pos_idx = 0
@@ -269,7 +271,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.next_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx >= len(self.start_pos_list))
         self.next_start_btn.update()
 
-        self.match_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.mini_map_image is None)
+        self.match_start_btn.disabled = start_chosen or not screenshot_mm or (self.mini_map_image is None)
         self.match_start_btn.update()
 
         self.set_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or not (0 <= self.chosen_start_pos_idx < len(self.start_pos_list))
@@ -345,7 +347,11 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        pass
+        if self.chosen_route is None:
+            return
+        data = yaml.safe_load(self.route_text.value)
+        self.chosen_route.load_from_route_yml(data)
+        self._on_op_list_changed()
 
     def _update_route_text_display(self):
         """
@@ -381,7 +387,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         """
         if len(self.chosen_route.op_list) == 0:
             return
-        self.chosen_route.op_list.pop(0)
+        self.chosen_route.op_list.pop(len(self.chosen_route.op_list) - 1)
         self._on_op_list_changed()
 
     def _clear_op(self, e):

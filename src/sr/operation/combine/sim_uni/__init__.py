@@ -46,7 +46,7 @@ class SimUniRoute:
             self.idx = idx
             self._read_route()
 
-    def _load_from_route_yml(self, data):
+    def load_from_route_yml(self, data):
         planet = get_planet_by_cn(data['planet'])
         self.region = get_region_by_cn(data['region'], planet, data['floor'])
         self.start_pos = Point(data['start_pos'][0], data['start_pos'][1])
@@ -72,7 +72,7 @@ class SimUniRoute:
         self.mm = cv2_utils.read_image(os.path.join(dir_path, 'mm.png'))
         with open(os.path.join(dir_path, 'route.yml'), 'r', encoding='utf-8') as file:
             route = yaml.safe_load(file)
-            self._load_from_route_yml(route)
+            self.load_from_route_yml(route)
 
     @property
     def uid(self) -> str:
