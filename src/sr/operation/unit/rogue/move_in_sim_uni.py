@@ -1,5 +1,5 @@
 import time
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Callable
 
 from cv2.typing import MatLike
 
@@ -9,6 +9,7 @@ from sr import cal_pos
 from sr.const import game_config_const
 from sr.context import Context
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, large_map, mini_map
+from sr.operation import OperationResult
 from sr.operation.unit.move_directly import MoveDirectly
 
 
@@ -24,11 +25,14 @@ class MoveDirectlyInSimUni(MoveDirectly):
     def __init__(self, ctx: Context, lm_info: LargeMapInfo,
                  start: Point, target: Point,
                  stop_afterwards: bool = True,
-                 no_run: bool = False):
+                 no_run: bool = False,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None
+                 ):
         super().__init__(ctx, lm_info,
                          start, target,
                          stop_afterwards=stop_afterwards,
-                         no_run=no_run)
+                         no_run=no_run,
+                         op_callback=op_callback)
 
     def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
         """

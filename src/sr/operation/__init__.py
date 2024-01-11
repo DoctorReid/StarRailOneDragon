@@ -370,11 +370,12 @@ class OperationFail(Operation):
     """
     一个直接返回失败的指令 用于组合指令
     """
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, status: str):
         super().__init__(ctx, op_name=gt('失败结束', 'ui'))
+        self.status: str = status
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
-        return Operation.round_fail()
+        return Operation.round_fail(status=self.status)
 
 
 class StateOperationNode:

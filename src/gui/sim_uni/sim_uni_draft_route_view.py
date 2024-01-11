@@ -16,7 +16,8 @@ from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr import cal_pos
-from sr.app.rogue import SimUniRouteOperation, SimUniRoute, get_sim_uni_route_list, clear_sim_uni_route_cache
+from sr.app.rogue import get_sim_uni_route_list, clear_sim_uni_route_cache
+from sr.operation.combine.sim_uni import SimUniRouteOperation, SimUniRoute
 from sr.app.rogue.test_sim_uni_route_app import TestSimUniRouteApp
 from sr.const import map_const, operation_const
 from sr.context import Context

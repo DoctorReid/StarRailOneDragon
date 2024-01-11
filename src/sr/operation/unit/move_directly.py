@@ -1,5 +1,5 @@
 import time
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Callable
 
 from cv2.typing import MatLike
 
@@ -13,7 +13,7 @@ from sr.const.map_const import Region
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 
 
@@ -112,8 +112,9 @@ class MoveDirectly(Operation):
                  target: Point,
                  next_lm_info: Optional[LargeMapInfo] = None,
                  stop_afterwards: bool = True,
-                 no_run: bool = False):
-        super().__init__(ctx, op_name=gt('移动 %s -> %s') % (start, target))
+                 no_run: bool = False,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
+        super().__init__(ctx, op_name=gt('移动 %s -> %s') % (start, target), op_callback=op_callback)
         self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
         self.region: Region = lm_info.region
@@ -303,7 +304,7 @@ class MoveDirectly(Operation):
         if cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
-            return Operation.round_success()
+            return Operation.round_success(data=self.target)
         return None
 
     def move(self, next_pos: Point, now_time: float, mm_info: MiniMapInfo):
