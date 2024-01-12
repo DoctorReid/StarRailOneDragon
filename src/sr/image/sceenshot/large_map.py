@@ -450,3 +450,13 @@ def get_road_edge_mask(road_mask: MatLike):
     cv2.drawContours(edge_mask, contours, -1, 255, 1)
 
     return edge_mask
+
+
+def remove_special_point(origin: MatLike, region: Region) -> MatLike:
+    """
+    去除地图上的特殊点 仅去除当层的
+    去除后的地图 会在模拟宇宙中使用
+    :param origin:
+    :return:
+    """
+    pass

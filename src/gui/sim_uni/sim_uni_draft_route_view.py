@@ -45,6 +45,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             options=[
                 ft.dropdown.Option(key=str(num), text=gt('第%s宇宙' % cn, 'ui')) for num, cn in UNI_NUM_CN.items()
             ],
+            value='8',  # TODO 测试用默认选项
             on_change=self._on_uni_changed
         )
         self.level_dropdown = ft.Dropdown(
@@ -131,10 +132,10 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
     def handle_after_show(self):
         self.keyboard_hook = keyboard.on_press(self._on_key_press)
-        # screen = get_debug_image('1')
-        # if screen is not None:
-        #     self.mini_map_image = mini_map.cut_mini_map(screen)
-        #     self._show_screenshot_mm()
+        screen = get_debug_image('5')
+        if screen is not None:
+            self.mini_map_image = mini_map.cut_mini_map(screen)
+            self._show_screenshot_mm()
 
     def handle_after_hide(self):
         keyboard.unhook(self.keyboard_hook)
@@ -210,7 +211,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         :return:
         """
         lm_info: Optional[LargeMapInfo] = None
-        if self.chosen_route is None:
+        if self.chosen_route is None:  # 新建时候也会有一个route
             pass
         elif self.chosen_route.region is None:  # 还在匹配开始点
             if 0 <= self.chosen_start_pos_idx < len(self.start_pos_list):
@@ -268,7 +269,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.previous_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx <= 0)
         self.previous_start_btn.update()
 
-        self.next_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx >= len(self.start_pos_list))
+        self.next_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx >= len(self.start_pos_list) - 1)
         self.next_start_btn.update()
 
         self.match_start_btn.disabled = start_chosen or not screenshot_mm or (self.mini_map_image is None)

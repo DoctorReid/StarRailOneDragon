@@ -479,13 +479,12 @@ def cal_character_pos_for_sim_uni(
 
     # 模拟宇宙中不需要考虑特殊点
 
+    if result is None:  # 使用模板匹配 用原图的
+        result = cal_character_pos_by_gray_2(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
 
     # 使用模板匹配 道路掩码误。报率高 仅在限定范围时可使用
     if result is None and lm_rect is not None:
         result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-
-    if result is None:  # 使用模板匹配 用原图的
-        result = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
 
     if result is None:
         return None
@@ -536,7 +535,7 @@ def cal_character_pos_by_gray_2(im: ImageMatcher,
                                           arrow_mask=mm_info.arrow_mask,
                                           center_mask=mm_info.center_mask
                                           )
-    dilate_road_mask = cv2_utils.dilate(road_mask, 3)  # 把白色边缘包括进来
+    dilate_road_mask = cv2_utils.dilate(road_mask, 5)  # 把白色边缘包括进来
     template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
 
     if scale_list is None:
