@@ -191,6 +191,8 @@ class Context:
             if not try_open_game():
                 return False
 
+            self.first_transport = True  # 重新打开游戏的话 重置一下
+
             for i in range(30):
                 if self.running == 0:
                     break
