@@ -29,7 +29,14 @@ class SimUniChooseCurio(StateOperation):
 
     CONFIRM_BTN: ClassVar[Rect] = Rect(1500, 950, 1840, 1000)  # 确认选择
 
-    def __init__(self, ctx: Context, priority: Optional[SimUniCurioPriority] = None):
+    def __init__(self, ctx: Context, priority: Optional[SimUniCurioPriority] = None,
+                 skip_first_screen_check: bool = True):
+        """
+        模拟宇宙中 选择奇物
+        :param ctx:
+        :param priority: 奇物优先级
+        :param skip_first_screen_check: 是否跳过第一次画面状态检查
+        """
         edges = []
 
         choose_curio = StateOperationNode('选择奇物', self._choose_curio)
@@ -49,11 +56,20 @@ class SimUniChooseCurio(StateOperation):
                          )
 
         self.priority: Optional[SimUniCurioPriority] = priority
+        self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
+        self.first_screen_check: bool = True  # 是否第一次检查画面状态
+
+    def _init_before_execute(self):
+        super()._init_before_execute()
+        self.first_screen_check = True
 
     def _choose_curio(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        if not screen_state.in_sim_uni_choose_curio(screen, self.ctx.ocr):
-            return Operation.round_retry('未在模拟宇宙-选择奇物页面')
+
+        if not self.first_screen_check or not self.skip_first_screen_check:
+            self.first_screen_check = False
+            if not screen_state.in_sim_uni_choose_curio(screen, self.ctx.ocr):
+                return Operation.round_retry('未在模拟宇宙-选择奇物页面')
 
         curio_pos_list: List[MatchResult] = self._get_curio_pos(screen)
         if len(curio_pos_list) == 0:
@@ -143,10 +159,13 @@ class SimUniChooseCurio(StateOperation):
                 return '事件'
         elif screen_state.is_normal_in_world(screen, self.ctx.im):
             return '大世界'
+
+        # 未知情况都先点击一下
+        self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
         return None
 
     def _click_empty_to_continue(self) -> OperationOneRoundResult:
-        click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CONTINUE.value.center)
+        click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
 
         if click:
             return Operation.round_success()

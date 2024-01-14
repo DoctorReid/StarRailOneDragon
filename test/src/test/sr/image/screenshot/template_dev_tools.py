@@ -499,5 +499,5 @@ if __name__ == '__main__':
     # init_character_avatar_from_alas()
     # init_character_combat_type('lightning')
     # init_inventory_category('valuables')
-    # init_sim_uni_move_target('level_type_boss')
-    init_sim_uni_event_opt_icon('event_option_exit_icon')
+    init_sim_uni_move_target('level_type_encounter')
+    # init_sim_uni_event_opt_icon('event_option_exit_icon')

@@ -113,17 +113,22 @@ class MoveToNextLevel(Operation):
         self.level_priority: Optional[SimUniNextLevelPriority] = next_level_priority
         self.is_moving: bool = False  # 是否正在移动
         self.start_move_time: float = 0  # 开始移动的时间
+        self.interacted: bool = False  # 是否已经交互了
 
     def _init_before_execute(self):
         super()._init_before_execute()
         self.is_moving = False
+        self.interacted: bool = False
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        if not screen_state.is_normal_in_world(screen, self.ctx.im):
-            # 兜底 - 如果已经不在大世界画面了 就认为成功了
-            return Operation.round_success()
+        if self.interacted:
+            if not screen_state.is_normal_in_world(screen, self.ctx.im):
+                # 兜底 - 如果已经不在大世界画面了 就认为成功了
+                return Operation.round_success()
+            else:
+                self.interacted = False
 
         interact = self._try_interact(screen)
         if interact is not None:
@@ -234,6 +239,7 @@ class MoveToNextLevel(Operation):
             log.info('尝试交互')
             self.ctx.controller.stop_moving_forward()
             self.ctx.controller.interact(interact_type=GameController.MOVE_INTERACT_TYPE)
+            self.interacted = True
             return Operation.round_wait(wait=0.25)
         else:
             return None

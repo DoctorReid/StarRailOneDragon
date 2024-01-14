@@ -2,7 +2,8 @@ from typing import Optional
 
 from basic.i18_utils import gt
 from sr.app import Application2
-from sr.app.sim_uni.run_sim_uni_level import RunSimUniLevel
+from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
+from sr.app.sim_uni.sim_uni_run_level import SimUniRunLevel
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.context import Context
 from sr.image.sceenshot import mini_map
@@ -29,8 +30,8 @@ class TestSimUniRouteApp(Application2):
             ctx, op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('测试路线', 'ui')),
             nodes=[
                 StatusCombineOperationNode('判断重进', op_func=self._check_route),
-                StatusCombineOperationNode('执行路线',
-                                           RunSimUniLevel(ctx, uni_num, 0,
+                StatusCombineOperationNode('挑战',
+                                           SimUniRunWorld(ctx, uni_num,
                                                           bless_priority=bless_priority,
                                                           next_level_priority=next_level_priority)),
             ])

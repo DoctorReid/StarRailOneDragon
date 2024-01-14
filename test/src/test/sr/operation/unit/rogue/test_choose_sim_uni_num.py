@@ -13,7 +13,7 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.init_ocr_matcher()
 
-        self.op = ChooseSimUniNum(ctx, 1, end_going=False)
+        self.op = ChooseSimUniNum(ctx, 1)
 
     def test_get_current_num(self):
         screen = self.get_test_image('1')

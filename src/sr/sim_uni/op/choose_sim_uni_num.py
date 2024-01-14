@@ -1,4 +1,4 @@
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, Callable
 
 from cv2.typing import MatLike
 
@@ -7,7 +7,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN
 
 
@@ -20,16 +20,22 @@ class ChooseSimUniNum(Operation):
     PREVIOUS_BTN: ClassVar[Point] = Point(1216, 198)  # 换到上一个宇宙
     NEXT_BTN: ClassVar[Point] = Point(1173, 929)  # 换到下一个宇宙
 
-    def __init__(self, ctx: Context, num: int):
+    STATUS_RESTART: ClassVar[str] = '重新开始'
+    STATUS_CONTINUE: ClassVar[str] = '继续'
+
+    def __init__(self, ctx: Context, num: int,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         需要在模拟宇宙入口页面中使用 且先选择了普通模拟宇宙
         选择对应的宇宙 如果有进行中的宇宙 会先继续完成
+        返回结果中的 data 为实际挑战的第几宇宙
         :param ctx:
         :param num: 第几宇宙 支持 1~8
         """
         super().__init__(ctx,
                          try_times=5,
-                         op_name='%s %s %d' % (gt('模拟宇宙', 'ui'), gt('选择宇宙', 'ui'), num))
+                         op_name='%s %s %d' % (gt('模拟宇宙', 'ui'), gt('选择宇宙', 'ui'), num),
+                         op_callback=op_callback)
 
         self.num: int = num
 
@@ -45,11 +51,11 @@ class ChooseSimUniNum(Operation):
             return Operation.round_retry('未识别到模拟宇宙数字', wait=1)
         elif current_num == self.num:
             self.ctx.controller.click(ChooseSimUniNum.CURRENT_BTN)
-            return Operation.round_success(wait=2, data=self.num)
+            return Operation.round_success(status=ChooseSimUniNum.STATUS_RESTART, wait=2, data=self.num)
         else:
             if self._is_going(screen):
                 self.ctx.controller.click(ChooseSimUniNum.CURRENT_BTN)
-                return Operation.round_success(wait=2, data=current_num)
+                return Operation.round_success(status=ChooseSimUniNum.STATUS_CONTINUE, wait=2, data=current_num)
 
             if current_num > self.num:
                 self.ctx.controller.click(ChooseSimUniNum.PREVIOUS_BTN)

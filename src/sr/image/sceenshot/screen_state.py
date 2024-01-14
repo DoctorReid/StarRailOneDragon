@@ -104,8 +104,9 @@ class TargetRect(Enum):
     SIM_UNI_UI_TITLE = Rect(100, 15, 350, 100)
     """模拟宇宙 - 左上角界面名称的位置"""
 
-    EMPTY_TO_CONTINUE = Rect(775, 836, 1166, 1066)
+    EMPTY_TO_CLOSE = Rect(876, 908, 1048, 975)
     """点击空白处关闭"""
+
 
 def get_screen_state(screen: MatLike, im: ImageMatcher, ocr: OcrMatcher) -> ScreenState:
     if is_normal_in_world(screen, im):
@@ -208,7 +209,7 @@ def is_empty_to_close(screen: MatLike, ocr: OcrMatcher) -> bool:
     :param ocr:
     :return:
     """
-    part, _ = cv2_utils.crop_image(screen, TargetRect.EMPTY_TO_CONTINUE.value)
+    part, _ = cv2_utils.crop_image(screen, TargetRect.EMPTY_TO_CLOSE.value)
     ocr_result = ocr.ocr_for_single_line(part)
     # cv2_utils.show_image(part, wait=0)
 

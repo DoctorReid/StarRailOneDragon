@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Callable, ClassVar
 
 from basic.i18_utils import gt
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
@@ -12,35 +12,44 @@ from sr.operation.unit.wait import WaitInWorld
 from sr.sim_uni.op.battle_in_sim_uni import SimUniEnterFight
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel, MoveToHertaInteract, MoveToMiniMapInteractIcon, \
     MoveToEventInteract
-from sr.sim_uni.op.run_sim_uni_route import RunSimUniRoute
+from sr.sim_uni.op.sim_uni_exit import SimUniExit
+from sr.sim_uni.op.sim_uni_run_route import SimUniRunRoute
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_next_level_confirm import SimUniNextLevelConfirm
+from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniNextLevelPriority, SimUniCurioPriority
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
-class RunSimUniLevel(StatusCombineOperation2):
+class SimUniRunLevel(StatusCombineOperation2):
 
-    def __init__(self, ctx: Context, world_num: int, level: int,
+    STATUS_FINAL_LEVEL: ClassVar[str] = '最后一关通关'
+
+    def __init__(self, ctx: Context, world_num: int,
                  bless_priority: Optional[SimUniBlessPriority] = None,
                  curio_priority: Optional[SimUniCurioPriority] = None,
-                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
+                 next_level_priority: Optional[SimUniNextLevelPriority] = None,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         模拟宇宙中 识别楼层类型并运行
         """
         op_name = '%s %s %s' % (
             gt('模拟宇宙', 'ui'),
             gt('第%s世界' % UNI_NUM_CN[world_num], 'ui'),
-            gt('第%d层' % level, 'ui')
+            gt('挑战楼层', 'ui')
         )
 
         edges: List[StatusCombineOperationEdge2] = []
 
-        wait_start = StatusCombineOperationNode('等待加载', WaitInWorld(ctx))
+        wait_start = StatusCombineOperationNode('等待加载',
+                                                SimUniWaitLevelStart(ctx,
+                                                                     bless_priority=bless_priority,
+                                                                     curio_priority=curio_priority)
+                                                )
         check_level_type = StatusCombineOperationNode('识别楼层类型', SimUniCheckLevelType(ctx, op_callback=self._on_level_type_checked))
-        edges.append(StatusCombineOperationEdge2(wait_start, check_level_type))
+        edges.append(StatusCombineOperationEdge2(wait_start, check_level_type, status=SimUniWaitLevelStart.STATUS_START))
 
         # 进入下一层
         enter_next = StatusCombineOperationNode('进入下一层', MoveToNextLevel(ctx, next_level_priority))
@@ -54,7 +63,7 @@ class RunSimUniLevel(StatusCombineOperation2):
 
         edges.append(StatusCombineOperationEdge2(combat_route, enter_next))
 
-        # 精英、首领
+        # 精英
         elite_route = StatusCombineOperationNode('区域-精英', MoveToEnemy(ctx))
         edges.append(StatusCombineOperationEdge2(check_level_type, elite_route,
                                                  status=SimUniLevelTypeEnum.ELITE.value.type_id))
@@ -69,10 +78,31 @@ class RunSimUniLevel(StatusCombineOperation2):
                                                                       bless_priority=bless_priority,
                                                                       curio_priority=curio_priority))
         edges.append(StatusCombineOperationEdge2(elite_start_fight, elite_fight_end))
-        edges.append(StatusCombineOperationEdge2(elite_route, elite_fight_end,
-                                                 success=False, status=MoveToEnemy.STATUS_ENEMY_NOT_FOUND))  # 也可能没敌人
 
         edges.append(StatusCombineOperationEdge2(elite_fight_end, enter_next))
+        edges.append(StatusCombineOperationEdge2(elite_route, enter_next,
+                                                 success=False, status=MoveToEnemy.STATUS_ENEMY_NOT_FOUND))  # 也可能没敌人
+
+        # 首领
+        boss_route = StatusCombineOperationNode('区域-首领', MoveToEnemy(ctx))
+        edges.append(StatusCombineOperationEdge2(check_level_type, boss_route,
+                                                 status=SimUniLevelTypeEnum.ELITE.value.type_id))
+        edges.append(StatusCombineOperationEdge2(check_level_type, boss_route,
+                                                 status=SimUniLevelTypeEnum.BOSS.value.type_id))
+
+        boss_start_fight = StatusCombineOperationNode('区域-首领-秘技', StartFightWithTechnique(ctx))
+        edges.append(StatusCombineOperationEdge2(boss_route, boss_start_fight))
+
+        boss_fight_end = StatusCombineOperationNode('区域-首领-战斗',
+                                                    SimUniEnterFight(ctx,
+                                                                     bless_priority=bless_priority,
+                                                                     curio_priority=curio_priority))
+        edges.append(StatusCombineOperationEdge2(boss_start_fight, boss_fight_end))
+
+        finished = StatusCombineOperationNode('区域-首领-通关', SimUniExit(ctx))
+        edges.append(StatusCombineOperationEdge2(boss_fight_end, finished))
+        edges.append(StatusCombineOperationEdge2(boss_route, finished,
+                                                 success=False, status=MoveToEnemy.STATUS_ENEMY_NOT_FOUND))  # 也可能没敌人
 
         # 休整楼层
         respite_route = StatusCombineOperationNode('区域-休整', MoveForward(ctx, 1))
@@ -94,12 +124,14 @@ class RunSimUniLevel(StatusCombineOperation2):
         edges.append(StatusCombineOperationEdge2(respite_move_to_herta, enter_next,
                                                  success=False, status=MoveToMiniMapInteractIcon.STATUS_ICON_NOT_FOUND))
 
-        # 事件、交易
+        # 事件、交易、遭遇
         event_route = StatusCombineOperationNode('区域-事件', MoveToEventInteract(ctx))
         edges.append(StatusCombineOperationEdge2(check_level_type, event_route,
                                                  status=SimUniLevelTypeEnum.EVENT.value.type_id))
         edges.append(StatusCombineOperationEdge2(check_level_type, event_route,
                                                  status=SimUniLevelTypeEnum.TRANSACTION.value.type_id))
+        edges.append(StatusCombineOperationEdge2(check_level_type, event_route,
+                                                 status=SimUniLevelTypeEnum.ENCOUNTER.value.type_id))
 
         event_handle = StatusCombineOperationNode('区域-事件-选择',
                                                   SimUniEvent(ctx,
@@ -111,7 +143,7 @@ class RunSimUniLevel(StatusCombineOperation2):
         edges.append(StatusCombineOperationEdge2(event_route, enter_next,
                                                  success=False, status=MoveToMiniMapInteractIcon.STATUS_ICON_NOT_FOUND))
 
-        super().__init__(ctx, op_name=op_name, edges=edges)
+        super().__init__(ctx, op_name=op_name, edges=edges, op_callback=op_callback)
 
         self.world_num: int = world_num
         self.level_type: Optional[SimUniLevelType] = None
@@ -144,7 +176,7 @@ class RunSimUniLevel(StatusCombineOperation2):
         if self.route is None:
             return OperationFail(self.ctx, status='匹配路线失败')
         else:
-            return RunSimUniRoute(self.ctx, self.route, self.bless_priority)
+            return SimUniRunRoute(self.ctx, self.route, self.bless_priority)
 
     def _next_confirm(self) -> Operation:
         if self.level_type == SimUniLevelTypeEnum.ELITE.value or self.level_type == SimUniLevelTypeEnum.BOSS.value:

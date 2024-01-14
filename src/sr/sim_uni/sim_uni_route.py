@@ -88,7 +88,7 @@ class SimUniRoute:
         展示名称
         :return:
         """
-        return '%s %s %02d %s' % (
+        return '%s %s %03d %s' % (
             gt('第%s宇宙' % UNI_NUM_CN[self.uni_num], 'ui'),
             gt(self.level_type.type_name, 'ui'),
             self.idx,

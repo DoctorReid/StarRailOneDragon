@@ -30,7 +30,7 @@ class TestSimUniEvent(unittest.TestCase, test.SrTestBase):
 
         screen = self.get_test_image('herta_enhance')
         opt_list = op._get_opt_list(screen)
-        self.assertEqual(2, len(opt_list))
+        self.assertEqual(1, len(opt_list))  # 暂时没有强化
 
     def test_get_screen_state(self):
         ctx = get_context()

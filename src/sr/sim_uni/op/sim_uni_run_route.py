@@ -7,16 +7,16 @@ from sr.context import Context
 from sr.operation import Operation, \
     OperationResult, OperationFail, OperationSuccess
 from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationNode, StatusCombineOperationEdge2
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority
 from sr.sim_uni.op.battle_in_sim_uni import SimUniEnterFight
-from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
-from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni
+from sr.sim_uni.sim_uni_priority import SimUniBlessPriority
+from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 
-class RunSimUniRoute(StatusCombineOperation2):
+class SimUniRunRoute(StatusCombineOperation2):
 
-    def __init__(self, ctx: Context, route: SimUniRoute, bless_priority: SimUniBlessPriority):
+    def __init__(self, ctx: Context, route: SimUniRoute,
+                 bless_priority: Optional[SimUniBlessPriority] = None):
         """
         按照特定路线执行
         """

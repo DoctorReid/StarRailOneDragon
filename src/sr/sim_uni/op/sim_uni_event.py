@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 from basic import Rect, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, StateOperationEdge
@@ -124,9 +125,8 @@ class SimUniEvent(StateOperation):
         :return:
         """
         part, _ = cv2_utils.crop_image(screen, SimUniEvent.OPT_RECT)
-        match_result_list = self.ctx.im.match_template(
-            part, 'event_option_icon', template_sub_dir='sim_uni',
-            only_best=False)
+        match_result_list = self.ctx.im.match_template(part, 'event_option_icon', template_sub_dir='sim_uni',
+                                                       threshold=0.7, only_best=False)
 
         opt_list = []
         for mr in match_result_list:
@@ -143,7 +143,9 @@ class SimUniEvent(StateOperation):
             # confirm_part, _ = cv2_utils.crop_image(screen, confirm_rect)
             # cv2_utils.show_image(confirm_part, wait=0)
 
-            opt_list.append(SimUniEventOption(title, title_rect, confirm_rect))
+            opt = SimUniEventOption(title, title_rect, confirm_rect)
+            log.info('识别选项 %s', opt.title)
+            opt_list.append(opt)
 
         return opt_list
 
@@ -162,7 +164,8 @@ class SimUniEvent(StateOperation):
         ]
 
         for template_id in template_id_list:
-            match_result_list = self.ctx.im.match_template(part, template_id, template_sub_dir='sim_uni', only_best=False)
+            match_result_list = self.ctx.im.match_template(part, template_id, template_sub_dir='sim_uni',
+                                                           threshold=0.7, only_best=False)
 
             for mr in match_result_list:
                 title_lt = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(50, 0)
@@ -172,7 +175,9 @@ class SimUniEvent(StateOperation):
                 title_part, _ = cv2_utils.crop_image(screen, title_rect)
                 title = self.ctx.ocr.ocr_for_single_line(title_part)
 
-                opt_list.append(SimUniEventOption(title, title_rect))
+                opt = SimUniEventOption(title, title_rect)
+                log.info('识别选项 %s', opt.title)
+                opt_list.append(opt)
 
         return opt_list
 
@@ -219,6 +224,7 @@ class SimUniEvent(StateOperation):
             return Operation.round_success(state)
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:
+        # TODO 如何判断进入战斗了
         if screen_state.is_empty_to_close(screen, self.ctx.ocr):
             return '点击空白处关闭'
         elif screen_state.in_sim_uni_secondary_ui(screen, self.ctx.ocr):
@@ -230,6 +236,9 @@ class SimUniEvent(StateOperation):
                 return '事件'
         elif screen_state.is_normal_in_world(screen, self.ctx.im):
             return '大世界'
+
+        # 未知情况都先点击一下
+        self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
         return None
 
     def _choose_bless(self) -> OperationOneRoundResult:
@@ -251,7 +260,7 @@ class SimUniEvent(StateOperation):
             return Operation.round_fail('选择奇物失败')
 
     def _click_empty_to_continue(self) -> OperationOneRoundResult:
-        click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CONTINUE.value.center)
+        click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
 
         if click:
             return Operation.round_success()

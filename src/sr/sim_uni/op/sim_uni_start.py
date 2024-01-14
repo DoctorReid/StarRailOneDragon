@@ -2,16 +2,17 @@ from typing import ClassVar, List
 
 from cv2.typing import MatLike
 
-from basic import Rect
+from basic import Rect, str_utils
 from basic.i18_utils import gt
+from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 
 
-class StartSimUni(StateOperation):
+class SimUniStart(StateOperation):
 
-    STATUS_RESTART: ClassVar[str] = '开始'
+    STATUS_RESTART: ClassVar[str] = '重新开始'
     STATUS_CONTINUE: ClassVar[str] = '继续'
 
     RESTART_BTN: ClassVar[Rect] = Rect(1418, 970, 1656, 997)  # 下载初始角色
@@ -29,7 +30,7 @@ class StartSimUni(StateOperation):
 
         start = StateOperationNode('开始', self._restart_or_continue)
         confirm = StateOperationNode('启动', self._confirm_start)
-        edges.append(StateOperationEdge(start, confirm, status=StartSimUni.STATUS_RESTART))
+        edges.append(StateOperationEdge(start, confirm, status=SimUniStart.STATUS_RESTART))
 
         super().__init__(ctx,
                          try_times=5,
@@ -43,22 +44,24 @@ class StartSimUni(StateOperation):
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.SIM_TYPE_NORMAL.value):
             return Operation.round_retry('未在模拟宇宙页面', wait=1)
 
-        click = self.ocr_and_click_one_line('重新开始', StartSimUni.RESTART_BTN, screen=screen)
+        click = self.ocr_and_click_one_line('重新开始', SimUniStart.RESTART_BTN, screen=screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status=StartSimUni.STATUS_RESTART, wait=2)
+            return Operation.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
 
-        click = self.ocr_and_click_one_line('继续', StartSimUni.CONTINUE_BTN, screen=screen)
+        click = self.ocr_and_click_one_line('继续', SimUniStart.CONTINUE_BTN, screen=screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status=StartSimUni.STATUS_CONTINUE, wait=2)
+            return Operation.round_success(status=SimUniStart.STATUS_CONTINUE, wait=2)
 
         return Operation.round_retry('点击开始失败', wait=1)
 
     def _confirm_start(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
 
-        click = self.ocr_and_click_one_line('启动模拟宇宙', StartSimUni.CONFIRM_BTN, screen=screen)
+        click = self.ocr_and_click_one_line('启动模拟宇宙', SimUniStart.CONFIRM_BTN, screen=screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status=StartSimUni.STATUS_RESTART, wait=2)
+            return Operation.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
+        else:
+            return Operation.round_retry('点击启动模拟宇宙失败')

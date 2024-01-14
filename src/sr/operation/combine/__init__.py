@@ -223,11 +223,13 @@ class StatusCombineOperation2(Operation):
                  timeout_seconds: float = -1,
                  nodes: Optional[List[StatusCombineOperationNode]] = None,
                  edges: Optional[List[StatusCombineOperationEdge2]] = None,
-                 specified_start_node: Optional[StatusCombineOperationNode] = None):
+                 specified_start_node: Optional[StatusCombineOperationNode] = None,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
         Operation.__init__(self, ctx,
                            try_times=1,  # 组合指令运行 作为一个框架不应该有出错重试
                            op_name=op_name,
                            timeout_seconds=timeout_seconds,
+                           op_callback=op_callback
                            )
         self.edge_list: List[StatusCombineOperationEdge2] = []
         """边列表"""

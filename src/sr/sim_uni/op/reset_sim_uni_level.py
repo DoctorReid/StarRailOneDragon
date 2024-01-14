@@ -6,7 +6,7 @@ from sr.context import Context
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode
 from sr.operation.unit.interact import Interact
 from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
-from sr.sim_uni.op.start_sim_uni import StartSimUni
+from sr.sim_uni.op.sim_uni_start import SimUniStart
 from sr.operation.unit.wait import WaitInWorld
 
 
@@ -87,7 +87,7 @@ class ResetSimUniLevel(StateOperation):
         继续挑战
         :return:
         """
-        op = StartSimUni(self.ctx)
+        op = SimUniStart(self.ctx)
         op_result = op.execute()
         if op_result.success:
             return Operation.round_success()

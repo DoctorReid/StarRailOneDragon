@@ -39,6 +39,7 @@ class SimUniLevelType:
 class SimUniLevelTypeEnum(Enum):
 
     COMBAT = SimUniLevelType('combat', '战斗', True)
+    ENCOUNTER = SimUniLevelType('encounter', '遭遇', False)
     ELITE = SimUniLevelType('elite', '精英', False)
     BOSS = SimUniLevelType('boss', '首领', False)
     EVENT = SimUniLevelType('event', '事件', False)
@@ -54,6 +55,8 @@ def level_type_from_id(level_type_id: str) -> Optional[SimUniLevelType]:
 
 
 class SimUniPath(Enum):
+
+    KT: str = '开拓'
 
     PRESERVATION: str = '存护'
 
@@ -106,6 +109,12 @@ class SimUniBless:
 # https://bbs.mihoyo.com/sr/wiki/content/767/detail?bbs_presentation_style=no_header
 # 2024.01.13 1.6版本时更新 缺少黄金与机械部分
 class SimUniBlessEnum(Enum):
+
+    # 开拓
+    BLESS_00_000 = SimUniBless(SimUniPath.KT, '未知祝福', '', '')
+    BLESS_00_001 = SimUniBless(SimUniPath.KT, '破碎宇宙', '', '')
+    BLESS_00_002 = SimUniBless(SimUniPath.KT, '神奇宇宙', '', '')
+    BLESS_00_003 = SimUniBless(SimUniPath.KT, '祝福宇宙', '', '')
 
     # 存护
     BLESS_01_000 = SimUniBless(SimUniPath.PRESERVATION, '未知祝福', '', '')
