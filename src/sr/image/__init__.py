@@ -12,9 +12,9 @@ class TemplateImage:
 
     def __init__(self):
 
-        self.origin: MatLike = None  # 原图
-        self.gray: MatLike = None  # 灰度图
-        self.mask: MatLike = None  # 掩码
+        self.origin: Optional[MatLike] = None  # 原图
+        self.gray: Optional[MatLike] = None  # 灰度图
+        self.mask: Optional[MatLike] = None  # 掩码
         self.kps = None  # 特征点
         self.desc = None  # 描述符
 

@@ -259,7 +259,7 @@ class Operation:
         :param wait: 等待秒数
         :return:
         """
-        if wait is not None:
+        if wait is not None and wait > 0:
             time.sleep(wait)
         return OperationOneRoundResult(result=Operation.SUCCESS, status=status, data=data)
 
@@ -272,7 +272,7 @@ class Operation:
         :param wait: 等待秒数
         :return:
         """
-        if wait is not None:
+        if wait is not None and wait > 0:
             time.sleep(wait)
         return OperationOneRoundResult(result=Operation.WAIT, status=status, data=data)
 
@@ -285,7 +285,7 @@ class Operation:
         :param wait: 等待秒数
         :return:
         """
-        if wait is not None:
+        if wait is not None and wait > 0:
             time.sleep(wait)
         return OperationOneRoundResult(result=Operation.RETRY, status=status, data=data)
 
@@ -298,7 +298,7 @@ class Operation:
         :param wait: 等待秒数
         :return:
         """
-        if wait is not None:
+        if wait is not None and wait > 0:
             time.sleep(wait)
         return OperationOneRoundResult(result=Operation.FAIL, status=status, data=data)
 
@@ -370,9 +370,9 @@ class OperationFail(Operation):
     """
     一个直接返回失败的指令 用于组合指令
     """
-    def __init__(self, ctx: Context, status: str):
+    def __init__(self, ctx: Context, status: Optional[str] = None):
         super().__init__(ctx, op_name=gt('失败结束', 'ui'))
-        self.status: str = status
+        self.status: Optional[str] = status
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
         return Operation.round_fail(status=self.status)

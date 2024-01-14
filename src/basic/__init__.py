@@ -55,3 +55,11 @@ class Rect:
     @property
     def right_bottom(self) -> Point:
         return Point(self.x2, self.y2)
+
+    @property
+    def width(self) -> int:
+        return self.x2 - self.x1
+
+    @property
+    def height(self) -> int:
+        return self.y2 - self.y1

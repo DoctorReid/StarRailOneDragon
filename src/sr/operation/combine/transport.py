@@ -11,7 +11,7 @@ from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.choose_transport_point import ChooseTransportPoint
 from sr.operation.unit.open_map import OpenMap
 from sr.operation.unit.scale_large_map import ScaleLargeMap
-from sr.operation.unit.wait_in_world import WaitInWorld
+from sr.operation.unit.wait import WaitInWorld
 
 
 class Transport(CombineOperation):

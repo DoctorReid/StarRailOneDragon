@@ -6,8 +6,8 @@ from sr.context import Context
 from sr.operation import Operation, OperationResult
 from sr.operation.combine import StatusCombineOperation, StatusCombineOperationEdge
 from sr.operation.unit.forgotten_hall.auto_fight_in_forgotten_hall import AutoFightInForgottenHall
-from sr.operation.unit.forgotten_hall.enter_fight_in_fh import EnterFightInForgottenHall
-from sr.operation.unit.forgotten_hall.move_to_enemy import MoveToEnemy
+from sr.operation.battle.start_fight import StartFightWithTechnique
+from sr.operation.unit.move import MoveToEnemy
 from sr.operation.unit.forgotten_hall.wait_in_node import WaitNodeStart
 
 
@@ -38,7 +38,7 @@ class NodeFight(StatusCombineOperation):
         ops.append(move)
         edges.append(StatusCombineOperationEdge(op_from=node_start, op_to=move))
 
-        enter_fight = EnterFightInForgottenHall(ctx, character_list=team)  # 使用秘技并进入战斗
+        enter_fight = StartFightWithTechnique(ctx, character_list=team, skip_point_check=True)  # 使用秘技并进入战斗
         ops.append(enter_fight)
         edges.append(StatusCombineOperationEdge(op_from=move, op_to=enter_fight))
 

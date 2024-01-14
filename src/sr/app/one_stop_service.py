@@ -4,7 +4,7 @@ import sr.app
 import sr.app.routine.assignments
 from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, world_patrol, AppDescription
-from sr.app.rogue import sim_universe_app
+from sr.app.sim_uni import sim_universe_app
 from sr.app.routine import assignments, support_character, nameless_honor, daily_training_app, buy_parcel, \
     trailblaze_power, email_attachment, echo_of_war, forgotten_hall_app
 from sr.app.routine.assignments import Assignments, ASSIGNMENTS

@@ -12,7 +12,7 @@ def _test_run_one_route():
     ctx.init_all(renew=True)
     ctx.start_running()
     ctx.controller.init()
-    app.first = False
+    app.first_type_id = False
     app.run_one_route('P02_R03_R01')
 
 

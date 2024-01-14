@@ -8,16 +8,15 @@ from sr.context import Context
 from sr.operation import Operation
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.battle.choose_challenge_times import ChooseChallengeTimes
-from sr.operation.unit.battle.choose_support import ChooseSupport
-from sr.operation.unit.battle.choose_team import ChooseTeam
-from sr.operation.unit.battle.click_challenge import ClickChallenge
-from sr.operation.unit.battle.click_start_challenge import ClickStartChallenge
-from sr.operation.unit.battle.get_reward_and_retry import GetRewardAndRetry
-from sr.operation.unit.battle.start_fight import StartFight
+from sr.operation.battle.choose_challenge_times import ChooseChallengeTimes
+from sr.operation.battle.choose_support import ChooseSupport
+from sr.operation.battle.choose_team import ChooseTeam
+from sr.operation.battle.click_challenge import ClickChallenge
+from sr.operation.battle.click_start_challenge import ClickStartChallenge
+from sr.operation.battle.get_reward_and_retry import GetRewardAndRetry
+from sr.operation.battle.start_fight import StartFight
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.wait_in_seconds import WaitInSeconds
-from sr.operation.unit.wait_in_world import WaitInWorld
+from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
 
 CATEGORY_1 = '经验信用'
 CATEGORY_2 = '光锥行迹'
@@ -185,7 +184,7 @@ class UseTrailblazePower(CombineOperation):
             ChooseTeam(self.ctx, self.team_num),  # 选择配队
             ChooseSupport(self.ctx, self.support),  # 选择支援
             ClickStartChallenge(self.ctx),  # 开始挑战
-            WaitInWorld(self.ctx),  # 等待界面
+            WaitInWorld(self.ctx, wait_after_success=1),  # 等待界面
             StartFight(self.ctx),  # 主动攻击
             GetRewardAndRetry(self.ctx, round_num, need_confirm=False, success_callback=self._on_battle_success),  # 领奖 重复挑战
             WaitInWorld(self.ctx),  # 等待主界面

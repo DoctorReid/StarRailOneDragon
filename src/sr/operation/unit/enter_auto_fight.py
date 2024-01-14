@@ -29,13 +29,15 @@ class EnterAutoFight(Operation):
         self.last_in_battle_time: float = 0  # 上次在战斗的时间
         self.last_check_auto_fight_time: float = 0  # 上次检测自动战斗的时间
         self.with_battle: bool = False  # 是否有进入战斗
-        self.attach_direction: int = 0  # 攻击方向
+        self.attack_direction: int = 0  # 攻击方向
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         self.last_attack_time = time.time()
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_in_battle_time = time.time()  # 上次在战斗的时间
         self.last_check_auto_fight_time = time.time()  # 上次检测自动战斗的时间
+        self.attack_direction: int = 0  # 攻击方向
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         ctrl: GameController = self.ctx.controller
@@ -75,10 +77,10 @@ class EnterAutoFight(Operation):
 
         if now_time - self.last_attack_time > EnterAutoFight.attack_interval:
             self.last_attack_time = now_time
-            if self.attach_direction > 0:
-                self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attach_direction % 4])
+            if self.attack_direction > 0:
+                self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
                 time.sleep(0.2)
-            self.attach_direction += 1
+            self.attack_direction += 1
             ctrl.initiate_attack()
             time.sleep(0.5)
 

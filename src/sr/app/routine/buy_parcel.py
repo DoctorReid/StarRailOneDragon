@@ -11,10 +11,10 @@ from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.interact import Interact, TalkInteract
-from sr.operation.unit.move_directly import MoveDirectly
+from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.store.buy_store_item import BuyStoreItem
 from sr.operation.unit.store.click_store_item import ClickStoreItem
-from sr.operation.unit.wait_in_seconds import WaitInSeconds
+from sr.operation.unit.wait import WaitInSeconds
 
 BUY_XIANZHOU_PARCEL = AppDescription(cn='过期邮包', id='buy_xianzhou_parcel')
 register_app(BUY_XIANZHOU_PARCEL)
@@ -68,7 +68,7 @@ class BuyXianzhouParcel(Application):
         ops = [
             Transport(self.ctx, map_const.P03_R02_SP02),
             MoveDirectly(self.ctx,
-                         lm_info=self.ctx.ih.get_large_map(map_const.P03_R02_SP02.start_region),
+                         lm_info=self.ctx.ih.get_large_map(map_const.P03_R02_SP02.region),
                          target=Point(390, 780),
                          start=map_const.P03_R02_SP02.tp_pos),
             Interact(self.ctx, '茂贞'),

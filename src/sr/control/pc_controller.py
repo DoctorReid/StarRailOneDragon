@@ -1,5 +1,6 @@
 import ctypes
 import time
+from typing import Optional
 
 import cv2
 import pyautogui
@@ -158,7 +159,7 @@ class PcController(GameController):
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
         ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
-    def interact(self, pos: Point, interact_type: int = 0) -> bool:
+    def interact(self, pos: Optional[Point] = None, interact_type: int = 0) -> bool:
         """
         交互
         :param pos: 如果是模拟器的话 需要传入交互内容的坐标

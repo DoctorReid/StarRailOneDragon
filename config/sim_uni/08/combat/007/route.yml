@@ -1,0 +1,11 @@
+planet: '仙舟罗浮'
+region: '流云渡'
+floor: 2
+start_pos: [696, 454]
+op_list:
+  - op: 'move'
+    data: [690, 551]
+  - op: 'patrol'
+  - op: 'move'
+    data: [577, 572]
+  - op: 'patrol'

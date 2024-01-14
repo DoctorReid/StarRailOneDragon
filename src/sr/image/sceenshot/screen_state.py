@@ -2,7 +2,7 @@ from enum import Enum
 
 from cv2.typing import MatLike
 
-from basic import Rect
+from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.image import ImageMatcher
@@ -68,16 +68,25 @@ class ScreenState(Enum):
     TEAM: str = '队伍'
     """队伍"""
 
-    SIM_TYPE_NORMAL = '模拟宇宙'
+    SIM_TYPE_NORMAL: str = '模拟宇宙'
     """模拟宇宙 - 普通"""
 
-    SIM_TYPE_EXTEND = '扩展装置'
+    SIM_TYPE_EXTEND: str = '扩展装置'
     """模拟宇宙 - 拓展装置"""
 
-    SIM_PATH = '命途'
+    SIM_PATH: str = '命途'
     """模拟宇宙 - 命途"""
 
-    BATTLE = '战斗'
+    SIM_BLESS: str = '选择祝福'
+    """模拟宇宙 - 选择祝福"""
+
+    SIM_CURIOS: str = '选择奇物'
+    """模拟宇宙 - 选择奇物"""
+
+    SIM_EVENT: str = '事件'
+    """模拟宇宙 - 事件"""
+
+    BATTLE: str = '战斗'
     """所有战斗画面通用 - 右上角有暂停符号"""
 
 
@@ -89,6 +98,14 @@ class TargetRect(Enum):
     CHARACTER_ICON = Rect(1800, 0, 1900, 90)
     """右上角角色图标的位置"""
 
+    REGION_NAME = Rect(52, 13, 276, 40)
+    """左上角区域名字的位置"""
+
+    SIM_UNI_UI_TITLE = Rect(100, 15, 350, 100)
+    """模拟宇宙 - 左上角界面名称的位置"""
+
+    EMPTY_TO_CONTINUE = Rect(775, 836, 1166, 1066)
+    """点击空白处关闭"""
 
 def get_screen_state(screen: MatLike, im: ImageMatcher, ocr: OcrMatcher) -> ScreenState:
     if is_normal_in_world(screen, im):
@@ -112,17 +129,87 @@ def is_normal_in_world(screen: MatLike, im: ImageMatcher) -> bool:
 
 
 def in_secondary_ui(screen: MatLike, ocr: OcrMatcher,
-                    title_cn: str, lcs_percent: float = 0.3) -> bool:
+                    title_cn: str, lcs_percent: float = 0.3,
+                    rect: Rect = TargetRect.UI_TITLE.value) -> bool:
     """
     根据页面左上方标题文字 判断在哪个二级页面中
     :param screen: 屏幕截图
     :param ocr: OCR识别
     :param title_cn: 中文标题
     :param lcs_percent: LCS阈值
+    :param rect: 区域
     :return:
     """
-    part, _ = cv2_utils.crop_image(screen, TargetRect.UI_TITLE.value)
+    part, _ = cv2_utils.crop_image(screen, rect)
+    # cv2_utils.show_image(part, wait=0)
     ocr_map = ocr.match_words(part, words=[gt(title_cn, 'ui')],
                               lcs_percent=lcs_percent, merge_line_distance=10)
 
     return len(ocr_map) > 0
+
+
+def in_sim_uni_secondary_ui(screen: MatLike, ocr: OcrMatcher) -> bool:
+    """
+    判断是否在模拟宇宙的页面
+    :param screen: 页面截图
+    :param ocr: OCR
+    :return:
+    """
+    return in_secondary_ui(screen, ocr, ScreenState.SIM_TYPE_NORMAL.value,
+                           rect=TargetRect.SIM_UNI_UI_TITLE.value)
+
+
+def in_sim_uni_choose_bless(screen: MatLike, ocr: OcrMatcher) -> bool:
+    """
+    是否在模拟宇宙-选择祝福页面
+    :param screen: 页面截图
+    :param ocr: OCR
+    :return:
+    """
+    return in_secondary_ui(screen, ocr, ScreenState.SIM_BLESS.value, lcs_percent=0.55)
+
+
+def in_sim_uni_choose_curio(screen: MatLike, ocr: OcrMatcher) -> bool:
+    """
+    是否在模拟宇宙-选择奇物页面
+    :param screen: 页面截图
+    :param ocr: OCR
+    :return:
+    """
+    return in_secondary_ui(screen, ocr, ScreenState.SIM_CURIOS.value, lcs_percent=0.55)
+
+
+def in_sim_uni_event(screen: MatLike, ocr: OcrMatcher) -> bool:
+    """
+    是否在模拟宇宙-事件页面
+    :param screen: 页面截图
+    :param ocr: OCR
+    :return:
+    """
+    return in_secondary_ui(screen, ocr, ScreenState.SIM_EVENT.value)
+
+
+def get_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
+    """
+    获取当前屏幕 左上角显示的区域名字
+    需要确保是在大世界界面
+    :param screen: 页面截图
+    :param ocr: OCR
+    :return:
+    """
+    part, _ = cv2_utils.crop_image(screen, TargetRect.REGION_NAME.value)
+    return ocr.ocr_for_single_line(part)
+
+
+def is_empty_to_close(screen: MatLike, ocr: OcrMatcher) -> bool:
+    """
+    是否点击空白处关闭
+    :param screen:
+    :param ocr:
+    :return:
+    """
+    part, _ = cv2_utils.crop_image(screen, TargetRect.EMPTY_TO_CONTINUE.value)
+    ocr_result = ocr.ocr_for_single_line(part)
+    # cv2_utils.show_image(part, wait=0)
+
+    return str_utils.find_by_lcs(gt('点击空白处关闭', 'ui'), ocr_result)

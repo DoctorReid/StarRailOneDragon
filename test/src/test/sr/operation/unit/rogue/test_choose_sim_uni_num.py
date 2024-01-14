@@ -2,7 +2,7 @@ import unittest
 
 import test
 from sr.context import get_context
-from sr.operation.unit.rogue.choose_sim_uni_num import ChooseSimUniNum
+from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
 
 
 class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):

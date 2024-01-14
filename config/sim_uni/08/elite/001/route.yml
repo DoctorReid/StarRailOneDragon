@@ -1,0 +1,7 @@
+planet: '雅利洛'
+region: '残响回廊'
+floor: 0
+start_pos: [638, 1233]
+op_list:
+  - op: 'move'
+    data: [680, 1236]

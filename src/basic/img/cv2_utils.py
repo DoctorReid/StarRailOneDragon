@@ -12,7 +12,7 @@ from basic.img import MatchResult, MatchResultList
 feature_detector = cv2.SIFT_create()
 
 
-def read_image(file_path: str) -> MatLike:
+def read_image(file_path: str) -> Optional[MatLike]:
     """
     读取图片
     :param file_path: 图片路径
@@ -241,7 +241,7 @@ def show_overlap(source, template, x, y, template_scale: float = 1, win_name: st
     show_image(to_show_source, win_name=win_name, wait=wait)
 
 
-def feature_detect_and_compute(img: MatLike, mask: MatLike = None):
+def feature_detect_and_compute(img: MatLike, mask: Optional[MatLike] = None):
     return feature_detector.detectAndCompute(img, mask=mask)
 
 

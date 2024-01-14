@@ -25,6 +25,10 @@ class MatchResult:
     def center(self) -> Point:
         return Point(self.x + self.w // 2, self.y + self.h // 2)
 
+    @property
+    def right_bottom(self) -> Point:
+        return Point(self.x + self.w, self.y + self.h)
+
     def add_offset(self, p: Point):
         self.x += p.x
         self.y += p.y

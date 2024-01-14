@@ -1,0 +1,11 @@
+planet: '仙舟罗浮'
+region: '太卜司'
+floor: 1
+start_pos: [249, 631]
+op_list:
+  - op: 'move'
+    data: [244, 675]
+  - op: 'patrol'
+  - op: 'move'
+    data: [271, 704]
+  - op: 'patrol'

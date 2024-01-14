@@ -1,5 +1,5 @@
 import time
-from typing import Union, ClassVar
+from typing import ClassVar
 
 from basic import Rect, str_utils
 from basic.i18_utils import gt
@@ -37,4 +37,4 @@ class CheckTechniquePoint(Operation):
         if digit is None:
             return Operation.round_retry('未检测到数字')
 
-        return Operation.round_success(str(digit))
+        return Operation.round_success(status=str(digit), data=digit)

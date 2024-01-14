@@ -7,7 +7,7 @@ from sr.image.sceenshot import LargeMapInfo
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
-from sr.operation.unit.move_directly import MoveDirectly
+from sr.operation.unit.move import MoveDirectly
 
 
 class DestroyObjects(CombineOperation):
@@ -18,7 +18,7 @@ class DestroyObjects(CombineOperation):
         会传送到【空间站黑塔】-【支援舱段】-【月台】
         """
         tp = map_const.P01_R04_SP02
-        lm_info: LargeMapInfo = ctx.ih.get_large_map(tp.start_region)
+        lm_info: LargeMapInfo = ctx.ih.get_large_map(tp.region)
 
         ops = [
             Transport(ctx, tp),  # 传送

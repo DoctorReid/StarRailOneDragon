@@ -1,4 +1,6 @@
 import logging
+import os
+import time
 from typing import Optional
 
 from cv2.typing import MatLike
@@ -29,6 +31,7 @@ class CnOcrMatcher(OcrMatcher):
             # 不启用空格识别 (rec) 文字空间结构交给 det 处理
             # 类似"开拓等级 70"这类文本，可以调用 ocr_for_single_line 使用人工规则合并
             self.ocr = PaddleOCR(use_angle_cls=False, lang="ch", use_gpu=False, use_space_char=False, drop_score=0.5,
+                                 cpu_threads=os.cpu_count(),
                                  det_model_dir=os_utils.get_path_under_work_dir('model', 'ch_PP-OCRv4_det_infer'),
                                  rec_model_dir=os_utils.get_path_under_work_dir('model', 'ch_PP-OCRv4_rec_infer'),
                                  cls_model_dir=os_utils.get_path_under_work_dir('model', 'ch_ppocr_mobile_v2.0_cls_infer')
@@ -62,7 +65,8 @@ class CnOcrMatcher(OcrMatcher):
         :param merge_line_distance: 多少行距内合并结果 -1为不合并 理论中文情况不会出现过长分行的 这里只是为了兼容英语的情况
         :return: {key_word: []}
         """
-        scan_result: list = self.ocr.ocr(image)
+        start_time = time.time()
+        scan_result: list = self.ocr.ocr(image, cls=False)
         result_map: dict = {}
         for anchor in scan_result:
             anchor_position = anchor[0]
@@ -78,7 +82,7 @@ class CnOcrMatcher(OcrMatcher):
                                                        anchor_position[1][0] - anchor_position[0][0],
                                                        anchor_position[3][1] - anchor_position[0][1],
                                                        data=anchor_text))
-        log.debug('OCR结果 %s', result_map.keys())
+        log.debug('OCR结果 %s 耗时 %.2f', result_map.keys(), time.time() - start_time)
         return result_map
         
     def run_ocr_without_det(self, image: MatLike, threshold: float = None) -> str:
@@ -89,12 +93,13 @@ class CnOcrMatcher(OcrMatcher):
         :param threshold: 匹配阈值
         :return: [("text", "score"),] 由于禁用了空格，可以直接取第一个元素
         """
-        scan_result: list = self.ocr.ocr(image, det=False)
+        start_time = time.time()
+        scan_result: list = self.ocr.ocr(image, det=False, cls=False)
         if len(scan_result) > 1:
             log.debug("禁检测的OCR模型返回多个识别结果")  # 目前没有出现这种情况
         
         if threshold is not None and scan_result[0][1] < threshold:
             log.debug("OCR模型返回的识别结果置信度低于阈值")
             return ""
-        log.debug('OCR结果 %s', scan_result)
+        log.debug('OCR结果 %s 耗时 %.2f', scan_result, time.time() - start_time)
         return scan_result[0][0]

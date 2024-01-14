@@ -1,4 +1,3 @@
-import os
 from typing import Optional, List
 
 import cv2
@@ -17,13 +16,14 @@ from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr import cal_pos
-from sr.app.rogue import get_sim_uni_route_list, clear_sim_uni_route_cache
-from sr.operation.combine.sim_uni import SimUniRouteOperation, SimUniRoute
-from sr.app.rogue.test_sim_uni_route_app import TestSimUniRouteApp
+from sr.app.sim_uni.sim_uni_route_holder import get_sim_uni_route_list, clear_sim_uni_route_cache, \
+    match_best_sim_uni_route
+from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
+from sr.app.sim_uni.test_sim_uni_route_app import TestSimUniRouteApp
 from sr.const import map_const, operation_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map, LargeMapInfo, large_map
-from sr.const.rogue_const import UNI_NUM_CN
+from sr.sim_uni.sim_uni_const import UNI_NUM_CN, level_type_from_id, SimUniLevelTypeEnum
 
 
 class SimUniDraftRouteView(ft.Row, SrBasicView):
@@ -38,8 +38,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             label='编辑已有路线', disabled=True, width=200,
             on_change=self._on_chosen_route_changed
         )
-        self.cancel_edit_existed_btn = ft.ElevatedButton(text='取消编辑已有路线', disabled=True,
-                                                         on_click=self._cancel_edit_existed)
+        self.cancel_edit_existed_btn = components.RectOutlinedButton(
+            text='取消编辑', disabled=True,on_click=self._cancel_edit_existed)
         self.num_dropdown = ft.Dropdown(
             label=gt('选择宇宙', 'ui'), width=150,
             options=[
@@ -48,17 +48,17 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             value='8',  # TODO 测试用默认选项
             on_change=self._on_uni_changed
         )
-        self.level_dropdown = ft.Dropdown(
-            label=gt('选择层数', 'ui'), width=150,
+        self.level_type_dropdown = ft.Dropdown(
+            label=gt('楼层类型', 'ui'), width=150,
             options=[
-                ft.dropdown.Option(key=str(i), text=str(i)) for i in range(1, 14)
+                ft.dropdown.Option(key=i.value.type_id, text=gt(i.value.type_name, 'ui')) for i in SimUniLevelTypeEnum
             ],
             on_change=self._on_uni_changed
         )
         self.save_btn = components.RectOutlinedButton(text='新建', disabled=True, on_click=self._do_save)
         self.delete_btn = components.RectOutlinedButton(text='删除', disabled=True, on_click=self._do_delete)
         self.test_btn = components.RectOutlinedButton(text='测试', disabled=True, on_click=self._do_test)
-        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_dropdown,
+        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_type_dropdown,
                                          self.existed_route_dropdown, self.cancel_edit_existed_btn,
                                          self.save_btn, self.delete_btn, self.test_btn],
                                )
@@ -178,6 +178,15 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         """
         if self.mini_map_image is None:
             return
+
+        level_type = level_type_from_id(self.level_type_dropdown.value)
+        existed_route = match_best_sim_uni_route(int(self.num_dropdown.value), level_type, self.mini_map_image)
+        if existed_route is not None:
+            log.info('已有地图 %s', existed_route.display_name)
+            self.existed_route_dropdown.value = existed_route.uid
+            self._on_chosen_route_changed()
+            return
+
         self.sr_ctx.init_image_matcher()
         mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
 
@@ -185,8 +194,6 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         for _, region_list in map_const.PLANET_2_REGION.items():
             for region in region_list:
-                # if region.planet != map_const.P03:
-                #     continue
                 log.info('匹配中 %s', region.display_name)
                 lm_info = self.sr_ctx.ih.get_large_map(region)
                 pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(self.sr_ctx.im, lm_info, mm_info,
@@ -197,8 +204,6 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
                 pos.data = region
                 pos_list.append(pos)
-                # if len(pos_list) > 1:  # TODO 测试节省时间
-                #     break
 
         self.start_pos_list = sorted(pos_list, key=lambda x: x.confidence, reverse=True)
         self.chosen_start_pos_idx = 0
@@ -409,7 +414,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         :return:
         """
         if self.chosen_route is None:  # 新建的 需要找一个下标
-            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), int(self.level_dropdown.value))
+            level_type = level_type_from_id(self.level_type_dropdown.value)
+            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), level_type)
             self._update_screenshot_row()
         else:
             self.chosen_route.save()
@@ -491,13 +497,14 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         更新
         :return:
         """
-        uni_chosen = self.num_dropdown.value is not None and self.level_dropdown.value is not None
+        uni_chosen = self.num_dropdown.value is not None and self.level_type_dropdown.value is not None
         route_chosen = self.chosen_route is not None
         start_chosen = route_chosen and self.chosen_route.region is not None
 
-        self.existed_route_dropdown.disabled = not uni_chosen
+        self.existed_route_dropdown.disabled = not uni_chosen or not self._need_route()
         if not self.existed_route_dropdown.disabled:
-            self.existed_route_list = get_sim_uni_route_list(int(self.num_dropdown.value), int(self.level_dropdown.value))
+            level_type = level_type_from_id(self.level_type_dropdown.value)
+            self.existed_route_list = get_sim_uni_route_list(int(self.num_dropdown.value), level_type)
             self.existed_route_dropdown.options = [
                 ft.dropdown.Option(key=i.uid, text=i.display_name)
                 for i in self.existed_route_list
@@ -512,17 +519,17 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.num_dropdown.disabled = route_chosen
         self.num_dropdown.update()
 
-        self.level_dropdown.disabled = route_chosen
-        self.level_dropdown.update()
+        self.level_type_dropdown.disabled = route_chosen
+        self.level_type_dropdown.update()
 
-        self.save_btn.disabled = not uni_chosen
+        self.save_btn.disabled = not uni_chosen or not self._need_route()
         self.save_btn.text = '新建' if not route_chosen else '保存'
         self.save_btn.update()
 
         self.delete_btn.disabled = not route_chosen
         self.delete_btn.update()
 
-        self.test_btn.disabled = not route_chosen
+        self.test_btn.disabled = self._need_route() and not route_chosen
         self.test_btn.update()
 
     def _on_uni_changed(self, e=None):
@@ -556,12 +563,25 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        if self.chosen_route is None:
+        if self._need_route() and self.chosen_route is None:
             log.error('未选择路线')
             return
-        self._do_save()
-        app = TestSimUniRouteApp(self.sr_ctx, self.chosen_route)
+        if self._need_route():
+            self._do_save()
+        app = TestSimUniRouteApp(self.sr_ctx,
+                                 int(self.num_dropdown.value),
+                                 level_type_from_id(self.level_type_dropdown.value),
+                                 self.chosen_route
+                                 )
         app.execute()
+
+    def _need_route(self) -> bool:
+        """
+        当前是否选择了事件
+        :return:
+        """
+        return (self.level_type_dropdown.value is not None and
+                self.level_type_dropdown.value == SimUniLevelTypeEnum.COMBAT.value.type_id)
 
 
 _sim_uni_draft_route_view: Optional[SimUniDraftRouteView] = None

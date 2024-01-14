@@ -75,7 +75,7 @@ def init_tp_with_background(template_id: str, noise_threshold: int = 0):
     show_and_save(template_id, final_origin, final_mask)
 
 
-def init_sp_with_background(template_id: str, noise_threshold: int = 0):
+def init_sp_with_background(template_id: str, noise_threshold: int = 0, sub_dir: Optional[str] = None):
     """
     对特殊点进行抠图
     特殊点会自带一些黑色背景 通过找黑色的菱形区域保留下来
@@ -87,7 +87,7 @@ def init_sp_with_background(template_id: str, noise_threshold: int = 0):
     :param noise_threshold: 连通块小于多少时认为是噪点 视情况调整
     :return:
     """
-    raw = _read_template_raw_image(template_id)
+    raw = _read_template_raw_image(template_id, sub_dir)
     sim = cv2_utils.color_similarity_2d(raw, (160, 210, 240))  # 前景颜色 特殊点主体部分
     cv2_utils.show_image(sim, win_name='sim')
     front_binary = cv2.inRange(sim, 180, 255)
@@ -121,7 +121,7 @@ def init_sp_with_background(template_id: str, noise_threshold: int = 0):
 
     final_origin, final_mask = convert_to_standard(raw, mask, width=51, height=51, bg_color=const.COLOR_MAP_ROAD_BGR)
 
-    show_and_save(template_id, final_origin, final_mask)
+    show_and_save(template_id, final_origin, final_mask, sub_dir=sub_dir)
 
 
 def init_ui_icon(template_id: str, noise_threshold: int = 0):
@@ -441,7 +441,7 @@ def init_character_combat_type(template_id):
     show_and_save(template_id, origin, mask, sub_dir='character_combat_type')
 
 
-def init_inventory_category(template_id, ):
+def init_inventory_category(template_id):
     raw = _read_template_raw_image(template_id, sub_dir='inventory')
     gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
     _, bw = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
@@ -451,9 +451,38 @@ def init_inventory_category(template_id, ):
     show_and_save(template_id, origin, mask, sub_dir='character_combat_type')
 
 
+def init_sim_uni_move_target(template_id: str):
+    """
+    模拟宇宙 移动朝向的图标
+    由于图标会随距离变化大小 这里要用特征匹配
+    - 下一层的类型
+    - 黑塔图标
+    :param template_id:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id, sub_dir='sim_uni')
+    save_template_image(raw, template_id, tt='origin', sub_dir='sim_uni')
+    init_template_feature(template_id, sub_dir='sim_uni')
+
+
+def init_sim_uni_event_opt_icon(template_id: str):
+    """
+    模拟宇宙 事件选项 前面的图标
+    :param template_id:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id, sub_dir='sim_uni')
+    gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+
+    final_origin, final_mask = convert_to_standard(raw, mask, width=37, height=37)
+
+    show_and_save(template_id, final_origin, final_mask, sub_dir='sim_uni')
+
+
 if __name__ == '__main__':
-    init_tp_with_background('mm_tp_15', noise_threshold=30)
-    # init_sp_with_background('mm_sp_09')
+    # init_tp_with_background('mm_tp_15', noise_threshold=30)
+    # init_sp_with_background('mm_sp_herta', sub_dir='sim_uni')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
@@ -470,3 +499,5 @@ if __name__ == '__main__':
     # init_character_avatar_from_alas()
     # init_character_combat_type('lightning')
     # init_inventory_category('valuables')
+    # init_sim_uni_move_target('level_type_boss')
+    init_sim_uni_event_opt_icon('event_option_exit_icon')

@@ -13,9 +13,8 @@ from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.move_directly import MoveDirectly
-from sr.operation.unit.wait_in_seconds import WaitInSeconds
-from sr.operation.unit.wait_in_world import WaitInWorld
+from sr.operation.unit.move import MoveDirectly
+from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
 
 
 class RunPatrolRoute(CombineOperation):
@@ -126,7 +125,7 @@ class RunPatrolRoute(CombineOperation):
         """
         op: Operation = None
         if wait_type == 'in_world':
-            op = WaitInWorld(ctx, seconds)
+            op = WaitInWorld(ctx, seconds, wait_after_success=1)  # 多等待一秒 动画后界面完整显示需要点时间
         elif wait_type == sr.const.operation_const.WAIT_TYPE_SECONDS:
             op = WaitInSeconds(ctx, seconds)
         else:

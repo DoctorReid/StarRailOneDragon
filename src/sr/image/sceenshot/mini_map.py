@@ -167,6 +167,10 @@ def analyse_arrow_and_angle(mini_map: MatLike, im: ImageMatcher):
     return center_arrow_mask, arrow_mask, angle
 
 
+def analyse_angle(mini_map: MatLike) -> float:
+    return mini_map_angle_alas.calculate(mini_map)
+
+
 def get_edge_mask_by_hsv(mm: MatLike, arrow_mask: MatLike):
     """
     废弃了 背景亮的時候效果很差
@@ -292,7 +296,7 @@ def get_track_road_mask(mm: MatLike) -> MatLike:
     return cv2.inRange(mm, lower_color, upper_color)
 
 
-def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
+def is_under_attack(mm: MatLike, mm_pos: Optional[MiniMapPos] = None,
                     strict: bool = False,
                     show: bool = False) -> bool:
     """
@@ -304,6 +308,8 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
     :param show: debug用 显示中间结果图片
     :return: 是否被锁定
     """
+    if mm_pos is None:
+        mm_pos = game_config.get().mini_map_pos
     w, h = mm.shape[1], mm.shape[0]
     cx, cy = w // 2, h // 2
     r = mm_pos.r

@@ -6,14 +6,14 @@ from sr.context import Context
 from sr.operation import Operation
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.battle.choose_support import ChooseSupport
-from sr.operation.unit.battle.choose_team import ChooseTeam
-from sr.operation.unit.battle.click_challenge import ClickChallenge
-from sr.operation.unit.battle.click_challenge_confirm import ClickChallengeConfirm
-from sr.operation.unit.battle.click_start_challenge import ClickStartChallenge
-from sr.operation.unit.battle.get_reward_and_retry import GetRewardAndRetry
+from sr.operation.battle.choose_support import ChooseSupport
+from sr.operation.battle.choose_team import ChooseTeam
+from sr.operation.battle.click_challenge import ClickChallenge
+from sr.operation.battle.click_challenge_confirm import ClickChallengeConfirm
+from sr.operation.battle.click_start_challenge import ClickStartChallenge
+from sr.operation.battle.get_reward_and_retry import GetRewardAndRetry
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.wait_in_world import WaitInWorld
+from sr.operation.unit.wait import WaitInWorld
 
 
 class ChallengeEchoOfWar(CombineOperation):

@@ -1,5 +1,5 @@
 import re
-from typing import Optional
+from typing import Optional, List
 
 from basic.log_utils import log
 
@@ -41,7 +41,7 @@ def find_by_lcs(source: str, target: str, percent: float = 0.3,
     return common_length >= len(source) * percent
 
 
-def longest_common_subsequence_length(str1: str, str2: str):
+def longest_common_subsequence_length(str1: str, str2: str) -> int:
     """
     找两个字符串的最长公共子序列长度
     :param str1:
@@ -77,3 +77,29 @@ def get_positive_digits(v: str, err: Optional[int] = 0) -> Optional[int]:
     except Exception:
         log.error('目标字符串中没有数字 %s', v)
         return err
+
+
+def find_best_match_by_lcs(word: str, target_word_list: List[str],
+                           lcs_percent_threshold: Optional[float] = None) -> Optional[int]:
+    """
+    在目标词中，找出LCS比例最大的
+    :param word: 候选词
+    :param target_word_list: 目标词列表
+    :param lcs_percent_threshold: 要求的LCS阈值
+    :return: 最符合的目标词的下标
+    """
+    target_idx: Optional[int] = None
+    target_lcs_percent: Optional[float] = None
+
+    for idx, target_word in enumerate(target_word_list):
+        lcs = longest_common_subsequence_length(word, target_word)
+        if lcs == 0:  # 至少要有一个匹配
+            continue
+        lcs_percent = lcs * 1.0 / len(target_word)
+        if lcs_percent_threshold is not None and lcs_percent < lcs_percent_threshold:
+            continue
+        if target_idx is None or lcs_percent > target_lcs_percent:
+            target_idx = idx
+            target_lcs_percent = lcs_percent
+
+    return target_idx

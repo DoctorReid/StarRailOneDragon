@@ -535,7 +535,7 @@ def cal_character_pos_by_gray_2(im: ImageMatcher,
                                           arrow_mask=mm_info.arrow_mask,
                                           center_mask=mm_info.center_mask
                                           )
-    dilate_road_mask = cv2_utils.dilate(road_mask, 5)  # 把白色边缘包括进来
+    dilate_road_mask = cv2_utils.dilate(road_mask, 10)  # 把白色边缘包括进来
     template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
 
     if scale_list is None:

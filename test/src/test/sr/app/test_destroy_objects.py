@@ -29,7 +29,7 @@ class TestDestroyObjects(unittest.TestCase, test.SrTestBase):
             '_1702196379532',
         ]
 
-        lm_info: LargeMapInfo = self.op.ctx.ih.get_large_map(map_const.P01_R04_SP02.start_region)
+        lm_info: LargeMapInfo = self.op.ctx.ih.get_large_map(map_const.P01_R04_SP02.region)
         tp = map_const.P01_R04_SP02.lm_pos.tuple()
         possible_pos = (tp[0], tp[1], 200)
         im = self.op.ctx.im

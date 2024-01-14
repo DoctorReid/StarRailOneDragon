@@ -146,3 +146,11 @@ class ImageHolder:
         :return: 模板图片
         """
         return self.get_template(template_id, sub_dir='character_combat_type')
+
+    def get_sim_uni_template(self, template_id: str) -> TemplateImage:
+        """
+        获取模板 - 模拟宇宙
+        :param template_id: 模板id
+        :return: 模板图片
+        """
+        return self.get_template(template_id, sub_dir='sim_uni')

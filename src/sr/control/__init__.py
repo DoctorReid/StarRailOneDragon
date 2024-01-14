@@ -187,7 +187,7 @@ class GameController:
         """
         pass
 
-    def interact(self, pos: Point, interact_type: int = 0) -> bool:
+    def interact(self, pos: Optional[Point] = None, interact_type: int = 0) -> bool:
         """
         交互
         :param pos: 如果是模拟器的话 需要传入交互内容的坐标

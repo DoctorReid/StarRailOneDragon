@@ -2,7 +2,7 @@ import unittest
 
 import test
 from sr.context import get_context
-from sr.operation.unit.battle.choose_team import ChooseTeam
+from sr.operation.battle.choose_team import ChooseTeam
 
 
 class TestGetTeamMemberInWorld(unittest.TestCase, test.SrTestBase):

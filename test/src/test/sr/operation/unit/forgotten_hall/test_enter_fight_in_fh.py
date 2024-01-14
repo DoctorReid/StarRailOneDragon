@@ -2,7 +2,7 @@ import unittest
 import test
 from sr.const import character_const
 from sr.context import get_context
-from sr.operation.unit.forgotten_hall.enter_fight_in_fh import EnterFightInForgottenHall
+from sr.operation.battle.start_fight import StartFightWithTechnique
 
 
 class TestEnterFightInForgottenHall(unittest.TestCase, test.SrTestBase):
@@ -12,7 +12,7 @@ class TestEnterFightInForgottenHall(unittest.TestCase, test.SrTestBase):
 
         ctx = get_context()
 
-        self.op = EnterFightInForgottenHall(ctx)
+        self.op = StartFightWithTechnique(ctx)
 
     def test_get_technique_order(self):
         self.op.character_list = [
