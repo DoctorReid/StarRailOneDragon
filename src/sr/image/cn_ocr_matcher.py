@@ -23,6 +23,9 @@ class CnOcrMatcher(OcrMatcher):
         [ [[450.0, 494.0], [560.0, 494.0], [560.0, 530.0], [450.0, 530.0]], ('奇巧零食', 0.9995825290679932)]
     ] 
     返回锚框的坐标是[[x1,y1], [x2,y1], [x2,y2], [x1,y2]]
+    不能并发使用，会有线程安全问题
+    enable_mkldnn=True 后更慢了 原因未知
+    应该尽量避免传入还有不明黑点或横线之类的被识别为标点符号
     """
     def __init__(self):
         self.ocr: Optional[PaddleOCR] = None
@@ -31,7 +34,6 @@ class CnOcrMatcher(OcrMatcher):
             # 不启用空格识别 (rec) 文字空间结构交给 det 处理
             # 类似"开拓等级 70"这类文本，可以调用 ocr_for_single_line 使用人工规则合并
             self.ocr = PaddleOCR(use_angle_cls=False, lang="ch", use_gpu=False, use_space_char=False, drop_score=0.5,
-                                 cpu_threads=os.cpu_count(),
                                  det_model_dir=os_utils.get_path_under_work_dir('model', 'ch_PP-OCRv4_det_infer'),
                                  rec_model_dir=os_utils.get_path_under_work_dir('model', 'ch_PP-OCRv4_rec_infer'),
                                  cls_model_dir=os_utils.get_path_under_work_dir('model', 'ch_ppocr_mobile_v2.0_cls_infer')
@@ -53,7 +55,6 @@ class CnOcrMatcher(OcrMatcher):
         else:
             ocr_map: dict = self.run_ocr(image, threshold)
             tmp = merge_ocr_result_to_single_line(ocr_map, join_space=False)
-            log.debug('OCR结果 %s', tmp)
             return tmp
     
     def run_ocr(self, image: MatLike, threshold: float = None,

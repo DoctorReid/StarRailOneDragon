@@ -401,7 +401,7 @@ def template_match_with_scale_list_parallely(im: ImageMatcher,
     for scale in scale_list:
         future_list.append(cal_pos_executor.submit(template_match_with_scale, im, source, template, template_mask, scale, threshold))
 
-    target: MatchResult = None
+    target: Optional[MatchResult] = None
     for future in future_list:
         try:
             result: MatchResult = future.result(1)

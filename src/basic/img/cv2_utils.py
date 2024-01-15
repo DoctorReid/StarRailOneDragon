@@ -1,6 +1,6 @@
 import base64
 import os
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -467,13 +467,13 @@ def connection_erase(mask: MatLike, threshold: int = 50, erase_white: bool = Tru
     return result
 
 
-def crop_image(img, rect: Rect = None, copy: bool = False):
+def crop_image(img, rect: Rect = None, copy: bool = False) -> Tuple[MatLike, Optional[Rect]]:
     """
-    裁剪图片
+    裁剪图片 裁剪区域可能超出图片范围
     :param img: 原图
     :param rect: 裁剪区域 (x1, y1, x2, y2)
     :param copy: 是否复制新图
-    :return: 裁剪后图片
+    :return: 裁剪后图片 和 实际的裁剪区域
     """
     if rect is None:
         return (img.copy() if copy else img), None
@@ -492,6 +492,17 @@ def crop_image(img, rect: Rect = None, copy: bool = False):
     x2, y2 = int(x2), int(y2)
     crop = img[y1: y2, x1: x2]
     return (crop.copy() if copy else crop), Rect(x1, y1, x2, y2)
+
+
+def crop_image_only(img, rect: Rect = None, copy: bool = False) -> MatLike:
+    """
+    裁剪图片 裁剪区域可能超出图片范围
+    :param img: 原图
+    :param rect: 裁剪区域 (x1, y1, x2, y2)
+    :param copy: 是否复制新图
+    :return: 只返回裁剪后图片
+    """
+    return crop_image(img, rect=rect, copy=copy)[0]
 
 
 def dilate(img, k):

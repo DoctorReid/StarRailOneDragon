@@ -1,4 +1,5 @@
 import time
+from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Optional, List, ClassVar
 
 import cv2
@@ -10,6 +11,7 @@ from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr.context import Context
+from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.sim_uni.sim_uni_const import match_best_bless_by_ocr, SimUniBless
@@ -19,28 +21,34 @@ from sr.sim_uni.sim_uni_priority import SimUniBlessPriority
 class SimUniChooseBless(Operation):
     # 3个祝福的情况 每个祝福有2个框 分别是名字、命途
     BLESS_3_RECT_LIST: ClassVar[List[List[Rect]]] = [
-        [Rect(390, 475, 710, 520), Rect(390, 730, 710, 760)],
-        [Rect(800, 475, 1120, 520), Rect(800, 730, 1120, 760)],
-        [Rect(1210, 475, 1530, 520), Rect(1210, 730, 1530, 760)],
+        [Rect(390, 475, 710, 510), Rect(430, 730, 670, 760)],
+        [Rect(800, 475, 1120, 510), Rect(840, 730, 1080, 760)],
+        [Rect(1210, 475, 1530, 510), Rect(1250, 730, 1490, 760)],
     ]
 
     # 2个祝福的情况
     BLESS_2_RECT_LIST: ClassVar[List[List[Rect]]] = [
-        [Rect(600, 475, 900, 520), Rect(600, 730, 900, 760)],
-        [Rect(1010, 475, 1310, 520), Rect(1010, 730, 1310, 760)],
+        [Rect(600, 475, 900, 510), Rect(640, 730, 860, 760)],
+        [Rect(1010, 475, 1310, 510), Rect(1050, 730, 1270, 760)],
     ]
 
     # 1个祝福的情况
     BLESS_1_RECT_LIST: ClassVar[List[List[Rect]]] = [
-        [Rect(800, 475, 1120, 520), Rect(800, 730, 1120, 760)],
+        [Rect(800, 475, 1120, 520), Rect(840, 730, 1080, 760)],
     ]
 
     # 楼层开始前祝福的情况 开拓祝福
     BLESS_BEFORE_LEVEL_RECT_LIST: ClassVar[List[List[Rect]]] = [
-        [Rect(423, 475, 720, 520), Rect(423, 790, 720, 820)],
-        [Rect(812, 475, 1109, 520), Rect(812, 790, 1109, 820)],
-        [Rect(1200, 475, 1496, 520), Rect(1200, 790, 1496, 820)],
+        [Rect(423, 475, 720, 520), Rect(463, 790, 680, 820)],
+        [Rect(812, 475, 1109, 520), Rect(852, 790, 1069, 820)],
+        [Rect(1200, 475, 1496, 520), Rect(1240, 790, 1456, 820)],
     ]
+
+    BLESS_TITLE_RECT = Rect(400, 475, 1530, 510)
+    BLESS_PATH_RECT = Rect(400, 730, 1530, 760)
+
+    BLESS_TITLE_BEFORE_LEVEL_RECT = Rect(390, 475, 1530, 510)
+    BLESS_PATH_BEFORE_LEVEL_RECT = Rect(390, 730, 1530, 760)
 
     RESET_BTN: ClassVar[Rect] = Rect(1160, 960, 1460, 1000)  # 重置祝福
     CONFIRM_BTN: ClassVar[Rect] = Rect(1530, 960, 1865, 1000)  # 确认
@@ -78,6 +86,8 @@ class SimUniChooseBless(Operation):
                 return Operation.round_retry('未在模拟宇宙-选择祝福页面', wait=1)
 
         bless_pos_list: List[MatchResult] = self._get_bless_pos(screen)
+        # bless_pos_list: List[MatchResult] = self._get_bless_pos_v2(screen)
+
         if len(bless_pos_list) == 0:
             return Operation.round_retry('未识别到祝福', wait=1)
 
@@ -103,7 +113,7 @@ class SimUniChooseBless(Operation):
         """
         if self.before_level_start:
             return self._get_bless_pos_before_level(screen)
-        else:
+        else:  # 这么按顺序写 可以保证最多只识别3次祝福
             bless_3 = self._get_bless_pos_3(screen)
             if len(bless_3) > 0:
                 return bless_3
@@ -159,7 +169,7 @@ class SimUniChooseBless(Operation):
             path_ocr = self.ctx.ocr.ocr_for_single_line(path_part)
             # cv2_utils.show_image(path_part, wait=0)
             if path_ocr is None or len(path_ocr) == 0:
-                break  # 有一个识别不到就认为没有了 加速这里的判断
+                break  # 其中有一个位置识别不到就认为不是使用这些区域了 加速这里的判断
 
             title_part, _ = cv2_utils.crop_image(screen, bless_rect_list[0])
             title_ocr = self.ctx.ocr.ocr_for_single_line(title_part)
@@ -173,6 +183,115 @@ class SimUniChooseBless(Operation):
                                               bless_rect_list[0].width, bless_rect_list[0].height,
                                               data=bless))
 
+        return bless_list
+
+    def _get_bless_pos_v2(self, screen: MatLike) -> List[MatchResult]:
+        """
+        获取屏幕上的祝福的位置 总共识别两次
+        一行标题 - 0.44s
+        一行命途 - 1.26s (可能是几个黑色点导致的文本推理变多)
+        :param screen: 屏幕截图
+        :return:
+        """
+        if self.before_level_start:
+            title_rect = SimUniChooseBless.BLESS_TITLE_BEFORE_LEVEL_RECT
+            path_rect = SimUniChooseBless.BLESS_PATH_BEFORE_LEVEL_RECT
+        else:
+            title_rect = SimUniChooseBless.BLESS_TITLE_RECT
+            path_rect = SimUniChooseBless.BLESS_PATH_RECT
+
+        title_part = cv2_utils.crop_image_only(screen, title_rect)
+        # cv2_utils.show_image(title_part, win_name='title_part', wait=0)
+        title_ocr_map = self.ctx.ocr.run_ocr(title_part)
+
+        path_part = cv2_utils.crop_image_only(screen, path_rect)
+        # cv2_utils.show_image(path_part, win_name='path_part', wait=0)
+        path_ocr_map = self.ctx.ocr.run_ocr(path_part)
+
+        title_pos_list: List[MatchResult] = []
+        path_pos_list: List[MatchResult] = []
+        for title, title_mrl in title_ocr_map.items():
+            for title_mr in title_mrl:
+                title_pos_list.append(title_mr)
+
+        for path, path_mrl in path_ocr_map.items():
+            for path_mr in path_mrl:
+                path_pos_list.append(path_mr)
+
+        bless_list: List[MatchResult] = []
+
+        for title_pos in title_pos_list:
+            title_ocr = title_pos.data
+            for path_pos in path_pos_list:
+                path_ocr = path_pos.data
+
+                if abs(title_pos.center.x - path_pos.center.x) > 20:
+                    continue
+
+                bless = match_best_bless_by_ocr(title_ocr, path_ocr)
+                if bless is None:
+                    continue
+
+                log.info('识别到祝福 %s', bless)
+                bless_list.append(MatchResult(1,
+                                              title_pos.x, title_pos.y,
+                                              path_pos.right_bottom.x, path_pos.right_bottom.y,
+                                              data=bless))
+
+        return bless_list
+
+    def _get_bless_pos_v3(self, screen: MatLike, rect_list: List[List[Rect]]) -> List[MatchResult]:
+        """
+        获取屏幕上的祝福的位置 并发地进行识别
+        单个模型并发识别有线程安全问题 多个模型的并发识别的性能也不够高
+        :param screen:
+        :param rect_list:
+        :return:
+        """
+        bless_list: List[MatchResult] = []
+
+        images: List[MatLike] = []
+        rects: List[Rect] = []
+        for bless_rect_list in rect_list:
+            path_part, _ = cv2_utils.crop_image(screen, bless_rect_list[1], copy=True)
+            rects.append(bless_rect_list[1])
+            images.append(path_part)
+
+            title_part, _ = cv2_utils.crop_image(screen, bless_rect_list[0], copy=True)
+            rects.append(bless_rect_list[0])
+            images.append(title_part)
+
+        ocr_list = [CnOcrMatcher() for _ in images]
+        executor = ThreadPoolExecutor(thread_name_prefix='bless')
+        future_list: List[Future] = []
+        for i in range(len(images)):
+            future_list.append(
+                executor.submit(ocr_list[i].ocr_for_single_line, images[i], None, True)
+            )
+
+        st = time.time()
+        ocr_list = []
+        for future in future_list:
+            ocr_list.append(future.result(1))
+        for i in range(len(ocr_list)):
+            if i % 2 == 1:
+                continue
+            path = ocr_list[i]
+            title = ocr_list[i + 1]
+            if path is None or title is None:
+                continue
+
+            bless = match_best_bless_by_ocr(title, path)
+            if bless is None:
+                continue
+
+            log.info('识别到祝福 %s', bless)
+            bless_list.append(MatchResult(1,
+                                          rects[i].x1, rects[i].y1,
+                                          rects[i+1].x2, rects[i+1].y2,
+                                          data=bless))
+
+        print(time.time() - st)
         return bless_list
 
     def _can_reset(self, screen: MatLike) -> bool:
