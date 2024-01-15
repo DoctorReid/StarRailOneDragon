@@ -185,7 +185,10 @@ class Context:
         try:
             if self.controller is None:
                 if self.platform == 'PC':
-                    self.controller = PcController(win=get_game_win(), ocr=self.ocr)
+                    win = get_game_win()
+                    win.active()
+                    self.controller = PcController(win=win, ocr=self.ocr)
+
         except pyautogui.PyAutoGUIException:
             log.info('未开打游戏')
             if not try_open_game():
