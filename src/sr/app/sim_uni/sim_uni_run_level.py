@@ -11,7 +11,7 @@ from sr.operation.unit.move import MoveToEnemy, MoveForward
 from sr.operation.unit.wait import WaitInWorld
 from sr.sim_uni.op.battle_in_sim_uni import SimUniEnterFight
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel, MoveToHertaInteract, MoveToMiniMapInteractIcon, \
-    MoveToEventInteract
+    MoveToEventInteract, MoveToEventInteract2
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunRoute
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
@@ -67,8 +67,6 @@ class SimUniRunLevel(StatusCombineOperation2):
         elite_route = StatusCombineOperationNode('区域-精英', MoveToEnemy(ctx))
         edges.append(StatusCombineOperationEdge2(check_level_type, elite_route,
                                                  status=SimUniLevelTypeEnum.ELITE.value.type_id))
-        edges.append(StatusCombineOperationEdge2(check_level_type, elite_route,
-                                                 status=SimUniLevelTypeEnum.BOSS.value.type_id))
 
         elite_start_fight = StatusCombineOperationNode('区域-精英-秘技', StartFightWithTechnique(ctx))
         edges.append(StatusCombineOperationEdge2(elite_route, elite_start_fight))
@@ -85,8 +83,6 @@ class SimUniRunLevel(StatusCombineOperation2):
 
         # 首领
         boss_route = StatusCombineOperationNode('区域-首领', MoveToEnemy(ctx))
-        edges.append(StatusCombineOperationEdge2(check_level_type, boss_route,
-                                                 status=SimUniLevelTypeEnum.ELITE.value.type_id))
         edges.append(StatusCombineOperationEdge2(check_level_type, boss_route,
                                                  status=SimUniLevelTypeEnum.BOSS.value.type_id))
 
@@ -125,7 +121,8 @@ class SimUniRunLevel(StatusCombineOperation2):
                                                  success=False, status=MoveToMiniMapInteractIcon.STATUS_ICON_NOT_FOUND))
 
         # 事件、交易、遭遇
-        event_route = StatusCombineOperationNode('区域-事件', MoveToEventInteract(ctx))
+        # event_route = StatusCombineOperationNode('区域-事件', MoveToEventInteract(ctx))
+        event_route = StatusCombineOperationNode('区域-事件', op_func=self._route_op)
         edges.append(StatusCombineOperationEdge2(check_level_type, event_route,
                                                  status=SimUniLevelTypeEnum.EVENT.value.type_id))
         edges.append(StatusCombineOperationEdge2(check_level_type, event_route,
@@ -176,7 +173,12 @@ class SimUniRunLevel(StatusCombineOperation2):
         if self.route is None:
             return OperationFail(self.ctx, status='匹配路线失败')
         else:
-            return SimUniRunRoute(self.ctx, self.route, self.bless_priority)
+            if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
+                return SimUniRunRoute(self.ctx, self.route, self.bless_priority)
+            elif self.level_type == SimUniLevelTypeEnum.EVENT.value:
+                return MoveToEventInteract2(self.ctx, self.route)
+            else:
+                return OperationFail(self.ctx, status='未知楼层类型使用路线配置')
 
     def _next_confirm(self) -> Operation:
         if self.level_type == SimUniLevelTypeEnum.ELITE.value or self.level_type == SimUniLevelTypeEnum.BOSS.value:

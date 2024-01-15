@@ -449,3 +449,34 @@ class MoveForward(Operation):
         time.sleep(self.seconds)
         self.ctx.controller.stop_moving_forward()
         return Operation.round_success()
+
+
+class SimplyMoveByPos(MoveDirectly):
+
+    def __init__(self, ctx: Context,
+                 lm_info: LargeMapInfo,
+                 start: Point,
+                 target: Point,
+                 next_lm_info: Optional[LargeMapInfo] = None,
+                 stop_afterwards: bool = True,
+                 no_run: bool = False,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
+        """
+        从当前位置 朝目标点直线前行
+        不考虑任何其他情况
+        适合在确定不会有任何打断或困住的情况下使用
+        """
+        super().__init__(ctx,
+                         lm_info=lm_info,
+                         start=start,
+                         target=target,
+                         next_lm_info=next_lm_info,
+                         stop_afterwards=stop_afterwards,
+                         no_run=no_run,
+                         op_callback=op_callback)
+
+    def be_attacked(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
+        return None
+
+    def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
+        return None

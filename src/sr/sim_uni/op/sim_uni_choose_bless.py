@@ -103,7 +103,7 @@ class SimUniChooseBless(Operation):
             else:
                 confirm_point = SimUniChooseBless.CONFIRM_BTN.center
             self.ctx.controller.click(confirm_point)
-            return Operation.round_success(wait=2)
+            return Operation.round_success(wait=1)
 
     def _get_bless_pos(self, screen: MatLike) -> List[MatchResult]:
         """

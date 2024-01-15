@@ -24,6 +24,7 @@ class SimUniEventOption:
 
 class SimUniEvent(StateOperation):
 
+    STATUS_NO_OPT: ClassVar[str] = '无选项'
     STATUS_CHOOSE_OPT_CONFIRM: ClassVar[str] = '需确认'
     STATUS_CHOOSE_OPT_NO_CONFIRM: ClassVar[str] = '无需确认'
     STATUS_CONFIRM_SUCCESS: ClassVar[str] = '确认成功'
@@ -63,6 +64,7 @@ class SimUniEvent(StateOperation):
         edges.append(StateOperationEdge(check_after_confirm, choose_opt, status='事件'))
         edges.append(StateOperationEdge(check_after_confirm, empty, status='点击空白处关闭'))
 
+        edges.append(StateOperationEdge(choose_opt, check_after_confirm, status=SimUniEvent.STATUS_NO_OPT))
         edges.append(StateOperationEdge(bless, check_after_confirm))
         edges.append(StateOperationEdge(curio, check_after_confirm))
         edges.append(StateOperationEdge(empty, check_after_confirm))
@@ -104,7 +106,7 @@ class SimUniEvent(StateOperation):
         if len(self.opt_list) == 0:
             # 有可能在对话
             self.ctx.controller.click(SimUniEvent.EMPTY_POS)
-            return Operation.round_retry('未检测到选项', wait=0.5)
+            return Operation.round_success(SimUniEvent.STATUS_NO_OPT, wait=0.5)
         else:
             return self._do_choose_opt(0)
 
@@ -137,14 +139,14 @@ class SimUniEvent(StateOperation):
             title_part, _ = cv2_utils.crop_image(screen, title_rect)
             title = self.ctx.ocr.ocr_for_single_line(title_part)
 
-            confirm_lt = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(260, 90)
-            confirm_rb = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(440, 130)
+            confirm_lt = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(260, 85)
+            confirm_rb = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(440, 125)
             confirm_rect = Rect(confirm_lt.x, confirm_lt.y, confirm_rb.x, confirm_rb.y)
             # confirm_part, _ = cv2_utils.crop_image(screen, confirm_rect)
             # cv2_utils.show_image(confirm_part, wait=0)
 
             opt = SimUniEventOption(title, title_rect, confirm_rect)
-            log.info('识别选项 %s', opt.title)
+            log.info('识别需确认选项 %s', opt.title)
             opt_list.append(opt)
 
         return opt_list
@@ -176,7 +178,7 @@ class SimUniEvent(StateOperation):
                 title = self.ctx.ocr.ocr_for_single_line(title_part)
 
                 opt = SimUniEventOption(title, title_rect)
-                log.info('识别选项 %s', opt.title)
+                log.info('识别无需选项 %s', opt.title)
                 opt_list.append(opt)
 
         return opt_list
@@ -263,7 +265,7 @@ class SimUniEvent(StateOperation):
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
 
         if click:
-            return Operation.round_success()
+            return Operation.round_success(wait=0.5)
         else:
             return Operation.round_retry('点击空白处关闭失败')
 

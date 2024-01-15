@@ -580,8 +580,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         当前是否选择了事件
         :return:
         """
-        return (self.level_type_dropdown.value is not None and
-                self.level_type_dropdown.value == SimUniLevelTypeEnum.COMBAT.value.type_id)
+        level_type = level_type_from_id(self.level_type_dropdown.value)
+        return level_type is not None and level_type.need_route
 
 
 _sim_uni_draft_route_view: Optional[SimUniDraftRouteView] = None

@@ -24,15 +24,18 @@ class Interact(Operation):
     SINGLE_LINE_INTERACT_RECT: ClassVar[Rect] = Rect(1174, 598, 1558, 647)  # 单行文本的位置
     TRY_INTERACT_MOVE: ClassVar[str] = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
 
-    def __init__(self, ctx: Context, cn: str, lcs_percent: float = -1):
+    def __init__(self, ctx: Context, cn: str, lcs_percent: float = -1,
+                 single_line: bool = False):
         """
         :param ctx:
         :param cn: 需要交互的中文
         :param lcs_percent: ocr匹配阈值
+        :param single_line: 是否确认只有一行的交互 此时可以缩小文本识别范围
         """
         super().__init__(ctx, try_times=len(Interact.TRY_INTERACT_MOVE), op_name=gt('交互 %s', 'ui') % gt(cn, 'ui'))
         self.cn: str = cn
         self.lcs_percent: float = lcs_percent
+        self.single_line: bool = single_line
 
     def _execute_one_round(self):
         time.sleep(0.5)  # 稍微等待一下 可能交互按钮还没有出来
@@ -49,7 +52,7 @@ class Interact(Operation):
         u = 255
         lower_color = np.array([l, l, l], dtype=np.uint8)
         upper_color = np.array([u, u, u], dtype=np.uint8)
-        part, _ = cv2_utils.crop_image(screen, Interact.INTERACT_RECT)
+        part, _ = cv2_utils.crop_image(screen, Interact.SINGLE_LINE_INTERACT_RECT if self.single_line else Interact.INTERACT_RECT)
         white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
         # cv2_utils.show_image(white_part, wait=0)
 

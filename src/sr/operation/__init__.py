@@ -322,6 +322,10 @@ class Operation:
         """
         return OperationResult(success=False, status=status, data=data)
 
+    @staticmethod
+    def round_fail_by_op(op_result: OperationResult) -> OperationOneRoundResult:
+        return Operation.round_fail(status=op_result.status, data=op_result.data)
+
     def ocr_and_click_one_line(
             self, target_cn: str,
             target_rect: Rect,
