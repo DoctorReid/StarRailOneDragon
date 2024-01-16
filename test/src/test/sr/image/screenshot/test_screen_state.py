@@ -19,3 +19,10 @@ class TestOperation(unittest.TestCase, test.SrTestBase):
 
         screen = self.get_test_image('sim_uni_finished')
         self.assertTrue(screen_state.is_empty_to_close(screen, ctx.ocr))
+
+    def test_get_ui_title(self):
+        ctx = get_context()
+        ctx.init_ocr_matcher()
+
+        screen = self.get_test_image('empty_to_close_1')
+        self.assertEqual(0, len(screen_state.get_ui_title(screen, ctx.ocr)))

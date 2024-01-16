@@ -2,7 +2,7 @@ from typing import ClassVar, List, Optional
 
 from cv2.typing import MatLike
 
-from basic import Rect, Point
+from basic import Rect, Point, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
@@ -34,7 +34,8 @@ class SimUniEvent(StateOperation):
 
     def __init__(self, ctx: Context,
                  bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniCurioPriority] = None):
+                 curio_priority: Optional[SimUniCurioPriority] = None,
+                 skip_first_screen_check: bool = True):
         """
         模拟宇宙 事件
         :param ctx:
@@ -78,6 +79,7 @@ class SimUniEvent(StateOperation):
         self.opt_list: List[SimUniEventOption] = []
         self.bless_priority: Optional[SimUniBlessPriority] = bless_priority
         self.curio_priority: Optional[SimUniCurioPriority] = curio_priority
+        self.skip_first_screen_check: bool = skip_first_screen_check
 
     def _init_before_execute(self):
         """
@@ -87,6 +89,8 @@ class SimUniEvent(StateOperation):
         self.opt_list = []
 
     def _wait(self) -> OperationOneRoundResult:
+        if self.skip_first_screen_check:
+            return Operation.round_success()
         screen = self.screenshot()
 
         if screen_state.in_sim_uni_event(screen, self.ctx.ocr):
@@ -227,19 +231,17 @@ class SimUniEvent(StateOperation):
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:
         # TODO 如何判断进入战斗了
-        if screen_state.is_empty_to_close(screen, self.ctx.ocr):
-            return '点击空白处关闭'
-        elif screen_state.in_sim_uni_secondary_ui(screen, self.ctx.ocr):
-            if screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
-                return '选择祝福'
-            elif screen_state.in_sim_uni_choose_curio(screen, self.ctx.ocr):
-                return '选择奇物'
-            elif screen_state.in_sim_uni_event(screen, self.ctx.ocr):
-                return '事件'
-        elif screen_state.is_normal_in_world(screen, self.ctx.im):
-            return '大世界'
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      in_world=True,
+                                                      empty_to_close=True,
+                                                      bless=True,
+                                                      curio=True,
+                                                      event=True)
+        if state is not None:
+            return state
 
         # 未知情况都先点击一下
+        log.info('未能识别当前画面状态')
         self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
         return None
 
@@ -268,59 +270,3 @@ class SimUniEvent(StateOperation):
             return Operation.round_success(wait=0.5)
         else:
             return Operation.round_retry('点击空白处关闭失败')
-
-
-class SimUniEventHerta(StateOperation):
-
-    FIRST_CHOOSE_BTN: ClassVar[Rect] = Rect(1405, 724, 1802, 771)  # 第一次出现的【选择】
-
-    OPT_1_TITLE: ClassVar[Rect] = Rect(1390, 208, 1821, 242)  # 购买1个1星祝福
-    OPT_1_CONFIRM: ClassVar[Rect] = Rect(1609, 297, 1796, 338)  # 确认
-
-    def __init__(self, ctx: Context,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniCurioPriority] = None):
-        """
-        模拟宇宙 跟黑塔的交互
-        :param ctx:
-        """
-        edges = []
-
-        wait = StateOperationNode('等待加载', self._wait)
-        first_choose = StateOperationNode('选择', self._first_choose)
-        edges.append(StateOperationEdge(wait, first_choose))
-
-        event_option = StateOperationNode('选项', self._event_option)
-        edges.append(StateOperationEdge(first_choose, event_option))
-
-        super().__init__(ctx, try_times=10,
-                         op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('黑塔', 'ui')),
-                         edges=edges
-                         )
-
-        self.bless_priority: Optional[SimUniBlessPriority] = bless_priority
-        self.curio_priority: Optional[SimUniCurioPriority] = curio_priority
-
-    def _wait(self) -> OperationOneRoundResult:
-        screen = self.screenshot()
-
-        if screen_state.in_sim_uni_event(screen, self.ctx.ocr):
-            return Operation.round_success()
-        else:
-            return Operation.round_retry('未在事件页面')
-
-    def _first_choose(self) -> OperationOneRoundResult:
-        click = self.ocr_and_click_one_line('选择', SimUniEventHerta.FIRST_CHOOSE_BTN)
-        if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=0.5)
-        else:
-            return Operation.round_retry('点击选择失败', wait=0.5)
-
-    def _event_option(self) -> OperationOneRoundResult:
-        op = SimUniEvent(self.ctx)
-        op_result = op.execute()
-
-        if op_result.success:
-            return Operation.round_success()
-        else:
-            return Operation.round_fail('事件选择失败')

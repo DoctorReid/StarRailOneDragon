@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List, Optional
 
 from cv2.typing import MatLike
 
@@ -89,6 +90,9 @@ class ScreenState(Enum):
     BATTLE: str = '战斗'
     """所有战斗画面通用 - 右上角有暂停符号"""
 
+    EMPTY_TO_CLOSE: str = '点击空白处关闭'
+    """所有战斗画面通用 - 下方有 点击空白处关闭"""
+
 
 class TargetRect(Enum):
 
@@ -101,7 +105,7 @@ class TargetRect(Enum):
     REGION_NAME = Rect(52, 13, 276, 40)
     """左上角区域名字的位置"""
 
-    SIM_UNI_UI_TITLE = Rect(100, 15, 350, 100)
+    SIM_UNI_UI_TITLE = Rect(100, 15, 350, 80)
     """模拟宇宙 - 左上角界面名称的位置"""
 
     EMPTY_TO_CLOSE = Rect(876, 908, 1048, 975)
@@ -127,6 +131,22 @@ def is_normal_in_world(screen: MatLike, im: ImageMatcher) -> bool:
     part, _ = cv2_utils.crop_image(screen, TargetRect.CHARACTER_ICON.value)
     result = im.match_template(part, 'ui_icon_01', threshold=0.7)
     return result.max is not None
+
+
+def get_ui_title(screen: MatLike, ocr: OcrMatcher,
+                 rect: Rect = TargetRect.UI_TITLE.value) -> List[str]:
+    """
+    获取页面左上方标题文字 可能有两个
+    例如 模拟宇宙 选择祝福
+    :param screen: 屏幕截图
+    :param ocr: OCR识别
+    :param rect: 区域
+    :return:
+    """
+    part = cv2_utils.crop_image_only(screen, rect)
+    # cv2_utils.show_image(part, wait=0)
+    ocr_result_map = ocr.run_ocr(part)
+    return list(ocr_result_map.keys())
 
 
 def in_secondary_ui(screen: MatLike, ocr: OcrMatcher,
@@ -214,3 +234,44 @@ def is_empty_to_close(screen: MatLike, ocr: OcrMatcher) -> bool:
     # cv2_utils.show_image(part, wait=0)
 
     return str_utils.find_by_lcs(gt('点击空白处关闭', 'ui'), ocr_result)
+
+
+def get_sim_uni_screen_state(
+        screen: MatLike, im: ImageMatcher, ocr: OcrMatcher,
+        in_world: bool = False,
+        empty_to_close: bool = False,
+        bless: bool = False,
+        curio: bool = False,
+        event: bool = False) -> Optional[str]:
+    """
+    获取模拟宇宙中的画面状态
+    :param screen: 屏幕截图
+    :param im: 图片匹配器
+    :param ocr: 文本识别器
+    :param in_world: 可能在大世界
+    :param empty_to_close: 可能点击空白处关闭
+    :param bless: 可能在选择祝福
+    :param curio: 可能在选择奇物
+    :param event: 可能在事件
+    :return:
+    """
+    # TODO 如何判断进入战斗了
+    if in_world and is_normal_in_world(screen, im):
+        return ScreenState.NORMAL_IN_WORLD.value
+
+    if empty_to_close and is_empty_to_close(screen, ocr):
+        return ScreenState.EMPTY_TO_CLOSE.value
+
+    titles = get_ui_title(screen, ocr, rect=TargetRect.SIM_UNI_UI_TITLE.value)
+    sim_uni_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles)
+    if sim_uni_idx is not None:
+        if bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_BLESS.value, titles) is not None:
+            return ScreenState.SIM_BLESS.value
+
+        if curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_CURIOS.value, titles):
+            return ScreenState.SIM_CURIOS.value
+
+        if event and str_utils.find_best_match_by_lcs(ScreenState.SIM_EVENT.value, titles):
+            return ScreenState.SIM_EVENT.value
+
+    return None

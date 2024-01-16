@@ -2,7 +2,6 @@ import unittest
 
 import test
 from sr.context import get_context
-from sr.sim_uni.op.sim_uni_event import SimUniEventHerta, SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 
 

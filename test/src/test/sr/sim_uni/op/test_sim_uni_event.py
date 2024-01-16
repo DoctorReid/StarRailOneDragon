@@ -2,7 +2,7 @@ import unittest
 
 import test
 from sr.context import get_context
-from sr.sim_uni.op.sim_uni_event import SimUniEventHerta, SimUniEvent
+from sr.sim_uni.op.sim_uni_event import SimUniEvent
 
 
 class TestSimUniEvent(unittest.TestCase, test.SrTestBase):
@@ -48,11 +48,4 @@ class TestSimUniEvent(unittest.TestCase, test.SrTestBase):
         ctx.start_running()
 
         op = SimUniEvent(ctx)
-        op.execute()
-
-    def test_op_herta(self):
-        ctx = get_context()
-        ctx.start_running()
-
-        op = SimUniEventHerta(ctx)
         op.execute()

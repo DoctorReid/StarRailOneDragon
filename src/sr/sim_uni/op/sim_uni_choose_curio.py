@@ -15,17 +15,23 @@ from sr.sim_uni.sim_uni_priority import SimUniCurioPriority
 
 
 class SimUniChooseCurio(StateOperation):
-
-    CURIO_RECT_LIST: ClassVar[List[Rect]] = [
-        # 3个的情况
+    # 奇物名字对应的框 - 3个的情况
+    CURIO_RECT_3_LIST: ClassVar[List[Rect]] = [
         Rect(315, 280, 665, 320),
         Rect(780, 280, 1120, 320),
         Rect(1255, 280, 1590, 320),
-        # 2个的情况
+    ]
+
+    # 奇物名字对应的框 - 2个的情况
+    CURIO_RECT_2_LIST: ClassVar[List[Rect]] = [
         Rect(513, 280, 933, 320),
         Rect(1024, 280, 1363, 320),
+    ]
 
-    ]  # 奇物名字对应的框
+    # 奇物名字对应的框 - 1个的情况
+    CURIO_RECT_1_LIST: ClassVar[List[Rect]] = [
+        Rect(780, 280, 1120, 320),
+    ]
 
     CONFIRM_BTN: ClassVar[Rect] = Rect(1500, 950, 1840, 1000)  # 确认选择
 
@@ -87,20 +93,44 @@ class SimUniChooseCurio(StateOperation):
         :param screen: 屏幕截图
         :return: MatchResult.data 中是对应的奇物 SimUniCurio
         """
+        curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_3_LIST)
+        if len(curio_list) > 0:
+            return curio_list
+
+        curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_2_LIST)
+        if len(curio_list) > 0:
+            return curio_list
+
+        curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_1_LIST)
+        if len(curio_list) > 0:
+            return curio_list
+
+        return []
+
+    def _get_curio_pos_by_rect(self, screen: MatLike, rect_list: List[Rect]) -> List[MatchResult]:
+        """
+        获取屏幕上的奇物的位置
+        :param screen: 屏幕截图
+        :param rect_list: 指定区域
+        :return: MatchResult.data 中是对应的奇物 SimUniCurio
+        """
         curio_list: List[MatchResult] = []
 
-        for rect in SimUniChooseCurio.CURIO_RECT_LIST:
-            title_part, _ = cv2_utils.crop_image(screen, rect)
+        for rect in rect_list:
+            title_part = cv2_utils.crop_image_only(screen, rect)
             title_ocr = self.ctx.ocr.ocr_for_single_line(title_part)
+            # cv2_utils.show_image(title_part, wait=0)
 
             curio = match_best_curio_by_ocr(title_ocr)
 
-            if curio is not None:
-                log.info('识别到奇物 %s', curio)
-                curio_list.append(MatchResult(1,
-                                              rect.x1, rect.y1,
-                                              rect.width, rect.height,
-                                              data=curio))
+            if curio is None:  # 有一个识别不到就返回 提速
+                return curio_list
+
+            log.info('识别到奇物 %s', curio)
+            curio_list.append(MatchResult(1,
+                                          rect.x1, rect.y1,
+                                          rect.width, rect.height,
+                                          data=curio))
 
         return curio_list
 
@@ -148,20 +178,18 @@ class SimUniChooseCurio(StateOperation):
             return Operation.round_success(state)
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:
-        if screen_state.is_empty_to_close(screen, self.ctx.ocr):
-            return '点击空白处关闭'
-        elif screen_state.in_sim_uni_secondary_ui(screen, self.ctx.ocr):
-            if screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
-                return '选择祝福'
-            elif screen_state.in_sim_uni_choose_curio(screen, self.ctx.ocr):
-                return '选择奇物'
-            elif screen_state.in_sim_uni_event(screen, self.ctx.ocr):
-                return '事件'
-        elif screen_state.is_normal_in_world(screen, self.ctx.im):
-            return '大世界'
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      in_world=True,
+                                                      empty_to_close=True,
+                                                      bless=True,
+                                                      curio=True)
+        if state is not None:
+            return state
 
         # 未知情况都先点击一下
+        log.info('未能识别当前画面状态')
         self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
+
         return None
 
     def _click_empty_to_continue(self) -> OperationOneRoundResult:
