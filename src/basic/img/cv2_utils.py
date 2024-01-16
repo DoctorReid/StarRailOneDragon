@@ -686,3 +686,46 @@ def to_base64(img: MatLike) -> str:
     _, buffer = cv2.imencode('.png', img)
     base64_data = base64.b64encode(buffer)
     return base64_data.decode("utf-8")
+
+
+def get_white_part(img: MatLike,
+                   noise_threshold: Optional[int] = None):
+    """
+    获取白色的部分掩码
+    :param img:
+    :param noise_threshold: 噪音阈值。传入时会消除小于多少
+    :return:
+    """
+    return color_in_range(img, lower=[220, 220, 220], upper=[255, 255, 255],
+                          noise_threshold=noise_threshold)
+
+
+def get_black_part(img: MatLike,
+                   noise_threshold: Optional[int] = None):
+    """
+    获取白色的部分掩码
+    :param img:
+    :param noise_threshold: 噪音阈值。传入时会消除小于多少
+    :return:
+    """
+    return color_in_range(img, lower=[0, 0, 0], upper=[50, 50, 50],
+                          noise_threshold=noise_threshold)
+
+
+def color_in_range(img: MatLike, lower: List[int], upper: List[int],
+                   noise_threshold: Optional[int] = None):
+    """
+    获取颜色范围内的掩码
+    :param img:
+    :param lower: 颜色下限
+    :param upper: 颜色上限
+    :param noise_threshold: 噪音阈值。传入时会消除小于多少
+    :return:
+    """
+    lower_color = np.array(lower, dtype=np.uint8)
+    upper_color = np.array(upper, dtype=np.uint8)
+    part = cv2.inRange(img, lower_color, upper_color)
+    if noise_threshold is None:
+        return part
+    else:
+        return connection_erase(part, noise_threshold)

@@ -107,7 +107,7 @@ class SimUniChooseBless(Operation):
 
     def _get_bless_pos(self, screen: MatLike) -> List[MatchResult]:
         """
-        获取屏幕上的祝福的位置
+        获取屏幕上的祝福的位置 整体运行大约1秒
         :param screen: 屏幕截图
         :return: MatchResult.data 中是对应的祝福 Bless
         """
@@ -165,13 +165,13 @@ class SimUniChooseBless(Operation):
         bless_list: List[MatchResult] = []
 
         for bless_rect_list in rect_list:
-            path_part, _ = cv2_utils.crop_image(screen, bless_rect_list[1])
+            path_part = cv2_utils.crop_image_only(screen, bless_rect_list[1])
             path_ocr = self.ctx.ocr.ocr_for_single_line(path_part)
-            # cv2_utils.show_image(path_part, wait=0)
+            # cv2_utils.show_image(path_black_part, wait=0)
             if path_ocr is None or len(path_ocr) == 0:
                 break  # 其中有一个位置识别不到就认为不是使用这些区域了 加速这里的判断
 
-            title_part, _ = cv2_utils.crop_image(screen, bless_rect_list[0])
+            title_part = cv2_utils.crop_image_only(screen, bless_rect_list[0])
             title_ocr = self.ctx.ocr.ocr_for_single_line(title_part)
 
             bless = match_best_bless_by_ocr(title_ocr, path_ocr)

@@ -26,6 +26,7 @@ class CnOcrMatcher(OcrMatcher):
     不能并发使用，会有线程安全问题
     enable_mkldnn=True 后更慢了 原因未知
     应该尽量避免传入还有不明黑点或横线之类的被识别为标点符号
+    使用识别祝福部分测试 传入黑白图并不能提速。颜色扣取不好还会导致识别精度下降。
     """
     def __init__(self):
         self.ocr: Optional[PaddleOCR] = None

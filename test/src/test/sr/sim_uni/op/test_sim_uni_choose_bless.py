@@ -1,3 +1,4 @@
+import time
 import unittest
 from typing import List
 
@@ -23,9 +24,11 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         """
         screen = self.get_test_image('1')
 
+        st = time.time()
         bless_list = self.op._get_bless_pos(screen)
         # bless_list = self.op._get_bless_pos_v2(screen)
         # bless_list = self.op._get_bless_pos_v3(screen, SimUniChooseBless.BLESS_3_RECT_LIST)
+        print(time.time() - st)
 
         answer: List[SimUniBless] = [
             SimUniBlessEnum.BLESS_06_023.value,
