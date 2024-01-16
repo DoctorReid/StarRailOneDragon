@@ -80,10 +80,13 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
             self.assertEqual(answer[i], bless_list[i].data)
 
     def test_can_reset(self):
-        screen = self.get_test_image('1')
+        screen = self.get_test_image('can_reset_1')
         self.assertTrue(self.op._can_reset(screen))
 
-        screen = self.get_test_image('2')
+        screen = self.get_test_image('cant_reset_1')
+        self.assertFalse(self.op._can_reset(screen))
+
+        screen = self.get_test_image('cant_reset_2')
         self.assertFalse(self.op._can_reset(screen))
 
     def test_op(self):
