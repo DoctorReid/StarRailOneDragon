@@ -406,7 +406,7 @@ def template_match_with_scale_list_parallely(im: ImageMatcher,
         try:
             result: MatchResult = future.result(1)
             if result is not None:
-                log.debug('缩放比例 %.2f 置信度 %.2f', result.template_scale, result.confidence)
+                # log.debug('缩放比例 %.2f 置信度 %.2f', result.template_scale, result.confidence)
                 if target is None or result.confidence > target.confidence:
                     target = result
         except concurrent.futures.TimeoutError:

@@ -1,0 +1,7 @@
+planet: '雅利洛'
+region: '边缘通路'
+floor: 0
+start_pos: [813, 977]
+op_list:
+  - op: 'move'
+    data: [779, 937]

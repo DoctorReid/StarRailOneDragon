@@ -44,7 +44,7 @@ class SimUniLevelTypeEnum(Enum):
     BOSS = SimUniLevelType('boss', '首领', False)
     EVENT = SimUniLevelType('event', '事件', True)
     TRANSACTION = SimUniLevelType('transaction', '交易', False)
-    RESPITE = SimUniLevelType('respite', '休整', False)
+    RESPITE = SimUniLevelType('respite', '休整', True)
 
 
 def level_type_from_id(level_type_id: str) -> Optional[SimUniLevelType]:

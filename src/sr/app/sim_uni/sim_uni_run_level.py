@@ -8,15 +8,14 @@ from sr.operation import Operation, OperationResult, OperationFail, OperationSuc
 from sr.operation.battle.start_fight import StartFightWithTechnique, Attack
 from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationEdge2, StatusCombineOperationNode
 from sr.operation.unit.move import MoveToEnemy, MoveForward
-from sr.operation.unit.wait import WaitInWorld
 from sr.sim_uni.op.battle_in_sim_uni import SimUniEnterFight
-from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel, MoveToHertaInteract, MoveToMiniMapInteractIcon, \
-    MoveToEventInteract, MoveToEventInteract2
-from sr.sim_uni.op.sim_uni_exit import SimUniExit
-from sr.sim_uni.op.sim_uni_run_route import SimUniRunRoute
+from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel, MoveToEventInteract2, MoveToInteractByMiniMap2, \
+    MoveToHertaInteract2
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
+from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_next_level_confirm import SimUniNextLevelConfirm
+from sr.sim_uni.op.sim_uni_run_route import SimUniRunRoute
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniNextLevelPriority, SimUniCurioPriority
@@ -108,7 +107,7 @@ class SimUniRunLevel(StatusCombineOperation2):
         respite_attack = StatusCombineOperationNode('区域-休整-破坏物', Attack(ctx))
         edges.append(StatusCombineOperationEdge2(respite_route, respite_attack))
 
-        respite_move_to_herta = StatusCombineOperationNode('区域-休整-走向黑塔', MoveToHertaInteract(ctx))
+        respite_move_to_herta = StatusCombineOperationNode('区域-休整-走向黑塔', op_func=self._route_op)
         edges.append(StatusCombineOperationEdge2(respite_attack, respite_move_to_herta))
 
         respite_herta_event = StatusCombineOperationNode(
@@ -118,7 +117,7 @@ class SimUniRunLevel(StatusCombineOperation2):
 
         edges.append(StatusCombineOperationEdge2(respite_herta_event, enter_next))
         edges.append(StatusCombineOperationEdge2(respite_move_to_herta, enter_next,
-                                                 success=False, status=MoveToMiniMapInteractIcon.STATUS_ICON_NOT_FOUND))
+                                                 status=MoveToInteractByMiniMap2.STATUS_ICON_NOT_FOUND))
 
         # 事件、交易、遭遇
         # event_route = StatusCombineOperationNode('区域-事件', MoveToEventInteract(ctx))
@@ -138,7 +137,7 @@ class SimUniRunLevel(StatusCombineOperation2):
 
         edges.append(StatusCombineOperationEdge2(event_handle, enter_next))
         edges.append(StatusCombineOperationEdge2(event_route, enter_next,
-                                                 success=False, status=MoveToMiniMapInteractIcon.STATUS_ICON_NOT_FOUND))
+                                                 status=MoveToInteractByMiniMap2.STATUS_ICON_NOT_FOUND))
 
         super().__init__(ctx, op_name=op_name, edges=edges, op_callback=op_callback)
 
@@ -177,6 +176,8 @@ class SimUniRunLevel(StatusCombineOperation2):
                 return SimUniRunRoute(self.ctx, self.route, self.bless_priority)
             elif self.level_type == SimUniLevelTypeEnum.EVENT.value:
                 return MoveToEventInteract2(self.ctx, self.route)
+            elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+                return MoveToHertaInteract2(self.ctx, self.route)
             else:
                 return OperationFail(self.ctx, status='未知楼层类型使用路线配置')
 

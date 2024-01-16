@@ -1,0 +1,14 @@
+planet: '雅利洛'
+region: '边缘通路'
+floor: 0
+start_pos: [686, 948]
+op_list:
+  - op: 'move'
+    data: [686, 857]
+  - op: 'patrol'
+  - op: 'move'
+    data: [728, 840]
+  - op: 'patrol'
+  - op: 'move'
+    data: [736, 804]
+  - op: 'patrol'

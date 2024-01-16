@@ -540,7 +540,7 @@ def get_rough_road_mask(mm: MatLike,
     avg_b = np.mean(b)
     avg_g = np.mean(g)
     avg_r = np.mean(r)
-    log.debug('小地图平均色彩 %d %d %d', avg_b, avg_g, avg_r)
+    # log.debug('小地图平均色彩 %d %d %d', avg_b, avg_g, avg_r)
 
     ub = 55 if avg_b < 70 else 100  # 太亮的时候可以提高道路颜色
     ug = 55 if avg_g < 70 else 100
