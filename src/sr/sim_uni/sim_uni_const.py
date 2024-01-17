@@ -39,11 +39,11 @@ class SimUniLevelType:
 class SimUniLevelTypeEnum(Enum):
 
     COMBAT = SimUniLevelType('combat', '战斗', True)
-    ENCOUNTER = SimUniLevelType('encounter', '遭遇', False)
+    ENCOUNTER = SimUniLevelType('encounter', '遭遇', True)
     ELITE = SimUniLevelType('elite', '精英', False)
     BOSS = SimUniLevelType('boss', '首领', False)
     EVENT = SimUniLevelType('event', '事件', True)
-    TRANSACTION = SimUniLevelType('transaction', '交易', False)
+    TRANSACTION = SimUniLevelType('transaction', '交易', True)
     RESPITE = SimUniLevelType('respite', '休整', True)
 
 

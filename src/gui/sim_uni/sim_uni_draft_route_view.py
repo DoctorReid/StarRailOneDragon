@@ -194,11 +194,10 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         for _, region_list in map_const.PLANET_2_REGION.items():
             for region in region_list:
-                log.info('匹配中 %s', region.display_name)
                 lm_info = self.sr_ctx.ih.get_large_map(region)
                 pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(self.sr_ctx.im, lm_info, mm_info,
-                                                                       scale_list=[1], match_threshold=0.5)
-
+                                                                       scale_list=[1], match_threshold=0.3)
+                log.info('匹配 %s 结果 %s', region.display_name, pos)
                 if pos is None:
                     continue
 

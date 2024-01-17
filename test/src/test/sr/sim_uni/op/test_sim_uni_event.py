@@ -2,6 +2,7 @@ import unittest
 
 import test
 from sr.context import get_context
+from sr.image.sceenshot import screen_state
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 
 
@@ -40,8 +41,11 @@ class TestSimUniEvent(unittest.TestCase, test.SrTestBase):
 
         screen = self.get_test_image('event_no_confirm')
         state = op._get_screen_state(screen)
-        self.assertIsNotNone(state)
         self.assertTrue('事件', state)
+
+        screen = self.get_test_image('choose_bless')
+        state = op._get_screen_state(screen)
+        self.assertTrue(screen_state.ScreenState.SIM_BLESS.value, state)
 
     def test_op_event(self):
         ctx = get_context()

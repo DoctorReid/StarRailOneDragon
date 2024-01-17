@@ -2,9 +2,8 @@ from typing import Optional
 
 from basic.i18_utils import gt
 from sr.app import Application2
-from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
-from sr.app.sim_uni.sim_uni_run_level import SimUniRunLevel
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
+from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationSuccess
@@ -25,7 +24,7 @@ class TestSimUniRouteApp(Application2):
         :param route:
         """
         bless_priority = SimUniBlessPriority(SimUniPath.PROPAGATION.value)
-        next_level_priority = SimUniNextLevelPriority(SimUniLevelTypeEnum.COMBAT.value.type_id)
+        next_level_priority = SimUniNextLevelPriority(SimUniLevelTypeEnum.EVENT.value.type_id)
         super().__init__(
             ctx, op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('测试路线', 'ui')),
             nodes=[
@@ -41,7 +40,7 @@ class TestSimUniRouteApp(Application2):
         self.route: SimUniRoute = route
 
     def _check_route(self) -> Operation:
-        if self.level_type != SimUniLevelTypeEnum.COMBAT.value:
+        if not self.level_type.need_route:
             return OperationSuccess(self.ctx)
 
         screen = self.screenshot()

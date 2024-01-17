@@ -612,7 +612,7 @@ def get_road_mask_v4(mm: MatLike,
     min_b = np.min(b[np.where(np.logical_and(check_start_mask == 255, b > min_color))])
     min_g = np.min(g[np.where(np.logical_and(check_start_mask == 255, g > min_color))])
     min_r = np.min(r[np.where(np.logical_and(check_start_mask == 255, r > min_color))])
-    log.debug('最深颜色 (%d, %d, %d)', min_b, min_g, min_r)
+    # log.debug('最深颜色 (%d, %d, %d)', min_b, min_g, min_r)
 
     color_threshold = 5
     # 找出最深色的模块

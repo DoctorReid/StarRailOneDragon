@@ -75,6 +75,9 @@ class ScreenState(Enum):
     SIM_TYPE_EXTEND: str = '扩展装置'
     """模拟宇宙 - 拓展装置"""
 
+    SIM_TYPE_GOLD: str = '黄金与机械'
+    """模拟宇宙 - 黄金与机械"""
+
     SIM_PATH: str = '命途'
     """模拟宇宙 - 命途"""
 
@@ -105,8 +108,8 @@ class TargetRect(Enum):
     REGION_NAME = Rect(52, 13, 276, 40)
     """左上角区域名字的位置"""
 
-    SIM_UNI_UI_TITLE = Rect(100, 15, 350, 80)
-    """模拟宇宙 - 左上角界面名称的位置"""
+    SIM_UNI_UI_TITLE = Rect(100, 15, 350, 100)
+    """模拟宇宙 - 左上角界面名称的位置 事件和选择祝福的框是不一样位置的 这里取了两者的并集"""
 
     EMPTY_TO_CLOSE = Rect(876, 908, 1048, 975)
     """点击空白处关闭"""
@@ -264,14 +267,18 @@ def get_sim_uni_screen_state(
 
     titles = get_ui_title(screen, ocr, rect=TargetRect.SIM_UNI_UI_TITLE.value)
     sim_uni_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles)
-    if sim_uni_idx is not None:
-        if bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_BLESS.value, titles) is not None:
-            return ScreenState.SIM_BLESS.value
+    gold_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_GOLD.value, titles)  # 不知道是不是游戏bug 游戏内正常的模拟宇宙也会显示这个
 
-        if curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_CURIOS.value, titles):
-            return ScreenState.SIM_CURIOS.value
+    if sim_uni_idx is None and gold_idx is None:
+        return
 
-        if event and str_utils.find_best_match_by_lcs(ScreenState.SIM_EVENT.value, titles):
-            return ScreenState.SIM_EVENT.value
+    if bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_BLESS.value, titles) is not None:
+        return ScreenState.SIM_BLESS.value
+
+    if curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_CURIOS.value, titles):
+        return ScreenState.SIM_CURIOS.value
+
+    if event and str_utils.find_best_match_by_lcs(ScreenState.SIM_EVENT.value, titles):
+        return ScreenState.SIM_EVENT.value
 
     return None

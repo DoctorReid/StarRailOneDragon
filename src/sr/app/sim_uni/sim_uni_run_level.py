@@ -1,6 +1,8 @@
 from typing import List, Optional, Callable, ClassVar
 
 from basic.i18_utils import gt
+from basic.img.os import save_debug_image
+from basic.log_utils import log
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.context import Context
 from sr.image.sceenshot import mini_map
@@ -10,7 +12,7 @@ from sr.operation.combine import StatusCombineOperation2, StatusCombineOperation
 from sr.operation.unit.move import MoveToEnemy, MoveForward
 from sr.sim_uni.op.battle_in_sim_uni import SimUniEnterFight
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel, MoveToEventInteract2, MoveToInteractByMiniMap2, \
-    MoveToHertaInteract2
+    MoveToHertaInteract2, MoveToEventInteract, MoveToHertaInteract
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
@@ -100,12 +102,9 @@ class SimUniRunLevel(StatusCombineOperation2):
                                                  success=False, status=MoveToEnemy.STATUS_ENEMY_NOT_FOUND))  # 也可能没敌人
 
         # 休整楼层
-        respite_route = StatusCombineOperationNode('区域-休整', MoveForward(ctx, 1))
-        edges.append(StatusCombineOperationEdge2(check_level_type, respite_route,
-                                                 status=SimUniLevelTypeEnum.RESPITE.value.type_id))
-
         respite_attack = StatusCombineOperationNode('区域-休整-破坏物', Attack(ctx))
-        edges.append(StatusCombineOperationEdge2(respite_route, respite_attack))
+        edges.append(StatusCombineOperationEdge2(check_level_type, respite_attack,
+                                                 status=SimUniLevelTypeEnum.RESPITE.value.type_id))
 
         respite_move_to_herta = StatusCombineOperationNode('区域-休整-走向黑塔', op_func=self._route_op)
         edges.append(StatusCombineOperationEdge2(respite_attack, respite_move_to_herta))
@@ -170,11 +169,27 @@ class SimUniRunLevel(StatusCombineOperation2):
         :return:
         """
         if self.route is None:
+            if self.level_type == SimUniLevelTypeEnum.EVENT.value or \
+                    self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
+                    self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
+                screen = self.screenshot()
+                log.warn('%s 地图未配置 使用小地图识别 可发送截图给作者 %s',
+                         self.level_type.type_name,
+                         save_debug_image(screen))
+                # return MoveToEventInteract(self.ctx)  # TODO 正式发布时使用
+            elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+                screen = self.screenshot()
+                log.warn('%s地图未配置 使用小地图识别 可发送截图给作者 %s',
+                         self.level_type.type_name,
+                         save_debug_image(screen))
+                # return MoveToHertaInteract(self.ctx)  # TODO 正式发布时使用
             return OperationFail(self.ctx, status='匹配路线失败')
         else:
             if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
                 return SimUniRunRoute(self.ctx, self.route, self.bless_priority)
-            elif self.level_type == SimUniLevelTypeEnum.EVENT.value:
+            elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
+                    self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
+                    self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
                 return MoveToEventInteract2(self.ctx, self.route)
             elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
                 return MoveToHertaInteract2(self.ctx, self.route)
