@@ -199,9 +199,10 @@ class MoveToNextLevel(Operation):
         if level_priority is None:
             return 0
 
-        for idx, type_pos in enumerate(type_list):
-            if type_pos.data.type_id == level_priority.first_type_id:
-                return idx
+        for level_type in SimUniLevelTypeEnum:
+            for idx, type_pos in enumerate(type_list):
+                if type_pos.data == level_type.value:
+                    return idx
 
         return 0
 

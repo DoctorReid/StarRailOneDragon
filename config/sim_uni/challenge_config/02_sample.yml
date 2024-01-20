@@ -1,0 +1,31 @@
+name: 记忆
+path: REMEMBRANCE
+bless_priority:
+  - BLESS_00_003
+  - BLESS_02_002
+  - BLESS_02_003
+  - BLESS_02_004
+  - BLESS_02_009
+  - BLESS_02_008
+  - BLESS_02_007
+  - BLESS_02_017
+  - BLESS_02_016
+  - BLESS_02_015
+  - BLESS_02_014
+  - BLESS_02_012
+  - BLESS_02_010
+  - BLESS_02_011
+  - BLESS_02_013
+  - BLESS_02_000
+level_type_priority:
+  - combat
+  - transaction
+  - event
+  - encounter
+curio_priority:
+  - CURIO_019
+  - CURIO_021
+  - CURIO_011
+  - CURIO_024
+  - CURIO_049
+  - CURIO_018

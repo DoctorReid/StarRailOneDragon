@@ -5,10 +5,9 @@ import flet as ft
 from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import components
-from gui.components import SettingsListItem, SettingsList, SettingsListGroupTitle
 from gui.sr_app_view import SrAppView
 from sr.app import world_patrol
-from sr.app.world_patrol import WorldPatrolWhitelist, load_all_whitelist_id, world_patrol_app, WorldPatrolConfig, \
+from sr.app.world_patrol import WorldPatrolWhitelist, load_all_whitelist_id, WorldPatrolConfig, \
     WorldPatrolRecord
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.context import Context

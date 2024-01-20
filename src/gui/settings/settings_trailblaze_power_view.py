@@ -19,7 +19,7 @@ from sr.context import Context
 class PlanListItem(ft.Row):
 
     def __init__(self, item: Optional[TrailblazePowerPlanItem] = None,
-                 on_value_changed: Optional[Callable]=None,
+                 on_value_changed: Optional[Callable] = None,
                  on_click_up: Optional[Callable] = None,
                  on_click_del: Optional[Callable] = None,
                  on_click_support: Optional[Callable] = None):

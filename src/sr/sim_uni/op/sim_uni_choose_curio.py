@@ -10,7 +10,7 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
-from sr.sim_uni.sim_uni_const import match_best_curio_by_ocr, SimUniCurio
+from sr.sim_uni.sim_uni_const import match_best_curio_by_ocr, SimUniCurio, SimUniCurioEnum
 from sr.sim_uni.sim_uni_priority import SimUniCurioPriority
 
 
@@ -158,9 +158,9 @@ class SimUniChooseCurio(StateOperation):
         if priority is None:
             return 0
 
-        for target_name in priority.order_name_list:
-            for idx, curio in enumerate(curio_list):
-                if curio.name == target_name:
+        for curio in SimUniCurioEnum:
+            for idx, opt_curio in enumerate(curio_list):
+                if curio.value == opt_curio.data:
                     return idx
 
         return 0

@@ -9,9 +9,9 @@ from basic import os_utils
 from basic.i18_utils import gt, update_default_lang
 from gui import log_view, calibrator_view, version, one_stop_view, scheduler
 from gui.settings import gui_config, settings_basic_view, settings_trailblaze_power_view, settings_echo_of_war_view, \
-    settings_world_patrol_view, settings_mys_view, settings_forgotten_hall_view
+    settings_world_patrol_view, settings_mys_view, settings_forgotten_hall_view, settings_sim_uni_view
 from gui.settings.gui_config import ThemeColors, GuiConfig
-from gui.sim_uni import sim_uni_draft_route_view
+from gui.sim_uni import sim_uni_draft_route_view, sim_uni_challenge_config_view
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.config import game_config
@@ -22,8 +22,8 @@ from sr.context import get_context, Context
 class StarRailAutoProxy:
 
     def __init__(self, page: ft.Page, ctx: Context):
-        self.page: ft.Page = page
-        self.ctx: Context = ctx
+        self.flet_page: ft.Page = page
+        self.sr_ctx: Context = ctx
 
         ui_config = gui_config.get()
         page.theme_mode = ft.ThemeMode.LIGHT if ui_config.theme_usage == ft.ThemeMode.LIGHT.value else ft.ThemeMode.DARK
@@ -108,6 +108,11 @@ class StarRailAutoProxy:
                     selected_icon=ft.icons.DRAW,
                     label=gt('路线绘制', model='ui')
                 ),
+                ft.NavigationRailDestination(
+                    icon=ft.icons.SETTINGS_INPUT_COMPONENT_OUTLINED,
+                    selected_icon=ft.icons.SETTINGS_INPUT_COMPONENT,
+                    label=gt('挑战配置', model='ui')
+                ),
             ],
             on_change=self.on_rail_chosen
         )
@@ -145,6 +150,11 @@ class StarRailAutoProxy:
                     label=gt('忘却之庭', model='ui')
                 ),
                 ft.NavigationRailDestination(
+                    icon=ft.icons.ACCOUNT_TREE_OUTLINED,
+                    selected_icon=ft.icons.ACCOUNT_TREE,
+                    label=gt('模拟宇宙', model='ui')
+                ),
+                ft.NavigationRailDestination(
                     icon=ft.icons.PEOPLE_OUTLINED,
                     selected_icon=ft.icons.PEOPLE,
                     label=gt('米游社', model='ui')
@@ -177,7 +187,7 @@ class StarRailAutoProxy:
         self.secondary_rail.content = self._get_secondary_rail()
         self.secondary_rail_divider.visible = self.secondary_rail.content is not None
         self.log_container.visible = self._get_log_visible_by_rail()
-        self.page.update()
+        self.flet_page.update()
         self.display_view.handle_after_show()
 
     def _get_log_visible_by_rail(self) -> bool:
@@ -212,32 +222,36 @@ class StarRailAutoProxy:
 
     def _get_view_component(self) -> Optional[SrBasicView]:
         if self.app_rail.selected_index == 0:
-            return one_stop_view.get(self.page, self.ctx)
+            return one_stop_view.get(self.flet_page, self.sr_ctx)
         elif self.app_rail.selected_index == 1:
             if self.world_patrol_rail.selected_index == 0:
-                return world_patrol_run_view.get(self.page, self.ctx)
+                return world_patrol_run_view.get(self.flet_page, self.sr_ctx)
             if self.world_patrol_rail.selected_index == 1:
-                return world_patrol_draft_route_view.get(self.page, self.ctx)
+                return world_patrol_draft_route_view.get(self.flet_page, self.sr_ctx)
             if self.world_patrol_rail.selected_index == 2:
-                return world_patrol_whitelist_view.get(self.page, self.ctx)
+                return world_patrol_whitelist_view.get(self.flet_page, self.sr_ctx)
         elif self.app_rail.selected_index == 2:
             if self.sim_uni_rail.selected_index == 0:
-                return sim_uni_draft_route_view.get(self.page, self.ctx)
+                return sim_uni_draft_route_view.get(self.flet_page, self.sr_ctx)
+            elif self.sim_uni_rail.selected_index == 1:
+                return sim_uni_challenge_config_view.get(self.flet_page, self.sr_ctx)
         elif self.app_rail.selected_index == 3:
-            return calibrator_view.get(self.page, self.ctx)
+            return calibrator_view.get(self.flet_page, self.sr_ctx)
         elif self.app_rail.selected_index == 4:
             if self.settings_rail.selected_index == 0:
-                return settings_basic_view.get(self.page, self.ctx)
+                return settings_basic_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 1:
-                return settings_world_patrol_view.get(self.ctx)
+                return settings_world_patrol_view.get(self.sr_ctx)
             elif self.settings_rail.selected_index == 2:
-                return settings_trailblaze_power_view.get(self.ctx)
+                return settings_trailblaze_power_view.get(self.sr_ctx)
             elif self.settings_rail.selected_index == 3:
-                return settings_echo_of_war_view.get(self.ctx)
+                return settings_echo_of_war_view.get(self.sr_ctx)
             elif self.settings_rail.selected_index == 4:
-                return settings_forgotten_hall_view.get(self.page, self.ctx)
+                return settings_forgotten_hall_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 5:
-                return settings_mys_view.get(self.page, self.ctx)
+                return settings_sim_uni_view.get(self.flet_page, self.sr_ctx)
+            elif self.settings_rail.selected_index == 6:
+                return settings_mys_view.get(self.flet_page, self.sr_ctx)
 
         return None
 
@@ -250,18 +264,18 @@ class StarRailAutoProxy:
         k = event.name
         if k != 'f9':
             return
-        if self.ctx.running != 0:
+        if self.sr_ctx.running != 0:
             return
         t = None
         if self.app_rail.selected_index == 0:
-            t = threading.Thread(target=one_stop_view.get(self.page, self.ctx).on_click_start, args=[None])
+            t = threading.Thread(target=one_stop_view.get(self.flet_page, self.sr_ctx).on_click_start, args=[None])
         elif self.app_rail.selected_index == 1:
             if self.world_patrol_rail.selected_index == 0:
-                t = threading.Thread(target=world_patrol_run_view.get(self.page, self.ctx).start, args=[None])
+                t = threading.Thread(target=world_patrol_run_view.get(self.flet_page, self.sr_ctx).start, args=[None])
             elif self.world_patrol_rail.selected_index == 1:
-                t = threading.Thread(target=world_patrol_draft_route_view.get(self.page, self.ctx).test_existed, args=[None])
+                t = threading.Thread(target=world_patrol_draft_route_view.get(self.flet_page, self.sr_ctx).test_existed, args=[None])
         elif self.app_rail.selected_index == 3:
-            t = threading.Thread(target=calibrator_view.get(self.page, self.ctx).start, args=[None])
+            t = threading.Thread(target=calibrator_view.get(self.flet_page, self.sr_ctx).start, args=[None])
         if t is not None:
             t.start()
 

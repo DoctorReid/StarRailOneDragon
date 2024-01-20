@@ -1,0 +1,30 @@
+name: 存护
+path: PRESERVATION
+bless_priority:
+  - BLESS_00_003
+  - BLESS_01_004
+  - BLESS_01_003
+  - BLESS_01_002
+  - BLESS_01_008
+  - BLESS_01_009
+  - BLESS_01_007
+  - BLESS_01_013
+  - BLESS_01_022
+  - BLESS_01_017
+  - BLESS_01_014
+  - BLESS_01_015
+  - BLESS_01_020
+  - BLESS_01_010
+  - BLESS_01_000
+level_type_priority:
+  - combat
+  - transaction
+  - event
+  - encounter
+curio_priority:
+  - CURIO_019
+  - CURIO_021
+  - CURIO_011
+  - CURIO_024
+  - CURIO_049
+  - CURIO_018

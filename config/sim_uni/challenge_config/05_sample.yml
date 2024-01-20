@@ -1,0 +1,24 @@
+name: 巡猎
+path: HUNT
+bless_priority:
+  - BLESS_00_003
+  - BLESS_05_002
+  - BLESS_05_003
+  - BLESS_05_009
+  - BLESS_05_011
+  - BLESS_05_013
+  - BLESS_05_019
+  - BLESS_05_017
+  - BLESS_05_000
+level_type_priority:
+  - combat
+  - transaction
+  - event
+  - encounter
+curio_priority:
+  - CURIO_019
+  - CURIO_021
+  - CURIO_011
+  - CURIO_024
+  - CURIO_049
+  - CURIO_018

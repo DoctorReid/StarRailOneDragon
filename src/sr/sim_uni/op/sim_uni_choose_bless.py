@@ -14,7 +14,7 @@ from sr.context import Context
 from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult
-from sr.sim_uni.sim_uni_const import match_best_bless_by_ocr, SimUniBless
+from sr.sim_uni.sim_uni_const import match_best_bless_by_ocr, SimUniBless, SimUniBlessEnum, SimUniBlessLevel
 from sr.sim_uni.sim_uni_priority import SimUniBlessPriority
 
 
@@ -335,9 +335,17 @@ class SimUniChooseBless(Operation):
         if priority is None:
             return 0
 
-        for idx, bless in enumerate(bless_list):
-            if bless.path.value == priority.first_path:
-                return idx
+        for priority_id in priority.id_list:
+            bless = SimUniBlessEnum[priority_id]
+            if bless.name.endswith('000'):
+                for bless_level in SimUniBlessLevel:
+                    for idx, opt_bless in enumerate(bless_list):
+                        if opt_bless.data.level == bless_level:
+                            return idx
+            else:
+                for idx, opt_bless in enumerate(bless_list):
+                    if opt_bless.data == bless.value:
+                        return idx
 
         if can_reset:
             return None

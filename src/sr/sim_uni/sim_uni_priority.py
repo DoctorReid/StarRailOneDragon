@@ -1,27 +1,26 @@
-from typing import List
+from enum import Enum
+from typing import List, TypedDict
+
+
+class SimUniBlessPriorityType(Enum):
+
+    PATH: str = '命途'
+    BLESS: str = '祝福'
 
 
 class SimUniBlessPriority:
 
-    def __init__(self,
-                 first_path: str,
-                 ):
-        self.first_path: str = first_path
-        """第一优先命途"""
+    def __init__(self, id_list: List[str]):
+        self.id_list: List[str] = id_list
 
 
 class SimUniNextLevelPriority:
 
-    def __init__(self,
-                 first_type_id: str):
-        self.first_type_id: str = first_type_id
+    def __init__(self, id_list: List[str]):
+        self.id_list: List[str] = id_list
 
 
 class SimUniCurioPriority:
 
-    def __init__(self, curio_names: List[str]):
-        """
-        奇物的优先级
-        :param curio_names:
-        """
-        self.order_name_list: List[str] = curio_names
+    def __init__(self, id_list: List[str]):
+        self.id_list: List[str] = id_list

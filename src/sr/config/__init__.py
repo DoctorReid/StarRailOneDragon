@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from basic import config_utils
@@ -39,3 +40,11 @@ class ConfigHolder:
         self.data[key] = value
         if save:
             self.save()
+
+    def delete(self):
+        """
+        删除配置文件
+        :return:
+        """
+        path = config_utils.get_config_file_path(self.mod, sub_dir=self.sub_dir)
+        os.remove(path)

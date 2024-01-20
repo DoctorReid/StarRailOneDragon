@@ -1,0 +1,35 @@
+name: 繁育
+path: PROPAGATION
+bless_priority:
+  - BLESS_00_003
+  - BLESS_08_002
+  - BLESS_08_004
+  - BLESS_08_003
+  - BLESS_08_007
+  - BLESS_08_008
+  - BLESS_08_009
+  - BLESS_08_010
+  - BLESS_08_011
+  - BLESS_08_012
+  - BLESS_08_014
+  - BLESS_08_016
+  - BLESS_08_015
+  - BLESS_08_023
+  - BLESS_08_017
+  - BLESS_08_021
+  - BLESS_08_018
+  - BLESS_08_019
+  - BLESS_08_024
+  - BLESS_08_000
+level_type_priority:
+  - combat
+  - transaction
+  - event
+  - encounter
+curio_priority:
+  - CURIO_019
+  - CURIO_021
+  - CURIO_011
+  - CURIO_024
+  - CURIO_049
+  - CURIO_018

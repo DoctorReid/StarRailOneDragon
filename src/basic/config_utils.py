@@ -1,13 +1,13 @@
 import os
 from ctypes import Union
-from typing import List
+from typing import List, Optional
 
 import yaml
 
 from basic import os_utils
 
 
-def get_config_file_path(name: str, sub_dir: List[str] = None):
+def get_config_file_path(name: str, sub_dir: Optional[List[str]] = None):
     """
     获取配置文件完整路径
     :param name: 配置名
@@ -63,7 +63,7 @@ def read_sample_config(name: str, sub_dir: List[str] = None):
         return None
 
 
-def save_config(name: str, data: dict, sub_dir: str = None):
+def save_config(name: str, data: dict, sub_dir: Optional[List[str]] = None):
     """
     保存配置
     :param name: 配置模块
@@ -107,7 +107,7 @@ def deep_del_extra_prop(source: dict, target: dict):
         del target[key]
 
 
-def async_sample(name: str, sub_dir: List[str] = None) -> dict:
+def async_sample(name: str, sub_dir: Optional[List[str]] = None) -> dict:
     """
     将样例配置同步到具体配置中
     :param name: 模块名称
@@ -122,6 +122,6 @@ def async_sample(name: str, sub_dir: List[str] = None) -> dict:
         deep_copy_missing_prop(sample, config)
         deep_del_extra_prop(sample, config)
 
-    save_config(name, config)
+    save_config(name, config, sub_dir=sub_dir)
     return config
 

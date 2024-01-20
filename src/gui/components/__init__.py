@@ -69,21 +69,35 @@ class Card(ft.Container):
                          )
 
 
-class SettingsListItem(ft.Row):
+class SettingsListItem(ft.Container):
 
     def __init__(self, label: str, value_component):
-        super().__init__(
+        theme = gui_config.theme()
+        row = ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[ft.Text(label), value_component]
         )
+        ft.Container.__init__(
+            self,
+            content=row,
+            border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])),
+            padding=10
+        )
 
 
-class SettingsListGroupTitle(ft.Row):
+class SettingsListGroupTitle(ft.Container):
 
     def __init__(self, title: str):
-        super().__init__(
+        theme = gui_config.theme()
+        row = ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             controls=[CardTitleText(title)]
+        )
+        ft.Container.__init__(
+            self,
+            content=row,
+            border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])),
+            padding=10
         )
 
 
@@ -92,18 +106,8 @@ class SettingsList(ft.ListView):
     def __init__(self,
                  controls: Optional[List[SettingsListItem]] = None,
                  width: Optional[int] = None):
-        theme = gui_config.theme()
-        container_list = []
-        if controls is not None:
-            for i in controls:
-                container = ft.Container(
-                    content=i,
-                    border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])),
-                    padding=10
-                )
-                container_list.append(container)
         super().__init__(
-            controls=container_list,
+            controls=controls,
             width=width
         )
 

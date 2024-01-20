@@ -68,7 +68,7 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.init_ocr_matcher()
 
-        op = SimUniChooseBless(ctx, None, before_level_start=True )
+        op = SimUniChooseBless(ctx, None, before_level_start=True)
 
         bless_list = op._get_bless_pos(screen)
 
@@ -91,6 +91,21 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
 
         screen = self.get_test_image('cant_reset_2')
         self.assertFalse(self.op._can_reset(screen))
+
+    def get_bless_by_priority(self):
+        """
+        按优先级选择祝福
+        :return:
+        """
+        screen = self.get_test_image('before_level')
+
+        ctx = get_context()
+        ctx.init_ocr_matcher()
+
+        op = SimUniChooseBless(ctx, None, before_level_start=True)
+
+        bless_list = op._get_bless_pos(screen)
+
 
     def test_op(self):
         ctx = get_context()

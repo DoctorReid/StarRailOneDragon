@@ -1,0 +1,36 @@
+name: 毁灭
+path: DESTRUCTION
+bless_priority:
+  - BLESS_00_003
+  - BLESS_06_004
+  - BLESS_06_003
+  - BLESS_06_002
+  - BLESS_06_008
+  - BLESS_06_009
+  - BLESS_06_010
+  - BLESS_06_015
+  - BLESS_06_014
+  - BLESS_06_021
+  - BLESS_06_022
+  - BLESS_06_013
+  - BLESS_06_016
+  - BLESS_06_011
+  - BLESS_06_012
+  - BLESS_06_018
+  - BLESS_06_017
+  - BLESS_06_020
+  - BLESS_06_024
+  - BLESS_06_019
+  - BLESS_06_000
+level_type_priority:
+  - combat
+  - transaction
+  - event
+  - encounter
+curio_priority:
+  - CURIO_019
+  - CURIO_021
+  - CURIO_011
+  - CURIO_024
+  - CURIO_049
+  - CURIO_018
