@@ -15,9 +15,9 @@
 
 - [锄大地](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E9%94%84%E5%A4%A7%E5%9C%B0) `1.6 已完成`
 - [日常](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8) `已完成`
-- 模拟宇宙 `开发中`
+- [模拟宇宙](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E5%8A%9F%E8%83%BD_%E6%A8%A1%E6%8B%9F%E5%AE%87%E5%AE%99) `测试中`
 
-![锄大地](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/app.png)
+![APP主页](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/app.png)
 
 [当前进度](https://github.com/DoctorReid/StarRailProxy/milestone/5)
 
