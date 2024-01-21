@@ -9,6 +9,7 @@ app_order:
   - 'daily_training'
   - 'buy_xianzhou_parcel'
   - 'forgotten_hall'
+  - 'sim_universe'
 app_run:
   - 'world_patrol'
 schedule_hour_1: 'none'
