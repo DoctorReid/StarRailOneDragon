@@ -1,7 +1,7 @@
 planet: '雅利洛'
 region: '铁卫禁区'
 floor: 0
-start_pos: [1041, 588]
+start_pos: [721, 995]
 op_list:
   - op: 'move'
-    data: [1084, 600]
+    data: [778, 1007]
