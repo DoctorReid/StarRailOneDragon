@@ -111,6 +111,6 @@ class SimUniverseApp(Application2):
     def _run_world(self) -> Operation:
         uni_challenge_config = self.config.get_challenge_config(self.current_uni_num)
         return SimUniRunWorld(self.ctx, self.current_uni_num,
-                              bless_priority=SimUniBlessPriority(uni_challenge_config.bless_priority),
+                              bless_priority=SimUniBlessPriority(uni_challenge_config.bless_priority, uni_challenge_config.bless_priority_2),
                               curio_priority=SimUniCurioPriority(uni_challenge_config.curio_priority),
                               next_level_priority=SimUniNextLevelPriority(uni_challenge_config.level_type_priority))

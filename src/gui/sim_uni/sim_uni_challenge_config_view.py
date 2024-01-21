@@ -212,7 +212,12 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.bless_btn = RectOutlinedButton(text=gt('编辑', 'ui'), disabled=True,
                                             on_click=self._on_bless_edit_clicked)
         self.bless_text = ft.TextField(disabled=True, min_lines=3, max_lines=7, width=380, multiline=True,
-                                       )
+                                       on_blur=self._on_bless_text_update)
+
+        self.bless_btn_2 = RectOutlinedButton(text=gt('编辑', 'ui'), disabled=True,
+                                              on_click=self._on_bless_edit_2_clicked)
+        self.bless_text_2 = ft.TextField(disabled=True, min_lines=3, max_lines=7, width=380, multiline=True,
+                                         on_blur=self._on_bless_text_2_update)
 
         self.level_type_btn = RectOutlinedButton(text=gt('编辑', 'ui'), disabled=True,
                                                  on_click=self._on_level_type_edit_clicked)
@@ -229,8 +234,10 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
             SettingsListItem('', op_btn_row),
             SettingsListItem(gt('配置名称', 'ui'), self.name_text),
             SettingsListItem(gt('命途', 'ui'), self.path_dropdown),
-            SettingsListItem(gt('祝福优先级', 'ui'), self.bless_btn),
+            SettingsListItem(gt('祝福第一优先级', 'ui'), self.bless_btn),
             SettingsListItem('', self.bless_text),
+            SettingsListItem(gt('祝福第二优先级', 'ui'), self.bless_btn_2),
+            SettingsListItem('', self.bless_text_2),
             SettingsListItem(gt('楼层优先级', 'ui'), self.level_type_btn),
             SettingsListItem('', self.level_type_text),
             SettingsListItem(gt('奇物优先级', 'ui'), self.curio_btn),
@@ -241,13 +248,16 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.bless_card = BlessSelectionCard(on_change=self._on_bless_priority_changed)
         self.bless_card.visible = False
 
+        self.bless_card_2 = BlessSelectionCard(on_change=self._on_bless_priority_2_changed)
+        self.bless_card_2.visible = False
+
         self.level_type_card = LevelTypeSelectionCard(on_change=self._on_level_type_priority_changed)
         self.level_type_card.visible = False
 
         self.curio_card = CurioSelectionCard(on_change=self._on_curio_priority_changed)
         self.curio_card.visible = False
 
-        ft.Row.__init__(self, controls=[config_card, self.level_type_card, self.bless_card, self.curio_card])
+        ft.Row.__init__(self, controls=[config_card, self.level_type_card, self.bless_card, self.bless_card_2, self.curio_card])
 
     def handle_after_show(self):
         self._load_existed_config_list()
@@ -301,6 +311,9 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.bless_btn.disabled = not config_chosen
         self.bless_btn.update()
 
+        self.bless_btn_2.disabled = not config_chosen
+        self.bless_btn_2.update()
+
         self.level_type_btn.disabled = not config_chosen
         self.level_type_btn.update()
 
@@ -312,13 +325,14 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         将各个配置显示到输入框中
         :return:
         """
-        self.name_text.value = self.chosen_config.name
+        self.name_text.value = '' if self.chosen_config is None else self.chosen_config.name
         self.name_text.update()
 
-        self.path_dropdown.value = self.chosen_config.path
+        self.path_dropdown.value = None if self.chosen_config is None else self.chosen_config.path
         self.path_dropdown.update()
 
         self._update_bless_text()
+        self._update_bless_text_2()
         self._update_level_type_text()
         self._update_curio_text()
 
@@ -393,6 +407,12 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.bless_text.disabled = True
         self.bless_text.update()
 
+        self.bless_card_2.visible = False
+        self.bless_card_2.update()
+
+        self.bless_text_2.disabled = True
+        self.bless_text_2.update()
+
         self.curio_card.visible = False
         self.curio_card.update()
 
@@ -407,7 +427,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
     def _on_bless_edit_clicked(self, e):
         """
-        编辑祝福优先级
+        编辑祝福优先级 - 第一优先级
         :param e:
         :return:
         """
@@ -416,7 +436,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
     def _on_bless_priority_changed(self, new_list: List[str]):
         """
-        祝福优先级改变
+        祝福优先级改变 - 第一优先级
         :return:
         """
         self.chosen_config.bless_priority = new_list
@@ -424,12 +444,13 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
     def _update_bless_text(self):
         """
-        更新祝福优先级的文本
+        更新祝福优先级的文本 - 第一优先级
         :return:
         """
         bless_list: List[SimUniBlessEnum] = []
-        for bless_id in self.chosen_config.bless_priority:
-            bless_list.append(SimUniBlessEnum[bless_id])
+        if self.chosen_config is not None:
+            for bless_id in self.chosen_config.bless_priority:
+                bless_list.append(SimUniBlessEnum[bless_id])
 
         text: str = ''
         for bless in bless_list:
@@ -440,11 +461,11 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
     def _on_bless_text_update(self, e):
         """
-        祝福优先级的文本框输出改变
+        祝福优先级的文本框输出改变 - 第一优先级
         :param e:
         :return:
         """
-        bless_name_list = self.bless_text.value.split('\n')
+        bless_name_list = self.get_str_list(self.bless_text)
         bless_list: List[SimUniBlessEnum] = []
         for bless_name in bless_name_list:
             bless_enum = bless_enum_from_title(bless_name)
@@ -455,6 +476,58 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
         bless_id_list = [bless.name for bless in bless_list]
         self.chosen_config.bless_priority = bless_id_list
+
+    def _on_bless_edit_2_clicked(self, e):
+        """
+        编辑祝福优先级 - 第二优先级
+        :param e:
+        :return:
+        """
+        self._update_priority_status(self.bless_card_2, self.bless_text_2)
+        self.bless_card_2.set_chosen_list(self.chosen_config.bless_priority_2)
+
+    def _on_bless_priority_2_changed(self, new_list: List[str]):
+        """
+        祝福优先级改变 - 第二优先级
+        :return:
+        """
+        self.chosen_config.bless_priority_2 = new_list
+        self._update_bless_text_2()
+
+    def _update_bless_text_2(self):
+        """
+        更新祝福优先级的文本 - 第二优先级
+        :return:
+        """
+        bless_list: List[SimUniBlessEnum] = []
+        if self.chosen_config is not None:
+            for bless_id in self.chosen_config.bless_priority_2:
+                bless_list.append(SimUniBlessEnum[bless_id])
+
+        text: str = ''
+        for bless in bless_list:
+            text += gt(bless.value.title, 'ui') + '\n'
+
+        self.bless_text_2.value = text
+        self.bless_text_2.update()
+
+    def _on_bless_text_2_update(self, e):
+        """
+        祝福优先级的文本框输出改变 - 第二优先级
+        :param e:
+        :return:
+        """
+        bless_name_list = self.get_str_list(self.bless_text_2)
+        bless_list: List[SimUniBlessEnum] = []
+        for bless_name in bless_name_list:
+            bless_enum = bless_enum_from_title(bless_name)
+            if bless_enum is None:
+                log.error('文本输入非法 %s 本次改动不保存', bless_name)
+                return  # 有一个错误就不继续了
+            bless_list.append(bless_enum)
+
+        bless_id_list = [bless.name for bless in bless_list]
+        self.chosen_config.bless_priority_2 = bless_id_list
 
     def _on_level_type_edit_clicked(self, e):
         """
@@ -479,11 +552,12 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :return:
         """
         level_type_list: List[SimUniLevelType] = []
-        for level_type_id in self.chosen_config.level_type_priority:
-            level_type: SimUniLevelType = level_type_from_id(level_type_id)
-            if level_type is None:
-                continue
-            level_type_list.append(level_type)
+        if self.chosen_config is not None:
+            for level_type_id in self.chosen_config.level_type_priority:
+                level_type: SimUniLevelType = level_type_from_id(level_type_id)
+                if level_type is None:
+                    continue
+                level_type_list.append(level_type)
 
         text: str = ''
         for level_type in level_type_list:
@@ -498,7 +572,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        type_name_list = self.level_type_text.value.split('\n')
+        type_name_list = self.get_str_list(self.level_type_text)
         level_type_list: List[SimUniLevelType] = []
         for type_name in type_name_list:
             level_type = level_type_from_name(type_name)
@@ -525,7 +599,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        curio_name_list = self.level_type_text.value.split('\n')
+        curio_name_list = self.get_str_list(self.level_type_text)
         curio_list: List[SimUniCurioEnum] = []
         for curio_name in curio_name_list:
             curio = curio_enum_from_name(curio_name)
@@ -550,8 +624,9 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :return:
         """
         curio_list: List[SimUniCurioEnum] = []
-        for curio_id in self.chosen_config.curio_priority:
-            curio_list.append(SimUniCurioEnum[curio_id])
+        if self.chosen_config is not None:
+            for curio_id in self.chosen_config.curio_priority:
+                curio_list.append(SimUniCurioEnum[curio_id])
 
         text: str = ''
         for curio in curio_list:
@@ -559,6 +634,18 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
         self.curio_text.value = text
         self.curio_text.update()
+
+    @staticmethod
+    def get_str_list(text_input: ft.TextField) -> List[str]:
+        """
+        从输入框分隔换行符得到目标
+        :param text_input:
+        :return:
+        """
+        arr = text_input.value.split('\n')
+        if arr[len(arr) - 1] == '':
+            arr.pop()
+        return arr
 
 
 _sim_uni_challenge_config_view: Optional[SimUniChallengeConfigView] = None

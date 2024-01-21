@@ -46,7 +46,7 @@ class SimUniChallengeConfig(ConfigHolder):
     @property
     def bless_priority(self) -> List[str]:
         """
-        祝福优先级
+        祝福优先级 - 第一优先级
         :return:
         """
         return self.get('bless_priority', [])
@@ -54,6 +54,18 @@ class SimUniChallengeConfig(ConfigHolder):
     @bless_priority.setter
     def bless_priority(self, new_list: List[str]):
         self.update('bless_priority', new_list)
+
+    @property
+    def bless_priority_2(self) -> List[str]:
+        """
+        祝福优先级 - 第二优先级
+        :return:
+        """
+        return self.get('bless_priority_2', [])
+
+    @bless_priority_2.setter
+    def bless_priority_2(self, new_list: List[str]):
+        self.update('bless_priority_2', new_list)
 
     @property
     def level_type_priority(self) -> List[str]:
