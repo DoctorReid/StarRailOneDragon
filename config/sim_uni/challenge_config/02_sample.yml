@@ -25,6 +25,8 @@ level_type_priority:
   - event
   - encounter
 curio_priority:
+  - CURIO_034
+  - CURIO_009
   - CURIO_019
   - CURIO_021
   - CURIO_011

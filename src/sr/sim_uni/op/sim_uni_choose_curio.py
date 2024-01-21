@@ -158,9 +158,10 @@ class SimUniChooseCurio(StateOperation):
         if priority is None:
             return 0
 
-        for curio in SimUniCurioEnum:
+        for curio_id in priority.id_list:
+            curio_enum = SimUniCurioEnum[curio_id]
             for idx, opt_curio in enumerate(curio_list):
-                if curio.value == opt_curio.data:
+                if curio_enum.value == opt_curio:
                     return idx
 
         return 0
@@ -173,6 +174,8 @@ class SimUniChooseCurio(StateOperation):
         screen = self.screenshot()
         state = self._get_screen_state(screen)
         if state is None:
+            # 未知情况都先点击一下
+            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return Operation.round_retry('未能判断当前页面', wait=1)
         else:
             return Operation.round_success(state)
@@ -183,19 +186,172 @@ class SimUniChooseCurio(StateOperation):
                                                       empty_to_close=True,
                                                       bless=True,
                                                       curio=True)
-        if state is not None:
-            return state
-
-        # 未知情况都先点击一下
-        log.info('未能识别当前画面状态')
-        self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-
-        return None
+        log.info('当前画面状态 %s', state)
+        return state
 
     def _click_empty_to_continue(self) -> OperationOneRoundResult:
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
 
         if click:
-            return Operation.round_success()
+            return Operation.round_success(wait=2)
         else:
             return Operation.round_retry('点击空白处关闭失败')
+
+
+class SimUniDropCurio(StateOperation):
+
+    DROP_BTN: ClassVar[Rect] = Rect(1024, 647, 1329, 698)
+
+    def __init__(self, ctx: Context, priority: Optional[SimUniCurioPriority] = None,
+                 skip_first_screen_check: bool = True):
+        """
+        模拟宇宙中 丢弃奇物
+        :param ctx:
+        :param priority: 奇物优先级
+        :param skip_first_screen_check: 是否跳过第一次画面状态检查
+        """
+        state = StateOperationNode('画面检测', self._check_screen_state)
+        choose_curio = StateOperationNode('选择奇物', self._choose_curio)
+        confirm = StateOperationNode('确认', self._confirm)
+
+        super().__init__(ctx, try_times=5,
+                         op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('丢弃奇物', 'ui')),
+                         nodes=[state, choose_curio, confirm]
+                         )
+
+        self.priority: Optional[SimUniCurioPriority] = priority
+        self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
+        self.first_screen_check: bool = True  # 是否第一次检查画面状态
+
+    def _init_before_execute(self):
+        super()._init_before_execute()
+        self.first_screen_check = True
+
+    def _check_screen_state(self):
+        screen = self.screenshot()
+
+        if self.first_screen_check and self.skip_first_screen_check:
+            self.first_screen_check = False
+            return Operation.round_success(screen_state.ScreenState.SIM_DROP_CURIOS.value)
+
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      drop_curio=True)
+
+        if state is not None:
+            return Operation.round_success(state)
+        else:
+            return Operation.round_retry('未在丢弃奇物页面', wait=1)
+
+    def _choose_curio(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+
+        curio_pos_list: List[MatchResult] = self._get_curio_pos(screen)
+        if len(curio_pos_list) == 0:
+            return Operation.round_retry('未识别到奇物', wait=1)
+
+        target_curio_pos: Optional[MatchResult] = self._get_curio_to_choose(curio_pos_list)
+        self.ctx.controller.click(target_curio_pos.center)
+        time.sleep(0.25)
+        self.ctx.controller.click(SimUniChooseCurio.CONFIRM_BTN.center)
+        return Operation.round_success(wait=1)
+
+    def _get_curio_pos(self, screen: MatLike) -> List[MatchResult]:
+        """
+        获取屏幕上的奇物的位置
+        :param screen: 屏幕截图
+        :return: MatchResult.data 中是对应的奇物 SimUniCurio
+        """
+        curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_3_LIST)
+        if len(curio_list) > 0:
+            return curio_list
+
+        curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_2_LIST)
+        if len(curio_list) > 0:
+            return curio_list
+
+        curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_1_LIST)
+        if len(curio_list) > 0:
+            return curio_list
+
+        return []
+
+    def _get_curio_pos_by_rect(self, screen: MatLike, rect_list: List[Rect]) -> List[MatchResult]:
+        """
+        获取屏幕上的奇物的位置
+        :param screen: 屏幕截图
+        :param rect_list: 指定区域
+        :return: MatchResult.data 中是对应的奇物 SimUniCurio
+        """
+        curio_list: List[MatchResult] = []
+
+        for rect in rect_list:
+            title_part = cv2_utils.crop_image_only(screen, rect)
+            title_ocr = self.ctx.ocr.ocr_for_single_line(title_part)
+            # cv2_utils.show_image(title_part, wait=0)
+
+            curio = match_best_curio_by_ocr(title_ocr)
+
+            if curio is None:  # 有一个识别不到就返回 提速
+                return curio_list
+
+            log.info('识别到奇物 %s', curio)
+            curio_list.append(MatchResult(1,
+                                          rect.x1, rect.y1,
+                                          rect.width, rect.height,
+                                          data=curio))
+
+        return curio_list
+
+    def _get_curio_to_choose(self, curio_pos_list: List[MatchResult]) -> Optional[MatchResult]:
+        """
+        根据优先级选择对应的奇物
+        :param curio_pos_list: 奇物列表
+        :return:
+        """
+        curio_list = [curio.data for curio in curio_pos_list]
+        target_idx = SimUniDropCurio.get_curio_by_priority(curio_list, self.priority)
+        if target_idx is None:
+            return None
+        else:
+            return curio_pos_list[target_idx]
+
+    @staticmethod
+    def get_curio_by_priority(curio_list: List[SimUniCurio], priority: Optional[SimUniCurioPriority]) -> Optional[int]:
+        """
+        根据优先级选择对应的奇物 要丢弃的应该是优先级最低的
+        :param curio_list: 可选的奇物列表
+        :param priority: 优先级
+        :return: 选择的下标
+        """
+        if priority is None:
+            return 0
+
+        opt_priority_list: List[int] = [99 for _ in priority.id_list]  # 选项的优先级
+        cnt = 0
+
+        for curio_id in priority.id_list:
+            curio_enum = SimUniCurioEnum[curio_id]
+            for idx, opt_curio in enumerate(curio_list):
+                if curio_enum.value == opt_curio and opt_priority_list[idx] == 99:
+                    opt_priority_list[idx] = cnt
+                    cnt += 1
+
+        max_priority: Optional[int] = None
+        max_idx: Optional[int] = None
+        for idx in range(0, len(opt_priority_list)):
+            if max_idx is None or opt_priority_list[idx] > max_priority:
+                max_idx = idx
+                max_priority = opt_priority_list[idx]
+
+        return max_idx
+
+    def _confirm(self) -> OperationOneRoundResult:
+        """
+        确认丢弃
+        :return:
+        """
+        click = self.ocr_and_click_one_line('确认', SimUniDropCurio.DROP_BTN)
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success()
+        else:
+            return Operation.round_retry('点击确认失败', wait=1)
