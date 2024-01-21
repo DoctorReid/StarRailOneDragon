@@ -45,10 +45,11 @@ UNI_NUM_CN: dict[int, str] = {
 
 class SimUniLevelType:
 
-    def __init__(self, type_id: str, type_name: str, need_route: bool):
+    def __init__(self, type_id: str, type_name: str, need_route: bool, route_id: Optional[str] = None):
         self.type_id: str = type_id  # 类型ID 也用于模板ID
         self.type_name: str = type_name  # 类型名称 中文
         self.need_route: bool = need_route  # 是否需要路线配置
+        self.route_id: str = type_id if route_id is None else route_id
 
     @property
     def template_id(self) -> str:
@@ -58,11 +59,11 @@ class SimUniLevelType:
 class SimUniLevelTypeEnum(Enum):
 
     COMBAT = SimUniLevelType('combat', '战斗', True)
-    ENCOUNTER = SimUniLevelType('encounter', '遭遇', True)
+    ENCOUNTER = SimUniLevelType('encounter', '遭遇', True, route_id='event')
     ELITE = SimUniLevelType('elite', '精英', False)
     BOSS = SimUniLevelType('boss', '首领', False)
     EVENT = SimUniLevelType('event', '事件', True)
-    TRANSACTION = SimUniLevelType('transaction', '交易', True)
+    TRANSACTION = SimUniLevelType('transaction', '交易', True, route_id='event')
     RESPITE = SimUniLevelType('respite', '休整', True)
 
 

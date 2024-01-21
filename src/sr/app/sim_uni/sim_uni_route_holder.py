@@ -23,12 +23,12 @@ class SimUniRouteHolder:
     :param level_type: 楼层类型
         :return:
         """
-        key = '%02d-%s' % (uni_num, level_type.type_id)
+        key = '%02d-%s' % (uni_num, level_type.route_id)
         if key in self.uni_2_route_list:
             return self.uni_2_route_list[key]
 
         arr = []
-        base_dir = SimUniRoute.get_uni_base_dir(uni_num, level_type.type_id)
+        base_dir = SimUniRoute.get_uni_base_dir(uni_num, level_type.route_id)
         for sub in os.listdir(base_dir):
             sub_dir = os.path.join(base_dir, sub)
             if not os.path.isdir(sub_dir):

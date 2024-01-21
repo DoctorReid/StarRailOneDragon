@@ -1,0 +1,8 @@
+planet: '雅利洛'
+region: '铁卫禁区'
+floor: 0
+start_pos: [613, 566]
+op_list:
+  - op: 'move'
+    data: [620, 610]
+  - op: 'patrol'

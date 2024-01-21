@@ -21,17 +21,17 @@ class TestCalPosForSimUni(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.init_image_matcher()
 
-        screen = get_debug_image('_1705498708322')
+        screen = get_debug_image('_1705809663031')
         mm = mini_map.cut_mini_map(screen)
         mm_info = mini_map.analyse_mini_map(mm, ctx.im)
 
         for _, region_list in map_const.PLANET_2_REGION.items():
             for region in region_list:
-                if region.planet != map_const.P03:
+                if region != map_const.P02_R04:
                     continue
                 lm_info = ctx.ih.get_large_map(region)
                 pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(ctx.im, lm_info, mm_info,
-                                                                       scale_list=[1], match_threshold=0.5,
+                                                                       scale_list=[1], match_threshold=0.3,
                                                                        show=True)
                 log.info('匹配 %s 结果 %s', region.display_name, pos)
                 if pos is not None:

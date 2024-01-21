@@ -1,0 +1,7 @@
+planet: '仙舟罗浮'
+region: '丹鼎司'
+floor: 2
+start_pos: [990, 926]
+op_list:
+  - op: 'move'
+    data: [1019, 973]

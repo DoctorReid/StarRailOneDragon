@@ -5,9 +5,10 @@ from sr.app import Application2
 from sr.app.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
+from sr.app.sim_uni.sim_universe_app import get_record
 from sr.context import Context
 from sr.image.sceenshot import mini_map
-from sr.operation import Operation, OperationSuccess
+from sr.operation import Operation, OperationSuccess, OperationResult
 from sr.operation.combine import StatusCombineOperationNode
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.sim_uni_const import SimUniLevelType
@@ -52,6 +53,13 @@ class TestSimUniRouteApp(Application2):
     def _run_world(self) -> Operation:
         uni_challenge_config = self.config.get_challenge_config(self.uni_num)
         return SimUniRunWorld(self.ctx, self.uni_num,
-                              bless_priority=SimUniBlessPriority(uni_challenge_config.bless_priority),
+                              bless_priority=SimUniBlessPriority(uni_challenge_config.bless_priority, uni_challenge_config.bless_priority_2),
                               curio_priority=SimUniCurioPriority(uni_challenge_config.curio_priority),
-                              next_level_priority=SimUniNextLevelPriority(uni_challenge_config.level_type_priority))
+                              next_level_priority=SimUniNextLevelPriority(uni_challenge_config.level_type_priority),
+                              op_callback=self._on_world_done
+                              )
+
+    def _on_world_done(self, op_result: OperationResult):
+        run_record = get_record()
+        if op_result.success:
+            run_record.add_times()

@@ -13,10 +13,11 @@ class SimUniExit(Operation):
     EXIT_BTN: ClassVar[Rect] = Rect(1323, 930, 1786, 985)
     CONFIRM_BTN: ClassVar[Rect] = Rect(1022, 651, 1324, 697)
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, exit_clicked: bool = False):
         """
         模拟宇宙 结束并结算
         :param ctx:
+        :param exit_clicked: 是否已经点击过退出了
         """
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' %
@@ -24,6 +25,7 @@ class SimUniExit(Operation):
                                   gt('结束并结算', 'ui'))
                          )
 
+        self.init_exit_clicked: bool = exit_clicked
         self.exit_clicked: bool = False  # 是否已经点击离开了
 
     def _init_before_execute(self):
@@ -31,7 +33,7 @@ class SimUniExit(Operation):
         执行前的初始化 注意初始化要全面 方便一个指令重复使用
         """
         super()._init_before_execute()
-        self.exit_clicked = False
+        self.exit_clicked = self.init_exit_clicked
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()

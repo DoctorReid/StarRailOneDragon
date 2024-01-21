@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, ClassVar, Union
 
-from basic import Point
+from basic import Point, Rect
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.operation import Operation, OperationOneRoundResult
@@ -59,3 +59,28 @@ class ClickPoint(Operation):
         :return: 不符合点击后现象的原因
         """
         return None
+
+
+class ClickDialogConfirm(Operation):
+
+    CONFIRM_BTN: ClassVar[Rect] = Rect(1024, 647, 1329, 698)  # 确认
+
+    def __init__(self, ctx: Context,
+                 wait_after_success: Optional[int] = None):
+        """
+        点击对话框的确认 当前使用情况有
+        - 模拟宇宙 丢弃奇物
+        - 模拟宇宙 丢弃祝福
+        :param ctx:
+        :param wait_after_success: 点击成功后等待的秒数
+        """
+        super().__init__(ctx, try_times=5,
+                         op_name=gt('点击确认', 'ui'))
+        self.wait_after_success: Optional[int] = wait_after_success
+
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        click = self.ocr_and_click_one_line('确认', ClickDialogConfirm.CONFIRM_BTN)
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success(wait=self.wait_after_success)
+        else:
+            return Operation.round_retry('点击确认失败', wait=1)

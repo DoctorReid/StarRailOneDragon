@@ -1,6 +1,7 @@
 import datetime
 import os
 import sys
+from typing import Optional
 
 
 def join_dir_path_with_mk(path: str, *subs) -> str:
@@ -114,6 +115,17 @@ def get_sunday_dt(dt: str) -> str:
     days_to_sunday = 6 - weekday
     sunday_date = date + datetime.timedelta(days=days_to_sunday)
     return sunday_date.strftime("%Y%m%d")
+
+
+def is_monday(dt: str) -> bool:
+    """
+    是否星期一
+    :param dt:
+    :return:
+    """
+    date = datetime.datetime.strptime(dt, "%Y%m%d")
+    weekday = date.weekday()  # 0表示星期一，6表示星期天
+    return weekday == 0
 
 
 def dt_day_diff(dt_1: str, dt_2: str) -> int:

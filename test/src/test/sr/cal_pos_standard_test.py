@@ -110,11 +110,11 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        if c.region != map_const.P01_R05_F2 or c.num != 4:
-            continue
+        # if c.region != map_const.P01_R05_F2 or c.num != 2:
+        #     continue
         if c.region.prl_id not in lm_info_map:
             lm_info_map[c.region.prl_id] = ih.get_large_map(c.region)
-        is_err = test_one(c, lm_info_map[c.region.prl_id], True)
+        is_err = test_one(c, lm_info_map[c.region.prl_id], False)
         if is_err:
             fail_list.append(c)
 

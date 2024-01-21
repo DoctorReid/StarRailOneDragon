@@ -1,0 +1,11 @@
+planet: '雅利洛'
+region: '铆钉镇'
+floor: 1
+start_pos: [629, 326]
+op_list:
+  - op: 'move'
+    data: [668, 296]
+  - op: 'patrol'
+  - op: 'move'
+    data: [735, 264]
+  - op: 'patrol'

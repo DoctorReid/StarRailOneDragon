@@ -1,0 +1,8 @@
+planet: '仙舟罗浮'
+region: '廻星港'
+floor: 1
+start_pos: [704, 751]
+op_list:
+  - op: 'move'
+    data: [718, 780]
+  - op: 'patrol'

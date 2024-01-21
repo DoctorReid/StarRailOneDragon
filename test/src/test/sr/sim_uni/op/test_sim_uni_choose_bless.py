@@ -1,10 +1,10 @@
-import time
 import unittest
 from typing import List
 
 import test
+from basic.img import MatchResult
 from sr.context import get_context
-from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
+from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, get_bless_pos, get_bless_by_priority, SimUniDropBless
 from sr.sim_uni.sim_uni_const import SimUniBless, SimUniBlessEnum
 from sr.sim_uni.sim_uni_priority import SimUniBlessPriority
 
@@ -14,22 +14,16 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
     def setUp(self):
         test.SrTestBase.__init__(self, __file__)
 
-        ctx = get_context()
-        ctx.init_ocr_matcher()
-        self.op = SimUniChooseBless(ctx, None)
-
     def test_get_bless(self):
         """
         有3个祝福
         :return:
         """
+        ctx = get_context()
+        ctx.init_ocr_matcher()
         screen = self.get_test_image('can_reset_1')
 
-        st = time.time()
-        bless_list = self.op._get_bless_pos(screen)
-        # bless_list = self.op._get_bless_pos_v2(screen)
-        # bless_list = self.op._get_bless_pos_v3(screen, SimUniChooseBless.BLESS_3_RECT_LIST)
-        print(time.time() - st)
+        bless_list = get_bless_pos(screen, ctx.ocr, False)
 
         answer: List[SimUniBless] = [
             SimUniBlessEnum.BLESS_06_023.value,
@@ -46,9 +40,11 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         只有2个祝福的情况
         :return:
         """
+        ctx = get_context()
+        ctx.init_ocr_matcher()
         screen = self.get_test_image('bless_2')
 
-        bless_list = self.op._get_bless_pos(screen)
+        bless_list = get_bless_pos(screen, ctx.ocr, False)
 
         answer: List[SimUniBless] = [
             SimUniBlessEnum.BLESS_07_024.value,
@@ -69,9 +65,7 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.init_ocr_matcher()
 
-        op = SimUniChooseBless(ctx, None, before_level_start=True)
-
-        bless_list = op._get_bless_pos(screen)
+        bless_list = get_bless_pos(screen, ctx.ocr, True)
 
         answer: List[SimUniBless] = [
             SimUniBlessEnum.BLESS_00_001.value,
@@ -84,14 +78,18 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
             self.assertEqual(answer[i], bless_list[i].data)
 
     def test_can_reset(self):
+        ctx = get_context()
+        ctx.init_ocr_matcher()
+
+        op = SimUniChooseBless(ctx)
         screen = self.get_test_image('can_reset_1')
-        self.assertTrue(self.op._can_reset(screen))
+        self.assertTrue(op._can_reset(screen))
 
         screen = self.get_test_image('cant_reset_1')
-        self.assertFalse(self.op._can_reset(screen))
+        self.assertFalse(op._can_reset(screen))
 
         screen = self.get_test_image('cant_reset_2')
-        self.assertFalse(self.op._can_reset(screen))
+        self.assertFalse(op._can_reset(screen))
 
     def test_get_bless_to_choose(self):
         """
@@ -104,7 +102,7 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         ctx.init_ocr_matcher()
 
         op = SimUniChooseBless(ctx, None, before_level_start=False)
-        bless_list = op._get_bless_pos(screen)
+        bless_list = get_bless_pos(screen, ctx.ocr, False)
 
         # 命中骨刃
         priority_1 = SimUniBlessPriority(
@@ -139,9 +137,46 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         mr = op._get_bless_to_choose(screen, bless_list)
         self.assertEqual(SimUniBlessEnum.BLESS_05_015.value, mr.data)
 
+        screen = self.get_test_image('can_reset_1')
+        priority = SimUniBlessPriority([SimUniBlessEnum.BLESS_01_000.name],
+                                       [SimUniBlessEnum.BLESS_01_000.name])
+        op.priority = priority
+        bless_list = get_bless_pos(screen, ctx.ocr, False)
+        mr = op._get_bless_to_choose(screen, bless_list)
+        self.assertIsNone(mr)
+
+    def test_drop_get_bless_2(self):
+        ctx = get_context()
+        ctx.init_ocr_matcher()
+
+        screen = self.get_test_image('drop_bless_2')
+
+        bless_pos_list: List[MatchResult] = get_bless_pos(screen, ctx.ocr, False)
+        bless_list = [bless.data for bless in bless_pos_list]
+
+        answer: List[SimUniBless] = [
+            SimUniBlessEnum.BLESS_01_007.value,
+            SimUniBlessEnum.BLESS_08_009.value,
+        ]
+
+        self.assertEqual(len(answer), len(bless_list))
+        for i in range(len(answer)):
+            self.assertEqual(answer[i], bless_list[i])
+
+        priority = SimUniBlessPriority([SimUniBlessEnum.BLESS_01_007.name, SimUniBlessEnum.BLESS_08_009.name], [])
+        target_curio_pos: int = get_bless_by_priority(bless_list, priority, can_reset=False, asc=False)
+        self.assertEqual(1, target_curio_pos)
+
     def test_op(self):
         ctx = get_context()
         ctx.start_running()
 
-        op = SimUniChooseBless(ctx, None, before_level_start=True)
+        op = SimUniChooseBless(ctx, None, before_level_start=False)
+        op.execute()
+
+    def test_drop_op(self):
+        ctx = get_context()
+        ctx.start_running()
+
+        op = SimUniDropBless(ctx, None)
         op.execute()

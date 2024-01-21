@@ -57,7 +57,7 @@ class SimUniRoute:
         新建一个模拟宇宙路线
         :return:
         """
-        base_dir = SimUniRoute.get_uni_base_dir(self.uni_num, self.level_type.type_id)
+        base_dir = SimUniRoute.get_uni_base_dir(self.uni_num, self.level_type.route_id)
         self.idx = 1  # 获取合法的下标
         while True:
             route_dir = os.path.join(base_dir, '%03d' % self.idx)
@@ -80,7 +80,7 @@ class SimUniRoute:
         路线唯一标识 = 第几宇宙 + 楼层类型 + 下标
         :return:
         """
-        return SimUniRoute.get_uid(self.uni_num, self.level_type.type_id, self.idx)
+        return SimUniRoute.get_uid(self.uni_num, self.level_type.route_id, self.idx)
 
     @property
     def display_name(self) -> str:
@@ -122,7 +122,7 @@ class SimUniRoute:
         """
         return os_utils.get_path_under_work_dir('config', 'sim_uni',
                                                 '%02d' % self.uni_num,
-                                                '%s' % self.level_type.type_id,
+                                                '%s' % self.level_type.route_id,
                                                 '%03d' % self.idx)
 
     def save(self):

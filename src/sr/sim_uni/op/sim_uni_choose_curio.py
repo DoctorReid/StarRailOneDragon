@@ -200,7 +200,7 @@ class SimUniChooseCurio(StateOperation):
 
 class SimUniDropCurio(StateOperation):
 
-    DROP_BTN: ClassVar[Rect] = Rect(1024, 647, 1329, 698)
+    DROP_BTN: ClassVar[Rect] = Rect(1024, 647, 1329, 698)  # 确认丢弃
 
     def __init__(self, ctx: Context, priority: Optional[SimUniCurioPriority] = None,
                  skip_first_screen_check: bool = True):
@@ -350,8 +350,3 @@ class SimUniDropCurio(StateOperation):
         确认丢弃
         :return:
         """
-        click = self.ocr_and_click_one_line('确认', SimUniDropCurio.DROP_BTN)
-        if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success()
-        else:
-            return Operation.round_retry('点击确认失败', wait=1)

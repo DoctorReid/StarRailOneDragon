@@ -599,7 +599,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        curio_name_list = self.get_str_list(self.level_type_text)
+        curio_name_list = self.get_str_list(self.curio_text)
         curio_list: List[SimUniCurioEnum] = []
         for curio_name in curio_name_list:
             curio = curio_enum_from_name(curio_name)

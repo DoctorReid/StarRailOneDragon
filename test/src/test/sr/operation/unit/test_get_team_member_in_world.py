@@ -3,7 +3,7 @@ import unittest
 import test
 from sr.const.character_const import LUOCHA, TINGYUN, HERTA, DANHENGIMBIBITORLUNAE
 from sr.context import get_context
-from sr.operation.unit.get_team_member_in_world import GetTeamMemberInWorld
+from sr.operation.unit.team import GetTeamMemberInWorld
 
 
 class TestGetTeamMemberInWorld(unittest.TestCase, test.SrTestBase):

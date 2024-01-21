@@ -2,15 +2,16 @@ from typing import ClassVar, List, Optional
 
 from cv2.typing import MatLike
 
-from basic import Rect, Point, str_utils
+from basic import Rect, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, StateOperationEdge
-from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
-from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
+from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
+from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, SimUniDropBless
+from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
 from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority
 
 
@@ -58,17 +59,22 @@ class SimUniEvent(StateOperation):
         edges.append(StateOperationEdge(choose_exit, confirm))
 
         bless = StateOperationNode('选择祝福', self._choose_bless)
+        drop_bless = StateOperationNode('丢弃祝福', self._drop_bless)
         curio = StateOperationNode('选择奇物', self._choose_curio)
+        drop_curio = StateOperationNode('丢弃奇物', self._drop_curio)
         empty = StateOperationNode('点击空白处关闭', self._click_empty_to_continue)
+        battle = StateOperationNode('战斗', self._battle)
         edges.append(StateOperationEdge(check_after_confirm, bless, status='选择祝福'))
         edges.append(StateOperationEdge(check_after_confirm, curio, status='选择奇物'))
         edges.append(StateOperationEdge(check_after_confirm, choose_opt, status='事件'))
         edges.append(StateOperationEdge(check_after_confirm, empty, status='点击空白处关闭'))
+        edges.append(StateOperationEdge(check_after_confirm, battle, status=screen_state.ScreenState.BATTLE.value))
 
         edges.append(StateOperationEdge(choose_opt, check_after_confirm, status=SimUniEvent.STATUS_NO_OPT))
         edges.append(StateOperationEdge(bless, check_after_confirm))
         edges.append(StateOperationEdge(curio, check_after_confirm))
         edges.append(StateOperationEdge(empty, check_after_confirm))
+        edges.append(StateOperationEdge(battle, check_after_confirm))
 
         super().__init__(ctx, try_times=10,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('事件', 'ui')),
@@ -202,10 +208,10 @@ class SimUniEvent(StateOperation):
             self.chosen_opt = self.opt_list[idx]
             if self.chosen_opt.confirm_rect is None:
                 status = SimUniEvent.STATUS_CHOOSE_OPT_NO_CONFIRM
-                return Operation.round_success(status, wait=1)
+                return Operation.round_success(status, wait=1.5)
             else:
                 status = SimUniEvent.STATUS_CHOOSE_OPT_CONFIRM
-                return Operation.round_success(status, wait=0.5)
+                return Operation.round_success(status, wait=1)
         else:
             return Operation.round_retry('点击选项失败', wait=0.5)
 
@@ -230,18 +236,20 @@ class SimUniEvent(StateOperation):
             return Operation.round_success(state)
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:
-        # TODO 如何判断进入战斗了
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       in_world=True,
                                                       empty_to_close=True,
                                                       bless=True,
+                                                      drop_bless=True,
                                                       curio=True,
-                                                      event=True)
+                                                      drop_curio=True,
+                                                      event=True,
+                                                      battle=True)
+        log.info('当前画面状态 %s', state)
         if state is not None:
             return state
 
         # 未知情况都先点击一下
-        log.info('未能识别当前画面状态')
         self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
         return None
 
@@ -252,7 +260,16 @@ class SimUniEvent(StateOperation):
         if op_result.success:
             return Operation.round_success()
         else:
-            return Operation.round_fail('选择祝福失败')
+            return Operation.round_retry(status=op_result.status)
+
+    def _drop_bless(self) -> OperationOneRoundResult:
+        op = SimUniDropBless(self.ctx, priority=self.bless_priority)
+        op_result = op.execute()
+
+        if op_result.success:
+            return Operation.round_success()
+        else:
+            return Operation.round_retry(status=op_result.status)
 
     def _choose_curio(self) -> OperationOneRoundResult:
         op = SimUniChooseCurio(self.ctx, priority=self.curio_priority)
@@ -261,7 +278,16 @@ class SimUniEvent(StateOperation):
         if op_result.success:
             return Operation.round_success()
         else:
-            return Operation.round_fail('选择奇物失败')
+            return Operation.round_retry(status=op_result.status)
+
+    def _drop_curio(self) -> OperationOneRoundResult:
+        op = SimUniDropCurio(self.ctx, priority=self.curio_priority)
+        op_result = op.execute()
+
+        if op_result.success:
+            return Operation.round_success()
+        else:
+            return Operation.round_retry(status=op_result.status)
 
     def _click_empty_to_continue(self) -> OperationOneRoundResult:
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
@@ -270,3 +296,14 @@ class SimUniEvent(StateOperation):
             return Operation.round_success(wait=0.5)
         else:
             return Operation.round_retry('点击空白处关闭失败')
+
+    def _battle(self) -> OperationOneRoundResult:
+        op = SimUniEnterFight(self.ctx,
+                              bless_priority=self.bless_priority,
+                              curio_priority=self.curio_priority)
+        op_result = op.execute()
+
+        if op_result.success:
+            return Operation.round_success()
+        else:
+            return Operation.round_fail(status=op_result.status)

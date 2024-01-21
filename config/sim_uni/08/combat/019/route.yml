@@ -4,5 +4,5 @@ floor: 1
 start_pos: [530, 701]
 op_list:
   - op: 'move'
-    data: [483, 699]
+    data: [486, 699]
   - op: 'patrol'

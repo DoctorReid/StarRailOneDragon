@@ -399,7 +399,7 @@ def template_match_with_scale_list_parallely(im: ImageMatcher,
     """
     future_list: List[Future] = []
     for scale in scale_list:
-        future_list.append(cal_pos_executor.submit(template_match_with_scale, im, source, template, template_mask, scale, threshold))
+        future_list.append(cal_pos_executor.submit(template_match_with_scale, im,  source, template, template_mask, scale, threshold))
 
     target: Optional[MatchResult] = None
     for future in future_list:
@@ -511,7 +511,7 @@ def cal_character_pos_by_gray_2(im: ImageMatcher,
                                 running: bool = False,
                                 show: bool = False,
                                 scale_list: List[float] = None,
-                                match_threshold: float = 0.3) -> MatchResult:
+                                match_threshold: float = 0.3) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用灰度图进行匹配 使用v4的道路掩码 适合在单层地图中使用

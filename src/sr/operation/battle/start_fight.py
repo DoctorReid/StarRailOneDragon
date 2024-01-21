@@ -9,7 +9,7 @@ from sr.context import Context
 from sr.image.sceenshot import battle
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode
 from sr.operation.unit.check_technique_point import CheckTechniquePoint
-from sr.operation.unit.get_team_member_in_world import GetTeamMemberInWorld
+from sr.operation.unit.team import GetTeamMemberInWorld
 
 
 class Attack(Operation):

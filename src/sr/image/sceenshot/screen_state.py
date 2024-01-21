@@ -84,13 +84,22 @@ class ScreenState(Enum):
     SIM_BLESS: str = '选择祝福'
     """模拟宇宙 - 选择祝福"""
 
+    SIM_DROP_BLESS: str = '丢弃祝福'
+    """模拟宇宙 - 丢弃祝福"""
+
     SIM_CURIOS: str = '选择奇物'
     """模拟宇宙 - 选择奇物"""
+
+    SIM_DROP_CURIOS: str = '丢弃奇物'
+    """模拟宇宙 - 丢弃奇物"""
 
     SIM_EVENT: str = '事件'
     """模拟宇宙 - 事件"""
 
     BATTLE: str = '战斗'
+    """所有战斗画面通用 - 右上角有暂停符号"""
+
+    BATTLE_FAIL: str = '战斗失败'
     """所有战斗画面通用 - 右上角有暂停符号"""
 
     EMPTY_TO_CLOSE: str = '点击空白处关闭'
@@ -110,6 +119,9 @@ class TargetRect(Enum):
 
     SIM_UNI_UI_TITLE = Rect(100, 15, 350, 100)
     """模拟宇宙 - 左上角界面名称的位置 事件和选择祝福的框是不一样位置的 这里取了两者的并集"""
+
+    BATTLE_FAIL = Rect(783, 231, 1141, 308)
+    """战斗失败"""
 
     EMPTY_TO_CLOSE = Rect(876, 908, 1048, 975)
     """点击空白处关闭"""
@@ -183,6 +195,17 @@ def in_sim_uni_secondary_ui(screen: MatLike, ocr: OcrMatcher) -> bool:
                            rect=TargetRect.SIM_UNI_UI_TITLE.value)
 
 
+def in_sim_uni_choose_path(screen: MatLike, ocr: OcrMatcher) -> bool:
+    """
+    是否在模拟宇宙-选择命途页面
+    :param screen: 页面截图
+    :param ocr: OCR
+    :return:
+    """
+    return in_secondary_ui(screen, ocr, ScreenState.SIM_PATH.value, lcs_percent=0.1,
+                           rect=TargetRect.SIM_UNI_UI_TITLE.value)
+
+
 def in_sim_uni_choose_bless(screen: MatLike, ocr: OcrMatcher) -> bool:
     """
     是否在模拟宇宙-选择祝福页面
@@ -239,13 +262,30 @@ def is_empty_to_close(screen: MatLike, ocr: OcrMatcher) -> bool:
     return str_utils.find_by_lcs(gt('点击空白处关闭', 'ui'), ocr_result)
 
 
+def is_battle_fail(screen: MatLike, ocr: OcrMatcher) -> bool:
+    """
+    是否战斗失败
+    :param screen: 屏幕截图
+    :param ocr: OCR
+    :return:
+    """
+    part, _ = cv2_utils.crop_image(screen, TargetRect.BATTLE_FAIL.value)
+    ocr_result = ocr.ocr_for_single_line(part)
+
+    return str_utils.find_by_lcs(gt('战斗失败', 'ui'), ocr_result, percent=0.51)
+
+
 def get_sim_uni_screen_state(
         screen: MatLike, im: ImageMatcher, ocr: OcrMatcher,
         in_world: bool = False,
         empty_to_close: bool = False,
         bless: bool = False,
+        drop_bless: bool = False,
         curio: bool = False,
-        event: bool = False) -> Optional[str]:
+        drop_curio: bool = False,
+        event: bool = False,
+        battle: bool = False,
+        battle_fail: bool = False) -> Optional[str]:
     """
     获取模拟宇宙中的画面状态
     :param screen: 屏幕截图
@@ -254,13 +294,19 @@ def get_sim_uni_screen_state(
     :param in_world: 可能在大世界
     :param empty_to_close: 可能点击空白处关闭
     :param bless: 可能在选择祝福
+    :param drop_bless: 可能在丢弃祝福
     :param curio: 可能在选择奇物
+    :param drop_curio: 可能在丢弃奇物
     :param event: 可能在事件
+    :param battle:
+    :param battle_fail:
     :return:
     """
-    # TODO 如何判断进入战斗了
     if in_world and is_normal_in_world(screen, im):
         return ScreenState.NORMAL_IN_WORLD.value
+
+    if battle_fail and is_battle_fail(screen, ocr):
+        return ScreenState.BATTLE_FAIL.value
 
     if empty_to_close and is_empty_to_close(screen, ocr):
         return ScreenState.EMPTY_TO_CLOSE.value
@@ -270,15 +316,26 @@ def get_sim_uni_screen_state(
     gold_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_GOLD.value, titles)  # 不知道是不是游戏bug 游戏内正常的模拟宇宙也会显示这个
 
     if sim_uni_idx is None and gold_idx is None:
-        return
+        if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
+            return ScreenState.BATTLE.value
+        return None
 
-    if bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_BLESS.value, titles) is not None:
+    if bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
         return ScreenState.SIM_BLESS.value
 
-    if curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_CURIOS.value, titles):
+    if drop_bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_DROP_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
+        return ScreenState.SIM_DROP_BLESS.value
+
+    if curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_CURIOS.value, titles, lcs_percent_threshold=0.51):
         return ScreenState.SIM_CURIOS.value
+
+    if drop_curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_DROP_CURIOS.value, titles, lcs_percent_threshold=0.51):
+        return ScreenState.SIM_DROP_CURIOS.value
 
     if event and str_utils.find_best_match_by_lcs(ScreenState.SIM_EVENT.value, titles):
         return ScreenState.SIM_EVENT.value
+
+    if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
+        return ScreenState.BATTLE.value
 
     return None

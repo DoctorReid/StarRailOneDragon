@@ -29,7 +29,7 @@ class SimUniNextLevelConfirm(Operation):
             click_confirm = self.ocr_and_click_one_line('确认', SimUniNextLevelConfirm.NEXT_CONFIRM_BTN,
                                                         screen=screen)
             if click_confirm == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success()
+                return Operation.round_success(wait=1)
             elif click_confirm == Operation.OCR_CLICK_NOT_FOUND:
                 return Operation.round_success()
             else:

@@ -21,6 +21,8 @@ class SimUniEnterFight(Operation):
     ATTACK_DIRECTION_ARR: ClassVar[List] = ['w', 's', 'a', 'd']
 
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
+    STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
+    STATUS_STATE_UNKNOWN: ClassVar[str] = '未知状态'
 
     def __init__(self, ctx: Context,
                  bless_priority: Optional[SimUniBlessPriority] = None,
@@ -47,19 +49,35 @@ class SimUniEnterFight(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        choose_bless = self._check_choose_bless(screen)
-        if choose_bless is not None:
-            return choose_bless
+        state = self._get_screen_state(screen)
 
-        choose_curio = self._check_choose_curio(screen)
-        if choose_curio is not None:
-            return choose_curio
+        if state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
+            return self._try_attack(screen)
+        elif state == screen_state.ScreenState.SIM_BLESS.value:
+            return self._choose_bless()
+        elif state == screen_state.ScreenState.SIM_CURIOS.value:
+            return self._choose_curio()
+        elif state == screen_state.ScreenState.BATTLE_FAIL.value:
+            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
+            return Operation.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
+        elif state == screen_state.ScreenState.BATTLE.value:
+            return self._in_battle()
 
-        not_in_world = self._check_not_in_world(screen)
-        if not_in_world is not None:
-            return not_in_world
+        print(state)
+        return Operation.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
 
-        return self._try_attack(screen)
+    def _get_screen_state(self, screen: MatLike) -> Optional[str]:
+        """
+        获取当前屏幕状态
+        :param screen: 屏幕截图
+        :return:
+        """
+        return screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                     in_world=True,
+                                                     battle=True,
+                                                     battle_fail=True,
+                                                     bless=True,
+                                                     curio=True)
 
     def _update_not_in_world_time(self):
         """
@@ -71,29 +89,19 @@ class SimUniEnterFight(Operation):
         self.last_alert_time = self.last_not_in_world_time
         self.with_battle = True
 
-    def _check_not_in_world(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
+    def _in_battle(self) -> Optional[OperationOneRoundResult]:
         """
-        检测是否不在大世界可移动页面
-        - 战斗
-        - 选择祝福
-        :param screen: 屏幕截图
+        战斗
         :return:
         """
-        if not screen_state.is_normal_in_world(screen, self.ctx.im):
-            self._update_not_in_world_time()
-            return Operation.round_wait(wait=1)
-        else:
-            return None
+        self._update_not_in_world_time()
+        return Operation.round_wait(wait=1)
 
-    def _check_choose_bless(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
+    def _choose_bless(self) -> Optional[OperationOneRoundResult]:
         """
-        检查是否在选择祝福页面
-        :param screen: 屏幕截图
+        选择祝福
         :return:
         """
-        if not screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
-            return None
-
         op = SimUniChooseBless(self.ctx, self.bless_priority)
         op_result = op.execute()
         self._update_not_in_world_time()
@@ -101,17 +109,13 @@ class SimUniEnterFight(Operation):
         if op_result.success:
             return Operation.round_wait(wait=1)
         else:
-            return Operation.round_retry('选择祝福失败', wait=1)
+            return Operation.round_retry(op_result.status, wait=1)
 
-    def _check_choose_curio(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
+    def _choose_curio(self) -> Optional[OperationOneRoundResult]:
         """
-        检查是否在选择奇物页面
-        :param screen: 屏幕截图
+        选择奇物
         :return:
         """
-        if not screen_state.in_sim_uni_choose_curio(screen, self.ctx.ocr):
-            return None
-
         op = SimUniChooseCurio(self.ctx, self.curio_priority)
         op_result = op.execute()
         self._update_not_in_world_time()
@@ -119,7 +123,7 @@ class SimUniEnterFight(Operation):
         if op_result.success:
             return Operation.round_wait(wait=1)
         else:
-            return Operation.round_retry('选择奇物失败', wait=1)
+            return Operation.round_retry(op_result.status, wait=1)
 
     def _try_attack(self, screen: MatLike) -> OperationOneRoundResult:
         """
@@ -148,3 +152,7 @@ class SimUniEnterFight(Operation):
             return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
 
         return Operation.round_wait()
+
+    def on_resume(self):
+        super().on_resume()
+        self._update_not_in_world_time()

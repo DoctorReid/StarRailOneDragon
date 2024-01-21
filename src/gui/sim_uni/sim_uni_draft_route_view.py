@@ -180,12 +180,16 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             return
 
         level_type = level_type_from_id(self.level_type_dropdown.value)
-        existed_route = match_best_sim_uni_route(int(self.num_dropdown.value), level_type, self.mini_map_image)
-        if existed_route is not None:
-            log.info('已有地图 %s', existed_route.display_name)
-            self.existed_route_dropdown.value = existed_route.uid
-            self._on_chosen_route_changed()
-            return
+        if self.chosen_route.region is None:
+            existed_route = match_best_sim_uni_route(int(self.num_dropdown.value), level_type, self.mini_map_image)
+            if existed_route is not None:
+                log.info('已有地图 %s', existed_route.display_name)
+                self.existed_route_dropdown.value = existed_route.uid
+                self._on_chosen_route_changed()
+                return
+        else:
+            level_type = level_type_from_id(self.level_type_dropdown.value)
+            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), level_type)
 
         self.sr_ctx.init_image_matcher()
         mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
@@ -194,6 +198,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         for _, region_list in map_const.PLANET_2_REGION.items():
             for region in region_list:
+                # if region != map_const.P03_R03_F1:
+                #     continue
                 lm_info = self.sr_ctx.ih.get_large_map(region)
                 pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(self.sr_ctx.im, lm_info, mm_info,
                                                                        scale_list=[1], match_threshold=0.3)
@@ -276,7 +282,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.next_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx >= len(self.start_pos_list) - 1)
         self.next_start_btn.update()
 
-        self.match_start_btn.disabled = start_chosen or not screenshot_mm or (self.mini_map_image is None)
+        self.match_start_btn.disabled = not screenshot_mm or (self.mini_map_image is None)
         self.match_start_btn.update()
 
         self.set_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or not (0 <= self.chosen_start_pos_idx < len(self.start_pos_list))

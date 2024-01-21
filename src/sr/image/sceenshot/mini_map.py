@@ -602,19 +602,26 @@ def get_road_mask_v4(mm: MatLike,
 
     # 选取小箭头附近有黑色边框 需要忽略
     check_start_mask = center_mask.copy()
-    dilate_arrow_mask = cv2_utils.dilate(arrow_mask, 4)
+    dilate_arrow_mask = cv2_utils.dilate(arrow_mask, 5)
     check_start_mask[np.where(dilate_arrow_mask == 255)] = 0
+
+    # 白色边
+    white_edge = cv2_utils.color_in_range(mm, [160, 160, 160], [255, 255, 255])
+    dilate_white_edge = cv2_utils.dilate(white_edge, 10)
+    # cv2_utils.show_image(dilate_white_edge, win_name='dilate_white_edge', wait=0)
+    # 忽略白色边附近的黑色
+    check_start_mask[np.where(dilate_white_edge == 255)] = 0
 
     # 的最深颜色开始
     # cv2_utils.show_image(check_start_mask, win_name='check_start_mask')
     b, g, r = cv2.split(mm)
-    min_color = 45  # 地图上有纯黑色的边 因此过滤一些太深色的部分
+    min_color = 50  # 地图上有纯黑色的边 因此过滤一些太深色的部分
     min_b = np.min(b[np.where(np.logical_and(check_start_mask == 255, b > min_color))])
     min_g = np.min(g[np.where(np.logical_and(check_start_mask == 255, g > min_color))])
     min_r = np.min(r[np.where(np.logical_and(check_start_mask == 255, r > min_color))])
     # log.debug('最深颜色 (%d, %d, %d)', min_b, min_g, min_r)
 
-    color_threshold = 5
+    color_threshold = 3
     # 找出最深色的模块
     lower_color = np.array([min_b, min_g, min_r], dtype=np.uint8)
     upper_color = np.array([min_b + color_threshold, min_g + color_threshold, min_r + color_threshold], dtype=np.uint8)
@@ -638,8 +645,11 @@ def get_road_mask_v4(mm: MatLike,
         bfs_queue.append(c)
         visited[c[1]][c[0]] = 255
 
-    # 向4个方向拓展
-    directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+    # 向各个方向拓展
+    directions = [
+        [-1, 0], [1, 0], [0, -1], [0, 1],
+        # [-1, -1], [1, -1], [-1, 1], [1, 1]
+    ]
     while len(bfs_queue) > 0:
         current_p = bfs_queue.popleft()
 
@@ -697,6 +707,8 @@ def get_road_mask_v4(mm: MatLike,
             max_label = label
 
     cond = np.where(np.logical_and(labels == max_label, special_mask == 0))
+    if len(b[cond]) == 0 or len(g[cond]) == 0 or len(r[cond]) == 0:
+        return road_mask_3
     avg_b = np.mean(b[cond])
     avg_g = np.mean(g[cond])
     avg_r = np.mean(r[cond])

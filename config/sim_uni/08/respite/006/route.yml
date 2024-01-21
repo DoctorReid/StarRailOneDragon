@@ -1,0 +1,7 @@
+planet: '仙舟罗浮'
+region: '流云渡'
+floor: 1
+start_pos: [686, 1360]
+op_list:
+  - op: 'move'
+    data: [742, 1373]

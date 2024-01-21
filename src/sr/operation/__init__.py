@@ -395,7 +395,6 @@ class StateOperationNode:
         """节点名称"""
 
         self.func: Callable[[], OperationOneRoundResult] = func
-        """节点处理函数"""
 
 
 class StateOperationEdge:

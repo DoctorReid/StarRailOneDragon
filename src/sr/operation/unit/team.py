@@ -1,13 +1,13 @@
-from typing import ClassVar, List, Union, Optional
+from typing import ClassVar, List, Optional, Union
 
 from cv2.typing import MatLike
 
 from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from sr.config import game_config
-from sr.const.character_const import CHARACTER_LIST, Character
+from sr.const.character_const import Character, CHARACTER_LIST
 from sr.context import Context
+from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult
 
 
@@ -58,3 +58,37 @@ class GetTeamMemberInWorld(Operation):
                 best_character = character
                 best_lcs = lcs
         return best_character.id if best_character is not None else None
+
+
+class SwitchMember(Operation):
+
+    def __init__(self, ctx: Context, num: int,
+                 skip_first_screen_check: bool = False):
+        """
+        切换角色 需要在大世界页面
+        :param ctx:
+        :param num: 第几个队友
+        :param skip_first_screen_check: 是否跳过第一次画面状态检查
+        """
+        super().__init__(ctx, try_times=5, op_name='%s %d' % (gt('切换角色', 'ui'), num))
+        self.num: int = num
+        self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
+        self.first_screen_check: bool = True  # 是否第一次检查画面状态
+
+    def _init_before_execute(self):
+        super()._init_before_execute()
+        self.first_screen_check = True
+
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        first = self.first_screen_check
+        self.first_screen_check = False
+        if first and self.skip_first_screen_check:
+            pass
+        else:
+            screen = self.screenshot()
+            if not screen_state.is_normal_in_world(screen, self.ctx.im):
+                return Operation.round_retry('未在大世界页面', wait=1)
+
+        # TODO 未判断角色阵亡
+        self.ctx.controller.switch_character(self.num)
+        return Operation.round_success(wait=1)
