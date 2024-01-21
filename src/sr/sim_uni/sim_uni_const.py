@@ -421,7 +421,7 @@ def match_best_bless_by_ocr(title_ocr: str, path_ocr: str) -> Optional[SimUniBle
         return None
 
     bless_list = PATH_BLESS_LIST[path.value]
-    target_title_list = [gt(bless.title, 'ocr') for bless in bless_list if bless.title != '未知祝福']
+    target_title_list = [gt(bless.title, 'ocr') for bless in bless_list if bless.title != bless.path.value]
 
     idx = str_utils.find_best_match_by_lcs(title_ocr, target_title_list)
     if idx is None:  # 未录入的祝福
@@ -526,6 +526,7 @@ def match_best_curio_by_ocr(name_ocr: str) -> Optional[SimUniCurio]:
         return SimUniCurioEnum['CURIO_%03d' % idx].value
     else:
         return None
+
 
 def curio_enum_from_name(name: str) -> Optional[SimUniCurioEnum]:
     for curio in SimUniCurioEnum:

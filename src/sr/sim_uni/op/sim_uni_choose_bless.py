@@ -332,22 +332,45 @@ class SimUniChooseBless(Operation):
         :param can_reset: 当前是否可以重置
         :return: 选择祝福的下标
         """
-        if priority is None:
-            return 0
+        if priority is not None:
+            idx = SimUniChooseBless.get_bless_by_priority_id_list(bless_list, priority.id_list)
+            if idx is not None:
+                return idx
 
-        for priority_id in priority.id_list:
-            bless = SimUniBlessEnum[priority_id]
-            if bless.name.endswith('000'):
-                for bless_level in SimUniBlessLevel:
-                    for idx, opt_bless in enumerate(bless_list):
-                        if opt_bless.data.level == bless_level:
-                            return idx
-            else:
-                for idx, opt_bless in enumerate(bless_list):
-                    if opt_bless.data == bless.value:
-                        return idx
+            if can_reset:
+                return None
 
-        if can_reset:
-            return None
+            # 无法重置的情况下 再按第二优先级匹配
+            idx = SimUniChooseBless.get_bless_by_priority_id_list(bless_list, priority.second_id_list)
+            if idx is not None:
+                return idx
+
+        # 优先级无法命中的情况 随便选最高级的祝福
+        for bless_level in SimUniBlessLevel:
+            for idx, opt_bless in enumerate(bless_list):
+                if opt_bless.level == bless_level:
+                    return idx
 
         return 0
+
+    @staticmethod
+    def get_bless_by_priority_id_list(bless_list: List[SimUniBless], priority_id_list: List[str]) -> Optional[int]:
+        """
+        根据优先级选择对应的祝福
+        :param bless_list: 可选的祝福列表
+        :param priority_id_list: 祝福优先级 ID列表
+        :return: 选择祝福的下标
+        """
+        for priority_id in priority_id_list:
+            bless = SimUniBlessEnum[priority_id]
+            if bless.name.endswith('000'):  # 命途内选最高级的祝福
+                for bless_level in SimUniBlessLevel:
+                    for idx, opt_bless in enumerate(bless_list):
+                        if opt_bless.level == bless_level and opt_bless.path == bless.value.path:
+                            return idx
+            else:  # 命中优先级的
+                for idx, opt_bless in enumerate(bless_list):
+                    if opt_bless == bless.value:
+                        return idx
+
+        return None

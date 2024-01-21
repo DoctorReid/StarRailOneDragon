@@ -10,8 +10,9 @@ class SimUniBlessPriorityType(Enum):
 
 class SimUniBlessPriority:
 
-    def __init__(self, id_list: List[str]):
+    def __init__(self, id_list: List[str], second_id_list: List[str]):
         self.id_list: List[str] = id_list
+        self.second_id_list: List[str] = second_id_list
 
 
 class SimUniNextLevelPriority:
