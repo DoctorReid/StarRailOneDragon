@@ -6,7 +6,7 @@ from basic.log_utils import log
 from sr.config import game_config
 from sr.context import Context
 from sr.control import GameController
-from sr.image.sceenshot import mini_map, battle
+from sr.image.sceenshot import mini_map, battle, screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.enable_auto_fight import EnableAutoFight
 
@@ -18,6 +18,7 @@ class EnterAutoFight(Operation):
     ATTACK_DIRECTION_ARR: ClassVar[List] = ['w', 's', 'a', 'd']
 
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
+    STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
 
     def __init__(self, ctx: Context):
         """
@@ -45,8 +46,12 @@ class EnterAutoFight(Operation):
         screen = self.screenshot()
 
         now_time = time.time()
-        screen_status = battle.get_battle_status(screen, self.ctx.im)
-        if screen_status != battle.IN_WORLD:  # 在战斗界面
+        state = screen_state.get_world_patrol_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                           in_world=True, battle=True, battle_fail=True)
+        if state == screen_state.ScreenState.BATTLE_FAIL.value:
+            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
+            return Operation.round_fail(EnterAutoFight.STATUS_BATTLE_FAIL, wait=5)
+        elif state == screen_state.ScreenState.BATTLE.value:
             if now_time - self.last_check_auto_fight_time > 10:
                 self.last_check_auto_fight_time = now_time
                 eaf = EnableAutoFight(self.ctx)

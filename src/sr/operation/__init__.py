@@ -362,12 +362,15 @@ class OperationSuccess(Operation):
     """
     一个直接返回成功的指令 用于组合指令
     """
-    def __init__(self, ctx: Context, status: Optional[str] = None):
-        super().__init__(ctx, op_name=gt('成功结束', 'ui'))
+    def __init__(self, ctx: Context, status: Optional[str] = None, data: Any = None,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None
+                 ):
+        super().__init__(ctx, op_name=gt('成功结束', 'ui'), op_callback=op_callback)
         self.status: Optional[str] = status
+        self.data: Any = data
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
-        return Operation.round_success(self.status)
+        return Operation.round_success(status=self.status, data=self.data)
 
 
 class OperationFail(Operation):

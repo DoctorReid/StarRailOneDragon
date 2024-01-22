@@ -7,7 +7,7 @@ from basic.log_utils import log
 from sr.app import Application, AppRunRecord, world_patrol
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolWhitelist, WorldPatrolRecord, \
     load_all_route_id, WorldPatrolConfig, get_config, load_all_whitelist_id
-from sr.app.world_patrol.run_patrol_route import RunPatrolRoute
+from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
 from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map_angle_alas
@@ -79,7 +79,7 @@ class WorldPatrol(Application):
         route_id = self.route_id_list[self.current_route_idx]
 
         self.current_route_start_time = time.time()
-        op = RunPatrolRoute(self.ctx, route_id)
+        op = WorldPatrolRunRoute(self.ctx, route_id)
         route_result = op.execute().success
         if route_result:
             if not self.ignore_record:

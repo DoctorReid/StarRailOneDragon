@@ -308,7 +308,7 @@ class MoveDirectly(Operation):
         if cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
-            return Operation.round_success(data=self.target)
+            return Operation.round_success(data=next_pos)
         return None
 
     def move(self, next_pos: Point, now_time: float, mm_info: MiniMapInfo):

@@ -92,9 +92,9 @@ class WorldPatrolRouteId:
 class WorldPatrolRoute(ConfigHolder):
 
     def __init__(self, route_id: WorldPatrolRouteId):
-        self.author_list: List[str] = None
-        self.tp: TransportPoint = None
-        self.route_list: List = None
+        self.author_list: Optional[List[str]] = None
+        self.tp: Optional[TransportPoint] = None
+        self.route_list: Optional[List] = None
         self.route_id: WorldPatrolRouteId = route_id
         super().__init__(route_id.raw_id, sample=False, sub_dir=['world_patrol', route_id.planet.np_id])
 

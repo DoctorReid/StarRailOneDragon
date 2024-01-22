@@ -298,8 +298,8 @@ def get_sim_uni_screen_state(
     :param curio: 可能在选择奇物
     :param drop_curio: 可能在丢弃奇物
     :param event: 可能在事件
-    :param battle:
-    :param battle_fail:
+    :param battle: 可能在战斗
+    :param battle_fail: 可能在战斗失败
     :return:
     """
     if in_world and is_normal_in_world(screen, im):
@@ -334,6 +334,33 @@ def get_sim_uni_screen_state(
 
     if event and str_utils.find_best_match_by_lcs(ScreenState.SIM_EVENT.value, titles):
         return ScreenState.SIM_EVENT.value
+
+    if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
+        return ScreenState.BATTLE.value
+
+    return None
+
+
+def get_world_patrol_screen_state(
+        screen: MatLike, im: ImageMatcher, ocr: OcrMatcher,
+        in_world: bool = False,
+        battle: bool = False,
+        battle_fail: bool = False):
+    """
+    获取锄大地的画面状态
+    :param screen: 屏幕截图
+    :param im: 图片匹配器
+    :param ocr: 文本识别器
+    :param in_world: 可能在大世界
+    :param battle: 可能在战斗
+    :param battle_fail: 可能在战斗失败
+    :return:
+    """
+    if in_world and is_normal_in_world(screen, im):
+        return ScreenState.NORMAL_IN_WORLD.value
+
+    if battle_fail and is_battle_fail(screen, ocr):
+        return ScreenState.BATTLE_FAIL.value
 
     if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
         return ScreenState.BATTLE.value
