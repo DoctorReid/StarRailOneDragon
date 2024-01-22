@@ -22,7 +22,7 @@ route:
   - op: 'move'
     data: [773, 688]
   - op: 'move'
-    data: [724, 735]
+    data: [745, 720]
   - op: 'move'
     data: [703, 749]
   - op: 'patrol'
