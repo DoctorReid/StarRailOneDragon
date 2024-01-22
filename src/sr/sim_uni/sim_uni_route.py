@@ -36,6 +36,7 @@ class SimUniRoute:
 
         self.idx: Optional[int] = None
         self.mm: Optional[MatLike] = None
+        self.mm2: Optional[MatLike] = None  # 有极少数地图 重进后初始小地图不一样
         self.region: Optional[Region] = None
         self.start_pos: Optional[Point] = None
         self.op_list: Optional[List[SimUniRouteOperation]] = None
@@ -70,6 +71,7 @@ class SimUniRoute:
     def _read_route(self):
         dir_path = self.get_route_dir_path()
         self.mm = cv2_utils.read_image(os.path.join(dir_path, 'mm.png'))
+        self.mm2 = cv2_utils.read_image(os.path.join(dir_path, 'mm2.png'))
         with open(os.path.join(dir_path, 'route.yml'), 'r', encoding='utf-8') as file:
             route = yaml.safe_load(file)
             self.load_from_route_yml(route)

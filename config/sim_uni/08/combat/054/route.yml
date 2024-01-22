@@ -1,0 +1,16 @@
+planet: '仙舟罗浮'
+region: '工造司'
+floor: 0
+start_pos: [721, 1281]
+op_list:
+  - op: 'move'
+    data: [723, 1211]
+  - op: 'patrol'
+  - op: 'move'
+    data: [745, 1190]
+  - op: 'patrol'
+  - op: 'move'
+    data: [765, 1113]
+  - op: 'patrol'
+  - op: 'move'
+    data: [788, 1112]

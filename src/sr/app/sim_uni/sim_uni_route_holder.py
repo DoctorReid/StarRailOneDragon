@@ -74,6 +74,11 @@ def match_best_sim_uni_route(uni_num: int, level_type: SimUniLevelType, mm: MatL
         template, _ = cv2_utils.crop_image(mm, Rect(50, 50, 150, 150))
         mr = cv2_utils.match_template(source, template, threshold=0.6, only_best=True)
 
+        if mr.max is None and route.mm2 is not None:
+            source = route.mm2
+            template, _ = cv2_utils.crop_image(mm, Rect(50, 50, 150, 150))
+            mr = cv2_utils.match_template(source, template, threshold=0.6, only_best=True)
+
         if mr.max is None:
             continue
 

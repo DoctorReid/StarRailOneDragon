@@ -20,6 +20,12 @@ class TestOperation(unittest.TestCase, test.SrTestBase):
         screen = self.get_test_image('sim_uni_finished')
         self.assertTrue(screen_state.is_empty_to_close(screen, ctx.ocr))
 
+        screen = self.get_test_image('event_get_curio')
+        self.assertTrue(screen_state.is_empty_to_close(screen, ctx.ocr))
+
+        screen = self.get_test_image('event_lose_money')
+        self.assertTrue(screen_state.is_empty_to_close(screen, ctx.ocr))
+
     def test_get_ui_title(self):
         ctx = get_context()
         ctx.init_ocr_matcher()

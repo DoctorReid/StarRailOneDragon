@@ -140,7 +140,9 @@ class MoveDirectly(Operation):
         now = time.time()
         self.last_rec_time = now - 1
         self.last_battle_time = now
-        self.pos = [self.start_pos]
+        self.pos = []
+        if self.ctx.controller.is_moving:  # 连续移动的时候 使用开始点作为一个起始点
+            self.pos.append(self.start_pos)
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
@@ -187,8 +189,11 @@ class MoveDirectly(Operation):
         判断是否被困且进行移动
         :return: 如果被困次数过多就返回失败
         """
-        first_pos = None if len(self.pos) == 0 else self.pos[0]
-        last_pos = None if len(self.pos) == 0 else self.pos[len(self.pos) - 1]
+        if len(self.pos) == 0:
+            return None
+
+        first_pos = self.pos[0]
+        last_pos = self.pos[len(self.pos) - 1]
 
         # 通过第一个坐标和最后一个坐标的距离 判断是否困住了
         if len(self.pos) >= MoveDirectly.max_len and \
@@ -260,7 +265,7 @@ class MoveDirectly(Operation):
         else:
             move_time = 1
         move_distance = self.ctx.controller.cal_move_distance_by_time(move_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
-        last_pos = self.pos[len(self.pos) - 1]
+        last_pos = self.pos[len(self.pos) - 1] if len(self.pos) > 0 else self.start_pos
         possible_pos = (last_pos.x, last_pos.y, move_distance)
         log.debug('准备计算人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos,
                   move_time, self.ctx.controller.is_moving)
@@ -268,6 +273,9 @@ class MoveDirectly(Operation):
 
         sp_map = map_const.get_sp_type_in_rect(self.region, lm_rect)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
+
+        if len(self.pos) == 0:
+            return self.start_pos, mm_info
 
         next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect,
                                              retry_without_rect=False, running=self.ctx.controller.is_moving)

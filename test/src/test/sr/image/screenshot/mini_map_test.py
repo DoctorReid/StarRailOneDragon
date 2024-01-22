@@ -116,7 +116,7 @@ def _test_get_enemy_road_mask():
 
 
 def _test_cut_mini_map():
-    screen = get_test_image('mm_arrow', sub_dir='mini_map')
+    screen = get_debug_image('_1705934808671')
     mm = mini_map.cut_mini_map(screen)
     save_debug_image(mm)
     # dir = get_debug_image_dir()
@@ -212,4 +212,4 @@ def save_template_image(img: MatLike, template_id: str, tt: str):
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    _test_radio_color()
+    _test_cut_mini_map()

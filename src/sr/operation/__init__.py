@@ -562,7 +562,7 @@ class StateOperation(Operation):
         current_op = self._current_node.func
         current_round_result: OperationOneRoundResult = current_op()
 
-        if current_round_result.status == Operation.WAIT or current_round_result.status == Operation.RETRY:
+        if current_round_result.result == Operation.WAIT or current_round_result.result == Operation.RETRY:
             # 等待或重试的 直接返回
             return current_round_result
 

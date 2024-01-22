@@ -154,7 +154,7 @@ class SimUniEvent(StateOperation):
             title = self.ctx.ocr.ocr_for_single_line(title_part)
 
             confirm_lt = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(260, 85)
-            confirm_rb = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(440, 125)
+            confirm_rb = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(440, 165)  #
             confirm_rect = Rect(confirm_lt.x, confirm_lt.y, confirm_rb.x, confirm_rb.y)
             # confirm_part, _ = cv2_utils.crop_image(screen, confirm_rect)
             # cv2_utils.show_image(confirm_part, wait=0)
@@ -200,7 +200,7 @@ class SimUniEvent(StateOperation):
     def _confirm(self):
         click = self.ocr_and_click_one_line('确认', self.chosen_opt.confirm_rect)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(SimUniEvent.STATUS_CONFIRM_SUCCESS, wait=1)
+            return Operation.round_success(SimUniEvent.STATUS_CONFIRM_SUCCESS, wait=2)
         elif click == Operation.OCR_CLICK_NOT_FOUND:
             return Operation.round_success('无效选项')
         else:
@@ -302,12 +302,14 @@ class SimUniEvent(StateOperation):
             return Operation.round_retry('点击空白处关闭失败')
 
     def _battle(self) -> OperationOneRoundResult:
-        op = SimUniEnterFight(self.ctx,
-                              bless_priority=self.bless_priority,
-                              curio_priority=self.curio_priority)
-        op_result = op.execute()
-
-        if op_result.success:
-            return Operation.round_success()
-        else:
-            return Operation.round_fail(status=op_result.status)
+        # op = SimUniEnterFight(self.ctx,
+        #                       bless_priority=self.bless_priority,
+        #                       curio_priority=self.curio_priority)
+        # op_result = op.execute()
+        #
+        # if op_result.success:
+        #     return Operation.round_success()
+        # else:
+        #     return Operation.round_fail(status=op_result.status)
+        # 这里似乎不用进去战斗画面也可以
+        return Operation.round_success(wait=1)

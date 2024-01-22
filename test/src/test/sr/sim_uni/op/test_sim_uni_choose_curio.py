@@ -2,6 +2,7 @@ import unittest
 from typing import List
 
 import test
+from sr.app.sim_uni.sim_uni_config import SimUniChallengeConfig
 from sr.context import get_context
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
 from sr.sim_uni.sim_uni_const import SimUniCurioEnum, SimUniCurio
@@ -73,6 +74,7 @@ class TestChooseSimUniCurio(unittest.TestCase, test.SrTestBase):
     def test_drop_op(self):
         ctx = get_context()
         ctx.start_running()
+        config = SimUniChallengeConfig(8)
 
-        op = SimUniDropCurio(ctx)
+        op = SimUniDropCurio(ctx, SimUniCurioPriority(config.curio_priority))
         op.execute()

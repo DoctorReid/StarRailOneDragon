@@ -123,7 +123,7 @@ class TargetRect(Enum):
     BATTLE_FAIL = Rect(783, 231, 1141, 308)
     """战斗失败"""
 
-    EMPTY_TO_CLOSE = Rect(876, 908, 1048, 975)
+    EMPTY_TO_CLOSE = Rect(876, 878, 1048, 1026)
     """点击空白处关闭"""
 
 
@@ -255,11 +255,11 @@ def is_empty_to_close(screen: MatLike, ocr: OcrMatcher) -> bool:
     :param ocr:
     :return:
     """
-    part, _ = cv2_utils.crop_image(screen, TargetRect.EMPTY_TO_CLOSE.value)
-    ocr_result = ocr.ocr_for_single_line(part)
+    part = cv2_utils.crop_image_only(screen, TargetRect.EMPTY_TO_CLOSE.value)
+    ocr_result = ocr.match_one_best_word(part, '点击空白处关闭', lcs_percent=0.1)
     # cv2_utils.show_image(part, wait=0)
 
-    return str_utils.find_by_lcs(gt('点击空白处关闭', 'ui'), ocr_result)
+    return ocr_result is not None
 
 
 def is_battle_fail(screen: MatLike, ocr: OcrMatcher) -> bool:

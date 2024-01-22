@@ -60,13 +60,16 @@ class MoveDirectlyInSimUni(MoveDirectly):
         else:
             move_time = 1
         move_distance = self.ctx.controller.cal_move_distance_by_time(move_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
-        last_pos = self.pos[len(self.pos) - 1]
+        last_pos = self.pos[len(self.pos) - 1] if len(self.pos) > 0 else self.start_pos
         possible_pos = (last_pos.x, last_pos.y, move_distance)
         log.debug('准备计算人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos,
                   move_time, self.ctx.controller.is_moving)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
+
+        if len(self.pos) == 0:
+            return self.start_pos, mm_info
 
         next_pos = cal_pos.cal_character_pos_for_sim_uni(self.ctx.im, self.lm_info, mm_info,
                                                          lm_rect=lm_rect, running=self.ctx.controller.is_moving)

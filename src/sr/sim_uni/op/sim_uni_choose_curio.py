@@ -10,6 +10,7 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
+from sr.operation.unit.click import ClickDialogConfirm
 from sr.sim_uni.sim_uni_const import match_best_curio_by_ocr, SimUniCurio, SimUniCurioEnum
 from sr.sim_uni.sim_uni_priority import SimUniCurioPriority
 
@@ -326,7 +327,7 @@ class SimUniDropCurio(StateOperation):
         if priority is None:
             return 0
 
-        opt_priority_list: List[int] = [99 for _ in priority.id_list]  # 选项的优先级
+        opt_priority_list: List[int] = [99 for _ in curio_list]  # 选项的优先级
         cnt = 0
 
         for curio_id in priority.id_list:
@@ -350,3 +351,10 @@ class SimUniDropCurio(StateOperation):
         确认丢弃
         :return:
         """
+        op = ClickDialogConfirm(self.ctx, wait_after_success=2)
+        op_result = op.execute()
+        if op_result.success:
+            return Operation.round_success()
+        else:
+            return Operation.round_fail_by_op(op_result)
+
