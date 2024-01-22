@@ -5,7 +5,7 @@
 
 本脚本的终极目标是可以让你在日常```忘掉```这个游戏，做到完全的托管。
 
-目前支持`锄大地`、`体力刷本规划`、`忘却之庭自动配队`等日常功能。下载、运行及使用方式，见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)。
+目前支持`锄大地`、`体力刷本规划`、`忘却之庭自动配队`、`模拟宇宙`等日常功能。下载、运行及使用方式，见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)。
 
 如果喜欢本项目，可右上角送作者一个```Star```
 
