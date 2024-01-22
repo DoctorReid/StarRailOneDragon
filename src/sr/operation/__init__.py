@@ -62,6 +62,8 @@ class Operation:
     OCR_CLICK_FAIL: ClassVar[int] = 0  # OCR成功但点击失败 基本不会出现
     OCR_CLICK_NOT_FOUND: ClassVar[int] = -1  # OCR找不到目标
 
+    STATUS_TIMEOUT: ClassVar[str] = '执行超时'
+
     def __init__(self, ctx: Context, try_times: int = 2, op_name: str = '', timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         self.op_name: str = op_name
@@ -125,8 +127,7 @@ class Operation:
         retry_status: Optional[str] = None
         while self.op_round < self.try_times:
             if self.timeout_seconds != -1 and self._operation_usage_time >= self.timeout_seconds:
-                log.error('%s 执行超时', self.display_name, exc_info=True)
-                op_result = self.op_fail('执行超时')
+                op_result = self.op_fail(Operation.STATUS_TIMEOUT)
                 break
             if self.ctx.running == 0:
                 op_result = self.op_fail('人工结束')

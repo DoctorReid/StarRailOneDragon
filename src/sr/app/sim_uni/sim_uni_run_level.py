@@ -27,7 +27,7 @@ from sr.sim_uni.sim_uni_route import SimUniRoute
 
 class SimUniRunLevel(StatusCombineOperation2):
 
-    STATUS_FINAL_LEVEL: ClassVar[str] = '最后一关通关'
+    STATUS_ALL_LEVEL_FINISHED: ClassVar[str] = '全楼层通关'
 
     def __init__(self, ctx: Context, world_num: int,
                  bless_priority: Optional[SimUniBlessPriority] = None,
@@ -63,7 +63,6 @@ class SimUniRunLevel(StatusCombineOperation2):
         combat_route = StatusCombineOperationNode('区域-战斗', op_func=self._route_op)
         edges.append(StatusCombineOperationEdge2(check_level_type, combat_route,
                                                  status=SimUniLevelTypeEnum.COMBAT.value.type_id))
-
         edges.append(StatusCombineOperationEdge2(combat_route, enter_next))
 
         # 精英
@@ -80,10 +79,15 @@ class SimUniRunLevel(StatusCombineOperation2):
         edges.append(StatusCombineOperationEdge2(check_level_type, boss_route,
                                                  status=SimUniLevelTypeEnum.BOSS.value.type_id))
 
-        finished = StatusCombineOperationNode('区域-首领-通关', SimUniExit(ctx))
-        edges.append(StatusCombineOperationEdge2(boss_route, finished))
-        edges.append(StatusCombineOperationEdge2(boss_route, finished,
+        # 通关
+        boss_exit = StatusCombineOperationNode('通关', SimUniExit(ctx))
+        edges.append(StatusCombineOperationEdge2(boss_route, boss_exit))
+        edges.append(StatusCombineOperationEdge2(boss_route, boss_exit,
                                                  success=False, status=MoveToEnemy.STATUS_ENEMY_NOT_FOUND))  # 也可能没敌人
+
+        # 成功结束
+        success = StatusCombineOperationNode('成功结束', OperationSuccess(ctx, status=SimUniRunLevel.STATUS_ALL_LEVEL_FINISHED))
+        edges.append(StatusCombineOperationEdge2(boss_exit, success))
 
         # 休整楼层
         respite_move_to_herta = StatusCombineOperationNode('区域-休整-走向黑塔', op_func=self._route_op)
@@ -149,36 +153,27 @@ class SimUniRunLevel(StatusCombineOperation2):
         获取路线指令
         :return:
         """
-        if self.route is None:
-            if self.level_type == SimUniLevelTypeEnum.EVENT.value or \
-                    self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
-                    self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
-                screen = self.screenshot()
-                log.warn('%s 地图未配置 使用小地图识别 可发送截图给作者 %s',
-                         self.level_type.type_name,
-                         save_debug_image(screen))
+        if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
+            if self.route is None:
+                return OperationFail(self.ctx, status='匹配路线失败')
+            return SimUniRunRoute(self.ctx, self.route, self.bless_priority)
+        elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
+                self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
+                self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
+            if self.route is None:
                 # return MoveToEventInteract(self.ctx)  # TODO 正式发布时使用
-            elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-                screen = self.screenshot()
-                log.warn('%s地图未配置 使用小地图识别 可发送截图给作者 %s',
-                         self.level_type.type_name,
-                         save_debug_image(screen))
+                return OperationFail(self.ctx, status='匹配路线失败')
+            return SimUniRunEventRoute(self.ctx, self.route)
+        elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+            if self.route is None:
                 # return MoveToHertaInteract(self.ctx)  # TODO 正式发布时使用
-            elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
+                return OperationFail(self.ctx, status='匹配路线失败')
+            return SimUniRunRespiteRoute(self.ctx, self.route)
+        elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-                return SimUniRunEliteRoute(self.ctx, bless_priority=self.bless_priority, curio_priority=self.curio_priority)
-            return OperationFail(self.ctx, status='匹配路线失败')
+            return SimUniRunEliteRoute(self.ctx, bless_priority=self.bless_priority, curio_priority=self.curio_priority)
         else:
-            if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
-                return SimUniRunRoute(self.ctx, self.route, self.bless_priority)
-            elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
-                    self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
-                    self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
-                return SimUniRunEventRoute(self.ctx, self.route)
-            elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-                return SimUniRunRespiteRoute(self.ctx, self.route)
-            else:
-                return OperationFail(self.ctx, status='未知楼层类型使用路线配置')
+            return OperationFail(self.ctx, status='未知楼层类型 %s' % self.level_type)
 
     def _next_confirm(self) -> Operation:
         if self.level_type == SimUniLevelTypeEnum.ELITE.value or self.level_type == SimUniLevelTypeEnum.BOSS.value:

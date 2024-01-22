@@ -30,7 +30,7 @@ class SimUniRunWorld(StatusCombineOperation2):
         run_level = StatusCombineOperationNode('挑战楼层', op_func=self._run_level)
         finished = StatusCombineOperationNode('结束', OperationSuccess(ctx, status='一轮结束'))
 
-        edges.append(StatusCombineOperationEdge2(run_level, finished, status=SimUniExit.STATUS_EXIT))
+        edges.append(StatusCombineOperationEdge2(run_level, finished, status=SimUniRunLevel.STATUS_ALL_LEVEL_FINISHED))
         edges.append(StatusCombineOperationEdge2(run_level, run_level, ignore_status=True))
 
         super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=run_level,

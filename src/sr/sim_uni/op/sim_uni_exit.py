@@ -9,7 +9,6 @@ from sr.operation import Operation, OperationOneRoundResult
 
 class SimUniExit(Operation):
 
-    STATUS_EXIT: ClassVar[str] = '结束并结算'
     EXIT_BTN: ClassVar[Rect] = Rect(1323, 930, 1786, 985)
     CONFIRM_BTN: ClassVar[Rect] = Rect(1022, 651, 1324, 697)
 
@@ -49,7 +48,7 @@ class SimUniExit(Operation):
             if screen_state.is_empty_to_close(screen, self.ctx.ocr):
                 click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
                 if click:
-                    return Operation.round_success(SimUniExit.STATUS_EXIT)
+                    return Operation.round_success()
                 else:
                     return Operation.round_retry('点击空白处失败', wait=1)
         else:
