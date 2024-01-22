@@ -63,21 +63,21 @@ jobs:
           fi
           echo 
           cat "output/README_header.md" > output/README.md
-          cat -e "\n\n" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "Home.md" >> output/README.md
-          cat -e "\n\n" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "功能_校准.md" >> output/README.md
-          cat -e "\n\n" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "功能_锄大地.md" >> output/README.md
-          cat -e "\n\n" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "功能_日常.md" >> output/README.md
-          cat -e "\n\n" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "功能_忘却之庭.md" >> output/README.md
-          cat -e "\n\n" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "功能_模拟宇宙.md" >> output/README.md
-          cat -e "\n\n" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "功能_一条龙.md" >> output/README.md
-          cat -e "\n\n" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "设置.md" >> output/README.md
           pandoc output/README.md -o output/README.pdf --pdf-engine=xelatex --columns=25 --wrap=auto --variable mainfont='Noto Serif CJK SC'
 
