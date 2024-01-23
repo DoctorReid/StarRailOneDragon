@@ -25,17 +25,20 @@ class Interact(Operation):
     TRY_INTERACT_MOVE: ClassVar[str] = 'sssaaawwwdddsssdddwwwaaawwwaaasssdddwwwdddsssaaa'  # 分别往四个方向绕圈
 
     def __init__(self, ctx: Context, cn: str, lcs_percent: float = -1,
-                 single_line: bool = False):
+                 single_line: bool = False, no_move: bool = False):
         """
         :param ctx:
         :param cn: 需要交互的中文
         :param lcs_percent: ocr匹配阈值
         :param single_line: 是否确认只有一行的交互 此时可以缩小文本识别范围
+        :param no_move: 不移动触发交互 适用于确保能站在交互点的情况。例如 各种体力本、模拟宇宙事件点
         """
-        super().__init__(ctx, try_times=len(Interact.TRY_INTERACT_MOVE), op_name=gt('交互 %s', 'ui') % gt(cn, 'ui'))
+        super().__init__(ctx, try_times=2 if no_move else len(Interact.TRY_INTERACT_MOVE),
+                         op_name=gt('交互 %s', 'ui') % gt(cn, 'ui'))
         self.cn: str = cn
         self.lcs_percent: float = lcs_percent
         self.single_line: bool = single_line
+        self.no_move: bool = no_move
 
     def _execute_one_round(self):
         time.sleep(0.5)  # 稍微等待一下 可能交互按钮还没有出来

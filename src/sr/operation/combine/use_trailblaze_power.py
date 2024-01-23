@@ -160,7 +160,7 @@ class UseTrailblazePower(CombineOperation):
         :return:
         """
         return [
-            Interact(self.ctx, self.tpp.tp.cn, 0.5),  # 交互进入副本
+            Interact(self.ctx, self.tpp.tp.cn, 0.5, single_line=True),  # 交互进入副本
             WaitInSeconds(self.ctx, 1.5),  # 等待副本加载
             ChooseChallengeTimes(self.ctx, times_per_round),  # 挑战次数
             ClickChallenge(self.ctx),  # 点击挑战
@@ -178,7 +178,7 @@ class UseTrailblazePower(CombineOperation):
         :return:
         """
         return [
-            Interact(self.ctx, self.tpp.tp.cn, 0.5),  # 交互进入副本
+            Interact(self.ctx, self.tpp.tp.cn, 0.5, single_line=True),  # 交互进入副本
             WaitInSeconds(self.ctx, 1.5),  # 等待副本加载
             ClickChallenge(self.ctx),  # 点击挑战
             ChooseTeam(self.ctx, self.team_num),  # 选择配队
@@ -197,7 +197,7 @@ class UseTrailblazePower(CombineOperation):
         :return:
         """
         return [
-            Interact(self.ctx, self.tpp.tp.cn, 0.5),  # 交互进入副本
+            Interact(self.ctx, self.tpp.tp.cn, 0.5, single_line=True),  # 交互进入副本
             WaitInSeconds(self.ctx, 1.5),  # 等待副本加载
             ClickChallenge(self.ctx),  # 点击挑战
             ChooseTeam(self.ctx, self.team_num),  # 选择配队

@@ -134,7 +134,7 @@ class SimUniRunInteractRoute(StateOperation):
         self.route: SimUniRoute = route
         self.target_pos: Optional[Point] = None  # 图标在大地图上的坐标
         self.no_icon: bool = False  # 小地图上没有图标了 说明之前已经交互过了
-        self.can_ignor_interact: bool = can_ignor_interact  # 是否可以忽略交互失败
+        self.can_ignore_interact: bool = can_ignor_interact  # 是否可以忽略交互失败 例如 黑塔
 
     def _init_before_execute(self):
         """
@@ -205,15 +205,17 @@ class SimUniRunInteractRoute(StateOperation):
             return Operation.round_fail_by_op(op_result)
 
     def _interact(self) -> OperationOneRoundResult:
-        if self.no_icon:  # 没有图标 不需要交互了
-            return Operation.round_success(SimUniRunInteractRoute.STATUS_ICON_NOT_FOUND)
-        op = Interact(self.ctx, self.interact_word, lcs_percent=0.1, single_line=True)
+        # 有图标的情况 就一定要交互 no_move=False
+        # 没有图标的情况 可能时不需要交互 也可能时识别图标失败 先尝试交互 no_move=True
+        op = Interact(self.ctx, self.interact_word, lcs_percent=0.1, single_line=True, no_move=self.no_icon)
         op_result = op.execute()
         if op_result.success:
             return Operation.round_success()
         else:
-            if self.can_ignor_interact:
-                log.info('交互失败 跳过')
+            if self.no_icon:  # 识别不到图标 又交互不到 就默认为之前已经交互了
+                return Operation.round_success(SimUniRunInteractRoute.STATUS_ICON_NOT_FOUND)
+            if self.can_ignore_interact:
+                # 本次交互失败 但可以跳过
                 return Operation.round_success()
             else:
                 return Operation.round_fail_by_op(op_result)

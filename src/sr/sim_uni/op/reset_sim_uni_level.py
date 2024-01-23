@@ -75,7 +75,7 @@ class ResetSimUniLevel(StateOperation):
         交互
         :return:
         """
-        op = Interact(self.ctx, '模拟宇宙', lcs_percent=0.1)
+        op = Interact(self.ctx, '模拟宇宙', lcs_percent=0.1, single_line=True)
         op_result = op.execute()
         if op_result.success:
             return Operation.round_success(wait=2)

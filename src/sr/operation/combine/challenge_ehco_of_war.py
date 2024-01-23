@@ -34,7 +34,7 @@ class ChallengeEchoOfWar(CombineOperation):
 
         ops: List[Operation] = [
             Transport(ctx, self.tp),  # 传送到对应位置
-            Interact(self.ctx, self.tp.cn, 0.5),  # 交互进入副本
+            Interact(self.ctx, self.tp.cn, 0.5, single_line=True),  # 交互进入副本
             ClickChallenge(self.ctx),  # 点击挑战
             ClickChallengeConfirm(self.ctx),  # 点击确认
             ChooseTeam(self.ctx, self.team_num),  # 选择配队

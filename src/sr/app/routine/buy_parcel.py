@@ -71,7 +71,7 @@ class BuyXianzhouParcel(Application):
                          lm_info=self.ctx.ih.get_large_map(map_const.P03_R02_SP02.region),
                          target=Point(390, 780),
                          start=map_const.P03_R02_SP02.tp_pos),
-            Interact(self.ctx, '茂贞'),
+            Interact(self.ctx, '茂贞', single_line=True),
             TalkInteract(self.ctx, '我想买个过期邮包试试手气', lcs_percent=0.55),
             WaitInSeconds(self.ctx, 1),
             ClickStoreItem(self.ctx, '逾期未取的贵重邮包', 0.8),
