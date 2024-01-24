@@ -117,6 +117,7 @@ class MoveDirectly(Operation):
                  next_lm_info: Optional[LargeMapInfo] = None,
                  stop_afterwards: bool = True,
                  no_run: bool = False,
+                 no_battle: bool = False,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         super().__init__(ctx, op_name=gt('移动 %s -> %s') % (start, target), op_callback=op_callback)
         self.lm_info: LargeMapInfo = lm_info
@@ -134,6 +135,7 @@ class MoveDirectly(Operation):
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
+        self.no_battle: bool = no_battle  # 本次移动是否没有战斗
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -155,10 +157,12 @@ class MoveDirectly(Operation):
         #     time.sleep(0.5)  # 等待人物转过来再截图
         now_time = time.time()
 
-        if now_time - self.last_battle_time > MoveDirectly.fail_after_no_battle:
+        if not self.no_battle and now_time - self.last_battle_time > MoveDirectly.fail_after_no_battle:
             return Operation.round_fail('移动超时')
 
         screen = self.screenshot()
+
+
 
         be_attacked = self.be_attacked(screen)  # 查看是否被攻击
         if be_attacked is not None:
@@ -217,6 +221,8 @@ class MoveDirectly(Operation):
         :param screen: 屏幕截图
         :return:
         """
+        if self.no_battle:
+            return None
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
@@ -235,6 +241,8 @@ class MoveDirectly(Operation):
         :param mm:
         :return: 是否有敌人
         """
+        if self.no_battle:
+            return None
         if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
             return None
         if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos):

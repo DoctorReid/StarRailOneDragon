@@ -324,6 +324,22 @@ class Operation:
         return OperationResult(success=False, status=status, data=data)
 
     @staticmethod
+    def round_by_op(op_result: OperationResult, retry_on_fail: bool = False, wait: Optional[float] = None) -> OperationOneRoundResult:
+        """
+        根据一个指令的结果获取当前轮的结果
+        :param op_result: 指令结果
+        :param retry_on_fail: 失败的时候是否重试
+        :param wait: 等待时间
+        :return:
+        """
+        if op_result.success:
+            return Operation.round_success(status=op_result.status, data=op_result.data, wait=wait)
+        elif retry_on_fail:
+            return Operation.round_retry(status=op_result.status, data=op_result.data, wait=wait)
+        else:
+            return Operation.round_fail(status=op_result.status, data=op_result.data, wait=wait)
+
+    @staticmethod
     def round_fail_by_op(op_result: OperationResult) -> OperationOneRoundResult:
         return Operation.round_fail(status=op_result.status, data=op_result.data)
 
@@ -388,17 +404,34 @@ class OperationFail(Operation):
 
 class StateOperationNode:
 
-    def __init__(self, cn: str, func: Callable[[], OperationOneRoundResult]):
+    def __init__(self, cn: str,
+                 func: Optional[Callable[[], OperationOneRoundResult]] = None,
+                 op: Optional[Operation] = None,
+                 retry_on_op_fail: bool = False,
+                 wait_after_op: Optional[float] = None):
         """
         带状态指令的节点
         :param cn: 节点名称
-        :param func: 该节点用于处理指令的函数
+        :param func: 该节点用于处理指令的函数 与op只传一个 优先使用func
+        :param op: 该节点用于操作的指令 与func只传一个 优先使用func
+        :param retry_on_op_fail: op指令失败时是否进入重试
+        :param wait_after_op: op指令后的等待时间
         """
 
         self.cn: str = cn
         """节点名称"""
 
         self.func: Callable[[], OperationOneRoundResult] = func
+        """节点处理函数"""
+
+        self.op: Optional[Operation] = op
+        """节点操作指令"""
+
+        self.retry_on_op_fail: bool = retry_on_op_fail
+        """op指令失败时是否进入重试"""
+
+        self.wait_after_op: Optional[float] = wait_after_op
+        """op指令后的等待时间"""
 
 
 class StateOperationEdge:
@@ -559,8 +592,16 @@ class StateOperation(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self._current_node is None:
             return Operation.round_fail('无开始节点')
-        current_op = self._current_node.func
-        current_round_result: OperationOneRoundResult = current_op()
+        if self._current_node.func is not None:
+            current_op = self._current_node.func
+            current_round_result: OperationOneRoundResult = current_op()
+        elif self._current_node.op is not None:
+            op_result = self._current_node.op.execute()
+            current_round_result = Operation.round_by_op(op_result,
+                                                         retry_on_fail=self._current_node.retry_on_op_fail,
+                                                         wait=self._current_node.wait_after_op)
+        else:
+            return Operation.round_fail('节点处理函数和指令都没有设置')
 
         if current_round_result.result == Operation.WAIT or current_round_result.result == Operation.RETRY:
             # 等待或重试的 直接返回

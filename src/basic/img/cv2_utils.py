@@ -316,7 +316,7 @@ def feature_match_for_one(source_kp, source_desc, template_kp, template_desc,
     :param template_width: 目标原宽度
     :param template_height: 目标原高度
     :param source_mask: 源图掩码
-    :param knn_distance_percent:
+    :param knn_distance_percent: 越小要求匹配程度越高
     :return: 缩放后的位置和大小
     """
     if len(source_kp) == 0 or len(template_kp) == 0:

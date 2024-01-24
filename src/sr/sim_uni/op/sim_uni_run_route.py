@@ -18,15 +18,16 @@ from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import SimplyMoveByPos, MoveToEnemy
 from sr.operation.unit.team import SwitchMember
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority
+from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevelByRoute, MoveToNextLevel
+from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority, SimUniNextLevelPriority
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 
 class SimUniRunCombatRoute(StatusCombineOperation2):
 
     def __init__(self, ctx: Context, route: SimUniRoute,
-                 bless_priority: Optional[SimUniBlessPriority] = None):
+                 bless_priority: Optional[SimUniBlessPriority] = None,
+                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
         """
         按照特定路线执行
         """
@@ -34,13 +35,15 @@ class SimUniRunCombatRoute(StatusCombineOperation2):
         self.op_idx: int = -1
         self.current_pos: Point = self.route.start_pos
         self.bless_priority: SimUniBlessPriority = bless_priority
+        self.next_level_priority: Optional[SimUniNextLevelPriority] = next_level_priority
 
+        edges = []
         op_node = StatusCombineOperationNode('执行路线指令', op_func=self._next_op)
-        finish_node = StatusCombineOperationNode('结束', OperationSuccess(ctx))
-        go_next = StatusCombineOperationEdge2(op_node, op_node, ignore_status=True)
+        edges.append(StatusCombineOperationEdge2(op_node, op_node, ignore_status=True))
+
+        go_next = StatusCombineOperationNode('下一层', op_func=self._go_next)
         go_finish = StatusCombineOperationEdge2(op_node, finish_node, status='执行结束')
 
-        edges = [go_next, go_finish]
 
         super().__init__(ctx,
                          op_name='%s %s %s' % (
@@ -104,6 +107,19 @@ class SimUniRunCombatRoute(StatusCombineOperation2):
         """
         if op_result.success:
             self.current_pos = op_result.data
+
+    def _go_next(self) -> OperationOneRoundResult:
+        """
+        前往下一层
+        :return:
+        """
+        if len(self.route.next_pos_list) == 0:
+            op = MoveToNextLevel(self.ctx, self.next_level_priority)
+        else:
+            op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, self.next_level_priority)
+
+        op_result = op.execute()
+        return Operation.round_by_op(op_result)
 
 
 class SimUniRunInteractRoute(StateOperation):

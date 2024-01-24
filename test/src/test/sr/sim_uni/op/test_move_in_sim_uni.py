@@ -2,29 +2,23 @@ import unittest
 
 import test
 from sr.context import get_context
-from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_priority import SimUniNextLevelPriority
 
 
-class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
+class TestMoveToNextLevel(unittest.TestCase, test.SrTestBase):
 
     def setUp(self):
         test.SrTestBase.__init__(self, __file__)
 
-        ctx = get_context()
-        ctx.init_ocr_matcher()
-        self.op = SimUniChooseBless(ctx, None)
-
     def test_get_next_level_type(self):
         ctx = get_context()
         ctx.init_image_matcher()
-        op = MoveToNextLevel(ctx, None)
 
         screen = self.get_test_image('next_level_battle_event')
 
-        result = op._get_next_level_type(screen)
+        result = MoveToNextLevel.get_next_level_type(screen, ctx.ih)
         self.assertEqual(2, len(result))
 
         self.assertEqual(SimUniLevelTypeEnum.COMBAT.value, result[0].data)

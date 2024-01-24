@@ -123,6 +123,23 @@ class GameController:
     def turn_by_angle(self, angle: float):
         self.turn_by_distance(self.turn_dx * angle)
 
+    def turn_by_pos(self, current_pos: Point, target_pos: Point, current_angle: float):
+        """
+        朝目标点转向
+        :param current_pos: 起始点
+        :param target_pos: 目标点
+        :param current_angle: 当前角度
+        :return:
+        """
+        target_angle = cal_utils.get_angle_by_pts(current_pos, target_pos)
+        # 保证计算的转动角度为正
+        delta_angle = target_angle - current_angle if target_angle >= current_angle else target_angle + 360 - current_angle
+        # 正方向转太远的话就用负方向转
+        if delta_angle > 180:
+            delta_angle -= 360
+        log.info('当前角度: %.2f度 目标角度: %.2f度 转动朝向: %.2f度', current_angle, target_angle, delta_angle)
+        self.turn_by_angle(delta_angle)
+
     def start_moving_forward(self, run: bool = False):
         """
         开始往前走
@@ -168,15 +185,8 @@ class GameController:
         if angle is None:
             log.error('当前角度为空 无法判断移动方向')
             return False
-        target_angle = cal_utils.get_angle_by_pts(pos1, pos2)
-        # 保证计算的转动角度为正
-        delta_angle = target_angle - angle if target_angle >= angle else target_angle + 360 - angle
-        # 正方向转太远的话就用负方向转
-        if delta_angle > 180:
-            delta_angle -= 360
-        log.info('寻路中 当前点: %s 目标点: %s 当前角度: %.2f度 目标角度: %.2f度 转动朝向: %.2f度', pos1, pos2, angle, target_angle, delta_angle)
-
-        self.turn_by_angle(delta_angle)
+        self.turn_by_pos(pos1, pos2, angle)
+        log.info('寻路中 当前点: %s 目标点: %s ', pos1, pos2)
         self.start_moving_forward(run=run)
         return True
 
