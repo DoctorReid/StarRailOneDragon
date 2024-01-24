@@ -63,7 +63,6 @@ class SimUniEnterFight(Operation):
         elif state == screen_state.ScreenState.BATTLE.value:
             return self._in_battle()
 
-        print(state)
         return Operation.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:

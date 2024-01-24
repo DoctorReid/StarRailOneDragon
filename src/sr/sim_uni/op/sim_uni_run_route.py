@@ -23,7 +23,7 @@ from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 
-class SimUniRunRoute(StatusCombineOperation2):
+class SimUniRunCombatRoute(StatusCombineOperation2):
 
     def __init__(self, ctx: Context, route: SimUniRoute,
                  bless_priority: Optional[SimUniBlessPriority] = None):
@@ -142,9 +142,8 @@ class SimUniRunInteractRoute(StateOperation):
         """
         super()._init_before_execute()
         self.target_pos = None
-        if len(self.route.op_list) > 0:
-            pos = self.route.op_list[0]['data']
-            self.target_pos = Point(pos[0], pos[1])
+        if self.route.event_pos_list is not None and len(self.route.event_pos_list) > 0:
+            self.target_pos = self.route.event_pos_list[0]  # 暂时都只有一个事件
         self.no_icon = False
 
     def _check_screen(self) -> OperationOneRoundResult:
@@ -278,9 +277,10 @@ class SimUniRunEliteRoute(StatusCombineOperation2):
         enter_fight = StatusCombineOperationNode('秘技进入战斗', StartFightWithTechnique(ctx))
         edges.append(StatusCombineOperationEdge2(move, enter_fight))
 
-        fight = StatusCombineOperationNode('战斗', SimUniEnterFight(ctx,
-                                                                    bless_priority=bless_priority,
-                                                                    curio_priority=curio_priority)
+        fight = StatusCombineOperationNode('战斗',
+                                           SimUniEnterFight(ctx,
+                                                            bless_priority=bless_priority,
+                                                            curio_priority=curio_priority)
                                            )
         edges.append(StatusCombineOperationEdge2(enter_fight, fight))
 

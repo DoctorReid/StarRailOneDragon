@@ -17,7 +17,7 @@ from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_next_level_confirm import SimUniNextLevelConfirm
-from sr.sim_uni.op.sim_uni_run_route import SimUniRunRoute, SimUniRunInteractRoute, SimUniRunEventRoute, \
+from sr.sim_uni.op.sim_uni_run_route import SimUniRunCombatRoute, SimUniRunInteractRoute, SimUniRunEventRoute, \
     SimUniRunRespiteRoute, SimUniRunEliteRoute
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
@@ -156,7 +156,7 @@ class SimUniRunLevel(StatusCombineOperation2):
         if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
             if self.route is None:
                 return OperationFail(self.ctx, status='匹配路线失败')
-            return SimUniRunRoute(self.ctx, self.route, self.bless_priority)
+            return SimUniRunCombatRoute(self.ctx, self.route, self.bless_priority)
         elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
                 self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
                 self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:

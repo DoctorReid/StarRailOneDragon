@@ -40,6 +40,8 @@ class SimUniRoute:
         self.region: Optional[Region] = None
         self.start_pos: Optional[Point] = None
         self.op_list: Optional[List[SimUniRouteOperation]] = None
+        self.next_pos_list: Optional[List[Point]] = None  # 下一楼层入口位置
+        self.event_pos_list: Optional[List[Point]] = None  # 事件交互位置
 
         if idx is None:
             self._create_new_route()
@@ -47,11 +49,13 @@ class SimUniRoute:
             self.idx = idx
             self._read_route()
 
-    def load_from_route_yml(self, data):
+    def load_from_route_yml(self, data: dict):
         planet = get_planet_by_cn(data['planet'])
         self.region = get_region_by_cn(data['region'], planet, data['floor'])
         self.start_pos = Point(data['start_pos'][0], data['start_pos'][1])
         self.op_list = data['op_list']
+        self.next_pos_list = [Point(i[0], i[1]) for i in data.get('next_pos_list', [])]
+        self.event_pos_list = [Point(i[0], i[1]) for i in data.get('event_pos_list', [])]
 
     def _create_new_route(self):
         """
@@ -154,6 +158,21 @@ class SimUniRoute:
         cfg += "region: '%s'\n" % self.region.cn
         cfg += "floor: %d\n" % self.region.floor
         cfg += "start_pos: [%d, %d]\n" % (self.start_pos.x, self.start_pos.y)
+
+        if len(self.next_pos_list) == 0:
+            cfg += "next_pos_list: []\n"
+        else:
+            cfg += "next_pos_list:\n"
+            for pos in self.next_pos_list:
+                cfg += "  - [%d, %d]\n" % (pos.x, pos.y)
+
+        if len(self.event_pos_list) == 0:
+            cfg += "event_pos_list: []\n"
+        else:
+            cfg += "event_pos_list:\n"
+            for pos in self.event_pos_list:
+                cfg += "  - [%d, %d]\n" % (pos.x, pos.y)
+
         if len(self.op_list) == 0:
             cfg += "op_list: []\n"
         else:
@@ -185,3 +204,14 @@ class SimUniRoute:
         """
         route_dir = self.get_route_dir_path()
         shutil.rmtree(route_dir)
+
+    @property
+    def is_last_op_move(self) -> bool:
+        """
+        最后一个操作是移动
+        :return:
+        """
+        l = len(self.op_list)
+        if l == 0:
+            return False
+        return self.op_list[l - 1]['op'] == operation_const.OP_MOVE

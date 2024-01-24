@@ -76,7 +76,9 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.back_btn = components.RectOutlinedButton(text='后退', disabled=True, on_click=self._del_last_op)
         self.reset_btn = components.RectOutlinedButton(text='重置', disabled=True, on_click=self._clear_op)
         self.patrol_btn = components.RectOutlinedButton(text='攻击怪物', disabled=True, on_click=self._add_patrol)
-        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn])
+        self.add_next_btn = components.RectOutlinedButton(text='下层入口', disabled=True, on_click=self._add_next)
+        self.add_event_btn = components.RectOutlinedButton(text='交互点', disabled=True, on_click=self._add_event)
+        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn, self.add_next_btn, self.add_event_btn])
 
         info_card_width = 200
         self.screenshot_mm_display = ft.Image(src="a.png", error_content=ft.Text('等待截图'), visible=False)
@@ -260,6 +262,13 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                 pos = Point(x=route_item['data'][0], y=route_item['data'][1])
                 cv2.circle(display_image, pos.tuple(), 5, color=(0, 0, 255), thickness=-1)
                 last_point = pos
+
+        for pos in self.chosen_route.next_pos_list:
+            cv2.circle(display_image, pos.tuple(), 5, color=(100, 100, 100), thickness=-1)
+
+        for pos in self.chosen_route.event_pos_list:
+            cv2.circle(display_image, pos.tuple(), 5, color=(200, 200, 200), thickness=-1)
+
         self.large_map_display.src_base64 = cv2_utils.to_base64(display_image)
         self.large_map_display.visible = True
         self.large_map_display.update()
@@ -390,6 +399,30 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.chosen_route.op_list.append(SimUniRouteOperation(op=operation_const.OP_PATROL))
         self._on_op_list_changed()
 
+    def _add_next(self, e):
+        """
+        将最后一个点加入到下层交互点中
+        :param e:
+        :return:
+        """
+        if not self.chosen_route.is_last_op_move:
+            return
+        op = self.chosen_route.op_list.pop()
+        self.chosen_route.next_pos_list.append(Point(op['data'][0], op['data'][1]))
+        self._on_op_list_changed()
+
+    def _add_event(self, e):
+        """
+        将最后一个点加入到事件交互点中
+        :param e:
+        :return:
+        """
+        if not self.chosen_route.is_last_op_move:
+            return
+        op = self.chosen_route.op_list.pop()
+        self.chosen_route.event_pos_list.append(Point(op['data'][0], op['data'][1]))
+        self._on_op_list_changed()
+
     def _del_last_op(self, e):
         """
         删除最后一个指令
@@ -456,6 +489,12 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         self.patrol_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
         self.patrol_btn.update()
+
+        self.add_next_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
+        self.add_next_btn.update()
+
+        self.add_event_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
+        self.add_event_btn.update()
 
     def _cancel_edit_existed(self, e=None):
         """

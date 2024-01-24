@@ -2,6 +2,7 @@ planet: '仙舟罗浮'
 region: '丹鼎司'
 floor: 2
 start_pos: [990, 926]
-op_list:
-  - op: 'move'
-    data: [1019, 973]
+next_pos_list: []
+event_pos_list:
+  - [1019, 973]
+op_list: []
