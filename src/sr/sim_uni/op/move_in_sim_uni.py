@@ -4,7 +4,7 @@ from typing import Tuple, Optional, Callable, List, ClassVar
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Point, cal_utils, str_utils
+from basic import Point, cal_utils, str_utils, Rect
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
@@ -112,6 +112,8 @@ class MoveToNextLevel(Operation):
 
     MOVE_TIME: ClassVar[float] = 1.5  # 每次移动的时间
     CHARACTER_CENTER: ClassVar[Point] = Point(960, 920)  # 界面上人物的中心点 取了脚底
+
+    NEXT_CONFIRM_BTN: ClassVar[Rect] = Rect(1006, 647, 1330, 697)  # 确认按钮
 
     def __init__(self, ctx: Context,
                  next_level_priority: Optional[SimUniNextLevelPriority] = None):
@@ -291,8 +293,9 @@ class MoveToNextLevelByRoute(StateOperation):
 
         turn = StateOperationNode('转向', self._turn_to_entry)
         get_pos = StateOperationNode('获取目标点', self._get_target_pos)
-        move = StateOperationNode('移动', self._get_target_pos)
+        move = StateOperationNode('移动', self._move)
         interact = StateOperationNode('交互', self._interact)
+        confirm = StateOperationNode('确认', self._confirm)
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('向下一层移动', 'ui')),
@@ -312,17 +315,18 @@ class MoveToNextLevelByRoute(StateOperation):
         转动到面向下一层入口的方向
         :return:
         """
-        if len(self.route.event_pos_list) == 0:
+        if len(self.route.next_pos_list) == 0:
             return Operation.round_fail('未配置入口坐标')
 
         # 转向中间点
-        avg_pos_x = np.mean([pos.x for pos in self.route.event_pos_list], dtype=np.uint8)
-        avg_pos_y = np.mean([pos.y for pos in self.route.event_pos_list], dtype=np.uint8)
+        avg_pos_x = np.mean([pos.x for pos in self.route.next_pos_list], dtype=np.uint16)
+        avg_pos_y = np.mean([pos.y for pos in self.route.next_pos_list], dtype=np.uint16)
         target_pos = Point(avg_pos_x, avg_pos_y)
 
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
+        log.info('当前位置 %s 目标位置 %s', self.current_pos, target_pos)
         self.ctx.controller.turn_by_pos(self.current_pos, target_pos, mm_info.angle)
 
         return Operation.round_success(wait=0.5)  # 等待转动完成
@@ -376,7 +380,25 @@ class MoveToNextLevelByRoute(StateOperation):
         """
         op = Interact(self.ctx, '区域', single_line=True, lcs_percent=0.1)
         op_result = op.execute()
-        return Operation.round_by_op(op_result)
+        return Operation.round_by_op(op_result, wait=1)
+
+    def _confirm(self) -> OperationOneRoundResult:
+        """
+        精英层的确认
+        :return:
+        """
+        screen = self.screenshot()
+        if not screen_state.is_normal_in_world(screen, self.ctx.im):
+            click_confirm = self.ocr_and_click_one_line('确认', MoveToNextLevel.NEXT_CONFIRM_BTN,
+                                                        screen=screen)
+            if click_confirm == Operation.OCR_CLICK_SUCCESS:
+                return Operation.round_success(wait=1)
+            elif click_confirm == Operation.OCR_CLICK_NOT_FOUND:
+                return Operation.round_success()
+            else:
+                return Operation.round_retry('点击确认失败', wait=0.25)
+        else:
+            return Operation.round_retry('在大世界页面')
 
 
 class MoveToMiniMapInteractIcon(Operation):

@@ -38,9 +38,6 @@ class TestSimUniRouteApp(Application2):
         self.route: SimUniRoute = route
 
     def _check_route(self) -> Operation:
-        if not self.level_type.need_route:
-            return OperationSuccess(self.ctx)
-
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         route = match_best_sim_uni_route(self.uni_num, self.level_type, mm)

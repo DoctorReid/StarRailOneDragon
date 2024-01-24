@@ -71,6 +71,8 @@ class SimUniRoute:
             else:
                 break
         self.op_list = []
+        self.next_pos_list = []
+        self.event_pos_list = []
 
     def _read_route(self):
         dir_path = self.get_route_dir_path()

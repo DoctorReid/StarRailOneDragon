@@ -475,7 +475,8 @@ class StateOperation(Operation):
     def __init__(self, ctx: Context, op_name: str, try_times: int = 2,
                  nodes: Optional[List[StateOperationNode]] = None,
                  edges: Optional[List[StateOperationEdge]] = None,
-                 specified_start_node: Optional[StateOperationNode] = None):
+                 specified_start_node: Optional[StateOperationNode] = None,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         带有状态的指令
         :param ctx: 上下文
@@ -484,8 +485,9 @@ class StateOperation(Operation):
         :param nodes: 指令的节点 与edges至少传入一个。只传入nodes认为按顺序执行
         :param edges: 指令的边 与nodes至少传入一个。传入edges时，忽略传入的nodes。根据edges构建执行的网图
         :param specified_start_node: 指定的开始节点。当网图有环时候使用，指定后脚本不会根据网图入度自动判断开始节点。
+        :param op_callback: 指令的回调
         """
-        super().__init__(ctx, op_name=op_name, try_times=try_times)
+        super().__init__(ctx, op_name=op_name, try_times=try_times, op_callback=op_callback)
 
         self.edge_list: List[StateOperationEdge] = []
         """边列表"""

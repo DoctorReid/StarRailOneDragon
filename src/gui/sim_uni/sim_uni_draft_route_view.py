@@ -545,7 +545,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         route_chosen = self.chosen_route is not None
         start_chosen = route_chosen and self.chosen_route.region is not None
 
-        self.existed_route_dropdown.disabled = not uni_chosen or not self._need_route()
+        self.existed_route_dropdown.disabled = not uni_chosen
         if not self.existed_route_dropdown.disabled:
             level_type = level_type_from_id(self.level_type_dropdown.value)
             self.existed_route_list = get_sim_uni_route_list(int(self.num_dropdown.value), level_type)
@@ -566,14 +566,14 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.level_type_dropdown.disabled = route_chosen
         self.level_type_dropdown.update()
 
-        self.save_btn.disabled = not uni_chosen or not self._need_route()
+        self.save_btn.disabled = not uni_chosen
         self.save_btn.text = '新建' if not route_chosen else '保存'
         self.save_btn.update()
 
         self.delete_btn.disabled = not route_chosen
         self.delete_btn.update()
 
-        self.test_btn.disabled = self._need_route() and not route_chosen
+        self.test_btn.disabled = not route_chosen
         self.test_btn.update()
 
     def _on_uni_changed(self, e=None):
@@ -607,25 +607,16 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        if self._need_route() and self.chosen_route is None:
+        if self.chosen_route is None:
             log.error('未选择路线')
             return
-        if self._need_route():
-            self._do_save()
+        self._do_save()
         app = TestSimUniRouteApp(self.sr_ctx,
                                  int(self.num_dropdown.value),
                                  level_type_from_id(self.level_type_dropdown.value),
                                  self.chosen_route
                                  )
         app.execute()
-
-    def _need_route(self) -> bool:
-        """
-        当前是否选择了事件
-        :return:
-        """
-        level_type = level_type_from_id(self.level_type_dropdown.value)
-        return level_type is not None and level_type.need_route
 
 
 _sim_uni_draft_route_view: Optional[SimUniDraftRouteView] = None

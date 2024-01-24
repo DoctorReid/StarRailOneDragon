@@ -380,7 +380,7 @@ class MoveToEnemy(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
-        pos = self._find_enemy_pos(mm)
+        pos = mini_map.find_one_enemy_pos(mm, self.ctx.im)
 
         if pos is None:
             return Operation.round_retry(MoveToEnemy.STATUS_ENEMY_NOT_FOUND, wait=1)
@@ -400,50 +400,6 @@ class MoveToEnemy(Operation):
             return Operation.round_wait()
         else:  # 不应该有这种情况
             return Operation.round_retry('unknown')
-
-    def _find_enemy_pos(self, mm: Optional[MatLike] = None) -> Optional[Point]:
-        """
-        在小地图上找到敌人红点的位置
-        目前只能处理一个红点的情况
-        :param mm: 小地图图片
-        :return: 红点位置
-        """
-        if mm is None:
-            screen = self.screenshot()
-            mm = mini_map.cut_mini_map(screen)
-
-        _, _, angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
-        to_del = mini_map.get_radio_to_del(self.ctx.im, angle)
-
-        mm2 = mini_map.remove_radio(mm, to_del)
-        # cv2_utils.show_image(mm2, win_name='mm2')
-
-        lower_color = np.array([0, 0, 150], dtype=np.uint8)
-        upper_color = np.array([60, 60, 255], dtype=np.uint8)
-        red_part = cv2.inRange(mm2, lower_color, upper_color)
-        # cv2_utils.show_image(red_part, win_name='red_part')
-
-        # 膨胀一下找连通块
-        to_check = cv2_utils.dilate(red_part, 5)
-        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(to_check, connectivity=8)
-
-        if num_labels <= 1:  # 没有连通块 走到敌人附近了
-            return None
-
-        # 找到最大的连通区域
-        largest_label = 1
-        max_area = stats[largest_label, cv2.CC_STAT_AREA]
-        for label in range(2, num_labels):
-            area = stats[label, cv2.CC_STAT_AREA]
-            if area > max_area:
-                max_area = area
-                largest_label = label
-
-        # 找到最大连通区域的中心点
-        center_x = int(centroids[largest_label, 0])
-        center_y = int(centroids[largest_label, 1])
-
-        return Point(center_x, center_y)
 
 
 class MoveForward(Operation):

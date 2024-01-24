@@ -1,5 +1,5 @@
 import time
-from typing import Optional, ClassVar, List
+from typing import Optional, ClassVar, List, Union, Callable
 
 from cv2.typing import MatLike
 
@@ -7,52 +7,87 @@ from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
+from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.const import operation_const
 from sr.context import Context
 from sr.image.sceenshot import screen_state, mini_map
 from sr.operation import Operation, \
-    OperationResult, OperationFail, OperationSuccess, StateOperation, StateOperationNode, OperationOneRoundResult
+    OperationResult, OperationFail, OperationSuccess, StateOperation, StateOperationNode, OperationOneRoundResult, \
+    StateOperationEdge
 from sr.operation.battle.start_fight import Attack, StartFightWithTechnique
 from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationNode, StatusCombineOperationEdge2
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import SimplyMoveByPos, MoveToEnemy
 from sr.operation.unit.team import SwitchMember
-from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
+from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevelByRoute, MoveToNextLevel
+from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority, SimUniNextLevelPriority
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 
-class SimUniRunCombatRoute(StatusCombineOperation2):
+class SimUniMatchRoute(Operation):
+
+    def __init__(self, ctx: Context, world_num: int,
+                 level_type: SimUniLevelType,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
+        """
+        模拟宇宙中 根据初始的小地图 匹配路线
+        返回的 data=SimUniRoute
+        """
+        super().__init__(ctx, try_times=5,
+                         op_name='%s %s' % (
+                             gt('模拟宇宙', 'ui'),
+                             gt('匹配路线', 'ui'),
+                         ),
+                         op_callback=op_callback)
+        self.world_num: int = world_num  # 第几宇宙
+        self.level_type: SimUniLevelType = level_type
+
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+        mm = mini_map.cut_mini_map(screen)
+        route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
+
+        if route is None:
+            return Operation.round_retry('匹配路线失败', wait=0.5)
+        else:
+            return Operation.round_success(data=route)
+
+
+class SimUniRunRouteOp(StateOperation):
+
+    STATUS_ALL_OP_DONE: ClassVar[str] = '执行结束'
 
     def __init__(self, ctx: Context, route: SimUniRoute,
                  bless_priority: Optional[SimUniBlessPriority] = None,
-                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
-        按照特定路线执行
+        模拟宇宙 按照特定路线执行
+        最后返回 data=Point 最新坐标
         """
         self.route: SimUniRoute = route
         self.op_idx: int = -1
         self.current_pos: Point = self.route.start_pos
         self.bless_priority: SimUniBlessPriority = bless_priority
-        self.next_level_priority: Optional[SimUniNextLevelPriority] = next_level_priority
 
         edges = []
-        op_node = StatusCombineOperationNode('执行路线指令', op_func=self._next_op)
-        edges.append(StatusCombineOperationEdge2(op_node, op_node, ignore_status=True))
 
-        go_next = StatusCombineOperationNode('下一层', op_func=self._go_next)
-        go_finish = StatusCombineOperationEdge2(op_node, finish_node, status='执行结束')
+        op_node = StateOperationNode('执行路线指令', self._next_op)
+        edges.append(StateOperationEdge(op_node, op_node, ignore_status=True))
 
+        finished = StateOperationNode('结束', self._finished)
+        edges.append(StateOperationEdge(op_node, finished, status=SimUniRunRouteOp.STATUS_ALL_OP_DONE))
 
         super().__init__(ctx,
                          op_name='%s %s %s' % (
                              gt('模拟宇宙', 'ui'),
-                             gt('战斗路线', 'ui'),
+                             gt('执行路线指令', 'ui'),
                              route.display_name
                          ),
                          edges=edges,
-                         specified_start_node=op_node)
+                         specified_start_node=op_node,
+                         op_callback=op_callback)
 
     def _init_before_execute(self):
         """
@@ -62,25 +97,27 @@ class SimUniRunCombatRoute(StatusCombineOperation2):
         self.op_idx = -1
         self.current_pos: Point = self.route.start_pos
 
-    def _next_op(self) -> Operation:
+    def _next_op(self) -> OperationOneRoundResult:
         """
-        获取下一个具体的指令
+        执行下一个指令
         :return:
         """
         self.op_idx += 1
 
         if self.op_idx >= len(self.route.op_list):
-            return OperationSuccess(self.ctx, '执行结束')
+            return Operation.round_success(SimUniRunRouteOp.STATUS_ALL_OP_DONE)
 
         current_op: SimUniRouteOperation = self.route.op_list[self.op_idx]
         next_op: Optional[SimUniRouteOperation] = self.route.op_list[self.op_idx + 1] if self.op_idx + 1 < len(self.route.op_list) else None
 
         if current_op['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
-            return self.move(current_op, next_op)
+            op = self.move(current_op, next_op)
         elif current_op['op'] == operation_const.OP_PATROL:
-            return SimUniEnterFight(self.ctx, bless_priority=self.bless_priority)
+            op = SimUniEnterFight(self.ctx, bless_priority=self.bless_priority)
         else:
-            return OperationFail(self.ctx, status='未知指令')
+            return Operation.round_fail('未知指令')
+
+        return Operation.round_by_op(op.execute())
 
     def move(self, current_op: SimUniRouteOperation, next_op: Optional[SimUniRouteOperation]) -> Operation:
         """
@@ -108,6 +145,102 @@ class SimUniRunCombatRoute(StatusCombineOperation2):
         if op_result.success:
             self.current_pos = op_result.data
 
+    def _finished(self) -> OperationOneRoundResult:
+        """
+        指令执行结束
+        :return:
+        """
+        return Operation.round_success(data=self.current_pos)
+
+
+class SimUniRunRouteBase(StateOperation):
+
+    def __init__(self, ctx: Context,
+                 level_type: SimUniLevelType,
+                 bless_priority: Optional[SimUniBlessPriority] = None,
+                 curio_priority: Optional[SimUniCurioPriority] = None,
+                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
+        """
+        模拟宇宙 按照路线执行的基类
+        """
+        self.level_type: SimUniLevelType = level_type
+        self.route: Optional[SimUniRoute] = None
+        self.current_pos: Optional[Point] = None
+        self.bless_priority: SimUniBlessPriority = bless_priority
+        self.curio_priority: Optional[SimUniCurioPriority] = curio_priority
+        self.next_level_priority: Optional[SimUniNextLevelPriority] = next_level_priority
+
+        match = StateOperationNode('匹配路线', self._match_route)
+        before_route = StateOperationNode('指令前初始化', self._before_route)
+        run_route = StateOperationNode('执行路线指令', self._run_route)
+        level_sp = StateOperationNode('区域特殊指令', self._level_sp)
+        go_next = StateOperationNode('下一层', self._go_next)
+
+        super().__init__(ctx,
+                         op_name='%s %s' % (
+                             gt('模拟宇宙', 'ui'),
+                             gt('区域-%s' % level_type.type_name, 'ui')
+                         ),
+                         nodes=[match, before_route, run_route, level_sp, go_next]
+                         )
+
+    def _init_before_execute(self):
+        """
+        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        """
+        super()._init_before_execute()
+        self.route = None
+        self.current_pos = None
+
+    def _match_route(self) -> OperationOneRoundResult:
+        """
+        匹配路线
+        :return:
+        """
+        op = SimUniMatchRoute(self.ctx, 8, self.level_type,
+                              op_callback=self._update_route)
+        return Operation.round_by_op(op.execute())
+
+    def _before_route(self) -> OperationOneRoundResult:
+        """
+        执行路线前的初始化 由各类型楼层自行实现
+        :return:
+        """
+        return Operation.round_success()
+
+    def _update_route(self, op_result: OperationResult):
+        """
+        更新路线配置
+        :param op_result:
+        :return:
+        """
+        if op_result.success:
+            self.route = op_result.data
+
+    def _run_route(self) -> OperationOneRoundResult:
+        """
+        执行下一个指令
+        :return:
+        """
+        op = SimUniRunRouteOp(self.ctx, self.route, self.bless_priority, op_callback=self._update_pos)
+        return Operation.round_by_op(op.execute())
+
+    def _update_pos(self, op_result: OperationResult):
+        """
+        更新坐标
+        :param op_result:
+        :return:
+        """
+        if op_result.success:
+            self.current_pos = op_result.data
+
+    def _level_sp(self) -> OperationOneRoundResult:
+        """
+        执行路线后的特殊操作 由各类型楼层自行实现
+        :return:
+        """
+        return Operation.round_success()
+
     def _go_next(self) -> OperationOneRoundResult:
         """
         前往下一层
@@ -118,8 +251,25 @@ class SimUniRunCombatRoute(StatusCombineOperation2):
         else:
             op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, self.next_level_priority)
 
-        op_result = op.execute()
-        return Operation.round_by_op(op_result)
+        op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, self.next_level_priority)
+
+        return Operation.round_by_op(op.execute())
+
+
+class SimUniRunCombatRoute(SimUniRunRouteBase):
+
+    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+                 bless_priority: Optional[SimUniBlessPriority] = None,
+                 curio_priority: Optional[SimUniCurioPriority] = None,
+                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
+
+        SimUniEnterFight(ctx, bless_priority=bless_priority, curio_priority=curio_priority)
+
+        super().__init__(ctx, level_type,
+                         bless_priority=bless_priority,
+                         curio_priority=curio_priority,
+                         next_level_priority=next_level_priority
+                         )
 
 
 class SimUniRunInteractRoute(StateOperation):
@@ -281,37 +431,25 @@ class SimUniRunRespiteRoute(SimUniRunInteractRoute):
             return Operation.round_fail_by_op(op_result)
 
 
-class SimUniRunEliteRoute(StatusCombineOperation2):
+class SimUniRunEliteRoute(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context,
+    def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniCurioPriority] = None):
-        edges: List[StatusCombineOperationEdge2] = []
+                 curio_priority: Optional[SimUniCurioPriority] = None,
+                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
 
-        move = StatusCombineOperationNode('移动', MoveToEnemy(ctx))
-
-        enter_fight = StatusCombineOperationNode('秘技进入战斗', StartFightWithTechnique(ctx))
-        edges.append(StatusCombineOperationEdge2(move, enter_fight))
-
-        fight = StatusCombineOperationNode('战斗',
-                                           SimUniEnterFight(ctx,
-                                                            bless_priority=bless_priority,
-                                                            curio_priority=curio_priority)
-                                           )
-        edges.append(StatusCombineOperationEdge2(enter_fight, fight))
-
-        switch = StatusCombineOperationNode('切换1号位', SwitchMember(ctx, 1))
-        edges.append(StatusCombineOperationEdge2(fight, switch))
-
-        no_enemy = StatusCombineOperationNode('无敌人', OperationSuccess(ctx))
-        edges.append(StatusCombineOperationEdge2(move, no_enemy, success=False, status=MoveToEnemy.STATUS_ENEMY_NOT_FOUND))
-
-        SimUniEnterFight(ctx, bless_priority=bless_priority, curio_priority=curio_priority)
-
-        super().__init__(ctx,
-                         op_name='%s %s' % (
-                             gt('模拟宇宙', 'ui'),
-                             gt('精英路线', 'ui'),
-                         ),
-                         edges=edges
+        super().__init__(ctx, level_type,
+                         bless_priority=bless_priority,
+                         curio_priority=curio_priority,
+                         next_level_priority=next_level_priority
                          )
+
+        self.with_enemy: bool = True
+
+    def _init_before_execute(self):
+        super()._init_before_execute()
+        self.with_enemy = True
+
+    def _level_sp(self) -> OperationOneRoundResult:
+        op = SimUniFightElite(self.ctx, bless_priority=self.bless_priority, curio_priority=self.curio_priority)
+        return Operation.round_by_op(op.execute())

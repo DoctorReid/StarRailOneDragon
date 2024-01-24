@@ -45,10 +45,9 @@ UNI_NUM_CN: dict[int, str] = {
 
 class SimUniLevelType:
 
-    def __init__(self, type_id: str, type_name: str, need_route: bool, route_id: Optional[str] = None):
+    def __init__(self, type_id: str, type_name: str, route_id: Optional[str] = None):
         self.type_id: str = type_id  # 类型ID 也用于模板ID
         self.type_name: str = type_name  # 类型名称 中文
-        self.need_route: bool = need_route  # 是否需要路线配置
         self.route_id: str = type_id if route_id is None else route_id
 
     @property
@@ -58,13 +57,13 @@ class SimUniLevelType:
 
 class SimUniLevelTypeEnum(Enum):
 
-    COMBAT = SimUniLevelType('combat', '战斗', True)
-    ENCOUNTER = SimUniLevelType('encounter', '遭遇', True, route_id='event')
-    ELITE = SimUniLevelType('elite', '精英', False)
-    BOSS = SimUniLevelType('boss', '首领', False)
-    EVENT = SimUniLevelType('event', '事件', True)
-    TRANSACTION = SimUniLevelType('transaction', '交易', True, route_id='event')
-    RESPITE = SimUniLevelType('respite', '休整', True)
+    COMBAT = SimUniLevelType('combat', '战斗')
+    ENCOUNTER = SimUniLevelType('encounter', '遭遇', route_id='event')
+    ELITE = SimUniLevelType('elite', '精英')
+    BOSS = SimUniLevelType('boss', '首领', route_id='elite')
+    EVENT = SimUniLevelType('event', '事件')
+    TRANSACTION = SimUniLevelType('transaction', '交易', route_id='event')
+    RESPITE = SimUniLevelType('respite', '休整')
 
 
 def level_type_from_id(level_type_id: str) -> Optional[SimUniLevelType]:

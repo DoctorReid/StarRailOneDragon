@@ -3,13 +3,17 @@ from typing import ClassVar, List, Optional
 
 from cv2.typing import MatLike
 
+from basic import Rect, str_utils
 from basic.i18_utils import gt
+from basic.img import cv2_utils
 from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
+from sr.operation.battle.start_fight import StartFightWithTechnique
+from sr.operation.unit.team import SwitchMember
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority
+from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 
 
@@ -155,3 +159,65 @@ class SimUniEnterFight(Operation):
     def on_resume(self):
         super().on_resume()
         self._update_not_in_world_time()
+
+
+class SimUniFightElite(StateOperation):
+
+    ENEMY_LEVEL_RECT: ClassVar[Rect] = Rect(804, 38, 915, 75)  # 等级
+
+    STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '没有敌人'
+
+    def __init__(self, ctx: Context,
+                 bless_priority: Optional[SimUniBlessPriority] = None,
+                 curio_priority: Optional[SimUniCurioPriority] = None):
+        """
+        模拟宇宙 - 挑战精英、首领
+        """
+        edges = []
+
+        check = StateOperationNode('检测敌人', self._check_enemy)
+        enter_fight = StateOperationNode('秘技进入战斗', self._enter_fight)
+        edges.append(StateOperationEdge(check, enter_fight, ignore_status=True))
+
+        fight = StateOperationNode('战斗', self._fight)
+        edges.append(StateOperationEdge(enter_fight, fight))
+
+        switch = StateOperationNode('切换1号位', self._switch_1)
+        edges.append(StateOperationEdge(fight, switch))
+        edges.append(StateOperationEdge(check, switch, status=SimUniFightElite.STATUS_ENEMY_NOT_FOUND))
+
+        super().__init__(ctx,
+                         op_name='%s %s' % (
+                             gt('模拟宇宙', 'ui'),
+                             gt('挑战精英首领', 'ui'),
+                         ),
+                         edges=edges
+                         )
+        self.bless_priority: Optional[SimUniBlessPriority] = bless_priority  # 祝福优先级
+        self.curio_priority: Optional[SimUniBlessPriority] = curio_priority  # 奇物优先级
+
+    def _check_enemy(self) -> OperationOneRoundResult:
+        """
+        判断当前是否有敌人
+        :return:
+        """
+        screen = self.screenshot()
+        part = cv2_utils.crop_image_only(screen, SimUniFightElite.ENEMY_LEVEL_RECT)
+        osc_result = self.ctx.ocr.ocr_for_single_line(part)
+
+        if str_utils.find_by_lcs(gt('等级', 'ocr'), osc_result, percent=0.1):
+            return Operation.round_success()
+        else:
+            return Operation.round_success(SimUniFightElite.STATUS_ENEMY_NOT_FOUND)
+
+    def _enter_fight(self) -> OperationOneRoundResult:
+        op = StartFightWithTechnique(self.ctx)
+        return Operation.round_by_op(op.execute())
+
+    def _fight(self) -> OperationOneRoundResult:
+        op = SimUniEnterFight(self.ctx, bless_priority=self.bless_priority, curio_priority=self.curio_priority)
+        return Operation.round_by_op(op.execute())
+
+    def _switch_1(self) -> OperationOneRoundResult:
+        op = SwitchMember(self.ctx, 1)
+        return Operation.round_by_op(op.execute())
