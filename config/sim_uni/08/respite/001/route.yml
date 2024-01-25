@@ -3,6 +3,6 @@ region: '边缘通路'
 floor: 0
 start_pos: [776, 554]
 next_pos_list: []
-event_pos_list:
-  - [805, 589]
-op_list: []
+op_list:
+  - op: 'move'
+    data: [805, 589]

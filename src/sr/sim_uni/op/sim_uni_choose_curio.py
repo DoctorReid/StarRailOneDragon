@@ -12,7 +12,7 @@ from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.click import ClickDialogConfirm
 from sr.sim_uni.sim_uni_const import match_best_curio_by_ocr, SimUniCurio, SimUniCurioEnum
-from sr.sim_uni.sim_uni_priority import SimUniCurioPriority
+from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 
 class SimUniChooseCurio(StateOperation):
@@ -36,12 +36,12 @@ class SimUniChooseCurio(StateOperation):
 
     CONFIRM_BTN: ClassVar[Rect] = Rect(1500, 950, 1840, 1000)  # 确认选择
 
-    def __init__(self, ctx: Context, priority: Optional[SimUniCurioPriority] = None,
+    def __init__(self, ctx: Context, priority: Optional[SimUniAllPriority] = None,
                  skip_first_screen_check: bool = True):
         """
         模拟宇宙中 选择奇物
         :param ctx:
-        :param priority: 奇物优先级
+        :param priority: 优先级
         :param skip_first_screen_check: 是否跳过第一次画面状态检查
         """
         edges = []
@@ -62,7 +62,7 @@ class SimUniChooseCurio(StateOperation):
                          # specified_start_node=check_screen_state,
                          )
 
-        self.priority: Optional[SimUniCurioPriority] = priority
+        self.priority: Optional[SimUniAllPriority] = priority
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
@@ -149,7 +149,7 @@ class SimUniChooseCurio(StateOperation):
             return curio_pos_list[target_idx]
 
     @staticmethod
-    def get_curio_by_priority(curio_list: List[SimUniCurio], priority: Optional[SimUniCurioPriority]) -> Optional[int]:
+    def get_curio_by_priority(curio_list: List[SimUniCurio], priority: Optional[SimUniAllPriority]) -> Optional[int]:
         """
         根据优先级选择对应的奇物
         :param curio_list: 可选的奇物列表
@@ -159,7 +159,7 @@ class SimUniChooseCurio(StateOperation):
         if priority is None:
             return 0
 
-        for curio_id in priority.id_list:
+        for curio_id in priority.curio_id_list:
             curio_enum = SimUniCurioEnum[curio_id]
             for idx, opt_curio in enumerate(curio_list):
                 if curio_enum.value == opt_curio:
@@ -203,7 +203,7 @@ class SimUniDropCurio(StateOperation):
 
     DROP_BTN: ClassVar[Rect] = Rect(1024, 647, 1329, 698)  # 确认丢弃
 
-    def __init__(self, ctx: Context, priority: Optional[SimUniCurioPriority] = None,
+    def __init__(self, ctx: Context, priority: Optional[SimUniAllPriority] = None,
                  skip_first_screen_check: bool = True):
         """
         模拟宇宙中 丢弃奇物
@@ -220,7 +220,7 @@ class SimUniDropCurio(StateOperation):
                          nodes=[state, choose_curio, confirm]
                          )
 
-        self.priority: Optional[SimUniCurioPriority] = priority
+        self.priority: Optional[SimUniAllPriority] = priority
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
@@ -317,7 +317,7 @@ class SimUniDropCurio(StateOperation):
             return curio_pos_list[target_idx]
 
     @staticmethod
-    def get_curio_by_priority(curio_list: List[SimUniCurio], priority: Optional[SimUniCurioPriority]) -> Optional[int]:
+    def get_curio_by_priority(curio_list: List[SimUniCurio], priority: Optional[SimUniAllPriority]) -> Optional[int]:
         """
         根据优先级选择对应的奇物 要丢弃的应该是优先级最低的
         :param curio_list: 可选的奇物列表
@@ -330,7 +330,7 @@ class SimUniDropCurio(StateOperation):
         opt_priority_list: List[int] = [99 for _ in curio_list]  # 选项的优先级
         cnt = 0
 
-        for curio_id in priority.id_list:
+        for curio_id in priority.curio_id_list:
             curio_enum = SimUniCurioEnum[curio_id]
             for idx, opt_curio in enumerate(curio_list):
                 if curio_enum.value == opt_curio and opt_priority_list[idx] == 99:

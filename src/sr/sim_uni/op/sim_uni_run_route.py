@@ -1,28 +1,24 @@
-import time
-from typing import Optional, ClassVar, List, Union, Callable
+from typing import Optional, ClassVar, Callable
 
 from cv2.typing import MatLike
 
 from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from basic.log_utils import log
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.const import operation_const
 from sr.context import Context
-from sr.image.sceenshot import screen_state, mini_map
+from sr.image.sceenshot import mini_map
 from sr.operation import Operation, \
-    OperationResult, OperationFail, OperationSuccess, StateOperation, StateOperationNode, OperationOneRoundResult, \
+    OperationResult, StateOperation, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
-from sr.operation.battle.start_fight import Attack, StartFightWithTechnique
-from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationNode, StatusCombineOperationEdge2
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.move import SimplyMoveByPos, MoveToEnemy
-from sr.operation.unit.team import SwitchMember
-from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevelByRoute, MoveToNextLevel
+from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
+from sr.sim_uni.op.sim_uni_event import SimUniEvent
+from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority, SimUniNextLevelPriority
+from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 
@@ -60,16 +56,17 @@ class SimUniRunRouteOp(StateOperation):
     STATUS_ALL_OP_DONE: ClassVar[str] = '执行结束'
 
     def __init__(self, ctx: Context, route: SimUniRoute,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
+                 priority: Optional[SimUniAllPriority] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         模拟宇宙 按照特定路线执行
         最后返回 data=Point 最新坐标
         """
         self.route: SimUniRoute = route
+        self.route_no_battle: bool = self.route.no_battle_op  # 路线上是否无战斗 可以优化移动的效率
         self.op_idx: int = -1
         self.current_pos: Point = self.route.start_pos
-        self.bless_priority: SimUniBlessPriority = bless_priority
+        self.priority: Optional[SimUniAllPriority] = priority
 
         edges = []
 
@@ -108,12 +105,14 @@ class SimUniRunRouteOp(StateOperation):
             return Operation.round_success(SimUniRunRouteOp.STATUS_ALL_OP_DONE)
 
         current_op: SimUniRouteOperation = self.route.op_list[self.op_idx]
-        next_op: Optional[SimUniRouteOperation] = self.route.op_list[self.op_idx + 1] if self.op_idx + 1 < len(self.route.op_list) else None
+        next_op: Optional[SimUniRouteOperation] = None
+        if self.op_idx + 1 < len(self.route.op_list):
+            next_op = self.route.op_list[self.op_idx + 1]
 
         if current_op['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(current_op, next_op)
         elif current_op['op'] == operation_const.OP_PATROL:
-            op = SimUniEnterFight(self.ctx, bless_priority=self.bless_priority)
+            op = SimUniEnterFight(self.ctx, priority=self.priority)
         else:
             return Operation.round_fail('未知指令')
 
@@ -132,7 +131,8 @@ class SimUniRunRouteOp(StateOperation):
                                   start=self.current_pos, target=next_pos,
                                   stop_afterwards=not next_is_move,
                                   op_callback=self._update_pos,
-                                  bless_priority=self.bless_priority
+                                  priority=self.priority,
+                                  no_battle=self.route_no_battle
                                   )
         return op
 
@@ -157,23 +157,20 @@ class SimUniRunRouteBase(StateOperation):
 
     def __init__(self, ctx: Context,
                  level_type: SimUniLevelType,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniCurioPriority] = None,
-                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
+                 priority: Optional[SimUniAllPriority] = None
+                 ):
         """
         模拟宇宙 按照路线执行的基类
         """
         self.level_type: SimUniLevelType = level_type
         self.route: Optional[SimUniRoute] = None
         self.current_pos: Optional[Point] = None
-        self.bless_priority: SimUniBlessPriority = bless_priority
-        self.curio_priority: Optional[SimUniCurioPriority] = curio_priority
-        self.next_level_priority: Optional[SimUniNextLevelPriority] = next_level_priority
+        self.priority: Optional[SimUniAllPriority] = priority
 
         match = StateOperationNode('匹配路线', self._match_route)
         before_route = StateOperationNode('指令前初始化', self._before_route)
         run_route = StateOperationNode('执行路线指令', self._run_route)
-        level_sp = StateOperationNode('区域特殊指令', self._level_sp)
+        after_route = StateOperationNode('区域特殊指令', self._after_route)
         go_next = StateOperationNode('下一层', self._go_next)
 
         super().__init__(ctx,
@@ -181,7 +178,7 @@ class SimUniRunRouteBase(StateOperation):
                              gt('模拟宇宙', 'ui'),
                              gt('区域-%s' % level_type.type_name, 'ui')
                          ),
-                         nodes=[match, before_route, run_route, level_sp, go_next]
+                         nodes=[match, before_route, run_route, after_route, go_next]
                          )
 
     def _init_before_execute(self):
@@ -222,7 +219,7 @@ class SimUniRunRouteBase(StateOperation):
         执行下一个指令
         :return:
         """
-        op = SimUniRunRouteOp(self.ctx, self.route, self.bless_priority, op_callback=self._update_pos)
+        op = SimUniRunRouteOp(self.ctx, self.route, priority=self.priority, op_callback=self._update_pos)
         return Operation.round_by_op(op.execute())
 
     def _update_pos(self, op_result: OperationResult):
@@ -234,7 +231,7 @@ class SimUniRunRouteBase(StateOperation):
         if op_result.success:
             self.current_pos = op_result.data
 
-    def _level_sp(self) -> OperationOneRoundResult:
+    def _after_route(self) -> OperationOneRoundResult:
         """
         执行路线后的特殊操作 由各类型楼层自行实现
         :return:
@@ -247,11 +244,11 @@ class SimUniRunRouteBase(StateOperation):
         :return:
         """
         if len(self.route.next_pos_list) == 0:
-            op = MoveToNextLevel(self.ctx, self.next_level_priority)
+            op = MoveToNextLevel(self.ctx, priority=self.priority)
         else:
-            op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, self.next_level_priority)
+            op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, priority=self.priority)
 
-        op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, self.next_level_priority)
+        op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, priority=self.priority)
 
         return Operation.round_by_op(op.execute())
 
@@ -259,68 +256,92 @@ class SimUniRunRouteBase(StateOperation):
 class SimUniRunCombatRoute(SimUniRunRouteBase):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniCurioPriority] = None,
-                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
+                 priority: Optional[SimUniAllPriority] = None,
+                 ):
 
-        SimUniEnterFight(ctx, bless_priority=bless_priority, curio_priority=curio_priority)
-
-        super().__init__(ctx, level_type,
-                         bless_priority=bless_priority,
-                         curio_priority=curio_priority,
-                         next_level_priority=next_level_priority
-                         )
+        super().__init__(ctx, level_type, priority=priority)
 
 
-class SimUniRunInteractRoute(StateOperation):
+class SimUniInteractAfterRoute(StateOperation):
 
-    STATUS_ICON_NOT_FOUND: ClassVar[str] = '未找到图标'
+    STATUS_INTERACT: ClassVar[str] = '交互成功'
 
-    def __init__(self, ctx: Context, icon_template_id: str, interact_word: str,
-                 route: SimUniRoute, can_ignor_interact: bool = False):
+    def __init__(self, ctx: Context, interact_word: str,
+                 no_icon: bool, can_ignore_interact: bool,
+                 priority: Optional[SimUniAllPriority] = None,
+                 ):
         """
-        朝小地图上的图标走去 并交互
+        模拟宇宙 交互楼层移动到交互点后的处理
+        事件、交易、遭遇、休整
+        :param ctx:
+        :param interact_word: 交互文本
+        :param no_icon: 小地图上没有图标 说明可能已经交互过了
+        :param can_ignore_interact: 可以不交互进入下一层 - 黑塔
+        :param priority: 优先级
+        """
+        edges = []
+
+        interact = StateOperationNode('交互', self._interact)
+        event = StateOperationNode('事件', self._event)
+        edges.append(StateOperationEdge(interact, event, status=SimUniInteractAfterRoute.STATUS_INTERACT))
+
+        super().__init__(ctx, op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('事件交互', 'ui')),
+                         edges=edges)
+
+        self.priority: Optional[SimUniAllPriority] = priority
+        self.interact_word: str = interact_word
+        self.no_icon: bool = no_icon
+        self.can_ignore_interact: bool = can_ignore_interact
+
+    def _interact(self) -> OperationOneRoundResult:
+        # 有图标的情况 就一定要交互 no_move=False
+        # 没有图标的情况 可能时不需要交互 也可能时识别图标失败 先尝试交互 no_move=True
+        op = Interact(self.ctx, self.interact_word, lcs_percent=0.1, single_line=True, no_move=self.no_icon)
+        op_result = op.execute()
+        if op_result.success:
+            return Operation.round_success(SimUniInteractAfterRoute.STATUS_INTERACT, wait=1.5)
+        else:
+            if self.no_icon:  # 识别不到图标 又交互不到 就默认为之前已经交互了
+                return Operation.round_success()
+            if self.can_ignore_interact:
+                # 本次交互失败 但可以跳过
+                return Operation.round_success()
+            else:
+                return Operation.round_fail_by_op(op_result)
+
+    def _event(self) -> OperationOneRoundResult:
+        op = SimUniEvent(self.ctx, priority=self.priority,
+                         skip_first_screen_check=False)
+        return Operation.round_by_op(op.execute())  # 事件结束会回到大世界 不需要等待时间
+
+
+class SimUniRunInteractRoute(SimUniRunRouteBase):
+
+    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+                 priority: Optional[SimUniAllPriority] = None,
+                 ):
+        """
+        需要交互的楼层使用
         :param ctx:
         """
-        wait = StateOperationNode('等待加载', self._check_screen)
-        check_pos = StateOperationNode('检测图标', self._check_icon_pos)
-        before_move = StateOperationNode('移动前', self._before_move)
-        move = StateOperationNode('移动', self._move_to_target)
-        interact = StateOperationNode('交互', self._interact)
+        super().__init__(ctx, level_type, priority)
 
-        super().__init__(ctx, try_times=5,
-                         op_name='%s %s' % (
-                             gt('模拟宇宙', 'ui'),
-                             gt('交互层路线 %s' % interact_word, 'ui')),
-                         nodes=[wait, check_pos, before_move, move, interact]
-                         )
-
-        self.icon_template_id: str = icon_template_id
-        self.interact_word: str = interact_word
-        self.route: SimUniRoute = route
-        self.target_pos: Optional[Point] = None  # 图标在大地图上的坐标
+        is_respite = level_type == SimUniLevelTypeEnum.RESPITE.value
+        self.icon_template_id: str = 'mm_sp_herta' if is_respite else 'mm_sp_event'
+        self.interact_word: str = '黑塔' if is_respite else '事件'
+        self.can_ignore_interact: bool = is_respite
         self.no_icon: bool = False  # 小地图上没有图标了 说明之前已经交互过了
-        self.can_ignore_interact: bool = can_ignor_interact  # 是否可以忽略交互失败 例如 黑塔
 
     def _init_before_execute(self):
         """
         执行前的初始化 注意初始化要全面 方便一个指令重复使用
         """
         super()._init_before_execute()
-        self.target_pos = None
-        if self.route.event_pos_list is not None and len(self.route.event_pos_list) > 0:
-            self.target_pos = self.route.event_pos_list[0]  # 暂时都只有一个事件
         self.no_icon = False
 
-    def _check_screen(self) -> OperationOneRoundResult:
-        screen = self.screenshot()
-        if screen_state.is_normal_in_world(screen, self.ctx.im):
-            return Operation.round_success(wait=1)
-        else:
-            return Operation.round_retry('未在大世界界面')
-
-    def _check_icon_pos(self) -> OperationOneRoundResult:
+    def _before_route(self) -> OperationOneRoundResult:
         """
+        执行路线前的初始化 由各类型楼层自行实现
         检测小地图上的图标 在大地图上的哪个位置
         :return:
         """
@@ -331,59 +352,26 @@ class SimUniRunInteractRoute(StateOperation):
         mm_del_radio = mini_map.remove_radio(mm, radio_to_del)
         icon_pos = self._get_icon_pos(mm_del_radio)
         if icon_pos is None:
-            if self.target_pos is None:  # 未配置图标坐标时 需要识别到才能往下走
-                return Operation.round_retry(SimUniRunInteractRoute.STATUS_ICON_NOT_FOUND)
+            self.no_icon = True
+            if len(self.route.op_list) == 0:  # 未配置路线时 需要识别到才能往下走
+                return Operation.round_retry('未配置交互点坐标且识别交互图标失败')
             else:
-                self.no_icon = True
-                log.info('小地图上没有图标 该层已交互完毕')
                 return Operation.round_success()
         else:
-            if self.target_pos is None:
+            if len(self.route.op_list) == 0:  # 未配置路线时 自动加入坐标
                 mm_center_pos = Point(mm.shape[1] // 2, mm.shape[0] // 2)
-                self.target_pos = self.route.start_pos + (icon_pos - mm_center_pos)
-                log.info('识别到图标位置 %s', self.target_pos)
+                target_pos = self.route.start_pos + (icon_pos - mm_center_pos)
+                op = SimUniRouteOperation(op=operation_const.OP_MOVE, data=[target_pos.x, target_pos.y])
+                self.route.op_list.append(op)
+                self.route.save()
+            return Operation.round_success()
 
-        return Operation.round_success()
-
-    def _before_move(self) -> OperationOneRoundResult:
+    def _after_route(self) -> OperationOneRoundResult:
         """
-        移动前的动作
+        执行路线后的特殊操作 由各类型楼层自行实现
+        进行交互
         :return:
         """
-        return Operation.round_success()
-
-    def _move_to_target(self) -> OperationOneRoundResult:
-        """
-        向目标移动 这里可以忽略检测敌人战斗
-        :return:
-        """
-        op = SimplyMoveByPos(self.ctx,
-                             lm_info=self.ctx.ih.get_large_map(self.route.region),
-                             start=self.route.start_pos,
-                             target=self.target_pos,
-                             no_run=True
-                             )
-        op_result = op.execute()
-        if op_result.success:
-            return Operation.round_success()
-        else:
-            return Operation.round_fail_by_op(op_result)
-
-    def _interact(self) -> OperationOneRoundResult:
-        # 有图标的情况 就一定要交互 no_move=False
-        # 没有图标的情况 可能时不需要交互 也可能时识别图标失败 先尝试交互 no_move=True
-        op = Interact(self.ctx, self.interact_word, lcs_percent=0.1, single_line=True, no_move=self.no_icon)
-        op_result = op.execute()
-        if op_result.success:
-            return Operation.round_success()
-        else:
-            if self.no_icon:  # 识别不到图标 又交互不到 就默认为之前已经交互了
-                return Operation.round_success(SimUniRunInteractRoute.STATUS_ICON_NOT_FOUND)
-            if self.can_ignore_interact:
-                # 本次交互失败 但可以跳过
-                return Operation.round_success()
-            else:
-                return Operation.round_fail_by_op(op_result)
 
     def _get_icon_pos(self, mm: MatLike) -> Optional[Point]:
         """
@@ -403,46 +391,13 @@ class SimUniRunInteractRoute(StateOperation):
         return None if mr is None else mr.center
 
 
-class SimUniRunEventRoute(SimUniRunInteractRoute):
-
-    def __init__(self, ctx: Context, route: SimUniRoute):
-        super().__init__(ctx, 'mm_sp_event', '事件', route)
-
-
-class SimUniRunRespiteRoute(SimUniRunInteractRoute):
-
-    def __init__(self, ctx: Context, route: SimUniRoute):
-        super().__init__(ctx, 'mm_sp_herta', '黑塔', route, can_ignor_interact=True)
-
-    def _init_before_execute(self):
-        super()._init_before_execute()
-        time.sleep(1)  # 休整层初始的小地图会有缩放 不知道为什么 稍微等一下才可以识别到黑塔的图标
-
-    def _before_move(self) -> OperationOneRoundResult:
-        """
-        移动前的动作
-        :return:
-        """
-        op = Attack(self.ctx)
-        op_result = op.execute()
-        if op_result.success:
-            return Operation.round_success(wait=0.5)
-        else:
-            return Operation.round_fail_by_op(op_result)
-
-
 class SimUniRunEliteRoute(SimUniRunRouteBase):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniCurioPriority] = None,
-                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
+                 priority: Optional[SimUniAllPriority] = None,
+                 ):
 
-        super().__init__(ctx, level_type,
-                         bless_priority=bless_priority,
-                         curio_priority=curio_priority,
-                         next_level_priority=next_level_priority
-                         )
+        super().__init__(ctx, level_type, priority)
 
         self.with_enemy: bool = True
 
@@ -450,6 +405,15 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
         super()._init_before_execute()
         self.with_enemy = True
 
-    def _level_sp(self) -> OperationOneRoundResult:
-        op = SimUniFightElite(self.ctx, bless_priority=self.bless_priority, curio_priority=self.curio_priority)
+    def _after_route(self) -> OperationOneRoundResult:
+        op = SimUniFightElite(self.ctx, priority=self.priority)
         return Operation.round_by_op(op.execute())
+
+    def _go_next(self) -> OperationOneRoundResult:
+        if self.level_type == SimUniLevelTypeEnum.ELITE.value:
+            return super()._go_next()
+        else:
+            op = SimUniExit(self.ctx)
+            if op.round_success():
+                return Operation.round_success()
+            return Operation.round_by_op(op.execute())

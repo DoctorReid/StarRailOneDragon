@@ -3,6 +3,6 @@ region: '流云渡'
 floor: 1
 start_pos: [686, 1360]
 next_pos_list: []
-event_pos_list:
-  - [742, 1373]
-op_list: []
+op_list:
+  - op: 'move'
+    data: [742, 1373]

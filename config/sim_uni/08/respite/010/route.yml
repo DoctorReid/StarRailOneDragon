@@ -3,6 +3,6 @@ region: '工造司'
 floor: 0
 start_pos: [511, 1213]
 next_pos_list: []
-event_pos_list:
-  - [521, 1160]
-op_list: []
+op_list:
+  - op: 'move'
+    data: [521, 1160]

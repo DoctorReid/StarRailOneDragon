@@ -9,10 +9,9 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, StateOperationEdge
-from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, SimUniDropBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority
+from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 
 class SimUniEventOption:
@@ -34,8 +33,7 @@ class SimUniEvent(StateOperation):
     EMPTY_POS: ClassVar[Point] = Point(778, 880)
 
     def __init__(self, ctx: Context,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniCurioPriority] = None,
+                 priority: Optional[SimUniAllPriority] = None,
                  skip_first_screen_check: bool = True):
         """
         模拟宇宙 事件
@@ -87,8 +85,7 @@ class SimUniEvent(StateOperation):
                          )
 
         self.opt_list: List[SimUniEventOption] = []
-        self.bless_priority: Optional[SimUniBlessPriority] = bless_priority
-        self.curio_priority: Optional[SimUniCurioPriority] = curio_priority
+        self.priority: Optional[SimUniAllPriority] = priority
         self.skip_first_screen_check: bool = skip_first_screen_check
 
     def _init_before_execute(self):
@@ -258,7 +255,7 @@ class SimUniEvent(StateOperation):
         return None
 
     def _choose_bless(self) -> OperationOneRoundResult:
-        op = SimUniChooseBless(self.ctx, priority=self.bless_priority)
+        op = SimUniChooseBless(self.ctx, priority=self.priority)
         op_result = op.execute()
 
         if op_result.success:
@@ -267,7 +264,7 @@ class SimUniEvent(StateOperation):
             return Operation.round_retry(status=op_result.status)
 
     def _drop_bless(self) -> OperationOneRoundResult:
-        op = SimUniDropBless(self.ctx, priority=self.bless_priority)
+        op = SimUniDropBless(self.ctx, priority=self.priority)
         op_result = op.execute()
 
         if op_result.success:
@@ -276,7 +273,7 @@ class SimUniEvent(StateOperation):
             return Operation.round_retry(status=op_result.status)
 
     def _choose_curio(self) -> OperationOneRoundResult:
-        op = SimUniChooseCurio(self.ctx, priority=self.curio_priority)
+        op = SimUniChooseCurio(self.ctx, priority=self.priority)
         op_result = op.execute()
 
         if op_result.success:
@@ -285,7 +282,7 @@ class SimUniEvent(StateOperation):
             return Operation.round_retry(status=op_result.status)
 
     def _drop_curio(self) -> OperationOneRoundResult:
-        op = SimUniDropCurio(self.ctx, priority=self.curio_priority)
+        op = SimUniDropCurio(self.ctx, priority=self.priority)
         op_result = op.execute()
 
         if op_result.success:

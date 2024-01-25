@@ -14,13 +14,12 @@ from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, large_map, mini_map, screen_state
-from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode, \
-    StateOperationEdge
+from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniNextLevelPriority
+from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
@@ -36,7 +35,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
     """
     def __init__(self, ctx: Context, lm_info: LargeMapInfo,
                  start: Point, target: Point,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
+                 priority: Optional[SimUniAllPriority] = None,
                  stop_afterwards: bool = True,
                  no_run: bool = False,
                  no_battle: bool = False,
@@ -49,7 +48,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             no_run=no_run, no_battle=no_battle,
             op_callback=op_callback)
         self.op_name = '%s %s' % (gt('模拟宇宙', 'ui'), gt('移动 %s -> %s') % (start, target))
-        self.bless_priority: SimUniBlessPriority = bless_priority
+        self.priority: SimUniAllPriority = priority
 
     def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
         """
@@ -97,7 +96,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if not mini_map.is_under_attack(mm):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
-        fight = SimUniEnterFight(self.ctx, self.bless_priority)
+        fight = SimUniEnterFight(self.ctx, self.priority)
         op_result = fight.execute()
         if not op_result.success:
             return Operation.round_fail(status=op_result.status, data=op_result.data)
@@ -115,16 +114,15 @@ class MoveToNextLevel(Operation):
 
     NEXT_CONFIRM_BTN: ClassVar[Rect] = Rect(1006, 647, 1330, 697)  # 确认按钮
 
-    def __init__(self, ctx: Context,
-                 next_level_priority: Optional[SimUniNextLevelPriority] = None):
+    def __init__(self, ctx: Context, priority: Optional[SimUniAllPriority] = None):
         """
         朝下一层入口走去 并且交互
         :param ctx:
-        :param next_level_priority: 下一楼层类型优先级
+        :param priority: 优先级
         """
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('向下一层移动', 'ui')))
-        self.level_priority: Optional[SimUniNextLevelPriority] = next_level_priority
+        self.priority: Optional[SimUniAllPriority] = priority
         self.is_moving: bool = False  # 是否正在移动
         self.start_move_time: float = 0  # 开始移动的时间
         self.interacted: bool = False  # 是否已经交互了
@@ -200,21 +198,21 @@ class MoveToNextLevel(Operation):
         :param type_list: 入口类型
         :return:
         """
-        idx = MoveToNextLevel.match_best_level_type(type_list, self.level_priority)
+        idx = MoveToNextLevel.match_best_level_type(type_list, self.priority)
         return type_list[idx]
 
     @staticmethod
-    def match_best_level_type(type_list: List[MatchResult], level_priority: Optional[SimUniNextLevelPriority]) -> int:
+    def match_best_level_type(type_list: List[MatchResult], priority: Optional[SimUniAllPriority]) -> int:
         """
         根据优先级 获取最优的入口类型
         :param type_list: 入口类型 保证长度大于0
-        :param level_priority: 优先级
+        :param priority: 优先级
         :return: 下标
         """
-        if level_priority is None:
+        if priority is None:
             return 0
 
-        for priority_id in level_priority.id_list:
+        for priority_id in priority.next_level_id_list:
             priority_level_type = level_type_from_id(priority_id)
             if priority_level_type is None:
                 continue
@@ -280,7 +278,7 @@ class MoveToNextLevel(Operation):
 class MoveToNextLevelByRoute(StateOperation):
 
     def __init__(self, ctx: Context, route: SimUniRoute, current_pos: Point,
-                 next_level_priority: Optional[SimUniNextLevelPriority] = None,
+                 priority: Optional[SimUniAllPriority] = None,
                  ):
         """
         朝下一层入口走去 并且交互
@@ -288,7 +286,7 @@ class MoveToNextLevelByRoute(StateOperation):
         :param ctx:
         :param route: 路线配置
         :param current_pos: 当前位置
-        :param next_level_priority: 下一楼层类型优先级
+        :param priority: 优先级
         """
 
         turn = StateOperationNode('转向', self._turn_to_entry)
@@ -301,7 +299,7 @@ class MoveToNextLevelByRoute(StateOperation):
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('向下一层移动', 'ui')),
                          nodes=[turn, get_pos, move, interact]
                          )
-        self.level_priority: Optional[SimUniNextLevelPriority] = next_level_priority
+        self.priority: Optional[SimUniAllPriority] = priority
         self.route: SimUniRoute = route
         self.current_pos: Point = current_pos
         self.target_pos: Optional[Point] = None
@@ -343,7 +341,7 @@ class MoveToNextLevelByRoute(StateOperation):
         next_level_type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
         if len(next_level_type_list) == 0:
             return Operation.round_retry('识别不到下一层入口', wait=0.5)
-        priority_entry = MoveToNextLevel.match_best_level_type(next_level_type_list, self.level_priority)
+        priority_entry = MoveToNextLevel.match_best_level_type(next_level_type_list, self.priority)
 
         # 是否在左边
         target_on_left = (STANDARD_RESOLUTION_W // 2) > next_level_type_list[priority_entry].center.x

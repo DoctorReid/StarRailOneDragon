@@ -3,6 +3,6 @@ region: '铁卫禁区'
 floor: 0
 start_pos: [1041, 588]
 next_pos_list: []
-event_pos_list:
-  - [1097, 598]
-op_list: []
+op_list:
+  - op: 'move'
+    data: [1097, 598]

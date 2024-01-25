@@ -4,7 +4,6 @@ import test
 from sr.context import get_context
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
-from sr.sim_uni.sim_uni_priority import SimUniNextLevelPriority
 
 
 class TestMoveToNextLevel(unittest.TestCase, test.SrTestBase):
@@ -38,5 +37,5 @@ class TestMoveToNextLevel(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.start_running()
 
-        op = MoveToNextLevel(ctx, SimUniNextLevelPriority(SimUniLevelTypeEnum.COMBAT.value.type_id))
+        op = MoveToNextLevel(ctx, None)
         op.execute()

@@ -12,7 +12,6 @@ from sr.operation import Operation, OperationSuccess, OperationResult
 from sr.operation.combine import StatusCombineOperationNode
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.sim_uni_const import SimUniLevelType
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniNextLevelPriority, SimUniCurioPriority
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
@@ -50,9 +49,7 @@ class TestSimUniRouteApp(Application2):
     def _run_world(self) -> Operation:
         uni_challenge_config = self.config.get_challenge_config(self.uni_num)
         return SimUniRunWorld(self.ctx, self.uni_num,
-                              bless_priority=SimUniBlessPriority(uni_challenge_config.bless_priority, uni_challenge_config.bless_priority_2),
-                              curio_priority=SimUniCurioPriority(uni_challenge_config.curio_priority),
-                              next_level_priority=SimUniNextLevelPriority(uni_challenge_config.level_type_priority),
+                              priority=uni_challenge_config.all_priority,
                               op_callback=self._on_world_done
                               )
 

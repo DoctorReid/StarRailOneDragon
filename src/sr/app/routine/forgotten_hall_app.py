@@ -11,9 +11,8 @@ from sr.const import phone_menu_const
 from sr.const.character_const import CharacterCombatType, get_character_by_id, Character, SILVERWOLF, ATTACK_PATH_LIST, \
     SURVIVAL_PATH_LIST, SUPPORT_PATH_LIST, is_attack_character, is_survival_character, is_support_character
 from sr.context import Context
-from sr.operation import OperationSuccess, OperationResult, Operation
-from sr.operation.combine import StatusCombineOperationEdge2, \
-    StatusCombineOperationNode
+from sr.operation import OperationResult, Operation, StateOperationEdge, StateOperationNode, \
+    OperationOneRoundResult
 from sr.operation.combine.challenge_forgotten_hall_mission import ChallengeForgottenHallMission
 from sr.operation.unit import guide
 from sr.operation.unit.forgotten_hall.check_forgotten_hall_star import CheckForgottenHallStar
@@ -654,38 +653,38 @@ class ForgottenHallApp(Application2):
 
     def __init__(self, ctx: Context):
         self.run_record: Optional[ForgottenHallRecord] = get_record()
-        edges: List[StatusCombineOperationEdge2] = []
+        edges: List[StateOperationEdge] = []
 
-        open_menu = StatusCombineOperationNode('打开菜单', OpenPhoneMenu(ctx))
-        choose_guide = StatusCombineOperationNode('选择【指南】', ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
-        edges.append(StatusCombineOperationEdge2(open_menu, choose_guide))
+        open_menu = StateOperationNode('打开菜单', op=OpenPhoneMenu(ctx))
+        choose_guide = StateOperationNode('选择【指南】', op=ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
+        edges.append(StateOperationEdge(open_menu, choose_guide))
 
-        choose_survival = StatusCombineOperationNode('选择【逐光捡金】', ChooseGuideTab(ctx, guide.GUIDE_TAB_4))
-        edges.append(StatusCombineOperationEdge2(choose_guide, choose_survival))
+        choose_survival = StateOperationNode('选择【逐光捡金】', op=ChooseGuideTab(ctx, guide.GUIDE_TAB_4))
+        edges.append(StateOperationEdge(choose_guide, choose_survival))
 
-        choose_fh = StatusCombineOperationNode('选择【忘却之庭】', ChooseGuideMissionCategory(ctx, mission_transport.CATEGORY_FORGOTTEN_HALL))
-        edges.append(StatusCombineOperationEdge2(choose_survival, choose_fh))
+        choose_fh = StateOperationNode('选择【忘却之庭】', op=ChooseGuideMissionCategory(ctx, mission_transport.CATEGORY_FORGOTTEN_HALL))
+        edges.append(StateOperationEdge(choose_survival, choose_fh))
 
-        fh_tp = StatusCombineOperationNode('传送', ChooseGuideMission(ctx, mission_transport.MISSION_FORGOTTEN_HALL))
-        edges.append(StatusCombineOperationEdge2(choose_fh, fh_tp))
+        fh_tp = StateOperationNode('传送', op=ChooseGuideMission(ctx, mission_transport.MISSION_FORGOTTEN_HALL))
+        edges.append(StateOperationEdge(choose_fh, fh_tp))
 
-        get_reward = StatusCombineOperationNode('领取奖励', GetRewardInForgottenHall(ctx))
+        get_reward = StateOperationNode('领取奖励', op=GetRewardInForgottenHall(ctx))
 
-        check_total_star = StatusCombineOperationNode('检测总星数', CheckForgottenHallStar(ctx, self._update_star))
-        edges.append(StatusCombineOperationEdge2(fh_tp, check_total_star))  # 满星的时候直接设置为成功
-        edges.append(StatusCombineOperationEdge2(check_total_star, get_reward, status='36'))  # 满星的时候直接设置为成功
+        check_total_star = StateOperationNode('检测总星数', op=CheckForgottenHallStar(ctx, self._update_star))
+        edges.append(StateOperationEdge(fh_tp, check_total_star))  # 满星的时候直接设置为成功
+        edges.append(StateOperationEdge(check_total_star, get_reward, status='36'))  # 满星的时候直接设置为成功
 
-        check_max_unlock = StatusCombineOperationNode('最大的已解锁关卡', CheckMaxUnlockMission(ctx, self._on_max_unlock_done))
-        edges.append(StatusCombineOperationEdge2(check_total_star, check_max_unlock, ignore_status=True))  # 非满星的时候找到开始关卡
+        check_max_unlock = StateOperationNode('最大的已解锁关卡', op=CheckMaxUnlockMission(ctx, self._on_max_unlock_done))
+        edges.append(StateOperationEdge(check_total_star, check_max_unlock, ignore_status=True))  # 非满星的时候找到开始关卡
 
-        challenge_mission = StatusCombineOperationNode('挑战关卡', op_func=self._op_challenge_next_mission)
-        edges.append(StatusCombineOperationEdge2(check_max_unlock, challenge_mission))  # 挑战
+        challenge_mission = StateOperationNode('挑战关卡', self._op_challenge_next_mission)
+        edges.append(StateOperationEdge(check_max_unlock, challenge_mission))  # 挑战
 
-        edges.append(StatusCombineOperationEdge2(challenge_mission, challenge_mission, status='3'))  # 循环挑战到满星
-        edges.append(StatusCombineOperationEdge2(challenge_mission, get_reward, ignore_status=True))  # 没满星就不挑战下一个了
+        edges.append(StateOperationEdge(challenge_mission, challenge_mission, status='3'))  # 循环挑战到满星
+        edges.append(StateOperationEdge(challenge_mission, get_reward, ignore_status=True))  # 没满星就不挑战下一个了
 
-        back_menu = StatusCombineOperationNode('返回菜单', OpenPhoneMenu(ctx))
-        edges.append(StatusCombineOperationEdge2(get_reward, back_menu))
+        back_menu = StateOperationNode('返回菜单', op=OpenPhoneMenu(ctx))
+        edges.append(StateOperationEdge(get_reward, back_menu))
 
         super().__init__(ctx, op_name=gt('忘却之庭', 'ui'),
                          run_record=self.run_record, edges=edges)
@@ -825,7 +824,7 @@ class ForgottenHallApp(Application2):
         else:
             return best_mission_team.character_list
 
-    def _update_record_stop(self, result: OperationResult):
+    def _update_record_after_stop(self, result: OperationResult):
         """
         应用停止后的对运行记录的更新
         :param result: 运行结果
@@ -854,14 +853,15 @@ class ForgottenHallApp(Application2):
                         self._current_mission_num = i
                         break
 
-    def _op_challenge_next_mission(self) -> Operation:
+    def _op_challenge_next_mission(self) -> OperationOneRoundResult:
         """
         获取下一个挑战关卡的指令
         :return: 指令
         """
         if self.run_record.star == 36:
-            return OperationSuccess(self.ctx)
+            return Operation.round_success()
 
-        return ChallengeForgottenHallMission(self.ctx, self._current_mission_num, 2,
-                                             cal_team_func=self._cal_team_member,
-                                             mission_star_callback=self._update_mission_star)
+        op = ChallengeForgottenHallMission(self.ctx, self._current_mission_num, 2,
+                                           cal_team_func=self._cal_team_member,
+                                           mission_star_callback=self._update_mission_star)
+        return Operation.round_by_op(op.execute())

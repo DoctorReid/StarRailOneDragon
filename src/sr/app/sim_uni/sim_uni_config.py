@@ -5,6 +5,7 @@ from typing import List, Optional
 from basic import os_utils
 from sr.config import ConfigHolder
 from sr.sim_uni.sim_uni_const import SimUniWorldEnum
+from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 _MAX_WITH_SAMPLE = 8
 
@@ -90,6 +91,11 @@ class SimUniChallengeConfig(ConfigHolder):
     @curio_priority.setter
     def curio_priority(self, new_list: List[str]):
         self.update('curio_priority', new_list)
+
+    @property
+    def all_priority(self) -> SimUniAllPriority:
+        return SimUniAllPriority(self.bless_priority, self.bless_priority_2,
+                                 self.curio_priority, self.level_type_priority)
 
 
 def load_all_challenge_config() -> List[SimUniChallengeConfig]:

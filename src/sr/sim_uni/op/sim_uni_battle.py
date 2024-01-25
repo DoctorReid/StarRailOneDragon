@@ -12,9 +12,9 @@ from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.battle.start_fight import StartFightWithTechnique
 from sr.operation.unit.team import SwitchMember
-from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority, SimUniCurioPriority
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
+from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
+from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 
 class SimUniEnterFight(Operation):
@@ -28,9 +28,7 @@ class SimUniEnterFight(Operation):
     STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
     STATUS_STATE_UNKNOWN: ClassVar[str] = '未知状态'
 
-    def __init__(self, ctx: Context,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniBlessPriority] = None):
+    def __init__(self, ctx: Context, priority: Optional[SimUniAllPriority] = None):
         """
         模拟宇宙中 主动进入战斗
         根据小地图的红圈 判断是否被敌人锁定
@@ -42,8 +40,7 @@ class SimUniEnterFight(Operation):
         self.last_not_in_world_time: float = 0  # 上次不在移动画面的时间
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_direction: int = 0  # 攻击方向
-        self.bless_priority: Optional[SimUniBlessPriority] = bless_priority  # 祝福优先级
-        self.curio_priority: Optional[SimUniBlessPriority] = curio_priority  # 奇物优先级
+        self.priority: Optional[SimUniAllPriority] = priority  # 优先级
 
     def _init_before_execute(self):
         self.last_attack_time = time.time()
@@ -105,7 +102,7 @@ class SimUniEnterFight(Operation):
         选择祝福
         :return:
         """
-        op = SimUniChooseBless(self.ctx, self.bless_priority)
+        op = SimUniChooseBless(self.ctx, self.priority)
         op_result = op.execute()
         self._update_not_in_world_time()
 
@@ -119,7 +116,7 @@ class SimUniEnterFight(Operation):
         选择奇物
         :return:
         """
-        op = SimUniChooseCurio(self.ctx, self.curio_priority)
+        op = SimUniChooseCurio(self.ctx, self.priority)
         op_result = op.execute()
         self._update_not_in_world_time()
 
@@ -167,9 +164,7 @@ class SimUniFightElite(StateOperation):
 
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '没有敌人'
 
-    def __init__(self, ctx: Context,
-                 bless_priority: Optional[SimUniBlessPriority] = None,
-                 curio_priority: Optional[SimUniCurioPriority] = None):
+    def __init__(self, ctx: Context, priority: Optional[SimUniAllPriority] = None):
         """
         模拟宇宙 - 挑战精英、首领
         """
@@ -193,8 +188,7 @@ class SimUniFightElite(StateOperation):
                          ),
                          edges=edges
                          )
-        self.bless_priority: Optional[SimUniBlessPriority] = bless_priority  # 祝福优先级
-        self.curio_priority: Optional[SimUniBlessPriority] = curio_priority  # 奇物优先级
+        self.priority: Optional[SimUniAllPriority] = priority  # 优先级
 
     def _check_enemy(self) -> OperationOneRoundResult:
         """
@@ -215,7 +209,7 @@ class SimUniFightElite(StateOperation):
         return Operation.round_by_op(op.execute())
 
     def _fight(self) -> OperationOneRoundResult:
-        op = SimUniEnterFight(self.ctx, bless_priority=self.bless_priority, curio_priority=self.curio_priority)
+        op = SimUniEnterFight(self.ctx, priority=self.priority)
         return Operation.round_by_op(op.execute())
 
     def _switch_1(self) -> OperationOneRoundResult:

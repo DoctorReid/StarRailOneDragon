@@ -3,6 +3,6 @@ region: '大矿区'
 floor: 0
 start_pos: [376, 341]
 next_pos_list: []
-event_pos_list:
-  - [431, 324]
-op_list: []
+op_list:
+  - op: 'move'
+    data: [431, 324]

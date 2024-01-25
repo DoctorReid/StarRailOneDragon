@@ -264,10 +264,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                 last_point = pos
 
         for pos in self.chosen_route.next_pos_list:
-            cv2.circle(display_image, pos.tuple(), 5, color=(100, 100, 100), thickness=-1)
-
-        for pos in self.chosen_route.event_pos_list:
-            cv2.circle(display_image, pos.tuple(), 5, color=(200, 200, 200), thickness=-1)
+            cv2.circle(display_image, pos.tuple(), 5, color=(100, 255, 100), thickness=-1)
 
         self.large_map_display.src_base64 = cv2_utils.to_base64(display_image)
         self.large_map_display.visible = True

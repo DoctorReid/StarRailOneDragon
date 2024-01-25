@@ -3,6 +3,6 @@ region: '廻星港'
 floor: 1
 start_pos: [731, 768]
 next_pos_list: []
-event_pos_list:
-  - [716, 809]
-op_list: []
+op_list:
+  - op: 'move'
+    data: [716, 809]

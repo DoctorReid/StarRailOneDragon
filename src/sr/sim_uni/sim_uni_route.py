@@ -41,7 +41,6 @@ class SimUniRoute:
         self.start_pos: Optional[Point] = None
         self.op_list: Optional[List[SimUniRouteOperation]] = None
         self.next_pos_list: Optional[List[Point]] = None  # 下一楼层入口位置
-        self.event_pos_list: Optional[List[Point]] = None  # 事件交互位置
 
         if idx is None:
             self._create_new_route()
@@ -55,7 +54,6 @@ class SimUniRoute:
         self.start_pos = Point(data['start_pos'][0], data['start_pos'][1])
         self.op_list = data['op_list']
         self.next_pos_list = [Point(i[0], i[1]) for i in data.get('next_pos_list', [])]
-        self.event_pos_list = [Point(i[0], i[1]) for i in data.get('event_pos_list', [])]
 
     def _create_new_route(self):
         """
@@ -72,7 +70,6 @@ class SimUniRoute:
                 break
         self.op_list = []
         self.next_pos_list = []
-        self.event_pos_list = []
 
     def _read_route(self):
         dir_path = self.get_route_dir_path()
@@ -168,13 +165,6 @@ class SimUniRoute:
             for pos in self.next_pos_list:
                 cfg += "  - [%d, %d]\n" % (pos.x, pos.y)
 
-        if len(self.event_pos_list) == 0:
-            cfg += "event_pos_list: []\n"
-        else:
-            cfg += "event_pos_list:\n"
-            for pos in self.event_pos_list:
-                cfg += "  - [%d, %d]\n" % (pos.x, pos.y)
-
         if len(self.op_list) == 0:
             cfg += "op_list: []\n"
         else:
@@ -217,3 +207,14 @@ class SimUniRoute:
         if l == 0:
             return False
         return self.op_list[l - 1]['op'] == operation_const.OP_MOVE
+
+    @property
+    def no_battle_op(self) -> bool:
+        """
+        整个路线中没有战斗
+        :return:
+        """
+        for op in self.op_list:
+            if op['op'] == operation_const.OP_PATROL:
+                return True
+        return False

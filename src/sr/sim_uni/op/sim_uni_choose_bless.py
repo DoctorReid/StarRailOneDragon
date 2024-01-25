@@ -1,5 +1,4 @@
 import time
-from concurrent.futures import Future, ThreadPoolExecutor
 from typing import Optional, List, ClassVar
 
 import cv2
@@ -11,14 +10,12 @@ from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr.context import Context
-from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode
 from sr.operation.unit.click import ClickDialogConfirm
 from sr.sim_uni.sim_uni_const import match_best_bless_by_ocr, SimUniBless, SimUniBlessEnum, SimUniBlessLevel
-from sr.sim_uni.sim_uni_priority import SimUniBlessPriority
-
+from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 # 3个祝福的情况 每个祝福有2个框 分别是名字、命途
 BLESS_3_RECT_LIST: List[List[Rect]] = [
@@ -103,7 +100,7 @@ def get_bless_pos_by_rect_list(screen: MatLike,
     return bless_list
 
 
-def get_bless_by_priority(bless_list: List[SimUniBless], priority: Optional[SimUniBlessPriority], can_reset: bool,
+def get_bless_by_priority(bless_list: List[SimUniBless], priority: Optional[SimUniAllPriority], can_reset: bool,
                           asc: bool) -> Optional[int]:
     """
     根据优先级选择对应的祝福
@@ -117,7 +114,7 @@ def get_bless_by_priority(bless_list: List[SimUniBless], priority: Optional[SimU
     cnt = 0  # 优先级
 
     if priority is not None:
-        for priority_id in priority.first_id_list:
+        for priority_id in priority.bless_id_list_1:
             bless = SimUniBlessEnum[priority_id]
             if bless.name.endswith('000'):  # 命途内选最高级的祝福
                 for bless_level in SimUniBlessLevel:
@@ -134,7 +131,7 @@ def get_bless_by_priority(bless_list: List[SimUniBless], priority: Optional[SimU
                             cnt += 1
 
         if not can_reset:
-            for priority_id in priority.second_id_list:
+            for priority_id in priority.bless_id_list_2:
                 bless = SimUniBlessEnum[priority_id]
                 if bless.name.endswith('000'):  # 命途内选最高级的祝福
                     for bless_level in SimUniBlessLevel:
@@ -181,7 +178,7 @@ class SimUniChooseBless(Operation):
     CONFIRM_BEFORE_LEVEL_BTN: ClassVar[Rect] = Rect(783, 953, 1133, 997)  # 确认 - 楼层开始前
 
     def __init__(self, ctx: Context,
-                 priority: Optional[SimUniBlessPriority] = None,
+                 priority: Optional[SimUniAllPriority] = None,
                  skip_first_screen_check: bool = True,
                  before_level_start: bool = False):
         """
@@ -194,7 +191,7 @@ class SimUniChooseBless(Operation):
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('选择祝福', 'ui')))
 
-        self.priority: Optional[SimUniBlessPriority] = priority  # 祝福优先级
+        self.priority: Optional[SimUniAllPriority] = priority  # 祝福优先级
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
         self.before_level_start: bool = before_level_start
@@ -263,7 +260,7 @@ class SimUniChooseBless(Operation):
 class SimUniDropBless(StateOperation):
 
     def __init__(self, ctx: Context,
-                 priority: Optional[SimUniBlessPriority] = None,
+                 priority: Optional[SimUniAllPriority] = None,
                  skip_first_screen_check: bool = True
                  ):
         """
@@ -280,7 +277,7 @@ class SimUniDropBless(StateOperation):
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('丢弃祝福', 'ui')),
                          nodes=[state, choose_bless, confirm])
 
-        self.priority: Optional[SimUniBlessPriority] = priority
+        self.priority: Optional[SimUniAllPriority] = priority
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 

@@ -3,6 +3,6 @@ region: '铆钉镇'
 floor: 1
 start_pos: [540, 401]
 next_pos_list: []
-event_pos_list:
-  - [594, 382]
-op_list: []
+op_list:
+  - op: 'move'
+    data: [594, 382]

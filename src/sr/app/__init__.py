@@ -6,8 +6,7 @@ from basic.log_utils import log
 from sr.config import game_config, ConfigHolder
 from sr.const import game_config_const
 from sr.context import Context
-from sr.operation import Operation, OperationResult
-from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationEdge2, StatusCombineOperationNode
+from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.enter_game import EnterGame
 
 
@@ -165,17 +164,17 @@ class Application(Operation):
         return ''
 
 
-class Application2(StatusCombineOperation2):
+class Application2(StateOperation):
 
     def __init__(self, ctx: Context, op_name: str = None,
-                 nodes: Optional[List[StatusCombineOperationNode]] = None,
-                 edges: Optional[List[StatusCombineOperationEdge2]] = None,
-                 specified_start_node: Optional[StatusCombineOperationNode] = None,
+                 nodes: Optional[List[StateOperationNode]] = None,
+                 edges: Optional[List[StateOperationEdge]] = None,
+                 specified_start_node: Optional[StateOperationNode] = None,
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None):
-        StatusCombineOperation2.__init__(self, ctx, op_name=op_name,
-                                         nodes=nodes, edges=edges, specified_start_node=specified_start_node)
+        super().__init__(ctx, op_name=op_name,
+                         nodes=nodes, edges=edges, specified_start_node=specified_start_node)
 
         self.run_record: Optional[AppRunRecord] = run_record
         """运行记录"""
@@ -208,18 +207,18 @@ class Application2(StatusCombineOperation2):
         return True
 
     def _init_before_execute(self):
-        StatusCombineOperation2._init_before_execute(self)
+        super()._init_before_execute()
         if self.run_record is not None:
             self.run_record.update_status(AppRunRecord.STATUS_RUNNING)
 
     def execute(self) -> OperationResult:
         if not self._init_context():
             return Operation.op_fail('初始化失败')
-        result: OperationResult = StatusCombineOperation2.execute(self)
+        result: OperationResult = super().execute()
         return result
 
     def on_resume(self):
-        StatusCombineOperation2.on_resume(self)
+        super().on_resume()
         self.ctx.controller.init()
 
     def _stop_context(self):
@@ -231,11 +230,11 @@ class Application2(StatusCombineOperation2):
         停止后的处理
         :return:
         """
-        StatusCombineOperation2._after_operation_done(self, result)
-        self._update_record_stop(result)
+        super()._after_operation_done(result)
+        self._update_record_after_stop(result)
         self._stop_context()
 
-    def _update_record_stop(self, result: OperationResult):
+    def _update_record_after_stop(self, result: OperationResult):
         """
         应用停止后的对运行记录的更新
         :param result: 运行结果
