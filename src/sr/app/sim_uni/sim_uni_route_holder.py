@@ -33,7 +33,7 @@ class SimUniRouteHolder:
             sub_dir = os.path.join(base_dir, sub)
             if not os.path.isdir(sub_dir):
                 continue
-            arr.append(SimUniRoute(uni_num, level_type, int(sub)))
+            arr.append(SimUniRoute(uni_num, level_type.route_id, int(sub)))
 
         self.uni_2_route_list[key] = arr
         return arr

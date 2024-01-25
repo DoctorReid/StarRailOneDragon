@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, ClassVar
 
 from basic.i18_utils import gt
 from sr.app import Application2
@@ -8,14 +8,16 @@ from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.app.sim_uni.sim_universe_app import get_record
 from sr.context import Context
 from sr.image.sceenshot import mini_map
-from sr.operation import Operation, OperationSuccess, OperationResult
-from sr.operation.combine import StatusCombineOperationNode
+from sr.operation import Operation, OperationResult, StateOperationNode, OperationOneRoundResult, \
+    StateOperationEdge
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.sim_uni_const import SimUniLevelType
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
 class TestSimUniRouteApp(Application2):
+
+    STATUS_NO_ROUTE_MATCHED: ClassVar[str] = '匹配不到路线'
 
     def __init__(self, ctx: Context, uni_num: int, level_type: SimUniLevelType,
                  route: Optional[SimUniRoute]):
@@ -24,34 +26,43 @@ class TestSimUniRouteApp(Application2):
         :param ctx:
         :param route:
         """
+        edges = []
+
+        check = StateOperationNode('判断重进', self._check_route)
+        reset = StateOperationNode('重进', op=ResetSimUniLevel(ctx))
+        edges.append(StateOperationEdge(check, reset, status=TestSimUniRouteApp.STATUS_NO_ROUTE_MATCHED))
+
+        challenge = StateOperationNode('挑战', self._run_world)
+        edges.append(StateOperationEdge(check, challenge, ignore_status=True))
+        edges.append(StateOperationEdge(reset, challenge))
+
         super().__init__(
             ctx, op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('测试路线', 'ui')),
-            nodes=[
-                StatusCombineOperationNode('判断重进', op_func=self._check_route),
-                StatusCombineOperationNode('挑战', op_func=self._run_world)
-            ])
+            edges=edges
+        )
 
         self.config: SimUniAppConfig = get_sim_uni_app_config()
         self.uni_num: int = uni_num
         self.level_type: SimUniLevelType = level_type
         self.route: SimUniRoute = route
 
-    def _check_route(self) -> Operation:
+    def _check_route(self) -> OperationOneRoundResult:
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         route = match_best_sim_uni_route(self.uni_num, self.level_type, mm)
 
         if route is not None and route.uid == self.route.uid:
-            return OperationSuccess(self.ctx)
+            return Operation.round_success()
         else:
-            return ResetSimUniLevel(self.ctx)
+            return Operation.round_success(status=TestSimUniRouteApp.STATUS_NO_ROUTE_MATCHED)
 
-    def _run_world(self) -> Operation:
+    def _run_world(self) -> OperationOneRoundResult:
         uni_challenge_config = self.config.get_challenge_config(self.uni_num)
-        return SimUniRunWorld(self.ctx, self.uni_num,
-                              priority=uni_challenge_config.all_priority,
-                              op_callback=self._on_world_done
-                              )
+        op = SimUniRunWorld(self.ctx, self.uni_num,
+                            priority=uni_challenge_config.all_priority,
+                            op_callback=self._on_world_done
+                            )
+        return Operation.round_by_op(op.execute())
 
     def _on_world_done(self, op_result: OperationResult):
         run_record = get_record()

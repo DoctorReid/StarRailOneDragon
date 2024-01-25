@@ -12,7 +12,7 @@ from basic.log_utils import log
 from sr import const
 from sr.context import Context
 from sr.control import GameController
-from sr.operation import Operation
+from sr.operation import Operation, OperationOneRoundResult
 
 
 class Interact(Operation):
@@ -45,7 +45,7 @@ class Interact(Operation):
         screen = self.screenshot()
         return self.check_on_screen(screen)
 
-    def check_on_screen(self, screen: MatLike) -> int:
+    def check_on_screen(self, screen: MatLike) -> OperationOneRoundResult:
         """
         在屏幕上找到交互内容进行交互
         :param screen: 屏幕截图
@@ -62,16 +62,16 @@ class Interact(Operation):
         ocr_result = self.ctx.ocr.match_words(white_part, words=[self.cn], lcs_percent=self.lcs_percent)
 
         if len(ocr_result) == 0:  # 目前没有交互按钮 尝试挪动触发交互
-            self.ctx.controller.move(Interact.TRY_INTERACT_MOVE[self.op_round - 1])
-            return Operation.RETRY
+            if not self.no_move:
+                self.ctx.controller.move(Interact.TRY_INTERACT_MOVE[self.op_round - 1])
+            return Operation.round_retry(wait=0.25)
         else:
             for r in ocr_result.values():
                 if self.ctx.controller.interact(r.max.center,
                                                 GameController.MOVE_INTERACT_TYPE):
-                    log.info('交互成功 %s', gt(self.cn))
-                    return Operation.SUCCESS
+                    return Operation.round_success()
 
-        return Operation.RETRY
+        return Operation.round_retry()
 
 
 class TalkInteract(Operation):

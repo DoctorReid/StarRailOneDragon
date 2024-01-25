@@ -277,7 +277,8 @@ class MoveToNextLevel(Operation):
 
 class MoveToNextLevelByRoute(StateOperation):
 
-    def __init__(self, ctx: Context, route: SimUniRoute, current_pos: Point,
+    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+                 route: SimUniRoute, current_pos: Point,
                  priority: Optional[SimUniAllPriority] = None,
                  ):
         """
@@ -285,6 +286,7 @@ class MoveToNextLevelByRoute(StateOperation):
         依赖路线配置的坐标
         :param ctx:
         :param route: 路线配置
+        :param level_type: 楼层类型
         :param current_pos: 当前位置
         :param priority: 优先级
         """
@@ -297,8 +299,9 @@ class MoveToNextLevelByRoute(StateOperation):
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('向下一层移动', 'ui')),
-                         nodes=[turn, get_pos, move, interact]
+                         nodes=[turn, get_pos, move, interact, confirm]
                          )
+        self.level_type: SimUniLevelType = level_type
         self.priority: Optional[SimUniAllPriority] = priority
         self.route: SimUniRoute = route
         self.current_pos: Point = current_pos
@@ -324,7 +327,7 @@ class MoveToNextLevelByRoute(StateOperation):
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
-        log.info('当前位置 %s 目标位置 %s', self.current_pos, target_pos)
+        log.debug('当前位置 %s 目标位置 %s', self.current_pos, target_pos)
         self.ctx.controller.turn_by_pos(self.current_pos, target_pos, mm_info.angle)
 
         return Operation.round_success(wait=0.5)  # 等待转动完成
@@ -385,6 +388,8 @@ class MoveToNextLevelByRoute(StateOperation):
         精英层的确认
         :return:
         """
+        if self.level_type != SimUniLevelTypeEnum.ELITE.value:
+            return Operation.round_success()
         screen = self.screenshot()
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             click_confirm = self.ocr_and_click_one_line('确认', MoveToNextLevel.NEXT_CONFIRM_BTN,

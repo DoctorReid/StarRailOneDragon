@@ -190,7 +190,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                 return
         else:
             level_type = level_type_from_id(self.level_type_dropdown.value)
-            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), level_type)
+            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), level_type.route_id)
 
         self.sr_ctx.init_image_matcher()
         mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
@@ -437,7 +437,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         """
         if self.chosen_route is None:  # 新建的 需要找一个下标
             level_type = level_type_from_id(self.level_type_dropdown.value)
-            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), level_type)
+            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), level_type.route_id)
             self._update_screenshot_row()
         else:
             self.chosen_route.save()
@@ -505,7 +505,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
 
         lm_info = self.sr_ctx.ih.get_large_map(self.chosen_route.region)
-        possible_pos = (self.chosen_route.start_pos.x, self.chosen_route.start_pos.y, 150)
+        last_pos = self.chosen_route.last_pos
+        possible_pos = (last_pos.x, last_pos.y, 20)
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, self.mini_map_image.shape[:2], possible_pos)
         pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(self.sr_ctx.im, lm_info, mm_info, lm_rect=lm_rect,
                                                                scale_list=[1], match_threshold=0.3)

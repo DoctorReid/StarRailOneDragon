@@ -1,3 +1,4 @@
+import time
 from typing import Optional, ClassVar, Callable
 
 from cv2.typing import MatLike
@@ -5,6 +6,7 @@ from cv2.typing import MatLike
 from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.const import operation_const
 from sr.context import Context
@@ -212,7 +214,8 @@ class SimUniRunRouteBase(StateOperation):
         :return:
         """
         if op_result.success:
-            self.route = op_result.data
+            self.route: SimUniRoute = op_result.data
+            log.info('匹配路线 %s', self.route.display_name)
 
     def _run_route(self) -> OperationOneRoundResult:
         """
@@ -345,6 +348,10 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         检测小地图上的图标 在大地图上的哪个位置
         :return:
         """
+        if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+            self.ctx.controller.initiate_attack()
+            time.sleep(0.5)
+
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         angle = mini_map.analyse_angle(mm)
@@ -372,6 +379,10 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         进行交互
         :return:
         """
+        op = SimUniInteractAfterRoute(self.ctx, self.interact_word,
+                                      self.no_icon, self.can_ignore_interact,
+                                      self.priority)
+        return Operation.round_by_op(op.execute())
 
     def _get_icon_pos(self, mm: MatLike) -> Optional[Point]:
         """
@@ -400,12 +411,43 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
         super().__init__(ctx, level_type, priority)
 
         self.with_enemy: bool = True
+        self.no_icon: bool = False
 
     def _init_before_execute(self):
         super()._init_before_execute()
         self.with_enemy = True
+        self.no_icon: bool = False
+
+    def _before_route(self) -> OperationOneRoundResult:
+        """
+        执行路线前的初始化 由各类型楼层自行实现
+        检测小地图上的红点 识别敌人 在大地图上的哪个位置
+        :return:
+        """
+        screen = self.screenshot()
+        mm = mini_map.cut_mini_map(screen)
+        angle = mini_map.analyse_angle(mm)
+        radio_to_del = mini_map.get_radio_to_del(self.ctx.im, angle)
+        mm_del_radio = mini_map.remove_radio(mm, radio_to_del)
+        red_pos = mini_map.find_one_enemy_pos(mm_del_radio, self.ctx.im)
+        if red_pos is None:
+            self.no_icon = True
+            if len(self.route.op_list) == 0:  # 未配置路线时 需要识别到才能往下走
+                return Operation.round_retry('未配置坐标且识别地图红点失败')
+            else:
+                return Operation.round_success()
+        else:
+            if len(self.route.op_list) == 0:  # 未配置路线时 自动加入坐标
+                mm_center_pos = Point(mm.shape[1] // 2, mm.shape[0] // 2)
+                target_pos = self.route.start_pos + (red_pos - mm_center_pos)
+                op = SimUniRouteOperation(op=operation_const.OP_MOVE, data=[target_pos.x, target_pos.y])
+                self.route.op_list.append(op)
+                self.route.save()
+            return Operation.round_success()
 
     def _after_route(self) -> OperationOneRoundResult:
+        if self.no_icon:
+            return Operation.round_success()
         op = SimUniFightElite(self.ctx, priority=self.priority)
         return Operation.round_by_op(op.execute())
 
@@ -414,6 +456,4 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
             return super()._go_next()
         else:
             op = SimUniExit(self.ctx)
-            if op.round_success():
-                return Operation.round_success()
             return Operation.round_by_op(op.execute())

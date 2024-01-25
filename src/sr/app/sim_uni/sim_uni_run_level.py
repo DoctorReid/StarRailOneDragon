@@ -87,4 +87,4 @@ class SimUniRunLevel(StateOperation):
         if op_result.success and self.level_type == SimUniLevelTypeEnum.BOSS.value:
             return Operation.round_success(status=SimUniRunLevel.STATUS_BOSS_CLEARED)
         else:
-            return Operation.round_by_op(op.execute())
+            return Operation.round_by_op(op_result)

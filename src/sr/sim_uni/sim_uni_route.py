@@ -11,7 +11,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.const import operation_const
 from sr.const.map_const import Region, get_planet_by_cn, get_region_by_cn
-from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType
+from sr.sim_uni.sim_uni_const import UNI_NUM_CN
 
 
 class SimUniRouteOperation(TypedDict):
@@ -22,17 +22,17 @@ class SimUniRouteOperation(TypedDict):
 
 class SimUniRoute:
 
-    def __init__(self, uni_num: int, level_type: SimUniLevelType,
+    def __init__(self, uni_num: int, route_id: str,
                  idx: Optional[int] = None
                  ):
         """
         模拟宇宙路线配置，每条路线最后应该结束在选择下一关之前
         :param uni_num: 第几宇宙
-        :param level_type: 楼层类型
+        :param route_id: 楼层分类id
         :param idx: 下标。为空时说明是新建路线
         """
         self.uni_num: int = uni_num
-        self.level_type: SimUniLevelType = level_type
+        self.route_id: str = route_id
 
         self.idx: Optional[int] = None
         self.mm: Optional[MatLike] = None
@@ -60,7 +60,7 @@ class SimUniRoute:
         新建一个模拟宇宙路线
         :return:
         """
-        base_dir = SimUniRoute.get_uni_base_dir(self.uni_num, self.level_type.route_id)
+        base_dir = SimUniRoute.get_uni_base_dir(self.uni_num, self.route_id)
         self.idx = 1  # 获取合法的下标
         while True:
             route_dir = os.path.join(base_dir, '%03d' % self.idx)
@@ -85,7 +85,7 @@ class SimUniRoute:
         路线唯一标识 = 第几宇宙 + 楼层类型 + 下标
         :return:
         """
-        return SimUniRoute.get_uid(self.uni_num, self.level_type.route_id, self.idx)
+        return SimUniRoute.get_uid(self.uni_num, self.route_id, self.idx)
 
     @property
     def display_name(self) -> str:
@@ -95,7 +95,7 @@ class SimUniRoute:
         """
         return '%s %s %03d %s' % (
             gt('第%s宇宙' % UNI_NUM_CN[self.uni_num], 'ui'),
-            gt(self.level_type.type_name, 'ui'),
+            self.route_id,
             self.idx,
             self.region.display_name
         )
@@ -127,7 +127,7 @@ class SimUniRoute:
         """
         return os_utils.get_path_under_work_dir('config', 'sim_uni',
                                                 '%02d' % self.uni_num,
-                                                '%s' % self.level_type.route_id,
+                                                '%s' % self.route_id,
                                                 '%03d' % self.idx)
 
     def save(self):
@@ -218,3 +218,17 @@ class SimUniRoute:
             if op['op'] == operation_const.OP_PATROL:
                 return True
         return False
+
+    @property
+    def last_pos(self) -> Point:
+        """
+        获取最后的位置 应该是最后一个 op=move 的位置
+        :return:
+        """
+        pos = self.start_pos
+        if self.op_list is None or len(self.op_list) == 0:
+            return pos
+        for op in self.op_list:
+            if op['op'] == operation_const.OP_MOVE:
+                pos = Point(op['data'][0], op['data'][1])
+        return pos
