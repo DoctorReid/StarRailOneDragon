@@ -188,6 +188,7 @@ ARGENTI = Character(id='argenti', cn='银枝', path=CHARACTER_PATH_ERUDITION, co
 HANYA = Character(id='hanya', cn='寒鸦', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
 RUANMEI = Character(id='ruanmei', cn='阮梅', path=CHARACTER_PATH_HARMONY, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
 XUEYI = Character(id='xueyi', cn='雪衣', path=CHARACTER_PATH_DESTRUCTION, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_ATTACK)
+DRRATIO = Character(id='drratio', cn='真理医生', path=CHARACTER_PATH_HUNT, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -234,6 +235,7 @@ CHARACTER_LIST: List[Character] = [
     HANYA,
     RUANMEI,
     XUEYI,
+    DRRATIO
 ]
 
 
