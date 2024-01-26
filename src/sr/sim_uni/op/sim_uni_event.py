@@ -9,7 +9,7 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, StateOperationEdge
-from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, SimUniDropBless
+from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, SimUniDropBless, SimUniUpgradeBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
 from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
@@ -20,6 +20,7 @@ class SimUniEventOption:
         self.title: str = title
         self.title_rect: Rect = title_rect
         self.confirm_rect: Optional[Rect] = confirm_rect  # 开始对话部分的选项不需要确认
+
 
 
 class SimUniEvent(StateOperation):
@@ -58,12 +59,14 @@ class SimUniEvent(StateOperation):
 
         bless = StateOperationNode('选择祝福', self._choose_bless)
         drop_bless = StateOperationNode('丢弃祝福', self._drop_bless)
+        upgrade_bless = StateOperationNode('祝福强化', op=SimUniUpgradeBless(ctx))
         curio = StateOperationNode('选择奇物', self._choose_curio)
         drop_curio = StateOperationNode('丢弃奇物', self._drop_curio)
         empty = StateOperationNode('点击空白处关闭', self._click_empty_to_continue)
         battle = StateOperationNode('战斗', self._battle)
         edges.append(StateOperationEdge(check_after_confirm, bless, status=screen_state.ScreenState.SIM_BLESS.value))
         edges.append(StateOperationEdge(check_after_confirm, drop_bless, status=screen_state.ScreenState.SIM_DROP_BLESS.value))
+        edges.append(StateOperationEdge(check_after_confirm, upgrade_bless, status=screen_state.ScreenState.SIM_UPGRADE_BLESS.value))
         edges.append(StateOperationEdge(check_after_confirm, curio, status=screen_state.ScreenState.SIM_CURIOS.value))
         edges.append(StateOperationEdge(check_after_confirm, drop_curio, status=screen_state.ScreenState.SIM_DROP_CURIOS.value))
         edges.append(StateOperationEdge(check_after_confirm, choose_opt, status=screen_state.ScreenState.SIM_EVENT.value))
@@ -73,6 +76,7 @@ class SimUniEvent(StateOperation):
         edges.append(StateOperationEdge(choose_opt, check_after_confirm, status=SimUniEvent.STATUS_NO_OPT))
         edges.append(StateOperationEdge(bless, check_after_confirm))
         edges.append(StateOperationEdge(drop_bless, check_after_confirm))
+        edges.append(StateOperationEdge(upgrade_bless, check_after_confirm))
         edges.append(StateOperationEdge(curio, check_after_confirm))
         edges.append(StateOperationEdge(drop_curio, check_after_confirm))
         edges.append(StateOperationEdge(empty, check_after_confirm))
@@ -172,7 +176,7 @@ class SimUniEvent(StateOperation):
         opt_list = []
         template_id_list = [
             'event_option_no_confirm_icon',
-            # 'event_option_enhance_icon',  # TODO 暂时不考虑强化祝福
+            'event_option_enhance_icon',
             'event_option_exit_icon'
         ]
 
@@ -242,6 +246,7 @@ class SimUniEvent(StateOperation):
                                                       empty_to_close=True,
                                                       bless=True,
                                                       drop_bless=True,
+                                                      upgrade_bless=True,
                                                       curio=True,
                                                       drop_curio=True,
                                                       event=True,

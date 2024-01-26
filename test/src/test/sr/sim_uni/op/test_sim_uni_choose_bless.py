@@ -4,12 +4,13 @@ from typing import List
 import test
 from basic.img import MatchResult
 from sr.context import get_context
-from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, get_bless_pos, get_bless_by_priority, SimUniDropBless
+from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, get_bless_pos, get_bless_by_priority, SimUniDropBless, \
+    SimUniUpgradeBless
 from sr.sim_uni.sim_uni_const import SimUniBless, SimUniBlessEnum
 from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 
-class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
+class TestSimUniBless(unittest.TestCase, test.SrTestBase):
 
     def setUp(self):
         test.SrTestBase.__init__(self, __file__)
@@ -165,6 +166,17 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         target_curio_pos: int = get_bless_by_priority(bless_list, priority, can_reset=False, asc=False)
         self.assertEqual(1, target_curio_pos)
 
+    def test_upgrade_get_bless_pos(self):
+        ctx = get_context()
+        ctx.init_ocr_matcher()
+        ctx.init_image_matcher()
+
+        op = SimUniUpgradeBless(ctx)
+
+        screen = self.get_test_image('upgrade')
+        pos = op._get_bless_pos(screen)
+        self.assertIsNotNone(pos)
+
     def test_op(self):
         ctx = get_context()
         ctx.start_running()
@@ -177,4 +189,11 @@ class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
         ctx.start_running()
 
         op = SimUniDropBless(ctx, None)
+        op.execute()
+
+    def test_upgrade_op(self):
+        ctx = get_context()
+        ctx.start_running()
+
+        op = SimUniUpgradeBless(ctx)
         op.execute()

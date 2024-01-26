@@ -480,6 +480,22 @@ def init_sim_uni_event_opt_icon(template_id: str):
     show_and_save(template_id, final_origin, final_mask, sub_dir='sim_uni')
 
 
+def init_store_icon(template_id: str, sub_dir: Optional[str] = None):
+    """
+    商店里的图标
+    :param template_id:
+    :param sub_dir:
+    :return:
+    """
+    raw = _read_template_raw_image(template_id, sub_dir=sub_dir)
+    gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
+
+    final_origin, final_mask = convert_to_standard(raw, mask, width=35, height=35)
+
+    show_and_save(template_id, final_origin, final_mask, sub_dir='sim_uni')
+
+
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_15', noise_threshold=30)
     # init_sp_with_background('mm_sp_herta', sub_dir='sim_uni')
@@ -496,8 +512,9 @@ if __name__ == '__main__':
     # init_store_buy_num_ctrl('store_buy_max')
     # init_battle_times_control('battle_times_plus')
     # init_mission_star_active()
-    init_character_avatar_from_alas()
+    # init_character_avatar_from_alas()
     # init_character_combat_type('lightning')
     # init_inventory_category('valuables')
     # init_sim_uni_move_target('level_type_encounter')
     # init_sim_uni_event_opt_icon('event_option_exit_icon')
+    init_store_icon('store_money', sub_dir='sim_uni')

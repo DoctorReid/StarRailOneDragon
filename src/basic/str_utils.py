@@ -75,7 +75,7 @@ def get_positive_digits(v: str, err: Optional[int] = 0) -> Optional[int]:
     try:
         return int(re.sub(r"\D", "", v))
     except Exception:
-        log.error('目标字符串中没有数字 %s', v)
+        log.debug('目标字符串中没有数字 %s', v)
         return err
 
 

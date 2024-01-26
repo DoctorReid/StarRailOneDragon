@@ -329,9 +329,9 @@ class SimUniDropBless(StateOperation):
 
 class SimUniUpgradeBless(StateOperation):
 
-    UPGRADE_BTN: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 强化
-    EXIT_BTN: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 退出
-    MONEY_RECT: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 祝福下方的数字 判断能否强化
+    UPGRADE_BTN: ClassVar[Rect] = Rect(1566, 960, 1862, 1011)  # 强化
+    EXIT_BTN: ClassVar[Rect] = Rect(1829, 40, 1898, 95)  # 退出
+    BLESS_RECT: ClassVar[Rect] = Rect(60, 216, 1368, 955)  # 所有祝福的框
 
     STATUS_UPGRADE: ClassVar[str] = '强化成功'
     STATUS_NO_UPGRADE: ClassVar[str] = '无法强化'
@@ -358,6 +358,8 @@ class SimUniUpgradeBless(StateOperation):
 
         super().__init__(ctx, try_times=10,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('强化祝福', 'ui')),
+                         edges=edges,
+                         specified_start_node=choose
                          )
 
     def _choose_bless(self) -> OperationOneRoundResult:
@@ -387,16 +389,21 @@ class SimUniUpgradeBless(StateOperation):
         :param screen: 屏幕截图
         :return:
         """
-        part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.MONEY_RECT)
-        white_part = cv2_utils.get_white_part(part)
-        ocr_result_map = self.ctx.ocr.run_ocr(white_part)
-        for word, mrl in ocr_result_map.items():
-            digit = str_utils.get_positive_digits(word)
-            if digit == 0:
-                continue
-            if mrl.max is None:
-                continue
-            return mrl.max
+        part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.BLESS_RECT)
+        money_icon_mrl = self.ctx.im.match_template(part, 'store_money', template_sub_dir='sim_uni',
+                                                    ignore_template_mask=True,   threshold=0.65, only_best=False)
+        # cv2_utils.show_image(part, money_icon_mrl, win_name='all')
+        for mr in money_icon_mrl:
+            lt = SimUniUpgradeBless.BLESS_RECT.left_top + mr.center + Point(15, -15)
+            rb = SimUniUpgradeBless.BLESS_RECT.left_top + mr.center + Point(65, 12)
+            digit_rect = Rect(lt.x, lt.y, rb.x, rb.y)
+            digit_part = cv2_utils.crop_image_only(screen, digit_rect)
+            white_part = cv2_utils.get_white_part(digit_part)
+            # cv2_utils.show_image(white_part, win_name='digit_part', wait=0)
+            ocr_result = self.ctx.ocr.ocr_for_single_line(white_part)
+            digit = str_utils.get_positive_digits(ocr_result, 0)
+            if digit != 0:
+                return digit_rect.center
 
         return None
 
