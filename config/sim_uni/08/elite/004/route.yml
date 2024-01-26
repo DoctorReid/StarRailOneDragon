@@ -1,0 +1,9 @@
+planet: '仙舟罗浮'
+region: '廻星港'
+floor: 1
+start_pos: [846, 668]
+next_pos_list:
+  - [930, 657]
+op_list:
+  - op: 'move'
+    data: [905, 669]

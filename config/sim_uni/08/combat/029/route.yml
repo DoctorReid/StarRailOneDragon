@@ -2,6 +2,9 @@ planet: '仙舟罗浮'
 region: '廻星港'
 floor: 1
 start_pos: [623, 767]
+next_pos_list:
+  - [798, 767]
+  - [798, 783]
 op_list:
   - op: 'move'
     data: [659, 772]
@@ -16,3 +19,5 @@ op_list:
   - op: 'move'
     data: [753, 782]
   - op: 'patrol'
+  - op: 'move'
+    data: [778, 778]

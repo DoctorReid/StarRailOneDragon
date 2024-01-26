@@ -2,7 +2,12 @@ planet: '仙舟罗浮'
 region: '丹鼎司'
 floor: 1
 start_pos: [530, 701]
+next_pos_list:
+  - [454, 708]
+  - [454, 693]
 op_list:
   - op: 'move'
     data: [486, 699]
   - op: 'patrol'
+  - op: 'move'
+    data: [470, 700]
