@@ -285,8 +285,12 @@ class MoveDirectly(Operation):
         if len(self.pos) == 0:
             return self.start_pos, mm_info
 
-        next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect,
-                                             retry_without_rect=False, running=self.ctx.controller.is_moving)
+        try:
+            next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect,
+                                                 retry_without_rect=False, running=self.ctx.controller.is_moving)
+        except Exception:
+            next_pos = None
+            log.error('识别坐标失败', exc_info=True)
         if next_pos is None and self.next_lm_info is not None:
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect,
                                                  retry_without_rect=False, running=self.ctx.controller.is_moving)

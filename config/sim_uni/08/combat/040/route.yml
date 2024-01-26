@@ -10,4 +10,4 @@ op_list:
     data: [399, 645]
   - op: 'patrol'
   - op: 'move'
-    data: [412, 667]
+    data: [409, 662]

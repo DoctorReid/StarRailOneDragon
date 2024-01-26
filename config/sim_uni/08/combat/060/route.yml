@@ -1,9 +1,10 @@
 planet: '雅利洛'
 region: '大矿区'
 floor: 0
-start_pos: [782, 298]
+start_pos: [352, 574]
 next_pos_list:
-  - [709, 333]
+  - [305, 519]
 op_list:
   - op: 'move'
-    data: [722, 309]
+    data: [328, 534]
+  - op: 'patrol'

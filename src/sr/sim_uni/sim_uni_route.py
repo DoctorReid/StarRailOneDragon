@@ -42,6 +42,7 @@ class SimUniRoute:
         self.start_pos: Optional[Point] = None
         self.op_list: Optional[List[SimUniRouteOperation]] = None
         self.next_pos_list: Optional[List[Point]] = None  # 下一楼层入口位置
+        self.reward_pos: Optional[Point] = None  # 沉浸奖励
 
         if idx is None:
             self._create_new_route()
@@ -55,6 +56,7 @@ class SimUniRoute:
         self.start_pos = Point(data['start_pos'][0], data['start_pos'][1])
         self.op_list = data['op_list']
         self.next_pos_list = [Point(i[0], i[1]) for i in data.get('next_pos_list', [])]
+        self.reward_pos = Point(data['reward_pos'][0], data['reward_pos'][1]) if 'reward_pos' in data else None
 
     def _create_new_route(self):
         """
@@ -165,6 +167,9 @@ class SimUniRoute:
             cfg += "next_pos_list:\n"
             for pos in self.next_pos_list:
                 cfg += "  - [%d, %d]\n" % (pos.x, pos.y)
+
+        if self.reward_pos is not None:
+            cfg += "reward_pos: [%d, %d]\n" % (self.reward_pos.x, self.reward_pos.y)
 
         if len(self.op_list) == 0:
             cfg += "op_list: []\n"
