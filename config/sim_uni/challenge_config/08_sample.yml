@@ -23,6 +23,9 @@ bless_priority:
   - BLESS_08_000
 bless_priority_2:
   - BLESS_03_011
+  - BLESS_05_014
+  - BLESS_05_017
+  - BLESS_06_020
   - BLESS_05_000
   - BLESS_06_000
 level_type_priority:
@@ -34,7 +37,6 @@ curio_priority:
   - CURIO_038
   - CURIO_009
   - CURIO_019
-  - CURIO_021
   - CURIO_011
   - CURIO_024
   - CURIO_049
