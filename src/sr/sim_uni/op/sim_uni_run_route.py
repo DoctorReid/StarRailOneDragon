@@ -15,7 +15,7 @@ from sr.operation import Operation, \
     OperationResult, StateOperation, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
 from sr.operation.unit.interact import Interact
-from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevelByRoute, MoveToNextLevel
+from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
@@ -247,11 +247,10 @@ class SimUniRunRouteBase(StateOperation):
         :return:
         """
         if len(self.route.next_pos_list) == 0:
-            op = MoveToNextLevel(self.ctx, priority=self.priority)
-        else:
-            op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, priority=self.priority)
+            return Operation.round_fail()
 
-        op = MoveToNextLevelByRoute(self.ctx, self.route, self.current_pos, priority=self.priority)
+        op = MoveToNextLevel(self.ctx, level_type=self.level_type, priority=self.priority,
+                             current_pos=self.current_pos, next_pos=self.route.next_pos)
 
         return Operation.round_by_op(op.execute())
 

@@ -5,4 +5,4 @@ start_pos: [686, 1360]
 next_pos_list: []
 op_list:
   - op: 'move'
-    data: [742, 1373]
+    data: [739, 1373]

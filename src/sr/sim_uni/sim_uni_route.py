@@ -3,6 +3,7 @@ import shutil
 from typing import TypedDict, Union, List, Optional
 
 import cv2
+import numpy as np
 import yaml
 from cv2.typing import MatLike
 
@@ -232,3 +233,11 @@ class SimUniRoute:
             if op['op'] == operation_const.OP_MOVE:
                 pos = Point(op['data'][0], op['data'][1])
         return pos
+
+    @property
+    def next_pos(self) -> Optional[Point]:
+        if self.next_pos_list is None or len(self.next_pos_list) == 0:
+            return None
+        avg_pos_x = np.mean([pos.x for pos in self.next_pos_list], dtype=np.uint16)
+        avg_pos_y = np.mean([pos.y for pos in self.next_pos_list], dtype=np.uint16)
+        return Point(avg_pos_x, avg_pos_y)

@@ -58,10 +58,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.save_btn = components.RectOutlinedButton(text='新建', disabled=True, on_click=self._do_save)
         self.delete_btn = components.RectOutlinedButton(text='删除', disabled=True, on_click=self._do_delete)
         self.test_btn = components.RectOutlinedButton(text='测试', disabled=True, on_click=self._do_test)
-        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_type_dropdown,
-                                         self.existed_route_dropdown, self.cancel_edit_existed_btn,
-                                         self.save_btn, self.delete_btn, self.test_btn],
-                               )
+        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_type_dropdown,self.existed_route_dropdown])
+        route_op_btn_row = ft.Row(controls=[self.cancel_edit_existed_btn, self.save_btn, self.delete_btn, self.test_btn])
 
         self.screenshot_btn = components.RectOutlinedButton(text=gt('F8 截图', 'ui'), on_click=self._do_screenshot, disabled=True)
         self.match_start_btn = components.RectOutlinedButton(text=gt('开始点匹配', 'ui'), on_click=self._cal_start_pos, disabled=True)
@@ -108,6 +106,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             controls=[
                 ft.Container(margin=ft.margin.only(top=5)),  # 单纯用来调整一下间隔
                 route_btn_row,
+                route_op_btn_row,
                 screenshot_row,
                 op_btn_row,
                 ft.Container(content=self.large_map_display, width=self.large_map_width, height=self.large_map_width,

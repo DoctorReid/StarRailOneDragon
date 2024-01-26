@@ -1,7 +1,6 @@
 import time
 from typing import Tuple, Optional, Callable, List, ClassVar
 
-import numpy as np
 from cv2.typing import MatLike
 
 from basic import Point, cal_utils, str_utils, Rect
@@ -9,7 +8,7 @@ from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import cal_pos
-from sr.const import game_config_const, STANDARD_RESOLUTION_W
+from sr.const import game_config_const
 from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
@@ -20,7 +19,6 @@ from sr.operation.unit.move import MoveDirectly
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
 from sr.sim_uni.sim_uni_priority import SimUniAllPriority
-from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
 class MoveDirectlyInSimUni(MoveDirectly):
@@ -107,21 +105,34 @@ class MoveDirectlyInSimUni(MoveDirectly):
         return Operation.round_wait()
 
 
-class MoveToNextLevel(Operation):
+class MoveToNextLevel(StateOperation):
 
     MOVE_TIME: ClassVar[float] = 1.5  # 每次移动的时间
     CHARACTER_CENTER: ClassVar[Point] = Point(960, 920)  # 界面上人物的中心点 取了脚底
 
     NEXT_CONFIRM_BTN: ClassVar[Rect] = Rect(1006, 647, 1330, 697)  # 确认按钮
 
-    def __init__(self, ctx: Context, priority: Optional[SimUniAllPriority] = None):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+                 current_pos: Optional[Point] = None, next_pos: Optional[Point] = None,
+                 priority: Optional[SimUniAllPriority] = None):
         """
         朝下一层入口走去 并且交互
         :param ctx:
+        :param current_pos: 当前人物的位置
+        :param next_pos: 下一层入口的位置
         :param priority: 优先级
         """
+        turn = StateOperationNode('转向入口', self._turn_to_next)
+        move = StateOperationNode('移动交互', self._move_and_interact)
+        confirm = StateOperationNode('确认', self._confirm)
+
         super().__init__(ctx, try_times=5,
-                         op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('向下一层移动', 'ui')))
+                         op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('向下一层移动', 'ui')),
+                         nodes=[turn, move, confirm]
+                         )
+        self.level_type: SimUniLevelType = level_type
+        self.current_pos: Optional[Point] = current_pos
+        self.next_pos: Optional[Point] = next_pos
         self.priority: Optional[SimUniAllPriority] = priority
         self.is_moving: bool = False  # 是否正在移动
         self.start_move_time: float = 0  # 开始移动的时间
@@ -132,7 +143,22 @@ class MoveToNextLevel(Operation):
         self.is_moving = False
         self.interacted: bool = False
 
-    def _execute_one_round(self) -> OperationOneRoundResult:
+    def _turn_to_next(self) -> OperationOneRoundResult:
+        """
+        朝入口转向 方便看到所有的入口
+        :return:
+        """
+        if self.current_pos is None or self.next_pos is None:
+            return Operation.round_success()
+        screen = self.screenshot()
+        mm = mini_map.cut_mini_map(screen)
+        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
+        log.debug('当前位置 %s 目标位置 %s', self.current_pos, self.next_pos)
+        self.ctx.controller.turn_by_pos(self.current_pos, self.next_pos, mm_info.angle)
+
+        return Operation.round_success(wait=0.5)  # 等待转动完成
+
+    def _move_and_interact(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
         if self.interacted:
@@ -273,115 +299,6 @@ class MoveToNextLevel(Operation):
         # return ocr_result is not None
         ocr_result = self.ctx.ocr.ocr_for_single_line(part)
         return str_utils.find_by_lcs(gt('区域', 'ocr'), ocr_result)
-
-
-class MoveToNextLevelByRoute(StateOperation):
-
-    def __init__(self, ctx: Context, level_type: SimUniLevelType,
-                 route: SimUniRoute, current_pos: Point,
-                 priority: Optional[SimUniAllPriority] = None,
-                 ):
-        """
-        朝下一层入口走去 并且交互
-        依赖路线配置的坐标
-        :param ctx:
-        :param route: 路线配置
-        :param level_type: 楼层类型
-        :param current_pos: 当前位置
-        :param priority: 优先级
-        """
-
-        turn = StateOperationNode('转向', self._turn_to_entry)
-        get_pos = StateOperationNode('获取目标点', self._get_target_pos)
-        move = StateOperationNode('移动', self._move)
-        interact = StateOperationNode('交互', self._interact)
-        confirm = StateOperationNode('确认', self._confirm)
-
-        super().__init__(ctx, try_times=5,
-                         op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('向下一层移动', 'ui')),
-                         nodes=[turn, get_pos, move, interact, confirm]
-                         )
-        self.level_type: SimUniLevelType = level_type
-        self.priority: Optional[SimUniAllPriority] = priority
-        self.route: SimUniRoute = route
-        self.current_pos: Point = current_pos
-        self.target_pos: Optional[Point] = None
-
-    def _init_before_execute(self):
-        super()._init_before_execute()
-        self.target_pos = None
-
-    def _turn_to_entry(self) -> OperationOneRoundResult:
-        """
-        转动到面向下一层入口的方向
-        :return:
-        """
-        if len(self.route.next_pos_list) == 0:
-            return Operation.round_fail('未配置入口坐标')
-
-        # 转向中间点
-        avg_pos_x = np.mean([pos.x for pos in self.route.next_pos_list], dtype=np.uint16)
-        avg_pos_y = np.mean([pos.y for pos in self.route.next_pos_list], dtype=np.uint16)
-        target_pos = Point(avg_pos_x, avg_pos_y)
-
-        screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
-        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
-        log.debug('当前位置 %s 目标位置 %s', self.current_pos, target_pos)
-        self.ctx.controller.turn_by_pos(self.current_pos, target_pos, mm_info.angle)
-
-        return Operation.round_success(wait=0.5)  # 等待转动完成
-
-    def _get_target_pos(self) -> OperationOneRoundResult:
-        """
-        获取目标入口的坐标
-        :return:
-        """
-        if len(self.route.next_pos_list) == 1:
-            self.target_pos = self.route.next_pos_list[0]
-            return Operation.round_success()
-        screen = self.screenshot()
-        next_level_type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
-        if len(next_level_type_list) == 0:
-            return Operation.round_retry('识别不到下一层入口', wait=0.5)
-        priority_entry = MoveToNextLevel.match_best_level_type(next_level_type_list, self.priority)
-
-        # 是否在左边
-        target_on_left = (STANDARD_RESOLUTION_W // 2) > next_level_type_list[priority_entry].center.x
-
-        screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
-        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
-
-        for pos in self.route.next_pos_list:
-            opt_angle = cal_utils.get_angle_by_pts(self.current_pos, pos)
-            opt_on_left = opt_angle < mm_info.angle and mm_info.angle - opt_angle < 180
-            if target_on_left == opt_on_left:
-                self.target_pos = pos
-                return Operation.round_success()
-
-        return Operation.round_retry('匹配入口坐标失败', wait=0.5)
-
-    def _move(self) -> OperationOneRoundResult:
-        """
-        朝入口移动
-        :return:
-        """
-        op = MoveDirectlyInSimUni(self.ctx, self.ctx.ih.get_large_map(self.route.region),
-                                  start=self.current_pos, target=self.target_pos,
-                                  no_run=True, no_battle=True
-                                  )
-        op_result = op.execute()
-        return Operation.round_by_op(op_result)
-
-    def _interact(self) -> OperationOneRoundResult:
-        """
-        交互
-        :return:
-        """
-        op = Interact(self.ctx, '区域', single_line=True, lcs_percent=0.1)
-        op_result = op.execute()
-        return Operation.round_by_op(op_result, wait=1)
 
     def _confirm(self) -> OperationOneRoundResult:
         """
