@@ -5,14 +5,14 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Rect, str_utils
+from basic import Rect, str_utils, Point
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import screen_state
-from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.click import ClickDialogConfirm
 from sr.sim_uni.sim_uni_const import match_best_bless_by_ocr, SimUniBless, SimUniBlessEnum, SimUniBlessLevel
 from sr.sim_uni.sim_uni_priority import SimUniAllPriority
@@ -325,3 +325,127 @@ class SimUniDropBless(StateOperation):
             return Operation.round_success()
         else:
             return Operation.round_fail_by_op(op_result)
+
+
+class SimUniUpgradeBless(StateOperation):
+
+    UPGRADE_BTN: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 强化
+    EXIT_BTN: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 退出
+    MONEY_RECT: ClassVar[Rect] = Rect(0, 0, 0, 0)  # 祝福下方的数字 判断能否强化
+
+    STATUS_UPGRADE: ClassVar[str] = '强化成功'
+    STATUS_NO_UPGRADE: ClassVar[str] = '无法强化'
+
+    def __init__(self, ctx: Context):
+        """
+        模拟宇宙 强化祝福
+        :param ctx:
+        """
+        edges = []
+
+        choose = StateOperationNode('选择祝福', self._choose_bless)
+        upgrade = StateOperationNode('升级', self._upgrade)
+        edges.append(StateOperationEdge(choose, upgrade, status=SimUniUpgradeBless.STATUS_UPGRADE))
+
+        empty = StateOperationNode('点击空白', self._click_empty)
+        edges.append(StateOperationEdge(upgrade, empty, status=SimUniUpgradeBless.STATUS_UPGRADE))
+        edges.append(StateOperationEdge(empty, choose, status=SimUniUpgradeBless.STATUS_UPGRADE))
+
+        esc = StateOperationNode('退出', self._exit)
+        edges.append(StateOperationEdge(upgrade, esc, status=SimUniUpgradeBless.STATUS_NO_UPGRADE))
+        edges.append(StateOperationEdge(upgrade, esc, status=SimUniUpgradeBless.STATUS_NO_UPGRADE))
+        edges.append(StateOperationEdge(choose, esc, status=SimUniUpgradeBless.STATUS_NO_UPGRADE))
+
+        super().__init__(ctx, try_times=10,
+                         op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('强化祝福', 'ui')),
+                         )
+
+    def _choose_bless(self) -> OperationOneRoundResult:
+        """
+        选择一个祝福
+        :return:
+        """
+        screen = self.screenshot()
+
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      upgrade_bless=True)
+
+        if state == screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
+            pos = self._get_bless_pos(screen)
+
+            if pos is None:
+                return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
+            else:
+                self.ctx.controller.click(pos)
+                return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE)
+        else:
+            return Operation.round_retry('未在祝福强化页面', wait=1)
+
+    def _get_bless_pos(self, screen: MatLike) -> Optional[Point]:
+        """
+        获取一个可以强化的祝福位置
+        :param screen: 屏幕截图
+        :return:
+        """
+        part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.MONEY_RECT)
+        white_part = cv2_utils.get_white_part(part)
+        ocr_result_map = self.ctx.ocr.run_ocr(white_part)
+        for word, mrl in ocr_result_map.items():
+            digit = str_utils.get_positive_digits(word)
+            if digit == 0:
+                continue
+            if mrl.max is None:
+                continue
+            return mrl.max
+
+        return None
+
+    def _upgrade(self) -> OperationOneRoundResult:
+        """
+        升级
+        :return:
+        """
+        screen = self.screenshot()
+
+        if self._can_upgrade(screen):
+            click = self.ctx.controller.click(SimUniUpgradeBless.UPGRADE_BTN.center)
+            if click:
+                return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=2)
+            else:
+                return Operation.round_retry('点击强化失败')
+        else:
+            return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
+
+    def _can_upgrade(self, screen: MatLike) -> bool:
+        part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.UPGRADE_BTN)
+        white = cv2_utils.get_white_part(part)
+        ocr_result = self.ctx.ocr.ocr_for_single_line(white)
+
+        return str_utils.find_by_lcs(gt('强化', 'ocr'), ocr_result, percent=0.1)
+
+    def _click_empty(self) -> OperationOneRoundResult:
+        """
+        点击空白继续
+        :return:
+        """
+        screen = self.screenshot()
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      upgrade_bless=True,
+                                                      empty_to_close=True)
+
+        if state == screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
+            return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
+        else:
+            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
+            return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE)
+
+    def _exit(self) -> OperationOneRoundResult:
+        """
+        退出强化页面
+        :return:
+        """
+        click = self.ctx.controller.click(SimUniUpgradeBless.EXIT_BTN.center)
+        if click:
+            return Operation.round_success()
+        else:
+            return Operation.round_retry('退出失败')

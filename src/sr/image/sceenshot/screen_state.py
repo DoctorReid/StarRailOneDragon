@@ -87,6 +87,9 @@ class ScreenState(Enum):
     SIM_DROP_BLESS: str = '丢弃祝福'
     """模拟宇宙 - 丢弃祝福"""
 
+    SIM_UPGRADE_BLESS: str = '祝福强化'
+    """模拟宇宙 - 祝福强化"""
+
     SIM_CURIOS: str = '选择奇物'
     """模拟宇宙 - 选择奇物"""
 
@@ -281,6 +284,7 @@ def get_sim_uni_screen_state(
         empty_to_close: bool = False,
         bless: bool = False,
         drop_bless: bool = False,
+        upgrade_bless: bool = False,
         curio: bool = False,
         drop_curio: bool = False,
         event: bool = False,
@@ -295,6 +299,7 @@ def get_sim_uni_screen_state(
     :param empty_to_close: 可能点击空白处关闭
     :param bless: 可能在选择祝福
     :param drop_bless: 可能在丢弃祝福
+    :param upgrade_bless: 可能在祝福强化
     :param curio: 可能在选择奇物
     :param drop_curio: 可能在丢弃奇物
     :param event: 可能在事件
@@ -325,6 +330,9 @@ def get_sim_uni_screen_state(
 
     if drop_bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_DROP_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
         return ScreenState.SIM_DROP_BLESS.value
+
+    if upgrade_bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_UPGRADE_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
+        return ScreenState.SIM_UPGRADE_BLESS.value
 
     if curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_CURIOS.value, titles, lcs_percent_threshold=0.51):
         return ScreenState.SIM_CURIOS.value
