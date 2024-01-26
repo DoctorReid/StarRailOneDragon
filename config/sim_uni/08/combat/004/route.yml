@@ -2,6 +2,9 @@ planet: '雅利洛'
 region: '边缘通路'
 floor: 0
 start_pos: [770, 865]
+next_pos_list:
+  - [756, 953]
+  - [766, 930]
 op_list:
   - op: 'move'
     data: [802, 900]

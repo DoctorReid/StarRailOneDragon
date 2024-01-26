@@ -33,6 +33,10 @@ class SimUniRouteHolder:
             sub_dir = os.path.join(base_dir, sub)
             if not os.path.isdir(sub_dir):
                 continue
+            mm = os.path.join(sub_dir, 'mm.png')
+            route = os.path.join(sub_dir, 'route.yml')
+            if not os.path.exists(mm) or not os.path.exists(route):
+                continue
             arr.append(SimUniRoute(uni_num, level_type.route_id, int(sub)))
 
         self.uni_2_route_list[key] = arr
