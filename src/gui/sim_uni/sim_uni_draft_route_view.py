@@ -77,7 +77,9 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.reset_btn = components.RectOutlinedButton(text='重置', disabled=True, on_click=self._clear_op)
         self.patrol_btn = components.RectOutlinedButton(text='攻击怪物', disabled=True, on_click=self._add_patrol)
         self.add_next_btn = components.RectOutlinedButton(text='下层入口', disabled=True, on_click=self._add_next)
-        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn, self.add_next_btn])
+        self.add_reward_btn = components.RectOutlinedButton(text='沉浸奖励', disabled=True, on_click=self._add_reward)
+        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn,
+                                      self.add_next_btn, self.add_reward_btn])
 
         info_card_width = 200
         self.screenshot_mm_display = ft.Image(src="a.png", error_content=ft.Text('等待截图'), visible=False)
@@ -265,6 +267,10 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         for pos in self.chosen_route.next_pos_list:
             cv2.circle(display_image, pos.tuple(), 5, color=(100, 255, 100), thickness=-1)
 
+        if self.chosen_route.reward_pos is not None:
+            cv2.circle(display_image, self.chosen_route.reward_pos.tuple(), 5,
+                       color=(200, 255, 200), thickness=-1)
+
         self.large_map_display.src_base64 = cv2_utils.to_base64(display_image)
         self.large_map_display.visible = True
         self.large_map_display.update()
@@ -407,6 +413,18 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.chosen_route.next_pos_list.append(Point(op['data'][0], op['data'][1]))
         self._on_op_list_changed()
 
+    def _add_reward(self, e):
+        """
+        将最后一个点设置为奖励点
+        :param e:
+        :return:
+        """
+        if not self.chosen_route.is_last_op_move:
+            return
+        op = self.chosen_route.op_list.pop()
+        self.chosen_route.reward_pos = Point(op['data'][0], op['data'][1])
+        self._on_op_list_changed()
+
     def _del_last_op(self, e):
         """
         删除最后一个指令
@@ -464,6 +482,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         """
         route_chosen = self.chosen_route is not None
         start_chosen = route_chosen and self.chosen_route.region is not None
+        is_elite = self.level_type_dropdown.value == SimUniLevelTypeEnum.ELITE.value.type_id or \
+                   self.level_type_dropdown.value == SimUniLevelTypeEnum.BOSS.value.type_id
 
         self.back_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
         self.back_btn.update()
@@ -476,6 +496,9 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         self.add_next_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
         self.add_next_btn.update()
+
+        self.add_reward_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move or not is_elite
+        self.add_reward_btn.update()
 
     def _cancel_edit_existed(self, e=None):
         """
