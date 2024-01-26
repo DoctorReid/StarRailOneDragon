@@ -11,6 +11,7 @@ from basic.log_utils import log
 from sr import const
 from sr.config import game_config
 from sr.config.game_config import GameConfig
+from sr.const import STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H
 from sr.control import GameController
 from sr.image.ocr_matcher import OcrMatcher
 from sr.win import Window, WinRect
@@ -156,8 +157,10 @@ class PcController(GameController):
         主动发起攻击
         :return:
         """
-        ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-        ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+        # 虽然在大世界指定坐标点击没有用 但这可以防止准备攻击时候被怪攻击 导致鼠标可以点到游戏窗口外
+        self.click(Point(STANDARD_RESOLUTION_W // 2, STANDARD_RESOLUTION_H // 2))
+        # ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+        # ctypes.windll.user32.mouse_event(PcController.MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
 
     def interact(self, pos: Optional[Point] = None, interact_type: int = 0) -> bool:
         """

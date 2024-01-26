@@ -9,7 +9,7 @@ op_list:
   - op: 'move'
     data: [772, 616]
   - op: 'move'
-    data: [740, 686]
+    data: [745, 686]
   - op: 'patrol'
   - op: 'move'
     data: [768, 712]

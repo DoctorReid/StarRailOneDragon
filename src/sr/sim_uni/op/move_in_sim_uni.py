@@ -80,10 +80,15 @@ class MoveDirectlyInSimUni(MoveDirectly):
         except Exception:
             log.error('计算坐标出错', exc_info=True)
             next_pos = None
+            self.ctx.controller.stop_moving_forward()
 
         if next_pos is None:
             log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, move_time,
                       self.ctx.controller.is_moving)
+        elif cal_utils.distance_between(last_pos, next_pos) > move_distance:
+            log.info('计算坐标与当前坐标距离较远 舍弃')
+            next_pos = None
+
         return next_pos, mm_info
 
     def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
