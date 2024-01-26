@@ -74,8 +74,13 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if len(self.pos) == 0:
             return self.start_pos, mm_info
 
-        next_pos = cal_pos.cal_character_pos_for_sim_uni(self.ctx.im, self.lm_info, mm_info,
-                                                         lm_rect=lm_rect, running=self.ctx.controller.is_moving)
+        try:
+            next_pos = cal_pos.cal_character_pos_for_sim_uni(self.ctx.im, self.lm_info, mm_info,
+                                                             lm_rect=lm_rect, running=self.ctx.controller.is_moving)
+        except Exception:
+            log.error('计算坐标出错', exc_info=True)
+            next_pos = None
+
         if next_pos is None:
             log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, move_time,
                       self.ctx.controller.is_moving)
@@ -180,7 +185,7 @@ class MoveToNextLevel(StateOperation):
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
-                self.ctx.controller.turn_by_angle(90)
+                self.ctx.controller.turn_by_angle(120)
                 return Operation.round_retry('未找到下一层入口', wait=1)
 
             target = self._get_target_entry(type_list)
