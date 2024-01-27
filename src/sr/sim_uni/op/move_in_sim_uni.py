@@ -83,13 +83,33 @@ class MoveDirectlyInSimUni(MoveDirectly):
             self.ctx.controller.stop_moving_forward()
 
         if next_pos is None:
-            log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, move_time,
-                      self.ctx.controller.is_moving)
+            log.error('无法判断当前人物坐标')
         elif cal_utils.distance_between(last_pos, next_pos) > move_distance:
             log.info('计算坐标与当前坐标距离较远 舍弃')
             next_pos = None
 
         return next_pos, mm_info
+
+    def be_attacked(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
+        """
+        判断当前是否在不在宇宙移动的画面
+        即被怪物攻击了 等待至战斗完成
+        :param screen: 屏幕截图
+        :return:
+        """
+        if self.no_battle:
+            return None
+        if not screen_state.is_normal_in_world(screen, self.ctx.im):
+            self.last_auto_fight_fail = False
+            self.ctx.controller.stop_moving_forward()
+            fight = SimUniEnterFight(self.ctx)
+            fight_result = fight.execute()
+            if not fight_result.success:
+                return Operation.round_fail(status=fight_result.status, data=fight_result.data)
+            self.last_battle_time = time.time()
+            self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
+            return Operation.round_wait()
+        return None
 
     def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
         """

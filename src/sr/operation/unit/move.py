@@ -162,8 +162,6 @@ class MoveDirectly(Operation):
 
         screen = self.screenshot()
 
-
-
         be_attacked = self.be_attacked(screen)  # 查看是否被攻击
         if be_attacked is not None:
             return be_attacked
@@ -295,8 +293,11 @@ class MoveDirectly(Operation):
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect,
                                                  retry_without_rect=False, running=self.ctx.controller.is_moving)
         if next_pos is None:
-            log.error('无法判断当前人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos, move_time,
-                      self.ctx.controller.is_moving)
+            log.error('无法判断当前人物坐标')
+        elif cal_utils.distance_between(last_pos, next_pos) > move_distance:
+            log.info('计算坐标与当前坐标距离较远 舍弃')
+            next_pos = None
+
         return next_pos, mm_info
 
     def check_no_pos(self, next_pos: Point, now_time: float) -> Optional[OperationOneRoundResult]:

@@ -2,7 +2,9 @@ planet: '雅利洛'
 region: '铁卫禁区'
 floor: 0
 start_pos: [791, 942]
-next_pos_list: []
+next_pos_list:
+  - [692, 1071]
+  - [696, 1087]
 op_list:
   - op: 'move'
     data: [787, 1008]
@@ -13,5 +15,5 @@ op_list:
     data: [743, 1099]
   - op: 'patrol'
   - op: 'move'
-    data: [709, 1100]
+    data: [716, 1087]
   - op: 'patrol'

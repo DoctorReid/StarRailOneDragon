@@ -61,7 +61,8 @@ class SimUniverseRecord(AppRunRecord):
         :return:
         """
         super().reset_record()
-        if os_utils.is_monday(app_record_current_dt_str()):
+        current_dt = app_record_current_dt_str()
+        if os_utils.get_money_dt(current_dt) != os_utils.get_money_dt(self.dt):
             self.weekly_times = 0
         self.daily_times = 0
 
@@ -191,7 +192,7 @@ class SimUniverseApp(Application2):
         super()._init_before_execute()
 
     def _check_times(self) -> OperationOneRoundResult:
-        log.info('本日通关次数 %d 本周通关次数 %d', self.run_record.weekly_times, self.run_record.weekly_times)
+        log.info('本日通关次数 %d 本周通关次数 %d', self.run_record.daily_times, self.run_record.weekly_times)
         if self.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
             return Operation.round_success(SimUniverseApp.STATUS_ALL_FINISHED)
         else:

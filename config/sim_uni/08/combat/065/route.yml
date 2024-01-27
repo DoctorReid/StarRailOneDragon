@@ -1,10 +1,10 @@
 planet: '雅利洛'
-region: '残响回廊'
+region: '大矿区'
 floor: 0
-start_pos: [281, 1187]
+start_pos: [371, 342]
 next_pos_list:
-  - [209, 1195]
+  - [447, 303]
 op_list:
   - op: 'move'
-    data: [230, 1186]
+    data: [422, 327]
   - op: 'patrol'

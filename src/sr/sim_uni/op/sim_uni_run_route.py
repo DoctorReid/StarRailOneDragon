@@ -315,7 +315,16 @@ class SimUniInteractAfterRoute(StateOperation):
     def _event(self) -> OperationOneRoundResult:
         op = SimUniEvent(self.ctx, priority=self.priority,
                          skip_first_screen_check=False)
-        return Operation.round_by_op(op.execute())  # 事件结束会回到大世界 不需要等待时间
+        op_result = op.execute()
+        # 事件结束会回到大世界 不需要等待时间
+        if op_result.success:
+            return Operation.round_by_op(op_result)
+        else:
+            if self.can_ignore_interact:
+                # 本次交互失败 但可以跳过
+                return Operation.round_success()
+            else:
+                return Operation.round_by_op(op_result)
 
 
 class SimUniRunInteractRoute(SimUniRunRouteBase):

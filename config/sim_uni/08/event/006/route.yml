@@ -4,6 +4,7 @@ floor: 2
 start_pos: [790, 623]
 next_pos_list:
   - [858, 671]
+  - [841, 688]
 op_list:
   - op: 'move'
     data: [835, 670]

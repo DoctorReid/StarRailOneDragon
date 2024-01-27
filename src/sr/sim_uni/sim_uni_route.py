@@ -222,8 +222,8 @@ class SimUniRoute:
         """
         for op in self.op_list:
             if op['op'] == operation_const.OP_PATROL:
-                return True
-        return False
+                return False
+        return True
 
     @property
     def last_pos(self) -> Point:

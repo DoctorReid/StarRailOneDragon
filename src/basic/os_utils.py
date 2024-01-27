@@ -117,6 +117,18 @@ def get_sunday_dt(dt: str) -> str:
     return sunday_date.strftime("%Y%m%d")
 
 
+def get_money_dt(dt: str) -> str:
+    """
+    根据一个日期，获取对应星期一的日期
+    :param dt: 日期 yyyyMMdd 格式
+    :return: 星期天日期 yyyyMMdd 格式
+    """
+    date = datetime.datetime.strptime(dt, "%Y%m%d")
+    weekday = date.weekday()  # 0表示星期一，6表示星期天
+    sunday_date = date + datetime.timedelta(days=-weekday)
+    return sunday_date.strftime("%Y%m%d")
+
+
 def is_monday(dt: str) -> bool:
     """
     是否星期一
