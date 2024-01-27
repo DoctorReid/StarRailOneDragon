@@ -191,7 +191,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                 return
         else:
             level_type = level_type_from_id(self.level_type_dropdown.value)
-            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), level_type.route_id)
+            self.chosen_route = SimUniRoute(level_type.route_id)
 
         self.sr_ctx.init_image_matcher()
         mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
@@ -454,9 +454,10 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         """
         if self.chosen_route is None:  # 新建的 需要找一个下标
             level_type = level_type_from_id(self.level_type_dropdown.value)
-            self.chosen_route = SimUniRoute(int(self.num_dropdown.value), level_type.route_id)
+            self.chosen_route = SimUniRoute(level_type.route_id)
             self._update_screenshot_row()
         else:
+            self.chosen_route.add_support_world(int(self.num_dropdown.value))
             self.chosen_route.save()
 
         clear_sim_uni_route_cache()
@@ -552,7 +553,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.existed_route_dropdown.disabled = not uni_chosen
         if not self.existed_route_dropdown.disabled:
             level_type = level_type_from_id(self.level_type_dropdown.value)
-            self.existed_route_list = get_sim_uni_route_list(int(self.num_dropdown.value), level_type)
+            self.existed_route_list = get_sim_uni_route_list(level_type)
             self.existed_route_dropdown.options = [
                 ft.dropdown.Option(key=i.uid, text=i.display_name)
                 for i in self.existed_route_list

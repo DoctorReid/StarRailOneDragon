@@ -23,16 +23,14 @@ class SimUniRouteOperation(TypedDict):
 
 class SimUniRoute:
 
-    def __init__(self, uni_num: int, route_id: str,
-                 idx: Optional[int] = None
+    def __init__(self, route_id: str, idx: Optional[int] = None
                  ):
         """
         模拟宇宙路线配置，每条路线最后应该结束在选择下一关之前
-        :param uni_num: 第几宇宙
         :param route_id: 楼层分类id
         :param idx: 下标。为空时说明是新建路线
         """
-        self.uni_num: int = uni_num
+        self.support_world: Optional[List[int]] = None  # 可以在第几宇宙中使用
         self.route_id: str = route_id
 
         self.idx: Optional[int] = None
@@ -51,6 +49,7 @@ class SimUniRoute:
             self._read_route()
 
     def load_from_route_yml(self, data: dict):
+        self.support_world = data.get('support_world', [])
         planet = get_planet_by_cn(data['planet'])
         self.region = get_region_by_cn(data['region'], planet, data['floor'])
         self.start_pos = Point(data['start_pos'][0], data['start_pos'][1])
@@ -63,7 +62,7 @@ class SimUniRoute:
         新建一个模拟宇宙路线
         :return:
         """
-        base_dir = SimUniRoute.get_uni_base_dir(self.uni_num, self.route_id)
+        base_dir = SimUniRoute.get_uni_base_dir(self.route_id)
         self.idx = 1  # 获取合法的下标
         while True:
             route_dir = os.path.join(base_dir, '%03d' % self.idx)
@@ -85,10 +84,10 @@ class SimUniRoute:
     @property
     def uid(self) -> str:
         """
-        路线唯一标识 = 第几宇宙 + 楼层类型 + 下标
+        路线唯一标识 = 楼层类型 + 下标
         :return:
         """
-        return SimUniRoute.get_uid(self.uni_num, self.route_id, self.idx)
+        return SimUniRoute.get_uid(self.route_id, self.idx)
 
     @property
     def display_name(self) -> str:
@@ -96,40 +95,36 @@ class SimUniRoute:
         展示名称
         :return:
         """
-        return '%s %s %03d %s' % (
-            gt('第%s宇宙' % UNI_NUM_CN[self.uni_num], 'ui'),
+        return '%s %03d %s' % (
             self.route_id,
             self.idx,
             self.region.display_name
         )
 
     @staticmethod
-    def get_uni_base_dir(uni_num: int, level_type: str) -> str:
+    def get_uni_base_dir(level_type: str) -> str:
         """
         获取选定宇宙对应的文件夹位置
-        :param uni_num:
         :param level_type:
         :return:
         """
-        return os_utils.get_path_under_work_dir('config', 'sim_uni',
-                                                '%02d' % uni_num,
+        return os_utils.get_path_under_work_dir('config', 'sim_uni', '08',
                                                 '%s' % level_type)
 
     @staticmethod
-    def get_uid(uni_num: int, level_type: str, idx: int) -> str:
+    def get_uid(level_type: str, idx: int) -> str:
         """
-        路线唯一标识 = 第几宇宙 + 楼层类型 + 下标
+        路线唯一标识 = 楼层类型 + 下标
         :return:
         """
-        return '%02d_%s_%03d' % (uni_num, level_type, idx)
+        return '%s_%03d' % (level_type, idx)
 
     def get_route_dir_path(self) -> str:
         """
         获取路线对应文件夹的位置
         :return:
         """
-        return os_utils.get_path_under_work_dir('config', 'sim_uni',
-                                                '%02d' % self.uni_num,
+        return os_utils.get_path_under_work_dir('config', 'sim_uni', '08',
                                                 '%s' % self.route_id,
                                                 '%03d' % self.idx)
 
@@ -155,6 +150,9 @@ class SimUniRoute:
         cfg: str = ''
         if self.region is None:
             return cfg
+
+        if self.support_world is not None and len(self.support_world) > 0:
+            cfg += 'support_world: %s\n' % self.support_world
 
         cfg += "planet: '%s'\n" % self.region.planet.cn
         cfg += "region: '%s'\n" % self.region.cn
@@ -246,3 +244,13 @@ class SimUniRoute:
         avg_pos_x = np.mean([pos.x for pos in self.next_pos_list], dtype=np.uint16)
         avg_pos_y = np.mean([pos.y for pos in self.next_pos_list], dtype=np.uint16)
         return Point(avg_pos_x, avg_pos_y)
+
+    def add_support_world(self, num: int):
+        """
+        添加一个支持的世界
+        :param num: 第几世界
+        :return:
+        """
+        if num not in self.support_world:
+            self.support_world.append(num)
+            self.support_world.sort()
