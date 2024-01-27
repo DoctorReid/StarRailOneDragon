@@ -32,3 +32,30 @@ class TestOperation(unittest.TestCase, test.SrTestBase):
 
         screen = self.get_test_image('empty_to_close_1')
         self.assertEqual(0, len(screen_state.get_ui_title(screen, ctx.ocr)))
+
+    def test_get_tp_battle_screen_state(self):
+        ctx = get_context()
+        ctx.init_ocr_matcher()
+        ctx.init_image_matcher()
+
+        screen = self.get_test_image('tp_battle_fail')
+        state = screen_state.get_tp_battle_screen_state(screen, ctx.im, ctx.ocr,
+                                                        in_world=True,
+                                                        battle_success=True,
+                                                        battle_fail=True)
+        self.assertEqual(screen_state.ScreenState.BATTLE_FAIL.value, state)
+
+        screen = self.get_test_image('tp_battle_success_1')
+        state = screen_state.get_tp_battle_screen_state(screen, ctx.im, ctx.ocr,
+                                                        in_world=True,
+                                                        battle_success=True,
+                                                        battle_fail=True)
+        self.assertEqual(screen_state.ScreenState.TP_BATTLE_SUCCESS.value, state)
+
+        screen = self.get_test_image('tp_battle_success_2')
+        state = screen_state.get_tp_battle_screen_state(screen, ctx.im, ctx.ocr,
+                                                        in_world=True,
+                                                        battle_success=True,
+                                                        battle_fail=True)
+        self.assertEqual(screen_state.ScreenState.TP_BATTLE_SUCCESS.value, state)
+

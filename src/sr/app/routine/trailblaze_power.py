@@ -6,6 +6,7 @@ from cv2.typing import MatLike
 from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.app import AppRunRecord, AppDescription, register_app, Application2
 from sr.config import ConfigHolder
 from sr.context import Context
@@ -162,9 +163,9 @@ class TrailblazePower(Application2):
         check_sim_uni_power = StateOperationNode('检查剩余沉浸器', self._challenge_normal_task)
         challenge_sim_uni = StateOperationNode('挑战模拟宇宙', self._challenge_sim_uni)
 
-
         super().__init__(ctx, try_times=5,
                          op_name=gt('开拓力', 'ui'),
+                         edges=edges, specified_start_node=check_task,
                          run_record=get_record())
         self.power: Optional[int] = None  # 剩余开拓力
         self.qty: Optional[int] = None  # 沉浸器数量
@@ -175,7 +176,7 @@ class TrailblazePower(Application2):
         super()._init_before_execute()
         get_record().update_status(AppRunRecord.STATUS_RUNNING)
         self.last_challenge_point = None
-        self.power: int = 0
+        self.power = None
 
     def _check_task(self) -> OperationOneRoundResult:
         """
@@ -214,6 +215,7 @@ class TrailblazePower(Application2):
         if self.power is None:
             return Operation.round_retry('检测剩余开拓力失败', wait=1)
         else:
+            log.info('识别当前开拓力 %d', self.power)
             return Operation.round_success()
 
     def _challenge_normal_task(self) -> OperationOneRoundResult:
@@ -246,6 +248,7 @@ class TrailblazePower(Application2):
         :param use_power: 使用的体力
         :return:
         """
+        log.info('挑战成功 完成次数 %d 使用体力 %d', finished_times, use_power)
         self.power -= use_power
         plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
         plan['run_times'] += finished_times

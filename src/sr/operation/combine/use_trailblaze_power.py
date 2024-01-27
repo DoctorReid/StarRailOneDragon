@@ -2,24 +2,20 @@ from typing import List, Optional, Union, Callable, ClassVar
 
 from basic import Rect
 from basic.i18_utils import gt
-from basic.log_utils import log
 from sr.const import map_const
 from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, StateOperation, OperationOneRoundResult, StateOperationNode, StateOperationEdge
-from sr.operation.battle.wait_battle_reward import WaitBattleReward
-from sr.operation.combine import CombineOperation
-from sr.operation.combine.transport import Transport
 from sr.operation.battle.choose_challenge_times import ChooseChallengeTimes
 from sr.operation.battle.choose_support import ChooseSupport
 from sr.operation.battle.choose_team import ChooseTeam
 from sr.operation.battle.click_challenge import ClickChallenge
 from sr.operation.battle.click_start_challenge import ClickStartChallenge
-from sr.operation.battle.get_reward_and_retry import GetRewardAndRetry
-from sr.operation.battle.start_fight import StartFight
+from sr.operation.battle.wait_battle_reward import WaitBattleReward
+from sr.operation.combine.transport import Transport
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
+from sr.operation.unit.wait import WaitInWorld
 from sr.sim_uni.sim_uni_const import SimUniWorld, SimUniWorldEnum
 
 CATEGORY_1 = '经验信用'
@@ -157,13 +153,17 @@ class UseTrailblazePower(StateOperation):
         click_start = StateOperationNode('开始挑战', self._start_challenge)
         edges.append(StateOperationEdge(choose_support, click_start))
 
-
+        after_start_challenge = StateOperationNode('开始挑战后', self._after_start_challenge)
+        edges.append(StateOperationEdge(click_start, after_start_challenge))
 
         battle = StateOperationNode('战斗', self._battle)
-        edges.append(StateOperationEdge(click_start, battle))
+        edges.append(StateOperationEdge(after_start_challenge, battle))
 
         edges.append(StateOperationEdge(battle, battle, status=UseTrailblazePower.STATUS_CHALLENGE_AGAIN))
         edges.append(StateOperationEdge(battle, interact, status=UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN))
+
+        wait_esc = StateOperationNode('等待退出', op=WaitInWorld(ctx))
+        edges.append(StateOperationEdge(battle, wait_esc, status=UseTrailblazePower.STATUS_FINISH_EXIT))
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s %d' % (gt(tpp.tp.cn, 'ui'), gt('次数', 'ui'), plan_times),
@@ -176,7 +176,7 @@ class UseTrailblazePower(StateOperation):
         self.plan_times: int = plan_times  # 计划挑战次数
         self.finish_times: int = 0  # 已经完成的次数
         self.current_challenge_times: int = 1  # 当前挑战的次数
-        self.need_transport: bool = True
+        self.need_transport: bool = need_transport  # 是否需要传送
         self.on_battle_success: Optional[Callable[[int, int], None]] = on_battle_success
         self.battle_fail_times: int = 0  # 战斗失败次数
 
@@ -270,7 +270,7 @@ class UseTrailblazePower(StateOperation):
         :return:
         """
         if self.tpp.category == CATEGORY_3:
-            op = WaitInWorld(self.ctx, wait_after_success=1)  # 等待界面
+            op = WaitInWorld(self.ctx, wait_after_success=2)  # 等待怪物苏醒
             op_result = op.execute()
             if not op_result.success:
                 return Operation.round_fail('未在大世界画面')

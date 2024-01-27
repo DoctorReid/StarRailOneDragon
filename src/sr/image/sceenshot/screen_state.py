@@ -114,8 +114,8 @@ class ScreenState(Enum):
     TP_BATTLE_SUCCESS: str = '挑战成功'
     """开拓力副本 - 挑战成功"""
 
-    TP_BATTLE_FAIL: str = '挑战失败'
-    """开拓力副本 - 挑战失败"""
+    TP_BATTLE_FAIL: str = '战斗失败'
+    """开拓力副本 - 战斗失败"""
 
 
 class TargetRect(Enum):
@@ -140,7 +140,9 @@ class TargetRect(Enum):
 
     AFTER_BATTLE_RESULT_RECT_1 = Rect(820, 240, 1100, 320)
     """战斗结束后领奖励页面 上方的结果框 有奖励的时候"""
-    AFTER_BATTLE_RESULT_RECT_2 = Rect(820, 320, 1100, 380)
+    AFTER_BATTLE_RESULT_RECT_2 = Rect(820, 205, 1100, 278)
+    """战斗结束后领奖励页面 上方的结果框 有双倍奖励的时候"""
+    AFTER_BATTLE_RESULT_RECT_3 = Rect(820, 320, 1100, 380)
     """战斗结束后领奖励页面 上方的结果框 无奖励的时候"""
 
     EMPTY_TO_CLOSE = Rect(876, 878, 1048, 1026)
@@ -428,12 +430,16 @@ def get_tp_battle_screen_state(
     if in_world and is_normal_in_world(screen, im):
         return ScreenState.NORMAL_IN_WORLD.value
 
-    for rect in [TargetRect.AFTER_BATTLE_RESULT_RECT_1.value, TargetRect.AFTER_BATTLE_RESULT_RECT_2.value]:
+    for rect in [
+        TargetRect.AFTER_BATTLE_RESULT_RECT_1.value,
+        TargetRect.AFTER_BATTLE_RESULT_RECT_2.value,
+        TargetRect.AFTER_BATTLE_RESULT_RECT_3.value,
+    ]:
         part, _ = cv2_utils.crop_image(screen, rect)
         ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
         if battle_success and str_utils.find_by_lcs(gt('挑战成功', 'ocr'), ocr_result, percent=0.51):
             return ScreenState.TP_BATTLE_SUCCESS.value
-        elif battle_fail and str_utils.find_by_lcs(gt('挑战失败', 'ocr'), ocr_result, percent=0.51):
+        elif battle_fail and str_utils.find_by_lcs(gt('战斗失败', 'ocr'), ocr_result, percent=0.51):
             return ScreenState.TP_BATTLE_FAIL.value
 
     return ScreenState.BATTLE.value
