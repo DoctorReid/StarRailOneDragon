@@ -13,6 +13,8 @@ op_list:
     data: [695, 955]
   - op: 'patrol'
   - op: 'move'
+    data: [675, 950]
+  - op: 'move'
     data: [613, 951]
   - op: 'patrol'
   - op: 'move'

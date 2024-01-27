@@ -3,7 +3,8 @@ planet: '仙舟罗浮'
 region: '流云渡'
 floor: 1
 start_pos: [525, 1280]
-next_pos_list: []
+next_pos_list:
+  - [518, 1205]
 op_list:
   - op: 'move'
     data: [536, 1228]

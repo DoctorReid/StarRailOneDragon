@@ -5,8 +5,7 @@ from cv2.typing import MatLike
 
 from basic import Rect
 from basic.img import MatchResult, cv2_utils
-from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
-
+from sr.sim_uni.sim_uni_const import SimUniLevelType
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
@@ -97,14 +96,3 @@ def match_best_sim_uni_route(uni_num: int, level_type: SimUniLevelType, mm: MatL
         target_route.save()
 
     return target_route
-
-
-if __name__ == '__main__':
-    for level_type in SimUniLevelTypeEnum:
-        route_list = get_sim_uni_route_list(level_type.value)
-        for route in route_list:
-            route.add_support_world(8)
-            route.save()
-
-            if route.next_pos_list is None or len(route.next_pos_list) == 0:
-                print(route.uid)

@@ -224,8 +224,6 @@ class MoveToNextLevel(StateOperation):
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
                 self.ctx.controller.turn_by_angle(120)
                 return Operation.round_retry('未找到下一层入口', wait=1)
-            elif len(type_list) > len(self.next_pos_list) and game_config.get().is_debug:
-                return Operation.round_fail('未配置下层入口')
 
             target = self._get_target_entry(type_list)
 

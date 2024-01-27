@@ -374,6 +374,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         计算交互点的位置
         :return:
         """
+        is_respite = self.level_type == SimUniLevelTypeEnum.RESPITE.value
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         angle = mini_map.analyse_angle(mm)
@@ -390,7 +391,8 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
             if len(self.route.op_list) == 0:  # 未配置路线时 自动加入坐标
                 mm_center_pos = Point(mm.shape[1] // 2, mm.shape[0] // 2)
                 target_pos = self.route.start_pos + (icon_pos - mm_center_pos)
-                op = SimUniRouteOperation(op=operation_const.OP_MOVE, data=[target_pos.x, target_pos.y])
+                op = SimUniRouteOperation(op=operation_const.OP_SLOW_MOVE if is_respite else operation_const.OP_MOVE,
+                                          data=[target_pos.x, target_pos.y])
                 self.route.op_list.append(op)
                 self.route.save()
             return True

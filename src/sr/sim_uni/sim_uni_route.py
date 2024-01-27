@@ -252,6 +252,8 @@ class SimUniRoute:
         :param num: 第几世界
         :return:
         """
+        if self.support_world is None:
+            self.support_world = []
         if num not in self.support_world:
             self.support_world.append(num)
             self.support_world.sort()

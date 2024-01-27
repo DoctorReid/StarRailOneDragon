@@ -6,5 +6,5 @@ start_pos: [776, 554]
 next_pos_list:
   - [828, 591]
 op_list:
-  - op: 'move'
+  - op: 'slow_move'
     data: [805, 589]
