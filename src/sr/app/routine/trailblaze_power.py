@@ -1,20 +1,25 @@
 import time
-from typing import Optional, TypedDict, List, ClassVar
+from typing import Optional, TypedDict, List, ClassVar, Tuple
 
 from cv2.typing import MatLike
 
-from basic import str_utils
+from basic import str_utils, Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app import AppRunRecord, AppDescription, register_app, Application2
+from sr.app.sim_uni.sim_universe_app import SimUniverseApp
 from sr.config import ConfigHolder
+from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.mystools import mys_config
 from sr.operation import Operation, StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower, \
     CATEGORY_5
+from sr.operation.unit.guide import GUIDE_TAB_3
+from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
+from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.operation.unit.open_map import OpenMap
 
@@ -141,6 +146,9 @@ def get_config() -> TrailblazePowerConfig:
 
 class TrailblazePower(Application2):
 
+    SIM_UNI_POWER_RECT: ClassVar[Rect] = Rect(1474, 56, 1518, 78)  # 模拟宇宙 体力
+    SIM_UNI_QTY_RECT: ClassVar[Rect] = Rect(1672, 56, 1707, 78)  # 模拟宇宙 沉浸器数量
+
     STATUS_NORMAL_TASK: ClassVar[str] = '普通副本'
     STATUS_SIM_UNI_TASK: ClassVar[str] = '模拟宇宙'
     STATUS_NO_ENOUGH_POWER: ClassVar[str] = '体力不足'
@@ -157,11 +165,16 @@ class TrailblazePower(Application2):
         edges.append(StateOperationEdge(check_normal_power, challenge_normal))
         edges.append(StateOperationEdge(challenge_normal, check_task))  # 循环挑战
 
+        check_sim_uni_power = StateOperationNode('检查剩余沉浸器', self._check_power_for_sim_uni)
+        edges.append(StateOperationEdge(check_task, check_sim_uni_power, status=TrailblazePower.STATUS_SIM_UNI_TASK))
+
+        challenge_sim_uni = StateOperationNode('挑战模拟宇宙', self._challenge_sim_uni)
+        edges.append(StateOperationEdge(check_sim_uni_power, challenge_sim_uni))
+        edges.append(StateOperationEdge(challenge_sim_uni, check_task))
+
         esc = StateOperationNode('退出', self._esc)
         edges.append(StateOperationEdge(challenge_normal, esc, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
-
-        check_sim_uni_power = StateOperationNode('检查剩余沉浸器', self._challenge_normal_task)
-        challenge_sim_uni = StateOperationNode('挑战模拟宇宙', self._challenge_sim_uni)
+        edges.append(StateOperationEdge(challenge_sim_uni, esc, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
 
         super().__init__(ctx, try_times=5,
                          op_name=gt('开拓力', 'ui'),
@@ -259,7 +272,66 @@ class TrailblazePower(Application2):
         return Operation.round_by_op(op.execute())
 
     def _check_power_for_sim_uni(self) -> OperationOneRoundResult:
-        pass
+        if self.qty is not None:
+            return Operation.round_success()
+
+        ops = [
+            OpenPhoneMenu(self.ctx),
+            ClickPhoneMenuItem(self.ctx, phone_menu_const.INTERASTRAL_GUIDE),
+            ChooseGuideTab(self.ctx, GUIDE_TAB_3)
+        ]
+
+        for op in ops:
+            op_result = op.execute()
+            if not op_result.success:
+                return Operation.round_by_op(op_result)
+
+        screen = self.screenshot()
+        x, y = self._get_power_and_qty(screen)
+
+        if x is None or y is None:
+            return Operation.round_retry('检测开拓力和沉浸器数量失败', wait=1)
+
+        self.power = x
+        self.qty = y
+        return Operation.round_success()
+
+    def _get_sim_uni_power_and_qty(self, screen: MatLike) -> Tuple[int, int]:
+        """
+        获取开拓力和沉浸器数量
+        :param screen: 屏幕截图
+        :return:
+        """
+        part = cv2_utils.crop_image_only(screen, TrailblazePower.SIM_UNI_POWER_RECT)
+        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        power = str_utils.get_positive_digits(ocr_result, err=None)
+
+        part = cv2_utils.crop_image_only(screen, TrailblazePower.SIM_UNI_QTY_RECT)
+        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        qty = str_utils.get_positive_digits(ocr_result, err=None)
+
+        return power, qty
 
     def _challenge_sim_uni(self) -> OperationOneRoundResult:
-        pass
+        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
+        run_times: int = self.power // point.power + self.qty
+        if run_times == 0:
+            return Operation.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
+        if run_times + plan['run_times'] > plan['plan_times']:
+            run_times = plan['plan_times'] - plan['run_times']
+
+        op = SimUniverseApp(self.ctx,
+                            specified_uni_num=point.tp.idx,
+                            max_reward_to_get=run_times,
+                            get_reward_callback=self._on_sim_uni_get_reward
+                            )
+
+    def _on_sim_uni_get_reward(self):
+        """
+        模拟宇宙 获取沉浸奖励后的回调
+        :return:
+        """
+        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        plan['run_times'] += 1
+        self.config.save()

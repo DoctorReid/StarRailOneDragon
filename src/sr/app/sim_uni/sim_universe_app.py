@@ -1,4 +1,4 @@
-from typing import Optional, List, ClassVar
+from typing import Optional, List, ClassVar, Callable
 
 from basic import os_utils
 from basic.i18_utils import gt
@@ -115,7 +115,10 @@ class SimUniverseApp(Application2):
 
     STATUS_ALL_FINISHED: ClassVar[str] = '已完成通关次数'
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context,
+                 specified_uni_num: Optional[int] = None,
+                 max_reward_to_get: int = 0,
+                 get_reward_callback: Optional[Callable[[], None]] = None):
         """
         模拟宇宙应用 需要在大世界中非战斗、非特殊关卡界面中开启
         :param ctx:
@@ -189,12 +192,24 @@ class SimUniverseApp(Application2):
                          edges=edges, specified_start_node=check_times,
                          run_record=self.run_record)
 
-        self.current_uni_num: int = 8
+        self.current_uni_num: int = 0
+
+        self.specified_uni_num: Optional[int] = specified_uni_num
+        self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
+        self.get_reward_cnt: int = 0  # 当前获取的奖励次数
+        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _init_before_execute(self):
         super()._init_before_execute()
+        self.get_reward_cnt = 0
 
     def _check_times(self) -> OperationOneRoundResult:
+        if self.specified_uni_num is not None:
+            if self.get_reward_cnt < self.max_reward_to_get:
+                return Operation.round_success()
+            else:
+                return Operation.round_success(SimUniverseApp.STATUS_ALL_FINISHED)
+
         log.info('本日通关次数 %d 本周通关次数 %d', self.run_record.daily_times, self.run_record.weekly_times)
         if self.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
             return Operation.round_success(SimUniverseApp.STATUS_ALL_FINISHED)
@@ -202,7 +217,8 @@ class SimUniverseApp(Application2):
             return Operation.round_success()
 
     def _choose_sim_uni_num(self) -> OperationOneRoundResult:
-        world = SimUniWorldEnum[self.config.weekly_uni_num]
+        num = self.config.weekly_uni_num if self.specified_uni_num is None else self.specified_uni_num
+        world = SimUniWorldEnum[num]
         op = ChooseSimUniNum(self.ctx, world.value.idx, op_callback=self._on_uni_num_chosen)
         return Operation.round_by_op(op.execute())
 
@@ -216,11 +232,20 @@ class SimUniverseApp(Application2):
 
     def _run_world(self) -> OperationOneRoundResult:
         uni_challenge_config = self.config.get_challenge_config(self.current_uni_num)
+        get_reward = self.current_uni_num == self.specified_uni_num  # 只有当前宇宙和开拓力需要的宇宙是同一个 才能拿奖励
+
         op = SimUniRunWorld(self.ctx, self.current_uni_num,
                             priority=uni_challenge_config.all_priority,
-                            op_callback=self.on_world_finished
+                            op_callback=self.on_world_finished,
+                            max_reward_to_get=self.max_reward_to_get - self.get_reward_cnt if get_reward else 0,
+                            get_reward_callback=self._on_sim_uni_get_reward if get_reward else None
                             )
         return Operation.round_by_op(op.execute())
+
+    def _on_sim_uni_get_reward(self):
+        self.get_reward_cnt += 1
+        if self.get_reward_callback is not None:
+            self.get_reward_callback()
 
     def on_world_finished(self, op_result: OperationResult):
         if op_result.success:
