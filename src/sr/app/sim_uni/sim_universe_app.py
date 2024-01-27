@@ -1,6 +1,6 @@
 from typing import Optional, List, ClassVar, Callable
 
-from basic import os_utils
+from basic import os_utils, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import AppDescription, register_app, AppRunRecord, Application2, app_record_current_dt_str
@@ -14,8 +14,7 @@ from sr.operation import OperationResult, Operation, StateOperationEdge, StateOp
 from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.guide import GUIDE_TAB_3
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
-from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory, CATEGORY_ROGUE, ChooseGuideMission, \
-    MISSION_SIM_UNIVERSE
+from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory, CATEGORY_ROGUE
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.sim_uni.op.choose_sim_uni_diff import ChooseSimUniDiff
@@ -24,7 +23,6 @@ from sr.sim_uni.op.choose_sim_uni_path import ChooseSimUniPath
 from sr.sim_uni.op.choose_sim_uni_type import ChooseSimUniType
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
-from sr.sim_uni.op.sim_uni_run_route import SimUniMatchRoute
 from sr.sim_uni.op.sim_uni_start import SimUniStart
 from sr.sim_uni.sim_uni_const import SimUniType, SimUniPath, SimUniWorldEnum
 
@@ -113,6 +111,8 @@ def get_record() -> SimUniverseRecord:
 
 class SimUniverseApp(Application2):
 
+    SURVIVAL_TRANSPORT_BTN: ClassVar[Rect] = Rect(1489, 523, 1616, 566)  # 传送
+
     STATUS_ALL_FINISHED: ClassVar[str] = '已完成通关次数'
 
     def __init__(self, ctx: Context,
@@ -145,7 +145,7 @@ class SimUniverseApp(Application2):
         choose_sim_category = StateOperationNode('模拟宇宙', op=ChooseGuideMissionCategory(ctx, CATEGORY_ROGUE))
         edges.append(StateOperationEdge(choose_survival_index, choose_sim_category))
 
-        transport = StateOperationNode('传送', op=ChooseGuideMission(ctx, MISSION_SIM_UNIVERSE))
+        transport = StateOperationNode('传送', self._transport)
         edges.append(StateOperationEdge(choose_sim_category, transport))
 
         choose_normal_universe = StateOperationNode('普通宇宙', op=ChooseSimUniType(ctx, SimUniType.NORMAL))
@@ -215,6 +215,17 @@ class SimUniverseApp(Application2):
             return Operation.round_success(SimUniverseApp.STATUS_ALL_FINISHED)
         else:
             return Operation.round_success()
+
+    def _transport(self) -> OperationOneRoundResult:
+        """
+        点击传送
+        :return:
+        """
+        click = self.ocr_and_click_one_line('传送', SimUniverseApp.SURVIVAL_TRANSPORT_BTN)
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success(wait=1)
+        else:
+            return Operation.round_retry('点击传送失败', wait=1)
 
     def _choose_sim_uni_num(self) -> OperationOneRoundResult:
         num = self.config.weekly_uni_num if self.specified_uni_num is None else self.specified_uni_num
