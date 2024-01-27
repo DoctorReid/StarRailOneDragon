@@ -45,6 +45,8 @@ class SettingsView(components.Card, SrBasicView):
             width=200, on_change=self.on_run_mode_changed
         )
 
+        self.debug_mode_check = ft.Checkbox(label=gt('调试模式', 'ui'), on_change=self._on_debug_mode_changed)
+
         self.game_config: GameConfig = game_config.get()
         self.interact_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_interact')
         self.technique_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_technique')
@@ -83,6 +85,7 @@ class SettingsView(components.Card, SrBasicView):
                 SettingsListItem('游戏区服', self.server_region_dropdown),
                 SettingsListItem('语言', self.lang_dropdown),
                 SettingsListItem('疾跑', self.run_mode_dropdown),
+                SettingsListItem('调试模式', self.debug_mode_check),
                 SettingsListGroupTitle('自动登录'),
                 SettingsListItem('账号', self.account_input),
                 SettingsListItem('密码', self.password_input),
@@ -115,6 +118,7 @@ class SettingsView(components.Card, SrBasicView):
         self.run_mode_dropdown.value = self.game_config.run_mode
         self.lang_dropdown.value = self.game_config.lang
         self.game_path_text.value = self.game_config.game_path
+        self.debug_mode_check.value = self.game_config.is_debug
 
         self.account_input.value = self.game_config.game_account
         self.password_input.value = self.game_config.game_account_password
@@ -135,6 +139,9 @@ class SettingsView(components.Card, SrBasicView):
 
     def on_run_mode_changed(self, e):
         self.game_config.run_mode = int(self.run_mode_dropdown.value)
+
+    def _on_debug_mode_changed(self, e):
+        self.game_config.is_debug = self.debug_mode_check.value
 
     def on_lang_changed(self, e):
         self.game_config.lang = self.lang_dropdown.value

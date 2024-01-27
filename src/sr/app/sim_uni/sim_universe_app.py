@@ -6,6 +6,7 @@ from basic.log_utils import log
 from sr.app import AppDescription, register_app, AppRunRecord, Application2, app_record_current_dt_str
 from sr.app.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
+from sr.config import game_config
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.operation import OperationResult, Operation, StateOperationEdge, StateOperationNode, \
@@ -23,6 +24,7 @@ from sr.sim_uni.op.choose_sim_uni_path import ChooseSimUniPath
 from sr.sim_uni.op.choose_sim_uni_type import ChooseSimUniType
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
+from sr.sim_uni.op.sim_uni_run_route import SimUniMatchRoute
 from sr.sim_uni.op.sim_uni_start import SimUniStart
 from sr.sim_uni.sim_uni_const import SimUniType, SimUniPath, SimUniWorldEnum
 
@@ -118,6 +120,7 @@ class SimUniverseApp(Application2):
         模拟宇宙应用 需要在大世界中非战斗、非特殊关卡界面中开启
         :param ctx:
         """
+        gc = game_config.get()
         self.config: SimUniAppConfig = get_sim_uni_app_config()
 
         edges: List[StateOperationEdge] = []
@@ -175,11 +178,11 @@ class SimUniverseApp(Application2):
                                         success=False, status=SimUniEnterFight.STATUS_BATTLE_FAIL))
         edges.append(StateOperationEdge(world_fail, check_times_to_continue))
 
-        # 执行超时 - 应该只有寻路卡住的情况
-        timeout = StateOperationNode('执行超时', op=SimUniExit(ctx, exit_clicked=False))
-        edges.append(StateOperationEdge(run_world, timeout,
-                                        success=False, status=Operation.STATUS_TIMEOUT))
-        edges.append(StateOperationEdge(timeout, check_times_to_continue))
+        if not gc.is_debug:  # 任何异常错误都退出当前宇宙 调试模式下不退出 直接失败等待处理
+            exception_out = StateOperationNode('异常退出', op=SimUniExit(ctx, exit_clicked=False))
+            edges.append(StateOperationEdge(run_world, exception_out,
+                                            success=False, ignore_status=True))
+            edges.append(StateOperationEdge(exception_out, check_times_to_continue))
 
         self.run_record: SimUniverseRecord = get_record()
         super().__init__(ctx, op_name=gt(SIM_UNIVERSE.cn, 'ui'),

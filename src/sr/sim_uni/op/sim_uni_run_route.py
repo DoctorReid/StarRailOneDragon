@@ -8,6 +8,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
+from sr.config import game_config
 from sr.const import operation_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map
@@ -26,6 +27,8 @@ from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 
 class SimUniMatchRoute(Operation):
+
+    STATUS_ROUTE_NOT_FOUND: ClassVar[str] = '匹配路线失败'
 
     def __init__(self, ctx: Context, world_num: int,
                  level_type: SimUniLevelType,
@@ -49,7 +52,7 @@ class SimUniMatchRoute(Operation):
         route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
 
         if route is None:
-            return Operation.round_retry('匹配路线失败', wait=0.5)
+            return Operation.round_retry(SimUniMatchRoute.STATUS_ROUTE_NOT_FOUND, wait=0.5)
         else:
             return Operation.round_success(data=route)
 
@@ -247,11 +250,8 @@ class SimUniRunRouteBase(StateOperation):
         前往下一层
         :return:
         """
-        if len(self.route.next_pos_list) == 0:
-            return Operation.round_fail()
-
         op = MoveToNextLevel(self.ctx, level_type=self.level_type, priority=self.priority,
-                             current_pos=self.current_pos, next_pos=self.route.next_pos)
+                             current_pos=self.current_pos, next_pos_list=self.route.next_pos_list)
 
         return Operation.round_by_op(op.execute())
 

@@ -241,6 +241,22 @@ class GameConfig(ConfigHolder):
         """
         self.update('key_esc', new_value)
 
+    @property
+    def is_debug(self) -> bool:
+        """
+        调试模式
+        :return:
+        """
+        return self.get('is_debug', False)
+
+    @is_debug.setter
+    def is_debug(self, new_value: bool):
+        """
+        更新调试模式
+        :return:
+        """
+        self.update('is_debug', new_value)
+
 
 _gc = None
 

@@ -1,6 +1,7 @@
 import time
 from typing import Tuple, Optional, Callable, List, ClassVar
 
+import numpy as np
 from cv2.typing import MatLike
 
 from basic import Point, cal_utils, str_utils, Rect
@@ -8,6 +9,7 @@ from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import cal_pos
+from sr.config import game_config
 from sr.const import game_config_const
 from sr.context import Context
 from sr.control import GameController
@@ -143,13 +145,13 @@ class MoveToNextLevel(StateOperation):
     NEXT_CONFIRM_BTN: ClassVar[Rect] = Rect(1006, 647, 1330, 697)  # 确认按钮
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
-                 current_pos: Optional[Point] = None, next_pos: Optional[Point] = None,
+                 current_pos: Optional[Point] = None, next_pos_list: Optional[List[Point]] = None,
                  priority: Optional[SimUniAllPriority] = None):
         """
         朝下一层入口走去 并且交互
         :param ctx:
         :param current_pos: 当前人物的位置
-        :param next_pos: 下一层入口的位置
+        :param next_pos_list: 下一层入口的位置
         :param priority: 优先级
         """
         turn = StateOperationNode('转向入口', self._turn_to_next)
@@ -162,7 +164,8 @@ class MoveToNextLevel(StateOperation):
                          )
         self.level_type: SimUniLevelType = level_type
         self.current_pos: Optional[Point] = current_pos
-        self.next_pos: Optional[Point] = next_pos
+        self.next_pos_list: Optional[List[Point]] = next_pos_list
+        self.next_pos: Optional[Point] = None
         self.priority: Optional[SimUniAllPriority] = priority
         self.is_moving: bool = False  # 是否正在移动
         self.start_move_time: float = 0  # 开始移动的时间
@@ -172,6 +175,12 @@ class MoveToNextLevel(StateOperation):
         super()._init_before_execute()
         self.is_moving = False
         self.interacted: bool = False
+        if self.next_pos_list is None or len(self.next_pos_list) == 0:
+            self.next_pos = None
+        else:
+            avg_pos_x = np.mean([pos.x for pos in self.next_pos_list], dtype=np.uint16)
+            avg_pos_y = np.mean([pos.y for pos in self.next_pos_list], dtype=np.uint16)
+            self.next_pos = Point(avg_pos_x, avg_pos_y)
 
     def _turn_to_next(self) -> OperationOneRoundResult:
         """
@@ -179,7 +188,10 @@ class MoveToNextLevel(StateOperation):
         :return:
         """
         if self.current_pos is None or self.next_pos is None:
-            return Operation.round_success()
+            if game_config.get().is_debug:
+                return Operation.round_fail('未配置下层入口')
+            else:
+                return Operation.round_success()
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
@@ -212,6 +224,8 @@ class MoveToNextLevel(StateOperation):
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
                 self.ctx.controller.turn_by_angle(120)
                 return Operation.round_retry('未找到下一层入口', wait=1)
+            elif len(type_list) > len(self.next_pos_list) and game_config.get().is_debug:
+                return Operation.round_fail('未配置下层入口')
 
             target = self._get_target_entry(type_list)
 
