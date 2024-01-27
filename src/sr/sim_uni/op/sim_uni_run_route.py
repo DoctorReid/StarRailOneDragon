@@ -19,6 +19,7 @@ from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
+from sr.sim_uni.op.sim_uni_reward import SimUniReward
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
@@ -401,16 +402,121 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         return None if mr is None else mr.center
 
 
+class SimUniRunEliteAfterRoute(StateOperation):
+
+    STATUS_NO_REWARD_POS: ClassVar[str] = '未配置奖励坐标'
+    STATUS_NO_NEED_REWARD: ClassVar[str] = '无需获取奖励'
+
+    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+                 current_pos: Point, route: SimUniRoute,
+                 max_reward_to_get: int,
+                 priority: Optional[SimUniAllPriority] = None,
+                 get_reward_callback: Optional[Callable[[], None]] = None,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None
+                 ):
+        """
+        挑战精英并领取奖励
+        最后返回 data=角色最新坐标
+        :param ctx:
+        :param level_type:
+        :param priority:
+        """
+        edges = []
+        fight = StateOperationNode('战斗', self._fight)
+        move = StateOperationNode('移动奖励', self._move_to_reward)
+        edges.append(StateOperationEdge(fight, move))
+
+        interact = StateOperationNode('交互', self._interact)
+        edges.append(StateOperationEdge(move, interact))
+
+        get_reward = StateOperationNode('获取奖励', self._get_reward)
+        edges.append(StateOperationEdge(interact, get_reward))
+
+        esc = StateOperationNode('结束', self._esc)
+        edges.append(StateOperationEdge(move, esc, status=SimUniRunEliteAfterRoute.STATUS_NO_NEED_REWARD))  # 无需领奖励的
+        edges.append(StateOperationEdge(interact, esc, success=False))  # 交互失败了 也继续
+        edges.append(StateOperationEdge(get_reward, esc))  # 领取奖励成功
+
+        super().__init__(ctx, try_times=5,
+                         op_name='%s %s %s' % (
+                             gt('模拟宇宙', 'ui'),
+                             gt('区域-%s' % level_type.type_name, 'ui'),
+                             gt('路线后', 'ui')
+                         ),
+                         edges=edges,
+                         op_callback=op_callback
+                         )
+
+        self.level_type: SimUniLevelType = level_type
+        self.current_pos: Point = current_pos  # 当前位置
+        self.route: SimUniRoute = route
+        self.priority: Optional[SimUniAllPriority] = priority
+        self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
+        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
+
+    def _fight(self) -> OperationOneRoundResult:
+        op = SimUniFightElite(self.ctx, priority=self.priority)
+        return Operation.round_by_op(op.execute())
+
+    def _move_to_reward(self) -> OperationOneRoundResult:
+        if self.max_reward_to_get <= 0:
+            return Operation.round_success(SimUniRunEliteAfterRoute.STATUS_NO_NEED_REWARD)
+        elif self.route.reward_pos is None:
+            return Operation.round_fail(SimUniRunEliteAfterRoute.STATUS_NO_REWARD_POS)
+
+        op = MoveDirectlyInSimUni(self.ctx, self.ctx.ih.get_large_map(self.route.region),
+                                  start=self.current_pos, target=self.route.reward_pos,
+                                  op_callback=self._update_pos,
+                                  no_battle=True, no_run=True,
+                                  )
+        return Operation.round_by_op(op.execute())
+
+    def _update_pos(self, op_result: OperationResult):
+        """
+        移动后更新坐标
+        :param op_result:
+        :return:
+        """
+        self.current_pos = op_result.data
+
+    def _interact(self) -> OperationOneRoundResult:
+        """
+        交互进入沉浸奖励
+        :return:
+        """
+        op = Interact(self.ctx, '沉浸奖励', lcs_percent=0.1, single_line=True)
+        return Operation.round_by_op(op.execute())
+
+    def _get_reward(self) -> OperationOneRoundResult:
+        """
+        获取奖励
+        :return:
+        """
+        op = SimUniReward(self.ctx, self.max_reward_to_get, self.get_reward_callback)
+        return Operation.round_by_op(op.execute())
+
+    def _esc(self) -> OperationOneRoundResult:
+        """
+        所有操作完成后结束
+        :return:
+        """
+        return Operation.round_success(data=self.current_pos)
+
+
 class SimUniRunEliteRoute(SimUniRunRouteBase):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  priority: Optional[SimUniAllPriority] = None,
+                 max_reward_to_get: int = 0,
+                 get_reward_callback: Optional[Callable[[], None]] = None
                  ):
 
         super().__init__(ctx, level_type, priority)
 
         self.with_enemy: bool = True
         self.no_icon: bool = False
+        self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
+        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -445,9 +551,12 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
             return Operation.round_success()
 
     def _after_route(self) -> OperationOneRoundResult:
-        if self.no_icon:
-            return Operation.round_success()
-        op = SimUniFightElite(self.ctx, priority=self.priority)
+        op = SimUniRunEliteAfterRoute(self.ctx, self.level_type,
+                                      self.current_pos, self.route,
+                                      max_reward_to_get=self.max_reward_to_get,
+                                      get_reward_callback=self.get_reward_callback,
+                                      op_callback=self._update_pos
+                                      )
         return Operation.round_by_op(op.execute())
 
     def _go_next(self) -> OperationOneRoundResult:

@@ -17,6 +17,8 @@ class SimUniRunLevel(StateOperation):
 
     def __init__(self, ctx: Context, world_num: int,
                  priority: Optional[SimUniAllPriority] = None,
+                 max_reward_to_get: int = 0,
+                 get_reward_callback: Optional[Callable[[], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         模拟宇宙中 识别楼层类型并运行
@@ -44,6 +46,8 @@ class SimUniRunLevel(StateOperation):
         self.world_num: int = world_num
         self.level_type: Optional[SimUniLevelType] = None
         self.priority: Optional[SimUniAllPriority] = priority
+        self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
+        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _init_before_execute(self):
         """
@@ -79,7 +83,9 @@ class SimUniRunLevel(StateOperation):
             op = SimUniRunInteractRoute(self.ctx, self.level_type, priority=self.priority)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            op = SimUniRunEliteRoute(self.ctx, self.level_type, priority=self.priority)
+            op = SimUniRunEliteRoute(self.ctx, self.level_type, priority=self.priority,
+                                     max_reward_to_get=self.max_reward_to_get,
+                                     get_reward_callback=self.get_reward_callback)
         else:
             return Operation.round_fail(status='未知楼层类型 %s' % self.level_type)
 

@@ -99,6 +99,9 @@ class ScreenState(Enum):
     SIM_EVENT: str = '事件'
     """模拟宇宙 - 事件"""
 
+    SIM_REWARD: str = '沉浸奖励'
+    """模拟宇宙 - 沉浸奖励"""
+
     BATTLE: str = '战斗'
     """所有战斗画面通用 - 右上角有暂停符号"""
 
@@ -106,7 +109,7 @@ class ScreenState(Enum):
     """所有战斗画面通用 - 右上角有暂停符号"""
 
     EMPTY_TO_CLOSE: str = '点击空白处关闭'
-    """所有战斗画面通用 - 下方有 点击空白处关闭"""
+    """所有画面通用 - 下方有 点击空白处关闭"""
 
 
 class TargetRect(Enum):
@@ -122,6 +125,9 @@ class TargetRect(Enum):
 
     SIM_UNI_UI_TITLE = Rect(100, 15, 350, 100)
     """模拟宇宙 - 左上角界面名称的位置 事件和选择祝福的框是不一样位置的 这里取了两者的并集"""
+
+    SIM_UNI_REWARD = Rect(760, 343, 1200, 382)
+    """模拟宇宙 - 中间的位置 沉浸奖励"""
 
     BATTLE_FAIL = Rect(783, 231, 1141, 308)
     """战斗失败"""
@@ -278,6 +284,18 @@ def is_battle_fail(screen: MatLike, ocr: OcrMatcher) -> bool:
     return str_utils.find_by_lcs(gt('战斗失败', 'ui'), ocr_result, percent=0.51)
 
 
+def is_sim_uni_get_reward(screen: MatLike, ocr: OcrMatcher) -> bool:
+    """
+    是否在模拟宇宙-沉浸奖励画面
+    :param screen: 屏幕截图
+    :param ocr: OCR
+    :return:
+    """
+    part = cv2_utils.crop_image_only(screen, TargetRect.SIM_UNI_REWARD.value)
+    ocr_result = ocr.ocr_for_single_line(part)
+    return str_utils.find_by_lcs(gt('沉浸奖励', 'ocr'), ocr_result, percent=0.1)
+
+
 def get_sim_uni_screen_state(
         screen: MatLike, im: ImageMatcher, ocr: OcrMatcher,
         in_world: bool = False,
@@ -289,7 +307,8 @@ def get_sim_uni_screen_state(
         drop_curio: bool = False,
         event: bool = False,
         battle: bool = False,
-        battle_fail: bool = False) -> Optional[str]:
+        battle_fail: bool = False,
+        reward: bool = False) -> Optional[str]:
     """
     获取模拟宇宙中的画面状态
     :param screen: 屏幕截图
@@ -305,6 +324,7 @@ def get_sim_uni_screen_state(
     :param event: 可能在事件
     :param battle: 可能在战斗
     :param battle_fail: 可能在战斗失败
+    :param reward: 可能在沉浸奖励
     :return:
     """
     if in_world and is_normal_in_world(screen, im):
@@ -315,6 +335,9 @@ def get_sim_uni_screen_state(
 
     if empty_to_close and is_empty_to_close(screen, ocr):
         return ScreenState.EMPTY_TO_CLOSE.value
+
+    if reward and is_sim_uni_get_reward(screen, ocr):
+        return ScreenState.SIM_REWARD.value
 
     titles = get_ui_title(screen, ocr, rect=TargetRect.SIM_UNI_UI_TITLE.value)
     sim_uni_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles)
