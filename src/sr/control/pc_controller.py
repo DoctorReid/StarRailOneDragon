@@ -71,7 +71,10 @@ class PcController(GameController):
         :return: 截图
         """
         rect: WinRect = self.win.get_win_rect()
-        pyautogui.moveTo(rect.x + 50, rect.y + rect.h - 30)  # 移动到uid位置
+        try:
+            pyautogui.moveTo(rect.x + 50, rect.y + rect.h - 30)  # 移动到uid位置
+        except Exception:
+            log.error('请将游戏窗口移动至可完整看到')
         img = win_utils.screenshot(rect.x, rect.y, rect.w, rect.h)
         result = cv2.resize(img, (const.STANDARD_RESOLUTION_W, const.STANDARD_RESOLUTION_H)) if rect.is_scale() else img
         return result

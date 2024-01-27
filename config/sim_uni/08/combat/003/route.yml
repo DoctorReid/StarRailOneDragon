@@ -2,6 +2,9 @@ planet: '雅利洛'
 region: '残响回廊'
 floor: 0
 start_pos: [583, 620]
+next_pos_list:
+  - [671, 564]
+  - [680, 555]
 op_list:
   - op: 'move'
     data: [624, 625]
@@ -18,5 +21,3 @@ op_list:
   - op: 'move'
     data: [705, 595]
   - op: 'patrol'
-  - op: 'move'
-    data: [676, 568]

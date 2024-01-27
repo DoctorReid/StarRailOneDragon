@@ -7,5 +7,3 @@ next_pos_list:
 op_list:
   - op: 'move'
     data: [841, 292]
-  - op: 'move'
-    data: [855, 282]
