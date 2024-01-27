@@ -97,7 +97,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         """
         每周挑战宇宙设置
         """
-        self.config.weekly_uni_num = int(self.weekly_uni_num.value)
+        self.config.weekly_uni_num = self.weekly_uni_num.value
 
     def _on_weekly_uni_diff_changed(self, e):
         """
