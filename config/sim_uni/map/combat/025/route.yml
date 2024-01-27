@@ -1,0 +1,11 @@
+support_world: [8]
+planet: '仙舟罗浮'
+region: '太卜司'
+floor: 2
+start_pos: [419, 1023]
+next_pos_list:
+  - [344, 1032]
+op_list:
+  - op: 'move'
+    data: [372, 1024]
+  - op: 'patrol'

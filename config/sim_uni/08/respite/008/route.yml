@@ -1,9 +1,0 @@
-planet: '雅利洛'
-region: '大矿区'
-floor: 0
-start_pos: [782, 298]
-next_pos_list:
-  - [709, 333]
-op_list:
-  - op: 'move'
-    data: [725, 307]

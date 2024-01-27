@@ -1,0 +1,11 @@
+support_world: [8]
+planet: '仙舟罗浮'
+region: '廻星港'
+floor: 1
+start_pos: [730, 590]
+next_pos_list:
+  - [740, 675]
+op_list:
+  - op: 'move'
+    data: [730, 650]
+  - op: 'patrol'

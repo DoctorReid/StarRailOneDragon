@@ -1,0 +1,24 @@
+support_world: [8]
+planet: '雅利洛'
+region: '大矿区'
+floor: 0
+start_pos: [774, 557]
+next_pos_list:
+  - [842, 610]
+  - [865, 618]
+op_list:
+  - op: 'move'
+    data: [772, 616]
+  - op: 'move'
+    data: [745, 686]
+  - op: 'patrol'
+  - op: 'move'
+    data: [768, 712]
+  - op: 'move'
+    data: [791, 690]
+  - op: 'patrol'
+  - op: 'move'
+    data: [818, 659]
+  - op: 'move'
+    data: [844, 640]
+  - op: 'patrol'

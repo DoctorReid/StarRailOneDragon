@@ -1,0 +1,15 @@
+support_world: [8]
+planet: '仙舟罗浮'
+region: '工造司'
+floor: 0
+start_pos: [201, 944]
+next_pos_list:
+  - [178, 760]
+  - [203, 760]
+op_list:
+  - op: 'move'
+    data: [204, 860]
+  - op: 'patrol'
+  - op: 'move'
+    data: [195, 785]
+  - op: 'patrol'

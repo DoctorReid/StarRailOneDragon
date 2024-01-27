@@ -1,0 +1,10 @@
+support_world: [8]
+planet: '雅利洛'
+region: '磐岩镇'
+floor: 0
+start_pos: [456, 532]
+next_pos_list: []
+op_list:
+  - op: 'move'
+    data: [455, 566]
+  - op: 'patrol'

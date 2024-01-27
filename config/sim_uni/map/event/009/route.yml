@@ -1,0 +1,10 @@
+support_world: [8]
+planet: '雅利洛'
+region: '铁卫禁区'
+floor: 0
+start_pos: [636, 631]
+next_pos_list:
+  - [623, 555]
+op_list:
+  - op: 'move'
+    data: [630, 577]

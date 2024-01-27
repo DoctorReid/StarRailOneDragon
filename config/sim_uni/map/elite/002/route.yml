@@ -1,0 +1,10 @@
+support_world: [8]
+planet: '仙舟罗浮'
+region: '丹鼎司'
+floor: 2
+start_pos: [918, 880]
+next_pos_list: []
+reward_pos: [839, 867]
+op_list:
+  - op: 'move'
+    data: [853, 883]

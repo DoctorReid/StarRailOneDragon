@@ -1,0 +1,11 @@
+support_world: [8]
+planet: '雅利洛'
+region: '残响回廊'
+floor: 0
+start_pos: [281, 1187]
+next_pos_list:
+  - [209, 1195]
+op_list:
+  - op: 'move'
+    data: [230, 1186]
+  - op: 'patrol'

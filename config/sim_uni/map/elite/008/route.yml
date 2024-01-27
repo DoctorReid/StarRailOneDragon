@@ -1,0 +1,11 @@
+support_world: [8]
+planet: '雅利洛'
+region: '残响回廊'
+floor: 0
+start_pos: [638, 1233]
+next_pos_list:
+  - [726, 1221]
+reward_pos: [714, 1247]
+op_list:
+  - op: 'move'
+    data: [698, 1235]

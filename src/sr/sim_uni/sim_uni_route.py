@@ -108,7 +108,7 @@ class SimUniRoute:
         :param level_type:
         :return:
         """
-        return os_utils.get_path_under_work_dir('config', 'sim_uni', '08',
+        return os_utils.get_path_under_work_dir('config', 'sim_uni', 'map',
                                                 '%s' % level_type)
 
     @staticmethod
@@ -124,7 +124,7 @@ class SimUniRoute:
         获取路线对应文件夹的位置
         :return:
         """
-        return os_utils.get_path_under_work_dir('config', 'sim_uni', '08',
+        return os_utils.get_path_under_work_dir('config', 'sim_uni', 'map',
                                                 '%s' % self.route_id,
                                                 '%03d' % self.idx)
 

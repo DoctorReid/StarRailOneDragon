@@ -1,8 +1,0 @@
-planet: '仙舟罗浮'
-region: '廻星港'
-floor: 1
-start_pos: [731, 768]
-next_pos_list: []
-op_list:
-  - op: 'move'
-    data: [716, 809]
