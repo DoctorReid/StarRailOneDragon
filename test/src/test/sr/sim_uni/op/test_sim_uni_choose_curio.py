@@ -21,7 +21,7 @@ class TestChooseSimUniCurio(unittest.TestCase, test.SrTestBase):
 
         op = SimUniChooseCurio(ctx)
 
-        curio_list = op._get_curio_pos(screen)
+        curio_list = op._get_curio_pos_2(screen)
 
         self.assertEqual(3, len(curio_list))
 
@@ -31,25 +31,32 @@ class TestChooseSimUniCurio(unittest.TestCase, test.SrTestBase):
             SimUniCurioEnum.CURIO_022.value,
         ]
         for i in range(3):
-            self.assertEqual(answer[i].name, curio_list[i].data.name)
+            self.assertTrue(curio_list[i].data in answer)
 
     def test_drop_get_curio_pos(self):
         ctx = get_context()
         ctx.init_ocr_matcher()
-        screen = self.get_test_image('drop_2')
 
         op = SimUniDropCurio(ctx)
 
+        screen = self.get_test_image('drop_2')
         curio_list = op._get_curio_pos(screen)
-
-        self.assertEqual(2, len(curio_list))
-
         answer: List[SimUniCurio] = [
             SimUniCurioEnum.CURIO_011.value,
             SimUniCurioEnum.CURIO_006.value,
         ]
+        self.assertEqual(len(answer), len(curio_list))
         for i in range(len(answer)):
-            self.assertEqual(answer[i].name, curio_list[i].data.name)
+            self.assertTrue(curio_list[i].data in answer)
+
+        screen = self.get_test_image('drop_1')
+        curio_list = op._get_curio_pos(screen)
+        answer: List[SimUniCurio] = [
+            SimUniCurioEnum.CURIO_026.value,
+        ]
+        self.assertEqual(len(answer), len(curio_list))
+        for i in range(len(answer)):
+            self.assertTrue(curio_list[i].data in answer)
 
     def test_drop_get_curio_by_priority(self):
         ctx = get_context()

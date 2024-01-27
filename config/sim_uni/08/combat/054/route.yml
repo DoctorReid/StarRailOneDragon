@@ -2,6 +2,9 @@ planet: '仙舟罗浮'
 region: '工造司'
 floor: 0
 start_pos: [721, 1281]
+next_pos_list:
+  - [807, 1104]
+  - [807, 1126]
 op_list:
   - op: 'move'
     data: [723, 1211]

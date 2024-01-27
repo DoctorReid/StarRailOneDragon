@@ -27,7 +27,7 @@ class SimUniRunWorld(StateOperation):
         edges = []
 
         run_level = StateOperationNode('挑战楼层', self._run_level)
-        finished = StateOperationNode('结束', )
+        finished = StateOperationNode('结束', self._finish)
 
         edges.append(StateOperationEdge(run_level, finished, status=SimUniRunLevel.STATUS_BOSS_CLEARED))
         edges.append(StateOperationEdge(run_level, run_level, ignore_status=True))

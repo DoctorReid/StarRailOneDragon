@@ -25,7 +25,7 @@ class SimUniChooseCurio(StateOperation):
 
     # 奇物名字对应的框 - 2个的情况
     CURIO_RECT_2_LIST: ClassVar[List[Rect]] = [
-        Rect(513, 280, 933, 320),
+        Rect(513, 280, 876, 320),
         Rect(1024, 280, 1363, 320),
     ]
 
@@ -33,6 +33,8 @@ class SimUniChooseCurio(StateOperation):
     CURIO_RECT_1_LIST: ClassVar[List[Rect]] = [
         Rect(780, 280, 1120, 320),
     ]
+
+    CURIO_NAME_RECT: ClassVar[Rect] = Rect(315, 280, 1590, 320)  # 奇物名字的框
 
     CONFIRM_BTN: ClassVar[Rect] = Rect(1500, 950, 1840, 1000)  # 确认选择
 
@@ -107,6 +109,29 @@ class SimUniChooseCurio(StateOperation):
             return curio_list
 
         return []
+
+    def _get_curio_pos_2(self, screen: MatLike) -> List[MatchResult]:
+        """
+        获取屏幕上的奇物的位置
+        :param screen: 屏幕截图
+        :return: MatchResult.data 中是对应的奇物 SimUniCurio
+        """
+        curio_list: List[MatchResult] = []
+        part = cv2_utils.crop_image_only(screen, SimUniChooseCurio.CURIO_NAME_RECT)
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+        for title_ocr, mrl in ocr_result_map.items():
+            curio = match_best_curio_by_ocr(title_ocr)
+
+            if curio is None:  # 有一个识别不到就返回 提速
+                continue
+
+            for mr in mrl:
+                mr.data = curio
+                mr.x += SimUniChooseCurio.CURIO_NAME_RECT.x1
+                mr.y += SimUniChooseCurio.CURIO_NAME_RECT.y1
+                curio_list.append(mr)
+
+        return curio_list
 
     def _get_curio_pos_by_rect(self, screen: MatLike, rect_list: List[Rect]) -> List[MatchResult]:
         """
