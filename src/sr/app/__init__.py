@@ -166,14 +166,14 @@ class Application(Operation):
 
 class Application2(StateOperation):
 
-    def __init__(self, ctx: Context, op_name: str = None,
+    def __init__(self, ctx: Context, try_times: int = 2, op_name: str = None,
                  nodes: Optional[List[StateOperationNode]] = None,
                  edges: Optional[List[StateOperationEdge]] = None,
                  specified_start_node: Optional[StateOperationNode] = None,
                  init_context_before_start: bool = True,
                  stop_context_after_stop: bool = True,
                  run_record: Optional[AppRunRecord] = None):
-        super().__init__(ctx, op_name=op_name,
+        super().__init__(ctx, try_times=try_times, op_name=op_name,
                          nodes=nodes, edges=edges, specified_start_node=specified_start_node)
 
         self.run_record: Optional[AppRunRecord] = run_record

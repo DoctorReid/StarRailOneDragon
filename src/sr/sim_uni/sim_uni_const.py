@@ -18,6 +18,10 @@ class SimUniWorld:
         self.idx = idx
         self.name = name
 
+    @property
+    def unique_id(self) -> str:
+        return 'sim_uni_normal_world_%02d' % self.idx
+
 
 class SimUniWorldEnum(Enum):
 

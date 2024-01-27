@@ -111,6 +111,12 @@ class ScreenState(Enum):
     EMPTY_TO_CLOSE: str = '点击空白处关闭'
     """所有画面通用 - 下方有 点击空白处关闭"""
 
+    TP_BATTLE_SUCCESS: str = '挑战成功'
+    """开拓力副本 - 挑战成功"""
+
+    TP_BATTLE_FAIL: str = '挑战失败'
+    """开拓力副本 - 挑战失败"""
+
 
 class TargetRect(Enum):
 
@@ -131,6 +137,11 @@ class TargetRect(Enum):
 
     BATTLE_FAIL = Rect(783, 231, 1141, 308)
     """战斗失败"""
+
+    AFTER_BATTLE_RESULT_RECT_1 = Rect(820, 240, 1100, 320)
+    """战斗结束后领奖励页面 上方的结果框 有奖励的时候"""
+    AFTER_BATTLE_RESULT_RECT_2 = Rect(820, 320, 1100, 380)
+    """战斗结束后领奖励页面 上方的结果框 无奖励的时候"""
 
     EMPTY_TO_CLOSE = Rect(876, 878, 1048, 1026)
     """点击空白处关闭"""
@@ -397,3 +408,32 @@ def get_world_patrol_screen_state(
         return ScreenState.BATTLE.value
 
     return None
+
+
+def get_tp_battle_screen_state(
+        screen: MatLike, im: ImageMatcher, ocr: OcrMatcher,
+        in_world: bool = False,
+        battle_success: bool = False,
+        battle_fail: bool = False) -> str:
+    """
+    获取开拓力副本战斗的画面状态
+    :param screen: 屏幕截图
+    :param im: 图片匹配器
+    :param ocr: 文本识别器
+    :param in_world: 可能在大世界
+    :param battle_success: 可能在战斗
+    :param battle_fail: 可能在战斗失败
+    :return:
+    """
+    if in_world and is_normal_in_world(screen, im):
+        return ScreenState.NORMAL_IN_WORLD.value
+
+    for rect in [TargetRect.AFTER_BATTLE_RESULT_RECT_1.value, TargetRect.AFTER_BATTLE_RESULT_RECT_2.value]:
+        part, _ = cv2_utils.crop_image(screen, rect)
+        ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
+        if battle_success and str_utils.find_by_lcs(gt('挑战成功', 'ocr'), ocr_result, percent=0.51):
+            return ScreenState.TP_BATTLE_SUCCESS.value
+        elif battle_fail and str_utils.find_by_lcs(gt('挑战失败', 'ocr'), ocr_result, percent=0.51):
+            return ScreenState.TP_BATTLE_FAIL.value
+
+    return ScreenState.BATTLE.value

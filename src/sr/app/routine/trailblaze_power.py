@@ -1,19 +1,20 @@
 import time
-from typing import Optional, TypedDict, List
+from typing import Optional, TypedDict, List, ClassVar
 
 from cv2.typing import MatLike
 
 from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from basic.log_utils import log
-from sr.app import Application, AppRunRecord, AppDescription, register_app
+from sr.app import AppRunRecord, AppDescription, register_app, Application2
 from sr.config import ConfigHolder
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.mystools import mys_config
-from sr.operation import Operation
-from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower
+from sr.operation import Operation, StateOperationNode, OperationOneRoundResult, StateOperationEdge
+from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower, \
+    CATEGORY_5
+from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.operation.unit.open_map import OpenMap
 
 TRAILBLAZE_POWER = AppDescription(cn='开拓力', id='trailblaze_power')
@@ -137,65 +138,125 @@ def get_config() -> TrailblazePowerConfig:
     return trailblaze_power_config
 
 
-class TrailblazePower(Application):
+class TrailblazePower(Application2):
+
+    STATUS_NORMAL_TASK: ClassVar[str] = '普通副本'
+    STATUS_SIM_UNI_TASK: ClassVar[str] = '模拟宇宙'
+    STATUS_NO_ENOUGH_POWER: ClassVar[str] = '体力不足'
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('开拓力', 'ui'),
+        edges = []
+
+        check_task = StateOperationNode('检查当前需要挑战的关卡', self._check_task)
+
+        check_normal_power = StateOperationNode('检查剩余开拓力', self._check_power_for_normal)
+        edges.append(StateOperationEdge(check_task, check_normal_power, status=TrailblazePower.STATUS_NORMAL_TASK))
+
+        challenge_normal = StateOperationNode('挑战普通副本', self._challenge_normal_task)
+        edges.append(StateOperationEdge(check_normal_power, challenge_normal))
+        edges.append(StateOperationEdge(challenge_normal, check_task))  # 循环挑战
+
+        esc = StateOperationNode('退出', self._esc)
+        edges.append(StateOperationEdge(challenge_normal, esc, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
+
+        check_sim_uni_power = StateOperationNode('检查剩余沉浸器', self._challenge_normal_task)
+        challenge_sim_uni = StateOperationNode('挑战模拟宇宙', self._challenge_sim_uni)
+
+
+        super().__init__(ctx, try_times=5,
+                         op_name=gt('开拓力', 'ui'),
                          run_record=get_record())
-        self.phase: int = 0
-        self.power: int = 0
+        self.power: Optional[int] = None  # 剩余开拓力
+        self.qty: Optional[int] = None  # 沉浸器数量
         self.last_challenge_point: Optional[TrailblazePowerPoint] = None
+        self.config = get_config()
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         get_record().update_status(AppRunRecord.STATUS_RUNNING)
         self.last_challenge_point = None
+        self.power: int = 0
 
-    def _execute_one_round(self) -> int:
-        if self.phase == 0:  # 打开大地图
-            op = OpenMap(self.ctx)
-            if not op.execute().success:
-                return Operation.FAIL
-            else:
-                self.phase += 1
-                return Operation.WAIT
-        elif self.phase == 1:  # 查看剩余体力
-            screen: MatLike = self.screenshot()
-            part, _ = cv2_utils.crop_image(screen, large_map.LARGE_MAP_POWER_RECT)
-            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-            self.power = str_utils.get_positive_digits(ocr_result)
-            log.info('当前体力 %d', self.power)
-            self.phase += 1
-            return Operation.WAIT
-        elif self.phase == 2:  # 使用体力
-            config = get_config()
-            config.check_plan_finished()
-            plan: Optional[TrailblazePowerPlanItem] = config.next_plan_item
-            if plan is None:
-                return Operation.SUCCESS
+    def _check_task(self) -> OperationOneRoundResult:
+        """
+        判断下一个是什么副本
+        :return:
+        """
+        self.config.check_plan_finished()
+        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
 
-            record = get_record()
+        if plan is None:
+            return Operation.round_success()
 
-            point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
-            run_times: int = self.power // point.power
-            if run_times == 0:
-                return Operation.SUCCESS
-            if run_times + plan['run_times'] > plan['plan_times']:
-                run_times = plan['plan_times'] - plan['run_times']
+        point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
+        if point.category == CATEGORY_5:
+            return Operation.round_success(TrailblazePower.STATUS_SIM_UNI_TASK)
+        else:
+            return Operation.round_success(TrailblazePower.STATUS_NORMAL_TASK)
 
-            def on_battle_success():
-                self.power -= point.power
-                log.info('消耗体力: %d, 剩余体力: %d', point.power, self.power)
-                plan['run_times'] += 1
-                log.info('副本完成次数: %d, 计划次数: %d', plan['run_times'], plan['plan_times'])
-                config.save()
-                record.update_status(AppRunRecord.STATUS_RUNNING)
+    def _check_power_for_normal(self) -> OperationOneRoundResult:
+        """
+        普通副本 在大地图上看剩余体力
+        :return:
+        """
+        if self.power is not None:  # 之前已经检测过了
+            return Operation.round_success()
 
-            op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times,
-                                    support=plan['support'] if plan['support'] != 'none' else None,
-                                    on_battle_success=on_battle_success,
-                                    need_transport=point != self.last_challenge_point)
-            if op.execute().success:
-                self.last_challenge_point = point
-                return Operation.WAIT
-            else:
-                return Operation.RETRY
+        op = OpenMap(self.ctx)
+        op_result = op.execute()
+        if not op_result.success:
+            return Operation.round_retry('打开大地图失败')
+
+        screen: MatLike = self.screenshot()
+        part = cv2_utils.crop_image_only(screen, large_map.LARGE_MAP_POWER_RECT)
+        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+        self.power = str_utils.get_positive_digits(ocr_result, err=None)
+        if self.power is None:
+            return Operation.round_retry('检测剩余开拓力失败', wait=1)
+        else:
+            return Operation.round_success()
+
+    def _challenge_normal_task(self) -> OperationOneRoundResult:
+        """
+        挑战普通副本
+        :return:
+        """
+        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
+        run_times: int = self.power // point.power
+        if run_times == 0:
+            return Operation.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
+        if run_times + plan['run_times'] > plan['plan_times']:
+            run_times = plan['plan_times'] - plan['run_times']
+
+        op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times,
+                                support=plan['support'] if plan['support'] != 'none' else None,
+                                on_battle_success=self._on_normal_task_success,
+                                need_transport=point != self.last_challenge_point)
+
+        op_result = op.execute()
+        if op_result.success:
+            self.last_challenge_point = point
+        return Operation.round_by_op(op_result)
+
+    def _on_normal_task_success(self, finished_times: int, use_power: int):
+        """
+        普通副本获取一次奖励时候的回调
+        :param finished_times: 完成次数
+        :param use_power: 使用的体力
+        :return:
+        """
+        self.power -= use_power
+        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        plan['run_times'] += finished_times
+        self.config.save()
+
+    def _esc(self) -> OperationOneRoundResult:
+        op = OpenPhoneMenu(self.ctx)
+        return Operation.round_by_op(op.execute())
+
+    def _check_power_for_sim_uni(self) -> OperationOneRoundResult:
+        pass
+
+    def _challenge_sim_uni(self) -> OperationOneRoundResult:
+        pass
