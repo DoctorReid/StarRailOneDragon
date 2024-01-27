@@ -356,10 +356,24 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         检测小地图上的图标 在大地图上的哪个位置
         :return:
         """
-        if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            self.ctx.controller.initiate_attack()
-            time.sleep(0.5)
+        cal_pos = self._cal_interact_pos()
 
+        if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+            op = SimUniEnterFight(self.ctx, priority=self.priority)  # 攻击可破坏物 统一用这个处理大乐透
+            op_result = op.execute()
+            if not op_result.success:
+                return Operation.round_fail('攻击可破坏物失败')
+
+        if not cal_pos:
+            return Operation.round_retry('未配置交互点坐标且识别交互图标失败')
+        else:
+            return Operation.round_success()
+
+    def _cal_interact_pos(self) -> bool:
+        """
+        计算交互点的位置
+        :return:
+        """
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         angle = mini_map.analyse_angle(mm)
@@ -369,9 +383,9 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         if icon_pos is None:
             self.no_icon = True
             if len(self.route.op_list) == 0:  # 未配置路线时 需要识别到才能往下走
-                return Operation.round_retry('未配置交互点坐标且识别交互图标失败')
+                return False
             else:
-                return Operation.round_success()
+                return True
         else:
             if len(self.route.op_list) == 0:  # 未配置路线时 自动加入坐标
                 mm_center_pos = Point(mm.shape[1] // 2, mm.shape[0] // 2)
@@ -379,7 +393,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
                 op = SimUniRouteOperation(op=operation_const.OP_MOVE, data=[target_pos.x, target_pos.y])
                 self.route.op_list.append(op)
                 self.route.save()
-            return Operation.round_success()
+            return True
 
     def _after_route(self) -> OperationOneRoundResult:
         """

@@ -28,7 +28,8 @@ class SimUniEnterFight(Operation):
     STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
     STATUS_STATE_UNKNOWN: ClassVar[str] = '未知状态'
 
-    def __init__(self, ctx: Context, priority: Optional[SimUniAllPriority] = None):
+    def __init__(self, ctx: Context,
+                 priority: Optional[SimUniAllPriority] = None):
         """
         模拟宇宙中 主动进入战斗
         根据小地图的红圈 判断是否被敌人锁定
@@ -58,6 +59,9 @@ class SimUniEnterFight(Operation):
             return self._choose_bless()
         elif state == screen_state.ScreenState.SIM_CURIOS.value:
             return self._choose_curio()
+        elif state == screen_state.ScreenState.EMPTY_TO_CLOSE.value:
+            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
+            return Operation.round_wait(wait=1)
         elif state == screen_state.ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return Operation.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
@@ -77,7 +81,8 @@ class SimUniEnterFight(Operation):
                                                      battle=True,
                                                      battle_fail=True,
                                                      bless=True,
-                                                     curio=True)
+                                                     curio=True,
+                                                     empty_to_close=True)
 
     def _update_not_in_world_time(self):
         """
