@@ -444,7 +444,7 @@ class SimUniUpgradeBless(StateOperation):
             return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
         else:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE)
+            return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=1)
 
     def _exit(self) -> OperationOneRoundResult:
         """
