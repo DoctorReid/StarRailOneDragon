@@ -74,9 +74,10 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.back_btn = components.RectOutlinedButton(text='后退', disabled=True, on_click=self._del_last_op)
         self.reset_btn = components.RectOutlinedButton(text='重置', disabled=True, on_click=self._clear_op)
         self.patrol_btn = components.RectOutlinedButton(text='攻击怪物', disabled=True, on_click=self._add_patrol)
+        self.slow_move_btn = components.RectOutlinedButton(text='禁疾跑', disabled=True, on_click=self._change_slow_move)
         self.add_next_btn = components.RectOutlinedButton(text='下层入口', disabled=True, on_click=self._add_next)
         self.add_reward_btn = components.RectOutlinedButton(text='沉浸奖励', disabled=True, on_click=self._add_reward)
-        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn,
+        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn, self.slow_move_btn,
                                       self.add_next_btn, self.add_reward_btn])
 
         info_card_width = 200
@@ -400,6 +401,18 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.chosen_route.op_list.append(SimUniRouteOperation(op=operation_const.OP_PATROL))
         self._on_op_list_changed()
 
+    def _change_slow_move(self, e):
+        """
+        将最后一个移动点改为慢走
+        :param e:
+        :return:
+        """
+        if not self.chosen_route.is_last_op_move:
+            return
+        l = len(self.chosen_route.op_list)
+        self.chosen_route.op_list[l-1]['op'] = operation_const.OP_SLOW_MOVE
+        self._on_op_list_changed()
+
     def _add_next(self, e):
         """
         将最后一个点加入到下层交互点中
@@ -493,6 +506,9 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         self.patrol_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
         self.patrol_btn.update()
+
+        self.slow_move_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
+        self.slow_move_btn.update()
 
         self.add_next_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
         self.add_next_btn.update()

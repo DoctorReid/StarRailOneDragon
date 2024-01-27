@@ -210,7 +210,8 @@ class SimUniRoute:
         l = len(self.op_list)
         if l == 0:
             return False
-        return self.op_list[l - 1]['op'] == operation_const.OP_MOVE
+        op = self.op_list[l - 1]['op']
+        return op == operation_const.OP_MOVE or op == operation_const.OP_SLOW_MOVE
 
     @property
     def no_battle_op(self) -> bool:

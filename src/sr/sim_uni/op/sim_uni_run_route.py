@@ -8,7 +8,6 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
-from sr.config import game_config
 from sr.const import operation_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map
