@@ -412,8 +412,8 @@ P03_R03_SP06 = TransportPoint('YYZJ', '野焰之径侵蚀隧洞', P03_R03_F1, 'm
 P03_R03_SP07 = TransportPoint('XCHZS', '星槎海中枢', P03_R03_F2, 'mm_sp_02', (881, 222))
 
 # 仙舟罗浮 - 长乐天
-P03_R04_SP01 = TransportPoint('RMT', '若木亭', P03_R04, 'mm_tp_03', (550, 206))
-P03_R04_SP02 = TransportPoint('YXT', '悠暇庭', P03_R04, 'mm_tp_03', (589, 530))
+P03_R04_SP01 = TransportPoint('RMT', '若木亭', P03_R04, 'mm_tp_03', (550, 206), (559, 193))
+P03_R04_SP02 = TransportPoint('YXT', '悠暇庭', P03_R04, 'mm_tp_03', (589, 530), (593, 519))
 P03_R04_SP03 = TransportPoint('TBS', '太卜司', P03_R04, 'mm_sp_02', (697, 104))
 P03_R04_SP04 = TransportPoint('SCF', '神策府', P03_R04, 'mm_sp_02', (427, 145))
 P03_R04_SP05 = TransportPoint('JRX1', '金人巷1', P03_R04, 'mm_sp_02', (355, 224))
@@ -429,7 +429,7 @@ P03_R04_SP14 = TransportPoint('XCT', '小吃摊', P03_R04, 'mm_sp_03', (636, 560
 P03_R04_SP15 = TransportPoint('DHSGX', '地衡司公廨', P03_R04, 'mm_sp_05', (538, 294))
 
 # 仙舟罗浮 - 金人巷
-P03_R05_SP01 = TransportPoint('QKJ', '乾坤街', P03_R05, 'mm_tp_03', (694, 383))
+P03_R05_SP01 = TransportPoint('QKJ', '乾坤街', P03_R05, 'mm_tp_03', (694, 383), )
 P03_R05_SP02 = TransportPoint('JRXYS', '金人巷夜市', P03_R05, 'mm_tp_03', (432, 521))
 P03_R05_SP03 = TransportPoint('JRXMT', '金人巷码头', P03_R05, 'mm_tp_11', (480, 53))
 P03_R05_SP04 = TransportPoint('CLT1', '长乐天1', P03_R05, 'mm_sp_02', (346, 495))
