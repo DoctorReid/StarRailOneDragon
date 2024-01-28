@@ -9,6 +9,7 @@ from basic.img import cv2_utils
 from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot.phone_menu import in_phone_menu
+from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 
 
 class ScreenState(Enum):
@@ -101,6 +102,9 @@ class ScreenState(Enum):
 
     SIM_REWARD: str = '沉浸奖励'
     """模拟宇宙 - 沉浸奖励"""
+
+    SIM_UNI_REGION: str = '模拟宇宙-区域'
+    """模拟宇宙 - 区域"""
 
     BATTLE: str = '战斗'
     """所有战斗画面通用 - 右上角有暂停符号"""
@@ -381,6 +385,42 @@ def get_sim_uni_screen_state(
 
     if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
         return ScreenState.BATTLE.value
+
+    return None
+
+
+def get_sim_uni_initial_screen_state(screen: MatLike, im: ImageMatcher, ocr: OcrMatcher) -> Optional[str]:
+    """
+    获取模拟宇宙应用开始时的画面
+    :param screen: 屏幕截图
+    :param im: 图片匹配器
+    :param ocr: 文本识别器
+    :return:
+    """
+    if is_normal_in_world(screen, im):
+        region_name = get_region_name(screen, ocr)
+        for level_type_enum in SimUniLevelTypeEnum:
+            if str_utils.find_by_lcs(gt(level_type_enum.value.type_name, 'ocr'), region_name, percent=0.51):
+                return ScreenState.SIM_UNI_REGION.value
+
+        return ScreenState.NORMAL_IN_WORLD.value
+
+    if in_phone_menu(screen, ocr):
+        return ScreenState.PHONE_MENU.value
+
+    titles = get_ui_title(screen, ocr, rect=TargetRect.UI_TITLE.value)
+
+    if str_utils.find_best_match_by_lcs(ScreenState.GUIDE.value, titles, lcs_percent_threshold=0.5) is not None:
+        if str_utils.find_best_match_by_lcs(ScreenState.GUIDE_SURVIVAL_INDEX.value, titles, lcs_percent_threshold=0.5) is not None:
+            return ScreenState.GUIDE_SURVIVAL_INDEX.value
+
+        return ScreenState.GUIDE.value
+
+    if str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_EXTEND.value, titles, lcs_percent_threshold=0.5) is not None:
+        return ScreenState.SIM_TYPE_EXTEND.value
+
+    if str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles, lcs_percent_threshold=0.5) is not None:
+        return ScreenState.SIM_TYPE_NORMAL.value
 
     return None
 

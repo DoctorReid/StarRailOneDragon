@@ -9,6 +9,7 @@ from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.config import game_config
 from sr.const import phone_menu_const
 from sr.context import Context
+from sr.image.sceenshot import screen_state
 from sr.operation import OperationResult, Operation, StateOperationEdge, StateOperationNode, \
     OperationOneRoundResult
 from sr.operation.unit.back_to_world import BackToWorld
@@ -129,30 +130,42 @@ class SimUniverseApp(Application2):
         edges: List[StateOperationEdge] = []
 
         check_times = StateOperationNode('检查运行次数', self._check_times)
+        check_initial_screen = StateOperationNode('检查初始画面', self._check_initial_screen)
+        edges.append(StateOperationEdge(check_times, check_initial_screen))
 
         back_to_world = StateOperationNode('退出', op=BackToWorld(ctx))
         edges.append(StateOperationEdge(check_times, back_to_world, status=SimUniverseApp.STATUS_ALL_FINISHED))
 
         open_menu = StateOperationNode('菜单', op=OpenPhoneMenu(ctx))
-        edges.append(StateOperationEdge(check_times, open_menu))
+        edges.append(StateOperationEdge(check_initial_screen, open_menu, ignore_status=True))
 
         choose_guide = StateOperationNode('指南', op=ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
         edges.append(StateOperationEdge(open_menu, choose_guide))
+        edges.append(StateOperationEdge(check_initial_screen, choose_guide,
+                                        status=screen_state.ScreenState.PHONE_MENU.value))  # 在菜单的时候 打开指南
 
         choose_survival_index = StateOperationNode('生存索引', op=ChooseGuideTab(ctx, GUIDE_TAB_3))
         edges.append(StateOperationEdge(choose_guide, choose_survival_index))
+        edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
+                                        status=screen_state.ScreenState.GUIDE.value))  # 在指南里 选择生存索引
 
         choose_sim_category = StateOperationNode('模拟宇宙', op=ChooseGuideMissionCategory(ctx, CATEGORY_ROGUE))
         edges.append(StateOperationEdge(choose_survival_index, choose_sim_category))
+        edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
+                                        status=screen_state.ScreenState.GUIDE_SURVIVAL_INDEX.value))  # 在生存索引 选择模拟宇宙
 
         transport = StateOperationNode('传送', self._transport)
         edges.append(StateOperationEdge(choose_sim_category, transport))
 
         choose_normal_universe = StateOperationNode('普通宇宙', op=ChooseSimUniType(ctx, SimUniType.NORMAL))
         edges.append(StateOperationEdge(transport, choose_normal_universe))
+        edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
+                                        status=screen_state.ScreenState.SIM_TYPE_EXTEND.value))  # 拓展装置 选择模拟宇宙
 
         choose_universe_num = StateOperationNode('选择世界', self._choose_sim_uni_num)
         edges.append(StateOperationEdge(choose_normal_universe, choose_universe_num))
+        edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
+                                        status=screen_state.ScreenState.SIM_TYPE_NORMAL.value))  # 模拟宇宙 选择世界
 
         choose_universe_diff = StateOperationNode('选择难度', self._choose_sim_uni_diff)
         edges.append(StateOperationEdge(choose_universe_num, choose_universe_diff,
@@ -215,6 +228,10 @@ class SimUniverseApp(Application2):
             return Operation.round_success(SimUniverseApp.STATUS_ALL_FINISHED)
         else:
             return Operation.round_success()
+
+    def _check_initial_screen(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+        return Operation.round_success(screen_state.get_sim_uni_initial_screen_state(screen, self.ctx.im, self.ctx.ocr))
 
     def _transport(self) -> OperationOneRoundResult:
         """
