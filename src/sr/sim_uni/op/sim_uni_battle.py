@@ -29,7 +29,8 @@ class SimUniEnterFight(Operation):
     STATUS_STATE_UNKNOWN: ClassVar[str] = '未知状态'
 
     def __init__(self, ctx: Context,
-                 priority: Optional[SimUniAllPriority] = None):
+                 priority: Optional[SimUniAllPriority] = None,
+                 attack_once: bool = False):
         """
         模拟宇宙中 主动进入战斗
         根据小地图的红圈 判断是否被敌人锁定
@@ -42,6 +43,7 @@ class SimUniEnterFight(Operation):
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_direction: int = 0  # 攻击方向
         self.priority: Optional[SimUniAllPriority] = priority  # 优先级
+        self.attack_once: bool = attack_once  # 只攻击一次
 
     def _init_before_execute(self):
         self.last_attack_time = time.time()
@@ -144,19 +146,25 @@ class SimUniEnterFight(Operation):
         else:
             self.last_alert_time = now_time
 
-        if now_time - self.last_attack_time > SimUniEnterFight.ATTACK_INTERVAL:
-            self.last_attack_time = now_time
-            if self.attack_direction > 0:
-                self.ctx.controller.move(SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
-                time.sleep(0.2)
-            self.attack_direction += 1
-            self.ctx.controller.initiate_attack()
-            time.sleep(0.5)
+        self._attack(now_time)
 
         if now_time - self.last_not_in_world_time > SimUniEnterFight.EXIT_AFTER_NO_BATTLE_TIME:
             return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
 
         return Operation.round_wait()
+
+    def _attack(self, now_time: float):
+        if now_time - self.last_attack_time <= SimUniEnterFight.ATTACK_INTERVAL:
+            return
+        if self.attack_once and self.attack_direction > 0:
+            return
+        self.last_attack_time = now_time
+        if self.attack_direction > 0:
+            self.ctx.controller.move(SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
+            time.sleep(0.2)
+        self.attack_direction += 1
+        self.ctx.controller.initiate_attack()
+        time.sleep(0.5)
 
     def on_resume(self):
         super().on_resume()

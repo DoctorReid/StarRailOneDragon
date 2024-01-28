@@ -359,7 +359,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         cal_pos = self._cal_interact_pos()
 
         if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            op = SimUniEnterFight(self.ctx, priority=self.priority)  # 攻击可破坏物 统一用这个处理大乐透
+            op = SimUniEnterFight(self.ctx, priority=self.priority, attack_once=True)  # 攻击可破坏物 统一用这个处理大乐透
             op_result = op.execute()
             if not op_result.success:
                 return Operation.round_fail('攻击可破坏物失败')
