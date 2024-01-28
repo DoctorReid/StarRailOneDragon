@@ -475,10 +475,10 @@ P03_R08_SP11 = TransportPoint('YRDXYT', '永仁的小药摊', P03_R08_F2, 'mm_sp
 P03_R08_SP12 = TransportPoint('GGDYCT', '汵汵的药材摊', P03_R08_F2, 'mm_sp_03', (837, 843))
 
 # 仙舟罗浮 - 鳞渊境
-P03_R09_SP01 = TransportPoint('GXSC', '宫墟深处', P03_R09, 'mm_tp_03', (891, 425))
-P03_R09_SP02 = TransportPoint('GHGX', '古海宫墟', P03_R09, 'mm_tp_03', (1113, 425))
-P03_R09_SP03 = TransportPoint('XLDYD', '显龙大雩殿', P03_R09, 'mm_tp_03', (1599, 444))
-P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形凝滞虚影', P03_R09, 'mm_tp_06', (917, 169))
+P03_R09_SP01 = TransportPoint('GXSC', '宫墟深处', P03_R09, 'mm_tp_03', (891, 425), (883, 435))
+P03_R09_SP02 = TransportPoint('GHGX', '古海宫墟', P03_R09, 'mm_tp_03', (1113, 425), (1127, 434))
+P03_R09_SP03 = TransportPoint('XLDYD', '显龙大雩殿', P03_R09, 'mm_tp_03', (1599, 444), (1592, 433))
+P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形凝滞虚影', P03_R09, 'mm_tp_06', (917, 169), (919, 182))
 P03_R09_SP05 = TransportPoint('DDS', '丹鼎司', P03_R09, 'mm_sp_02', (1891, 391))
 P03_R09_SP06 = TransportPoint('BSDSS', '不死的神实历战回响', P03_R09, 'mm_boss_03', (470, 450))
 
