@@ -22,7 +22,7 @@ class TestCalPosForSimUni(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.init_image_matcher()
 
-        screen = get_debug_image('_1706411412325')
+        screen = get_debug_image('_1706417532704')
         mm = mini_map.cut_mini_map(screen)
         save_debug_image(mm)
         mm_info = mini_map.analyse_mini_map(mm, ctx.im)

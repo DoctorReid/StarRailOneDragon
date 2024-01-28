@@ -151,7 +151,7 @@ class SimUniverseApp(Application2):
 
         choose_sim_category = StateOperationNode('模拟宇宙', op=ChooseGuideMissionCategory(ctx, CATEGORY_ROGUE))
         edges.append(StateOperationEdge(choose_survival_index, choose_sim_category))
-        edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
+        edges.append(StateOperationEdge(check_initial_screen, choose_sim_category,
                                         status=screen_state.ScreenState.GUIDE_SURVIVAL_INDEX.value))  # 在生存索引 选择模拟宇宙
 
         transport = StateOperationNode('传送', self._transport)
@@ -159,12 +159,12 @@ class SimUniverseApp(Application2):
 
         choose_normal_universe = StateOperationNode('普通宇宙', op=ChooseSimUniType(ctx, SimUniType.NORMAL))
         edges.append(StateOperationEdge(transport, choose_normal_universe))
-        edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
+        edges.append(StateOperationEdge(check_initial_screen, choose_normal_universe,
                                         status=screen_state.ScreenState.SIM_TYPE_EXTEND.value))  # 拓展装置 选择模拟宇宙
 
         choose_universe_num = StateOperationNode('选择世界', self._choose_sim_uni_num)
         edges.append(StateOperationEdge(choose_normal_universe, choose_universe_num))
-        edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
+        edges.append(StateOperationEdge(check_initial_screen, choose_universe_num,
                                         status=screen_state.ScreenState.SIM_TYPE_NORMAL.value))  # 模拟宇宙 选择世界
 
         choose_universe_diff = StateOperationNode('选择难度', self._choose_sim_uni_diff)

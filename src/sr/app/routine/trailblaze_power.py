@@ -152,6 +152,7 @@ class TrailblazePower(Application2):
     STATUS_NORMAL_TASK: ClassVar[str] = '普通副本'
     STATUS_SIM_UNI_TASK: ClassVar[str] = '模拟宇宙'
     STATUS_NO_ENOUGH_POWER: ClassVar[str] = '体力不足'
+    STATUS_PLAN_FINISHED: ClassVar[str] = '完成计划'
 
     def __init__(self, ctx: Context):
         edges = []
@@ -174,7 +175,9 @@ class TrailblazePower(Application2):
 
         esc = StateOperationNode('退出', self._esc)
         edges.append(StateOperationEdge(challenge_normal, esc, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
+        edges.append(StateOperationEdge(challenge_normal, esc, status=TrailblazePower.STATUS_PLAN_FINISHED))
         edges.append(StateOperationEdge(challenge_sim_uni, esc, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
+        edges.append(StateOperationEdge(challenge_sim_uni, esc, status=TrailblazePower.STATUS_PLAN_FINISHED))
 
         super().__init__(ctx, try_times=5,
                          op_name=gt('开拓力', 'ui'),
@@ -243,6 +246,8 @@ class TrailblazePower(Application2):
             return Operation.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
         if run_times + plan['run_times'] > plan['plan_times']:
             run_times = plan['plan_times'] - plan['run_times']
+        if run_times == 0:
+            return Operation.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
 
         op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times,
                                 support=plan['support'] if plan['support'] != 'none' else None,
@@ -321,6 +326,8 @@ class TrailblazePower(Application2):
             return Operation.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
         if run_times + plan['run_times'] > plan['plan_times']:
             run_times = plan['plan_times'] - plan['run_times']
+        if run_times == 0:
+            return Operation.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
 
         op = SimUniverseApp(self.ctx,
                             specified_uni_num=point.tp.idx,

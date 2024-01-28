@@ -34,6 +34,6 @@ class TestSimUniReward(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.start_running()
 
-        op = SimUniReward(ctx, 2)
+        op = SimUniReward(ctx, 0)
         # op._specified_start_node = op.edge_list[0].node_to
         op.execute()

@@ -15,6 +15,7 @@ class SimUniReward(StateOperation):
 
     POWER_NUM_RECT: ClassVar[Rect] = Rect(623, 715, 655, 744)  # 开拓力数字部分
     QTY_RECT: ClassVar[Rect] = Rect(1060, 715, 1090, 744)  # 沉浸器数字部分
+    CLOSE_REWARD_BTN: ClassVar[Rect] = Rect(1433, 331, 1492, 382)  # 关闭沉浸奖励
 
     STATUS_GET_REWARD: ClassVar[str] = '获取奖励'
 
@@ -56,7 +57,7 @@ class SimUniReward(StateOperation):
 
     def _get_reward(self) -> OperationOneRoundResult:
         if self.get_reward_cnt >= self.max_to_get:
-            click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
+            self.ctx.controller.click(SimUniReward.CLOSE_REWARD_BTN.center)
             return Operation.round_success(wait=1)
         screen = self.screenshot()
 
@@ -76,7 +77,8 @@ class SimUniReward(StateOperation):
                 )
             return Operation.round_success(SimUniReward.STATUS_GET_REWARD)
         else:
-            return Operation.round_success()
+            self.ctx.controller.click(SimUniReward.CLOSE_REWARD_BTN.center)
+            return Operation.round_success(wait=1)
 
     def _get_reward_pos(self, screen: MatLike) -> Optional[Rect]:
         """
