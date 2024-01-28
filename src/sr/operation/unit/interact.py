@@ -79,7 +79,7 @@ class TalkInteract(Operation):
     """
     交谈过程中的交互
     """
-    INTERACT_RECT: ClassVar[Rect] = Rect(1100, 400, 1500, 870)
+    INTERACT_RECT: ClassVar[Rect] = Rect(1292, 560, 1878, 802)
 
     def __init__(self, ctx: Context, option: str,
                  lcs_percent: float = -1,
@@ -98,25 +98,20 @@ class TalkInteract(Operation):
         self.option: str = option
         self.lcs_percent: float = lcs_percent
 
-    def _execute_one_round(self) -> int:
+    def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
-        lower_color = np.array([200, 200, 200], dtype=np.uint8)
-        upper_color = np.array([255, 255, 255], dtype=np.uint8)
-        part, _ = cv2_utils.crop_image(screen, TalkInteract.INTERACT_RECT)
-        white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
-        # cv2_utils.show_image(white_part, wait=0)
+        part = cv2_utils.crop_image_only(screen, TalkInteract.INTERACT_RECT)
+        # cv2_utils.show_image(part, wait=0)
 
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.option], lcs_percent=self.lcs_percent)
+        ocr_result = self.ctx.ocr.match_words(part, words=[self.option], lcs_percent=self.lcs_percent)
 
-        if len(ocr_result) == 0:  # 目前没有交互按钮 尝试挪动触发交互
+        if len(ocr_result) == 0:  # 目前没有交互按钮 说明当前在对话 点击继续
             self.ctx.controller.click(const.CLICK_TO_CONTINUE_POS)
-            time.sleep(1)
-            return Operation.RETRY
+            return Operation.round_retry(wait=1)
         else:
             for r in ocr_result.values():
                 to_click: Point = r.max.center + TalkInteract.INTERACT_RECT.left_top
                 if self.ctx.controller.interact(to_click, GameController.TALK_INTERACT_TYPE):
-                    log.info('交互成功 %s', gt(self.option))
-                    return Operation.SUCCESS
+                    return Operation.round_success()
 
-        return Operation.RETRY
+        return Operation.round_retry(wait=1)
