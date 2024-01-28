@@ -2,7 +2,7 @@ support_world: [8]
 planet: '雅利洛'
 region: '残响回廊'
 floor: 0
-start_pos: [490, 900]
+start_pos: [490, 880]
 next_pos_list:
   - [493, 957]
 op_list:

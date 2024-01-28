@@ -59,8 +59,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
         """
         # 根据上一次的坐标和行进距离 计算当前位置
         if self.last_rec_time > 0:
-            if self.no_pos_stop_move_time is not None:
-                move_time = self.no_pos_stop_move_time - self.last_rec_time  # 停止移动后的时间不应该纳入计算
+            if self.stop_move_time is not None:
+                move_time = self.stop_move_time - self.last_rec_time  # 停止移动后的时间不应该纳入计算
             else:
                 move_time = now_time - self.last_rec_time
             if move_time < 1:
@@ -87,6 +87,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             log.error('计算坐标出错', exc_info=True)
             next_pos = None
             self.ctx.controller.stop_moving_forward()
+            self.stop_move_time = time.time()
 
         if next_pos is None:
             log.error('无法判断当前人物坐标')
@@ -103,21 +104,24 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if self.no_battle:
             return None
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
+            fight_start_time = time.time()
             self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
+            self.stop_move_time = time.time()
             fight = SimUniEnterFight(self.ctx, priority=self.priority)
             fight_result = fight.execute()
+            fight_end_time = time.time()
             if not fight_result.success:
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)
-            self.last_battle_time = time.time()
-            self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
+            self.last_battle_time = fight_end_time
+            self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
             return Operation.round_wait()
         return None
 
     def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
         """
         从小地图检测敌人 如果有的话 进入索敌
-        :param mm:
+        :param mm: 小地图
         :return: 是否有敌人
         """
         if self.no_battle:
@@ -127,13 +131,25 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if not mini_map.is_under_attack(mm):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
+        self.stop_move_time = time.time()
+        original_angle = mini_map.analyse_angle(mm)  # 战斗前的朝向
+
+        fight_start_time = time.time()
         fight = SimUniEnterFight(self.ctx, self.priority)
         op_result = fight.execute()
+        fight_end_time = time.time()
         if not op_result.success:
             return Operation.round_fail(status=op_result.status, data=op_result.data)
+        else:
+            screen = self.screenshot()
+            mm2 = mini_map.cut_mini_map(screen)
+            new_angle = mini_map.analyse_angle(mm2)  # 战斗后的朝向
+            angle_delta = cal_utils.angle_delta(new_angle, original_angle)  # 有时候攻击进入战斗会让角色朝向改变 不知道触发条件
+            if abs(angle_delta) > 30:  # 朝向改变过大时 转回到进入战斗之前
+                self.ctx.controller.turn_by_angle(angle_delta)
         self.last_auto_fight_fail = (op_result.status == SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
-        self.last_battle_time = time.time()
-        self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
+        self.last_battle_time = fight_end_time
+        self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
 
         return Operation.round_wait()
 
@@ -175,7 +191,7 @@ class MoveToNextLevel(StateOperation):
     def _init_before_execute(self):
         super()._init_before_execute()
         self.is_moving = False
-        self.interacted: bool = False
+        self.interacted = False
         if self.next_pos_list is None or len(self.next_pos_list) == 0:
             self.next_pos = None
         else:
@@ -208,8 +224,6 @@ class MoveToNextLevel(StateOperation):
             if not screen_state.is_normal_in_world(screen, self.ctx.im):
                 # 兜底 - 如果已经不在大世界画面了 就认为成功了
                 return Operation.round_success()
-            else:
-                self.interacted = False
 
         interact = self._try_interact(screen)
         if interact is not None:
@@ -223,7 +237,7 @@ class MoveToNextLevel(StateOperation):
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
-                self.ctx.controller.turn_by_angle(120)
+                self.ctx.controller.turn_by_angle(90)
                 return Operation.round_retry('未找到下一层入口', wait=1)
 
             target = self._get_target_entry(type_list)
@@ -326,6 +340,7 @@ class MoveToNextLevel(StateOperation):
         if self._can_interact(screen):
             self.ctx.controller.stop_moving_forward()
             self.ctx.controller.interact(interact_type=GameController.MOVE_INTERACT_TYPE)
+            log.debug('尝试交互进入下一层')
             self.interacted = True
             return Operation.round_wait(wait=0.25)
         else:

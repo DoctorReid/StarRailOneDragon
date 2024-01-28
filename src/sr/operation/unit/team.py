@@ -8,7 +8,7 @@ from basic.img import cv2_utils
 from sr.const.character_const import Character, CHARACTER_LIST
 from sr.context import Context
 from sr.image.sceenshot import screen_state
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 
 
 class GetTeamMemberInWorld(Operation):
@@ -60,7 +60,11 @@ class GetTeamMemberInWorld(Operation):
         return best_character.id if best_character is not None else None
 
 
-class SwitchMember(Operation):
+class SwitchMember(StateOperation):
+
+    CONFIRM_BTN: ClassVar[Rect] = Rect(1006, 788, 1327, 846)  # 复活确认
+
+    STATUS_CONFIRM: ClassVar[str] = '确认'
 
     def __init__(self, ctx: Context, num: int,
                  skip_first_screen_check: bool = False):
@@ -70,7 +74,21 @@ class SwitchMember(Operation):
         :param num: 第几个队友
         :param skip_first_screen_check: 是否跳过第一次画面状态检查
         """
-        super().__init__(ctx, try_times=5, op_name='%s %d' % (gt('切换角色', 'ui'), num))
+        edges = []
+
+        switch = StateOperationNode('切换', self._switch)
+        confirm = StateOperationNode('确认', self._confirm)
+        edges.append(StateOperationEdge(switch, confirm))
+
+        wait = StateOperationNode('等待', self._wait_after_confirm)
+        edges.append(StateOperationEdge(confirm, wait, status=SwitchMember.STATUS_CONFIRM))
+
+        edges.append(StateOperationEdge(wait, switch))  # 复活后需要再按一次切换
+
+        super().__init__(ctx, try_times=5,
+                         op_name='%s %d' % (gt('切换角色', 'ui'), num),
+                         edges=edges, specified_start_node=switch)
+
         self.num: int = num
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
@@ -79,7 +97,7 @@ class SwitchMember(Operation):
         super()._init_before_execute()
         self.first_screen_check = True
 
-    def _execute_one_round(self) -> OperationOneRoundResult:
+    def _switch(self) -> OperationOneRoundResult:
         first = self.first_screen_check
         self.first_screen_check = False
         if first and self.skip_first_screen_check:
@@ -89,6 +107,32 @@ class SwitchMember(Operation):
             if not screen_state.is_normal_in_world(screen, self.ctx.im):
                 return Operation.round_retry('未在大世界页面', wait=1)
 
-        # TODO 未判断角色阵亡
         self.ctx.controller.switch_character(self.num)
         return Operation.round_success(wait=1)
+
+    def _confirm(self) -> OperationOneRoundResult:
+        """
+        复活确认
+        :return:
+        """
+        screen = self.screenshot()
+        if screen_state.is_normal_in_world(screen, self.ctx.im):  # 无需复活
+            return Operation.round_success()
+
+        click = self.ocr_and_click_one_line('确认', SwitchMember.CONFIRM_BTN)
+
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success(SwitchMember.STATUS_CONFIRM, wait=1)
+        else:
+            return Operation.round_retry('点击确认失败', wait=1)
+
+    def _wait_after_confirm(self) -> OperationOneRoundResult:
+        """
+        等待回到大世界画面
+        :return:
+        """
+        screen = self.screenshot()
+        if screen_state.is_normal_in_world(screen, self.ctx.im):
+            return Operation.round_success()
+        else:
+            return Operation.round_retry('未在大世界画面', wait=1)

@@ -241,7 +241,7 @@ class SimUniverseApp(Application2):
         """
         click = self.ocr_and_click_one_line('传送', SimUniverseApp.SURVIVAL_TRANSPORT_BTN)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return Operation.round_success(wait=3)
         else:
             return Operation.round_retry('点击传送失败', wait=1)
 

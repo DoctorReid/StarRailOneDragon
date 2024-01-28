@@ -139,7 +139,7 @@ class MoveDirectly(Operation):
         self.last_auto_fight_fail: bool = False  # 上一次索敌是否失败 只有小地图背景污染严重时候出现
         self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
-        self.no_pos_stop_move_time: Optional[float] = None  # 因为没有计算到坐标停止移动的时间
+        self.stop_move_time: Optional[float] = None  # 停止移动的时间
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
         self.no_battle: bool = no_battle  # 本次移动是否没有战斗
@@ -211,6 +211,7 @@ class MoveDirectly(Operation):
             if self.stuck_times > 12:
                 return Operation.round_fail('脱困失败')
             get_rid_of_stuck = GetRidOfStuck(self.ctx, self.stuck_times)
+            self.stop_move_time = time.time()
             stuck_op_result = get_rid_of_stuck.execute()
             if stuck_op_result.success:
                 self.last_rec_time += stuck_op_result.data
@@ -231,12 +232,15 @@ class MoveDirectly(Operation):
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
+            self.stop_move_time = time.time()
             fight = EnterAutoFight(self.ctx)
+            fight_start_time = time.time()
             fight_result = fight.execute()
+            fight_end_time = time.time()
             if not fight_result.success:
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = time.time()
-            self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
+            self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
             return Operation.round_wait()
         return None
 
@@ -253,13 +257,26 @@ class MoveDirectly(Operation):
         if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
+        self.stop_move_time = time.time()
+        original_angle = mini_map.analyse_angle(mm)  # 战斗前的朝向
+
         fight = EnterAutoFight(self.ctx)
+        fight_start_time = time.time()
         op_result = fight.execute()
+        fight_end_time = time.time()
         if not op_result.success:
             return Operation.round_fail(status=op_result.status, data=op_result.data)
+        else:
+            screen = self.screenshot()
+            mm2 = mini_map.cut_mini_map(screen)
+            new_angle = mini_map.analyse_angle(mm2)  # 战斗后的朝向
+            angle_delta = cal_utils.angle_delta(new_angle, original_angle)  # 有时候攻击进入战斗会让角色朝向改变 不知道触发条件
+            if abs(angle_delta) > 30:  # 朝向改变过大时 转回到进入战斗之前
+                self.ctx.controller.turn_by_angle(angle_delta)
+
         self.last_auto_fight_fail = (op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = time.time()
-        self.last_rec_time = time.time()  # 战斗可能很久 需要重置一下记录坐标时间
+        self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
 
         return Operation.round_wait()
 
@@ -272,8 +289,8 @@ class MoveDirectly(Operation):
         """
         # 根据上一次的坐标和行进距离 计算当前位置
         if self.last_rec_time > 0:
-            if self.no_pos_stop_move_time is not None:
-                move_time = self.no_pos_stop_move_time - self.last_rec_time  # 停止移动后的时间不应该纳入计算
+            if self.stop_move_time is not None:
+                move_time = self.stop_move_time - self.last_rec_time  # 停止移动后的时间不应该纳入计算
             else:
                 move_time = now_time - self.last_rec_time
             if move_time < 1:
@@ -326,13 +343,12 @@ class MoveDirectly(Operation):
                 self.last_no_pos_time = now_time
                 if self.no_pos_times >= 3:  # 不要再乱走了
                     self.ctx.controller.stop_moving_forward()
-                    self.no_pos_stop_move_time = now_time
+                    self.stop_move_time = now_time
                 if self.no_pos_times >= 10:
                     return Operation.round_fail('无法识别坐标')
             return Operation.round_wait()
         else:
             self.no_pos_times = 0
-            self.no_pos_stop_move_time = None
 
     def check_arrive(self, next_pos: Point) -> Optional[OperationOneRoundResult]:
         """
@@ -343,6 +359,7 @@ class MoveDirectly(Operation):
         if cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
+                self.stop_move_time = time.time()
             return Operation.round_success(data=next_pos)
         return None
 
@@ -354,7 +371,7 @@ class MoveDirectly(Operation):
         :param mm_info:
         :return:
         """
-        self.no_pos_stop_move_time = None
+        self.stop_move_time = None
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
             self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle,
                                              run=self.run_mode == game_config_const.RUN_MODE_BTN)

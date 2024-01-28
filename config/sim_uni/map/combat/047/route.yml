@@ -3,7 +3,8 @@ planet: '雅利洛'
 region: '磐岩镇'
 floor: 0
 start_pos: [456, 532]
-next_pos_list: []
+next_pos_list:
+  - [447, 586]
 op_list:
   - op: 'move'
     data: [455, 566]
