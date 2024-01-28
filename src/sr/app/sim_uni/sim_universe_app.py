@@ -187,6 +187,7 @@ class SimUniverseApp(Application2):
         check_times_to_continue = StateOperationNode('继续检查运行次数', self._check_times)
         edges.append(StateOperationEdge(run_world, check_times_to_continue))
         edges.append(StateOperationEdge(check_times_to_continue, choose_universe_num))
+        edges.append(StateOperationEdge(check_times_to_continue, back_to_world, status=SimUniverseApp.STATUS_ALL_FINISHED))
 
         # 战斗失败
         world_fail = StateOperationNode('战斗失败', op=SimUniExit(ctx, exit_clicked=True))
@@ -207,7 +208,7 @@ class SimUniverseApp(Application2):
 
         self.current_uni_num: int = 0
 
-        self.specified_uni_num: Optional[int] = specified_uni_num
+        self.specified_uni_num: Optional[int] = specified_uni_num  # 指定宇宙 用于
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_cnt: int = 0  # 当前获取的奖励次数
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
