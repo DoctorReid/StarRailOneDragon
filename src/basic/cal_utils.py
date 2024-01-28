@@ -48,6 +48,20 @@ def get_angle_by_pts(from_pos: Point, to_pos: Point) -> float:
     return angle
 
 
+def angle_delta(from_angle: float, to_angle: float) -> float:
+    """
+    从一个角度转到另一个角度需要的角度
+    :param from_angle:
+    :param to_angle:
+    :return:
+    """
+    delta_angle = to_angle - from_angle if to_angle >= from_angle else to_angle + 360 - from_angle
+    # 正方向转太远的话就用负方向转
+    if delta_angle > 180:
+        delta_angle -= 360
+    return delta_angle
+
+
 def in_rect(point: Point, rect: Rect) -> bool:
     """
     点是否在矩阵内

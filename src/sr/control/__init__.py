@@ -133,10 +133,7 @@ class GameController:
         """
         target_angle = cal_utils.get_angle_by_pts(current_pos, target_pos)
         # 保证计算的转动角度为正
-        delta_angle = target_angle - current_angle if target_angle >= current_angle else target_angle + 360 - current_angle
-        # 正方向转太远的话就用负方向转
-        if delta_angle > 180:
-            delta_angle -= 360
+        delta_angle = cal_utils.angle_delta(current_angle, target_angle)
         log.info('当前角度: %.2f度 目标角度: %.2f度 转动朝向: %.2f度', current_angle, target_angle, delta_angle)
         self.turn_by_angle(delta_angle)
 

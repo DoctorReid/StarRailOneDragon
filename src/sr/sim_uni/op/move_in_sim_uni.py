@@ -80,8 +80,9 @@ class MoveDirectlyInSimUni(MoveDirectly):
             return self.start_pos, mm_info
 
         try:
-            next_pos = cal_pos.cal_character_pos_for_sim_uni(self.ctx.im, self.lm_info, mm_info,
-                                                             lm_rect=lm_rect, running=self.ctx.controller.is_moving)
+            next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, self.lm_info, mm_info,
+                                               possible_pos=possible_pos,
+                                               lm_rect=lm_rect, running=self.ctx.controller.is_moving)
         except Exception:
             log.error('计算坐标出错', exc_info=True)
             next_pos = None
@@ -89,9 +90,6 @@ class MoveDirectlyInSimUni(MoveDirectly):
 
         if next_pos is None:
             log.error('无法判断当前人物坐标')
-        elif cal_utils.distance_between(last_pos, next_pos) > move_distance:
-            log.info('计算坐标与当前坐标距离较远 舍弃')
-            next_pos = None
 
         return next_pos, mm_info
 

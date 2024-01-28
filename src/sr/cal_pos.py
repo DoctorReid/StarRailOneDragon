@@ -1,6 +1,6 @@
 import concurrent.futures
 from concurrent.futures import Future
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -459,9 +459,10 @@ def template_match_with_scale(im: ImageMatcher,
     return result.max
 
 
-def cal_character_pos_for_sim_uni(
+def sim_uni_cal_pos(
         im: ImageMatcher,
         lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+        possible_pos: Optional[Tuple[int, int, float]] = None,
         lm_rect: Rect = None, show: bool = False,
         running: bool = False) -> Optional[Point]:
     """
@@ -469,6 +470,7 @@ def cal_character_pos_for_sim_uni(
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
+    :param possible_pos: 可能位置 前两个为上一次的坐标，第三个为预估移动距离
     :param lm_rect: 大地图特定区域
     :param show: 是否显示结果
     :param running: 角色是否在移动 移动时候小地图会缩小
@@ -480,38 +482,39 @@ def cal_character_pos_for_sim_uni(
     # 模拟宇宙中不需要考虑特殊点
 
     if result is None:  # 使用模板匹配 用原图的
-        result = cal_character_pos_by_gray_2(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
+            result = None
 
     # 使用模板匹配 道路掩码误。报率高 仅在限定范围时可使用
     if result is None and lm_rect is not None:
         result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
+            result = None
 
     if result is None:
         return None
 
-    offset_x = result.x
-    offset_y = result.y
     scale = result.template_scale
     # 小地图缩放后中心点在大地图的位置 即人物坐标
-    center_x = offset_x + result.w // 2
-    center_y = offset_y + result.h // 2
+    target = result.center
 
     if show:
-        cv2_utils.show_overlap(lm_info.origin, mm_info.origin, offset_x, offset_y, template_scale=scale, win_name='overlap')
+        cv2_utils.show_overlap(lm_info.origin, mm_info.origin, result.x, result.y, template_scale=scale, win_name='overlap')
 
-    log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f 置信度 %.2f', center_x, center_y, scale, result.confidence)
+    log.debug('计算当前坐标为 %s 使用缩放 %.2f 置信度 %.2f', target, scale, result.confidence)
 
-    return Point(center_x, center_y)
+    return target
 
 
 @record_performance
-def cal_character_pos_by_gray_2(im: ImageMatcher,
-                                lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                lm_rect: Rect = None,
-                                running: bool = False,
-                                show: bool = False,
-                                scale_list: List[float] = None,
-                                match_threshold: float = 0.3) -> Optional[MatchResult]:
+def sim_uni_cal_pos_by_gray(im: ImageMatcher,
+                            lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+                            lm_rect: Rect = None,
+                            running: bool = False,
+                            show: bool = False,
+                            scale_list: List[float] = None,
+                            match_threshold: float = 0.3) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用灰度图进行匹配 使用v4的道路掩码 适合在单层地图中使用
@@ -557,3 +560,35 @@ def cal_character_pos_by_gray_2(im: ImageMatcher,
         return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
     else:
         return None
+
+
+def is_valid_result_with_possible_pos(result: Optional[MatchResult],
+                                      possible_pos: Optional[Tuple[int, int, float]],
+                                      current_angle: Optional[float]) -> bool:
+    """
+    判断当前计算坐标是否合理
+    :param result: 坐标结果
+    :param possible_pos: 可能位置 前两个为上一次的坐标，第三个为预估移动距离
+    :param current_angle: 当前人物朝向
+    :return:
+    """
+    if result is None:
+        return False
+    if possible_pos is None or current_angle is None:  # 无传入时不判断
+        return True
+
+    last_pos = Point(possible_pos[0], possible_pos[1])
+    move_distance = possible_pos[2]
+    next_pos = result.center
+
+    if cal_utils.distance_between(last_pos, next_pos) > move_distance:
+        log.info('计算坐标与当前坐标距离较远 舍弃')
+        return False
+
+    next_angle = cal_utils.get_angle_by_pts(last_pos, next_pos)
+    angle_delta = cal_utils.angle_delta(current_angle, next_angle)
+    if abs(angle_delta) > 30:
+        log.info('计算坐标的角度与当前朝向相差较大 舍弃')
+        return False
+
+    return True

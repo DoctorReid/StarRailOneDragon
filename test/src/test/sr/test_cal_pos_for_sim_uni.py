@@ -5,7 +5,7 @@ import cv2
 import test
 from basic import Point
 from basic.img import MatchResult, cv2_utils
-from basic.img.os import get_debug_image
+from basic.img.os import get_debug_image, save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
 from sr.const import map_const
@@ -22,8 +22,9 @@ class TestCalPosForSimUni(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.init_image_matcher()
 
-        screen = get_debug_image('_1706279191929')
+        screen = get_debug_image('_1706411412325')
         mm = mini_map.cut_mini_map(screen)
+        save_debug_image(mm)
         mm_info = mini_map.analyse_mini_map(mm, ctx.im)
 
         for _, region_list in map_const.PLANET_2_REGION.items():
@@ -31,9 +32,9 @@ class TestCalPosForSimUni(unittest.TestCase, test.SrTestBase):
                 if region != map_const.P02_R04:
                     continue
                 lm_info = ctx.ih.get_large_map(region)
-                pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(ctx.im, lm_info, mm_info,
-                                                                       scale_list=[1], match_threshold=0.3,
-                                                                       show=True)
+                pos: MatchResult = cal_pos.sim_uni_cal_pos_by_gray(ctx.im, lm_info, mm_info,
+                                                                   scale_list=[1], match_threshold=0.3,
+                                                                   show=True)
                 log.info('匹配 %s 结果 %s', region.display_name, pos)
                 if pos is not None:
                     cv2_utils.show_overlap(lm_info.origin, mm_info.origin, pos.left_top.x, pos.left_top.y, win_name='overlap')
@@ -43,16 +44,16 @@ class TestCalPosForSimUni(unittest.TestCase, test.SrTestBase):
         ctx = get_context()
         ctx.init_image_matcher()
 
-        screen = get_debug_image('_1706279191929')
+        screen = get_debug_image('_1706412936314')
         mm = mini_map.cut_mini_map(screen)
         mm_info = mini_map.analyse_mini_map(mm, ctx.im)
 
-        possible_pos = (272, 1272, 25)
-        region = map_const.P02_R05
+        possible_pos = (957, 392, 25)
+        region = map_const.P01_R04_F1
         lm_info = ctx.ih.get_large_map(region)
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
-        pos: Point = cal_pos.cal_character_pos_for_sim_uni(ctx.im, lm_info, mm_info,
-                                                           lm_rect=lm_rect, running=True,
-                                                           show=True)
+        pos: Point = cal_pos.sim_uni_cal_pos(ctx.im, lm_info, mm_info,
+                                             lm_rect=lm_rect, running=True,
+                                             show=True)
         log.info('匹配 %s 结果 %s', region.display_name, pos)
         cv2.waitKey(0)

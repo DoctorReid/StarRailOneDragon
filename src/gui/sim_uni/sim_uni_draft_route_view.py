@@ -204,8 +204,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                 # if region != map_const.P03_R03_F1:
                 #     continue
                 lm_info = self.sr_ctx.ih.get_large_map(region)
-                pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(self.sr_ctx.im, lm_info, mm_info,
-                                                                       scale_list=[1], match_threshold=0.3)
+                pos: MatchResult = cal_pos.sim_uni_cal_pos_by_gray(self.sr_ctx.im, lm_info, mm_info,
+                                                                   scale_list=[1], match_threshold=0.3)
                 log.info('匹配 %s 结果 %s', region.display_name, pos)
                 if pos is None:
                     continue
@@ -547,8 +547,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         last_pos = self.chosen_route.last_pos
         possible_pos = (last_pos.x, last_pos.y, 20)
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, self.mini_map_image.shape[:2], possible_pos)
-        pos: MatchResult = cal_pos.cal_character_pos_by_gray_2(self.sr_ctx.im, lm_info, mm_info, lm_rect=lm_rect,
-                                                               scale_list=[1], match_threshold=0.3)
+        pos: MatchResult = cal_pos.sim_uni_cal_pos_by_gray(self.sr_ctx.im, lm_info, mm_info, lm_rect=lm_rect,
+                                                           scale_list=[1], match_threshold=0.3)
 
         if pos is None:
             log.info('计算坐标失败')
