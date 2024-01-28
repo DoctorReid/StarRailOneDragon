@@ -278,6 +278,8 @@ class SimUniDropBless(StateOperation):
                          nodes=[state, choose_bless, confirm])
 
         self.priority: Optional[SimUniAllPriority] = priority
+        if priority is None:
+            log.debug('未传入优先级')
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 

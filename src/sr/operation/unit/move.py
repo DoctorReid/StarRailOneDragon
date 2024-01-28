@@ -133,6 +133,7 @@ class MoveDirectly(Operation):
         self.last_auto_fight_fail: bool = False  # 上一次索敌是否失败 只有小地图背景污染严重时候出现
         self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
+        self.no_pos_stop_move_time: Optional[float] = None  # 因为没有计算到坐标停止移动的时间
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
         self.no_battle: bool = no_battle  # 本次移动是否没有战斗
@@ -265,11 +266,15 @@ class MoveDirectly(Operation):
         """
         # 根据上一次的坐标和行进距离 计算当前位置
         if self.last_rec_time > 0:
-            move_time = now_time - self.last_rec_time
+            if self.no_pos_stop_move_time is not None:
+                move_time = self.no_pos_stop_move_time - self.last_rec_time  # 停止移动后的时间不应该纳入计算
+            else:
+                move_time = now_time - self.last_rec_time
             if move_time < 1:
                 move_time = 1
         else:
             move_time = 1
+
         move_distance = self.ctx.controller.cal_move_distance_by_time(move_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
         last_pos = self.pos[len(self.pos) - 1] if len(self.pos) > 0 else self.start_pos
         possible_pos = (last_pos.x, last_pos.y, move_distance)
@@ -314,6 +319,7 @@ class MoveDirectly(Operation):
                 self.last_no_pos_time = now_time
                 if self.no_pos_times >= 3:  # 不要再乱走了
                     self.ctx.controller.stop_moving_forward()
+                    self.stop_move_time = now_time
                 if self.no_pos_times >= 10:
                     return Operation.round_fail('无法识别坐标')
             return Operation.round_wait()
@@ -340,6 +346,7 @@ class MoveDirectly(Operation):
         :param mm_info:
         :return:
         """
+        self.no_pos_stop_move_time = None
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
             self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle,
                                              run=self.run_mode == game_config_const.RUN_MODE_BTN)

@@ -163,7 +163,7 @@ class SimUniverseApp(Application2):
         edges.append(StateOperationEdge(choose_universe_num, start_sim,
                                         status=ChooseSimUniNum.STATUS_CONTINUE))
 
-        choose_path = StateOperationNode('选择命途', op=ChooseSimUniPath(ctx, SimUniPath.PROPAGATION))
+        choose_path = StateOperationNode('选择命途', self._choose_path)
         edges.append(StateOperationEdge(start_sim, choose_path, status=SimUniStart.STATUS_RESTART))
 
         run_world = StateOperationNode('通关', self._run_world)
@@ -240,6 +240,15 @@ class SimUniverseApp(Application2):
     def _on_uni_num_chosen(self, op_result: OperationResult):
         if op_result.success:
             self.current_uni_num = op_result.data
+
+    def _choose_path(self) -> OperationOneRoundResult:
+        """
+        选择命途
+        :return:
+        """
+        cfg = self.config.get_challenge_config(self.current_uni_num)
+        op = ChooseSimUniPath(self.ctx, SimUniPath[cfg.path])
+        return Operation.round_by_op(op.execute())
 
     def _run_world(self) -> OperationOneRoundResult:
         uni_challenge_config = self.config.get_challenge_config(self.current_uni_num)

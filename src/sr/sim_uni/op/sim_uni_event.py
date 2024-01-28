@@ -22,7 +22,6 @@ class SimUniEventOption:
         self.confirm_rect: Optional[Rect] = confirm_rect  # 开始对话部分的选项不需要确认
 
 
-
 class SimUniEvent(StateOperation):
 
     STATUS_NO_OPT: ClassVar[str] = '无选项'

@@ -59,7 +59,10 @@ class MoveDirectlyInSimUni(MoveDirectly):
         """
         # 根据上一次的坐标和行进距离 计算当前位置
         if self.last_rec_time > 0:
-            move_time = now_time - self.last_rec_time
+            if self.no_pos_stop_move_time is not None:
+                move_time = self.no_pos_stop_move_time - self.last_rec_time  # 停止移动后的时间不应该纳入计算
+            else:
+                move_time = now_time - self.last_rec_time
             if move_time < 1:
                 move_time = 1
         else:
@@ -104,7 +107,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
-            fight = SimUniEnterFight(self.ctx)
+            fight = SimUniEnterFight(self.ctx, priority=self.priority)
             fight_result = fight.execute()
             if not fight_result.success:
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)

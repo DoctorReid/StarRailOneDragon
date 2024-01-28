@@ -137,7 +137,8 @@ class SimUniRunRouteOp(StateOperation):
                                   stop_afterwards=not next_is_move,
                                   op_callback=self._update_pos,
                                   priority=self.priority,
-                                  no_battle=self.route_no_battle
+                                  no_battle=self.route_no_battle,
+                                  no_run=current_op['op'] == operation_const.OP_SLOW_MOVE
                                   )
         return op
 
@@ -577,6 +578,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
     def _after_route(self) -> OperationOneRoundResult:
         op = SimUniRunEliteAfterRoute(self.ctx, self.level_type,
                                       self.current_pos, self.route,
+                                      priority=self.priority,
                                       max_reward_to_get=self.max_reward_to_get,
                                       get_reward_callback=self.get_reward_callback,
                                       op_callback=self._update_pos

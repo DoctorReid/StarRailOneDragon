@@ -296,7 +296,7 @@ class UseTrailblazePower(StateOperation):
 
             click = self.ocr_and_click_one_line('再来一次', UseTrailblazePower.AFTER_BATTLE_CHALLENGE_AGAIN_BTN, lcs_percent=0.1)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_AGAIN)
+                return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_AGAIN, wait=2)  # 要等待画面加载
             else:
                 return Operation.round_retry('点击再来一次失败')
         else:
@@ -322,6 +322,6 @@ class UseTrailblazePower(StateOperation):
             else:
                 click = self.ocr_and_click_one_line('再来一次', UseTrailblazePower.AFTER_BATTLE_CHALLENGE_AGAIN_BTN, lcs_percent=0.1)
                 if click == Operation.OCR_CLICK_SUCCESS:
-                    return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_AGAIN)
+                    return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_AGAIN, wait=2)  # 要等待画面加载
                 else:
                     return Operation.round_retry('点击再来一次失败')
