@@ -66,7 +66,7 @@ class Context:
 
     def start_running(self) -> bool:
         if self.running != 0:
-            log.error('请先结束其他运行中的功能 再启动', self.running)
+            log.error('请先结束其他运行中的功能 再启动')
             return False
 
         if not self.init_all(renew=True):

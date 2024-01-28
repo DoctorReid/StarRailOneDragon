@@ -287,11 +287,12 @@ class TrailblazePower(Application2):
                 return Operation.round_by_op(op_result)
 
         screen = self.screenshot()
-        x, y = self._get_power_and_qty(screen)
+        x, y = self._get_sim_uni_power_and_qty(screen)
 
         if x is None or y is None:
             return Operation.round_retry('检测开拓力和沉浸器数量失败', wait=1)
 
+        log.info('检测当前体力 %d 沉浸器数量 %d', x, y)
         self.power = x
         self.qty = y
         return Operation.round_success()
@@ -326,12 +327,19 @@ class TrailblazePower(Application2):
                             max_reward_to_get=run_times,
                             get_reward_callback=self._on_sim_uni_get_reward
                             )
+        op.init_context_before_start = False
+        op.stop_context_after_stop = False
+        return Operation.round_by_op(op.execute())
 
-    def _on_sim_uni_get_reward(self):
+    def _on_sim_uni_get_reward(self, use_power: int, user_qty: int):
         """
         模拟宇宙 获取沉浸奖励后的回调
         :return:
         """
+        log.info('获取沉浸奖励 使用体力 %d 使用沉浸器 %d', use_power, user_qty)
         plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
         plan['run_times'] += 1
         self.config.save()
+
+        self.power -= use_power
+        self.qty -= user_qty

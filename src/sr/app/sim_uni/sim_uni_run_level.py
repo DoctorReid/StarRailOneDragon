@@ -18,7 +18,7 @@ class SimUniRunLevel(StateOperation):
     def __init__(self, ctx: Context, world_num: int,
                  priority: Optional[SimUniAllPriority] = None,
                  max_reward_to_get: int = 0,
-                 get_reward_callback: Optional[Callable[[], None]] = None,
+                 get_reward_callback: Optional[Callable[[int, int], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         模拟宇宙中 识别楼层类型并运行
@@ -47,7 +47,7 @@ class SimUniRunLevel(StateOperation):
         self.level_type: Optional[SimUniLevelType] = None
         self.priority: Optional[SimUniAllPriority] = priority
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
-        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
+        self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _init_before_execute(self):
         """

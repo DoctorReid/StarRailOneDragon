@@ -14,7 +14,7 @@ class SimUniRunWorld(StateOperation):
     def __init__(self, ctx: Context, world_num: int,
                  priority: Optional[SimUniAllPriority] = None,
                  max_reward_to_get: int = 0,
-                 get_reward_callback: Optional[Callable[[], None]] = None,
+                 get_reward_callback: Optional[Callable[[int, int], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         模拟宇宙 完成整个宇宙
@@ -39,7 +39,7 @@ class SimUniRunWorld(StateOperation):
         self.priority: Optional[SimUniAllPriority] = priority
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_cnt: int = 0  # 当前获取的奖励次数
-        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
+        self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -54,11 +54,11 @@ class SimUniRunWorld(StateOperation):
     def _finish(self) -> OperationOneRoundResult:
         return Operation.round_success()
 
-    def _on_get_reward(self):
+    def _on_get_reward(self, use_power: int, user_qty: int):
         """
         获取奖励后的回调
         :return:
         """
         self.get_reward_cnt += 1
         if self.get_reward_callback is not None:
-            self.get_reward_callback()
+            self.get_reward_callback(use_power, user_qty)

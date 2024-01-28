@@ -119,7 +119,7 @@ class SimUniverseApp(Application2):
     def __init__(self, ctx: Context,
                  specified_uni_num: Optional[int] = None,
                  max_reward_to_get: int = 0,
-                 get_reward_callback: Optional[Callable[[], None]] = None):
+                 get_reward_callback: Optional[Callable[[int, int], None]] = None):
         """
         模拟宇宙应用 需要在大世界中非战斗、非特殊关卡界面中开启
         :param ctx:
@@ -210,7 +210,7 @@ class SimUniverseApp(Application2):
         self.specified_uni_num: Optional[int] = specified_uni_num
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_cnt: int = 0  # 当前获取的奖励次数
-        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
+        self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -245,8 +245,10 @@ class SimUniverseApp(Application2):
             return Operation.round_retry('点击传送失败', wait=1)
 
     def _choose_sim_uni_num(self) -> OperationOneRoundResult:
-        num = self.config.weekly_uni_num if self.specified_uni_num is None else self.specified_uni_num
-        world = SimUniWorldEnum[num]
+        if self.specified_uni_num is None:
+            world = SimUniWorldEnum[self.config.weekly_uni_num]
+        else:
+            world = SimUniWorldEnum['WORLD_%02d' % self.specified_uni_num]
         op = ChooseSimUniNum(self.ctx, world.value.idx, op_callback=self._on_uni_num_chosen)
         return Operation.round_by_op(op.execute())
 
@@ -279,10 +281,10 @@ class SimUniverseApp(Application2):
                             )
         return Operation.round_by_op(op.execute())
 
-    def _on_sim_uni_get_reward(self):
+    def _on_sim_uni_get_reward(self, use_power: int, user_qty: int):
         self.get_reward_cnt += 1
         if self.get_reward_callback is not None:
-            self.get_reward_callback()
+            self.get_reward_callback(use_power, user_qty)
 
     def on_world_finished(self, op_result: OperationResult):
         if op_result.success:

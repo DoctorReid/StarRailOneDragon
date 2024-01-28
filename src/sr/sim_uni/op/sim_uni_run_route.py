@@ -436,7 +436,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
                  current_pos: Point, route: SimUniRoute,
                  max_reward_to_get: int,
                  priority: Optional[SimUniAllPriority] = None,
-                 get_reward_callback: Optional[Callable[[], None]] = None,
+                 get_reward_callback: Optional[Callable[[int, int], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None
                  ):
         """
@@ -477,7 +477,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
         self.route: SimUniRoute = route
         self.priority: Optional[SimUniAllPriority] = priority
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
-        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
+        self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _fight(self) -> OperationOneRoundResult:
         op = SimUniFightElite(self.ctx, priority=self.priority)
@@ -533,7 +533,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  priority: Optional[SimUniAllPriority] = None,
                  max_reward_to_get: int = 0,
-                 get_reward_callback: Optional[Callable[[], None]] = None
+                 get_reward_callback: Optional[Callable[[int, int], None]] = None
                  ):
 
         super().__init__(ctx, level_type, priority)
@@ -541,7 +541,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
         self.with_enemy: bool = True
         self.no_icon: bool = False
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
-        self.get_reward_callback: Optional[Callable[[], None]] = get_reward_callback  # 获取奖励后的回调
+        self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _init_before_execute(self):
         super()._init_before_execute()
