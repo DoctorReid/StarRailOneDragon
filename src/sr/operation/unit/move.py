@@ -100,10 +100,7 @@ class GetRidOfStuck(Operation):
 
 
 class MoveDirectly(Operation):
-    """
-    从当前位置 朝目标点直线前行
-    有简单的脱困功能
-    """
+
     max_len: int = 6  # 最多存储多少个走过的坐标
     rec_pos_interval: float = 0.5  # 间隔多少秒记录一次坐标
     stuck_distance: float = 20  # 移动距离多少以内认为是被困
@@ -119,6 +116,15 @@ class MoveDirectly(Operation):
                  no_run: bool = False,
                  no_battle: bool = False,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
+        """
+        从当前位置 朝目标点直线前行
+        有简单的脱困功能
+
+        1. 最开始使用传入的开始坐标 直接开始移动
+        2. 移动途中计算新的坐标，计算坐标会判断在一定距离内，且方向与当前人物朝向基本一致
+        3. 由于第2点，移动途中不应该有任何移动外转向，避免计算坐标被舍弃
+        4. 移动途中可能被怪物锁定而停下来
+        """
         super().__init__(ctx, op_name=gt('移动 %s -> %s') % (start, target), op_callback=op_callback)
         self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
@@ -289,19 +295,20 @@ class MoveDirectly(Operation):
             return self.start_pos, mm_info
 
         try:
-            next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info, lm_rect=lm_rect,
-                                                 retry_without_rect=False, running=self.ctx.controller.is_moving)
+            next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
+                                                 possible_pos=possible_pos,
+                                                 lm_rect=lm_rect, retry_without_rect=False,
+                                                 running=self.ctx.controller.is_moving)
         except Exception:
             next_pos = None
             log.error('识别坐标失败', exc_info=True)
         if next_pos is None and self.next_lm_info is not None:
-            next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info, lm_rect=lm_rect,
-                                                 retry_without_rect=False, running=self.ctx.controller.is_moving)
+            next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info,
+                                                 possible_pos=possible_pos,
+                                                 lm_rect=lm_rect, retry_without_rect=False,
+                                                 running=self.ctx.controller.is_moving)
         if next_pos is None:
             log.error('无法判断当前人物坐标')
-        elif cal_utils.distance_between(last_pos, next_pos) > move_distance:
-            log.info('计算坐标与当前坐标距离较远 舍弃')
-            next_pos = None
 
         return next_pos, mm_info
 
@@ -319,12 +326,13 @@ class MoveDirectly(Operation):
                 self.last_no_pos_time = now_time
                 if self.no_pos_times >= 3:  # 不要再乱走了
                     self.ctx.controller.stop_moving_forward()
-                    self.stop_move_time = now_time
+                    self.no_pos_stop_move_time = now_time
                 if self.no_pos_times >= 10:
                     return Operation.round_fail('无法识别坐标')
             return Operation.round_wait()
         else:
             self.no_pos_times = 0
+            self.no_pos_stop_move_time = None
 
     def check_arrive(self, next_pos: Point) -> Optional[OperationOneRoundResult]:
         """

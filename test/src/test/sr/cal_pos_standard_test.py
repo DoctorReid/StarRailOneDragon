@@ -23,7 +23,7 @@ class TestCase:
         self.pos: Point = pos
         self.num: int = num
         self.running: bool = running
-        self.possible_pos: tuple = (*pos.tuple(), 0) if possible_pos is None else possible_pos
+        self.possible_pos: tuple = (*pos.tuple(), 25) if possible_pos is None else possible_pos
 
 
 case_list = [
@@ -43,8 +43,8 @@ case_list = [
     TestCase(map_const.P01_R04_F1, Point(483, 276), 1, True),
 
     TestCase(map_const.P01_R05_F2, Point(381, 669), 1, True, possible_pos=(386, 678, 25)),
-    TestCase(map_const.P01_R05_F2, Point(332, 525), 2, True, possible_pos=(302, 544, 25)),
-    TestCase(map_const.P01_R05_F2, Point(350, 502), 3, True, possible_pos=(298, 530, 60)),
+    TestCase(map_const.P01_R05_F2, Point(332, 525), 2, True, possible_pos=(322, 534, 25)),
+    TestCase(map_const.P01_R05_F2, Point(350, 502), 3, True, possible_pos=(322, 530, 60)),
     TestCase(map_const.P01_R05_F2, Point(822, 589), 4, True, possible_pos=(826, 576, 50)),
 
     TestCase(map_const.P02_R05, Point(497, 440), 1, True),
@@ -64,11 +64,11 @@ case_list = [
     TestCase(map_const.P03_R03_F1, Point(352, 496), 1, True),
     TestCase(map_const.P03_R03_F1, Point(413, 524), 2, True),
 
-    TestCase(map_const.P03_R08_F2, Point(547, 846), 1, True, (600, 900, 49)),
+    TestCase(map_const.P03_R08_F2, Point(547, 846), 1, True, (570, 870, 49)),
 
     TestCase(map_const.P03_R09, Point(972, 402), 1, True, (963, 360, 30)),
 
-    TestCase(map_const.P03_R10, Point(378, 806), 1, True, (400, 784, 29)),
+    TestCase(map_const.P03_R10, Point(370, 800), 1, True, (370, 794, 29)),
 ]
 
 
@@ -82,11 +82,14 @@ def get_test_cal_pos_image(r: Region, num: int, suffix: str = '.png') -> MatLike
 def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     mm = get_test_cal_pos_image(c.region, c.num)
     possible_pos = c.possible_pos
+    no_possible_pos = not c.running or (possible_pos[0] == c.pos.x and possible_pos[1] == c.pos.y)
     lm_rect = get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
     log.info('特殊点种类 %d', len(sp_map))
     mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()))
-    result = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
+    result = cal_pos.cal_character_pos(im, lm_info, mm_info,
+                                       possible_pos=None if no_possible_pos else possible_pos,
+                                       lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
 
     if show:
         cv2.waitKey(0)
@@ -110,11 +113,11 @@ if __name__ == '__main__':
     fail_list = []
     for i in range(len(case_list)):
         c: TestCase = case_list[i]
-        # if c.region != map_const.P01_R05_F2 or c.num != 2:
-        #     continue
+        if c.region != map_const.P03_R10 or c.num != 1:
+            continue
         if c.region.prl_id not in lm_info_map:
             lm_info_map[c.region.prl_id] = ih.get_large_map(c.region)
-        is_err = test_one(c, lm_info_map[c.region.prl_id], False)
+        is_err = test_one(c, lm_info_map[c.region.prl_id], True)
         if is_err:
             fail_list.append(c)
 

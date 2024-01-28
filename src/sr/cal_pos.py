@@ -20,6 +20,7 @@ cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='cal
 
 def cal_character_pos(im: ImageMatcher,
                       lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+                      possible_pos: Optional[Tuple[int, int, float]] = None,
                       lm_rect: Rect = None, show: bool = False,
                       retry_without_rect: bool = True,
                       running: bool = False) -> Optional[Point]:
@@ -28,6 +29,7 @@ def cal_character_pos(im: ImageMatcher,
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
+    :param possible_pos: 可能位置 前两个为上一次的坐标，第三个为预估移动距离
     :param lm_rect: 大地图特定区域
     :param retry_without_rect: 失败时是否去除特定区域进行全图搜索
     :param show: 是否显示结果
@@ -50,10 +52,14 @@ def cal_character_pos(im: ImageMatcher,
 
     if result is None:  # 使用模板匹配 用灰度图的
         result = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
+            result = None
 
     # 上面灰度图中 道理掩码部分有些楼梯扣不出来 所以下面用两个都扣不出楼梯的掩码图来匹配
     if result is None:  # 使用模板匹配 用道路掩码的
         result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
+            result = None
     #
     # if result is None:  # 使用模板匹配 用原图的
     #     result = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
@@ -581,14 +587,16 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
     move_distance = possible_pos[2]
     next_pos = result.center
 
-    if cal_utils.distance_between(last_pos, next_pos) > move_distance:
-        log.info('计算坐标与当前坐标距离较远 舍弃')
+    dis = cal_utils.distance_between(last_pos, next_pos)
+    if dis > move_distance:
+        log.info('计算坐标 %s 与 当前坐标 %s 距离较远 %.2f 舍弃', next_pos, last_pos, dis)
         return False
 
     next_angle = cal_utils.get_angle_by_pts(last_pos, next_pos)
     angle_delta = cal_utils.angle_delta(current_angle, next_angle)
     if abs(angle_delta) > 30:
-        log.info('计算坐标的角度与当前朝向相差较大 舍弃')
+        log.info('计算坐标 %s 的角度 %.2f 与 当前朝向 %.2f 相差较大 %.2f 舍弃',
+                 next_pos, next_angle, current_angle, angle_delta)
         return False
 
     return True

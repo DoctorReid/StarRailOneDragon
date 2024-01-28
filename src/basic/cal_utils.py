@@ -50,7 +50,7 @@ def get_angle_by_pts(from_pos: Point, to_pos: Point) -> float:
 
 def angle_delta(from_angle: float, to_angle: float) -> float:
     """
-    从一个角度转到另一个角度需要的角度
+    从一个角度转到另一个角度需要的角度 正数向右转
     :param from_angle:
     :param to_angle:
     :return:
