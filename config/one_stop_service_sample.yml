@@ -1,15 +1,15 @@
 app_order:
+  - 'assignments'
   - 'world_patrol'
   - 'echo_of_war'
   - 'trailblaze_power'
-  - 'assignments'
+  - 'sim_universe'
   - 'email'
   - 'support_character'
   - 'nameless_honor'
   - 'daily_training'
   - 'buy_xianzhou_parcel'
   - 'forgotten_hall'
-  - 'sim_universe'
 app_run:
   - 'world_patrol'
 schedule_hour_1: 'none'
