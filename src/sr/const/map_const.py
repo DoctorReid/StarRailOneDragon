@@ -403,12 +403,12 @@ P03_R02_SP07 = TransportPoint('XCHZS', '星槎海中枢', P03_R02_F1, 'mm_sp_02'
 P03_R02_SP08 = TransportPoint('GQYBSGC', '过期邮包收购处', P03_R02_F1, 'mm_sp_03', (388, 777))
 
 # 仙舟罗浮 - 廻星港
-P03_R03_SP01 = TransportPoint('FXXZ', '飞星小筑', P03_R03_F2, 'mm_tp_03', (834, 249))
-P03_R03_SP02 = TransportPoint('ZCQMJ', '植船区萌甲', P03_R03_F1, 'mm_tp_03', (441, 465))
-P03_R03_SP03 = TransportPoint('ZCQFS', '植船区繁生', P03_R03_F1, 'mm_tp_03', (523, 609))
-P03_R03_SP04 = TransportPoint('BHQ', '泊航区', P03_R03_F1, 'mm_tp_03', (647, 707))
-P03_R03_SP05 = TransportPoint('ZEZX', '震厄之形凝滞虚影', P03_R03_F1, 'mm_tp_06', (729, 803))
-P03_R03_SP06 = TransportPoint('YYZJ', '野焰之径侵蚀隧洞', P03_R03_F1, 'mm_tp_09', (455, 374))
+P03_R03_SP01 = TransportPoint('FXXZ', '飞星小筑', P03_R03_F2, 'mm_tp_03', (834, 249), (841, 262))
+P03_R03_SP02 = TransportPoint('ZCQMJ', '植船区萌甲', P03_R03_F1, 'mm_tp_03', (441, 465), (451, 478))
+P03_R03_SP03 = TransportPoint('ZCQFS', '植船区繁生', P03_R03_F1, 'mm_tp_03', (523, 609), (522, 580))
+P03_R03_SP04 = TransportPoint('BHQ', '泊航区', P03_R03_F1, 'mm_tp_03', (647, 707), (648, 682))
+P03_R03_SP05 = TransportPoint('ZEZX', '震厄之形凝滞虚影', P03_R03_F1, 'mm_tp_06', (729, 803), (730, 781))
+P03_R03_SP06 = TransportPoint('YYZJ', '野焰之径侵蚀隧洞', P03_R03_F1, 'mm_tp_09', (455, 374), (462, 372))
 P03_R03_SP07 = TransportPoint('XCHZS', '星槎海中枢', P03_R03_F2, 'mm_sp_02', (881, 222))
 
 # 仙舟罗浮 - 长乐天
