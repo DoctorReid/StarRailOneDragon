@@ -461,12 +461,12 @@ P03_R07_SP06 = TransportPoint('DDS', '丹鼎司', P03_R07, 'mm_sp_02', (1029, 76
 P03_R07_SP07 = TransportPoint('TBS', '太卜司', P03_R07, 'mm_sp_02', (170, 928))
 
 # 仙舟罗浮 - 丹鼎司
-P03_R08_SP01 = TransportPoint('TZDS', '太真丹室', P03_R08_F1, 'mm_tp_03', (547, 555))
-P03_R08_SP02 = TransportPoint('GYT', '观颐台', P03_R08_F1, 'mm_tp_03', (438, 694))
-P03_R08_SP03 = TransportPoint('XYSJ', '行医市集', P03_R08_F2, 'mm_tp_03', (826, 898))
-P03_R08_SP04 = TransportPoint('QHS', '岐黄署', P03_R08_F2, 'mm_tp_03', (819, 1533))
-P03_R08_SP05 = TransportPoint('TRZX', '天人之形凝滞虚影', P03_R08_F2, 'mm_tp_06', (1225, 1087))
-P03_R08_SP06 = TransportPoint('YSZJ', '药使之径侵蚀隧洞', P03_R08_F2, 'mm_tp_09', (667, 1504))
+P03_R08_SP01 = TransportPoint('TZDS', '太真丹室', P03_R08_F1, 'mm_tp_03', (547, 555), (563, 559))
+P03_R08_SP02 = TransportPoint('GYT', '观颐台', P03_R08_F1, 'mm_tp_03', (438, 694), (448, 707))
+P03_R08_SP03 = TransportPoint('XYSJ', '行医市集', P03_R08_F2, 'mm_tp_03', (826, 898), (819, 881))
+P03_R08_SP04 = TransportPoint('QHS', '岐黄署', P03_R08_F2, 'mm_tp_03', (819, 1533), (853, 1545))
+P03_R08_SP05 = TransportPoint('TRZX', '天人之形凝滞虚影', P03_R08_F2, 'mm_tp_06', (1225, 1087), (1205, 1087))
+P03_R08_SP06 = TransportPoint('YSZJ', '药使之径侵蚀隧洞', P03_R08_F2, 'mm_tp_09', (667, 1504), (668, 1498))
 P03_R08_SP07 = TransportPoint('LYJ', '麟渊境', P03_R08_F1, 'mm_sp_02', (453, 218))
 P03_R08_SP08 = TransportPoint('QLT', '祈龙坛', P03_R08_F1, 'mm_sp_02', (186, 710))
 P03_R08_SP09 = TransportPoint('SLDY', '蜃楼遁影', P03_R08_F2, 'mm_sp_01', (846, 815))
