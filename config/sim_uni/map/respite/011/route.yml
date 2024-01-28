@@ -1,0 +1,10 @@
+support_world: [7]
+planet: '空间站黑塔'
+region: '支援舱段'
+floor: 2
+start_pos: [761, 391]
+next_pos_list:
+  - [686, 386]
+op_list:
+  - op: 'slow_move'
+    data: [702, 380]

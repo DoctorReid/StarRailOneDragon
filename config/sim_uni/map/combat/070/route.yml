@@ -1,0 +1,18 @@
+support_world: [7, 8]
+planet: '空间站黑塔'
+region: '支援舱段'
+floor: 2
+start_pos: [153, 538]
+next_pos_list:
+  - [237, 369]
+  - [237, 389]
+op_list:
+  - op: 'move'
+    data: [150, 509]
+  - op: 'patrol'
+  - op: 'move'
+    data: [151, 400]
+  - op: 'patrol'
+  - op: 'move'
+    data: [212, 381]
+  - op: 'patrol'

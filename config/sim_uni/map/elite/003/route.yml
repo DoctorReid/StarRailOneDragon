@@ -5,6 +5,7 @@ floor: 0
 start_pos: [380, 858]
 next_pos_list:
   - [296, 864]
+reward_pos: [305, 846]
 op_list:
   - op: 'move'
     data: [317, 859]
