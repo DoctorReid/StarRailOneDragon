@@ -261,7 +261,8 @@ class MoveDirectly(Operation):
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
-            self.stop_move_time = time.time()
+            if self.stop_move_time is None:
+                self.stop_move_time = time.time()
             fight = EnterAutoFight(self.ctx)
             fight_start_time = time.time()
             fight_result = fight.execute()
@@ -286,7 +287,8 @@ class MoveDirectly(Operation):
         if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
-        self.stop_move_time = time.time()
+        if self.stop_move_time is None:
+            self.stop_move_time = time.time()
 
         fight = EnterAutoFight(self.ctx)
         fight_start_time = time.time()
@@ -367,7 +369,8 @@ class MoveDirectly(Operation):
                 self.last_no_pos_time = now_time
                 if self.no_pos_times >= 3:  # 不要再乱走了
                     self.ctx.controller.stop_moving_forward()
-                    self.stop_move_time = now_time
+                    if self.stop_move_time is None:
+                        self.stop_move_time = now_time
                 if self.no_pos_times >= 10:
                     return Operation.round_fail('无法识别坐标')
             return Operation.round_wait()
@@ -383,7 +386,8 @@ class MoveDirectly(Operation):
         if cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
-                self.stop_move_time = time.time()
+                if self.stop_move_time is None:
+                    self.stop_move_time = time.time()
             return Operation.round_success(data=next_pos)
         return None
 

@@ -87,7 +87,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
             log.error('计算坐标出错', exc_info=True)
             next_pos = None
             self.ctx.controller.stop_moving_forward()
-            self.stop_move_time = time.time()
+            if self.stop_move_time is None:
+                self.stop_move_time = time.time()
 
         if next_pos is None:
             log.error('无法判断当前人物坐标')
@@ -107,7 +108,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
             fight_start_time = time.time()
             self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
-            self.stop_move_time = time.time()
+            if self.stop_move_time is None:
+                self.stop_move_time = time.time()
             fight = SimUniEnterFight(self.ctx, priority=self.priority)
             fight_result = fight.execute()
             fight_end_time = time.time()
@@ -131,7 +133,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if not mini_map.is_under_attack(mm):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
-        self.stop_move_time = time.time()
+        if self.stop_move_time is None:
+            self.stop_move_time = time.time()
 
         fight_start_time = time.time()
         fight = SimUniEnterFight(self.ctx, self.priority)
@@ -171,7 +174,7 @@ class MoveToNextLevel(StateOperation):
         move = StateOperationNode('移动交互', self._move_and_interact)
         confirm = StateOperationNode('确认', self._confirm)
 
-        super().__init__(ctx, try_times=5,
+        super().__init__(ctx, try_times=10,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('向下一层移动', 'ui')),
                          nodes=[turn, move, confirm]
                          )
