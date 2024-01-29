@@ -115,6 +115,7 @@ class SimUniverseApp(Application2):
     SURVIVAL_TRANSPORT_BTN: ClassVar[Rect] = Rect(1489, 523, 1616, 566)  # 传送
 
     STATUS_ALL_FINISHED: ClassVar[str] = '已完成通关次数'
+    STATUS_EXCEPTION: ClassVar[str] = '异常次数过多'
 
     def __init__(self, ctx: Context,
                  specified_uni_num: Optional[int] = None,
@@ -188,6 +189,7 @@ class SimUniverseApp(Application2):
         edges.append(StateOperationEdge(run_world, check_times_to_continue))
         edges.append(StateOperationEdge(check_times_to_continue, choose_universe_num))
         edges.append(StateOperationEdge(check_times_to_continue, back_to_world, status=SimUniverseApp.STATUS_ALL_FINISHED))
+        edges.append(StateOperationEdge(check_times_to_continue, back_to_world, status=SimUniverseApp.STATUS_EXCEPTION))
 
         # 战斗失败
         world_fail = StateOperationNode('战斗失败', op=SimUniExit(ctx, exit_clicked=True))
@@ -196,26 +198,29 @@ class SimUniverseApp(Application2):
         edges.append(StateOperationEdge(world_fail, check_times_to_continue))
 
         if not gc.is_debug:  # 任何异常错误都退出当前宇宙 调试模式下不退出 直接失败等待处理
-            exception_out = StateOperationNode('异常退出', op=SimUniExit(ctx, exit_clicked=False))
-            edges.append(StateOperationEdge(run_world, exception_out,
+            exception_exit = StateOperationNode('异常退出', self._exception_exit)
+            edges.append(StateOperationEdge(run_world, exception_exit,
                                             success=False, ignore_status=True))
-            edges.append(StateOperationEdge(exception_out, check_times_to_continue))
+            edges.append(StateOperationEdge(exception_exit, check_times_to_continue))
 
         self.run_record: SimUniverseRecord = get_record()
         super().__init__(ctx, op_name=gt(SIM_UNIVERSE.cn, 'ui'),
                          edges=edges, specified_start_node=check_times,
                          run_record=self.run_record)
 
-        self.current_uni_num: int = 0
+        self.current_uni_num: int = 0  # 当前运行的第几宇宙 启动时会先完成运行中的宇宙
 
-        self.specified_uni_num: Optional[int] = specified_uni_num  # 指定宇宙 用于
+        self.specified_uni_num: Optional[int] = specified_uni_num  # 指定宇宙 用于沉浸奖励
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_cnt: int = 0  # 当前获取的奖励次数
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
+        self.exception_times: int = 0  # 异常出现次数
+
     def _init_before_execute(self):
         super()._init_before_execute()
         self.get_reward_cnt = 0
+        self.exception_times: int = 0
 
     def _check_times(self) -> OperationOneRoundResult:
         if self.specified_uni_num is not None:
@@ -223,6 +228,9 @@ class SimUniverseApp(Application2):
                 return Operation.round_success()
             else:
                 return Operation.round_success(SimUniverseApp.STATUS_ALL_FINISHED)
+
+        if self.exception_times >= 10:
+            return Operation.round_success(SimUniverseApp.STATUS_EXCEPTION)
 
         log.info('本日通关次数 %d 本周通关次数 %d', self.run_record.daily_times, self.run_record.weekly_times)
         if self.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
@@ -290,3 +298,8 @@ class SimUniverseApp(Application2):
     def on_world_finished(self, op_result: OperationResult):
         if op_result.success:
             self.run_record.add_times()
+
+    def _exception_exit(self) -> OperationOneRoundResult:
+        self.exception_times += 1
+        op = SimUniExit(self.ctx, exit_clicked=False)
+        return Operation.round_by_op(op.execute())
