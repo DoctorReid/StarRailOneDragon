@@ -17,7 +17,7 @@ from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, large_map, mini_map, screen_state
 from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.move import MoveDirectly
+from sr.operation.unit.move import MoveDirectly, TurnToAngle
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
 from sr.sim_uni.sim_uni_priority import SimUniAllPriority
@@ -132,21 +132,17 @@ class MoveDirectlyInSimUni(MoveDirectly):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         self.stop_move_time = time.time()
-        original_angle = mini_map.analyse_angle(mm)  # 战斗前的朝向
 
         fight_start_time = time.time()
         fight = SimUniEnterFight(self.ctx, self.priority)
         op_result = fight.execute()
-        fight_end_time = time.time()
         if not op_result.success:
             return Operation.round_fail(status=op_result.status, data=op_result.data)
-        else:
-            screen = self.screenshot()
-            mm2 = mini_map.cut_mini_map(screen)
-            new_angle = mini_map.analyse_angle(mm2)  # 战斗后的朝向
-            angle_delta = cal_utils.angle_delta(new_angle, original_angle)  # 有时候攻击进入战斗会让角色朝向改变 不知道触发条件
-            if abs(angle_delta) > 30:  # 朝向改变过大时 转回到进入战斗之前
-                self.ctx.controller.turn_by_angle(angle_delta)
+        elif self.current_angle is not None:  # 有时候攻击进入战斗会让角色朝向改变 不知道触发条件 这时候转回到攻击前的朝向
+            turn_op = TurnToAngle(self.ctx, self.current_angle)
+            turn_op.execute()
+        fight_end_time = time.time()
+
         self.last_auto_fight_fail = (op_result.status == SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
