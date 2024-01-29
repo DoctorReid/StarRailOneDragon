@@ -6,6 +6,7 @@ from basic import Point, Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context
+from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN
@@ -33,7 +34,7 @@ class ChooseSimUniNum(Operation):
         :param num: 第几宇宙 支持 1~8
         """
         super().__init__(ctx,
-                         try_times=5,
+                         try_times=10,
                          op_name='%s %s %d' % (gt('模拟宇宙', 'ui'), gt('选择宇宙', 'ui'), num),
                          op_callback=op_callback)
 
@@ -43,6 +44,8 @@ class ChooseSimUniNum(Operation):
         screen: MatLike = self.screenshot()
 
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.SIM_TYPE_NORMAL.value):
+            # 有可能出现了每周第一次打开的积分奖励进度画面 随便点击一个地方关闭
+            self.ctx.controller.click(screen_state.TargetRect.UI_TITLE.value.center)
             return Operation.round_retry('未在模拟宇宙页面', wait=1)
 
         current_num = self._get_current_num(screen)
