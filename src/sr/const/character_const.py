@@ -161,7 +161,7 @@ GUINAIFEN = Character(id='guinaifen', cn='桂乃芬', path=CHARACTER_PATH_NIHILI
 HERTA = Character(id='herta', cn='黑塔', path=CHARACTER_PATH_ERUDITION, combat_type=ICE, level=4, technique_type=TECHNIQUE_BUFF)
 HIMEKO = Character(id='himeko', cn='姬子', path=CHARACTER_PATH_ERUDITION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
 HOOK = Character(id='hook', cn='虎克', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_ATTACK)
-HUOHUO = Character(id='huohuo', cn='霍霍', path=CHARACTER_PATH_ABUNDANCE, combat_type=WIND, level=4, technique_type=TECHNIQUE_BUFF)
+HUOHUO = Character(id='huohuo', cn='霍霍', path=CHARACTER_PATH_ABUNDANCE, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
 JINGLIU = Character(id='jingliu', cn='镜流', path=CHARACTER_PATH_DESTRUCTION, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 JINGYUAN = Character(id='jingyuan', cn='景元', path=CHARACTER_PATH_ERUDITION, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_BUFF)
 KAFKA = Character(id='kafka', cn='卡芙卡', path=CHARACTER_PATH_NIHILITY, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
