@@ -2,8 +2,6 @@ mini_map:
   r: 93
   x: 141
   y: 151
-walk_speed: 20
-run_speed: 25
 turn_dx: 0
 server_region: CN
 run_mode: 0

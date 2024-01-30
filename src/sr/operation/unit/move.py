@@ -324,7 +324,7 @@ class MoveDirectly(Operation):
         else:
             move_time = 1
 
-        move_distance = self.ctx.controller.cal_move_distance_by_time(move_time, run=self.run_mode != game_config_const.RUN_MODE_OFF)
+        move_distance = self.ctx.controller.cal_move_distance_by_time(move_time)
         last_pos = self.pos[len(self.pos) - 1] if len(self.pos) > 0 else self.start_pos
         possible_pos = (last_pos.x, last_pos.y, move_distance)
         log.debug('准备计算人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos,

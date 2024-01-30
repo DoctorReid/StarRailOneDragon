@@ -18,7 +18,6 @@ class GameController:
         self.ocr: OcrMatcher = ocr
         self.turn_dx: float = None
         self.run_speed: float = None
-        self.walk_speed: float = None
         self.is_moving: bool = False
 
     def init(self):
@@ -160,14 +159,13 @@ class GameController:
         """
         pass
 
-    def cal_move_distance_by_time(self, seconds: float, run: bool = False):
+    def cal_move_distance_by_time(self, seconds: float):
         """
         根据时间计算移动距离
         :param seconds: 秒
-        :param run: 是否疾跑
         :return:
         """
-        return (self.run_speed if run else self.walk_speed) * seconds
+        return self.run_speed * seconds
 
     def move_towards(self, pos1: Point, pos2: Point, angle: float, run: bool = False) -> bool:
         """

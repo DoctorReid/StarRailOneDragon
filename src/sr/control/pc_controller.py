@@ -28,8 +28,7 @@ class PcController(GameController):
         self.win: Window = win
         self.gc: GameConfig = game_config.get()
         self.turn_dx: float = self.gc.get('turn_dx')
-        self.run_speed: float = self.gc.get('run_speed')
-        self.walk_speed: float = self.gc.get('walk_speed')
+        self.run_speed: float = 30
         self.is_moving: bool = False
         self.is_running: bool = False  # 是否在疾跑
 

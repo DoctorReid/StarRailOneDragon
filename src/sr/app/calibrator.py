@@ -129,7 +129,7 @@ class Calibrator(Application):
             mm = mini_map.cut_mini_map(screen)
 
             lx, ly = last_pos.x, last_pos.y
-            move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - last_record_time, run=True) if last_record_time > 0 else 0
+            move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - last_record_time) if last_record_time > 0 else 0
             possible_pos = (lx, ly, move_distance)
             lm_rect: Rect = large_map.get_large_map_rect_by_pos(lm_info.origin.shape[:2], mm.shape[:2], possible_pos)
 

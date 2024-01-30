@@ -588,7 +588,7 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
     next_pos = result.center
 
     dis = cal_utils.distance_between(last_pos, next_pos)
-    if dis > move_distance:
+    if dis > move_distance * 1.1:
         log.info('计算坐标 %s 与 当前坐标 %s 距离较远 %.2f 舍弃', next_pos, last_pos, dis)
         return False
 
