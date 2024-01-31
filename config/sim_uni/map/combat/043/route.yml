@@ -1,9 +1,11 @@
-support_world: [8]
+support_world: [7, 8]
 planet: '雅利洛'
 region: '大矿区'
 floor: 0
 start_pos: [845, 630]
-next_pos_list: []
+next_pos_list:
+  - [759, 552]
+  - [778, 547]
 op_list:
   - op: 'move'
     data: [810, 668]

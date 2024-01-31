@@ -1,0 +1,27 @@
+support_world: [7, 8]
+planet: '空间站黑塔'
+region: '收容舱段'
+floor: 2
+start_pos: [719, 429]
+next_pos_list:
+  - [444, 378]
+  - [444, 357]
+op_list:
+  - op: 'move'
+    data: [730, 372]
+  - op: 'move'
+    data: [711, 372]
+  - op: 'patrol'
+  - op: 'move'
+    data: [640, 372]
+  - op: 'move'
+    data: [627, 405]
+  - op: 'move'
+    data: [593, 417]
+  - op: 'move'
+    data: [560, 405]
+  - op: 'move'
+    data: [545, 380]
+  - op: 'patrol'
+  - op: 'move'
+    data: [469, 373]

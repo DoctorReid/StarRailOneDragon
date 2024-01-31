@@ -1,0 +1,13 @@
+support_world: [7, 8]
+planet: '仙舟罗浮'
+region: '鳞渊境'
+floor: 0
+start_pos: [919, 217]
+next_pos_list:
+  - [910, 161]
+op_list:
+  - op: 'move'
+    data: [919, 186]
+  - op: 'patrol'
+  - op: 'move'
+    data: [914, 172]

@@ -212,6 +212,9 @@ class MoveDirectly(Operation):
 
         check_no_pos = self.check_no_pos(next_pos, now_time)  # 坐标计算失败处理
         if check_no_pos is not None:
+            # 有可能是之前角度判断出错 转向了错误的角度。这时候用坐标算的角度就是错的 继而导致坐标判断失败
+            # 因此在获取不到坐标时 重新取小地图判断的坐标 希望能纠正
+            self.current_angle = mm_info.angle
             return check_no_pos
 
         check_arrive = self.check_arrive(next_pos)  # 判断是否到达
@@ -263,6 +266,7 @@ class MoveDirectly(Operation):
             self.ctx.controller.stop_moving_forward()
             if self.stop_move_time is None:
                 self.stop_move_time = time.time()
+            log.info('移动中被袭击')
             fight = EnterAutoFight(self.ctx)
             fight_start_time = time.time()
             fight_result = fight.execute()
