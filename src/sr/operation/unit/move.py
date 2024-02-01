@@ -168,7 +168,6 @@ class MoveDirectly(Operation):
         self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
         self.stop_move_time: Optional[float] = None  # 停止移动的时间
-        self.current_angle: Optional[float] = None  # 当前人物朝向 在产生移动时更新 其他情况不应该改变人物朝向
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
         self.no_battle: bool = no_battle  # 本次移动是否没有战斗
@@ -182,7 +181,6 @@ class MoveDirectly(Operation):
         if self.ctx.controller.is_moving:  # 连续移动的时候 使用开始点作为一个起始点
             self.pos.append(self.start_pos)
         self.stop_move_time = None
-        self.current_angle = None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
@@ -273,6 +271,7 @@ class MoveDirectly(Operation):
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = time.time()
             self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
+            self.move_after_battle()
             return Operation.round_wait()
         return None
 
@@ -297,14 +296,12 @@ class MoveDirectly(Operation):
         op_result = fight.execute()
         if not op_result.success:
             return Operation.round_fail(status=op_result.status, data=op_result.data)
-        elif self.current_angle is not None:  # 有时候攻击进入战斗会让角色朝向改变 不知道触发条件 这时候转回到攻击前的朝向
-            turn_op = TurnToAngle(self.ctx, self.current_angle)
-            turn_op.execute()
         fight_end_time = time.time()
 
         self.last_auto_fight_fail = (op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
-        self.last_battle_time = time.time()
+        self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
+        self.move_after_battle()
 
         return Operation.round_wait()
 
@@ -405,13 +402,26 @@ class MoveDirectly(Operation):
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
             self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle,
                                              run=self.run_mode == game_config_const.RUN_MODE_BTN)
-            self.current_angle = cal_utils.get_angle_by_pts(next_pos, self.target)
             # time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
             self.pos.append(next_pos)
             log.debug('记录坐标 %s', next_pos)
             if len(self.pos) > MoveDirectly.max_len:
                 del self.pos[0]
             self.last_rec_time = now_time
+
+    def move_after_battle(self):
+        """
+        战斗后 继续使用上一个坐标进行移动
+        :return:
+        """
+        if len(self.pos) == 0:
+            return
+        screen = self.screenshot()
+        mm = mini_map.cut_mini_map(screen)
+        mm_info = mini_map.analyse_mini_map(mm)
+        last_pos = self.pos[-1]
+        self.ctx.controller.move_towards(last_pos, self.target, mm_info.angle,
+                                         run=self.run_mode == game_config_const.RUN_MODE_BTN)
 
     def on_pause(self):
         super().on_pause()

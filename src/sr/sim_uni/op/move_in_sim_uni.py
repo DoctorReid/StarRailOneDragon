@@ -117,6 +117,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = fight_end_time
             self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
+            self.move_after_battle()
             return Operation.round_wait()
         return None
 
@@ -141,14 +142,12 @@ class MoveDirectlyInSimUni(MoveDirectly):
         op_result = fight.execute()
         if not op_result.success:
             return Operation.round_fail(status=op_result.status, data=op_result.data)
-        elif self.current_angle is not None:  # 有时候攻击进入战斗会让角色朝向改变 不知道触发条件 这时候转回到攻击前的朝向
-            turn_op = TurnToAngle(self.ctx, self.current_angle)
-            turn_op.execute()
         fight_end_time = time.time()
 
         self.last_auto_fight_fail = (op_result.status == SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
+        self.move_after_battle()
 
         return Operation.round_wait()
 
