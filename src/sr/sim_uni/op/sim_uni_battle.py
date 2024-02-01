@@ -11,6 +11,7 @@ from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.battle.start_fight import StartFightForElite
+from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.team import SwitchMember
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
@@ -30,7 +31,8 @@ class SimUniEnterFight(Operation):
 
     def __init__(self, ctx: Context,
                  priority: Optional[SimUniAllPriority] = None,
-                 attack_once: bool = False):
+                 attack_once: bool = False,
+                 use_technique: bool = False):
         """
         模拟宇宙中 主动进入战斗
         根据小地图的红圈 判断是否被敌人锁定
@@ -44,6 +46,8 @@ class SimUniEnterFight(Operation):
         self.attack_direction: int = 0  # 攻击方向
         self.priority: Optional[SimUniAllPriority] = priority  # 优先级
         self.attack_once: bool = attack_once  # 只攻击一次
+        self.use_technique: bool = use_technique  # 是否使用秘技开怪
+        self.technique_used_before_battle: bool = False  # 新一轮战斗前是否已经使用秘技了
 
     def _init_before_execute(self):
         self.last_attack_time = time.time()
@@ -92,9 +96,9 @@ class SimUniEnterFight(Operation):
         更新一些统计时间
         :return:
         """
-        self.last_not_in_world_time = time.time()
-        self.last_alert_time = self.last_not_in_world_time
-        self.with_battle = True
+        now = time.time()
+        self.last_not_in_world_time = now
+        self.last_alert_time = now
 
     def _in_battle(self) -> Optional[OperationOneRoundResult]:
         """
@@ -102,6 +106,7 @@ class SimUniEnterFight(Operation):
         :return:
         """
         self._update_not_in_world_time()
+        self.with_battle = True
         return Operation.round_wait(wait=1)
 
     def _choose_bless(self) -> Optional[OperationOneRoundResult]:
@@ -146,12 +151,33 @@ class SimUniEnterFight(Operation):
         else:
             self.last_alert_time = now_time
 
-        self._attack(now_time)
-
         if now_time - self.last_not_in_world_time > SimUniEnterFight.EXIT_AFTER_NO_BATTLE_TIME:
             return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
 
+        if self.use_technique:
+            technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
+            self.ctx.controller.use_technique()
+            self.technique_used_before_battle = True  # 无论有没有秘技点 先设置已经使用了
+            if technique_point is None or technique_point == 0:
+                return Operation.round_wait()
+            time.sleep(0.5)
+
+        self._attack(now_time)
+
         return Operation.round_wait()
+
+    def _recover_technique_point(self) -> OperationOneRoundResult:
+        """
+        恢复秘技点
+        :return:
+        """
+        self.technique_used_before_battle = False  # 重置使用情况
+        click = self.ocr_and_click_one_line('确认', SwitchMember.CONFIRM_BTN)
+
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success(SwitchMember.STATUS_CONFIRM, wait=1)
+        else:
+            return Operation.round_retry('点击确认失败', wait=1)
 
     def _attack(self, now_time: float):
         if now_time - self.last_attack_time <= SimUniEnterFight.ATTACK_INTERVAL:

@@ -1,10 +1,13 @@
 import time
-from typing import ClassVar
+from typing import ClassVar, Optional
+
+from cv2.typing import MatLike
 
 from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context
+from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import battle
 from sr.operation import Operation, OperationOneRoundResult
 
@@ -28,13 +31,17 @@ class CheckTechniquePoint(Operation):
             time.sleep(1)
             return Operation.round_retry('未在大世界界面')
 
-        part, _ = cv2_utils.crop_image(screen, CheckTechniquePoint.POINT_RECT)
-
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
-
-        digit = str_utils.get_positive_digits(ocr_result, None)
+        digit = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
 
         if digit is None:
             return Operation.round_retry('未检测到数字')
 
         return Operation.round_success(status=str(digit), data=digit)
+
+    @staticmethod
+    def get_technique_point(screen: MatLike,
+                            ocr: OcrMatcher) -> Optional[int]:
+        part, _ = cv2_utils.crop_image(screen, CheckTechniquePoint.POINT_RECT)
+
+        ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
+        return str_utils.get_positive_digits(ocr_result, None)
