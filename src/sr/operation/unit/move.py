@@ -133,6 +133,8 @@ class MoveDirectly(Operation):
     arrival_distance: float = 10  # 多少距离内认为是到达目的地
     fail_after_no_battle: float = 120  # 多少秒无战斗后退出 通常不会有路线这么久都遇不到怪 只能是卡死了 然后脱困算法又让角色产生些位移
 
+    STATUS_NO_POS: ClassVar[str] = '无法识别坐标'
+
     def __init__(self, ctx: Context,
                  lm_info: LargeMapInfo,
                  start: Point,
@@ -372,7 +374,7 @@ class MoveDirectly(Operation):
                     if self.stop_move_time is None:
                         self.stop_move_time = now_time
                 if self.no_pos_times >= 10:
-                    return Operation.round_fail('无法识别坐标')
+                    return Operation.round_fail(MoveDirectly.STATUS_NO_POS)
             return Operation.round_wait()
         else:
             self.no_pos_times = 0

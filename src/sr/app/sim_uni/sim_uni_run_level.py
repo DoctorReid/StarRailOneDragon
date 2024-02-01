@@ -4,6 +4,8 @@ from basic.i18_utils import gt
 from sr.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationEdge, \
     StateOperationNode, OperationOneRoundResult
+from sr.operation.unit.move import MoveDirectly
+from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
@@ -14,6 +16,7 @@ from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 class SimUniRunLevel(StateOperation):
 
     STATUS_BOSS_CLEARED: ClassVar[str] = '首领通关'
+    STATUS_NO_RESET: ClassVar[str] = '失败到达重置上限'
 
     def __init__(self, ctx: Context, world_num: int,
                  priority: Optional[SimUniAllPriority] = None,
@@ -41,6 +44,10 @@ class SimUniRunLevel(StateOperation):
         route = StateOperationNode('区域', self._route_op)
         edges.append(StateOperationEdge(check_level_type, route, ignore_status=True))
 
+        reset = StateOperationNode('重置', self._reset)
+        edges.append(StateOperationEdge(route, reset, success=False, status=MoveDirectly.STATUS_NO_POS))
+        edges.append(StateOperationEdge(reset, route))
+
         super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=wait_start, op_callback=op_callback)
 
         self.world_num: int = world_num
@@ -48,6 +55,7 @@ class SimUniRunLevel(StateOperation):
         self.priority: Optional[SimUniAllPriority] = priority
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
+        self.reset_times: int = 0  # 重置次数
 
     def _init_before_execute(self):
         """
@@ -55,6 +63,7 @@ class SimUniRunLevel(StateOperation):
         """
         super()._init_before_execute()
         self.level_type = None
+        self.reset_times = 0
 
     def _wait(self) -> OperationOneRoundResult:
         op = SimUniWaitLevelStart(self.ctx, priority=self.priority)
@@ -94,3 +103,15 @@ class SimUniRunLevel(StateOperation):
             return Operation.round_success(status=SimUniRunLevel.STATUS_BOSS_CLEARED)
         else:
             return Operation.round_by_op(op_result)
+
+    def _reset(self) -> OperationOneRoundResult:
+        """
+        重置再来
+        :return:
+        """
+        if self.reset_times >= 1:  # 最多重置1次
+            return Operation.round_fail(SimUniRunLevel.STATUS_NO_RESET)
+
+        self.reset_times += 1
+        op = ResetSimUniLevel(self.ctx)
+        return Operation.round_by_op(op.execute())
