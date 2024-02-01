@@ -10,7 +10,7 @@ from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
-from sr.operation.battle.start_fight import StartFightWithTechnique
+from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.team import SwitchMember
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
@@ -218,7 +218,7 @@ class SimUniFightElite(StateOperation):
             return Operation.round_success(SimUniFightElite.STATUS_ENEMY_NOT_FOUND)
 
     def _enter_fight(self) -> OperationOneRoundResult:
-        op = StartFightWithTechnique(self.ctx)
+        op = StartFightForElite(self.ctx)
         return Operation.round_by_op(op.execute())
 
     def _fight(self) -> OperationOneRoundResult:

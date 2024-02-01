@@ -49,13 +49,12 @@ class StartFight(Operation):
         return Operation.WAIT
 
 
-class StartFightWithTechnique(StateOperation):
+class StartFightForElite(StateOperation):
 
     def __init__(self, ctx: Context, character_list: Optional[List[Character]] = None,
                  skip_point_check: bool = False):
         """
-        在准备开始战斗前使用
-        上BUFF之后进入战斗
+        对不会主动攻击的精英怪开战 上BUFF之后进入战斗
         优先使用上BUFF不触发战斗的秘技 最后再使用开战技能
         适用于
         - 忘却之庭
@@ -76,7 +75,7 @@ class StartFightWithTechnique(StateOperation):
         self.character_list: List[Character] = []
         self.technique_order: List[int] = []
         self.need_attack_finally: bool = False  # 最后需要攻击
-        self.skip_point_check: bool = skip_point_check
+        self.skip_point_check: bool = skip_point_check  # 跳过检测秘技点
         self.technique_point: int = 5  # 秘技点
 
     def _init_before_execute(self):

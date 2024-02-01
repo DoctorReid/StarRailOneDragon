@@ -2,7 +2,7 @@ import unittest
 
 import test
 from sr.context import get_context
-from sr.operation.battle.start_fight import StartFightWithTechnique
+from sr.operation.battle.start_fight import StartFightForElite
 
 
 class TestEnterFightInForgottenHall(unittest.TestCase, test.SrTestBase):
@@ -12,4 +12,4 @@ class TestEnterFightInForgottenHall(unittest.TestCase, test.SrTestBase):
 
         ctx = get_context()
 
-        self.op = StartFightWithTechnique(ctx)
+        self.op = StartFightForElite(ctx)
