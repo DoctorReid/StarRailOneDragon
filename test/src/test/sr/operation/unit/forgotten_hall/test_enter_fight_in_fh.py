@@ -18,8 +18,10 @@ class TestEnterFightInForgottenHall(unittest.TestCase, test.SrTestBase):
         self.op.character_list = [
             character_const.CLARA,
             character_const.TINGYUN,
-            character_const.YUKONG,
+            # character_const.YUKONG,
+            None,
             character_const.LUOCHA
         ]
         self.op._get_technique_order()
         print(self.op.technique_order)
+        print('准备使用秘技 当前配队 %s' % [i.cn if i is not None else None for i in self.op.character_list])
