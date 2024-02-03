@@ -14,7 +14,7 @@ from sr.operation import Operation, OperationOneRoundResult, StateOperation, Sta
 from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.team import SwitchMember
-from sr.screen.dialog import ScreenDialog
+from sr.screen_area.dialog import ScreenDialog
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
 from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
@@ -73,7 +73,9 @@ class SimUniEnterFight(Operation):
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return Operation.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
         elif state == ScreenDialog.FAST_RECOVER_TITLE.value.text:
-            return self._recover_technique_point()
+            result = self._recover_technique_point()
+            self.last_alert_time = time.time()  # 恢复秘技点的时间不应该在计算内
+            return result
         elif state == screen_state.ScreenState.BATTLE.value:
             return self._in_battle()
 
@@ -161,15 +163,11 @@ class SimUniEnterFight(Operation):
         if self.disposable:
             self._attack(now_time)
         else:
-            if not mini_map.with_enemy_nearby(self.ctx.im, mm=mm):
-                return Operation.round_wait(wait=0.2)
-
-            save_debug_image(mm)
-
-            if self.use_technique and not self.ctx.technique_used_before_battle:
+            if self.use_technique and not self.ctx.technique_used:
                 technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
                 self.ctx.controller.use_technique()
-                self.ctx.technique_used_before_battle = True  # 无论有没有秘技点 先设置已经使用了
+                self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
+                self.last_alert_time = time.time()  # 使用秘技的时间不应该在计算内
                 if technique_point is None or technique_point == 0:
                     return Operation.round_wait()
 
@@ -182,7 +180,7 @@ class SimUniEnterFight(Operation):
         恢复秘技点
         :return:
         """
-        self.ctx.technique_used_before_battle = False  # 重置使用情况
+        self.ctx.technique_used = False  # 重置使用情况
         click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value)
 
         if click == Operation.OCR_CLICK_SUCCESS:

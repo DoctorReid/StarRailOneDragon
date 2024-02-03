@@ -158,8 +158,6 @@ class StartFightForElite(StateOperation):
         按顺序使用秘技
         :return:
         """
-        log.info('准备使用秘技 当前配队 %s', [i.cn if i is not None else None for i in self.character_list])
-
         # 秘技点不够的时候 保证主C使用
         if self.technique_point == 0:
             order = []

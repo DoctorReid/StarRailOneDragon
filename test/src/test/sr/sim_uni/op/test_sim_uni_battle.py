@@ -3,7 +3,7 @@ import unittest
 import test
 from sr.context import get_context
 from sr.image.sceenshot import screen_state
-from sr.screen.dialog import ScreenDialog
+from sr.screen_area.dialog import ScreenDialog
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 
 

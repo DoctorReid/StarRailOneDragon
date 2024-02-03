@@ -5,6 +5,7 @@ from sr.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationEdge, \
     StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.move import MoveDirectly
+from sr.operation.unit.team import CheckTeamMembersInWorld
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
@@ -38,8 +39,12 @@ class SimUniRunLevel(StateOperation):
         edges: List[StateOperationEdge] = []
 
         wait_start = StateOperationNode('等待加载', self._wait)
+
+        check_members = StateOperationNode('识别组队成员', self._check_members)
+        edges.append(StateOperationEdge(wait_start, check_members))
+
         check_level_type = StateOperationNode('识别楼层类型', self._check_level_type)
-        edges.append(StateOperationEdge(wait_start, check_level_type))
+        edges.append(StateOperationEdge(check_members, check_level_type))
 
         route = StateOperationNode('区域', self._route_op)
         edges.append(StateOperationEdge(check_level_type, route, ignore_status=True))
@@ -67,6 +72,10 @@ class SimUniRunLevel(StateOperation):
 
     def _wait(self) -> OperationOneRoundResult:
         op = SimUniWaitLevelStart(self.ctx, config=self.config)
+        return Operation.round_by_op(op.execute())
+
+    def _check_members(self) -> OperationOneRoundResult:
+        op = CheckTeamMembersInWorld(self.ctx)
         return Operation.round_by_op(op.execute())
 
     def _check_level_type(self) -> OperationOneRoundResult:

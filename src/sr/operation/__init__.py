@@ -12,7 +12,7 @@ from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.context import Context
 from sr.image.sceenshot import fill_uid_black
-from sr.screen import ScreenArea
+from sr.screen_area import ScreenArea
 
 
 class OperationOneRoundResult:

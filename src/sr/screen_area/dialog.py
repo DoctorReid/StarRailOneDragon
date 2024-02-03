@@ -1,7 +1,7 @@
 from enum import Enum
 
 from basic import Rect
-from sr.screen import ScreenArea
+from sr.screen_area import ScreenArea
 
 
 class ScreenDialog(Enum):

@@ -9,8 +9,8 @@ from basic.img import cv2_utils
 from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot.phone_menu import in_phone_menu
-from sr.screen import ScreenArea
-from sr.screen.dialog import ScreenDialog
+from sr.screen_area import ScreenArea
+from sr.screen_area.dialog import ScreenDialog
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 
 

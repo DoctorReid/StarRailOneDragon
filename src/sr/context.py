@@ -1,7 +1,7 @@
 import subprocess
 import threading
 import time
-from typing import Optional
+from typing import Optional, List
 
 import keyboard
 import pyautogui
@@ -13,6 +13,7 @@ from basic.log_utils import log
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
+from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK
 from sr.control import GameController
 from sr.control.pc_controller import PcController
 from sr.image import ImageMatcher
@@ -55,7 +56,8 @@ class Context:
         self.open_game_by_script: bool = False  # 脚本启动的游戏
         self.first_transport: bool = True  # 第一次传送
 
-        self.technique_used_before_battle: bool = False  # 新一轮战斗前是否已经使用秘技了
+        self.current_character_list: List[Character] = []
+        self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
 
     def register_key_press(self, key, callback):
         if key not in self.press_event:
@@ -258,6 +260,17 @@ class Context:
         """
         self.init_controller(False)
         save_debug_image(fill_uid_black(self.controller.screenshot()))
+
+    def is_buff_technique(self) -> bool:
+        """
+        当前角色使用的秘技是否buff类型
+        :return:
+        """
+        if self.current_character_list is None or len(self.current_character_list) == 0:
+            return False
+        if self.current_character_list[0] is None:  # TODO 缺少当前角色的判断
+            return False
+        return self.current_character_list[0].technique_type in (TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK)
 
 
 def try_open_game() -> bool:
