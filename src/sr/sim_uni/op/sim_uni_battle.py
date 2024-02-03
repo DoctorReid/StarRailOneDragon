@@ -6,7 +6,6 @@ from cv2.typing import MatLike
 from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from basic.img.os import save_debug_image
 from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
@@ -113,6 +112,7 @@ class SimUniEnterFight(Operation):
         """
         self._update_not_in_world_time()
         self.with_battle = True
+        self.ctx.technique_used_before_battle = False
         return Operation.round_wait(wait=1)
 
     def _choose_bless(self) -> Optional[OperationOneRoundResult]:
@@ -169,7 +169,8 @@ class SimUniEnterFight(Operation):
                 self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
                 self.last_alert_time = time.time()  # 使用秘技的时间不应该在计算内
                 if technique_point is None or technique_point == 0:
-                    return Operation.round_wait()
+                    self.last_alert_time += 0.5
+                    return Operation.round_wait(wait=0.5)
 
             self._attack(now_time)
 
@@ -184,7 +185,7 @@ class SimUniEnterFight(Operation):
         click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=0.5)
+            return Operation.round_wait(wait=0.5)
         else:
             return Operation.round_retry('点击确认失败', wait=1)
 
