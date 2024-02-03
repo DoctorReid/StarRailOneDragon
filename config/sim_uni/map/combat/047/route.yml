@@ -4,8 +4,10 @@ region: '铆钉镇'
 floor: 1
 start_pos: [603, 512]
 next_pos_list:
-  - [594, 551]
+  - [594, 561]
 op_list:
   - op: 'move'
     data: [602, 537]
   - op: 'patrol'
+  - op: 'move'
+    data: [602, 551]

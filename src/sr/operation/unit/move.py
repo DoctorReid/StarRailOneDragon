@@ -373,7 +373,7 @@ class MoveDirectly(Operation):
                 if self.no_pos_times >= 3:  # 不要再乱走了
                     self.ctx.controller.stop_moving_forward()
                     if self.stop_move_time is None:
-                        self.stop_move_time = now_time
+                        self.stop_move_time = now_time + 1  # 移动后的惯性
                 if self.no_pos_times >= 10:
                     return Operation.round_fail(MoveDirectly.STATUS_NO_POS)
             return Operation.round_wait()
@@ -422,7 +422,7 @@ class MoveDirectly(Operation):
             return
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
-        mm_info = mini_map.analyse_mini_map(mm)
+        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
         last_pos = self.pos[-1]
         self.ctx.controller.move_towards(last_pos, self.target, mm_info.angle,
                                          run=self.run_mode == game_config_const.RUN_MODE_BTN)
