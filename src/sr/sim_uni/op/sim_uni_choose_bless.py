@@ -14,8 +14,8 @@ from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.click import ClickDialogConfirm
-from sr.sim_uni.sim_uni_const import match_best_bless_by_ocr, SimUniBless, SimUniBlessEnum, SimUniBlessLevel
 from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_const import match_best_bless_by_ocr, SimUniBless, SimUniBlessEnum, SimUniBlessLevel
 
 # 3个祝福的情况 每个祝福有2个框 分别是名字、命途
 BLESS_3_RECT_LIST: List[List[Rect]] = [
@@ -266,7 +266,7 @@ class SimUniDropBless(StateOperation):
         """
         按照优先级选择祝福
         :param ctx:
-        :param priority: 祝福优先级
+        :param config: 挑战配置
         :param skip_first_screen_check: 是否跳过第一次的画面状态检查
         """
         state = StateOperationNode('画面检测', self._check_screen_state)
@@ -278,8 +278,6 @@ class SimUniDropBless(StateOperation):
                          nodes=[state, choose_bless, confirm])
 
         self.config: Optional[SimUniChallengeConfig] = config
-        if priority is None:
-            log.debug('未传入优先级')
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 

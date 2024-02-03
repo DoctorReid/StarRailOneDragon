@@ -11,8 +11,8 @@ from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.click import ClickDialogConfirm
-from sr.sim_uni.sim_uni_const import match_best_curio_by_ocr, SimUniCurio, SimUniCurioEnum
 from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_const import match_best_curio_by_ocr, SimUniCurio, SimUniCurioEnum
 
 
 class SimUniChooseCurio(StateOperation):
@@ -43,7 +43,7 @@ class SimUniChooseCurio(StateOperation):
         """
         模拟宇宙中 选择奇物
         :param ctx:
-        :param priority: 优先级
+        :param config: 挑战配置
         :param skip_first_screen_check: 是否跳过第一次画面状态检查
         """
         edges = []
@@ -346,16 +346,16 @@ class SimUniDropCurio(StateOperation):
         """
         根据优先级选择对应的奇物 要丢弃的应该是优先级最低的
         :param curio_list: 可选的奇物列表
-        :param priority: 优先级
+        :param config: 挑战配置
         :return: 选择的下标
         """
-        if priority is None:
+        if config is None:
             return 0
 
         opt_priority_list: List[int] = [99 for _ in curio_list]  # 选项的优先级
         cnt = 0
 
-        for curio_id in priority.curio_priority:
+        for curio_id in config.curio_priority:
             curio_enum = SimUniCurioEnum[curio_id]
             for idx, opt_curio in enumerate(curio_list):
                 if curio_enum.value == opt_curio and opt_priority_list[idx] == 99:

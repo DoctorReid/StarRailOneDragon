@@ -12,7 +12,7 @@ from basic.img import MatchResult, cv2_utils, MatchResultList
 from basic.log_utils import log
 from sr.const import map_const
 from sr.image import ImageMatcher
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
 from sr.performance_recorder import record_performance
 
 cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='cal_pos')
@@ -72,7 +72,7 @@ def cal_character_pos(im: ImageMatcher,
 
     if result is None:
         if lm_rect is not None and retry_without_rect:  # 整张大地图试试
-            return cal_character_pos(lm_info, mm_info, running=running, show=show)
+            return cal_character_pos(im, lm_info, mm_info, running=running, show=show)
         else:
             return None
 
@@ -94,7 +94,7 @@ def cal_character_pos(im: ImageMatcher,
 @record_performance
 def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                        lm_rect: Rect = None,
-                                       show: bool = False) -> MatchResult:
+                                       show: bool = False) -> Optional[MatchResult]:
     """
     使用特征匹配 在大地图上匹配小地图的位置
     :param lm_info: 大地图信息
@@ -160,7 +160,7 @@ def cal_character_pos_by_gray(im: ImageMatcher,
                               lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                               lm_rect: Rect = None,
                               running: bool = False,
-                              show: bool = False) -> MatchResult:
+                              show: bool = False) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用灰度图进行匹配
@@ -213,7 +213,7 @@ def cal_character_pos_by_original(im: ImageMatcher,
                                   running: bool = False,
                                   show: bool = False,
                                   scale_list: List[float] = None,
-                                  match_threshold: float = 0.3) -> MatchResult:
+                                  match_threshold: float = 0.3) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用小地图原图 - 需要到这一步 说明背景比较杂乱 因此道路掩码只使用中心点包含的连通块
@@ -264,7 +264,7 @@ def cal_character_pos_by_original(im: ImageMatcher,
 @record_performance
 def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                    lm_rect: Rect = None,
-                                   show: bool = False) -> MatchResult:
+                                   show: bool = False) -> Optional[MatchResult]:
     """
     根据特殊点 计算小地图在大地图上的位置
     :param lm_info: 大地图信息
@@ -346,6 +346,7 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     :param lm_rect: 圈定的大地图区域 传入后更准确
     :param running: 任务是否在跑动
     :param show: 是否显示调试结果
+    :param scale_list: 缩放比例
     :return:
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)

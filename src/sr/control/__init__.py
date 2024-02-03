@@ -16,8 +16,8 @@ class GameController:
 
     def __init__(self, ocr: OcrMatcher):
         self.ocr: OcrMatcher = ocr
-        self.turn_dx: float = None
-        self.run_speed: float = None
+        self.turn_dx: Optional[float] = None
+        self.run_speed: Optional[float] = None
         self.is_moving: bool = False
 
     def init(self):

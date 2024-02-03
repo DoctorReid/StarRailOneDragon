@@ -261,6 +261,7 @@ class Context:
         self.init_controller(False)
         save_debug_image(fill_uid_black(self.controller.screenshot()))
 
+    @property
     def is_buff_technique(self) -> bool:
         """
         当前角色使用的秘技是否buff类型

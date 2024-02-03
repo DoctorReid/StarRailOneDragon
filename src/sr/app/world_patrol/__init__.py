@@ -38,8 +38,8 @@ class WorldPatrolRouteId:
         self.route_num: int = 0 if idx_cnt == 3 else int(raw_id[idx+1:])
 
         self.planet: Planet = planet
-        self.region: Region = None
-        self.tp: TransportPoint = None
+        self.region: Optional[Region] = None
+        self.tp: Optional[TransportPoint] = None
 
         for region in PLANET_2_REGION.get(planet.np_id):
             if raw_id.startswith(region.r_id):

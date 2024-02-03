@@ -298,7 +298,7 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
         如果是秘技开怪 且是上buff类的 就在路线运行前上buff
         :return:
         """
-        if not self.config.technique_fight and self.ctx.is_buff_technique:
+        if not self.config.technique_fight or not self.ctx.is_buff_technique:
             return Operation.round_success()
 
         screen = self.screenshot()

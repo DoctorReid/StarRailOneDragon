@@ -106,6 +106,7 @@ def mark_area_as_color(image: MatLike, pos: List, color, new_image: bool = False
     :param image: 原图
     :param pos: 区域坐标 如果是矩形 传入 [x,y,w,h] 如果是圆形 传入 [x,y,r]。其他数组长度不处理
     :param new_image: 是否返回一张新的图
+    :param color: 颜色
     :return: 新图
     """
     to_paint = image.copy() if new_image else image

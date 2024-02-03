@@ -439,6 +439,7 @@ def get_mini_map_road_mask(mm: MatLike,
     :param arrow_mask: 小箭头的掩码 只有小地图有
     :param angle: 只有小地图上需要传入 表示当前朝向
     :param another_floor: 是否有其它楼层
+    :param radio_to_del: 朝向雷达
     :return: 道路掩码图 能走的部分是白色255
     """
     origin = remove_radio(mm, radio_to_del)

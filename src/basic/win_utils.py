@@ -94,7 +94,6 @@ def screenshot_win(win: Union[str, Win32Window]) -> MatLike:
     """
     激活窗口然后对屏幕截图 截取窗口所在区域
     :param win: 窗口名称 或 具体窗口
-    :param save_path: 保存路径
     :return:
     """
     if type(win) == str:

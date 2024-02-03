@@ -6,6 +6,7 @@ from sr.operation import Operation, OperationResult, StateOperation, StateOperat
     StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.team import CheckTeamMembersInWorld
+from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
@@ -51,6 +52,7 @@ class SimUniRunLevel(StateOperation):
 
         reset = StateOperationNode('重置', self._reset)
         edges.append(StateOperationEdge(route, reset, success=False, status=MoveDirectly.STATUS_NO_POS))
+        edges.append(StateOperationEdge(route, reset, success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND))
         edges.append(StateOperationEdge(reset, route))
 
         super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=wait_start, op_callback=op_callback)

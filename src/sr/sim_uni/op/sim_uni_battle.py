@@ -112,7 +112,7 @@ class SimUniEnterFight(Operation):
         """
         self._update_not_in_world_time()
         self.with_battle = True
-        self.ctx.technique_used_before_battle = False
+        self.ctx.technique_used = False
         return Operation.round_wait(wait=1)
 
     def _choose_bless(self) -> Optional[OperationOneRoundResult]:
@@ -163,12 +163,21 @@ class SimUniEnterFight(Operation):
         if self.disposable:
             self._attack(now_time)
         else:
+            if self.use_technique and not self.ctx.is_buff_technique:  # 攻击类每次都需要使用
+                self.ctx.technique_used = False
+
             if self.use_technique and not self.ctx.technique_used:
                 technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
-                self.ctx.controller.use_technique()
-                self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
-                self.last_alert_time = time.time()  # 使用秘技的时间不应该在计算内
-                if technique_point is None or technique_point == 0:
+
+                if self.ctx.is_buff_technique:
+                    self.ctx.controller.use_technique()
+                    self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
+                    self.last_alert_time = time.time()  # 使用秘技的时间不应该在计算内
+                elif mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
+                    self.ctx.controller.use_technique()
+                    self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
+
+                if self.ctx.technique_used and (technique_point is None or technique_point == 0):
                     self.last_alert_time += 0.5
                     return Operation.round_wait(wait=0.5)
 
@@ -258,7 +267,7 @@ class SimUniFightElite(StateOperation):
         return Operation.round_by_op(op.execute())
 
     def _fight(self) -> OperationOneRoundResult:
-        op = SimUniEnterFight(self.ctx, config=self.config)
+        op = SimUniEnterFight(self.ctx, config=self.config, disposable=True)  # 借用这个选项只攻击一次 且不额外使用秘技
         return Operation.round_by_op(op.execute())
 
     def _switch_1(self) -> OperationOneRoundResult:

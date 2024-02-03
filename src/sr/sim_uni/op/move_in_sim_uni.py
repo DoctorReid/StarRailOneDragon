@@ -158,6 +158,8 @@ class MoveToNextLevel(StateOperation):
 
     NEXT_CONFIRM_BTN: ClassVar[Rect] = Rect(1006, 647, 1330, 697)  # 确认按钮
 
+    STATUS_ENTRY_NOT_FOUND: ClassVar[str] = '未找到下一层入口'
+
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  current_pos: Optional[Point] = None, next_pos_list: Optional[List[Point]] = None,
                  config: Optional[SimUniChallengeConfig] = None):
@@ -235,7 +237,7 @@ class MoveToNextLevel(StateOperation):
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
                 self.ctx.controller.turn_by_angle(100)  # 这里要避免能被360整除 否则某些区域会转一圈又刚好被盖住
-                return Operation.round_retry('未找到下一层入口', wait=1)
+                return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
             target = self._get_target_entry(type_list)
 

@@ -43,12 +43,12 @@ class MiniMapInfo:
 class LargeMapInfo:
 
     def __init__(self):
-        self.region: Region = None  # 区域
+        self.region: Optional[Region] = None  # 区域
         self.raw: MatLike = None  # 原图
         self.origin: MatLike = None  # 处理后的原图
         self.gray: MatLike = None  # 灰度图 用于特征检测
         self.mask: MatLike = None  # 主体掩码 用于特征匹配
-        self.sp_result: dict = None  # 特殊点坐标
+        self.sp_result: Optional[dict] = None  # 特殊点坐标
         self.kps = None  # 特征点 用于特征匹配
         self.desc = None  # 描述子 用于特征匹配
 
