@@ -881,10 +881,6 @@ def with_enemy_nearby(im: ImageMatcher,
     red_part[cx+15:, :] = 0
     red_part[:, :cy-15] = 0
     red_part[:, cy+15:] = 0
-    # cv2_utils.show_image(red_part, win_name='red_part')
+    # cv2_utils.show_image(red_part, win_name='red_part', wait=0)
 
-    # 膨胀一下找连通块
-    to_check = cv2_utils.dilate(red_part, 5)
-    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(to_check, connectivity=8)
-
-    return num_labels >= 1
+    return np.max(red_part) > 0

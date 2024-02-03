@@ -29,6 +29,9 @@ from sr.win import Window
 class Context:
 
     def __init__(self):
+        """
+        用于存放运行时的上下文
+        """
         self.platform: str = 'PC'
         self.ih: ImageHolder = ImageHolder()
         self.im: Optional[ImageMatcher] = None
@@ -51,6 +54,8 @@ class Context:
         self.recorder: PerformanceRecorder = get_recorder()
         self.open_game_by_script: bool = False  # 脚本启动的游戏
         self.first_transport: bool = True  # 第一次传送
+
+        self.technique_used_before_battle: bool = False  # 新一轮战斗前是否已经使用秘技了
 
     def register_key_press(self, key, callback):
         if key not in self.press_event:

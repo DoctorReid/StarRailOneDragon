@@ -10,7 +10,7 @@ from basic.log_utils import log
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.const import operation_const
 from sr.context import Context
-from sr.image.sceenshot import mini_map
+from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, \
     OperationResult, StateOperation, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
@@ -59,6 +59,7 @@ class SimUniMatchRoute(Operation):
 class SimUniRunRouteOp(StateOperation):
 
     STATUS_ALL_OP_DONE: ClassVar[str] = '执行结束'
+    STATUS_USE_TECH: ClassVar[str] = '已使用秘技'
 
     def __init__(self, ctx: Context, route: SimUniRoute,
                  config: Optional[SimUniChallengeConfig] = None,
@@ -99,6 +100,22 @@ class SimUniRunRouteOp(StateOperation):
         self.op_idx = -1
         self.current_pos: Point = self.route.start_pos
 
+    def _use_tech(self):
+        """
+        初始化
+        :return:
+        """
+        if not self.config.technique_fight or self.ctx.technique_used_before_battle:
+            return Operation.round_success()
+
+        screen = self.screenshot()
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      in_world=True, fast_recover=True)
+
+        if state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
+            pass
+
+
     def _next_op(self) -> OperationOneRoundResult:
         """
         执行下一个指令
@@ -122,6 +139,16 @@ class SimUniRunRouteOp(StateOperation):
             return Operation.round_fail('未知指令')
 
         return Operation.round_by_op(op.execute())
+
+    def _after_op(self):
+        """
+        指令之后的操作
+        :return:
+        """
+        current_op: SimUniRouteOperation = self.route.op_list[self.op_idx]
+
+        if current_op['op'] == operation_const.OP_PATROL:
+            op = SimUniEnterFight(self.ctx, config=self.config)
 
     def move(self, current_op: SimUniRouteOperation, next_op: Optional[SimUniRouteOperation]) -> Operation:
         """
@@ -262,7 +289,7 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
                  config: Optional[SimUniChallengeConfig] = None,
                  ):
 
-        super().__init__(ctx, level_type, config=priority)
+        super().__init__(ctx, level_type, config=config)
 
 
 class SimUniInteractAfterRoute(StateOperation):
@@ -336,7 +363,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         需要交互的楼层使用
         :param ctx:
         """
-        super().__init__(ctx, level_type, priority)
+        super().__init__(ctx, level_type, config)
 
         is_respite = level_type == SimUniLevelTypeEnum.RESPITE.value
         self.icon_template_id: str = 'mm_sp_herta' if is_respite else 'mm_sp_event'
@@ -360,7 +387,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         cal_pos = self._cal_interact_pos()
 
         if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            op = SimUniEnterFight(self.ctx, config=self.config, attack_once=True)  # 攻击可破坏物 统一用这个处理大乐透
+            op = SimUniEnterFight(self.ctx, config=self.config, disposable=True)  # 攻击可破坏物 统一用这个处理大乐透
             op_result = op.execute()
             if not op_result.success:
                 return Operation.round_fail('攻击可破坏物失败')
@@ -536,7 +563,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
                  get_reward_callback: Optional[Callable[[int, int], None]] = None
                  ):
 
-        super().__init__(ctx, level_type, priority)
+        super().__init__(ctx, level_type, config)
 
         self.with_enemy: bool = True
         self.no_icon: bool = False

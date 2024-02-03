@@ -6,6 +6,7 @@ from cv2.typing import MatLike
 from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.img.os import save_debug_image
 from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
@@ -32,7 +33,7 @@ class SimUniEnterFight(Operation):
 
     def __init__(self, ctx: Context,
                  config: Optional[SimUniChallengeConfig] = None,
-                 attack_once: bool = False,
+                 disposable: bool = False,
                  use_technique: bool = False):
         """
         模拟宇宙中 主动进入战斗
@@ -46,9 +47,8 @@ class SimUniEnterFight(Operation):
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_direction: int = 0  # 攻击方向
         self.config: Optional[SimUniChallengeConfig] = config  # 挑战配置
-        self.attack_once: bool = attack_once  # 只攻击一次
-        self.use_technique: bool = False if config is None else config.technique_fight # 是否使用秘技开怪
-        self.technique_used_before_battle: bool = False  # 新一轮战斗前是否已经使用秘技了
+        self.disposable: bool = disposable  # 攻击可破坏物
+        self.use_technique: bool = False if config is None else config.technique_fight  # 是否使用秘技开怪
 
     def _init_before_execute(self):
         self.last_attack_time = time.time()
@@ -111,7 +111,6 @@ class SimUniEnterFight(Operation):
         """
         self._update_not_in_world_time()
         self.with_battle = True
-        self.technique_used_before_battle = False
         return Operation.round_wait(wait=1)
 
     def _choose_bless(self) -> Optional[OperationOneRoundResult]:
@@ -159,15 +158,21 @@ class SimUniEnterFight(Operation):
         if now_time - self.last_not_in_world_time > SimUniEnterFight.EXIT_AFTER_NO_BATTLE_TIME:
             return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
 
-        if self.use_technique and not self.technique_used_before_battle:
-            technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
-            self.ctx.controller.use_technique()
-            self.technique_used_before_battle = True  # 无论有没有秘技点 先设置已经使用了
-            if technique_point is None or technique_point == 0:
-                return Operation.round_wait()
-            time.sleep(0.5)
+        if self.disposable:
+            self._attack(now_time)
+        else:
+            if not mini_map.with_enemy_nearby(self.ctx.im, mm=mm):
+                return Operation.round_wait(wait=0.2)
 
-        if mini_map.with_enemy_nearby(self.ctx.im, mm=mm):
+            save_debug_image(mm)
+
+            if self.use_technique and not self.ctx.technique_used_before_battle:
+                technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
+                self.ctx.controller.use_technique()
+                self.ctx.technique_used_before_battle = True  # 无论有没有秘技点 先设置已经使用了
+                if technique_point is None or technique_point == 0:
+                    return Operation.round_wait()
+
             self._attack(now_time)
 
         return Operation.round_wait()
@@ -177,7 +182,7 @@ class SimUniEnterFight(Operation):
         恢复秘技点
         :return:
         """
-        self.technique_used_before_battle = False  # 重置使用情况
+        self.ctx.technique_used_before_battle = False  # 重置使用情况
         click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value)
 
         if click == Operation.OCR_CLICK_SUCCESS:
@@ -188,7 +193,7 @@ class SimUniEnterFight(Operation):
     def _attack(self, now_time: float):
         if now_time - self.last_attack_time <= SimUniEnterFight.ATTACK_INTERVAL:
             return
-        if self.attack_once and self.attack_direction > 0:
+        if self.disposable and self.attack_direction > 0:  # 可破坏物只攻击一次
             return
         self.last_attack_time = now_time
         if self.attack_direction > 0:

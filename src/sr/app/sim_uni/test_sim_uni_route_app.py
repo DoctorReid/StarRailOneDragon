@@ -2,7 +2,6 @@ from typing import Optional, ClassVar
 
 from basic.i18_utils import gt
 from sr.app import Application2
-from sr.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.app.sim_uni.sim_universe_app import get_record
@@ -11,6 +10,7 @@ from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
+from sr.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
 from sr.sim_uni.sim_uni_const import SimUniLevelType
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
@@ -59,7 +59,7 @@ class TestSimUniRouteApp(Application2):
     def _run_world(self) -> OperationOneRoundResult:
         uni_challenge_config = self.config.get_challenge_config(self.uni_num)
         op = SimUniRunWorld(self.ctx, self.uni_num,
-                            priority=uni_challenge_config.all_priority,
+                            config=uni_challenge_config,
                             op_callback=self._on_world_done
                             )
         return Operation.round_by_op(op.execute())

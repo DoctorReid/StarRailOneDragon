@@ -4,7 +4,6 @@ from basic import os_utils, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import AppDescription, register_app, AppRunRecord, Application2, app_record_current_dt_str
-from sr.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.config import game_config
 from sr.const import phone_menu_const
@@ -25,6 +24,7 @@ from sr.sim_uni.op.choose_sim_uni_type import ChooseSimUniType
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_start import SimUniStart
+from sr.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
 from sr.sim_uni.sim_uni_const import SimUniType, SimUniPath, SimUniWorldEnum
 
 SIM_UNIVERSE = AppDescription(cn='模拟宇宙', id='sim_universe')
@@ -283,7 +283,7 @@ class SimUniverseApp(Application2):
         get_reward = self.current_uni_num == self.specified_uni_num  # 只有当前宇宙和开拓力需要的宇宙是同一个 才能拿奖励
 
         op = SimUniRunWorld(self.ctx, self.current_uni_num,
-                            priority=uni_challenge_config.all_priority,
+                            config=uni_challenge_config,
                             op_callback=self.on_world_finished,
                             max_reward_to_get=self.max_reward_to_get - self.get_reward_cnt if get_reward else 0,
                             get_reward_callback=self._on_sim_uni_get_reward if get_reward else None

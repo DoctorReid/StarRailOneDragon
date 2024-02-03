@@ -10,17 +10,16 @@ from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import cal_pos
 from sr.config import game_config
-from sr.const import game_config_const
 from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, large_map, mini_map, screen_state
 from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.move import MoveDirectly, TurnToAngle
+from sr.operation.unit.move import MoveDirectly
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
 from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
 
 
 class MoveDirectlyInSimUni(MoveDirectly):
@@ -48,7 +47,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             no_run=no_run, no_battle=no_battle,
             op_callback=op_callback)
         self.op_name = '%s %s' % (gt('模拟宇宙', 'ui'), gt('移动 %s -> %s') % (start, target))
-        self.config: SimUniChallengeConfig = priority
+        self.config: SimUniChallengeConfig = config
 
     def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
         """

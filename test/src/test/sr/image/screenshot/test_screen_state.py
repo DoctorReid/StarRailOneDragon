@@ -61,4 +61,3 @@ class TestOperation(unittest.TestCase, test.SrTestBase):
                                                         battle_success=True,
                                                         battle_fail=True)
         self.assertEqual(screen_state.ScreenState.TP_BATTLE_SUCCESS.value, state)
-

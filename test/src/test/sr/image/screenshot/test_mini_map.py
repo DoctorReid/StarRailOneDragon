@@ -2,6 +2,7 @@ import unittest
 
 import test
 from sr.context import get_context
+from sr.image.sceenshot import mini_map
 
 
 class TestGetTeamMemberInWorld(unittest.TestCase, test.SrTestBase):
@@ -10,3 +11,10 @@ class TestGetTeamMemberInWorld(unittest.TestCase, test.SrTestBase):
         test.SrTestBase.__init__(self, __file__)
 
         ctx = get_context()
+
+    def test_with_enemy_nearby(self):
+        ctx = get_context()
+        ctx.init_image_matcher()
+
+        mm = self.get_test_image('mm_no_enemy')
+        self.assertFalse(mini_map.with_enemy_nearby(ctx.im, mm=mm))

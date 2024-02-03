@@ -19,7 +19,7 @@ class SimUniRunLevel(StateOperation):
     STATUS_NO_RESET: ClassVar[str] = '失败到达重置上限'
 
     def __init__(self, ctx: Context, world_num: int,
-                 priority: Optional[SimUniChallengeConfig] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  max_reward_to_get: int = 0,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
@@ -52,7 +52,7 @@ class SimUniRunLevel(StateOperation):
 
         self.world_num: int = world_num
         self.level_type: Optional[SimUniLevelType] = None
-        self.priority: Optional[SimUniChallengeConfig] = priority
+        self.config: Optional[SimUniChallengeConfig] = config
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
         self.reset_times: int = 0  # 重置次数
@@ -66,7 +66,7 @@ class SimUniRunLevel(StateOperation):
         self.reset_times = 0
 
     def _wait(self) -> OperationOneRoundResult:
-        op = SimUniWaitLevelStart(self.ctx, priority=self.priority)
+        op = SimUniWaitLevelStart(self.ctx, config=self.config)
         return Operation.round_by_op(op.execute())
 
     def _check_level_type(self) -> OperationOneRoundResult:
@@ -84,15 +84,15 @@ class SimUniRunLevel(StateOperation):
         :return:
         """
         if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
-            op = SimUniRunCombatRoute(self.ctx, self.level_type, priority=self.priority)
+            op = SimUniRunCombatRoute(self.ctx, self.level_type, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
                 self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
                 self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value or \
                 self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            op = SimUniRunInteractRoute(self.ctx, self.level_type, priority=self.priority)
+            op = SimUniRunInteractRoute(self.ctx, self.level_type, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            op = SimUniRunEliteRoute(self.ctx, self.level_type, priority=self.priority,
+            op = SimUniRunEliteRoute(self.ctx, self.level_type, config=self.config,
                                      max_reward_to_get=self.max_reward_to_get,
                                      get_reward_callback=self.get_reward_callback)
         else:
