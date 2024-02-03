@@ -13,9 +13,10 @@ from sr.operation import Operation, OperationOneRoundResult, StateOperation, Sta
 from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.team import SwitchMember
+from sr.screen.dialog import ScreenDialog
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 
 
 class SimUniEnterFight(Operation):
@@ -30,7 +31,7 @@ class SimUniEnterFight(Operation):
     STATUS_STATE_UNKNOWN: ClassVar[str] = '未知状态'
 
     def __init__(self, ctx: Context,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  attack_once: bool = False,
                  use_technique: bool = False):
         """
@@ -44,9 +45,9 @@ class SimUniEnterFight(Operation):
         self.last_not_in_world_time: float = 0  # 上次不在移动画面的时间
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_direction: int = 0  # 攻击方向
-        self.priority: Optional[SimUniAllPriority] = priority  # 优先级
+        self.config: Optional[SimUniChallengeConfig] = config  # 挑战配置
         self.attack_once: bool = attack_once  # 只攻击一次
-        self.use_technique: bool = use_technique  # 是否使用秘技开怪
+        self.use_technique: bool = False if config is None else config.technique_fight # 是否使用秘技开怪
         self.technique_used_before_battle: bool = False  # 新一轮战斗前是否已经使用秘技了
 
     def _init_before_execute(self):
@@ -71,6 +72,8 @@ class SimUniEnterFight(Operation):
         elif state == screen_state.ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return Operation.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
+        elif state == ScreenDialog.FAST_RECOVER_TITLE.value.text:
+            return self._recover_technique_point()
         elif state == screen_state.ScreenState.BATTLE.value:
             return self._in_battle()
 
@@ -88,7 +91,8 @@ class SimUniEnterFight(Operation):
                                                      battle_fail=True,
                                                      bless=True,
                                                      curio=True,
-                                                     empty_to_close=True)
+                                                     empty_to_close=True,
+                                                     fast_recover=True)
 
     def _update_not_in_world_time(self):
         """
@@ -107,6 +111,7 @@ class SimUniEnterFight(Operation):
         """
         self._update_not_in_world_time()
         self.with_battle = True
+        self.technique_used_before_battle = False
         return Operation.round_wait(wait=1)
 
     def _choose_bless(self) -> Optional[OperationOneRoundResult]:
@@ -114,7 +119,7 @@ class SimUniEnterFight(Operation):
         选择祝福
         :return:
         """
-        op = SimUniChooseBless(self.ctx, self.priority)
+        op = SimUniChooseBless(self.ctx, self.config)
         op_result = op.execute()
         self._update_not_in_world_time()
 
@@ -128,7 +133,7 @@ class SimUniEnterFight(Operation):
         选择奇物
         :return:
         """
-        op = SimUniChooseCurio(self.ctx, self.priority)
+        op = SimUniChooseCurio(self.ctx, self.config)
         op_result = op.execute()
         self._update_not_in_world_time()
 
@@ -154,7 +159,7 @@ class SimUniEnterFight(Operation):
         if now_time - self.last_not_in_world_time > SimUniEnterFight.EXIT_AFTER_NO_BATTLE_TIME:
             return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
 
-        if self.use_technique:
+        if self.use_technique and not self.technique_used_before_battle:
             technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
             self.ctx.controller.use_technique()
             self.technique_used_before_battle = True  # 无论有没有秘技点 先设置已经使用了
@@ -162,7 +167,8 @@ class SimUniEnterFight(Operation):
                 return Operation.round_wait()
             time.sleep(0.5)
 
-        self._attack(now_time)
+        if mini_map.with_enemy_nearby(self.ctx.im, mm=mm):
+            self._attack(now_time)
 
         return Operation.round_wait()
 
@@ -172,10 +178,10 @@ class SimUniEnterFight(Operation):
         :return:
         """
         self.technique_used_before_battle = False  # 重置使用情况
-        click = self.ocr_and_click_one_line('确认', SwitchMember.CONFIRM_BTN)
+        click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(SwitchMember.STATUS_CONFIRM, wait=1)
+            return Operation.round_success(wait=0.5)
         else:
             return Operation.round_retry('点击确认失败', wait=1)
 
@@ -203,7 +209,7 @@ class SimUniFightElite(StateOperation):
 
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '没有敌人'
 
-    def __init__(self, ctx: Context, priority: Optional[SimUniAllPriority] = None):
+    def __init__(self, ctx: Context, config: Optional[SimUniChallengeConfig] = None):
         """
         模拟宇宙 - 挑战精英、首领
         """
@@ -227,7 +233,7 @@ class SimUniFightElite(StateOperation):
                          ),
                          edges=edges
                          )
-        self.priority: Optional[SimUniAllPriority] = priority  # 优先级
+        self.config: Optional[SimUniChallengeConfig] = config  # 优先级
 
     def _check_enemy(self) -> OperationOneRoundResult:
         """
@@ -248,7 +254,7 @@ class SimUniFightElite(StateOperation):
         return Operation.round_by_op(op.execute())
 
     def _fight(self) -> OperationOneRoundResult:
-        op = SimUniEnterFight(self.ctx, priority=self.priority)
+        op = SimUniEnterFight(self.ctx, config=self.config)
         return Operation.round_by_op(op.execute())
 
     def _switch_1(self) -> OperationOneRoundResult:

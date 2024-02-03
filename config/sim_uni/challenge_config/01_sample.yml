@@ -35,3 +35,4 @@ curio_priority:
   - CURIO_024
   - CURIO_049
   - CURIO_018
+technique_fight: false

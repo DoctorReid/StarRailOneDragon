@@ -356,30 +356,6 @@ def is_under_attack(mm: MatLike, mm_pos: Optional[MiniMapPos] = None,
     return find
 
 
-def with_enemy_in_main_road(mm: MatLike):
-    """
-    小地图当前楼层上是否有怪物
-    只靠红色提取效果不太行 背景太杂了
-    :param mm:
-    :return:
-    """
-    b, g, r = cv2.split(mm)
-    red_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
-    red_mask[np.where(r > 230)] = 255
-
-    mm_pos = game_config.get().mini_map_pos
-    circle_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
-    cx = mm.shape[1] // 2
-    cy = mm.shape[0] // 2
-    r = mm_pos.r - 10
-    cv2.circle(circle_mask, (cx, cy), r, 255, -1)
-
-    mask = cv2.bitwise_and(red_mask, circle_mask)
-    cv2_utils.show_image(mm, win_name='mm')
-    cv2_utils.show_image(mask, wait=0)
-    return np.sum(mask == 255) > 10
-
-
 def get_mini_map_scale_list(running: bool):
     return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05, 1.10, 1.15, 1.20, 1.25]
 
@@ -828,23 +804,27 @@ def get_edge_mask(origin: MatLike, road_mask: MatLike, another_floor: bool = Fal
     return final_edge_mask
 
 
-def find_one_enemy_pos(mm: MatLike, im: ImageMatcher) -> Optional[Point]:
+def find_one_enemy_pos(im: ImageMatcher,
+                       mm: Optional[MatLike] = None,
+                       mm_del_radio: Optional[MatLike] = None) -> Optional[Point]:
     """
     在小地图上找到敌人红点的位置
     目前只能处理一个红点的情况
-    :param mm: 小地图图片
+    :param mm: 小地图图片 与下二选一
+    :param mm_del_radio: 去除雷达的小地图图片 与上二选一
     :param im: 图片匹配器
     :return: 红点位置
     """
-    _, _, angle = analyse_arrow_and_angle(mm, im)
-    to_del = get_radio_to_del(im, angle)
-
-    mm2 = remove_radio(mm, to_del)
-    # cv2_utils.show_image(mm2, win_name='mm2')
+    if mm is None and mm_del_radio is None:
+        return None
+    if mm_del_radio is None:
+        angle = analyse_angle(mm)
+        to_del = get_radio_to_del(im, angle)
+        mm_del_radio = remove_radio(mm, to_del)
 
     lower_color = np.array([0, 0, 150], dtype=np.uint8)
     upper_color = np.array([60, 60, 255], dtype=np.uint8)
-    red_part = cv2.inRange(mm2, lower_color, upper_color)
+    red_part = cv2.inRange(mm_del_radio, lower_color, upper_color)
     # cv2_utils.show_image(red_part, win_name='red_part')
 
     # 膨胀一下找连通块
@@ -868,3 +848,43 @@ def find_one_enemy_pos(mm: MatLike, im: ImageMatcher) -> Optional[Point]:
     center_y = int(centroids[largest_label, 1])
 
     return Point(center_x, center_y)
+
+
+def with_enemy_nearby(im: ImageMatcher,
+                      mm: Optional[MatLike] = None,
+                      mm_del_radio: Optional[MatLike] = None):
+    """
+    判断附近是否有敌人
+    :param im: 图片匹配器
+    :param mm: 小地图图片 与下二选一
+    :param mm_del_radio: 去除雷达的小地图图片 与上二选一
+    :return:
+    """
+    if mm is None and mm_del_radio is None:
+        return None
+    if mm_del_radio is None:
+        angle = analyse_angle(mm)
+        to_del = get_radio_to_del(im, angle)
+        mm_del_radio = remove_radio(mm, to_del)
+
+    center_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
+    cx = mm.shape[1] // 2
+    cy = mm.shape[0] // 2
+    center_mask[cx-15:cx+15, cy-15:cy+15] = 255
+
+    lower_color = np.array([0, 0, 150], dtype=np.uint8)
+    upper_color = np.array([60, 60, 255], dtype=np.uint8)
+    red_part = cv2.inRange(mm_del_radio, lower_color, upper_color)
+
+    # 只保留中心点附近的
+    red_part[:cx-15, :] = 0
+    red_part[cx+15:, :] = 0
+    red_part[:, :cy-15] = 0
+    red_part[:, cy+15:] = 0
+    # cv2_utils.show_image(red_part, win_name='red_part')
+
+    # 膨胀一下找连通块
+    to_check = cv2_utils.dilate(red_part, 5)
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(to_check, connectivity=8)
+
+    return num_labels >= 1

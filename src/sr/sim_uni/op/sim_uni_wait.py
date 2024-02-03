@@ -6,13 +6,13 @@ from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 
 
 class SimUniWaitLevelStart(Operation):
 
     def __init__(self, ctx: Context,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  wait_after_success: Optional[int] = None
                  ):
         """
@@ -27,7 +27,7 @@ class SimUniWaitLevelStart(Operation):
                                   gt('等待楼层加载', 'ui'))
                          )
 
-        self.priority: Optional[SimUniAllPriority] = priority
+        self.config: Optional[SimUniChallengeConfig] = config
         self.first_bless_chosen: bool = False
         self.wait_after_success: Optional[int] = wait_after_success
 
@@ -47,7 +47,7 @@ class SimUniWaitLevelStart(Operation):
             # 移动进入下一层后 小地图会有缩放 稍微等一下方便小地图匹配
             return Operation.round_success(wait=self.wait_after_success)
         elif state == screen_state.ScreenState.SIM_BLESS.value:
-            op = SimUniChooseBless(self.ctx, self.priority, before_level_start=not self.first_bless_chosen)
+            op = SimUniChooseBless(self.ctx, self.config, before_level_start=not self.first_bless_chosen)
             op_result = op.execute()
             if op_result.success:
                 self.first_bless_chosen = True
@@ -55,7 +55,7 @@ class SimUniWaitLevelStart(Operation):
             else:
                 return Operation.round_fail(status=op_result.status, data=op_result.data)
         elif state == screen_state.ScreenState.SIM_CURIOS.value:
-            op = SimUniChooseCurio(self.ctx, self.priority)
+            op = SimUniChooseCurio(self.ctx, self.config)
             op_result = op.execute()
             if op_result.success:
                 return Operation.round_wait()

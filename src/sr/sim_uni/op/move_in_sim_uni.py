@@ -20,7 +20,7 @@ from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly, TurnToAngle
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 
 
 class MoveDirectlyInSimUni(MoveDirectly):
@@ -35,7 +35,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
     """
     def __init__(self, ctx: Context, lm_info: LargeMapInfo,
                  start: Point, target: Point,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  stop_afterwards: bool = True,
                  no_run: bool = False,
                  no_battle: bool = False,
@@ -48,7 +48,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             no_run=no_run, no_battle=no_battle,
             op_callback=op_callback)
         self.op_name = '%s %s' % (gt('模拟宇宙', 'ui'), gt('移动 %s -> %s') % (start, target))
-        self.priority: SimUniAllPriority = priority
+        self.config: SimUniChallengeConfig = priority
 
     def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
         """
@@ -110,7 +110,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             self.ctx.controller.stop_moving_forward()
             if self.stop_move_time is None:
                 self.stop_move_time = time.time()
-            fight = SimUniEnterFight(self.ctx, priority=self.priority)
+            fight = SimUniEnterFight(self.ctx, config=self.config)
             fight_result = fight.execute()
             fight_end_time = time.time()
             if not fight_result.success:
@@ -138,7 +138,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             self.stop_move_time = time.time()
 
         fight_start_time = time.time()
-        fight = SimUniEnterFight(self.ctx, self.priority)
+        fight = SimUniEnterFight(self.ctx, self.config)
         op_result = fight.execute()
         if not op_result.success:
             return Operation.round_fail(status=op_result.status, data=op_result.data)
@@ -161,13 +161,13 @@ class MoveToNextLevel(StateOperation):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  current_pos: Optional[Point] = None, next_pos_list: Optional[List[Point]] = None,
-                 priority: Optional[SimUniAllPriority] = None):
+                 config: Optional[SimUniChallengeConfig] = None):
         """
         朝下一层入口走去 并且交互
         :param ctx:
         :param current_pos: 当前人物的位置
         :param next_pos_list: 下一层入口的位置
-        :param priority: 优先级
+        :param config: 挑战配置
         """
         turn = StateOperationNode('转向入口', self._turn_to_next)
         move = StateOperationNode('移动交互', self._move_and_interact)
@@ -181,7 +181,7 @@ class MoveToNextLevel(StateOperation):
         self.current_pos: Optional[Point] = current_pos
         self.next_pos_list: Optional[List[Point]] = next_pos_list
         self.next_pos: Optional[Point] = None
-        self.priority: Optional[SimUniAllPriority] = priority
+        self.config: Optional[SimUniChallengeConfig] = config
         self.is_moving: bool = False  # 是否正在移动
         self.start_move_time: float = 0  # 开始移动的时间
         self.interacted: bool = False  # 是否已经交互了
@@ -279,21 +279,21 @@ class MoveToNextLevel(StateOperation):
         :param type_list: 入口类型
         :return:
         """
-        idx = MoveToNextLevel.match_best_level_type(type_list, self.priority)
+        idx = MoveToNextLevel.match_best_level_type(type_list, self.config)
         return type_list[idx]
 
     @staticmethod
-    def match_best_level_type(type_list: List[MatchResult], priority: Optional[SimUniAllPriority]) -> int:
+    def match_best_level_type(type_list: List[MatchResult], config: Optional[SimUniChallengeConfig]) -> int:
         """
         根据优先级 获取最优的入口类型
         :param type_list: 入口类型 保证长度大于0
-        :param priority: 优先级
+        :param config: 挑战配置
         :return: 下标
         """
-        if priority is None:
+        if config is None:
             return 0
 
-        for priority_id in priority.next_level_id_list:
+        for priority_id in config.level_type_priority:
             priority_level_type = level_type_from_id(priority_id)
             if priority_level_type is None:
                 continue

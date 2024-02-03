@@ -2,11 +2,11 @@ import unittest
 from typing import List
 
 import test
-from sr.app.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 from sr.context import get_context
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
 from sr.sim_uni.sim_uni_const import SimUniCurioEnum, SimUniCurio
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 
 
 class TestChooseSimUniCurio(unittest.TestCase, test.SrTestBase):
@@ -63,8 +63,9 @@ class TestChooseSimUniCurio(unittest.TestCase, test.SrTestBase):
         ctx.init_ocr_matcher()
         screen = self.get_test_image('drop_2')
 
-        priority = SimUniAllPriority(curio_id_list=[SimUniCurioEnum.CURIO_011.name, SimUniCurioEnum.CURIO_006.name])
-        op = SimUniDropCurio(ctx, priority)
+        config = SimUniChallengeConfig(9, mock=True)
+        op = SimUniDropCurio(ctx, config)
+        config.curio_priority = [SimUniCurioEnum.CURIO_011.name, SimUniCurioEnum.CURIO_006.name]
 
         curio_list = op._get_curio_pos(screen)
         mr = op._get_curio_to_choose(curio_list)
@@ -83,5 +84,5 @@ class TestChooseSimUniCurio(unittest.TestCase, test.SrTestBase):
         ctx.start_running()
         config = SimUniChallengeConfig(8)
 
-        op = SimUniDropCurio(ctx, config.all_priority)
+        op = SimUniDropCurio(ctx, config)
         op.execute()

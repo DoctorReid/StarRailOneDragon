@@ -6,8 +6,8 @@ from basic.img import MatchResult
 from sr.context import get_context
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, get_bless_pos, get_bless_by_priority, SimUniDropBless, \
     SimUniUpgradeBless
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import SimUniBless, SimUniBlessEnum
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 
 class TestSimUniBless(unittest.TestCase, test.SrTestBase):
@@ -105,41 +105,35 @@ class TestSimUniBless(unittest.TestCase, test.SrTestBase):
         op = SimUniChooseBless(ctx, None, before_level_start=False)
         bless_list = get_bless_pos(screen, ctx.ocr, False)
 
+        config = SimUniChallengeConfig(9, mock=True)
+        op.config = config
+
         # 命中骨刃
-        priority_1 = SimUniAllPriority(
-            [SimUniBlessEnum.BLESS_08_017.name, SimUniBlessEnum.BLESS_05_000.name, SimUniBlessEnum.BLESS_01_000.name],
-        )
-        op.priority = priority_1
+        config.bless_priority = [SimUniBlessEnum.BLESS_08_017.name, SimUniBlessEnum.BLESS_05_000.name, SimUniBlessEnum.BLESS_01_000.name]
         mr = op._get_bless_to_choose(screen, bless_list)
         self.assertEqual(SimUniBlessEnum.BLESS_08_017.value, mr.data)
 
         # 命中巡猎
-        priority_2 = SimUniAllPriority(
-            [SimUniBlessEnum.BLESS_05_000.name, SimUniBlessEnum.BLESS_01_000.name],
-        )
-        op.priority = priority_2
+        config.bless_priority = [SimUniBlessEnum.BLESS_05_000.name, SimUniBlessEnum.BLESS_01_000.name]
         mr = op._get_bless_to_choose(screen, bless_list)
         self.assertEqual(SimUniBlessEnum.BLESS_05_015.value, mr.data)
 
         # 命中存护
-        priority_3 = SimUniAllPriority(
-            [],
-            [SimUniBlessEnum.BLESS_01_000.name]
-        )
-        op.priority = priority_3
+        config.bless_priority = []
+        config.bless_priority_2 = [SimUniBlessEnum.BLESS_01_000.name]
         mr = op._get_bless_to_choose(screen, bless_list)
         self.assertEqual(SimUniBlessEnum.BLESS_01_024.value, mr.data)
 
         # 都不命中 选最高级的
-        priority_4 = SimUniAllPriority([],[])
-        op.priority = priority_4
+        config.bless_priority = []
+        config.bless_priority_2 = []
         mr = op._get_bless_to_choose(screen, bless_list)
         self.assertEqual(SimUniBlessEnum.BLESS_05_015.value, mr.data)
 
+        # 重置
         screen = self.get_test_image('can_reset_1')
-        priority = SimUniAllPriority([SimUniBlessEnum.BLESS_01_000.name],
-                                       [SimUniBlessEnum.BLESS_01_000.name])
-        op.priority = priority
+        config.bless_priority = [SimUniBlessEnum.BLESS_01_000.name]
+        config.bless_priority_2 = [SimUniBlessEnum.BLESS_01_000.name]
         bless_list = get_bless_pos(screen, ctx.ocr, False)
         mr = op._get_bless_to_choose(screen, bless_list)
         self.assertIsNone(mr)
@@ -162,7 +156,7 @@ class TestSimUniBless(unittest.TestCase, test.SrTestBase):
         for i in range(len(answer)):
             self.assertEqual(answer[i], bless_list[i])
 
-        priority = SimUniAllPriority([SimUniBlessEnum.BLESS_01_007.name, SimUniBlessEnum.BLESS_08_009.name], [])
+        priority = SimUniChallengeConfig([SimUniBlessEnum.BLESS_01_007.name, SimUniBlessEnum.BLESS_08_009.name], [])
         target_curio_pos: int = get_bless_by_priority(bless_list, priority, can_reset=False, asc=False)
         self.assertEqual(1, target_curio_pos)
 

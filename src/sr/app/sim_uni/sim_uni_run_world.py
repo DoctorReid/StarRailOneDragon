@@ -6,13 +6,13 @@ from sr.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, OperationOneRoundResult, \
     StateOperationNode, StateOperationEdge
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 
 
 class SimUniRunWorld(StateOperation):
 
     def __init__(self, ctx: Context, world_num: int,
-                 priority: Optional[SimUniAllPriority] = None,
+                 priority: Optional[SimUniChallengeConfig] = None,
                  max_reward_to_get: int = 0,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
@@ -36,7 +36,7 @@ class SimUniRunWorld(StateOperation):
                          op_callback=op_callback)
 
         self.world_num: int = world_num
-        self.priority: Optional[SimUniAllPriority] = priority
+        self.priority: Optional[SimUniChallengeConfig] = priority
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_cnt: int = 0  # 当前获取的奖励次数
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调

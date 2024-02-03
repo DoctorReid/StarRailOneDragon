@@ -458,7 +458,7 @@ class MoveToEnemy(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
-        pos = mini_map.find_one_enemy_pos(mm, self.ctx.im)
+        pos = mini_map.find_one_enemy_pos(self.ctx.im, mm=mm)
 
         if pos is None:
             return Operation.round_retry(MoveToEnemy.STATUS_ENEMY_NOT_FOUND, wait=1)

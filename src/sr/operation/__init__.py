@@ -12,6 +12,7 @@ from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.context import Context
 from sr.image.sceenshot import fill_uid_black
+from sr.screen import ScreenArea
 
 
 class OperationOneRoundResult:
@@ -373,6 +374,31 @@ class Operation:
                 return Operation.OCR_CLICK_FAIL
 
         return Operation.OCR_CLICK_NOT_FOUND
+
+    def find_and_click_area(self, area: ScreenArea, screen: Optional[MatLike] = None):
+        """
+        在一个区域匹配成功后进行点击
+        :param area: 目标区域
+        :param screen: 屏幕截图
+        :return:
+        """
+        if screen is None:
+            screen = self.screenshot()
+        if area.text is not None:
+            rect = area.rect
+            part = cv2_utils.crop_image_only(screen, rect)
+
+            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+
+            if str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent):
+                if self.ctx.controller.click(rect.center):
+                    return Operation.OCR_CLICK_SUCCESS
+                else:
+                    return Operation.OCR_CLICK_FAIL
+
+            return Operation.OCR_CLICK_NOT_FOUND
+        else:
+            pass
 
 
 class OperationSuccess(Operation):

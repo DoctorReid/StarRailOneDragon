@@ -21,7 +21,7 @@ from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_reward import SimUniReward
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 
@@ -61,7 +61,7 @@ class SimUniRunRouteOp(StateOperation):
     STATUS_ALL_OP_DONE: ClassVar[str] = '执行结束'
 
     def __init__(self, ctx: Context, route: SimUniRoute,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         模拟宇宙 按照特定路线执行
@@ -71,7 +71,7 @@ class SimUniRunRouteOp(StateOperation):
         self.route_no_battle: bool = self.route.no_battle_op  # 路线上是否无战斗 可以优化移动的效率
         self.op_idx: int = -1
         self.current_pos: Point = self.route.start_pos
-        self.priority: Optional[SimUniAllPriority] = priority
+        self.config: Optional[SimUniChallengeConfig] = config
 
         edges = []
 
@@ -117,7 +117,7 @@ class SimUniRunRouteOp(StateOperation):
         if current_op['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(current_op, next_op)
         elif current_op['op'] == operation_const.OP_PATROL:
-            op = SimUniEnterFight(self.ctx, priority=self.priority)
+            op = SimUniEnterFight(self.ctx, config=self.config)
         else:
             return Operation.round_fail('未知指令')
 
@@ -136,7 +136,7 @@ class SimUniRunRouteOp(StateOperation):
                                   start=self.current_pos, target=next_pos,
                                   stop_afterwards=not next_is_move,
                                   op_callback=self._update_pos,
-                                  priority=self.priority,
+                                  config=self.config,
                                   no_battle=self.route_no_battle,
                                   no_run=current_op['op'] == operation_const.OP_SLOW_MOVE
                                   )
@@ -163,7 +163,7 @@ class SimUniRunRouteBase(StateOperation):
 
     def __init__(self, ctx: Context,
                  level_type: SimUniLevelType,
-                 priority: Optional[SimUniAllPriority] = None
+                 config: Optional[SimUniChallengeConfig] = None
                  ):
         """
         模拟宇宙 按照路线执行的基类
@@ -171,7 +171,7 @@ class SimUniRunRouteBase(StateOperation):
         self.level_type: SimUniLevelType = level_type
         self.route: Optional[SimUniRoute] = None
         self.current_pos: Optional[Point] = None
-        self.priority: Optional[SimUniAllPriority] = priority
+        self.config: Optional[SimUniChallengeConfig] = config
 
         match = StateOperationNode('匹配路线', self._match_route)
         before_route = StateOperationNode('指令前初始化', self._before_route)
@@ -226,7 +226,7 @@ class SimUniRunRouteBase(StateOperation):
         执行下一个指令
         :return:
         """
-        op = SimUniRunRouteOp(self.ctx, self.route, priority=self.priority, op_callback=self._update_pos)
+        op = SimUniRunRouteOp(self.ctx, self.route, config=self.config, op_callback=self._update_pos)
         return Operation.round_by_op(op.execute())
 
     def _update_pos(self, op_result: OperationResult):
@@ -250,7 +250,7 @@ class SimUniRunRouteBase(StateOperation):
         前往下一层
         :return:
         """
-        op = MoveToNextLevel(self.ctx, level_type=self.level_type, priority=self.priority,
+        op = MoveToNextLevel(self.ctx, level_type=self.level_type, config=self.config,
                              current_pos=self.current_pos, next_pos_list=self.route.next_pos_list)
 
         return Operation.round_by_op(op.execute())
@@ -259,10 +259,10 @@ class SimUniRunRouteBase(StateOperation):
 class SimUniRunCombatRoute(SimUniRunRouteBase):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  ):
 
-        super().__init__(ctx, level_type, priority=priority)
+        super().__init__(ctx, level_type, config=priority)
 
 
 class SimUniInteractAfterRoute(StateOperation):
@@ -271,7 +271,7 @@ class SimUniInteractAfterRoute(StateOperation):
 
     def __init__(self, ctx: Context, interact_word: str,
                  no_icon: bool, can_ignore_interact: bool,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  ):
         """
         模拟宇宙 交互楼层移动到交互点后的处理
@@ -291,7 +291,7 @@ class SimUniInteractAfterRoute(StateOperation):
         super().__init__(ctx, op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('事件交互', 'ui')),
                          edges=edges)
 
-        self.priority: Optional[SimUniAllPriority] = priority
+        self.config: Optional[SimUniChallengeConfig] = config
         self.interact_word: str = interact_word
         self.no_icon: bool = no_icon
         self.can_ignore_interact: bool = can_ignore_interact
@@ -313,7 +313,7 @@ class SimUniInteractAfterRoute(StateOperation):
                 return Operation.round_fail_by_op(op_result)
 
     def _event(self) -> OperationOneRoundResult:
-        op = SimUniEvent(self.ctx, priority=self.priority,
+        op = SimUniEvent(self.ctx, config=self.config,
                          skip_first_screen_check=False)
         op_result = op.execute()
         # 事件结束会回到大世界 不需要等待时间
@@ -330,7 +330,7 @@ class SimUniInteractAfterRoute(StateOperation):
 class SimUniRunInteractRoute(SimUniRunRouteBase):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  ):
         """
         需要交互的楼层使用
@@ -360,7 +360,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         cal_pos = self._cal_interact_pos()
 
         if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            op = SimUniEnterFight(self.ctx, priority=self.priority, attack_once=True)  # 攻击可破坏物 统一用这个处理大乐透
+            op = SimUniEnterFight(self.ctx, config=self.config, attack_once=True)  # 攻击可破坏物 统一用这个处理大乐透
             op_result = op.execute()
             if not op_result.success:
                 return Operation.round_fail('攻击可破坏物失败')
@@ -406,7 +406,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         """
         op = SimUniInteractAfterRoute(self.ctx, self.interact_word,
                                       self.no_icon, self.can_ignore_interact,
-                                      self.priority)
+                                      self.config)
         return Operation.round_by_op(op.execute())
 
     def _get_icon_pos(self, mm: MatLike) -> Optional[Point]:
@@ -435,7 +435,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  current_pos: Point, route: SimUniRoute,
                  max_reward_to_get: int,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None
                  ):
@@ -475,12 +475,12 @@ class SimUniRunEliteAfterRoute(StateOperation):
         self.level_type: SimUniLevelType = level_type
         self.current_pos: Point = current_pos  # 当前位置
         self.route: SimUniRoute = route
-        self.priority: Optional[SimUniAllPriority] = priority
+        self.config: Optional[SimUniChallengeConfig] = config
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _fight(self) -> OperationOneRoundResult:
-        op = SimUniFightElite(self.ctx, priority=self.priority)
+        op = SimUniFightElite(self.ctx, config=self.config)
         return Operation.round_by_op(op.execute())
 
     def _move_to_reward(self) -> OperationOneRoundResult:
@@ -531,7 +531,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
 class SimUniRunEliteRoute(SimUniRunRouteBase):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
-                 priority: Optional[SimUniAllPriority] = None,
+                 config: Optional[SimUniChallengeConfig] = None,
                  max_reward_to_get: int = 0,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None
                  ):
@@ -556,10 +556,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
         """
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
-        angle = mini_map.analyse_angle(mm)
-        radio_to_del = mini_map.get_radio_to_del(self.ctx.im, angle)
-        mm_del_radio = mini_map.remove_radio(mm, radio_to_del)
-        red_pos = mini_map.find_one_enemy_pos(mm_del_radio, self.ctx.im)
+        red_pos = mini_map.find_one_enemy_pos(self.ctx.im, mm=mm)
         if red_pos is None:
             self.no_icon = True
             if len(self.route.op_list) == 0:  # 未配置路线时 需要识别到才能往下走
@@ -578,7 +575,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
     def _after_route(self) -> OperationOneRoundResult:
         op = SimUniRunEliteAfterRoute(self.ctx, self.level_type,
                                       self.current_pos, self.route,
-                                      priority=self.priority,
+                                      config=self.config,
                                       max_reward_to_get=self.max_reward_to_get,
                                       get_reward_callback=self.get_reward_callback,
                                       op_callback=self._update_pos

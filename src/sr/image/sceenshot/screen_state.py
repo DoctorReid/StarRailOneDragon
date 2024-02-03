@@ -9,6 +9,8 @@ from basic.img import cv2_utils
 from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot.phone_menu import in_phone_menu
+from sr.screen import ScreenArea
+from sr.screen.dialog import ScreenDialog
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 
 
@@ -313,6 +315,19 @@ def is_sim_uni_get_reward(screen: MatLike, ocr: OcrMatcher) -> bool:
     return str_utils.find_by_lcs(gt('沉浸奖励', 'ocr'), ocr_result, percent=0.1)
 
 
+def in_screen_by_area_text(screen: MatLike, ocr: OcrMatcher, area: ScreenArea) -> bool:
+    """
+    是否在一个目标画面 通过一个区域文本判断
+    :param screen:
+    :param ocr:
+    :param area:
+    :return:
+    """
+    part = cv2_utils.crop_image_only(screen, area.rect)
+    ocr_result = ocr.ocr_for_single_line(part)
+    return str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent)
+
+
 def get_sim_uni_screen_state(
         screen: MatLike, im: ImageMatcher, ocr: OcrMatcher,
         in_world: bool = False,
@@ -325,7 +340,8 @@ def get_sim_uni_screen_state(
         event: bool = False,
         battle: bool = False,
         battle_fail: bool = False,
-        reward: bool = False) -> Optional[str]:
+        reward: bool = False,
+        fast_recover: bool = False) -> Optional[str]:
     """
     获取模拟宇宙中的画面状态
     :param screen: 屏幕截图
@@ -342,6 +358,7 @@ def get_sim_uni_screen_state(
     :param battle: 可能在战斗
     :param battle_fail: 可能在战斗失败
     :param reward: 可能在沉浸奖励
+    :param fast_recover: 可能在快速恢复
     :return:
     """
     if in_world and is_normal_in_world(screen, im):
@@ -355,6 +372,9 @@ def get_sim_uni_screen_state(
 
     if reward and is_sim_uni_get_reward(screen, ocr):
         return ScreenState.SIM_REWARD.value
+
+    if fast_recover and in_screen_by_area_text(screen, ocr, ScreenDialog.FAST_RECOVER_TITLE.value):
+        return ScreenDialog.FAST_RECOVER_TITLE.value.text
 
     titles = get_ui_title(screen, ocr, rect=TargetRect.SIM_UNI_UI_TITLE.value)
     sim_uni_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles)

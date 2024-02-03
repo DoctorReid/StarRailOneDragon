@@ -9,8 +9,8 @@ from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 
 class SimUniRunLevel(StateOperation):
@@ -19,7 +19,7 @@ class SimUniRunLevel(StateOperation):
     STATUS_NO_RESET: ClassVar[str] = '失败到达重置上限'
 
     def __init__(self, ctx: Context, world_num: int,
-                 priority: Optional[SimUniAllPriority] = None,
+                 priority: Optional[SimUniChallengeConfig] = None,
                  max_reward_to_get: int = 0,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
@@ -52,7 +52,7 @@ class SimUniRunLevel(StateOperation):
 
         self.world_num: int = world_num
         self.level_type: Optional[SimUniLevelType] = None
-        self.priority: Optional[SimUniAllPriority] = priority
+        self.priority: Optional[SimUniChallengeConfig] = priority
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
         self.reset_times: int = 0  # 重置次数

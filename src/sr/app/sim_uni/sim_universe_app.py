@@ -4,7 +4,7 @@ from basic import os_utils, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import AppDescription, register_app, AppRunRecord, Application2, app_record_current_dt_str
-from sr.app.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
+from sr.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.config import game_config
 from sr.const import phone_menu_const

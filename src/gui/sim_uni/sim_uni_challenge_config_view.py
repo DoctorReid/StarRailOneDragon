@@ -5,14 +5,15 @@ from flet_core import ControlEvent
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from gui.components import RectOutlinedButton, SettingsListItem, SettingsList, Card, CardTitleText
+from gui.components import RectOutlinedButton, SettingsListItem, SettingsList, Card, CardTitleText, \
+    SettingsListGroupTitle
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app.sim_uni.sim_uni_config import SimUniChallengeConfig, load_all_challenge_config, create_new_challenge_config
+from sr.sim_uni.sim_uni_config import SimUniChallengeConfig, load_all_challenge_config, create_new_challenge_config
 from sr.context import Context
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id, level_type_from_name, \
-    SimUniPath, SimUniBlessLevel, SimUniBlessEnum, bless_enum_from_title, SimUniCurio, SimUniCurioEnum, \
+    SimUniPath, SimUniBlessLevel, SimUniBlessEnum, bless_enum_from_title, SimUniCurioEnum, \
     curio_enum_from_name
 
 
@@ -229,11 +230,14 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.curio_text = ft.TextField(disabled=True, min_lines=3, max_lines=7, width=380, multiline=True,
                                        on_blur=self._on_curio_text_update)
 
+        self.technique_fight_checkbox = ft.Checkbox(disabled=True, on_change=self._on_technique_fight_changed)
+
         config_list = SettingsList(controls=[
             SettingsListItem(gt('选择配置', 'ui'), self.existed_dropdown),
             SettingsListItem('', op_btn_row),
             SettingsListItem(gt('配置名称', 'ui'), self.name_text),
             SettingsListItem(gt('命途', 'ui'), self.path_dropdown),
+            SettingsListGroupTitle(gt('优先级', 'ui')),
             SettingsListItem(gt('祝福第一优先级', 'ui'), self.bless_btn),
             SettingsListItem('', self.bless_text),
             SettingsListItem(gt('祝福第二优先级', 'ui'), self.bless_btn_2),
@@ -241,7 +245,10 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
             SettingsListItem(gt('楼层优先级', 'ui'), self.level_type_btn),
             SettingsListItem('', self.level_type_text),
             SettingsListItem(gt('奇物优先级', 'ui'), self.curio_btn),
-            SettingsListItem('', self.curio_text)
+            SettingsListItem('', self.curio_text),
+            SettingsListGroupTitle(gt('战斗', 'ui')),
+            SettingsListItem(gt('秘技开怪', 'ui'), self.technique_fight_checkbox),
+
         ], width=400)
         config_card = Card(config_list)
 
@@ -320,6 +327,9 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.curio_btn.disabled = not config_chosen
         self.curio_btn.update()
 
+        self.technique_fight_checkbox.disabled = not config_chosen
+        self.technique_fight_checkbox.update()
+
     def _load_config_to_input(self):
         """
         将各个配置显示到输入框中
@@ -335,6 +345,9 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self._update_bless_text_2()
         self._update_level_type_text()
         self._update_curio_text()
+
+        self.technique_fight_checkbox.value = self.chosen_config.technique_fight
+        self.technique_fight_checkbox.update()
 
     def _on_existed_list_changed(self, chosen_idx: Optional[int]):
         """
@@ -646,6 +659,14 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         if arr[len(arr) - 1] == '':
             arr.pop()
         return arr
+
+    def _on_technique_fight_changed(self, e):
+        """
+        秘技开怪更改
+        :param e:
+        :return:
+        """
+        self.chosen_config.technique_fight = self.technique_fight_checkbox.value
 
 
 _sim_uni_challenge_config_view: Optional[SimUniChallengeConfigView] = None

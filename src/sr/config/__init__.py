@@ -6,12 +6,13 @@ from basic import config_utils
 
 class ConfigHolder:
 
-    def __init__(self, module_name: str, sample: bool = True, sub_dir: List[str] = None):
+    def __init__(self, module_name: str, sample: bool = True, sub_dir: List[str] = None, mock: bool = False):
         self.mod = module_name
         self.sample = sample
         self.sub_dir = sub_dir
         self.data: dict = {}
         self.refresh()
+        self.mock: bool = mock  # 不读取文件
 
     def refresh(self):
         self._read_config()
@@ -26,6 +27,8 @@ class ConfigHolder:
                 self.data = {}
 
     def save(self):
+        if self.mock:
+            return
         config_utils.save_config(self.mod, self.data, sub_dir=self.sub_dir)
 
     def _init_after_read_file(self):

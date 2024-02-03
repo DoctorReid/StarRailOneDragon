@@ -5,15 +5,15 @@ from typing import List, Optional
 from basic import os_utils
 from sr.config import ConfigHolder
 from sr.sim_uni.sim_uni_const import SimUniWorldEnum
-from sr.sim_uni.sim_uni_priority import SimUniAllPriority
 
 _MAX_WITH_SAMPLE = 8
 
 
 class SimUniChallengeConfig(ConfigHolder):
 
-    def __init__(self, idx: int):
-        super().__init__('%02d' % idx, sub_dir=['sim_uni', 'challenge_config'], sample=idx <= _MAX_WITH_SAMPLE)
+    def __init__(self, idx: int, mock: bool = False):
+        super().__init__('%02d' % idx, sub_dir=['sim_uni', 'challenge_config'], sample=idx <= _MAX_WITH_SAMPLE,
+                         mock=mock)
 
         self.idx = idx
 
@@ -93,9 +93,12 @@ class SimUniChallengeConfig(ConfigHolder):
         self.update('curio_priority', new_list)
 
     @property
-    def all_priority(self) -> SimUniAllPriority:
-        return SimUniAllPriority(self.bless_priority, self.bless_priority_2,
-                                 self.curio_priority, self.level_type_priority)
+    def technique_fight(self) -> bool:
+        return self.get('technique_fight', False)
+
+    @technique_fight.setter
+    def technique_fight(self, new_value: bool):
+        self.update('technique_fight', new_value)
 
 
 def load_all_challenge_config() -> List[SimUniChallengeConfig]:
