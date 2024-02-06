@@ -95,9 +95,9 @@ class StartFightForElite(StateOperation):
             op_result = op.execute()
             if op_result.success:
                 self.technique_point = op_result.data
-                return Operation.round_success()
             else:
-                return Operation.round_retry('检测密集点失败', wait=0.5)
+                self.technique_point = 0  # 识别失败时直接认为是0
+            return Operation.round_success()
 
     def _get_character_list(self) -> OperationOneRoundResult:
         """

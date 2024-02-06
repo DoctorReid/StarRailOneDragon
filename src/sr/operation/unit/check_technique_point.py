@@ -34,7 +34,7 @@ class CheckTechniquePoint(Operation):
         digit = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
 
         if digit is None:
-            return Operation.round_retry('未检测到数字')
+            return Operation.round_retry('未检测到数字', wait=0.5)
 
         return Operation.round_success(status=str(digit), data=digit)
 
