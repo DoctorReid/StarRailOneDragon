@@ -2,10 +2,10 @@ support_world: [3, 8]
 planet: '雅利洛'
 region: '大矿区'
 floor: 0
-start_pos: [352, 574]
+start_pos: [516, 742]
 next_pos_list:
-  - [305, 519]
+  - [467, 764]
+  - [472, 781]
 op_list:
   - op: 'move'
-    data: [328, 534]
-  - op: 'patrol'
+    data: [481, 753]

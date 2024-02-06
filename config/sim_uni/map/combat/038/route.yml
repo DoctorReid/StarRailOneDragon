@@ -1,9 +1,11 @@
-support_world: [8]
+support_world: [3, 8]
 planet: '雅利洛'
 region: '铆钉镇'
 floor: 1
 start_pos: [687, 435]
-next_pos_list: []
+next_pos_list:
+  - [719, 356]
+  - [703, 355]
 op_list:
   - op: 'move'
     data: [705, 409]

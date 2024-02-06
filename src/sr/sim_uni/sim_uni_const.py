@@ -14,9 +14,10 @@ class SimUniType(Enum):
 
 class SimUniWorld:
 
-    def __init__(self, idx: int, name: str):
+    def __init__(self, idx: int, name: str, max_diff: int):
         self.idx = idx
         self.name = name
+        self.max_diff: int = max_diff
 
     @property
     def unique_id(self) -> str:
@@ -25,14 +26,14 @@ class SimUniWorld:
 
 class SimUniWorldEnum(Enum):
 
-    WORLD_01 = SimUniWorld(1, '第一宇宙')
-    WORLD_02 = SimUniWorld(2, '第二宇宙')
-    WORLD_03 = SimUniWorld(3, '第三宇宙')
-    WORLD_04 = SimUniWorld(4, '第四宇宙')
-    WORLD_05 = SimUniWorld(5, '第五宇宙')
-    WORLD_06 = SimUniWorld(6, '第六宇宙')
-    WORLD_07 = SimUniWorld(7, '第七宇宙')
-    WORLD_08 = SimUniWorld(8, '第八宇宙')
+    WORLD_01 = SimUniWorld(1, '第一宇宙', 0)
+    WORLD_02 = SimUniWorld(2, '第二宇宙', 0)
+    WORLD_03 = SimUniWorld(3, '第三宇宙', 5)
+    WORLD_04 = SimUniWorld(4, '第四宇宙', 5)
+    WORLD_05 = SimUniWorld(5, '第五宇宙', 4)
+    WORLD_06 = SimUniWorld(6, '第六宇宙', 4)
+    WORLD_07 = SimUniWorld(7, '第七宇宙', 4)
+    WORLD_08 = SimUniWorld(8, '第八宇宙', 4)
 
 
 UNI_NUM_CN: dict[int, str] = {

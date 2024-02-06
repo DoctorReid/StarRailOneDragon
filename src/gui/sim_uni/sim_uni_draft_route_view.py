@@ -207,7 +207,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                 #     continue
                 lm_info = self.sr_ctx.ih.get_large_map(region)
                 pos: MatchResult = cal_pos.sim_uni_cal_pos_by_gray(self.sr_ctx.im, lm_info, mm_info,
-                                                                   scale_list=[1], match_threshold=0.3)
+                                                                   scale_list=[1], match_threshold=0.2)
                 log.info('匹配 %s 结果 %s', region.display_name, pos)
                 if pos is None:
                     continue
