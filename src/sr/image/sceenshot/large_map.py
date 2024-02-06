@@ -16,8 +16,8 @@ from sr.image import TemplateImage, ImageMatcher, get_large_map_dir_path
 from sr.image.image_holder import ImageHolder
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import LargeMapInfo
+from sr.screen_area.large_map import ScreenLargeMap
 
-PLANET_NAME_RECT = Rect(100, 60, 350, 100)
 CUT_MAP_RECT = Rect(200, 190, 1300, 900)  # 截取大地图的区域
 EMPTY_MAP_POS = Point(1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
 TP_BTN_RECT = Rect(1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
@@ -34,12 +34,9 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Optional[Planet]:
     :param ocr: ocr
     :return: 星球名称
     """
-    planet_name_part, _ = cv2_utils.crop_image(screen, PLANET_NAME_RECT)
-    lower_color = np.array([220, 220, 220], dtype=np.uint8)
-    upper_color = np.array([255, 255, 255], dtype=np.uint8)
-    white_part = cv2.inRange(planet_name_part, lower_color, upper_color)
+    planet_name_part = cv2_utils.crop_image_only(screen, ScreenLargeMap.PLANET_NAME.value.rect)
     # cv2_utils.show_image(white_part, win_name='white_part')
-    planet_name_str: str = ocr.ocr_for_single_line(white_part)
+    planet_name_str: str = ocr.ocr_for_single_line(planet_name_part)
 
     log.debug('屏幕左上方获取星球结果 %s', planet_name_str)
     if planet_name_str is not None:

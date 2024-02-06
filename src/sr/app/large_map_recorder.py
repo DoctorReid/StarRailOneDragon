@@ -169,12 +169,12 @@ def _init_map_for_sim_uni():
             large_map.save_large_map_image(sim_uni_origin, region, 'sim_uni_origin')
             large_map.save_large_map_image(sim_uni_mask, region, 'sim_uni_mask')
 
+
 if __name__ == '__main__':
-    _init_map_for_sim_uni()
+    # _init_map_for_sim_uni()
     # 执行前先传送到别的地图
-    # ctx = get_context()
-    # ctx.init_all(renew=True)
-    # r = map_const.P03_R01
-    # app = LargeMapRecorder(ctx, r)
-    # app.execute()
-    pass
+    ctx = get_context()
+    ctx.init_all(renew=True)
+    r = map_const.P04_R01_F1
+    app = LargeMapRecorder(ctx, r)
+    app.execute()

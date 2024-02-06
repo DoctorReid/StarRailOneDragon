@@ -38,8 +38,9 @@ class Planet:
 P01 = Planet(1, "KJZHT", "空间站黑塔")
 P02 = Planet(2, "YLL6", "雅利洛")
 P03 = Planet(3, "XZLF", "仙舟罗浮")
+P04 = Planet(4, "PNKN", "匹诺康尼")
 
-PLANET_LIST = [P01, P02, P03]
+PLANET_LIST = [P01, P02, P03, P04]
 
 
 def get_planet_by_cn(cn: str) -> Optional[Planet]:
@@ -169,13 +170,28 @@ P03_R08_F2 = Region(8, "DDS", "丹鼎司", P03, floor=2)
 P03_R09 = Region(9, "LYJ", "鳞渊境", P03)
 P03_R10 = Region(10, "SY", "绥园", P03)
 
+# 匹诺康尼
+P04_R01_F1 = Region(1, "BRMJDXS", "「白日梦」酒店-现实", P04, floor=1)
+P04_R01_F2 = Region(1, "BRMJDXS", "「白日梦」酒店-现实", P04, floor=2)
+P04_R01_F3 = Region(1, "BRMJDXS", "「白日梦」酒店-现实", P04, floor=3)
+P04_R02_F1 = Region(2, "HJDXS", "黄金的现实", P04, floor=1)
+P04_R02_F2 = Region(2, "HJDXS", "黄金的现实", P04, floor=2)
+P04_R02_F3 = Region(2, "HJDXS", "黄金的现实", P04, floor=3)
+P04_R03 = Region(3, "ZMBJ", "筑梦边境", P04)
+P04_R04 = Region(4, "ZZDM", "稚子的梦", P04)
+P04_R05_F1 = Region(5, "BRMJDMJ", "「白日梦」酒店-现实", P04, floor=1)
+P04_R05_F2 = Region(5, "BRMJDMJ", "「白日梦」酒店-现实", P04, floor=2)
+P04_R05_F3 = Region(5, "BRMJDMJ", "「白日梦」酒店-现实", P04, floor=3)
+
+
 # 这里的顺序需要保持和界面上的区域顺序一致
 PLANET_2_REGION: Dict[str, List[Region]] = {
     P01.np_id: [P01_R01, P01_R02, P01_R03_F1, P01_R03_F2, P01_R03_B1, P01_R04_F1, P01_R04_F2, P01_R05_F1, P01_R05_F2, P01_R05_L3],
     P02.np_id: [P02_R01_F1, P02_R01_B1, P02_R02, P02_R03, P02_R04, P02_R05, P02_R06, P02_R07, P02_R08_F2, P02_R09, P02_R10,
                 P02_R11_F1, P02_R11_F2, P02_R12_F1, P02_R12_F2],
     P03.np_id: [P03_R01, P03_R02_F1, P03_R02_F2, P03_R03_F1, P03_R03_F2, P03_R04, P03_R05, P03_R06_F1, P03_R06_F2,
-                P03_R07, P03_R08_F1, P03_R08_F2, P03_R09, P03_R10]
+                P03_R07, P03_R08_F1, P03_R08_F2, P03_R09, P03_R10],
+    P04.np_id: [P04_R01_F1, P04_R01_F2, P04_R01_F3, P04_R02_F1, P04_R02_F2, P04_R02_F3, P04_R03, P04_R04, P04_R05_F1, P04_R05_F2, P04_R05_F3]
 }
 
 
@@ -500,6 +516,11 @@ P03_R10_SP14 = TransportPoint('QQTQM', '青丘台栖木', P03_R10, 'mm_sp_09', (
 P03_R10_SP15 = TransportPoint('DMZQM', '狐眠冢栖木', P03_R10, 'mm_sp_09', (296, 664))
 P03_R10_SP16 = TransportPoint('YYTQM', '燕乐亭栖木', P03_R10, 'mm_sp_09', (965, 726))
 
+P04_R01_SP01 = TransportPoint('JDDT', '酒店大堂', P04_R01_F1, 'mm_tp_03', (587, 413), (571, 399))
+P04_R01_SP02 = TransportPoint('GBXXQ', '贵宾休息区', P04_R01_F2, 'mm_tp_03', (557, 696), (571, 701))
+P04_R01_SP03 = TransportPoint('ADS', '安德森', P04_R01_F2, 'mm_sp_04', (559, 783))
+P04_R01_SP04 = TransportPoint('BJMJDMJ', '「白日梦」酒店-梦境', P04_R01_F3, 'mm_sp_10', (743, 981))
+
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
     P01_R02.pr_id: [P01_R02_SP01, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04],
@@ -534,7 +555,8 @@ REGION_2_SP = {
                        P03_R08_SP11, P03_R08_SP12],
     P03_R09.pr_id: [P03_R09_SP01, P03_R09_SP02, P03_R09_SP03, P03_R09_SP04, P03_R09_SP05, P03_R09_SP06],
     P03_R10.pr_id: [P03_R10_SP01, P03_R10_SP02, P03_R10_SP03, P03_R10_SP04, P03_R10_SP05, P03_R10_SP06, P03_R10_SP07, P03_R10_SP08, P03_R10_SP09, P03_R10_SP10,
-                    P03_R10_SP11, P03_R10_SP12, P03_R10_SP13, P03_R10_SP14, P03_R10_SP15, P03_R10_SP16]
+                    P03_R10_SP11, P03_R10_SP12, P03_R10_SP13, P03_R10_SP14, P03_R10_SP15, P03_R10_SP16],
+    P04_R01_F1.pr_id: [P04_R01_SP01, P04_R01_SP02, P04_R01_SP03, P04_R01_SP04]
 }
 
 

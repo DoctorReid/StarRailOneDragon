@@ -93,6 +93,9 @@ msgstr "Jarilo-VI"
 msgid "仙舟罗浮"
 msgstr "The Xianzhou Luofu"
 
+msgid "匹诺康尼"
+msgstr "Penacony"
+
 # Region
 msgid "观景车厢"
 msgstr "Parlor Car"
@@ -177,6 +180,13 @@ msgstr "Scalegorge Waterscape"
 
 msgid "绥园"
 msgstr "Fyxestroll Garden"
+
+# Penacony
+msgid "「白日梦」酒店-现实"
+msgstr "The Reverie (Reality)"
+
+msgid "「白日梦」酒店-梦境"
+msgstr "The Reverie (Dreamscape)"
 
 # Special Point - Herta Space Station - Master Control Zone
 msgid "监察域"
@@ -728,6 +738,16 @@ msgstr "Path of Darkness"
 
 msgid "集合点"
 msgstr "Meeting Point"
+
+# Special Point - Penacony - The Reverie (Reality)
+msgid "酒店大堂"
+msgstr "Hotel Lobby"
+
+msgid "贵宾休息区"
+msgstr "VIP Lounge"
+
+msgid "安德森"
+msgstr "Anderson"
 
 # Large Map Btn
 msgid "星轨航图"
