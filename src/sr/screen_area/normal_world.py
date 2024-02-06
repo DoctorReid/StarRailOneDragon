@@ -17,3 +17,6 @@ class ScreenNormalWorld(Enum):
     TEAM_MEMBER_NAME_2 = ScreenArea(pc_rect=Rect(1655, 385, 1765, 430))
     TEAM_MEMBER_NAME_3 = ScreenArea(pc_rect=Rect(1655, 485, 1765, 530))
     TEAM_MEMBER_NAME_4 = ScreenArea(pc_rect=Rect(1655, 585, 1765, 630))
+
+    TECHNIQUE_POINT_1 = ScreenArea(pc_rect=Rect(1654, 836, 1674, 862))
+    TECHNIQUE_POINT_2 = ScreenArea(pc_rect=Rect(1684, 836, 1704, 862))  # 2.0版本更新后 这块UI改变了 按ESC之后会变成上面的

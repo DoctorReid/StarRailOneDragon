@@ -10,11 +10,10 @@ from sr.context import Context
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import battle
 from sr.operation import Operation, OperationOneRoundResult
+from sr.screen_area.normal_world import ScreenNormalWorld
 
 
 class CheckTechniquePoint(Operation):
-
-    POINT_RECT: ClassVar[Rect] = Rect(1654, 836, 1673, 862)
 
     def __init__(self, ctx: Context):
         """
@@ -41,7 +40,16 @@ class CheckTechniquePoint(Operation):
     @staticmethod
     def get_technique_point(screen: MatLike,
                             ocr: OcrMatcher) -> Optional[int]:
-        part, _ = cv2_utils.crop_image(screen, CheckTechniquePoint.POINT_RECT)
+        rect_list = [
+            ScreenNormalWorld.TECHNIQUE_POINT_1.value.rect,
+            ScreenNormalWorld.TECHNIQUE_POINT_2.value.rect,
+        ]
+        for rect in rect_list:
+            part = cv2_utils.crop_image_only(screen, rect)
 
-        ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
-        return str_utils.get_positive_digits(ocr_result, None)
+            ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
+            point = str_utils.get_positive_digits(ocr_result, None)
+            if point is not None:
+                return point
+
+        return None
