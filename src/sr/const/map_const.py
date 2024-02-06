@@ -521,6 +521,39 @@ P04_R01_SP02 = TransportPoint('GBXXQ', '贵宾休息区', P04_R01_F2, 'mm_tp_03'
 P04_R01_SP03 = TransportPoint('ADS', '安德森', P04_R01_F2, 'mm_sp_04', (559, 783))
 P04_R01_SP04 = TransportPoint('BJMJDMJ', '「白日梦」酒店-梦境', P04_R01_F3, 'mm_sp_10', (743, 981))
 
+P04_R02_SP01 = TransportPoint('ZBXZGC', '钟表小子广场', P04_R02_F1, 'mm_tp_03', (1055, 450), (1038, 455))
+P04_R02_SP02 = TransportPoint('CMSJ', '沉梦商街', P04_R02_F1, 'mm_tp_03', (1292, 606), (1313, 613))
+P04_R02_SP03 = TransportPoint('ZBXZDX', '钟表小子雕像', P04_R02_F1, 'mm_sp_11', (1492, 587))
+P04_R02_SP04 = TransportPoint('XXHNXD', '小小哈努行动', P04_R02_F1, 'mm_sp_13', (1034, 395))
+# [22:24:32] [large_map.py 229] [INFO]: 地图特殊点坐标
+P04_R02_SP05 = TransportPoint('ADEGY', '艾迪恩公园', P04_R02_F2, 'mm_tp_03', (721, 282), (700, 265))
+# [22:24:32] [large_map.py 233] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (1055, 397))
+# [22:24:32] [large_map.py 233] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (1292, 553))
+P04_R02_SP06 = TransportPoint('TMYY', '甜蜜一隅', P04_R02_F2, 'mm_tp_03', (662, 587), (676, 578))
+P04_R02_SP07 = TransportPoint('ADGWZX', '奥帝购物中心', P04_R02_F2, 'mm_tp_03', (1450, 593), (1450, 612))
+P04_R02_SP08 = TransportPoint('BRMJDDM', '「白日梦」酒店大门', P04_R02_F2, 'mm_tp_03', (1063, 968), (1037, 944))
+P04_R02_SP09 = TransportPoint('ZBXZCC', '钟表小子餐车', P04_R02_F2, 'mm_sp_03', (952, 268))
+P04_R02_SP10 = TransportPoint('BKTC', '报刊推车', P04_R02_F2, 'mm_sp_03', (1542, 361))
+P04_R02_SP11 = TransportPoint('ZBCT', '钟表餐厅', P04_R02_F2, 'mm_sp_03', (1487, 402))
+P04_R02_SP12 = TransportPoint('SLDCC', '苏乐达餐车', P04_R02_F2, 'mm_sp_03', (624, 464))
+P04_R02_SP13 = TransportPoint('FDND', '斐迪南德', P04_R02_F2, 'mm_sp_03', (1511, 489))
+P04_R02_SP14 = TransportPoint('MDFMD', '梦境贩卖店', P04_R02_F2, 'mm_sp_03', (1577, 645))
+P04_R02_SP15 = TransportPoint('PNKNCH', '匹诺康尼车行', P04_R02_F2, 'mm_sp_03', (1552, 737))
+P04_R02_SP16 = TransportPoint('BMHCC', '爆米花餐车', P04_R02_F2, 'mm_sp_03', (651, 763))
+P04_R02_SP17 = TransportPoint('SLDTC', '苏乐达推车', P04_R02_F2, 'mm_sp_03', (1087, 784))
+P04_R02_SP18 = TransportPoint('BQLTC', '冰淇淋推车', P04_R02_F2, 'mm_sp_03', (1517, 798))
+P04_R02_SP19 = TransportPoint('XXHNXD', '小小哈努行动', P04_R02_F2, 'mm_sp_11', (673, 882))
+# [22:24:32] [large_map.py 233] [INFO]: SP26 = TransportPoint('', '', , 'mm_sp_12', (885, 805))
+# [22:24:32] [large_map.py 233] [INFO]: SP27 = TransportPoint('', '', , 'mm_sp_13', (1034, 341))
+# [22:24:32] [large_map.py 233] [INFO]: SP28 = TransportPoint('', '', , 'mm_sp_14', (419, 314))
+# [22:24:32] [large_map.py 233] [INFO]: SP29 = TransportPoint('', '', , 'mm_sp_15', (601, 381))
+# [22:24:32] [large_map.py 233] [INFO]: SP30 = TransportPoint('', '', , 'mm_sp_16', (567, 524))
+# [22:24:56] [large_map.py 229] [INFO]: 地图特殊点坐标
+# [22:24:56] [large_map.py 233] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (1292, 552))
+# [22:24:56] [large_map.py 233] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (662, 587))
+# [22:24:56] [large_map.py 233] [INFO]: SP03 = TransportPoint('', '', , 'mm_sp_02', (1205, 777))
+# [22:24:56] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_13', (1034, 341))
+
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
     P01_R02.pr_id: [P01_R02_SP01, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04],
@@ -556,7 +589,9 @@ REGION_2_SP = {
     P03_R09.pr_id: [P03_R09_SP01, P03_R09_SP02, P03_R09_SP03, P03_R09_SP04, P03_R09_SP05, P03_R09_SP06],
     P03_R10.pr_id: [P03_R10_SP01, P03_R10_SP02, P03_R10_SP03, P03_R10_SP04, P03_R10_SP05, P03_R10_SP06, P03_R10_SP07, P03_R10_SP08, P03_R10_SP09, P03_R10_SP10,
                     P03_R10_SP11, P03_R10_SP12, P03_R10_SP13, P03_R10_SP14, P03_R10_SP15, P03_R10_SP16],
-    P04_R01_F1.pr_id: [P04_R01_SP01, P04_R01_SP02, P04_R01_SP03, P04_R01_SP04]
+    P04_R01_F1.pr_id: [P04_R01_SP01, P04_R01_SP02, P04_R01_SP03, P04_R01_SP04],
+    P04_R02_F1.pr_id: [P04_R02_SP01, P04_R02_SP02, P04_R02_SP03, P04_R02_SP04, P04_R02_SP05, P04_R02_SP06, P04_R02_SP07, P04_R02_SP08, P04_R02_SP09, P04_R02_SP10,
+                       P04_R02_SP11, P04_R02_SP12, P04_R02_SP13, P04_R02_SP14, P04_R02_SP15, P04_R02_SP16, P04_R02_SP17, P04_R02_SP18, P04_R02_SP19]
 }
 
 

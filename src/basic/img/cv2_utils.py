@@ -199,7 +199,7 @@ def concat_horizontally(img: MatLike, next_img: MatLike, decision_width: int = 2
     return cv2.hconcat([img, extra_part])
 
 
-def is_same_image(i1, i2, threshold: float = 1) -> bool:
+def is_same_image(i1: MatLike, i2: MatLike, threshold: float = 1) -> bool:
     """
     简单使用均方差判断两图是否一致
     :param i1: 图1
