@@ -17,7 +17,7 @@ from sr.const.map_const import Region
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state
-from sr.operation import Operation, OperationOneRoundResult, OperationResult
+from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 
 
@@ -212,9 +212,6 @@ class MoveDirectly(Operation):
 
         check_no_pos = self.check_no_pos(next_pos, now_time)  # 坐标计算失败处理
         if check_no_pos is not None:
-            # 有可能是之前角度判断出错 转向了错误的角度。这时候用坐标算的角度就是错的 继而导致坐标判断失败
-            # 因此在获取不到坐标时 重新取小地图判断的坐标 希望能纠正
-            self.current_angle = mm_info.angle
             return check_no_pos
 
         check_arrive = self.check_arrive(next_pos)  # 判断是否到达
@@ -505,32 +502,47 @@ class MoveForward(Operation):
         return Operation.round_success()
 
 
-class SimplyMoveByPos(MoveDirectly):
+class MoveWithoutPos(StateOperation):
 
     def __init__(self, ctx: Context,
-                 lm_info: LargeMapInfo,
                  start: Point,
                  target: Point,
-                 next_lm_info: Optional[LargeMapInfo] = None,
-                 stop_afterwards: bool = True,
-                 no_run: bool = False,
+                 move_time: Optional[float] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         从当前位置 朝目标点直线前行
-        不考虑任何其他情况
-        适合在确定不会有任何打断或困住的情况下使用
+        按照不疾跑的速度移动若干秒 中途不会计算坐标 也不会进行任何战斗判断
+        适合在难以判断坐标的情况下使用 且中途不会有任何打断或困住的情况
+
+        为了更稳定移动到目标点 使用前人物应该静止
+
+        返回 data = 目标点坐标
         """
-        super().__init__(ctx,
-                         lm_info=lm_info,
-                         start=start,
-                         target=target,
-                         next_lm_info=next_lm_info,
-                         stop_afterwards=stop_afterwards,
-                         no_run=no_run,
+        turn = StateOperationNode('转向', self._turn)
+        move = StateOperationNode('移动', self._move)
+
+        super().__init__(ctx, op_name='%s %s -> %s' % (gt('机械移动', 'ui'), start, target),
+                         nodes=[turn, move],
                          op_callback=op_callback)
 
-    def be_attacked(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
-        return None
+        self.start: Point = start
+        self.target: Point = target
+        self.move_time: float = move_time
+        if move_time is None:
+            dis = cal_utils.distance_between(self.start, self.target)
+            self.move_time = dis / self.ctx.controller.run_speed
 
-    def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
-        return None
+    def _turn(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+
+        mm = mini_map.cut_mini_map(screen)
+        angle = mini_map.analyse_angle(mm)
+
+        self.ctx.controller.turn_by_pos(self.start, self.target, angle)
+
+        return Operation.round_success(wait=0.5)  # 等待转向结束
+
+    def _move(self) -> OperationOneRoundResult:
+        self.ctx.controller.move('w', self.move_time)
+
+        return Operation.round_success(data=self.target)

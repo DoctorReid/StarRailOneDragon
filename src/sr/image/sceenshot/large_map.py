@@ -11,11 +11,10 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import const
 from sr.config import game_config
-from sr.const import game_config_const
 from sr.const.map_const import Planet, Region, PLANET_LIST
 from sr.image import TemplateImage, ImageMatcher, get_large_map_dir_path
-from sr.image.ocr_matcher import OcrMatcher
 from sr.image.image_holder import ImageHolder
+from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import LargeMapInfo
 
 PLANET_NAME_RECT = Rect(100, 60, 350, 100)
@@ -450,3 +449,61 @@ def get_road_edge_mask(road_mask: MatLike):
     cv2.drawContours(edge_mask, contours, -1, 255, 1)
 
     return edge_mask
+
+
+def get_road_mask_for_sim_uni(map_image: MatLike, sp_mask: Optional[MatLike] = None) -> MatLike:
+    """
+    获取大地图的道路掩码
+    提供给模拟宇宙专用 会合并了特殊点
+    :param map_image: 地图图片
+    :param sp_mask: 特殊点的掩码 道路掩码应该排除这部分
+    :return: 道路掩码图 能走的部分是白色255
+    """
+    # 按道路颜色圈出 当前层的颜色
+    l1 = 45
+    u1 = 100
+    lower_color = np.array([l1, l1, l1], dtype=np.uint8)
+    upper_color = np.array([u1, u1, u1], dtype=np.uint8)
+    road_mask = cv2.inRange(map_image, lower_color, upper_color)
+
+    # 合并特殊点进行连通性检测
+    to_check_connection = cv2.bitwise_or(road_mask, sp_mask) if sp_mask is not None else road_mask
+
+    # 非道路连通块 < 50的(小的黑色块) 认为是噪点 加入道路
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(to_check_connection), connectivity=4)
+    large_components = []
+    for label in range(1, num_labels):
+        if stats[label, cv2.CC_STAT_AREA] < 50:
+            large_components.append(label)
+    for label in large_components:
+        to_check_connection[labels == label] = 255
+
+    # 找到多于500个像素点的连通道路(大的白色块) 这些才是真的路
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(to_check_connection, connectivity=4)
+    large_components = []
+    for label in range(1, num_labels):
+        if stats[label, cv2.CC_STAT_AREA] > 500:
+            large_components.append(label)
+    real_road_mask = np.zeros(map_image.shape[:2], dtype=np.uint8)
+    for label in large_components:
+        real_road_mask[labels == label] = 255
+
+    cv2_utils.show_image(real_road_mask, win_name='road_mask_sim', wait=0)
+
+    return real_road_mask
+
+
+def get_origin_for_sim_uni(origin: MatLike, sp_mask: MatLike) -> MatLike:
+    """
+    获取模板匹配用的大地图
+    提供给模拟宇宙专用 将大地图的特殊点变成道路颜色
+    :param origin: 正常的大地图
+    :param sp_mask: 特殊点掩码
+    :return:
+    """
+    sim = origin.copy()
+
+    sim[np.where(sp_mask == 255)] = (55, 55, 55)
+    cv2_utils.show_image(sim, win_name='sim', wait=0)
+
+    return sim

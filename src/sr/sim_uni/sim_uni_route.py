@@ -175,7 +175,8 @@ class SimUniRoute:
             cfg += "op_list:\n"
             last_floor = self.region.floor
             for route_item in self.op_list:
-                if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
+                if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE,
+                                        operation_const.OP_UPDATE_POS]:
                     cfg += "  - op: '%s'\n" % route_item['op']
                     pos = route_item['data']
                     if len(pos) > 2 and pos[2] != last_floor:

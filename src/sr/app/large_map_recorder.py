@@ -5,8 +5,10 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app import Application
 from sr.const import map_const
-from sr.const.map_const import Region, region_with_another_floor
+from sr.const.map_const import Region, region_with_another_floor, PLANET_2_REGION
 from sr.context import Context, get_context
+from sr.image.cv2_matcher import CvImageMatcher
+from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
 from sr.operation.unit.choose_planet import ChoosePlanet
@@ -151,10 +153,28 @@ class LargeMapRecorder(Application):
         return True
 
 
-if __name__ == '__main__':
-    # 执行前先传送到别的地图
+def _init_map_for_sim_uni():
+    """
+    初始化模拟宇宙用的大地图
+    :return:
+    """
     ctx = get_context()
-    ctx.init_all(renew=True)
-    r = map_const.P03_R01
-    app = LargeMapRecorder(ctx, r)
-    app.execute()
+    ctx.init_image_matcher()
+    for regions in PLANET_2_REGION.values():
+        for region in regions:
+            lm_info = ctx.ih.get_large_map(region)
+            sp_mask, _ = large_map.get_sp_mask_by_template_match(lm_info, ctx.im)
+            sim_uni_origin = large_map.get_origin_for_sim_uni(lm_info.origin, sp_mask)
+            sim_uni_mask = large_map.get_road_mask_for_sim_uni(lm_info.origin, sp_mask)
+            large_map.save_large_map_image(sim_uni_origin, region, 'sim_uni_origin')
+            large_map.save_large_map_image(sim_uni_mask, region, 'sim_uni_mask')
+
+if __name__ == '__main__':
+    _init_map_for_sim_uni()
+    # 执行前先传送到别的地图
+    # ctx = get_context()
+    # ctx.init_all(renew=True)
+    # r = map_const.P03_R01
+    # app = LargeMapRecorder(ctx, r)
+    # app.execute()
+    pass

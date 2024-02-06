@@ -15,6 +15,7 @@ from sr.operation import Operation, \
     OperationResult, StateOperation, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
 from sr.operation.unit.interact import Interact
+from sr.operation.unit.move import MoveWithoutPos
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.normal_world import ScreenNormalWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevel
@@ -117,7 +118,6 @@ class SimUniRunRouteOp(StateOperation):
         if state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             pass
 
-
     def _next_op(self) -> OperationOneRoundResult:
         """
         执行下一个指令
@@ -135,22 +135,14 @@ class SimUniRunRouteOp(StateOperation):
 
         if current_op['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(current_op, next_op)
+        elif current_op['op'] == operation_const.OP_NO_POS_MOVE:
+            op = self._move_by_no_pos(current_op)
         elif current_op['op'] == operation_const.OP_PATROL:
             op = SimUniEnterFight(self.ctx, config=self.config)
         else:
             return Operation.round_fail('未知指令')
 
         return Operation.round_by_op(op.execute())
-
-    def _after_op(self):
-        """
-        指令之后的操作
-        :return:
-        """
-        current_op: SimUniRouteOperation = self.route.op_list[self.op_idx]
-
-        if current_op['op'] == operation_const.OP_PATROL:
-            op = SimUniEnterFight(self.ctx, config=self.config)
 
     def move(self, current_op: SimUniRouteOperation, next_op: Optional[SimUniRouteOperation]) -> Operation:
         """
@@ -170,6 +162,12 @@ class SimUniRunRouteOp(StateOperation):
                                   no_run=current_op['op'] == operation_const.OP_SLOW_MOVE
                                   )
         return op
+
+    def _move_by_no_pos(self, current_op: SimUniRouteOperation):
+        start = self.current_pos
+        target = Point(current_op['data'][0], current_op['data'][1])
+        move_time = None if len(current_op['data']) < 3 else current_op['data'][2]
+        return MoveWithoutPos(self.ctx, start, target, move_time=move_time, op_callback=self._update_pos)
 
     def _update_pos(self, op_result: OperationResult):
         """

@@ -75,9 +75,11 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.reset_btn = components.RectOutlinedButton(text='重置', disabled=True, on_click=self._clear_op)
         self.patrol_btn = components.RectOutlinedButton(text='攻击怪物', disabled=True, on_click=self._add_patrol)
         self.slow_move_btn = components.RectOutlinedButton(text='禁疾跑', disabled=True, on_click=self._change_slow_move)
+        self.no_pos_move_btn = components.RectOutlinedButton(text='机械移动', disabled=True, on_click=self._change_no_pos_move)
         self.add_next_btn = components.RectOutlinedButton(text='下层入口', disabled=True, on_click=self._add_next)
         self.add_reward_btn = components.RectOutlinedButton(text='沉浸奖励', disabled=True, on_click=self._add_reward)
-        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn, self.slow_move_btn,
+        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn,
+                                      self.no_pos_move_btn, self.slow_move_btn,
                                       self.add_next_btn, self.add_reward_btn])
 
         info_card_width = 200
@@ -242,13 +244,19 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         last_point: Point = self.start_pos_list[self.chosen_start_pos_idx].center if self.chosen_route.start_pos is None else self.chosen_route.start_pos
         cv2.circle(display_image, last_point.tuple(), 5, color=(0, 255, 0), thickness=2)
         for route_item in self.chosen_route.op_list:
-            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE]:
                 pos = Point(x=route_item['data'][0], y=route_item['data'][1])
                 cv2.circle(display_image, pos.tuple(), 5, color=(0, 0, 255), thickness=-1)
                 if last_point is not None:
-                    cv2.line(display_image, last_point.tuple(), pos.tuple(),
-                             color=(255, 0, 0) if route_item['op'] == operation_const.OP_MOVE else (255, 255, 0),
-                             thickness=2)
+                    if route_item['op'] == operation_const.OP_MOVE:
+                        color = (255, 0, 0)
+                    elif route_item['op'] == operation_const.OP_SLOW_MOVE:
+                        color = (255, 80, 80)
+                    elif route_item['op'] == operation_const.OP_NO_POS_MOVE:
+                        color = (255, 160, 160)
+                    else:
+                        color = (255, 255, 255)
+                    cv2.line(display_image, last_point.tuple(), pos.tuple(), color=color, thickness=2)
                 last_point = pos
             elif route_item['op'] == operation_const.OP_PATROL:
                 if last_point is not None:
@@ -413,6 +421,18 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.chosen_route.op_list[l-1]['op'] = operation_const.OP_SLOW_MOVE
         self._on_op_list_changed()
 
+    def _change_no_pos_move(self, e):
+        """
+        将最后一个移动点改为机械移动
+        :param e:
+        :return:
+        """
+        if not self.chosen_route.is_last_op_move:
+            return
+        l = len(self.chosen_route.op_list)
+        self.chosen_route.op_list[l-1]['op'] = operation_const.OP_NO_POS_MOVE
+        self._on_op_list_changed()
+
     def _add_next(self, e):
         """
         将最后一个点加入到下层交互点中
@@ -509,6 +529,9 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         self.slow_move_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
         self.slow_move_btn.update()
+
+        self.no_pos_move_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
+        self.no_pos_move_btn.update()
 
         self.add_next_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
         self.add_next_btn.update()
