@@ -498,7 +498,7 @@ def init_store_icon(template_id: str, sub_dir: Optional[str] = None):
 
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_15', noise_threshold=30)
-    init_sp_with_background('mm_sp_10')
+    init_sp_with_background('mm_sp_16')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()

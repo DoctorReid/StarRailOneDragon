@@ -70,6 +70,8 @@ class LargeMapRecorder(Application):
                     time.sleep(1)
                     self.ctx.controller.drag_to(end=Point(rect.w, center.y), start=center, duration=1)  # 往左拉到尽头
                     time.sleep(1)
+                    self.ctx.controller.drag_to(end=Point(rect.w, center.y), start=center, duration=1)  # 往左拉到尽头
+                    time.sleep(1)
                 else:
                     break
 
@@ -175,6 +177,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = map_const.P04_R01_F1
+    r = map_const.P04_R02_F1
     app = LargeMapRecorder(ctx, r)
     app.execute()
