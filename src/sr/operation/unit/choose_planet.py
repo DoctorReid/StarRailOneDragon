@@ -6,6 +6,7 @@ import cv2
 from basic import Point, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
+from sr.const import STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H, STANDARD_CENTER_POS
 from sr.const.map_const import Planet
 from sr.context import Context
 from sr.image.sceenshot import large_map
@@ -41,7 +42,11 @@ class ChoosePlanet(Operation):
             return Operation.RETRY
         else:
             log.info('当前在星际 准备选择 %s', self.planet.cn)
-            self.choose_planet(screen)
+            choose = self.choose_planet(screen)
+            if not choose:
+                drag_from = Point(STANDARD_RESOLUTION_W // 2, 100)
+                drag_to = drag_from + Point(400 if (self.op_round % 2 == 0) else -400, 0)
+                self.ctx.controller.drag_to(drag_to, drag_from)
             time.sleep(1)
             return Operation.RETRY
 

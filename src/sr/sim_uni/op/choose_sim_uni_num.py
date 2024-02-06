@@ -14,8 +14,8 @@ from sr.sim_uni.sim_uni_const import UNI_NUM_CN
 
 class ChooseSimUniNum(Operation):
 
-    CURRENT_NUM_RECT: ClassVar[Rect] = Rect(805, 515, 945, 552)  # 当前宇宙文本的位置
-    GOING_RECT: ClassVar[Rect] = Rect(813, 484, 888, 511)  # 进行中
+    CURRENT_NUM_RECT: ClassVar[Rect] = Rect(816, 544, 941, 576)  # 当前宇宙文本的位置
+    GOING_RECT: ClassVar[Rect] = Rect(816, 507, 941, 543)  # 进行中
 
     CURRENT_BTN: ClassVar[Point] = Point(1276, 567)  # 选择当前宇宙
     PREVIOUS_BTN: ClassVar[Point] = Point(1216, 198)  # 换到上一个宇宙
