@@ -56,8 +56,9 @@ class LargeMapRecorder(Application):
             rect: WinRect = win.get_win_rect()
 
             center = Point(rect.w // 2, rect.h // 2)
-            self.ctx.controller.drag_to(end=Point(rect.w, rect.h), start=center, duration=1)  # 先拉到左上角
-            time.sleep(1)
+            for _ in range(2):
+                self.ctx.controller.drag_to(end=Point(rect.w, rect.h), start=center, duration=1)  # 先拉到左上角
+                time.sleep(1)
             img = []
             for i in range(10):
                 if not self.ctx.running:
@@ -178,6 +179,6 @@ if __name__ == '__main__':
     # 执行前先传送到别的地图
     ctx = get_context()
     ctx.init_all(renew=True)
-    r = map_const.P04_R02_F1
+    r = map_const.P04_R05_F1
     app = LargeMapRecorder(ctx, r)
     app.execute()

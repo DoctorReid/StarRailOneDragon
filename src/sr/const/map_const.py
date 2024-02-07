@@ -568,6 +568,25 @@ P04_R02_SP19 = TransportPoint('XXHNXD', '小小哈努行动', P04_R02_F2, 'mm_sp
 # [22:24:56] [large_map.py 233] [INFO]: SP03 = TransportPoint('', '', , 'mm_sp_02', (1205, 777))
 # [22:24:56] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_13', (1034, 341))
 
+# 筑梦边境
+# [23:50:51] [large_map.py 233] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (552, 320))
+# [23:50:51] [large_map.py 233] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (1318, 704))
+# [23:50:51] [large_map.py 233] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (270, 1048))
+# [23:50:51] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_03', (882, 1341))
+# [23:50:51] [large_map.py 233] [INFO]: SP05 = TransportPoint('', '', , 'mm_tp_06', (474, 1054))
+# [23:50:51] [large_map.py 233] [INFO]: SP06 = TransportPoint('', '', , 'mm_tp_08', (272, 1398))
+# [23:50:51] [large_map.py 233] [INFO]: SP07 = TransportPoint('', '', , 'mm_sp_02', (626, 229))
+# [23:50:51] [large_map.py 233] [INFO]: SP08 = TransportPoint('', '', , 'mm_sp_11', (1530, 857))
+# [23:50:51] [large_map.py 233] [INFO]: SP09 = TransportPoint('', '', , 'mm_sp_12', (445, 507))
+# [23:50:51] [large_map.py 233] [INFO]: SP10 = TransportPoint('', '', , 'mm_sp_14', (574, 369))
+
+# 稚子的梦
+# [23:52:41] [large_map.py 233] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (614, 564))
+# [23:52:41] [large_map.py 233] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (575, 979))
+# [23:52:41] [large_map.py 233] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (701, 1187))
+# [23:52:41] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_08', (573, 1108))
+# [23:52:41] [large_map.py 233] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_14', (572, 516))
+
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
     P01_R02.pr_id: [P01_R02_SP01, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04],
