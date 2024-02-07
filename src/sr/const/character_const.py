@@ -104,6 +104,7 @@ class CharacterTechniqueType:
 
 
 TECHNIQUE_BUFF = CharacterTechniqueType(id='buff', remark='BUFF类')
+TECHNIQUE_AREA = CharacterTechniqueType(id='buff', remark='领域')
 TECHNIQUE_BUFF_ATTACK = CharacterTechniqueType(id='buff_attack', remark='需攻击触发BUFF类')
 TECHNIQUE_ATTACK = CharacterTechniqueType(id='attack', remark='攻击类')
 
@@ -189,6 +190,8 @@ HANYA = Character(id='hanya', cn='寒鸦', path=CHARACTER_PATH_HARMONY, combat_t
 RUANMEI = Character(id='ruanmei', cn='院·梅', path=CHARACTER_PATH_HARMONY, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
 XUEYI = Character(id='xueyi', cn='雪衣', path=CHARACTER_PATH_DESTRUCTION, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_ATTACK)
 DRRATIO = Character(id='drratio', cn='真理医生', path=CHARACTER_PATH_HUNT, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
+MISHA = Character(id='misha', cn='米沙', path=CHARACTER_PATH_DESTRUCTION, combat_type=ICE, level=4, technique_type=TECHNIQUE_AREA)
+BLACKSWAN = Character(id='blackswan', cn='黑天鹅', path=CHARACTER_PATH_NIHILITY, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -235,7 +238,9 @@ CHARACTER_LIST: List[Character] = [
     HANYA,
     RUANMEI,
     XUEYI,
-    DRRATIO
+    DRRATIO,
+    MISHA,
+    BLACKSWAN,
 ]
 
 

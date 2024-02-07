@@ -4,7 +4,7 @@ from typing import Optional, List, Union
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const.character_const import Character, get_character_by_id, TECHNIQUE_BUFF, is_attack_character, \
-    TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK, SILVERWOLF
+    TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK, SILVERWOLF, TECHNIQUE_AREA
 from sr.context import Context
 from sr.image.sceenshot import battle
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode
@@ -123,11 +123,18 @@ class StartFightForElite(StateOperation):
         根据当前队伍的角色 获取施放秘技的顺序
         :return:
         """
-        for i in range(4):  # 优先使用普通BUFF
+        for i in range(4):  # 优先使用普通BUFF 无冲突可叠加的
             if self.character_list[i] is None:
                 continue
             if self.character_list[i].technique_type == TECHNIQUE_BUFF:
                 self.technique_order.append(i)
+
+        for i in range(4):  # 使用结界类 只能一个
+            if self.character_list[i] is None:
+                continue
+            if self.character_list[i].technique_type == TECHNIQUE_AREA:
+                self.technique_order.append(i)
+                break
 
         for i in range(4):  # 输出位攻击类
             if self.character_list[i] is None:
