@@ -22,6 +22,7 @@ from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
 from sr.sim_uni.op.choose_sim_uni_path import ChooseSimUniPath
 from sr.sim_uni.op.choose_sim_uni_type import ChooseSimUniType
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
+from sr.sim_uni.op.sim_uni_claim_weekly_reward import SimUniClaimWeeklyReward
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_start import SimUniStart
 from sr.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
@@ -134,8 +135,12 @@ class SimUniverseApp(Application2):
         check_initial_screen = StateOperationNode('检查初始画面', self._check_initial_screen)
         edges.append(StateOperationEdge(check_times, check_initial_screen))
 
-        back_to_world = StateOperationNode('退出', op=BackToWorld(ctx))
-        edges.append(StateOperationEdge(check_times, back_to_world, status=SimUniverseApp.STATUS_ALL_FINISHED))
+        check_reward_before_exit = StateOperationNode('领取每周奖励', op=SimUniClaimWeeklyReward(ctx))
+        edges.append(StateOperationEdge(check_times, check_reward_before_exit, status=SimUniverseApp.STATUS_ALL_FINISHED))
+
+        back_to_world = StateOperationNode('退出', op=BackToWorld(ctx))  # 无论是否领取成功都退出
+        edges.append(StateOperationEdge(check_reward_before_exit, back_to_world, ignore_status=True))
+        edges.append(StateOperationEdge(check_reward_before_exit, back_to_world, success=False, ignore_status=True))
 
         open_menu = StateOperationNode('菜单', op=OpenPhoneMenu(ctx))
         edges.append(StateOperationEdge(check_initial_screen, open_menu, ignore_status=True))
@@ -188,8 +193,8 @@ class SimUniverseApp(Application2):
         check_times_to_continue = StateOperationNode('继续检查运行次数', self._check_times)
         edges.append(StateOperationEdge(run_world, check_times_to_continue))
         edges.append(StateOperationEdge(check_times_to_continue, choose_universe_num))
-        edges.append(StateOperationEdge(check_times_to_continue, back_to_world, status=SimUniverseApp.STATUS_ALL_FINISHED))
-        edges.append(StateOperationEdge(check_times_to_continue, back_to_world, status=SimUniverseApp.STATUS_EXCEPTION))
+        edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniverseApp.STATUS_ALL_FINISHED))
+        edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniverseApp.STATUS_EXCEPTION))
 
         # 战斗失败
         world_fail = StateOperationNode('战斗失败', op=SimUniExit(ctx, exit_clicked=True))

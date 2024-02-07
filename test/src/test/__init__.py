@@ -1,36 +1,37 @@
 import os
+import unittest
 from typing import List, Optional
 
 import cv2
+import sys
 from cv2.typing import MatLike
 
 from basic import os_utils, Rect
 from basic.img import cv2_utils
 
 
-class SrTestBase:
+class SrTestBase(unittest.TestCase):
 
-    resources_sub_dirs: List[str]
-    """测试资源所在目录"""
-
-    def __init__(self, file):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         os.environ['DEBUG'] = '1'
-
-        # 获取本基类的路径
-        base_file_path = os.path.abspath(__file__)
-        # 获取本基类所在的包路径
-        base_package_path: str = os.path.dirname(base_file_path)
-
+        # 获取子类的模块
+        subclass_module = self.__class__.__module__
+        subclass_file = sys.modules[subclass_module].__file__
         # 获取子类的路径
-        sub_file_path = os.path.abspath(file)
+        sub_file_path = os.path.abspath(subclass_file)
         # 获取子类所在的包路径
-        sub_package_path: str = os.path.dirname(sub_file_path)
+        self.sub_package_path: str = os.path.dirname(sub_file_path)
 
-        self.resources_sub_dirs: List[str] = ['test', 'resources']
-
-        for sub in sub_package_path[len(base_package_path) + 1:].split('\\'):
-            self.resources_sub_dirs.append(sub)
-        self.resources_sub_dirs.append(os.path.basename(sub_file_path)[:-3])
+    def get_test_image_new(self, file_name: str) -> MatLike:
+        """
+        获取测试图片
+        :param file_name: 文件名 包括后缀。使用全名方便在IDE中重命名文件时自动更改到对应代码
+        :return:
+        """
+        img_path = os.path.join(self.sub_package_path, file_name)
+        self.assertTrue(os.path.exists(img_path), '图片不存在')
+        return cv2_utils.read_image(img_path)
 
     def get_test_image(self, file_name: str, suffix: str = '.png') -> MatLike:
         """

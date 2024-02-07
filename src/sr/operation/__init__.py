@@ -31,6 +31,10 @@ class OperationOneRoundResult:
         self.data: Any = data
         """返回数据"""
 
+    @property
+    def is_success(self) -> bool:
+        return self.result == Operation.SUCCESS
+
 
 class OperationResult:
 
@@ -397,6 +401,17 @@ class Operation:
                     return Operation.OCR_CLICK_FAIL
 
             return Operation.OCR_CLICK_NOT_FOUND
+        elif area.template_id is not None:
+            rect = area.rect
+            part = cv2_utils.crop_image_only(screen, rect)
+
+            mrl = self.ctx.im.match_template(part, area.template_id, threshold=area.template_match_threshold)
+            if mrl.max is None:
+                return Operation.OCR_CLICK_NOT_FOUND
+            elif self.ctx.controller.click(mrl.max):
+                return Operation.OCR_CLICK_SUCCESS
+            else:
+                return Operation.OCR_CLICK_FAIL
         else:
             pass
 
