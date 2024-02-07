@@ -204,6 +204,8 @@ def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str
 
     for planet in PLANET_LIST:
         planet_dir_path = os.path.join(dir_path, planet.np_id)
+        if not os.path.exists(planet_dir_path):
+            continue
         for filename in os.listdir(planet_dir_path):
             idx = filename.find('.yml')
             if idx == -1:
