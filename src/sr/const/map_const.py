@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict
 
-from basic import cal_utils, Rect, Point
+from basic import cal_utils, Rect, Point, str_utils
 from basic.i18_utils import gt
 
 
@@ -53,6 +53,20 @@ def get_planet_by_cn(cn: str) -> Optional[Planet]:
         if i.cn == cn:
             return i
     return None
+
+
+def best_match_planet_by_name(ocr_word: str) -> Optional[Planet]:
+    """
+    根据OCR结果匹配一个星球
+    :param ocr_word: OCR结果
+    :return:
+    """
+    planet_names = [gt(p.cn, 'ocr') for p in PLANET_LIST]
+    idx = str_utils.find_best_match_by_lcs(ocr_word, target_word_list=planet_names)
+    if idx is None:
+        return None
+    else:
+        return PLANET_LIST[idx]
 
 
 class Region:
