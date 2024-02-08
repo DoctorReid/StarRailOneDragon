@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict, List, ClassVar
+from typing import Optional, TypedDict, List
 
 from cv2.typing import MatLike
 
@@ -8,33 +8,21 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app import Application, AppDescription, register_app, AppRunRecord, app_record_current_dt_str
 from sr.config import ConfigHolder
-from sr.const import map_const
-from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
 from sr.operation.combine.challenge_ehco_of_war import ChallengeEchoOfWar
+from sr.operation.unit.guide.survival_index import SurvivalIndexMissionEnum, SurvivalIndexCategoryEnum, \
+    SurvivalIndexMission
 from sr.operation.unit.open_map import OpenMap
 
-ECHO_OF_WAR = AppDescription(cn='历战回响', id='echo_of_war')
+ECHO_OF_WAR = AppDescription(cn='历战余响', id='echo_of_war')
 register_app(ECHO_OF_WAR)
-
-WAR_LIST = [
-    map_const.P01_R04_SP06,
-    map_const.P02_R06_SP05,
-    map_const.P03_R09_SP06,
-    map_const.P01_R05_SP07,
-]
-
-
-def get_point_by_unique_id(unique_id: str) -> TransportPoint:
-    for i in WAR_LIST:
-        if i.unique_id == unique_id:
-            return i
 
 
 class EchoOfWarPlanItem(TypedDict):
-    point_id: str  # 关卡id
+    point_id: str  # 关卡id - 旧 20240208 进行替换
+    mission_id: str  # 关卡id - 新
     team_num: int  # 使用配队
     support: str  # 使用支援
     plan_times: int  # 计划通关次数
@@ -113,20 +101,27 @@ class EchoOfWarConfig(ConfigHolder):
                 plan_item['support'] = 'none'
                 any_changed = True
 
-        # 兼容旧配置 将新增的历战回响加入
-        for i in WAR_LIST:
+            if 'mission_id' not in plan_item:
+                plan_item['mission_id'] = plan_item['point_id']
+                any_changed = True
+
+        # 兼容旧配置 将新增的历战余响加入
+        mission_list = SurvivalIndexMissionEnum.get_list_by_category(SurvivalIndexCategoryEnum.ECHO_OF_WAR.value)
+        for i in mission_list:
             existed = False
             for plan_item in plan_list:
-                if i.unique_id == plan_item['point_id']:
+                if i.unique_id == plan_item['mission_id']:
                     existed = True
                     break
             if not existed:
                 plan_list.append(EchoOfWarPlanItem(point_id=i.unique_id,
+                                                   mission_id=i.unique_id,
                                                    team_num=1,
                                                    support='none',
                                                    plan_times=0,
                                                    run_times=0
                                                    ))
+                any_changed = True
 
         if any_changed:
             self.save()
@@ -189,10 +184,8 @@ def get_config() -> EchoOfWarConfig:
 
 class EchoOfWar(Application):
 
-    POWER_USAGE: ClassVar[int] = 30  # 固定消耗体力30
-
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('历战回响', 'ui'),
+        super().__init__(ctx, op_name=gt('历战余响', 'ui'),
                          run_record=get_record())
         self.phase: int = 2
         self.power: int = 160
@@ -223,7 +216,9 @@ class EchoOfWar(Application):
             if plan is None:
                 return Operation.SUCCESS
 
-            run_times: int = self.power // EchoOfWar.POWER_USAGE
+            point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
+
+            run_times: int = self.power // point.power
 
             record = get_record()
             if record.left_times < run_times:
@@ -235,19 +230,17 @@ class EchoOfWar(Application):
             if run_times + plan['run_times'] > plan['plan_times']:
                 run_times = plan['plan_times'] - plan['run_times']
 
-            point: TransportPoint = get_point_by_unique_id(plan['point_id'])
-
             def on_battle_success():
-                self.power -= EchoOfWar.POWER_USAGE
-                log.info('消耗体力: %d, 剩余体力: %d', EchoOfWar.POWER_USAGE, self.power)
+                self.power -= point.power
+                log.info('消耗体力: %d, 剩余体力: %d', point.power, self.power)
                 plan['run_times'] += 1
                 log.info('副本完成次数: %d, 计划次数: %d', plan['run_times'], plan['plan_times'])
                 record.left_times = record.left_times - 1
-                log.info('本周历战回响剩余次数: %d', record.left_times)
+                log.info('本周历战余响剩余次数: %d', record.left_times)
                 config.save()
                 record.update_status(AppRunRecord.STATUS_RUNNING)
 
-            op = ChallengeEchoOfWar(self.ctx, point, plan['team_num'], run_times,
+            op = ChallengeEchoOfWar(self.ctx, point.tp, plan['team_num'], run_times,
                                     support=plan['support'] if plan['support'] != 'none' else None,
                                     on_battle_success=on_battle_success)
             if op.execute().success:

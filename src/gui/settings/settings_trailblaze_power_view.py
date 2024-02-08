@@ -11,9 +11,9 @@ from gui.sr_basic_view import SrBasicView
 from sr.app.routine import trailblaze_power
 from sr.app.routine.trailblaze_power import TrailblazePowerConfig, TrailblazePowerPlanItem
 from sr.const.character_const import CHARACTER_LIST
-from sr.operation.combine import use_trailblaze_power
-from sr.operation.combine.use_trailblaze_power import TrailblazePowerPoint
 from sr.context import Context
+from sr.operation.unit.guide.survival_index import SurvivalIndexMissionEnum, SurvivalIndexMission, \
+    SurvivalIndexCategoryEnum, SurvivalIndexCategory
 
 
 class PlanListItem(ft.Row):
@@ -26,12 +26,14 @@ class PlanListItem(ft.Row):
         self.value: Optional[TrailblazePowerPlanItem] = item
         if self.value is None:
             self.value = TrailblazePowerPlanItem(
-                point_id=use_trailblaze_power.BUD_OF_MEMORIES.unique_id,
+                point_id=SurvivalIndexMissionEnum.BUD_1_YLL_1.value.unique_id,
+                mission_id=SurvivalIndexMissionEnum.BUD_1_YLL_1.value.unique_id,
                 plan_times=1, run_times=0,
                 team_num=1, support='none')
-        self.category_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=i, key=i) for i in
-                                                      use_trailblaze_power.CATEGORY_LIST],
-                                             label='类目', width=100, on_change=self._on_category_changed)
+        self.category_dropdown = ft.Dropdown(options=[
+            ft.dropdown.Option(text=i.value.ui_cn, key=i.value.ui_cn) for i in SurvivalIndexCategoryEnum if i != SurvivalIndexCategoryEnum.ECHO_OF_WAR
+        ],
+            label='类目', width=100, on_change=self._on_category_changed)
         self.tp_dropdown = ft.Dropdown(label='挑战关卡', width=180, on_change=self._on_tp_changed)
         self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 10)],
                                              label='使用配队', width=80, on_change=self._on_team_num_changed)
@@ -45,9 +47,9 @@ class PlanListItem(ft.Row):
                                              width=80, on_change=self._on_plan_times_changed)
         self.run_times_input = ft.TextField(label='本轮完成', keyboard_type=ft.KeyboardType.NUMBER,
                                             width=80, on_change=self._on_run_times_changed)
-        self.chosen_point: Optional[TrailblazePowerPoint] = use_trailblaze_power.get_point_by_unique_id(self.value['point_id'])
+        self.chosen_point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(self.value['mission_id'])
 
-        self.category_dropdown.value = self.chosen_point.category
+        self.category_dropdown.value = self.chosen_point.cate.ui_cn
         self._update_tp_dropdown_list()
         self.tp_dropdown.value = self.chosen_point.unique_id
         self.team_num_dropdown.value = self.value['team_num']
@@ -66,10 +68,11 @@ class PlanListItem(ft.Row):
                                    self.up_app_btn, self.del_btn])
 
     def _update_tp_dropdown_list(self):
-        point_list: List[TrailblazePowerPoint] = use_trailblaze_power.CATEGORY_POINT_MAP.get(self.category_dropdown.value)
+        cate: SurvivalIndexCategory = SurvivalIndexCategoryEnum.get_by_ui_cn(self.category_dropdown.value)
+        point_list: List[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_list_by_category(cate)
         if point_list is None:
             point_list = []
-        self.tp_dropdown.options = [ft.dropdown.Option(text=i.display_name, key=i.unique_id) for i in point_list]
+        self.tp_dropdown.options = [ft.dropdown.Option(text=i.ui_cn, key=i.unique_id) for i in point_list]
         self.tp_dropdown.value = self.tp_dropdown.options[0].key
 
     def _on_category_changed(self, e):
@@ -111,6 +114,7 @@ class PlanListItem(ft.Row):
 
     def _update_value(self):
         self.value['point_id'] = self.tp_dropdown.value
+        self.value['mission_id'] = self.tp_dropdown.value
         self.value['team_num'] = int(self.team_num_dropdown.value)
         self.value['plan_times'] = int(self.plan_times_input.value)
         self.value['run_times'] = int(self.run_times_input.value)
@@ -251,8 +255,8 @@ class SettingsTrailblazePowerView(SrBasicView, ft.Row):
 
     def show_choose_support_character(self, target: PlanListItem):
         self.chosen_plan_item = target
-        chosen_point: Optional[TrailblazePowerPoint] = use_trailblaze_power.get_point_by_unique_id(target.value['point_id'])
-        self.character_card.update_title('%s %s' % (gt('支援角色', 'ui'), chosen_point.display_name))
+        chosen_point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(target.value['mission_id'])
+        self.character_card.update_title('%s %s' % (gt('支援角色', 'ui'), chosen_point.ui_cn))
         chosen_list: List[str] = []
         if target.support_dropdown.value is not None and target.support_dropdown.value != 'none':
             chosen_list.append(target.support_dropdown.value)

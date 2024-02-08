@@ -15,10 +15,11 @@ from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.mystools import mys_config
 from sr.operation import Operation, StateOperationNode, OperationOneRoundResult, StateOperationEdge
-from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower, \
-    CATEGORY_5
+from sr.operation.combine.use_trailblaze_power import UseTrailblazePower
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
+from sr.operation.unit.guide.survival_index import SurvivalIndexMission, SurvivalIndexMissionEnum, \
+    SurvivalIndexCategoryEnum
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.operation.unit.open_map import OpenMap
@@ -43,7 +44,7 @@ class TrailblazePowerRecord(AppRunRecord):
         power = mys.current_stamina + time_usage // 360  # 6分钟恢复一点体力
         config = get_config()
         if config.next_plan_item is not None:
-            point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(config.next_plan_item['point_id'])
+            point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(config.next_plan_item['mission_id'])
             return point is not None and power >= point.power
         return False
 
@@ -59,7 +60,8 @@ def get_record() -> TrailblazePowerRecord:
 
 
 class TrailblazePowerPlanItem(TypedDict):
-    point_id: str  # 关卡id
+    point_id: str  # 关卡id - 旧 20240208 进行替换
+    mission_id: str  # 关卡id - 新
     team_num: int  # 使用配队
     support: str
     plan_times: int  # 计划通关次数
@@ -82,6 +84,9 @@ class TrailblazePowerConfig(ConfigHolder):
         for plan_item in plan_list:
             if 'support' not in plan_item:
                 plan_item['support'] = 'none'
+                any_changed = True
+            if 'mission_id' not in plan_item:
+                plan_item['mission_id'] = plan_item['point_id']
                 any_changed = True
 
         if any_changed:
@@ -185,7 +190,7 @@ class TrailblazePower(Application2):
                          run_record=get_record())
         self.power: Optional[int] = None  # 剩余开拓力
         self.qty: Optional[int] = None  # 沉浸器数量
-        self.last_challenge_point: Optional[TrailblazePowerPoint] = None
+        self.last_challenge_point: Optional[SurvivalIndexMission] = None
         self.config = get_config()
 
     def _init_before_execute(self):
@@ -205,8 +210,8 @@ class TrailblazePower(Application2):
         if plan is None:
             return Operation.round_success()
 
-        point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
-        if point.category == CATEGORY_5:
+        point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
+        if point.cate == SurvivalIndexCategoryEnum.SIM_UNI.value:
             return Operation.round_success(TrailblazePower.STATUS_SIM_UNI_TASK)
         else:
             return Operation.round_success(TrailblazePower.STATUS_NORMAL_TASK)
@@ -240,7 +245,7 @@ class TrailblazePower(Application2):
         :return:
         """
         plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
-        point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
+        point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
         run_times: int = self.power // point.power
         if run_times == 0:
             return Operation.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
@@ -320,7 +325,7 @@ class TrailblazePower(Application2):
 
     def _challenge_sim_uni(self) -> OperationOneRoundResult:
         plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
-        point: Optional[TrailblazePowerPoint] = get_point_by_unique_id(plan['point_id'])
+        point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
         run_times: int = self.power // point.power + self.qty
         if run_times == 0:
             return Operation.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)

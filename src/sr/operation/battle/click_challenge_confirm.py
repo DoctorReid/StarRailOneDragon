@@ -14,7 +14,7 @@ class ClickChallengeConfirm(Operation):
     """
     点击挑战的确认
     目前使用的场景有
-    - 历战回响 - 没有剩余次数
+    - 历战余响 - 没有剩余次数
     """
     CONFIRM_BTN_RECT: ClassVar[Rect] = Rect(1020, 660, 1330, 690)  # 确认按钮
 

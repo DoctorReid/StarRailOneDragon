@@ -156,7 +156,7 @@ class SimUniverseApp(Application2):
         edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
                                         status=screen_state.ScreenState.GUIDE.value))  # 在指南里 选择生存索引
 
-        choose_sim_category = StateOperationNode('模拟宇宙', op=ChooseGuideMissionCategory(ctx, SurvivalIndexCategoryEnum.ROGUE.value))
+        choose_sim_category = StateOperationNode('模拟宇宙', op=ChooseGuideMissionCategory(ctx, SurvivalIndexCategoryEnum.SIM_UNI.value))
         edges.append(StateOperationEdge(choose_survival_index, choose_sim_category))
         edges.append(StateOperationEdge(check_initial_screen, choose_sim_category,
                                         status=screen_state.ScreenState.GUIDE_SURVIVAL_INDEX.value))  # 在生存索引 选择模拟宇宙

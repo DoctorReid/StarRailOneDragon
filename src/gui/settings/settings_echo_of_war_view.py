@@ -13,6 +13,8 @@ from sr.app.routine.echo_of_war import EchoOfWarConfig, EchoOfWarPlanItem
 from sr.const.character_const import CHARACTER_LIST
 from sr.const.map_const import TransportPoint
 from sr.context import Context
+from sr.operation.unit.guide.survival_index import SurvivalIndexMissionEnum, SurvivalIndexCategoryEnum, \
+    SurvivalIndexMission
 
 
 class PlanListItem(ft.Row):
@@ -21,8 +23,11 @@ class PlanListItem(ft.Row):
                  on_value_changed: Callable,
                  on_click_support: Callable):
         self.value: EchoOfWarPlanItem = item
-        self.war_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=i.cn, key=str(i.unique_id)) for i in echo_of_war.WAR_LIST],
-                                        label='挑战关卡', width=200, value=item['point_id'])
+        mission_list = SurvivalIndexMissionEnum.get_list_by_category(SurvivalIndexCategoryEnum.ECHO_OF_WAR.value)
+        self.war_dropdown = ft.Dropdown(options=[
+            ft.dropdown.Option(text=i.ui_cn, key=i.unique_id) for i in mission_list
+        ],
+                                        label='挑战关卡', width=200, value=item['mission_id'])
         self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 10)],
                                              label='使用配队', width=100, on_change=self._on_team_num_changed)
         self.support_dropdown = ft.Dropdown(label='支援', value='none', disabled=True, width=80,
@@ -166,8 +171,8 @@ class SettingsEchoOfWarView(SrBasicView, ft.Row):
 
     def show_choose_support_character(self, target: PlanListItem):
         self.chosen_plan_item = target
-        chosen_point: Optional[TransportPoint] = echo_of_war.get_point_by_unique_id(target.value['point_id'])
-        self.character_card.update_title('%s %s' % (gt('支援角色', 'ui'), chosen_point.display_name))
+        chosen_point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(target.value['mission_id'])
+        self.character_card.update_title('%s %s' % (gt('支援角色', 'ui'), chosen_point.ui_cn))
         chosen_list: List[str] = []
         if target.support_dropdown.value is not None and target.support_dropdown.value != 'none':
             chosen_list.append(target.support_dropdown.value)

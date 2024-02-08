@@ -2,7 +2,7 @@ author: ['DoctorReid']
 planet: '雅利洛'
 region: '城郊雪原'
 floor: 0
-tp: '回忆之蕾拟造花萼金'
+tp: '回忆之蕾·拟造花萼（金）'
 route:
   - op: 'move'
     data: [1067, 477]

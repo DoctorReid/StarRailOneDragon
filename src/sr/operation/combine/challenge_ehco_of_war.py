@@ -18,7 +18,7 @@ from sr.operation.unit.wait import WaitInWorld
 
 class ChallengeEchoOfWar(CombineOperation):
     """
-    挑战历战回响
+    挑战历战余响
     这里不关注有没有剩余次数 由调用方控制
     这里就算没有剩余次数也会进行挑战的
     """

@@ -15,6 +15,10 @@ class ScreenGuide(Enum):
     GUIDE_TAB_4 = ScreenArea(pc_rect=Rect(650, 170, 780, 245))  # 逐光捡金
     GUIDE_TAB_5 = ScreenArea(pc_rect=Rect(780, 170, 900, 245))  # 战术训练
 
+    # 拟造花萼金-二级分类
+    BUD_1_SUB_CATE_1 = ScreenArea(pc_rect=Rect(0, 0, 0, 0), text='雅利洛-VI')
+    BUD_1_SUB_CATE_2 = ScreenArea(pc_rect=Rect(0, 0, 0, 0), text='仙舟「罗浮」')
+
     # 生存索引部分
     SURVIVAL_INDEX_TITLE = ScreenArea(pc_rect=Rect(98, 39, 350, 100), text='生存索引')  # 二级标题 TODO 未细化
     SURVIVAL_INDEX_CATE = ScreenArea(pc_rect=Rect(270, 300, 680, 910))  # 左边类目区域

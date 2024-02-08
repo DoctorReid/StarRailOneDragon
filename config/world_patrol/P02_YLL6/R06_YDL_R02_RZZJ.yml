@@ -2,7 +2,7 @@ author: ['DoctorReid']
 planet: '雅利洛'
 region: '永冬岭'
 floor: 0
-tp: '睿治之径侵蚀隧洞'
+tp: '睿治之径·侵蚀隧洞'
 route:
   - op: 'move'
     data: [560, 553]

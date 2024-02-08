@@ -142,7 +142,7 @@ class StarRailAutoProxy:
                 ft.NavigationRailDestination(
                     icon=ft.icons.SURROUND_SOUND_OUTLINED,
                     selected_icon=ft.icons.SURROUND_SOUND,
-                    label=gt('历战回响', model='ui')
+                    label=gt('历战余响', model='ui')
                 ),
                 ft.NavigationRailDestination(
                     icon=ft.icons.BOOKMARKS_OUTLINED,

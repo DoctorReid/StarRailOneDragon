@@ -219,7 +219,7 @@ class OneStopView(ft.Row, SrBasicView):
         assignment_row_2 = ft.Row(controls=[self.assignment_3_label, self.assignment_4_label])
 
         self.training = Label2NormalValueRow('实训', '500', '/500')
-        self.echo = Label2NormalValueRow('历战回响剩余(本地)', '3', '/3')
+        self.echo = Label2NormalValueRow('历战余响剩余(本地)', '3', '/3')
         training_row = ft.Row(controls=[self.training, self.echo])
 
         self.sim_rank = Label2NormalValueRow('模拟宇宙', '0', '/14000')

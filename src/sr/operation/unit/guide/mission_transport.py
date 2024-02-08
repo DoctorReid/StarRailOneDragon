@@ -78,8 +78,8 @@ class GuideMission:
         """中文"""
 
 
-MISSION_FORGOTTEN_HALL = GuideMission(category=SurvivalIndexCategoryEnum.FORGOTTEN_HALL.value, cn='混沌回忆')
-MISSION_SIM_UNIVERSE = GuideMission(category=SurvivalIndexCategoryEnum.ROGUE.value, cn='本周积分')  # 模拟宇宙最上方总分的传送
+MISSION_FORGOTTEN_HALL = GuideMission(category=None, cn='混沌回忆')
+MISSION_SIM_UNIVERSE = GuideMission(category=SurvivalIndexCategoryEnum.SIM_UNI.value, cn='本周积分')  # 模拟宇宙最上方总分的传送
 
 
 MISSION_LIST_RECT = Rect(695, 295, 1655, 930)  # 副本列表的位置

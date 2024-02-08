@@ -2,7 +2,7 @@ author: ['DoctorReid']
 planet: '雅利洛'
 region: '机械聚落'
 floor: 1
-tp: '同谐之蕾拟造花萼赤'
+tp: '同谐之蕾·拟造花萼（赤）'
 route:
   - op: 'move'
     data: [312, 531]
