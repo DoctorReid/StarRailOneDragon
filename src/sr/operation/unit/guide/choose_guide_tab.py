@@ -34,7 +34,7 @@ class ChooseGuideTab(Operation):
 
         if not in_secondary_ui(screen, self.ctx.ocr, self.target.cn):
             log.info('指南中点击 %s', self.target.cn)
-            self.ctx.controller.click(self.target.rect.center)
+            self.ctx.controller.click(self.target.area.rect.center)
             time.sleep(1)
             return Operation.round_retry()
 

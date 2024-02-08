@@ -379,7 +379,7 @@ class Operation:
 
         return Operation.OCR_CLICK_NOT_FOUND
 
-    def find_and_click_area(self, area: ScreenArea, screen: Optional[MatLike] = None):
+    def find_and_click_area(self, area: ScreenArea, screen: Optional[MatLike] = None) -> int:
         """
         在一个区域匹配成功后进行点击
         :param area: 目标区域
@@ -413,7 +413,32 @@ class Operation:
             else:
                 return Operation.OCR_CLICK_FAIL
         else:
-            pass
+            return Operation.OCR_CLICK_FAIL
+
+    def find_area(self, area: ScreenArea, screen: Optional[MatLike] = None) -> bool:
+        """
+        在一个区域匹配成功后进行点击
+        :param area: 目标区域
+        :param screen: 屏幕截图
+        :return:
+        """
+        if screen is None:
+            screen = self.screenshot()
+        if area.text is not None:
+            rect = area.rect
+            part = cv2_utils.crop_image_only(screen, rect)
+
+            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+
+            return str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent)
+        elif area.template_id is not None:
+            rect = area.rect
+            part = cv2_utils.crop_image_only(screen, rect)
+
+            mrl = self.ctx.im.match_template(part, area.template_id, threshold=area.template_match_threshold)
+            return mrl.max is not None
+        else:
+            return False
 
 
 class OperationSuccess(Operation):

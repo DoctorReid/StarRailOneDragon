@@ -17,7 +17,7 @@ from sr.mystools import mys_config
 from sr.operation import Operation, StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.use_trailblaze_power import get_point_by_unique_id, TrailblazePowerPoint, UseTrailblazePower, \
     CATEGORY_5
-from sr.operation.unit.guide import GUIDE_TAB_3
+from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
@@ -283,7 +283,7 @@ class TrailblazePower(Application2):
         ops = [
             OpenPhoneMenu(self.ctx),
             ClickPhoneMenuItem(self.ctx, phone_menu_const.INTERASTRAL_GUIDE),
-            ChooseGuideTab(self.ctx, GUIDE_TAB_3)
+            ChooseGuideTab(self.ctx, GuideTabEnum.TAB_3.value)
         ]
 
         for op in ops:

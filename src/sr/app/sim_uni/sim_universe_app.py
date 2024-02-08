@@ -12,9 +12,10 @@ from sr.image.sceenshot import screen_state
 from sr.operation import OperationResult, Operation, StateOperationEdge, StateOperationNode, \
     OperationOneRoundResult
 from sr.operation.unit.back_to_world import BackToWorld
-from sr.operation.unit.guide import GUIDE_TAB_3
+from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
-from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory, CATEGORY_ROGUE
+from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
+from sr.operation.unit.guide.survival_index import SurvivalIndexCategoryEnum
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.sim_uni.op.choose_sim_uni_diff import ChooseSimUniDiff
@@ -150,12 +151,12 @@ class SimUniverseApp(Application2):
         edges.append(StateOperationEdge(check_initial_screen, choose_guide,
                                         status=screen_state.ScreenState.PHONE_MENU.value))  # 在菜单的时候 打开指南
 
-        choose_survival_index = StateOperationNode('生存索引', op=ChooseGuideTab(ctx, GUIDE_TAB_3))
+        choose_survival_index = StateOperationNode('生存索引', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_3.value))
         edges.append(StateOperationEdge(choose_guide, choose_survival_index))
         edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
                                         status=screen_state.ScreenState.GUIDE.value))  # 在指南里 选择生存索引
 
-        choose_sim_category = StateOperationNode('模拟宇宙', op=ChooseGuideMissionCategory(ctx, CATEGORY_ROGUE))
+        choose_sim_category = StateOperationNode('模拟宇宙', op=ChooseGuideMissionCategory(ctx, SurvivalIndexCategoryEnum.ROGUE.value))
         edges.append(StateOperationEdge(choose_survival_index, choose_sim_category))
         edges.append(StateOperationEdge(check_initial_screen, choose_sim_category,
                                         status=screen_state.ScreenState.GUIDE_SURVIVAL_INDEX.value))  # 在生存索引 选择模拟宇宙

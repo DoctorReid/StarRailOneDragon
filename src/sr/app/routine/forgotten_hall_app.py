@@ -14,13 +14,13 @@ from sr.context import Context
 from sr.operation import OperationResult, Operation, StateOperationEdge, StateOperationNode, \
     OperationOneRoundResult
 from sr.operation.combine.challenge_forgotten_hall_mission import ChallengeForgottenHallMission
-from sr.operation.unit import guide
 from sr.operation.unit.forgotten_hall.check_forgotten_hall_star import CheckForgottenHallStar
 from sr.operation.unit.forgotten_hall.check_next_challenge_mission import CheckMaxUnlockMission
 from sr.operation.unit.forgotten_hall.get_reward_in_fh import GetRewardInForgottenHall
-from sr.operation.unit.guide import mission_transport
+from sr.operation.unit.guide import mission_transport, GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory, ChooseGuideMission
+from sr.operation.unit.guide.survival_index import SurvivalIndexCategoryEnum
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.performance_recorder import record_performance
@@ -659,10 +659,10 @@ class ForgottenHallApp(Application2):
         choose_guide = StateOperationNode('选择【指南】', op=ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
         edges.append(StateOperationEdge(open_menu, choose_guide))
 
-        choose_survival = StateOperationNode('选择【逐光捡金】', op=ChooseGuideTab(ctx, guide.GUIDE_TAB_4))
+        choose_survival = StateOperationNode('选择【逐光捡金】', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_4.value))
         edges.append(StateOperationEdge(choose_guide, choose_survival))
 
-        choose_fh = StateOperationNode('选择【忘却之庭】', op=ChooseGuideMissionCategory(ctx, mission_transport.CATEGORY_FORGOTTEN_HALL))
+        choose_fh = StateOperationNode('选择【忘却之庭】', op=ChooseGuideMissionCategory(ctx, SurvivalIndexCategoryEnum.FORGOTTEN_HALL.value))
         edges.append(StateOperationEdge(choose_survival, choose_fh))
 
         fh_tp = StateOperationNode('传送', op=ChooseGuideMission(ctx, mission_transport.MISSION_FORGOTTEN_HALL))

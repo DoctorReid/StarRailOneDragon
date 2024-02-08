@@ -1,5 +1,5 @@
 import time
-from typing import List, Optional
+from typing import Optional
 
 from cv2.typing import MatLike
 
@@ -10,40 +10,7 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
-
-
-class GuideMissionCategory:
-
-    def __init__(self, tab: ScreenState, cn: str):
-        """
-        生存索引左侧的类目
-        """
-        self.tab: ScreenState = tab
-        """指南上的TAB"""
-
-        self.cn: str = cn
-        """中文"""
-
-
-CATEGORY_ROGUE = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='模拟宇宙')
-CATEGORY_BUD_1 = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='拟造花萼金')
-CATEGORY_BUD_2 = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='拟造花萼赤')
-CATEGORY_SHAPE = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='凝滞虚影')
-CATEGORY_PATH = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='侵蚀虫洞')
-CATEGORY_ECHO_OF_WAR = GuideMissionCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='历战回响')
-CATEGORY_FORGOTTEN_HALL = GuideMissionCategory(tab=ScreenState.GUIDE_TREASURES_LIGHTWARD, cn='忘却之庭')
-
-# 需要按顺序 方便滚动查找
-CATEGORY_LIST: List[GuideMissionCategory] = [
-    CATEGORY_ROGUE,
-    CATEGORY_BUD_1,
-    CATEGORY_BUD_2,
-    CATEGORY_SHAPE,
-    CATEGORY_PATH,
-    CATEGORY_ECHO_OF_WAR,
-    CATEGORY_FORGOTTEN_HALL
-]
-
+from sr.operation.unit.guide.survival_index import SurvivalIndexCategory, SurvivalIndexCategoryEnum
 
 CATEGORY_LIST_RECT = Rect(270, 300, 680, 910)
 
@@ -55,9 +22,9 @@ class ChooseGuideMissionCategory(Operation):
     选择左侧对应类目
     """
 
-    def __init__(self, ctx: Context, category: GuideMissionCategory):
+    def __init__(self, ctx: Context, category: SurvivalIndexCategory):
         super().__init__(ctx, try_times=5, op_name='%s %s' % (gt(category.tab.value, 'ui'), gt(category.cn, 'ui')))
-        self.category: GuideMissionCategory = category
+        self.category: SurvivalIndexCategory = category
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
@@ -101,18 +68,18 @@ class ChooseGuideMissionCategory(Operation):
 
 class GuideMission:
 
-    def __init__(self, category: GuideMissionCategory, cn: str):
+    def __init__(self, category: SurvivalIndexCategory, cn: str):
         """
         生存索引右侧的副本
         """
-        self.category: GuideMissionCategory = category
+        self.category: SurvivalIndexCategory = category
         """分类"""
         self.cn: str = cn
         """中文"""
 
 
-MISSION_FORGOTTEN_HALL = GuideMission(category=CATEGORY_FORGOTTEN_HALL, cn='混沌回忆')
-MISSION_SIM_UNIVERSE = GuideMission(category=CATEGORY_ROGUE, cn='本周积分')  # 模拟宇宙最上方总分的传送
+MISSION_FORGOTTEN_HALL = GuideMission(category=SurvivalIndexCategoryEnum.FORGOTTEN_HALL.value, cn='混沌回忆')
+MISSION_SIM_UNIVERSE = GuideMission(category=SurvivalIndexCategoryEnum.ROGUE.value, cn='本周积分')  # 模拟宇宙最上方总分的传送
 
 
 MISSION_LIST_RECT = Rect(695, 295, 1655, 930)  # 副本列表的位置

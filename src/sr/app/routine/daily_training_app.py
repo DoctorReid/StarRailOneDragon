@@ -12,7 +12,7 @@ from sr.operation.combine.dt_synthesize_consumable import DtSynthesizeConsumable
 from sr.operation.combine.dt_take_photo import DtTakePhoto
 from sr.operation.combine.dt_use_2_technique import Use2Technique
 from sr.operation.combine.salvage_relic import SalvageRelic
-from sr.operation.unit.guide import GUIDE_TAB_2
+from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.claim_training_reward import ClaimTrainingReward
 from sr.operation.unit.guide.claim_training_score import ClaimTrainingScore
@@ -68,7 +68,7 @@ class DailyTrainingApp(Application2):
         click_guide = StateOperationNode('点击【指南】', op=ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
         edges.append(StateOperationEdge(open_menu, click_guide))
 
-        choose_daily_training = StateOperationNode('选择每日实训', op=ChooseGuideTab(ctx, GUIDE_TAB_2))
+        choose_daily_training = StateOperationNode('选择每日实训', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_2.value))
         edges.append(StateOperationEdge(click_guide, choose_daily_training))
 
         claim_score = StateOperationNode('领取实训点数', op=ClaimTrainingScore(ctx))
