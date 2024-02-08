@@ -569,23 +569,23 @@ P04_R02_SP19 = TransportPoint('XXHNXD', '小小哈努行动', P04_R02_F2, 'mm_sp
 # [22:24:56] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_13', (1034, 341))
 
 # 筑梦边境
-# [23:50:51] [large_map.py 233] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (552, 320))
-# [23:50:51] [large_map.py 233] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (1318, 704))
-# [23:50:51] [large_map.py 233] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (270, 1048))
-# [23:50:51] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_03', (882, 1341))
-# [23:50:51] [large_map.py 233] [INFO]: SP05 = TransportPoint('', '', , 'mm_tp_06', (474, 1054))
-# [23:50:51] [large_map.py 233] [INFO]: SP06 = TransportPoint('', '', , 'mm_tp_08', (272, 1398))
-# [23:50:51] [large_map.py 233] [INFO]: SP07 = TransportPoint('', '', , 'mm_sp_02', (626, 229))
-# [23:50:51] [large_map.py 233] [INFO]: SP08 = TransportPoint('', '', , 'mm_sp_11', (1530, 857))
-# [23:50:51] [large_map.py 233] [INFO]: SP09 = TransportPoint('', '', , 'mm_sp_12', (445, 507))
-# [23:50:51] [large_map.py 233] [INFO]: SP10 = TransportPoint('', '', , 'mm_sp_14', (574, 369))
+P04_R03_SP01 = TransportPoint('JZJSJ', '家族建设局', P04_R03, 'mm_tp_03', (552, 320), (596, 284))
+P04_R03_SP02 = TransportPoint('ZMGC', '筑梦广场', P04_R03, 'mm_tp_03', (1318, 704), (1291, 679))
+P04_R03_SP03 = TransportPoint('GJTQ', '观景台前', P04_R03, 'mm_tp_03', (270, 1048), (292, 1015))
+P04_R03_SP04 = TransportPoint('WDHY', '屋顶花园', P04_R03, 'mm_tp_03', (882, 1341), (894, 1326))
+P04_R03_SP05 = TransportPoint('JZZXNZXY', '焦炙之形·凝滞虚影', P04_R03, 'mm_tp_06', (474, 1054), (450, 1013))
+P04_R03_SP06 = TransportPoint('HYZLNZHEJ', '回忆之蕾·拟造花萼（金）', P04_R03, 'mm_tp_08', (272, 1398), (275, 1355))
+P04_R03_SP07 = TransportPoint('HJDSK', '黄金的时刻', P04_R03, 'mm_sp_02', (626, 229))
+P04_R03_SP08 = TransportPoint('XXHNXD', '小小哈努行动', P04_R03, 'mm_sp_11', (1530, 857))
+P04_R03_SP09 = TransportPoint('XLZT', '心灵侦探', P04_R03, 'mm_sp_12', (445, 507))
+P04_R03_SP10 = TransportPoint('CSJLDDS', '草树经理的「大树」', P04_R03, 'mm_sp_14', (574, 369))
 
 # 稚子的梦
-# [23:52:41] [large_map.py 233] [INFO]: SP01 = TransportPoint('', '', , 'mm_tp_03', (614, 564))
-# [23:52:41] [large_map.py 233] [INFO]: SP02 = TransportPoint('', '', , 'mm_tp_03', (575, 979))
-# [23:52:41] [large_map.py 233] [INFO]: SP03 = TransportPoint('', '', , 'mm_tp_03', (701, 1187))
-# [23:52:41] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_tp_08', (573, 1108))
-# [23:52:41] [large_map.py 233] [INFO]: SP05 = TransportPoint('', '', , 'mm_sp_14', (572, 516))
+P04_R04_SP01 = TransportPoint('HYZL', '回忆走廊', P04_R04, 'mm_tp_03', (614, 564), (592, 512))
+P04_R04_SP02 = TransportPoint('FHMJ', '洑洄梦境', P04_R04, 'mm_tp_03', (575, 979), (595, 953))
+P04_R04_SP03 = TransportPoint('ZBF', '钟表坊', P04_R04, 'mm_tp_03', (701, 1187), (681, 1156))
+P04_R04_SP04 = TransportPoint('YTZLNZHEJ', '以太之蕾·拟造花萼（金）', P04_R04, 'mm_tp_08', (573, 1108), (572, 1065))
+P04_R04_SP05 = TransportPoint('CHDGDDS', '赤红大哥的「大树」', P04_R04, 'mm_sp_14', (572, 516))
 
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
@@ -624,7 +624,9 @@ REGION_2_SP = {
                     P03_R10_SP11, P03_R10_SP12, P03_R10_SP13, P03_R10_SP14, P03_R10_SP15, P03_R10_SP16],
     P04_R01_F1.pr_id: [P04_R01_SP01, P04_R01_SP02, P04_R01_SP03, P04_R01_SP04],
     P04_R02_F1.pr_id: [P04_R02_SP01, P04_R02_SP02, P04_R02_SP03, P04_R02_SP04, P04_R02_SP05, P04_R02_SP06, P04_R02_SP07, P04_R02_SP08, P04_R02_SP09, P04_R02_SP10,
-                       P04_R02_SP11, P04_R02_SP12, P04_R02_SP13, P04_R02_SP14, P04_R02_SP15, P04_R02_SP16, P04_R02_SP17, P04_R02_SP18, P04_R02_SP19]
+                       P04_R02_SP11, P04_R02_SP12, P04_R02_SP13, P04_R02_SP14, P04_R02_SP15, P04_R02_SP16, P04_R02_SP17, P04_R02_SP18, P04_R02_SP19],
+    P04_R03.pr_id: [P04_R03_SP01, P04_R03_SP02, P04_R03_SP03, P04_R03_SP04, P04_R03_SP05, P04_R03_SP06, P04_R03_SP07, P04_R03_SP08, P04_R03_SP09, P04_R03_SP10],
+    P04_R04.pr_id: [P04_R04_SP01, P04_R04_SP02, P04_R04_SP03, P04_R04_SP04, P04_R04_SP05],
 }
 
 

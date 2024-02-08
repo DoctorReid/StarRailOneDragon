@@ -11,8 +11,8 @@ class ConfigHolder:
         self.sample = sample
         self.sub_dir = sub_dir
         self.data: dict = {}
-        self.refresh()
         self.mock: bool = mock  # 不读取文件
+        self.refresh()
 
     def refresh(self):
         self._read_config()

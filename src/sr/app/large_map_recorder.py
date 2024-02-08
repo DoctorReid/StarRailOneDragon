@@ -3,14 +3,14 @@ import time
 from basic import Point
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import Application
+from sr.app import Application, Application2
 from sr.const import map_const
 from sr.const.map_const import Region, region_with_another_floor, PLANET_2_REGION
 from sr.context import Context, get_context
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import large_map
-from sr.operation import Operation
+from sr.operation import Operation, StateOperationNode
 from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.open_map import OpenMap
@@ -18,13 +18,17 @@ from sr.operation.unit.scale_large_map import ScaleLargeMap
 from sr.win import Window, WinRect
 
 
-class LargeMapRecorder(Application):
+class LargeMapRecorder(Application2):
     """
     开发用的截图工具 只支持PC版
     把整个大地图记录下来
     """
 
-    def __init__(self, ctx: Context, region: Region):
+    def __init__(self, ctx: Context, region: Region, way: int = 1):
+        edges = []
+
+        open_map = StateOperationNode('打开地图', op=OpenMap(ctx))
+
         super().__init__(ctx)
         self.planet = region.planet
         self.region = region
