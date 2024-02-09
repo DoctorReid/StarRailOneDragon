@@ -530,6 +530,7 @@ P03_R08_SP09 = TransportPoint('SLDY', '蜃楼遁影', P03_R08_F2, 'mm_sp_01', (8
 P03_R08_SP10 = TransportPoint('GZS', '工造司', P03_R08_F2, 'mm_sp_02', (867, 1564))
 P03_R08_SP11 = TransportPoint('YRDXYT', '永仁的小药摊', P03_R08_F2, 'mm_sp_03', (990, 758))
 P03_R08_SP12 = TransportPoint('GGDYCT', '汵汵的药材摊', P03_R08_F2, 'mm_sp_03', (837, 843))
+P03_R08_SP13 = TransportPoint('XWZLNZHEC', '虚无之蕾·拟造花萼（赤）', P03_R08_F2, 'mm_tp_07', (607, 1157), (629, 1211))
 
 # 仙舟罗浮 - 鳞渊境
 P03_R09_SP01 = TransportPoint('GXSC', '宫墟深处', P03_R09, 'mm_tp_03', (891, 425), (883, 435))

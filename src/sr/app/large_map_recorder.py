@@ -221,7 +221,7 @@ class LargeMapRecorder(Application2):
             else:
                 shape2 = raw.shape
                 if shape[0] != shape2[0] or shape[1] != shape2[1]:
-                    log.error('层数截图大小不一致')
+                    log.error('层数截图大小不一致 %s %s', shape, shape2)
 
             # 不同楼层需要拓展的大小可能不一致 保留一个最大的
             lp2, rp2, tp2, bp2 = large_map.get_expand_arr(raw)
@@ -486,9 +486,10 @@ class LargeMapRecorder(Application2):
         for col in range(max_col):
             prev_image = get_debug_image(LargeMapRecorder.region_part_image_name(region, row - 1, col))
             next_image = get_debug_image(LargeMapRecorder.region_part_image_name(region, row, col))
-            if not cv2_utils.is_same_image(prev_image, next_image):
+            if not cv2_utils.is_same_image(prev_image, next_image, threshold=10):
                 return False
         return True
+
 
 def _init_map_for_sim_uni():
     """
@@ -508,15 +509,16 @@ def _init_map_for_sim_uni():
 
 
 if __name__ == '__main__':
-    r = map_const.P03_R09
-    LargeMapRecorder.do_merge_1(r, 4, 7, show=True)
+    r = map_const.P03_R08_F1
+    # print(LargeMapRecorder.same_as_last_row(r, 6, 4))
+    # LargeMapRecorder.do_merge_1(r, 8, 4, show=True)
     # exit(0)
 
     # 执行前先传送到别的地图
     ctx = get_context()
     app = LargeMapRecorder(ctx, r,
                            #skip_height=200,
-                           # floor_list=[1]
+                           floor_list=[2]
                            )
 
     ctx.init_all(renew=True)
