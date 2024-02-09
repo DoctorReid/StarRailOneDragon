@@ -11,10 +11,10 @@ from sr.context import get_context
 from sr.operation.unit.guide.get_training_unfinished_mission import GetTrainingUnfinishedMission
 
 
-class TestGetTrainingUnfinishedMission(unittest.TestCase, test.SrTestBase):
+class TestGetTrainingUnfinishedMission(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
         ctx = get_context()
         ctx.init_ocr_matcher()

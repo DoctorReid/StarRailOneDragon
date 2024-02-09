@@ -10,10 +10,10 @@ from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import SimUniBless, SimUniBlessEnum
 
 
-class TestSimUniBless(unittest.TestCase, test.SrTestBase):
+class TestSimUniBless(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_get_bless(self):
         """

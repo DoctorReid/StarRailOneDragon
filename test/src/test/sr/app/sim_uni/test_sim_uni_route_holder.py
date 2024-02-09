@@ -3,7 +3,7 @@ import unittest
 import test
 
 
-class TestSimUniRouteHolder(unittest.TestCase, test.SrTestBase):
+class TestSimUniRouteHolder(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)

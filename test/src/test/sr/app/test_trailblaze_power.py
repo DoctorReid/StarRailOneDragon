@@ -5,10 +5,10 @@ from sr.app.routine.trailblaze_power import TrailblazePower
 from sr.context import get_context
 
 
-class TestTrailblazePower(unittest.TestCase, test.SrTestBase):
+class TestTrailblazePower(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_get_sim_uni_power_and_qty(self):
         ctx = get_context()

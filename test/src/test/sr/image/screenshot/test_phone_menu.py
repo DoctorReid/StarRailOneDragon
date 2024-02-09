@@ -6,10 +6,10 @@ from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.sceenshot import phone_menu
 
 
-class TestOperation(unittest.TestCase, test.SrTestBase):
+class TestOperation(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_in_phone_menu(self):
         i18_utils.update_default_lang('en')

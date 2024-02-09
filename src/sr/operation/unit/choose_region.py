@@ -37,9 +37,9 @@ class ChooseRegion(Operation):
         # 判断当前选择区域是否目标区域
         current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
         current_region = best_match_region_by_name(current_region_name, planet=self.planet)
-        log.info('当前区域文本 %s 匹配区域名称 %s', current_region_name, current_region.cn)
+        log.info('当前区域文本 %s 匹配区域名称 %s', current_region_name, current_region.cn if current_region is not None else '')
 
-        is_current: bool = current_region.pr_id == self.region.pr_id
+        is_current: bool = (current_region is not None and current_region.pr_id == self.region.pr_id)
         if not is_current:
             find = self.click_target_region(screen)
             if not find:
@@ -65,7 +65,7 @@ class ChooseRegion(Operation):
                     log.error('未成功点击层数')
                     return Operation.RETRY
                 else:
-                    return Operation.RETRY
+                    return Operation.SUCCESS
             else:  # 已经是目标楼层
                 return Operation.SUCCESS
 

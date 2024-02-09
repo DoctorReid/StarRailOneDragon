@@ -11,10 +11,10 @@ from sr.image.sceenshot import mini_map, LargeMapInfo, large_map
 from sr.operation.combine.destory_objects import DestroyObjects
 
 
-class TestDestroyObjects(unittest.TestCase, test.SrTestBase):
+class TestDestroyObjects(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
         ctx = get_context()
         ctx.init_image_matcher()

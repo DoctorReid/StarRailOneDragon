@@ -226,13 +226,15 @@ def get_region_by_cn(cn: str, planet: Planet, floor: int = 0) -> Region:
     return None
 
 
-def best_match_region_by_name(ocr_word: str, planet: Optional[Planet] = None) -> Optional[Region]:
+def best_match_region_by_name(ocr_word: Optional[str], planet: Optional[Planet] = None) -> Optional[Region]:
     """
     根据OCR结果匹配一个区域 随机返回楼层
     :param ocr_word: OCR结果
     :param planet: 所属星球
     :return:
     """
+    if ocr_word is None or len(ocr_word) == 0:
+        return None
     best_region: Optional[Region] = None
     best_lcs_percent: float = 0.1
 
@@ -288,12 +290,12 @@ P01_R02_SP03 = TransportPoint('KHZX', '空海之形·凝滞虚影', P01_R02, 'mm
 P01_R02_SP04 = TransportPoint('TKDT', '太空电梯', P01_R02, 'mm_sp_02', (556, 986))
 
 # 空间站黑塔 - 收容舱段
-P01_R03_SP01 = TransportPoint('ZT', '中庭', P01_R03_F1, 'mm_tp_03', (626, 346), (618, 330))
+P01_R03_SP01 = TransportPoint('ZT', '中庭', P01_R03_F1, 'mm_tp_03', (627, 346), (618, 330))
 P01_R03_SP02 = TransportPoint('KZZXW', '控制中心外', P01_R03_F1, 'mm_tp_03', (372, 375), (385, 368))
-P01_R03_SP03 = TransportPoint('TSJXS', '特殊解析室', P01_R03_F2, 'mm_tp_03', (765, 439), (752, 448))
+P01_R03_SP03 = TransportPoint('TSJXS', '特殊解析室', P01_R03_F2, 'mm_tp_03', (766, 439), (752, 448))
 P01_R03_SP04 = TransportPoint('WMZJ', '无明之间', P01_R03_F1, 'mm_tp_03', (1040, 510), (1009, 515))
-P01_R03_SP05 = TransportPoint('HMZL', '毁灭之蕾·拟造花萼（赤）', P01_R03_F1, 'mm_tp_07', (316, 325), (319, 335))
-P01_R03_SP06 = TransportPoint('SFZJ', '霜风之径·侵蚀隧洞', P01_R03_F1, 'mm_tp_09', (847, 367), (841, 368))
+P01_R03_SP05 = TransportPoint('HMZL', '毁灭之蕾·拟造花萼（赤）', P01_R03_F1, 'mm_tp_07', (317, 325), (319, 335))
+P01_R03_SP06 = TransportPoint('SFZJ', '霜风之径·侵蚀隧洞', P01_R03_F1, 'mm_tp_09', (848, 367), (841, 368))
 P01_R03_SP07 = TransportPoint('LJZZ', '裂界征兆', P01_R03_F1, 'mm_sp_01', (459, 342))
 P01_R03_SP08 = TransportPoint('TKDT', '太空电梯', P01_R03_F1, 'mm_sp_02', (607, 364))
 

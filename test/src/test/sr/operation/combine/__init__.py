@@ -50,10 +50,10 @@ class CombineOp(StatusCombineOperation2):
         return SimpleOp2(self.ctx, self.last_value)
 
 
-class TestStatusCombineOperation2(unittest.TestCase, test.SrTestBase):
+class TestStatusCombineOperation2(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
         ctx = get_context()
         ctx.running = 1

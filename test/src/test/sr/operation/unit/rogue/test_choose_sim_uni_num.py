@@ -5,10 +5,10 @@ from sr.context import get_context
 from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
 
 
-class TestChooseSimUniNum(unittest.TestCase, test.SrTestBase):
+class TestChooseSimUniNum(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
         ctx = get_context()
         ctx.init_ocr_matcher()

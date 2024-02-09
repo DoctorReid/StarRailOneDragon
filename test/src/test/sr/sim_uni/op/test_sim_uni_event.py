@@ -7,10 +7,10 @@ from sr.image.sceenshot import screen_state
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 
 
-class TestSimUniEvent(unittest.TestCase, test.SrTestBase):
+class TestSimUniEvent(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_get_opt_list(self):
         ctx = get_context()

@@ -6,10 +6,10 @@ from sr.context import get_context
 from sr.operation.unit.team import SwitchMember, CheckTeamMembersInWorld
 
 
-class TestTeam(unittest.TestCase, test.SrTestBase):
+class TestTeam(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_switch_op(self):
         ctx = get_context()

@@ -203,6 +203,7 @@ def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> str:
     upper = 90
     part, _ = cv2_utils.crop_image(screen, FLOOR_LIST_PART)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
+    # cv2_utils.show_image(bw, win_name='get_active_floor', wait=0)
     km = ocr.run_ocr(bw)
     if len(km) > 0:
         return km.popitem()[0]

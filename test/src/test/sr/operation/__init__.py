@@ -14,13 +14,10 @@ class SimpleOperation(Operation):
         return Operation.round_success()
 
 
-class TestOperation(unittest.TestCase, test.SrTestBase):
+class TestOperation(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
-
-        self.op = SimpleOperation(get_context(), self._op_callback)
-        self.callback_result = False
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_operation(self):
         self.op.ctx.running = 1
@@ -81,10 +78,10 @@ class SimpleStateOperation(StateOperation):
         return Operation.round_success(status=str(self.num))
 
 
-class TestStateOperation(unittest.TestCase, test.SrTestBase):
+class TestStateOperation(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
         self.op = SimpleStateOperation(get_context())
 

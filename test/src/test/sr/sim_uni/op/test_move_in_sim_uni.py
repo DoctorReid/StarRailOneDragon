@@ -6,10 +6,10 @@ from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 
 
-class TestMoveToNextLevel(unittest.TestCase, test.SrTestBase):
+class TestMoveToNextLevel(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_get_next_level_type(self):
         ctx = get_context()

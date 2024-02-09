@@ -5,10 +5,10 @@ from sr.context import get_context
 from sr.image.sceenshot import screen_state
 
 
-class TestOperation(unittest.TestCase, test.SrTestBase):
+class TestOperation(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_is_empty_to_close(self):
         ctx = get_context()

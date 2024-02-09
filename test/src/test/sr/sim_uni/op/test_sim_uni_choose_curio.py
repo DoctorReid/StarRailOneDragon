@@ -9,10 +9,10 @@ from sr.sim_uni.sim_uni_const import SimUniCurioEnum, SimUniCurio
 from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
 
 
-class TestChooseSimUniCurio(unittest.TestCase, test.SrTestBase):
+class TestChooseSimUniCurio(test.SrTestBase):
 
-    def setUp(self):
-        test.SrTestBase.__init__(self, __file__)
+    def __init__(self, *args, **kwargs):
+        test.SrTestBase.__init__(self, *args, **kwargs)
 
     def test_get_curio_pos(self):
         ctx = get_context()
