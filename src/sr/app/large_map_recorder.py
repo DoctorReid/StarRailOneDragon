@@ -508,7 +508,7 @@ def _init_map_for_sim_uni():
 
 
 if __name__ == '__main__':
-    r = map_const.P03_R06_F1
+    r = map_const.P03_R02_F1
     # LargeMapRecorder.do_merge_1(r, 5, 3, show=True)
     # exit(0)
 
@@ -516,9 +516,9 @@ if __name__ == '__main__':
     ctx = get_context()
     app = LargeMapRecorder(ctx, r,
                            #skip_height=200,
-                           floor_list=[1]
+                           # floor_list=[1]
                            )
 
     ctx.init_all(renew=True)
-    app.do_save()
-    # app.execute()
+    # app.do_save()
+    app.execute()
