@@ -508,7 +508,7 @@ def _init_map_for_sim_uni():
 
 
 if __name__ == '__main__':
-    r = map_const.P03_R02_F1
+    r = map_const.P03_R09
     # LargeMapRecorder.do_merge_1(r, 5, 3, show=True)
     # exit(0)
 

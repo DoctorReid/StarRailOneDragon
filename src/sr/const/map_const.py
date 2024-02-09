@@ -515,6 +515,7 @@ P03_R07_SP04 = TransportPoint('ZHHL', '造化洪炉', P03_R07, 'mm_tp_03', (758,
 P03_R07_SP05 = TransportPoint('YOZX', '偃偶之形·凝滞虚影', P03_R07, 'mm_tp_06', (388, 655), (390, 630))
 P03_R07_SP06 = TransportPoint('DDS', '丹鼎司', P03_R07, 'mm_sp_02', (1029, 767))
 P03_R07_SP07 = TransportPoint('TBS', '太卜司', P03_R07, 'mm_sp_02', (170, 928))
+P03_R07_SP08 = TransportPoint('CZZLNZHEJ', '藏珍之蕾·拟造花萼（金）', P03_R07, 'mm_tp_08', (964, 795), (960, 789))
 
 # 仙舟罗浮 - 丹鼎司
 P03_R08_SP01 = TransportPoint('TZDS', '太真丹室', P03_R08_F1, 'mm_tp_03', (547, 555), (563, 559))
