@@ -538,9 +538,9 @@ P03_R08_SP13 = TransportPoint('XWZLNZHEC', '虚无之蕾·拟造花萼（赤）'
 P03_R09_SP01 = TransportPoint('GXSC', '宫墟深处', P03_R09, 'mm_tp_03', (891, 425), (883, 435))
 P03_R09_SP02 = TransportPoint('GHGX', '古海宫墟', P03_R09, 'mm_tp_03', (1113, 425), (1127, 434))
 P03_R09_SP03 = TransportPoint('XLDYD', '显龙大雩殿', P03_R09, 'mm_tp_03', (1599, 444), (1592, 433))
-P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形·凝滞虚影', P03_R09, 'mm_tp_06', (917, 169), (919, 182))
-P03_R09_SP05 = TransportPoint('DDS', '丹鼎司', P03_R09, 'mm_sp_02', (1891, 391))
-P03_R09_SP06 = TransportPoint('BSDSS', '不死的神实·历战余响', P03_R09, 'mm_boss_03', (470, 450))
+P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形·凝滞虚影', P03_R09, 'mm_tp_06', (917, 170), (919, 182))
+P03_R09_SP05 = TransportPoint('DDS', '丹鼎司', P03_R09, 'mm_sp_02', (1891, 392))
+P03_R09_SP06 = TransportPoint('BSDSS', '不死的神实·历战余响', P03_R09, 'mm_boss_03', (476, 448), (474, 443))
 P03_R09_SP07 = TransportPoint('HMZLNZHEC', '毁灭之蕾·拟造花萼（赤）', P03_R09, 'mm_tp_07', (919, 697), (920, 696))
 
 # 仙舟罗浮 - 绥园

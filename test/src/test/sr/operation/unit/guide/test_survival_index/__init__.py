@@ -17,7 +17,7 @@ class TestSurvivalIndex(test.SrTestBase):
         for enum in SurvivalIndexMissionEnum:
             if enum.value.cate == SurvivalIndexCategoryEnum.SIM_UNI.value:
                 continue
-            if enum == SurvivalIndexMissionEnum.BUD_2_HM_1:
+            if enum == SurvivalIndexMissionEnum.ECHO_03:
                 start = True
             if not start:
                 continue

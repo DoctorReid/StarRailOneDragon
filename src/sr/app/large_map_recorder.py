@@ -509,7 +509,7 @@ def _init_map_for_sim_uni():
 
 
 if __name__ == '__main__':
-    r = map_const.P01_R04_F2
+    r = map_const.P03_R09
     # print(LargeMapRecorder.same_as_last_row(r, 6, 4))
     # LargeMapRecorder.do_merge_1(r, 8, 4, show=True)
     # exit(0)
