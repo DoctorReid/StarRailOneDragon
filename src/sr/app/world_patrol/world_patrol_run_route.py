@@ -62,6 +62,8 @@ class WorldPatrolRunRoute(StatusCombineOperation2):
 
         if self.op_idx == -1:
             return Transport(self.ctx, self.route.tp)
+        # elif self.op_idx == 0:  # 测试传送点用
+        #     return OperationSuccess(self.ctx, status=WorldPatrolRunRoute.STATUS_ALL_DONE)
 
         if self.op_idx >= len(self.route.route_list):
             return OperationSuccess(self.ctx, status=WorldPatrolRunRoute.STATUS_ALL_DONE)
