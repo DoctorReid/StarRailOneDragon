@@ -300,12 +300,12 @@ P01_R03_SP07 = TransportPoint('LJZZ', '裂界征兆', P01_R03_F1, 'mm_sp_01', (4
 P01_R03_SP08 = TransportPoint('TKDT', '太空电梯', P01_R03_F1, 'mm_sp_02', (607, 364))
 
 # 空间站黑塔 - 支援舱段
-P01_R04_SP01 = TransportPoint('BJKF', '备件库房', P01_R04_F2, 'mm_tp_03', (434, 240), (454, 232))
-P01_R04_SP02 = TransportPoint('YT', '月台', P01_R04_F2, 'mm_tp_03', (789, 404), (799, 393))
-P01_R04_SP03 = TransportPoint('DLS', '电力室', P01_R04_F2, 'mm_tp_03', (165, 414), (137, 380))
-P01_R04_SP04 = TransportPoint('CHZL', '存护之蕾·拟造花萼（赤）', P01_R04_F2, 'mm_tp_07', (467, 322), (476, 330))
-P01_R04_SP05 = TransportPoint('TKDT', '太空电梯', P01_R04_F2, 'mm_sp_02', (105, 345))
-P01_R04_SP06 = TransportPoint('HMDKD', '毁灭的开端·历战余响', P01_R04_F2, 'mm_boss_01', (1010, 286), (1015, 295))
+P01_R04_SP01 = TransportPoint('BJKF', '备件库房', P01_R04_F2, 'mm_tp_03', (424, 239), (444, 233))
+P01_R04_SP02 = TransportPoint('YT', '月台', P01_R04_F2, 'mm_tp_03', (779, 403), (788, 394))
+P01_R04_SP03 = TransportPoint('DLS', '电力室', P01_R04_F2, 'mm_tp_03', (155, 413), (127, 380))
+P01_R04_SP04 = TransportPoint('CHZL', '存护之蕾·拟造花萼（赤）', P01_R04_F2, 'mm_tp_07', (457, 321), (465, 330))
+P01_R04_SP05 = TransportPoint('TKDT', '太空电梯', P01_R04_F2, 'mm_sp_02', (105, 379))
+P01_R04_SP06 = TransportPoint('HMDKD', '毁灭的开端·历战余响', P01_R04_F2, 'mm_boss_01', (1005, 295), (1005, 295))
 
 # 空间站黑塔 - 禁闭舱段
 P01_R05_SP01 = TransportPoint('WC', '温床', P01_R05_F2, 'mm_tp_03', (684, 306), (710, 309))
