@@ -1,0 +1,13 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '稚子的梦'
+floor: 0
+tp: '回忆走廊'
+route:
+  - op: 'move'
+    data: [610, 525]
+  - op: 'move'
+    data: [657, 524]
+  - op: 'move'
+    data: [670, 493]
+  - op: 'patrol'

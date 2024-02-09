@@ -1,0 +1,11 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '筑梦边境'
+floor: 0
+tp: '筑梦广场'
+route:
+  - op: 'move'
+    data: [1274, 713]
+  - op: 'move'
+    data: [1223, 713]
+  - op: 'patrol'

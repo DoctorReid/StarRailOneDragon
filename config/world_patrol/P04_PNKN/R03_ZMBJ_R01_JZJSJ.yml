@@ -1,0 +1,15 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '筑梦边境'
+floor: 0
+tp: '家族建设局'
+route:
+  - op: 'move'
+    data: [553, 364]
+  - op: 'move'
+    data: [556, 435]
+  - op: 'move'
+    data: [561, 504]
+  - op: 'move'
+    data: [643, 512]
+  - op: 'patrol'

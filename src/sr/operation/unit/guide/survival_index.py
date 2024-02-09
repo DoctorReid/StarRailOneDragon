@@ -152,11 +152,11 @@ class SurvivalIndexMission:
         :return:
         """
         if self.cate == SurvivalIndexCategoryEnum.BUD_1.value:
-            if self.tp in [map_const.P02_R02_SP04, map_const.P02_R02_SP04]:
+            if self.tp in [map_const.P02_R02_SP04, map_const.P03_R06_SP07, map_const.P04_R03_SP06]:
                 prefix = '角色经验'
-            elif self.tp in [map_const.P02_R03_SP06, map_const.P02_R03_SP06]:
+            elif self.tp in [map_const.P02_R03_SP06, map_const.P03_R02_SP09, map_const.P04_R04_SP04]:
                 prefix = '光锥经验'
-            elif self.tp in [map_const.P02_R10_SP08, map_const.P02_R10_SP08]:
+            elif self.tp in [map_const.P02_R10_SP08, map_const.P03_R07_SP08, map_const.P04_R05_SP10]:
                 prefix = '信用点'
             else:
                 prefix = ''
@@ -164,7 +164,7 @@ class SurvivalIndexMission:
         elif self.cate == SurvivalIndexCategoryEnum.BUD_2.value:
             return self.tp.cn[:2] + '·' + self.tp.region.cn
         elif self.cate == SurvivalIndexCategoryEnum.SHAPE.value:
-            if self.tp in [map_const.P01_R02_SP03, map_const.P03_R09_SP04]:
+            if self.tp in [map_const.P01_R02_SP03, map_const.P03_R09_SP04, map_const.P04_R03_SP05]:
                 prefix = '量子'
             elif self.tp in [map_const.P02_R11_SP04, map_const.P03_R08_SP05]:
                 prefix = '风'
@@ -174,7 +174,7 @@ class SurvivalIndexMission:
                 prefix = '火'
             elif self.tp in [map_const.P02_R10_SP05, map_const.P03_R10_SP05]:
                 prefix = '物理'
-            elif self.tp in [map_const.P02_R05_SP06, map_const.P03_R02_SP05]:
+            elif self.tp in [map_const.P02_R05_SP06, map_const.P03_R02_SP05, map_const.P04_R05_SP08]:
                 prefix = '冰'
             elif self.tp in [map_const.P02_R03_SP04, map_const.P03_R07_SP05]:
                 prefix = '虚数'
@@ -198,6 +198,8 @@ class SurvivalIndexMission:
                 return '莳者 信使'
             elif self.tp == map_const.P03_R10_SP06:
                 return '大公 系囚'
+            elif self.tp == map_const.P04_R05_SP11:
+                return '先驱 钟表匠'
             else:
                 return ''
         elif self.cate == SurvivalIndexCategoryEnum.SIM_UNI.value:

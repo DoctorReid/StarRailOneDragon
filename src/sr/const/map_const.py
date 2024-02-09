@@ -602,22 +602,22 @@ P04_R02_SP19 = TransportPoint('XXHNXD', '小小哈努行动', P04_R02_F2, 'mm_sp
 # [22:24:56] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_13', (1034, 341))
 
 # 匹诺康尼 - 筑梦边境
-P04_R03_SP01 = TransportPoint('JZJSJ', '家族建设局', P04_R03, 'mm_tp_03', (552, 320), (596, 284))
-P04_R03_SP02 = TransportPoint('ZMGC', '筑梦广场', P04_R03, 'mm_tp_03', (1318, 704), (1291, 679))
-P04_R03_SP03 = TransportPoint('GJTQ', '观景台前', P04_R03, 'mm_tp_03', (270, 1048), (292, 1015))
-P04_R03_SP04 = TransportPoint('WDHY', '屋顶花园', P04_R03, 'mm_tp_03', (882, 1341), (894, 1326))
-P04_R03_SP05 = TransportPoint('JZZXNZXY', '焦炙之形·凝滞虚影', P04_R03, 'mm_tp_06', (474, 1054), (450, 1013))
-P04_R03_SP06 = TransportPoint('HYZLNZHEJ', '回忆之蕾·拟造花萼（金）', P04_R03, 'mm_tp_08', (272, 1398), (275, 1355))
+P04_R03_SP01 = TransportPoint('JZJSJ', '家族建设局', P04_R03, 'mm_tp_03', (552, 320), (596, 326))
+P04_R03_SP02 = TransportPoint('ZMGC', '筑梦广场', P04_R03, 'mm_tp_03', (1318, 704), (1293, 722))
+P04_R03_SP03 = TransportPoint('GJTQ', '观景台前', P04_R03, 'mm_tp_03', (270, 1048), (291, 1059))
+P04_R03_SP04 = TransportPoint('WDHY', '屋顶花园', P04_R03, 'mm_tp_03', (882, 1341), (894, 1369))
+P04_R03_SP05 = TransportPoint('JZZXNZXY', '焦炙之形·凝滞虚影', P04_R03, 'mm_tp_06', (474, 1054), (453, 1059))
+P04_R03_SP06 = TransportPoint('HYZLNZHEJ', '回忆之蕾·拟造花萼（金）', P04_R03, 'mm_tp_08', (272, 1398), (275, 1398))
 P04_R03_SP07 = TransportPoint('HJDSK', '黄金的时刻', P04_R03, 'mm_sp_02', (626, 229))
 P04_R03_SP08 = TransportPoint('XXHNXD', '小小哈努行动', P04_R03, 'mm_sp_11', (1530, 857))
 P04_R03_SP09 = TransportPoint('XLZT', '心灵侦探', P04_R03, 'mm_sp_12', (445, 507))
 P04_R03_SP10 = TransportPoint('CSJLDDS', '草树经理的「大树」', P04_R03, 'mm_sp_14', (574, 369))
 
 # 匹诺康尼 - 稚子的梦
-P04_R04_SP01 = TransportPoint('HYZL', '回忆走廊', P04_R04, 'mm_tp_03', (614, 564), (592, 512))
-P04_R04_SP02 = TransportPoint('FHMJ', '洑洄梦境', P04_R04, 'mm_tp_03', (575, 979), (595, 953))
-P04_R04_SP03 = TransportPoint('ZBF', '钟表坊', P04_R04, 'mm_tp_03', (701, 1187), (681, 1156))
-P04_R04_SP04 = TransportPoint('YTZLNZHEJ', '以太之蕾·拟造花萼（金）', P04_R04, 'mm_tp_08', (573, 1108), (572, 1065))
+P04_R04_SP01 = TransportPoint('HYZL', '回忆走廊', P04_R04, 'mm_tp_03', (614, 564), (593, 555))
+P04_R04_SP02 = TransportPoint('FHMJ', '洑洄梦境', P04_R04, 'mm_tp_03', (575, 979), (593, 995))
+P04_R04_SP03 = TransportPoint('ZBF', '钟表坊', P04_R04, 'mm_tp_03', (701, 1187), (682, 1198))
+P04_R04_SP04 = TransportPoint('YTZLNZHEJ', '以太之蕾·拟造花萼（金）', P04_R04, 'mm_tp_08', (573, 1108), (571, 1106))
 P04_R04_SP05 = TransportPoint('CHDGDDS', '赤红大哥的「大树」', P04_R04, 'mm_sp_14', (572, 516))
 
 # 匹诺康尼 - 「白日梦」酒店-梦境

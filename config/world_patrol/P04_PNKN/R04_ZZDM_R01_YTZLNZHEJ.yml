@@ -1,0 +1,14 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '稚子的梦'
+floor: 0
+tp: '以太之蕾·拟造花萼（金）'
+route:
+  - op: 'move'
+    data: [611, 1069]
+  - op: 'patrol'
+  - op: 'move'
+    data: [595, 1115]
+  - op: 'move'
+    data: [594, 1264]
+  - op: 'patrol'

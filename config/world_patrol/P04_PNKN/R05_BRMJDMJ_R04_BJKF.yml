@@ -1,0 +1,28 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '「白日梦」酒店-梦境'
+floor: 3
+tp: '铂金客房'
+route:
+  - op: 'move'
+    data: [1769, 917]
+  - op: 'move'
+    data: [1769, 1225]
+  - op: 'move'
+    data: [1655, 1263]
+  - op: 'patrol'
+  - op: 'move'
+    data: [1620, 1313]
+  - op: 'patrol'
+  - op: 'move'
+    data: [1659, 1197]
+  - op: 'patrol'
+  - op: 'move'
+    data: [1535, 1231]
+  - op: 'patrol'
+  - op: 'move'
+    data: [1464, 1230]
+  - op: 'patrol'
+  - op: 'move'
+    data: [1457, 1396]
+  - op: 'patrol'

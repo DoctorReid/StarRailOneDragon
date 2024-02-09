@@ -1,0 +1,9 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '筑梦边境'
+floor: 0
+tp: '观景台前'
+route:
+  - op: 'move'
+    data: [359, 1056]
+  - op: 'patrol'

@@ -1,0 +1,15 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '「白日梦」酒店-梦境'
+floor: 1
+tp: '监控室'
+route:
+  - op: 'move'
+    data: [571, 750]
+  - op: 'move'
+    data: [570, 917]
+  - op: 'move'
+    data: [422, 921]
+  - op: 'move'
+    data: [394, 919]
+  - op: 'patrol'

@@ -1,0 +1,20 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '筑梦边境'
+floor: 0
+tp: '回忆之蕾·拟造花萼（金）'
+route:
+  - op: 'move'
+    data: [315, 1396]
+  - op: 'move'
+    data: [315, 1455]
+  - op: 'move'
+    data: [335, 1460]
+  - op: 'patrol'
+  - op: 'move'
+    data: [315, 1455]
+  - op: 'move'
+    data: [315, 1396]
+  - op: 'move'
+    data: [308, 1378]
+  - op: 'patrol'
