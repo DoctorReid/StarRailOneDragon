@@ -504,6 +504,7 @@ P03_R06_SP03 = TransportPoint('SST', '授事厅', P03_R06_F2, 'mm_tp_03', (922, 
 P03_R06_SP04 = TransportPoint('XT', '祥台', P03_R06_F2, 'mm_tp_03', (416, 1177), (430, 1165))
 P03_R06_SP05 = TransportPoint('GZS', '工造司', P03_R06_F2, 'mm_sp_02', (1141, 789))
 P03_R06_SP06 = TransportPoint('CLT', '长乐天', P03_R06_F2, 'mm_sp_02', (449, 1147))
+P03_R06_SP07 = TransportPoint('YTZLNZHEJ', '以太之蕾·拟造花萼（金）', P03_R06_F2, 'mm_tp_08', (728, 1035), (726, 1039))
 
 # 仙舟罗浮 - 工造司
 P03_R07_SP01 = TransportPoint('GWYTD', '格物院通道', P03_R07, 'mm_tp_03', (461, 485), (478, 452))

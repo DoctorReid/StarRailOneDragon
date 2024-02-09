@@ -45,26 +45,26 @@ if __name__ == '__main__':
     im = CvImageMatcher(ih)
 
     sp_list = [
-        map_const.P04_R05_SP01,
-        map_const.P04_R05_SP02,
-        map_const.P04_R05_SP05,
-        map_const.P04_R05_SP06,
-        map_const.P04_R05_SP07,
-        map_const.P04_R05_SP08,
-        map_const.P04_R05_SP09,
-        map_const.P04_R05_SP10,
-        map_const.P04_R05_SP11,
+        map_const.P03_R06_SP07,
+        # map_const.P04_R05_SP02,
+        # map_const.P04_R05_SP05,
+        # map_const.P04_R05_SP06,
+        # map_const.P04_R05_SP07,
+        # map_const.P04_R05_SP08,
+        # map_const.P04_R05_SP09,
+        # map_const.P04_R05_SP10,
+        # map_const.P04_R05_SP11,
     ]
     img_list = [
-        '_1707482563464',
-        '_1707482573438',
-        '_1707482591677',
-        '_1707482599970',
-        '_1707482606932',
-        '_1707482614798',
-        '_1707482626035',
-        '_1707482634160',
-        '_1707482641493',
+        '_1707484030596',
+        # '_1707482573438',
+        # '_1707482591677',
+        # '_1707482599970',
+        # '_1707482606932',
+        # '_1707482614798',
+        # '_1707482626035',
+        # '_1707482634160',
+        # '_1707482641493',
     ]
     for i in range(len(sp_list)):
         cal_one(sp_list[i], debug_image=img_list[i], show=True)

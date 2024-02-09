@@ -424,27 +424,27 @@ class LargeMapRecorder(Application2):
                 img_list[row].append(img)
 
         # # 先求出每列的重叠宽度
-        # overlap_width_list: List[List[int]] = []
-        # for i in range(max_col):
-        #     overlap_width_list.append([])
-        # for row in range(max_row):
-        #     for col in range(1, max_col):
-        #         prev_img = img_list[row][col - 1]
-        #         next_img = img_list[row][col]
-        #         overlap_width = LargeMapRecorder.get_overlap_width(prev_img, next_img, show=show)
-        #         log.info('%02d行 %02d列 与前重叠宽度 %d', row, col, overlap_width)
-        #         overlap_width_list[col].append(overlap_width)
-        #
-        # overlap_width_median: List[int] = [0]
-        # for col in range(1, max_col):
-        #     overlap_width_median.append(int(np.median(overlap_width_list[col])))
-        #
-        # for row in range(max_row):
-        #     for col in range(1, max_col):
-        #         if abs(overlap_width_list[col][row] - overlap_width_median[col]) > 5:
-        #             log.info('%02d行 %02d列 重叠宽度偏离较大 %d', row, col, overlap_width_list[row][col])
+        overlap_width_list: List[List[int]] = []
+        for i in range(max_col):
+            overlap_width_list.append([])
+        for row in range(max_row):
+            for col in range(1, max_col):
+                prev_img = img_list[row][col - 1]
+                next_img = img_list[row][col]
+                overlap_width = LargeMapRecorder.get_overlap_width(prev_img, next_img, show=show)
+                log.info('%02d行 %02d列 与前重叠宽度 %d', row, col, overlap_width)
+                overlap_width_list[col].append(overlap_width)
 
-        overlap_width_median = [0, 890, 890, 890, 890, 890, 1055, 1100]
+        overlap_width_median: List[int] = [0]
+        for col in range(1, max_col):
+            overlap_width_median.append(int(np.median(overlap_width_list[col])))
+
+        for row in range(max_row):
+            for col in range(1, max_col):
+                if abs(overlap_width_list[col][row] - overlap_width_median[col]) > 5:
+                    log.info('%02d行 %02d列 重叠宽度偏离较大 %d', row, col, overlap_width_list[row][col])
+
+        # overlap_width_median = [0, 890, 890, 890, 890, 890, 1055, 1100]
         log.info('重叠宽度中位数 %s', overlap_width_median)
 
         # 按重叠宽度的中位数对每行图片进行合并
@@ -508,14 +508,16 @@ def _init_map_for_sim_uni():
 
 
 if __name__ == '__main__':
-    r = map_const.P04_R05_F3
-    # LargeMapRecorder.do_merge_1(r, 9, 8, skip_height=200, show=True)
+    r = map_const.P03_R06_F1
+    # LargeMapRecorder.do_merge_1(r, 5, 3, show=True)
     # exit(0)
 
     # 执行前先传送到别的地图
     ctx = get_context()
-    app = LargeMapRecorder(ctx, r, skip_height=200,
-                           floor_list=[3], row_list=[5, 6, 7, 8])
+    app = LargeMapRecorder(ctx, r,
+                           #skip_height=200,
+                           floor_list=[1]
+                           )
 
     ctx.init_all(renew=True)
     app.do_save()
