@@ -509,7 +509,7 @@ def _init_map_for_sim_uni():
 
 if __name__ == '__main__':
     r = map_const.P03_R09
-    # LargeMapRecorder.do_merge_1(r, 5, 3, show=True)
+    LargeMapRecorder.do_merge_1(r, 4, 7, show=True)
     # exit(0)
 
     # 执行前先传送到别的地图
@@ -520,5 +520,5 @@ if __name__ == '__main__':
                            )
 
     ctx.init_all(renew=True)
-    # app.do_save()
-    app.execute()
+    app.do_save()
+    # app.execute()

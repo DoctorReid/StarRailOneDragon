@@ -538,6 +538,7 @@ P03_R09_SP03 = TransportPoint('XLDYD', '显龙大雩殿', P03_R09, 'mm_tp_03', (
 P03_R09_SP04 = TransportPoint('NSZX', '孽兽之形·凝滞虚影', P03_R09, 'mm_tp_06', (917, 169), (919, 182))
 P03_R09_SP05 = TransportPoint('DDS', '丹鼎司', P03_R09, 'mm_sp_02', (1891, 391))
 P03_R09_SP06 = TransportPoint('BSDSS', '不死的神实·历战余响', P03_R09, 'mm_boss_03', (470, 450))
+P03_R09_SP07 = TransportPoint('HMZLNZHEC', '毁灭之蕾·拟造花萼（赤）', P03_R09, 'mm_tp_07', (919, 697), (920, 696))
 
 # 仙舟罗浮 - 绥园
 P03_R10_SP01 = TransportPoint('YXGCL', '偃息馆长廊', P03_R10, 'mm_tp_03', (867, 402), (868, 417))

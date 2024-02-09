@@ -45,7 +45,7 @@ if __name__ == '__main__':
     im = CvImageMatcher(ih)
 
     sp_list = [
-        map_const.P03_R07_SP08,
+        map_const.P03_R09_SP07,
         # map_const.P04_R05_SP02,
         # map_const.P04_R05_SP05,
         # map_const.P04_R05_SP06,
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         # map_const.P04_R05_SP11,
     ]
     img_list = [
-        '_1707484606728',
+        '_1707485369065',
         # '_1707482573438',
         # '_1707482591677',
         # '_1707482599970',
