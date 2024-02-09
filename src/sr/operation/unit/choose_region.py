@@ -5,7 +5,7 @@ from basic import str_utils, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.const.map_const import Planet, Region, PLANET_2_REGION
+from sr.const.map_const import Planet, Region, PLANET_2_REGION, best_match_region_by_name
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
@@ -36,10 +36,10 @@ class ChooseRegion(Operation):
 
         # 判断当前选择区域是否目标区域
         current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
-        target_region_name = gt(self.region.cn, 'ocr')
-        log.info('当前选择区域 %s', current_region_name)
-        is_current: bool = str_utils.find_by_lcs(target_region_name, current_region_name, ignore_case=True,
-                                                 percent=self.gc.region_lcs_percent)
+        current_region = best_match_region_by_name(current_region_name, planet=self.planet)
+        log.info('当前区域文本 %s 匹配区域名称 %s', current_region_name, current_region.cn)
+
+        is_current: bool = current_region.pr_id == self.region.pr_id
         if not is_current:
             find = self.click_target_region(screen)
             if not find:

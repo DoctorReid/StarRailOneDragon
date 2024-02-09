@@ -36,8 +36,8 @@ class Planet:
 
 
 P01 = Planet(1, "KJZHT", "空间站黑塔")
-P02 = Planet(2, "YLL6", "雅利洛")
-P03 = Planet(3, "XZLF", "仙舟罗浮")
+P02 = Planet(2, "YLL6", "雅利洛-VI")
+P03 = Planet(3, "XZLF", "仙舟「罗浮」")
 P04 = Planet(4, "PNKN", "匹诺康尼")
 
 PLANET_LIST = [P01, P02, P03, P04]
@@ -193,9 +193,9 @@ P04_R02_F2 = Region(2, "HJDXS", "黄金的现实", P04, floor=2)
 P04_R02_F3 = Region(2, "HJDXS", "黄金的现实", P04, floor=3)
 P04_R03 = Region(3, "ZMBJ", "筑梦边境", P04)
 P04_R04 = Region(4, "ZZDM", "稚子的梦", P04)
-P04_R05_F1 = Region(5, "BRMJDMJ", "「白日梦」酒店-现实", P04, floor=1)
-P04_R05_F2 = Region(5, "BRMJDMJ", "「白日梦」酒店-现实", P04, floor=2)
-P04_R05_F3 = Region(5, "BRMJDMJ", "「白日梦」酒店-现实", P04, floor=3)
+P04_R05_F1 = Region(5, "BRMJDMJ", "「白日梦」酒店-梦境", P04, floor=1)
+P04_R05_F2 = Region(5, "BRMJDMJ", "「白日梦」酒店-梦境", P04, floor=2)
+P04_R05_F3 = Region(5, "BRMJDMJ", "「白日梦」酒店-梦境", P04, floor=3)
 
 
 # 这里的顺序需要保持和界面上的区域顺序一致
@@ -224,6 +224,30 @@ def get_region_by_cn(cn: str, planet: Planet, floor: int = 0) -> Region:
             continue
         return i
     return None
+
+
+def best_match_region_by_name(ocr_word: str, planet: Optional[Planet] = None) -> Optional[Region]:
+    """
+    根据OCR结果匹配一个区域 随机返回楼层
+    :param ocr_word: OCR结果
+    :param planet: 所属星球
+    :return:
+    """
+    best_region: Optional[Region] = None
+    best_lcs_percent: float = 0.1
+
+    for np_id, region_list in PLANET_2_REGION.items():
+        if planet is not None and planet.np_id != np_id:
+            continue
+        for region in region_list:
+            region_name = gt(region.cn, 'ocr')
+            lcs = str_utils.longest_common_subsequence_length(region_name, ocr_word)
+            lcs_percent = lcs / len(region_name)
+
+            if lcs_percent > best_lcs_percent:
+                best_region = region
+                best_lcs_percent = lcs_percent
+    return best_region
 
 
 class TransportPoint:
@@ -530,11 +554,13 @@ P03_R10_SP14 = TransportPoint('QQTQM', '青丘台栖木', P03_R10, 'mm_sp_09', (
 P03_R10_SP15 = TransportPoint('DMZQM', '狐眠冢栖木', P03_R10, 'mm_sp_09', (296, 664))
 P03_R10_SP16 = TransportPoint('YYTQM', '燕乐亭栖木', P03_R10, 'mm_sp_09', (965, 726))
 
+# 匹诺康尼 - 「白日梦」酒店-现实
 P04_R01_SP01 = TransportPoint('JDDT', '酒店大堂', P04_R01_F1, 'mm_tp_03', (587, 413), (571, 399))
 P04_R01_SP02 = TransportPoint('GBXXQ', '贵宾休息区', P04_R01_F2, 'mm_tp_03', (557, 696), (571, 701))
 P04_R01_SP03 = TransportPoint('ADS', '安德森', P04_R01_F2, 'mm_sp_04', (559, 783))
 P04_R01_SP04 = TransportPoint('BJMJDMJ', '「白日梦」酒店-梦境', P04_R01_F3, 'mm_sp_10', (743, 981))
 
+# 匹诺康尼 - 黄金的现实
 P04_R02_SP01 = TransportPoint('ZBXZGC', '钟表小子广场', P04_R02_F1, 'mm_tp_03', (1055, 450), (1038, 455))
 P04_R02_SP02 = TransportPoint('CMSJ', '沉梦商街', P04_R02_F1, 'mm_tp_03', (1292, 606), (1313, 613))
 P04_R02_SP03 = TransportPoint('ZBXZDX', '钟表小子雕像', P04_R02_F1, 'mm_sp_11', (1492, 587))
@@ -568,7 +594,7 @@ P04_R02_SP19 = TransportPoint('XXHNXD', '小小哈努行动', P04_R02_F2, 'mm_sp
 # [22:24:56] [large_map.py 233] [INFO]: SP03 = TransportPoint('', '', , 'mm_sp_02', (1205, 777))
 # [22:24:56] [large_map.py 233] [INFO]: SP04 = TransportPoint('', '', , 'mm_sp_13', (1034, 341))
 
-# 筑梦边境
+# 匹诺康尼 - 筑梦边境
 P04_R03_SP01 = TransportPoint('JZJSJ', '家族建设局', P04_R03, 'mm_tp_03', (552, 320), (596, 284))
 P04_R03_SP02 = TransportPoint('ZMGC', '筑梦广场', P04_R03, 'mm_tp_03', (1318, 704), (1291, 679))
 P04_R03_SP03 = TransportPoint('GJTQ', '观景台前', P04_R03, 'mm_tp_03', (270, 1048), (292, 1015))
@@ -580,12 +606,26 @@ P04_R03_SP08 = TransportPoint('XXHNXD', '小小哈努行动', P04_R03, 'mm_sp_11
 P04_R03_SP09 = TransportPoint('XLZT', '心灵侦探', P04_R03, 'mm_sp_12', (445, 507))
 P04_R03_SP10 = TransportPoint('CSJLDDS', '草树经理的「大树」', P04_R03, 'mm_sp_14', (574, 369))
 
-# 稚子的梦
+# 匹诺康尼 - 稚子的梦
 P04_R04_SP01 = TransportPoint('HYZL', '回忆走廊', P04_R04, 'mm_tp_03', (614, 564), (592, 512))
 P04_R04_SP02 = TransportPoint('FHMJ', '洑洄梦境', P04_R04, 'mm_tp_03', (575, 979), (595, 953))
 P04_R04_SP03 = TransportPoint('ZBF', '钟表坊', P04_R04, 'mm_tp_03', (701, 1187), (681, 1156))
 P04_R04_SP04 = TransportPoint('YTZLNZHEJ', '以太之蕾·拟造花萼（金）', P04_R04, 'mm_tp_08', (573, 1108), (572, 1065))
 P04_R04_SP05 = TransportPoint('CHDGDDS', '赤红大哥的「大树」', P04_R04, 'mm_sp_14', (572, 516))
+
+# 匹诺康尼 - 「白日梦」酒店-梦境
+P04_R05_SP01 = TransportPoint('JKS', '监控室', P04_R05_F1, 'mm_tp_03', (443, 713), (476, 675))
+P04_R05_SP02 = TransportPoint('MJDT', '梦境大堂', P04_R05_F1, 'mm_tp_03', (1469, 1482), (1439, 1527))
+P04_R05_SP03 = TransportPoint('FSFRDDS', '妃色夫人的「大树」', P04_R05_F1, 'mm_sp_14', (1382, 1457))
+P04_R05_SP04 = TransportPoint('XXHNXD', '小小哈努行动', P04_R05_F2, 'mm_sp_11', (526, 1018))
+P04_R05_SP05 = TransportPoint('JMJB', '惊梦酒吧', P04_R05_F3, 'mm_tp_03', (559, 284), (544, 315))
+P04_R05_SP06 = TransportPoint('BJKF', '铂金客房', P04_R05_F3, 'mm_tp_03', (1854, 944), (1828, 920))
+P04_R05_SP07 = TransportPoint('GBXXSZL', '贵宾休息室走廊', P04_R05_F3, 'mm_tp_03', (626, 995), (584, 1006))
+P04_R05_SP08 = TransportPoint('BNZXNZXY', '冰酿之形·凝滞虚影', P04_R05_F3, 'mm_tp_06', (274, 1007), (303, 1010))
+P04_R05_SP09 = TransportPoint('TXZLNZHEC', '同谐之蕾·拟造花萼（赤）', P04_R05_F3, 'mm_tp_07', (820, 1414), (820, 1422))
+P04_R05_SP10 = TransportPoint('CZZLNZHEJ', '藏珍之蕾·拟造花萼（金）', P04_R05_F3, 'mm_tp_08', (1636, 1865), (1641, 1867))
+P04_R05_SP11 = TransportPoint('MQZJQSSD', '梦潜之径·侵蚀隧洞', P04_R05_F3, 'mm_tp_09', (1874, 1809), (1866, 1817))
+P04_R05_SP12 = TransportPoint('RMC', '入梦池', P04_R05_F3, 'mm_sp_10', (1857, 920))
 
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
@@ -627,6 +667,8 @@ REGION_2_SP = {
                        P04_R02_SP11, P04_R02_SP12, P04_R02_SP13, P04_R02_SP14, P04_R02_SP15, P04_R02_SP16, P04_R02_SP17, P04_R02_SP18, P04_R02_SP19],
     P04_R03.pr_id: [P04_R03_SP01, P04_R03_SP02, P04_R03_SP03, P04_R03_SP04, P04_R03_SP05, P04_R03_SP06, P04_R03_SP07, P04_R03_SP08, P04_R03_SP09, P04_R03_SP10],
     P04_R04.pr_id: [P04_R04_SP01, P04_R04_SP02, P04_R04_SP03, P04_R04_SP04, P04_R04_SP05],
+    P04_R05_F1.pr_id: [P04_R05_SP01, P04_R05_SP02, P04_R05_SP03, P04_R05_SP04, P04_R05_SP05, P04_R05_SP06, P04_R05_SP07, P04_R05_SP08, P04_R05_SP09, P04_R05_SP10,
+                       P04_R05_SP11, P04_R05_SP12]
 }
 
 

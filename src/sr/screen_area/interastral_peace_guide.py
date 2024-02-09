@@ -1,6 +1,7 @@
 from enum import Enum
 
 from basic import Rect
+from sr.const import map_const
 from sr.screen_area import ScreenArea
 
 
@@ -16,8 +17,9 @@ class ScreenGuide(Enum):
     GUIDE_TAB_5 = ScreenArea(pc_rect=Rect(780, 170, 900, 245))  # 战术训练
 
     # 拟造花萼金-二级分类
-    BUD_1_SUB_CATE_1 = ScreenArea(pc_rect=Rect(0, 0, 0, 0), text='雅利洛-VI')
-    BUD_1_SUB_CATE_2 = ScreenArea(pc_rect=Rect(0, 0, 0, 0), text='仙舟「罗浮」')
+    BUD_1_SUB_CATE_1 = ScreenArea(pc_rect=Rect(728, 297, 861, 356), text=map_const.P02.cn)
+    BUD_1_SUB_CATE_2 = ScreenArea(pc_rect=Rect(861, 297, 993, 356), text=map_const.P03.cn)
+    BUD_1_SUB_CATE_3 = ScreenArea(pc_rect=Rect(997, 297, 1123, 356), text=map_const.P04.cn)
 
     # 生存索引部分
     SURVIVAL_INDEX_TITLE = ScreenArea(pc_rect=Rect(98, 39, 350, 100), text='生存索引')  # 二级标题 TODO 未细化

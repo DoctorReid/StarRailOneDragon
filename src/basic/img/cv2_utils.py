@@ -153,7 +153,7 @@ def match_template(source: MatLike, template: MatLike, threshold,
     return match_result_list
 
 
-def concat_vertically(img: MatLike, next_img: MatLike, decision_height: int = 200):
+def concat_vertically(img: MatLike, next_img: MatLike, decision_height: int = 150):
     """
     垂直拼接图片。
     假设两张图片是通过垂直滚动得到的，即宽度一样，部分内容重叠
@@ -162,19 +162,22 @@ def concat_vertically(img: MatLike, next_img: MatLike, decision_height: int = 20
     :param decision_height: 用第二张图的多少高度来判断重叠部分
     :return:
     """
-    # 截取一个横截面用来匹配
-    next_part = next_img[0: decision_height, :]
-    result = match_template(img, next_part, 0.5)
-    # 找出置信度最高的结果
-    r = None
-    for i in result:
-        if r is None or i.confidence > r.confidence:
-            r = i
-    h, w, _ = img.shape
-    overlap_h = h - r.y
-    extra_part = next_img[overlap_h+1:,:]
-    # 垂直拼接两张图像
-    return cv2.vconcat([img, extra_part])
+    # 截取一个横截面用来匹配 要用中心部分 四周空白较多容易误判
+    for threshold in range(95, 70, -5):
+        for dh in range(decision_height, next_img.shape[0] // 2, 10):
+            cy = next_img.shape[0] // 2
+            next_part = next_img[:-dh, :]
+            show_image(img, win_name='img')
+            show_image(next_part, win_name='next_part', wait=0)
+            r = match_template(img, next_part, threshold / 100.0).max
+            if r is None:
+                continue
+            h, w, _ = img.shape
+            overlap_h = h - r.y
+            extra_part = next_img[overlap_h+1:, :]
+            # 垂直拼接两张图像
+            return cv2.vconcat([img, extra_part])
+    raise Exception('拼接图片失败')
 
 
 def concat_horizontally(img: MatLike, next_img: MatLike, decision_width: int = 200):
@@ -199,6 +202,39 @@ def concat_horizontally(img: MatLike, next_img: MatLike, decision_width: int = 2
     return cv2.hconcat([img, extra_part])
 
 
+def concat_horizontally_2(img: MatLike, next_img: MatLike, decision_width: int = 200) -> MatLike:
+    """
+    水平拼接图片。 两张图片可能高度有一点差异，宽度应该是一样的
+    :param img: 图
+    :param next_img: 下一张图
+    :param decision_width: 用第二张图的多少宽度来判断重叠部分
+    :return:
+    """
+    if img.shape == next_img.shape:  # 大小一致时 使用旧的方法
+        return concat_horizontally(img, next_img, decision_width)
+
+    part_1 = img[50:-50, decision_width:]  # 上下剪掉一点 左边剪掉一点
+    result = match_template(next_img, part_1, 0.8).max
+
+    if result is None:
+        return None
+
+    height_1 = result.y + part_1.shape[0] + 50
+    width_1 = result
+
+    # 截取一个横截面用来匹配 要用中心部分 四周空白较多容易误判
+    cx = next_img.shape[1] // 2
+    next_part = next_img[:, cx - decision_width:cx + decision_width]
+
+    # 找出置信度最高的结果
+    r = result.max
+    h, w, _ = img.shape
+    overlap_w = w - r.x + cx - decision_width
+    extra_part = next_img[:, overlap_w+1:]
+    # 水平拼接两张图像
+    return cv2.hconcat([img, extra_part])
+
+
 def is_same_image(i1: MatLike, i2: MatLike, threshold: float = 1) -> bool:
     """
     简单使用均方差判断两图是否一致
@@ -207,6 +243,8 @@ def is_same_image(i1: MatLike, i2: MatLike, threshold: float = 1) -> bool:
     :param threshold: 低于阈值认为是相等
     :return: 是否同一张图
     """
+    if i1.shape != i2.shape:
+        return False
     return np.mean((i1 - i2) ** 2) < threshold
 
 

@@ -120,6 +120,7 @@ class SurvivalIndexSubCategoryEnum(Enum):
 
     BUD_1_YYL = SurvivalIndexSubCategory(SurvivalIndexCategoryEnum.BUD_1.value, ScreenGuide.BUD_1_SUB_CATE_1.value)
     BUD_1_XZLF = SurvivalIndexSubCategory(SurvivalIndexCategoryEnum.BUD_1.value, ScreenGuide.BUD_1_SUB_CATE_2.value)
+    BUD_1_PNKN = SurvivalIndexSubCategory(SurvivalIndexCategoryEnum.BUD_1.value, ScreenGuide.BUD_1_SUB_CATE_3.value)
 
 
 class SurvivalIndexMission:
@@ -221,6 +222,10 @@ class SurvivalIndexMissionEnum(Enum):
     BUG_1_XZLF_2 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_1.value, tp=map_const.P02_R03_SP06, sub_cate=SurvivalIndexSubCategoryEnum.BUD_1_XZLF.value, power=10)  # TODO
     BUG_1_XZLF_3 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_1.value, tp=map_const.P02_R10_SP08, sub_cate=SurvivalIndexSubCategoryEnum.BUD_1_XZLF.value, power=10)  # TODO
 
+    BUD_1_PNKN_1 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_1.value, tp=map_const.P04_R03_SP06, sub_cate=SurvivalIndexSubCategoryEnum.BUD_1_PNKN.value, power=10)
+    BUD_1_PNKN_2 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_1.value, tp=map_const.P04_R04_SP04, sub_cate=SurvivalIndexSubCategoryEnum.BUD_1_PNKN.value, power=10)
+    BUD_1_PNKN_3 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_1.value, tp=map_const.P04_R05_SP10, sub_cate=SurvivalIndexSubCategoryEnum.BUD_1_PNKN.value, power=10)
+
     BUD_2_HM_1 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P01_R03_SP05, power=10)
     BUD_2_HM_2 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P01_R03_SP05, power=10)  # TODO
 
@@ -233,6 +238,7 @@ class SurvivalIndexMissionEnum(Enum):
     BUD_2_ZS_1 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P02_R11_SP05, power=10)
 
     BUD_2_TX_1 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P02_R12_SP04, power=10)
+    BUD_2_TX_2 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P04_R05_SP09, power=10)
 
     BUD_2_XW_1 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P02_R10_SP07, power=10)
     BUD_2_XW_2 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P02_R10_SP07, power=10)  # TODO
@@ -251,7 +257,8 @@ class SurvivalIndexMissionEnum(Enum):
     SHAPE_12 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P01_R02_SP03, power=30)
     SHAPE_13 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P03_R09_SP04, power=30)
     SHAPE_14 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P03_R10_SP05, power=30)
-    SHAPE_15 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P03_R10_SP05, power=30)  # TODO
+    SHAPE_15 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P04_R05_SP08, power=30)
+    SHAPE_16 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P04_R03_SP05, power=30)
 
     PATH_01 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.PATH.value, tp=map_const.P02_R04_SP05, power=40)
     PATH_02 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.PATH.value, tp=map_const.P02_R05_SP07, power=40)
@@ -261,6 +268,7 @@ class SurvivalIndexMissionEnum(Enum):
     PATH_06 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.PATH.value, tp=map_const.P03_R08_SP06, power=40)
     PATH_07 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.PATH.value, tp=map_const.P03_R10_SP06, power=40)
     PATH_08 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.PATH.value, tp=map_const.P01_R03_SP06, power=40)
+    PATH_09 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.PATH.value, tp=map_const.P04_R05_SP11, power=40)
 
     ECHO_01 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P01_R04_SP06, power=30)
     ECHO_02 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P02_R06_SP05, power=30)

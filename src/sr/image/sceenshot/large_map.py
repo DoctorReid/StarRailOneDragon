@@ -18,13 +18,14 @@ from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import LargeMapInfo
 from sr.screen_area.large_map import ScreenLargeMap
 
-CUT_MAP_RECT = Rect(200, 190, 1300, 900)  # 截取大地图的区域
+CUT_MAP_RECT = Rect(200, 190, 1300, 930)  # 截取大地图的区域
 EMPTY_MAP_POS = Point(1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
 TP_BTN_RECT = Rect(1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
 REGION_LIST_RECT = Rect(1480, 200, 1820, 1000)
 FLOOR_LIST_PART = Rect(30, 730, 100, 1000)
 
 LARGE_MAP_POWER_RECT = Rect(1635, 54, 1678, 72)  # 大地图上显示体力的位置
+EMPTY_COLOR: int = 210  # 大地图空白地方的颜色
 
 
 def get_planet(screen: MatLike, ocr: OcrMatcher) -> Optional[Planet]:
@@ -158,6 +159,17 @@ def save_large_map_image(image: MatLike, region: Region, mt: str = 'origin'):
     """
     path = get_map_path(region, mt)
     cv2.imwrite(path, image)
+
+
+def get_large_map_image(region: Region, mt: str = 'origin') -> MatLike:
+    """
+    保存某张地图
+    :param region: 区域
+    :param mt: 地图类型
+    :return:
+    """
+    path = get_map_path(region, mt)
+    return cv2_utils.read_image(path)
 
 
 def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
@@ -297,7 +309,7 @@ def expand_raw(raw: MatLike, expand_arr: List = None):
         return raw.copy()
 
     origin = np.full((raw.shape[0] + tp + bp, raw.shape[1] + lp + rp, raw.shape[2]),
-                     fill_value=210, dtype=np.uint8)
+                     fill_value=EMPTY_COLOR, dtype=np.uint8)
     origin[tp:tp+raw.shape[0], lp:lp+raw.shape[1]] = raw
 
     return origin
