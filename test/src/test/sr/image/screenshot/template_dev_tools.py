@@ -503,7 +503,7 @@ if __name__ == '__main__':
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
     # init_battle_lock()
-    init_boss_icon('mm_boss_03')
+    init_boss_icon('mm_boss_04')
     # init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
     # init_ui_alert('ui_alert')
     # init_ui_ellipsis('ui_ellipsis')

@@ -70,7 +70,7 @@ class ChoosePlanet(Operation):
 
             if target_pos is not None:
                 self.choose_planet_by_pos(target_pos)
-                return Operation.round_wait(wait=1)
+                return Operation.round_wait(wait=3)
             else:  # 当前屏幕没有目标星球的情况
                 drag_from = Point(STANDARD_RESOLUTION_W // 2, 100)
                 drag_to = drag_from + Point(-400 if with_planet_before_target else 400, 0)
