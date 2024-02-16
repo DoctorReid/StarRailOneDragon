@@ -501,10 +501,10 @@ P03_R05_SP12 = TransportPoint('SHJ', '售货机', P03_R05, 'mm_sp_03', (491, 395
 P03_R05_SP13 = TransportPoint('HSGDDYNC', '霍三哥的大衣内侧', P03_R05, 'mm_sp_07', (775, 266))
 
 # 仙舟罗浮 - 太卜司
-P03_R06_SP01 = TransportPoint('JHZ', '界寰阵', P03_R06_F1, 'mm_tp_03', (340, 302), (334, 269))
-P03_R06_SP02 = TransportPoint('TYQGZ', '太衍穷观阵', P03_R06_F2, 'mm_tp_03', (553, 616), (537, 600))
-P03_R06_SP03 = TransportPoint('SST', '授事厅', P03_R06_F2, 'mm_tp_03', (922, 845), (909, 819))
-P03_R06_SP04 = TransportPoint('XT', '祥台', P03_R06_F2, 'mm_tp_03', (416, 1192), (430, 1165))
+P03_R06_SP01 = TransportPoint('JHZ', '界寰阵', P03_R06_F1, 'mm_tp_03', (340, 302), (335, 284))
+P03_R06_SP02 = TransportPoint('TYQGZ', '太衍穷观阵', P03_R06_F2, 'mm_tp_03', (553, 616), (537, 615))
+P03_R06_SP03 = TransportPoint('SST', '授事厅', P03_R06_F2, 'mm_tp_03', (922, 845), (909, 834))
+P03_R06_SP04 = TransportPoint('XT', '祥台', P03_R06_F2, 'mm_tp_03', (416, 1192), (430, 1180))
 P03_R06_SP05 = TransportPoint('GZS', '工造司', P03_R06_F2, 'mm_sp_02', (1141, 804))
 P03_R06_SP06 = TransportPoint('CLT', '长乐天', P03_R06_F2, 'mm_sp_02', (449, 1162))
 P03_R06_SP07 = TransportPoint('YTZLNZHEJ', '以太之蕾·拟造花萼（金）', P03_R06_F2, 'mm_tp_08', (728, 1035), (726, 1039))

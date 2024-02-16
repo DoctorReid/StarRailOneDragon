@@ -17,7 +17,7 @@ route:
   - op: 'move'
     data: [542, 183]
   - op: 'slow_move'
-    data: [587, 185]
+    data: [587, 184]
   - op: 'interact'
     data: '入画'
   - op: 'wait'
