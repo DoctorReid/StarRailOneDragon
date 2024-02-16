@@ -5,39 +5,39 @@ floor: 0
 tp: '镕金坊通道'
 route:
   - op: 'move'
-    data: [793, 601]
+    data: [793, 611]
   - op: 'move'
-    data: [796, 502]
+    data: [796, 512]
   - op: 'move'
-    data: [911, 502]
+    data: [911, 512]
   - op: 'patrol'
   - op: 'move'
-    data: [943, 502]
+    data: [943, 512]
   - op: 'patrol'
   - op: 'move'
-    data: [796, 502]
+    data: [796, 512]
   - op: 'move'
-    data: [798, 431]
+    data: [798, 441]
   - op: 'move'
-    data: [779, 431]
+    data: [779, 441]
   - op: 'move'
-    data: [779, 444]
+    data: [779, 454]
   - op: 'patrol'
   - op: 'move'
-    data: [779, 405]
+    data: [779, 415]
   - op: 'move'
-    data: [864, 405]
+    data: [864, 415]
   - op: 'move'
-    data: [855, 312]
+    data: [855, 322]
   - op: 'move'
-    data: [884, 311]
+    data: [884, 321]
   - op: 'patrol'
   - op: 'move'
-    data: [880, 258]
+    data: [880, 268]
   - op: 'move'
-    data: [810, 258]
+    data: [810, 268]
   - op: 'slow_move'
-    data: [775, 258]
+    data: [775, 268]
   - op: 'interact'
     data: '入画'
   - op: 'wait'
@@ -45,20 +45,20 @@ route:
   - op: 'wait'
     data: ['in_world', '20']
   - op: 'update_pos'
-    data: [558, 321]
+    data: [558, 331]
   - op: 'move'
-    data: [444, 333]
+    data: [444, 343]
   - op: 'patrol'
   - op: 'move'
-    data: [407, 346]
+    data: [407, 356]
   - op: 'patrol'
   - op: 'move'
-    data: [370, 410]
+    data: [370, 420]
   - op: 'move'
-    data: [368, 321]
+    data: [368, 331]
   - op: 'move'
-    data: [344, 334]
+    data: [344, 344]
   - op: 'patrol'
   - op: 'move'
-    data: [343, 414]
+    data: [343, 424]
   - op: 'patrol'

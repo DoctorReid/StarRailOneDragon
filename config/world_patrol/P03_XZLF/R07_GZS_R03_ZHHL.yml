@@ -5,35 +5,35 @@ floor: 0
 tp: '造化洪炉'
 route:
   - op: 'move'
-    data: [738, 967]
+    data: [738, 977]
   - op: 'move'
-    data: [740, 1007]
+    data: [740, 1017]
   - op: 'move'
-    data: [773, 1010]
+    data: [773, 1020]
   - op: 'move'
-    data: [779, 1048]
+    data: [779, 1058]
   - op: 'move'
-    data: [780, 1067]
+    data: [780, 1077]
   - op: 'move'
-    data: [716, 1067]
+    data: [716, 1077]
   - op: 'move'
-    data: [714, 1083]
+    data: [714, 1093]
   - op: 'patrol'
   - op: 'move'
-    data: [725, 1125]
+    data: [725, 1135]
   - op: 'patrol'
   - op: 'move'
-    data: [758, 1167]
+    data: [758, 1177]
   - op: 'patrol'
   - op: 'move'
-    data: [760, 1135]
+    data: [760, 1145]
   - op: 'move'
-    data: [816, 1135]
+    data: [816, 1145]
   - op: 'move'
-    data: [882, 1135]
+    data: [882, 1145]
   - op: 'move'
-    data: [881, 1117]
+    data: [881, 1127]
   - op: 'patrol'
   - op: 'move'
-    data: [918, 1111]
+    data: [918, 1121]
   - op: 'patrol'
