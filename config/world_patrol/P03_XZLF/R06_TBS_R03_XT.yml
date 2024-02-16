@@ -5,45 +5,45 @@ floor: 2
 tp: '祥台'
 route:
   - op: 'move'
-    data: [469, 1168]
+    data: [469, 1183]
   - op: 'move'
-    data: [506, 1166]
+    data: [506, 1181]
   - op: 'move'
-    data: [514, 1108]
+    data: [514, 1123]
   - op: 'move'
-    data: [514, 1108]
+    data: [514, 1123]
   - op: 'move'
-    data: [533, 1107]
+    data: [533, 1122]
   - op: 'patrol'
   - op: 'move'
-    data: [535, 1034]
+    data: [535, 1049]
   - op: 'move'
-    data: [610, 1031]
+    data: [610, 1046]
   - op: 'move'
-    data: [638, 1030]
+    data: [638, 1045]
   - op: 'move'
-    data: [673, 1030]
+    data: [673, 1045]
   - op: 'patrol'
   - op: 'move'
-    data: [638, 1030]
+    data: [638, 1045]
   - op: 'move'
-    data: [610, 1031]
+    data: [610, 1046]
   - op: 'move'
-    data: [537, 1006]
+    data: [537, 1021]
   - op: 'move'
-    data: [534, 906]
+    data: [534, 921]
   - op: 'move'
-    data: [561, 902]
+    data: [561, 917]
   - op: 'patrol'
   - op: 'move'
-    data: [561, 851]
+    data: [561, 866]
   - op: 'patrol'
   - op: 'move'
-    data: [503, 850]
+    data: [503, 865]
   - op: 'move'
-    data: [503, 880]
+    data: [503, 895]
   - op: 'move'
-    data: [465, 881]
+    data: [465, 896]
   - op: 'move'
-    data: [299, 875]
+    data: [299, 890]
   - op: 'patrol'

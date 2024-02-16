@@ -5,19 +5,19 @@ floor: 1
 tp: '界寰阵'
 route:
   - op: 'move'
-    data: [390, 240]
+    data: [390, 255]
   - op: 'move'
-    data: [396, 208]
+    data: [396, 223]
   - op: 'move'
-    data: [431, 173]
+    data: [431, 188]
   - op: 'move'
-    data: [490, 171]
+    data: [490, 186]
   - op: 'move'
-    data: [520, 156]
+    data: [520, 171]
   - op: 'move'
-    data: [542, 168]
+    data: [542, 183]
   - op: 'slow_move'
-    data: [587, 170]
+    data: [587, 185]
   - op: 'interact'
     data: '入画'
   - op: 'wait'
@@ -25,34 +25,34 @@ route:
   - op: 'wait'
     data: ['in_world', '20']
   - op: 'update_pos'
-    data: [690, 224]
+    data: [690, 239]
   - op: 'move'
-    data: [706, 237]
+    data: [706, 252]
   - op: 'move'
-    data: [736, 271]
+    data: [736, 286]
   - op: 'patrol'
   - op: 'move'
-    data: [780, 314]
+    data: [780, 329]
   - op: 'move'
-    data: [787, 379]
+    data: [787, 394]
   - op: 'move'
-    data: [759, 415]
+    data: [759, 430]
   - op: 'move'
-    data: [835, 415]
+    data: [835, 430]
   - op: 'move'
-    data: [871, 394]
+    data: [871, 409]
   - op: 'move'
-    data: [907, 395]
+    data: [907, 410]
   - op: 'move'
-    data: [930, 368]
+    data: [930, 383]
   - op: 'patrol'
   - op: 'move'
-    data: [931, 416]
+    data: [931, 431]
   - op: 'move'
-    data: [1010, 416]
+    data: [1010, 431]
   - op: 'move'
-    data: [1010, 450]
+    data: [1010, 465]
   - op: 'patrol'
   - op: 'move'
-    data: [1029, 361]
+    data: [1029, 376]
   - op: 'patrol'

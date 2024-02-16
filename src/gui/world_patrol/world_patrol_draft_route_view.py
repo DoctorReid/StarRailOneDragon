@@ -214,6 +214,7 @@ class WorldPatrolDraftRouteView(components.Card, SrBasicView):
             return
 
         route = self.mock_temp_route(self.chosen_route_id)
+        route.add_author(self.author_text.value, save=False)
         display_image = draw_route_in_image(self.ctx, route, route.route_id)
 
         # 图片转化成base64编码展示
@@ -223,7 +224,7 @@ class WorldPatrolDraftRouteView(components.Card, SrBasicView):
         self.map_img.visible = True
         self.map_img.src_base64 = base64_string
 
-        self.route_text.value = self.get_route_config_str()
+        self.route_text.value = route.route_config_str
         self.update_all_component_status()
 
     def on_map_click(self, e):
@@ -257,39 +258,6 @@ class WorldPatrolDraftRouteView(components.Card, SrBasicView):
     def cancel_all(self, e):
         self.route_list = []
         self.draw_route_and_display()
-
-    def get_route_config_str(self) -> str:
-        cfg: str = ''
-        if self.chosen_sp is None:
-            return
-        last_floor = int(self.floor_dropdown.value)
-        display_auth_list = self.author_list.copy()
-        if self.author_text.value not in display_auth_list:
-            display_auth_list.append(self.author_text.value)
-        cfg += "author: %s\n" % display_auth_list
-        cfg += "planet: '%s'\n" % self.chosen_planet.cn
-        cfg += "region: '%s'\n" % self.chosen_region.cn
-        cfg += "floor: %d\n" % last_floor
-        cfg += "tp: '%s'\n" % self.chosen_sp.cn
-        cfg += "route:\n"
-        for route_item in self.route_list:
-            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
-                cfg += "  - op: '%s'\n" % route_item['op']
-                pos = route_item['data']
-                if pos[2] != last_floor:
-                    cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
-                else:
-                    cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
-                last_floor = pos[2]
-            elif route_item['op'] == operation_const.OP_PATROL:
-                cfg += "  - op: '%s'\n" % route_item['op']
-            elif route_item['op'] == operation_const.OP_INTERACT:
-                cfg += "  - op: '%s'\n" % route_item['op']
-                cfg += "    data: '%s'\n" % route_item['data']
-            elif route_item['op'] == operation_const.OP_WAIT:
-                cfg += "  - op: '%s'\n" % route_item['op']
-                cfg += "    data: ['%s', '%s']\n" % (route_item['data'][0], route_item['data'][1])
-        return cfg
 
     def save_route(self, e):
         new_save: bool = self.chosen_route_id is None

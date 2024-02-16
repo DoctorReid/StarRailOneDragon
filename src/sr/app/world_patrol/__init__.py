@@ -3,13 +3,13 @@ from typing import List, Optional
 
 import numpy as np
 
-from basic import os_utils
+from basic import os_utils, config_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import app_record_now_time_str, app_record_current_dt_str, AppRunRecord, AppDescription, \
     register_app
 from sr.config import ConfigHolder
-from sr.const import map_const
+from sr.const import map_const, operation_const
 from sr.const.map_const import Planet, Region, TransportPoint, PLANET_2_REGION, REGION_2_SP, PLANET_LIST
 
 WORLD_PATROL = AppDescription(cn='锄大地', id='world_patrol')
@@ -109,6 +109,54 @@ class WorldPatrolRoute(ConfigHolder):
     @property
     def display_name(self):
         return self.route_id.display_name
+
+    def add_author(self, new_author: str, save: bool = True):
+        """
+        增加一个作者
+        :param new_author:
+        :return:
+        """
+        if self.author_list is None:
+            self.author_list = []
+        if new_author not in self.author_list:
+            self.author_list.append(new_author)
+        if save:
+            self.save()
+
+    @property
+    def route_config_str(self) -> str:
+        cfg: str = ''
+        if self.tp is None:
+            return cfg
+        last_floor = self.tp.region.floor
+        cfg += "author: %s\n" % self.author_list
+        cfg += "planet: '%s'\n" % self.tp.planet.cn
+        cfg += "region: '%s'\n" % self.tp.region.cn
+        cfg += "floor: %d\n" % last_floor
+        cfg += "tp: '%s'\n" % self.tp.cn
+        cfg += "route:\n"
+        for route_item in self.route_list:
+            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
+                                    operation_const.OP_UPDATE_POS]:
+                cfg += "  - op: '%s'\n" % route_item['op']
+                pos = route_item['data']
+                if len(pos) > 2 and pos[2] != last_floor:
+                    cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
+                    last_floor = pos[2]
+                else:
+                    cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
+            elif route_item['op'] == operation_const.OP_PATROL:
+                cfg += "  - op: '%s'\n" % route_item['op']
+            elif route_item['op'] == operation_const.OP_INTERACT:
+                cfg += "  - op: '%s'\n" % route_item['op']
+                cfg += "    data: '%s'\n" % route_item['data']
+            elif route_item['op'] == operation_const.OP_WAIT:
+                cfg += "  - op: '%s'\n" % route_item['op']
+                cfg += "    data: ['%s', '%s']\n" % (route_item['data'][0], route_item['data'][1])
+        return cfg
+
+    def save(self):
+        self.save_diy(self.route_config_str)
 
 
 class WorldPatrolWhitelist(ConfigHolder):
@@ -283,3 +331,4 @@ def get_config() -> WorldPatrolConfig:
     if world_patrol_config is None:
         world_patrol_config = WorldPatrolConfig()
     return world_patrol_config
+

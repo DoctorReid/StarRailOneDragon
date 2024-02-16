@@ -31,6 +31,19 @@ class ConfigHolder:
             return
         config_utils.save_config(self.mod, self.data, sub_dir=self.sub_dir)
 
+    def save_diy(self, text: str):
+        """
+        保存自定义的文本
+        :param text:
+        :return:
+        """
+        if self.mock:
+            return
+
+        file_path = config_utils.get_config_file_path(self.mod, sub_dir=self.sub_dir)
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(text)
+
     def _init_after_read_file(self):
         pass
 
