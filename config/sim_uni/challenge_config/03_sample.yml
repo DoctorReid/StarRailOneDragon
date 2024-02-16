@@ -20,9 +20,11 @@ bless_priority:
   - BLESS_03_010
   - BLESS_03_000
 bless_priority_2:
-  - BLESS_05_014
-  - BLESS_05_017
   - BLESS_06_020
+  - BLESS_05_021
+  - BLESS_06_007
+  - BLESS_04_000
+  - BLESS_01_000
 level_type_priority:
   - combat
   - transaction

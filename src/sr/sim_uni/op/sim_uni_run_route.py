@@ -7,15 +7,17 @@ from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
+from sr import cal_pos
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
+from sr.config import game_config
 from sr.const import operation_const
 from sr.context import Context
-from sr.image.sceenshot import mini_map, screen_state
+from sr.image.sceenshot import mini_map, screen_state, large_map
 from sr.operation import Operation, \
     OperationResult, StateOperation, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.move import MoveWithoutPos
+from sr.operation.unit.move import MoveWithoutPos, MoveDirectly
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.normal_world import ScreenNormalWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevel
@@ -489,7 +491,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  current_pos: Point, route: SimUniRoute,
-                 max_reward_to_get: int,
+                 max_reward_to_get: int = 0,
                  config: Optional[SimUniChallengeConfig] = None,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None
@@ -503,8 +505,14 @@ class SimUniRunEliteAfterRoute(StateOperation):
         """
         edges = []
         fight = StateOperationNode('战斗', self._fight)
+        back_to_angle = StateOperationNode('恢复转向', self._turn_to_original_angle)
+        edges.append(StateOperationEdge(fight, back_to_angle))
+
+        cal_pos_after_fight = StateOperationNode('更新坐标', self._cal_pos_after_fight)
+        edges.append(StateOperationEdge(back_to_angle, cal_pos_after_fight))
+
         move = StateOperationNode('移动奖励', self._move_to_reward)
-        edges.append(StateOperationEdge(fight, move))
+        edges.append(StateOperationEdge(cal_pos_after_fight, move))
 
         interact = StateOperationNode('交互', self._interact)
         edges.append(StateOperationEdge(move, interact))
@@ -538,17 +546,61 @@ class SimUniRunEliteAfterRoute(StateOperation):
         op = SimUniFightElite(self.ctx, config=self.config)
         return Operation.round_by_op(op.execute())
 
+    def _turn_to_original_angle(self):
+        """
+        攻击精英怪后人物朝向有可能改变 先恢复到原来的朝向
+        :return:
+        """
+        screen = self.screenshot()
+        mm = mini_map.cut_mini_map(screen)
+        angle = mini_map.analyse_angle(mm)
+        start_pos = self.route.start_pos
+        elite_pos = self.route.op_list[0]['data']
+        elite_pos = Point(elite_pos[0], elite_pos[1])
+        self.ctx.controller.turn_by_pos(start_pos, elite_pos, angle)
+        return Operation.round_success(wait=0.5)  # 等待转向
+
+    def _cal_pos_after_fight(self):
+        """
+        移动停止后的惯性可能导致人物偏移 更新坐标方便进入沉浸奖励
+        :return:
+        """
+        screen = self.screenshot()
+        mm = mini_map.cut_mini_map(screen)
+        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
+
+        lm_info = self.ctx.ih.get_large_map(self.route.region)
+
+        possible_pos = (self.current_pos.x, self.current_pos.y, self.ctx.controller.run_speed)
+        lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
+
+        next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, lm_info, mm_info,
+                                           possible_pos=possible_pos,
+                                           lm_rect=lm_rect,
+                                           running=self.ctx.controller.is_moving)
+
+        if next_pos is not None:
+            self.current_pos = next_pos
+            return Operation.round_success()
+        else:
+            return Operation.round_retry(MoveDirectly.STATUS_NO_POS, wait=1)
+
     def _move_to_reward(self) -> OperationOneRoundResult:
-        if self.max_reward_to_get <= 0:
+        gc = game_config.get()
+        if self.max_reward_to_get <= 0 and not gc.is_debug:
             return Operation.round_success(SimUniRunEliteAfterRoute.STATUS_NO_NEED_REWARD)
         elif self.route.reward_pos is None:
             return Operation.round_fail(SimUniRunEliteAfterRoute.STATUS_NO_REWARD_POS)
 
-        op = MoveDirectlyInSimUni(self.ctx, self.ctx.ih.get_large_map(self.route.region),
-                                  start=self.current_pos, target=self.route.reward_pos,
-                                  op_callback=self._update_pos,
-                                  no_battle=True, no_run=True,
-                                  )
+        # op = MoveDirectlyInSimUni(self.ctx, self.ctx.ih.get_large_map(self.route.region),
+        #                           start=self.current_pos, target=self.route.reward_pos,
+        #                           op_callback=self._update_pos,
+        #                           no_battle=True, no_run=True,
+        #                           )
+        op = MoveWithoutPos(self.ctx,
+                            start=self.current_pos, target=self.route.reward_pos,
+                            op_callback=self._update_pos,
+                            )
         return Operation.round_by_op(op.execute())
 
     def _update_pos(self, op_result: OperationResult):

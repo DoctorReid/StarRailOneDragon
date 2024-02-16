@@ -495,7 +495,7 @@ def sim_uni_cal_pos(
 
     # 使用模板匹配 道路掩码误。报率高 仅在限定范围时可使用
     if result is None and lm_rect is not None:
-        result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = sim_uni_cal_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
             result = None
 
@@ -508,6 +508,7 @@ def sim_uni_cal_pos(
 
     if show:
         cv2_utils.show_overlap(lm_info.origin, mm_info.origin, result.x, result.y, template_scale=scale, win_name='overlap')
+        cv2_utils.show_image(lm_info.origin, MatchResult(1, result.x, result.y, 15, 15), win_name='sim_uni_cal_pos_point')
 
     log.debug('计算当前坐标为 %s 使用缩放 %.2f 置信度 %.2f', target, scale, result.confidence)
 
@@ -540,11 +541,14 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
     # 使用道路掩码
     mm = mm_info.origin_del_radio
     template = cv2.cvtColor(mm_info.origin_del_radio, cv2.COLOR_BGR2GRAY)
-    road_mask = mini_map.get_road_mask_v4(mm,
-                                          sp_mask=mm_info.sp_mask,
-                                          arrow_mask=mm_info.arrow_mask,
-                                          center_mask=mm_info.center_mask
-                                          )
+    # road_mask = mini_map.get_road_mask_v4(mm,
+    #                                       sp_mask=mm_info.sp_mask,
+    #                                       arrow_mask=mm_info.arrow_mask,
+    #                                       center_mask=mm_info.center_mask
+    #                                       )
+    road_mask = mini_map.get_road_mask_for_sim_uni(mm,
+                                                   arrow_mask=mm_info.arrow_mask,
+                                                   center_mask=mm_info.center_mask)
     dilate_road_mask = cv2_utils.dilate(road_mask, 10)  # 把白色边缘包括进来
     template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
 
@@ -557,6 +561,63 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
         cv2_utils.show_image(mm, win_name='mini_map')
+        cv2_utils.show_image(source, win_name='template_match_source')
+        cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
+        cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
+
+    if target is not None:
+        offset_x = target.x + (lm_rect.x1 if lm_rect is not None else 0)
+        offset_y = target.y + (lm_rect.y1 if lm_rect is not None else 0)
+        return MatchResult(target.confidence, offset_x, offset_y, target.w, target.h, target.template_scale)
+    else:
+        return None
+
+
+@record_performance
+def sim_uni_cal_pos_by_road_mask(im: ImageMatcher,
+                                 lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+                                 lm_rect: Rect = None,
+                                 running: bool = False,
+                                 show: bool = False,
+                                 scale_list: List[float] = None,
+                                 match_threshold: float = 0.3) -> Optional[MatchResult]:
+    """
+    使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
+    使用模拟宇宙专用的道路掩码图
+    :param im: 图片匹配器
+    :param lm_info: 大地图信息
+    :param mm_info: 小地图信息
+    :param lm_rect: 圈定的大地图区域 传入后更准确
+    :param running: 任务是否在跑动
+    :param show: 是否显示调试结果
+    :param scale_list: 缩放比例
+    :return:
+    """
+    source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
+    # 使用道路掩码
+    # mm_info.road_mask = mini_map.get_road_mask_v4(mm_info.origin_del_radio,
+    #                                               sp_mask=mm_info.sp_mask,
+    #                                               arrow_mask=mm_info.arrow_mask,
+    #                                               center_mask=mm_info.center_mask
+    #                                               )
+    mm_info.road_mask = mini_map.get_road_mask_for_sim_uni(mm_info.origin_del_radio,
+                                                           arrow_mask=mm_info.arrow_mask,
+                                                           center_mask=mm_info.center_mask)
+    template = mm_info.road_mask
+    template_mask = mm_info.circle_mask
+
+    if scale_list is None:
+        scale_list = mini_map.get_mini_map_scale_list(running)
+
+    target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
+                                                                   scale_list,
+                                                                   threshold=match_threshold)
+
+    if show:
+        scale = target.template_scale if target is not None else 1
+        template_usage = cv2_utils.scale_image(template, scale, copy=False)
+        template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
+        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
         cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
@@ -583,6 +644,7 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
         return False
     if possible_pos is None or current_angle is None:  # 无传入时不判断
         return True
+    return True
 
     last_pos = Point(possible_pos[0], possible_pos[1])
     move_distance = possible_pos[2]

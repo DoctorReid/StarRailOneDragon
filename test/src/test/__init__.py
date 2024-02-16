@@ -33,6 +33,16 @@ class SrTestBase(unittest.TestCase):
         self.assertTrue(os.path.exists(img_path), '图片不存在')
         return cv2_utils.read_image(img_path)
 
+    def save_test_image(self, img: MatLike, file_name: str) -> bool:
+        """
+        保存一张图片
+        :param img: 图片
+        :param file_name: 名称 包括后缀
+        :return:
+        """
+        img_path = os.path.join(self.sub_package_path, file_name)
+        return cv2.imwrite(img_path, img)
+
     def get_test_image(self, file_name: str, suffix: str = '.png') -> MatLike:
         """
         获取测试图片

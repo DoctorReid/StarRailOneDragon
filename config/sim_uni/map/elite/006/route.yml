@@ -1,4 +1,4 @@
-support_world: [7, 8]
+support_world: [4, 7, 8]
 planet: '雅利洛-VI'
 region: '边缘通路'
 floor: 0
@@ -8,4 +8,4 @@ next_pos_list:
 reward_pos: [425, 825]
 op_list:
   - op: 'move'
-    data: [450, 840]
+    data: [450, 838]

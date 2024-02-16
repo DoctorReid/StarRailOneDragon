@@ -714,6 +714,69 @@ def get_road_mask_v4(mm: MatLike,
     return final_road_mask
 
 
+def get_road_mask_for_sim_uni(
+        mm_del_radio: MatLike,
+        arrow_mask: MatLike,
+        center_mask: MatLike):
+    """
+    获取道路掩码 模拟宇宙专用
+    :param mm_del_radio: 去除雷达后的小地图
+    :param center_mask: 中间正方形部分的掩码 用于道路区域
+    :return:
+    """
+    road_mask = cv2_utils.color_in_range(mm_del_radio, [45, 45, 45], [55, 55, 55])
+    dilate_arrow_mask = cv2_utils.dilate(arrow_mask, 5)
+    road_mask_2 = cv2.bitwise_or(road_mask, dilate_arrow_mask)
+    road_mask_3 = cv2_utils.connection_erase(road_mask_2, threshold=50, erase_white=False, connectivity=4)
+
+    # 获取中心点坐标
+    center_x = mm_del_radio.shape[1] // 2
+    center_y = mm_del_radio.shape[0] // 2
+
+    # cv2_utils.show_image(road_mask_3, win_name='road_mask_3')
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask_3, connectivity=8)
+    # 找到包含中心点的最大连通块
+    max_area = -1
+    max_label = -1
+    for label in range(1, num_labels):
+        area = stats[label, cv2.CC_STAT_AREA]
+        if area > max_area and labels[center_y, center_x] == label:
+            max_area = area
+            max_label = label
+
+    cond = np.where(labels == max_label)
+    b, g, r = cv2.split(mm_del_radio)
+    color_threshold = 3
+    if len(b[cond]) == 0 or len(g[cond]) == 0 or len(r[cond]) == 0:
+        return road_mask_3
+    avg_b = np.mean(b[cond])
+    avg_g = np.mean(g[cond])
+    avg_r = np.mean(r[cond])
+
+    # 只保留连通块平均颜色与中心块差不多的
+    final_road_mask = np.zeros(road_mask_3.shape, dtype=np.uint8)
+    for label in range(1, num_labels):
+        # tmp = np.zeros(mm.shape, dtype=np.uint8)
+        cond = np.where(labels == label)
+        # tmp[cond] = mm[cond]
+        # cv2_utils.show_image(tmp, win_name='tmp')
+
+        avg_b2 = np.mean(b[cond])
+        avg_g2 = np.mean(g[cond])
+        avg_r2 = np.mean(r[cond])
+
+        if abs(avg_b - avg_b2) > color_threshold or \
+                abs(avg_g - avg_g2) > color_threshold or \
+                abs(avg_r - avg_r2) > color_threshold:
+            continue
+
+        final_road_mask[np.where(labels == label)] = 255
+
+    # cv2_utils.show_image(final_road_mask, win_name='final_road_mask')
+
+    return final_road_mask
+
+
 def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: bool = True):
     """
     小地图中心雷达区的掩码

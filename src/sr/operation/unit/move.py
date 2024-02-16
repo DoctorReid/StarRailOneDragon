@@ -423,6 +423,7 @@ class MoveDirectly(Operation):
         last_pos = self.pos[-1]
         self.ctx.controller.move_towards(last_pos, self.target, mm_info.angle,
                                          run=self.run_mode == game_config_const.RUN_MODE_BTN)
+        self.stop_move_time = None
 
     def on_pause(self):
         super().on_pause()
@@ -530,7 +531,7 @@ class MoveWithoutPos(StateOperation):
         self.move_time: float = move_time
         if move_time is None:
             dis = cal_utils.distance_between(self.start, self.target)
-            self.move_time = dis / self.ctx.controller.run_speed
+            self.move_time = dis / self.ctx.controller.walk_speed
 
     def _turn(self) -> OperationOneRoundResult:
         screen = self.screenshot()

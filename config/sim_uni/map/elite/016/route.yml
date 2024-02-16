@@ -1,0 +1,10 @@
+support_world: [4, 8]
+planet: '雅利洛-VI'
+region: '大矿区'
+floor: 0
+start_pos: [555, 601]
+next_pos_list: []
+reward_pos: [569, 526]
+op_list:
+  - op: 'move'
+    data: [556, 542]

@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 from basic import Rect, str_utils, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, \
@@ -56,9 +57,6 @@ class SimUniReward(StateOperation):
         self.get_reward_cnt = 0
 
     def _get_reward(self) -> OperationOneRoundResult:
-        if self.get_reward_cnt >= self.max_to_get:
-            self.ctx.controller.click(SimUniReward.CLOSE_REWARD_BTN.center)
-            return Operation.round_success(wait=1)
         screen = self.screenshot()
 
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
@@ -66,6 +64,11 @@ class SimUniReward(StateOperation):
 
         if state != screen_state.ScreenState.SIM_REWARD.value:
             return Operation.round_retry('未在沉浸奖励画面', wait=1)
+
+        if self.get_reward_cnt >= self.max_to_get:
+            log.info('领取奖励完毕')
+            self.ctx.controller.click(SimUniReward.CLOSE_REWARD_BTN.center)
+            return Operation.round_success(wait=1)
 
         rect = self._get_reward_pos(screen)
         if rect is not None:

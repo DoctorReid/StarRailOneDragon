@@ -1,4 +1,4 @@
-support_world: [8]
+support_world: [4, 8]
 planet: '雅利洛-VI'
 region: '铁卫禁区'
 floor: 0
@@ -7,5 +7,5 @@ next_pos_list:
   - [296, 864]
 reward_pos: [305, 846]
 op_list:
-  - op: 'move'
+  - op: 'slow_move'
     data: [317, 859]

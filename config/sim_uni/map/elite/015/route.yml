@@ -1,0 +1,10 @@
+support_world: [4, 8]
+planet: '雅利洛-VI'
+region: '铆钉镇'
+floor: 2
+start_pos: [579, 172]
+next_pos_list: []
+reward_pos: [518, 222]
+op_list:
+  - op: 'move'
+    data: [540, 219]
