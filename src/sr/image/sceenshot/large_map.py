@@ -179,7 +179,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     :param ocr: ocr
     :return: 当前选择区域
     """
-    lower = 240
+    lower = 230
     upper = 255
     part, _ = cv2_utils.crop_image(screen, REGION_LIST_RECT)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
@@ -188,7 +188,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
         return None
     rect = Rect(left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
     to_ocr: MatLike = cv2_utils.crop_image(bw, rect)[0]
-    # cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
+    cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
     return ocr.ocr_for_single_line(to_ocr, strict_one_line=False)
 
 
