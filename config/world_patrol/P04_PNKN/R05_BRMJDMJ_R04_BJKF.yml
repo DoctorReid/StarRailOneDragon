@@ -24,5 +24,8 @@ route:
     data: [1464, 1230]
   - op: 'patrol'
   - op: 'move'
+    data: [1450, 1295]
+  - op: 'patrol'
+  - op: 'move'
     data: [1457, 1396]
   - op: 'patrol'
