@@ -449,14 +449,14 @@ P03_R01_SP16 = TransportPoint('SCG', '司辰宫', P03_R01, 'mm_sp_05', (673, 487
 P03_R01_SP17 = TransportPoint('PSQT', '评书奇谭', P03_R01, 'mm_tp_15', (353, 503), (353, 499))
 
 # 仙舟罗浮 - 流云渡
-P03_R02_SP01 = TransportPoint('LYDHD', '流云渡货道', P03_R02_F2, 'mm_tp_03', (704, 422), (694, 402))
-P03_R02_SP02 = TransportPoint('JYF', '积玉坊', P03_R02_F1, 'mm_tp_03', (541, 795), (523, 780))
-P03_R02_SP03 = TransportPoint('JYFNC', '积玉坊南侧', P03_R02_F1, 'mm_tp_03', (567, 986), (560, 983))
-P03_R02_SP04 = TransportPoint('LYDCCC', '流云渡乘槎处', P03_R02_F1, 'mm_tp_03', (579, 1369), (588, 1378))
-P03_R02_SP05 = TransportPoint('BLZX', '冰棱之形·凝滞虚影', P03_R02_F1, 'mm_tp_06', (730, 1367), (710, 1366))
-P03_R02_SP06 = TransportPoint('SSZJ', '圣颂之径·侵蚀隧洞', P03_R02_F1, 'mm_tp_09', (542, 1153), (543, 1146))
-P03_R02_SP07 = TransportPoint('XCHZS', '星槎海中枢', P03_R02_F1, 'mm_sp_02', (578, 1503))
-P03_R02_SP08 = TransportPoint('GQYBSGC', '过期邮包收购处', P03_R02_F1, 'mm_sp_03', (388, 777))
+P03_R02_SP01 = TransportPoint('LYDHD', '流云渡货道', P03_R02_F2, 'mm_tp_03', (710, 432), (700, 412))
+P03_R02_SP02 = TransportPoint('JYF', '积玉坊', P03_R02_F1, 'mm_tp_03', (546, 806), (528, 791))
+P03_R02_SP03 = TransportPoint('JYFNC', '积玉坊南侧', P03_R02_F1, 'mm_tp_03', (573, 997), (565, 994))
+P03_R02_SP04 = TransportPoint('LYDCCC', '流云渡乘槎处', P03_R02_F1, 'mm_tp_03', (584, 1380), (593, 1391))
+P03_R02_SP05 = TransportPoint('BLZX', '冰棱之形·凝滞虚影', P03_R02_F1, 'mm_tp_06', (735, 1379), (715, 1378))
+P03_R02_SP06 = TransportPoint('SSZJ', '圣颂之径·侵蚀隧洞', P03_R02_F1, 'mm_tp_09', (547, 1165), (548, 1158))
+P03_R02_SP07 = TransportPoint('XCHZS', '星槎海中枢', P03_R02_F1, 'mm_sp_02', (584, 1514))
+P03_R02_SP08 = TransportPoint('GQYBSGC', '过期邮包收购处', P03_R02_F1, 'mm_sp_03', (393, 789))
 P03_R02_SP09 = TransportPoint('HYZLNZHEJ', '回忆之蕾·拟造花萼（金）', P03_R02_F1, 'mm_tp_08', (453, 1239))
 
 # 仙舟罗浮 - 廻星港

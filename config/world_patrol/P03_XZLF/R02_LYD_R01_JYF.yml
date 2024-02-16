@@ -5,19 +5,19 @@ floor: 1
 tp: '积玉坊'
 route:
   - op: 'move'
-    data: [566, 754]
+    data: [572, 764]
   - op: 'move'
-    data: [585, 750]
+    data: [591, 760]
   - op: 'move'
-    data: [596, 735]
+    data: [602, 745]
   - op: 'move'
-    data: [597, 700]
+    data: [603, 710]
   - op: 'move'
-    data: [597, 679, 2]
+    data: [603, 689, 2]
   - op: 'move'
-    data: [597, 661]
+    data: [603, 671]
   - op: 'move'
-    data: [555, 660]
+    data: [561, 670]
   - op: 'move'
-    data: [520, 660]
+    data: [526, 670]
   - op: 'patrol'
