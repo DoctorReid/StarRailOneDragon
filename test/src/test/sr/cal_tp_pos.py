@@ -45,13 +45,13 @@ if __name__ == '__main__':
     im = CvImageMatcher(ih)
 
     sp_list = [
-        map_const.P03_R07_SP01,
-        map_const.P03_R07_SP02,
-        map_const.P03_R07_SP03,
-        map_const.P03_R07_SP04,
-        map_const.P03_R07_SP05,
-        map_const.P03_R07_SP08,
-        # map_const.P03_R02_SP09,
+        map_const.P03_R08_SP01,
+        map_const.P03_R08_SP02,
+        map_const.P03_R08_SP03,
+        map_const.P03_R08_SP04,
+        map_const.P03_R08_SP05,
+        map_const.P03_R08_SP06,
+        map_const.P03_R08_SP13,
         # map_const.P04_R05_SP10,
         # map_const.P04_R05_SP11,
     ]

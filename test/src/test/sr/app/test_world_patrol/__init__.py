@@ -13,8 +13,8 @@ class TestCalPosForSimUni(test.SrTestBase):
         大地图重新绘制后 修改对应的路线
         :return:
         """
-        region = map_const.P03_R02_F1
-        dx = 6
+        region = map_const.P03_R08_F1
+        dx = 1
         dy = 10
         to_fix_op = [
             operation_const.OP_MOVE,

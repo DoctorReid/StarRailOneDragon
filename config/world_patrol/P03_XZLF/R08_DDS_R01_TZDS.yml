@@ -5,45 +5,45 @@ floor: 1
 tp: '太真丹室'
 route:
   - op: 'move'
-    data: [550, 567]
+    data: [551, 577]
   - op: 'move'
-    data: [521, 594]
+    data: [522, 604]
   - op: 'move'
-    data: [465, 596]
+    data: [466, 606]
   - op: 'move'
-    data: [455, 606]
+    data: [456, 616]
   - op: 'move'
-    data: [441, 597]
+    data: [442, 607]
   - op: 'move'
-    data: [390, 596]
+    data: [391, 606]
   - op: 'move'
-    data: [346, 557]
+    data: [347, 567]
   - op: 'patrol'
   - op: 'move'
-    data: [323, 559]
+    data: [324, 569]
   - op: 'move'
-    data: [317, 527]
+    data: [318, 537]
   - op: 'move'
-    data: [292, 500]
+    data: [293, 510]
   - op: 'move'
-    data: [292, 444]
+    data: [293, 454]
   - op: 'move'
-    data: [267, 444]
+    data: [268, 454]
   - op: 'move'
-    data: [269, 413]
+    data: [270, 423]
   - op: 'move'
-    data: [305, 411]
+    data: [306, 421]
   - op: 'move'
-    data: [311, 430]
+    data: [312, 440]
   - op: 'patrol'
   - op: 'move'
-    data: [380, 430]
+    data: [381, 440]
   - op: 'move'
-    data: [434, 496]
+    data: [435, 506]
   - op: 'move'
-    data: [485, 491]
+    data: [486, 501]
   - op: 'move'
-    data: [523, 454]
+    data: [524, 464]
   - op: 'move'
-    data: [515, 386]
+    data: [516, 396]
   - op: 'patrol'

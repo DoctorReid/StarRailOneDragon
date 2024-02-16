@@ -5,15 +5,15 @@ floor: 2
 tp: '行医市集'
 route:
   - op: 'move'
-    data: [865, 861]
+    data: [866, 871]
   - op: 'move'
-    data: [879, 756]
+    data: [880, 766]
   - op: 'move'
-    data: [883, 715]
+    data: [884, 725]
   - op: 'move'
-    data: [815, 650]
+    data: [816, 660]
   - op: 'move'
-    data: [794, 627]
+    data: [795, 637]
   - op: 'move'
-    data: [725, 563]
+    data: [726, 573]
   - op: 'patrol'

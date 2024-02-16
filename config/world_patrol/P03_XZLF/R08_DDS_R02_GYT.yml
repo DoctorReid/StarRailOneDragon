@@ -5,13 +5,13 @@ floor: 1
 tp: '观颐台'
 route:
   - op: 'move'
-    data: [444, 753]
+    data: [445, 763]
   - op: 'move'
-    data: [446, 836]
+    data: [447, 846]
   - op: 'move'
-    data: [383, 834]
+    data: [384, 844]
   - op: 'move'
-    data: [382, 771]
+    data: [383, 781]
   - op: 'move'
-    data: [329, 767]
+    data: [330, 777]
   - op: 'patrol'
