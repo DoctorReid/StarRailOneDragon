@@ -514,7 +514,8 @@ if __name__ == '__main__':
     # LargeMapRecorder.do_merge_1(r, 8, 4, show=True)
     # exit(0)
 
-    # 执行前先传送到别的地图
+    # 执行前先传送到别的地图 确保当前地图上没有无关的任务标记
+    # 执行后 如果是重新录制地图 需要确保更新 map_const 中的坐标点 以及对应的 锄大地/模拟宇宙 路线
     ctx = get_context()
     app = LargeMapRecorder(ctx, r,
                            #skip_height=200,
