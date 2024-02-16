@@ -5,9 +5,9 @@ floor: 2
 tp: '存护之蕾·拟造花萼（赤）'
 route:
   - op: 'move'
-    data: [473, 388]
+    data: [463, 387]
   - op: 'slow_move'
-    data: [503, 390]
+    data: [493, 389]
   - op: 'interact'
     data: '配控装置'
   - op: 'wait'
@@ -15,12 +15,12 @@ route:
   - op: 'wait'
     data: ['in_world', '10']
   - op: 'update_pos'
-    data: [503, 388, 1]
+    data: [493, 387, 1]
   - op: 'move'
-    data: [482, 274]
+    data: [472, 273]
   - op: 'patrol'
   - op: 'move'
-    data: [479, 487]
+    data: [469, 486]
   - op: 'move'
-    data: [403, 487]
+    data: [393, 486]
   - op: 'patrol'

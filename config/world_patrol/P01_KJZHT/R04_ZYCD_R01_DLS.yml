@@ -5,19 +5,19 @@ floor: 2
 tp: '电力室'
 route:
   - op: 'move'
-    data: [235, 380]
+    data: [225, 379]
   - op: 'patrol'
   - op: 'move'
-    data: [275, 380]
+    data: [265, 379]
   - op: 'move'
-    data: [282, 318]
+    data: [272, 317]
   - op: 'move'
-    data: [322, 312]
+    data: [312, 311]
   - op: 'patrol'
   - op: 'move'
-    data: [448, 312]
+    data: [438, 311]
   - op: 'move'
-    data: [445, 231]
+    data: [435, 230]
   - op: 'move'
-    data: [567, 234]
+    data: [557, 233]
   - op: 'patrol'
