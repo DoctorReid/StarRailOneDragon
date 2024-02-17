@@ -8,4 +8,4 @@ next_pos_list:
   - [665, 1205]
 op_list:
   - op: 'move'
-    data: [671, 1213]
+    data: [674, 1243]
