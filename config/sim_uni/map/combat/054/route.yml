@@ -2,10 +2,10 @@ support_world: [8]
 planet: '仙舟「罗浮」'
 region: '工造司'
 floor: 0
-start_pos: [721, 1281]
+start_pos: [721, 1291]
 next_pos_list:
-  - [807, 1104]
-  - [807, 1126]
+  - [807, 1114]
+  - [807, 1136]
 op_list:
   - op: 'move'
     data: [723, 1221]
