@@ -607,4 +607,4 @@ if __name__ == '__main__':
     # ctx.init_all(renew=True)
     # app.execute()
     # app.do_save()
-    fix_all_after_map_record(r, -10, -1)
+    fix_all_after_map_record(r, 10, 1)
