@@ -644,7 +644,6 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
         return False
     if possible_pos is None or current_angle is None:  # 无传入时不判断
         return True
-    return True
 
     last_pos = Point(possible_pos[0], possible_pos[1])
     move_distance = possible_pos[2]

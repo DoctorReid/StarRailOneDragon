@@ -78,6 +78,7 @@ def log_all_performance():
     log.debug(get('cal_character_pos_by_sp_result'))
     # log.debug(get('cal_character_pos_by_feature_match'))
     log.debug(get('cal_character_pos_by_gray'))
-    log.debug(get('sim_uni_cal_pos_by_gray'))
     log.debug(get('cal_character_pos_by_road_mask'))
+    log.debug(get('sim_uni_cal_pos_by_gray'))
+    log.debug(get('sim_uni_cal_pos_by_road_mask'))
     # log.debug(get('cal_character_pos_by_original'))
