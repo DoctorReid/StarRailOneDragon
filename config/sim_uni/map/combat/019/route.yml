@@ -2,10 +2,10 @@ support_world: [8]
 planet: '仙舟「罗浮」'
 region: '丹鼎司'
 floor: 1
-start_pos: [530, 701]
+start_pos: [531, 711]
 next_pos_list:
-  - [454, 708]
-  - [454, 693]
+  - [455, 718]
+  - [455, 703]
 op_list:
   - op: 'move'
     data: [487, 709]
