@@ -16,13 +16,13 @@ class WaitNodeStart(Operation):
 
     def __init__(self, ctx: Context, first: bool, timeout_seconds: float):
         """
-        需要在忘却之庭关卡内使用
+        需要在逐光捡金关卡内使用
         等待界面加载
         :param ctx: 上下文
         :param first: 是否第一关
         :param timeout_seconds: 等待超时时间
         """
-        super().__init__(ctx, op_name=gt('忘却之庭 加载关卡', 'ui'), timeout_seconds=timeout_seconds)
+        super().__init__(ctx, op_name=gt('逐光捡金 加载关卡', 'ui'), timeout_seconds=timeout_seconds)
 
         self.first: bool = first
         """是否第一个节点"""

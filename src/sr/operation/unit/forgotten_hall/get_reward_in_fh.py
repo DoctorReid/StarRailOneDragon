@@ -18,11 +18,11 @@ class GetRewardInForgottenHall(Operation):
 
     def __init__(self, ctx: Context):
         """
-        需要已经在【忘却之庭】页面
+        需要已经在【逐光捡金】页面
         点击右下角领取奖励
         :param ctx:
         """
-        super().__init__(ctx, try_times=5, op_name=gt('忘却之庭 领取星数奖励', 'ui'))
+        super().__init__(ctx, try_times=5, op_name=gt('逐光捡金 领取星数奖励', 'ui'))
         self.phase: int = 0
 
     def _execute_one_round(self) -> OperationOneRoundResult:

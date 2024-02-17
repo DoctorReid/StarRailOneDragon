@@ -12,13 +12,13 @@ class WaitInHall(Operation):
 
     def __init__(self, ctx: Context):
         """
-        等待页面加载完成 左上角出现【忘却之庭】
+        等待页面加载完成 左上角出现【逐光捡金】
         目前有以下情况
         - 指南中【传送】 或者 使者中进入
-        - 战斗结束后【返回忘却之庭】
+        - 战斗结束后【返回逐光捡金】
         :param ctx:
         """
-        super().__init__(ctx, try_times=30, op_name=gt('忘却之庭 等待加载主页', 'ui'))
+        super().__init__(ctx, try_times=30, op_name=gt('逐光捡金 等待加载主页', 'ui'))
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()

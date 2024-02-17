@@ -9,21 +9,22 @@ from gui.components.character_input import CharacterInput
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app.routine.forgotten_hall_app import ForgottenHallConfig, get_config, ForgottenHallTeamModule, \
-    TEAM_MODULE_ATTACK, TEAM_MODULE_LIST
+from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig, get_config
+from sr.treasures_lightward.treasures_lightward_team_module import TEAM_MODULE_ATTACK, TEAM_MODULE_LIST, \
+    TreasuresLightwardTeamModule
 from sr.const.character_const import CHARACTER_LIST, QUANTUM, CHARACTER_COMBAT_TYPE_LIST
 from sr.context import Context
 
 
 class TeamListItem(ft.Row):
 
-    def __init__(self, item: ForgottenHallTeamModule,
+    def __init__(self, item: TreasuresLightwardTeamModule,
                  max_character_cnt: int = 4,
                  on_choose_team_member: Optional[Callable] = None,
                  on_click_del: Optional[Callable] = None,
                  on_value_changed: Optional[Callable] = None):
 
-        self.team_value: ForgottenHallTeamModule = item
+        self.team_value: TreasuresLightwardTeamModule = item
         self.value_changed_callback: Optional[Callable] = on_value_changed
 
         self.module_name_input = ft.TextField(label=gt('模块名称', 'ui'), value=self.team_value.module_name,
@@ -131,8 +132,8 @@ class TeamListItem(ft.Row):
 class TeamList(ft.ListView):
 
     def __init__(self, on_click_choose_member: Optional[Callable] = None):
-        self.config: ForgottenHallConfig = get_config()
-        plan_item_list: List[ForgottenHallTeamModule] = self.config.team_module_list
+        self.config: TreasuresLightwardConfig = get_config()
+        plan_item_list: List[TreasuresLightwardTeamModule] = self.config.team_module_list
 
         super().__init__(controls=[self._list_view_item(i) for i in plan_item_list])
         self.add_btn = ft.Container(
@@ -143,12 +144,12 @@ class TeamList(ft.ListView):
         self._start_choose_member_callback: Optional[Callable] = on_click_choose_member
 
     def refresh_by_config(self):
-        plan_item_list: List[ForgottenHallTeamModule] = self.config.team_module_list
+        plan_item_list: List[TreasuresLightwardTeamModule] = self.config.team_module_list
         self.controls = [self._list_view_item(i) for i in plan_item_list]
         self.controls.append(self.add_btn)
         self.update()
 
-    def _list_view_item(self, team: ForgottenHallTeamModule) -> ft.Container:
+    def _list_view_item(self, team: TreasuresLightwardTeamModule) -> ft.Container:
         """
         获取单行配队的组件
         :param team:
@@ -185,8 +186,8 @@ class TeamList(ft.ListView):
             if not existed_name:
                 break
 
-        new_team_value = ForgottenHallTeamModule(module_name=new_module_name, combat_type=QUANTUM.id,
-                                                 module_type=TEAM_MODULE_ATTACK.module_type, character_id_list=[])
+        new_team_value = TreasuresLightwardTeamModule(module_name=new_module_name, combat_type=QUANTUM.id,
+                                                      module_type=TEAM_MODULE_ATTACK.module_type, character_id_list=[])
         new_list_item = self._list_view_item(new_team_value)
         self.controls.append(new_list_item)
 
@@ -232,7 +233,7 @@ class TeamList(ft.ListView):
         :param component_id: 改变的组件ID
         :return:
         """
-        team_list: List[ForgottenHallTeamModule] = []
+        team_list: List[TreasuresLightwardTeamModule] = []
         for item in self.controls:
             if type(item.content) == TeamListItem:
                 component: TeamListItem = item.content

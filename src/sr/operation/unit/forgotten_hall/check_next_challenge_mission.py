@@ -15,14 +15,14 @@ class CheckMaxUnlockMission(Operation):
 
     def __init__(self, ctx: Context, op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
-        需要在忘却之庭页面中使用
-        找到最大的已经解锁的关卡 正常情况进入忘却之庭首页就是显示这个
+        需要在逐光捡金页面中使用
+        找到最大的已经解锁的关卡 正常情况进入逐光捡金首页就是显示这个
         返回状态为关卡数字
         :param ctx: 应用上下文
         :param op_callback: 指令回调
         """
         super().__init__(ctx, try_times=5,
-                         op_name='%s %s' % (gt('忘却之庭', 'ui'), gt('最大解锁关卡', 'ui')),
+                         op_name='%s %s' % (gt('逐光捡金', 'ui'), gt('最大解锁关卡', 'ui')),
                          op_callback=op_callback
                          )
 

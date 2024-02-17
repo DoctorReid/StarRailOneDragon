@@ -9,7 +9,7 @@ app_order:
   - 'nameless_honor'
   - 'daily_training'
   - 'buy_xianzhou_parcel'
-  - 'forgotten_hall'
+  - 'treasures_lightward'
 app_run:
   - 'world_patrol'
 schedule_hour_1: 'none'

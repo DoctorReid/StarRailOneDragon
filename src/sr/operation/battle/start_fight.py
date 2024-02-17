@@ -57,7 +57,7 @@ class StartFightForElite(StateOperation):
         对不会主动攻击的精英怪开战 上BUFF之后进入战斗
         优先使用上BUFF不触发战斗的秘技 最后再使用开战技能
         适用于
-        - 忘却之庭
+        - 逐光捡金
         - 模拟宇宙 精英怪
         :param ctx:
         :param character_list: 当前配队 无传入时自动识别 但不准

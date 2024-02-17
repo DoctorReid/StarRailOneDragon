@@ -147,7 +147,7 @@ class StarRailAutoProxy:
                 ft.NavigationRailDestination(
                     icon=ft.icons.BOOKMARKS_OUTLINED,
                     selected_icon=ft.icons.BOOKMARKS,
-                    label=gt('忘却之庭', model='ui')
+                    label=gt('逐光捡金', model='ui')
                 ),
                 ft.NavigationRailDestination(
                     icon=ft.icons.ACCOUNT_TREE_OUTLINED,

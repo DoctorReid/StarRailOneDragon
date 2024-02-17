@@ -19,7 +19,7 @@ class CheckMissionStar(Operation):
         :param mission_num: 扫描哪个关卡 1~12
         :param star_callback: 获取到星数后的回调
         """
-        super().__init__(ctx, try_times=10, op_name='%s %d' % (gt('忘却之庭 获取关卡星数', 'ui'), mission_num))
+        super().__init__(ctx, try_times=10, op_name='%s %d' % (gt('逐光捡金 获取关卡星数', 'ui'), mission_num))
         self.mission_num: int = mission_num
         self.star_callback: Callable = star_callback
 

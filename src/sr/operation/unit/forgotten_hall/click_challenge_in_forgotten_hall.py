@@ -14,7 +14,7 @@ class ClickChallengeInForgottenHall(Operation):
         """
         点击【开始挑战】
         """
-        super().__init__(ctx, op_name=gt('忘却之庭点击挑战', 'ui'))
+        super().__init__(ctx, op_name=gt('逐光捡金点击挑战', 'ui'))
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         click = self.ocr_and_click_one_line('混沌回忆', ClickChallengeInForgottenHall.START_CHALLENGE_BTN_RECT)

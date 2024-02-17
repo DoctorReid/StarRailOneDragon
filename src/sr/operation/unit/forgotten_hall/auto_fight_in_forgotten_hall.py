@@ -28,7 +28,7 @@ class AutoFightInForgottenHall(Operation):
         需要在忘却之前敌人面前使用
         主动攻击进入战斗 然后等战斗结束
         """
-        super().__init__(ctx, op_name=gt('忘却之庭 进入战斗', 'ui'), timeout_seconds=timeout_seconds)
+        super().__init__(ctx, op_name=gt('逐光捡金 进入战斗', 'ui'), timeout_seconds=timeout_seconds)
         self.with_battle: bool = False  # 是否有进入战斗
         self.last_attack_time: float = 0  # 上次攻击的时间
         self.last_in_battle_time: float = 0  # 上次在战斗时间

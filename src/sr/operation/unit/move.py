@@ -443,7 +443,7 @@ class MoveToEnemy(Operation):
         """
         按小地图上的红色点 向敌人移动
         适合只有一个怪的场景
-        - 忘却之庭
+        - 逐光捡金
         - 模拟宇宙精英怪
         :param ctx: 上下文
         :param no_run: 不能疾跑

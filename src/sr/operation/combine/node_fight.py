@@ -19,7 +19,7 @@ class NodeFight(StatusCombineOperation):
                  op_callback: Optional[Callable[[OperationResult], None]] = None
                  ):
         """
-        需要已经在忘却之庭节点内的页面
+        需要已经在逐光捡金节点内的页面
         移动到敌人身边后
         使用秘技并攻击敌人
         完成战斗后 返回战斗结果
@@ -46,5 +46,5 @@ class NodeFight(StatusCombineOperation):
         ops.append(auto_fight)
         edges.append(StatusCombineOperationEdge(op_from=enter_fight, op_to=auto_fight))
 
-        super().__init__(ctx, ops, edges, op_name=gt('忘却之庭 节点挑战', 'ui'),
+        super().__init__(ctx, ops, edges, op_name=gt('逐光捡金 节点挑战', 'ui'),
                          op_callback=op_callback)

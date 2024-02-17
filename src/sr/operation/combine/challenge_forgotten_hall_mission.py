@@ -23,7 +23,7 @@ class ChallengeForgottenHallMission(StatusCombineOperation2):
                  mission_star_callback: Optional[Callable[[int, int], None]] = None,
                  ):
         """
-        需要已经在忘却之庭选择关卡的页面
+        需要已经在逐光捡金选择关卡的页面
         选择目标关卡并挑战
         最后返回状态为星数
         :param ctx: 上下文
@@ -34,7 +34,7 @@ class ChallengeForgottenHallMission(StatusCombineOperation2):
         """
         edges: List[StatusCombineOperationEdge2] = []
 
-        wait_in_hall = StatusCombineOperationNode('等待忘却之庭界面', WaitInHall(ctx))
+        wait_in_hall = StatusCombineOperationNode('等待逐光捡金界面', WaitInHall(ctx))
 
         check_star = StatusCombineOperationNode('检查星数', CheckMissionStar(ctx, mission_num, mission_star_callback))
         edges.append(StatusCombineOperationEdge2(wait_in_hall, check_star))
@@ -66,7 +66,7 @@ class ChallengeForgottenHallMission(StatusCombineOperation2):
         check_star_2 = StatusCombineOperationNode('挑战后再检查星数', CheckMissionStar(ctx, mission_num, mission_star_callback))
         edges.append(StatusCombineOperationEdge2(back_to_hall, check_star_2))
 
-        super().__init__(ctx, op_name='%s %d' % (gt('忘却之庭 挑战关卡'), mission_num),
+        super().__init__(ctx, op_name='%s %d' % (gt('逐光捡金 挑战关卡'), mission_num),
                          edges=edges)
 
         self.teams: Optional[List[List[Character]]] = None

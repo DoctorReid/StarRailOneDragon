@@ -1,7 +1,5 @@
-import unittest
-
 import test
-from sr.app.routine.forgotten_hall_app import ForgottenHallApp
+from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
 from sr.const import character_const
 from sr.context import get_context
 from sr.operation.unit.forgotten_hall.choose_team_in_fh import ChooseTeamInForgottenHall
@@ -15,7 +13,7 @@ class TestChooseTeamInForgottenHall(test.SrTestBase):
         ctx = get_context()
         ctx.init_image_matcher()
 
-        app = ForgottenHallApp(ctx)
+        app = TreasuresLightwardApp(ctx)
 
         self.op = ChooseTeamInForgottenHall(ctx, app._cal_team_member)
 

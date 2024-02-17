@@ -2,11 +2,12 @@ from typing import List, Optional
 
 import sr.app
 import sr.app.routine.assignments
+import sr.app.treasures_lightward.treasures_lightward_app
+import sr.app.treasures_lightward.treasures_lightward_record
 from basic.i18_utils import gt
 from sr.app import Application, AppRunRecord, world_patrol, AppDescription
-from sr.app.sim_uni import sim_universe_app
 from sr.app.routine import assignments, support_character, nameless_honor, daily_training_app, buy_parcel, \
-    trailblaze_power, email_attachment, echo_of_war, forgotten_hall_app
+    trailblaze_power, email_attachment, echo_of_war
 from sr.app.routine.assignments import Assignments, ASSIGNMENTS
 from sr.app.routine.buy_parcel import BuyXianzhouParcel, BUY_XIANZHOU_PARCEL
 from sr.app.routine.echo_of_war import ECHO_OF_WAR, EchoOfWar
@@ -14,6 +15,8 @@ from sr.app.routine.email_attachment import Email, EMAIL
 from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
 from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
 from sr.app.routine.trailblaze_power import TrailblazePower, TRAILBLAZE_POWER
+from sr.app.sim_uni import sim_universe_app
+from sr.app.treasures_lightward import treasures_lightward_app
 from sr.app.world_patrol import WORLD_PATROL
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.config import ConfigHolder
@@ -172,8 +175,8 @@ def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
         return TrailblazePower(ctx)
     elif app_id == ECHO_OF_WAR.id:
         return EchoOfWar(ctx)
-    elif app_id == forgotten_hall_app.FORGOTTEN_HALL.id:
-        return forgotten_hall_app.ForgottenHallApp(ctx)
+    elif app_id == treasures_lightward_app.TREASURES_LIGHTWARD_APP.id:
+        return treasures_lightward_app.TreasuresLightwardApp(ctx)
     elif app_id == sim_universe_app.SIM_UNIVERSE.id:
         return sim_universe_app.SimUniverseApp(ctx)
     return None
@@ -198,8 +201,8 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
         return trailblaze_power.get_record()
     elif app_id == ECHO_OF_WAR.id:
         return echo_of_war.get_record()
-    elif app_id == forgotten_hall_app.FORGOTTEN_HALL.id:
-        return forgotten_hall_app.get_record()
+    elif app_id == sr.app.treasures_lightward.treasures_lightward_app.TREASURES_LIGHTWARD_APP.id:
+        return sr.app.treasures_lightward.treasures_lightward_record.get_record()
     elif app_id == sim_universe_app.SIM_UNIVERSE.id:
         return sim_universe_app.get_record()
     return None
