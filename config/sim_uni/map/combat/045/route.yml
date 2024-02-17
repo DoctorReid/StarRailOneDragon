@@ -7,7 +7,7 @@ next_pos_list:
   - [516, 1195]
 op_list:
   - op: 'move'
-    data: [525, 1245]
+    data: [531, 1255]
   - op: 'patrol'
   - op: 'move'
-    data: [527, 1217]
+    data: [533, 1227]
