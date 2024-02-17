@@ -172,7 +172,7 @@ def get_large_map_image(region: Region, mt: str = 'origin') -> MatLike:
     return cv2_utils.read_image(path)
 
 
-def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
+def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
     """
     在大地图界面 获取右边列表当前选择的区域 白色字体
     :param screen: 大地图界面截图
@@ -192,7 +192,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     return ocr.ocr_for_single_line(to_ocr, strict_one_line=False)
 
 
-def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> str:
+def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
     """
     在大地图界面 获取左下方当前选择的层数 黑色字体
     :param screen: 大地图界面截图
@@ -203,12 +203,14 @@ def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> str:
     upper = 90
     part, _ = cv2_utils.crop_image(screen, FLOOR_LIST_PART)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
-    # cv2_utils.show_image(bw, win_name='get_active_floor', wait=0)
-    km = ocr.run_ocr(bw)
-    if len(km) > 0:
-        return km.popitem()[0]
-    else:
+    left, right, top, bottom = cv2_utils.get_four_corner(bw)
+    if left is None:
         return None
+    rect = Rect(left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
+    to_ocr: MatLike = cv2_utils.crop_image_only(bw, rect)
+    # cv2_utils.show_image(to_ocr, win_name='get_active_floor', wait=0)
+
+    return ocr.ocr_for_single_line(to_ocr)
 
 
 def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,

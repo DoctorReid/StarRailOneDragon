@@ -4,7 +4,7 @@ region: '大矿区'
 floor: 0
 start_pos: [321, 518]
 next_pos_list:
-  - [283, 472]
+  - [283, 465]
 op_list:
   - op: 'no_pos_move'
-    data: [311, 478]
+    data: [306, 470]

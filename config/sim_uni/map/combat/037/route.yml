@@ -3,7 +3,9 @@ planet: '雅利洛-VI'
 region: '铆钉镇'
 floor: 1
 start_pos: [569, 599]
-next_pos_list: []
+next_pos_list:
+  - [409, 470]
+  - [421, 461]
 op_list:
   - op: 'move'
     data: [514, 602]
@@ -16,3 +18,5 @@ op_list:
   - op: 'move'
     data: [450, 499]
   - op: 'patrol'
+  - op: 'no_pos_move'
+    data: [421, 480]
