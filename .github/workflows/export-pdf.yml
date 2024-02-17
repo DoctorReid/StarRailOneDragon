@@ -72,7 +72,7 @@ jobs:
           echo -e "\n\n" >> output/README.md
           cat "功能_日常.md" >> output/README.md
           echo -e "\n\n" >> output/README.md
-          cat "功能_忘却之庭.md" >> output/README.md
+          cat "功能_逐光捡金.md" >> output/README.md
           echo -e "\n\n" >> output/README.md
           cat "功能_模拟宇宙.md" >> output/README.md
           echo -e "\n\n" >> output/README.md
