@@ -7,4 +7,4 @@ next_pos_list:
   - [411, 414]
 op_list:
   - op: 'move'
-    data: [397, 396]
+    data: [397, 426]

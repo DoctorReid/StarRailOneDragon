@@ -7,4 +7,4 @@ next_pos_list: []
 reward_pos: [835, 781]
 op_list:
   - op: 'move'
-    data: [815, 768]
+    data: [815, 788]

@@ -8,13 +8,13 @@ next_pos_list:
   - [807, 1126]
 op_list:
   - op: 'move'
-    data: [723, 1211]
+    data: [723, 1221]
   - op: 'patrol'
   - op: 'move'
-    data: [745, 1190]
+    data: [745, 1200]
   - op: 'patrol'
   - op: 'move'
-    data: [765, 1113]
+    data: [765, 1123]
   - op: 'patrol'
   - op: 'move'
-    data: [788, 1112]
+    data: [788, 1122]

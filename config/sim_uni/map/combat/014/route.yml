@@ -8,8 +8,8 @@ next_pos_list:
   - [203, 760]
 op_list:
   - op: 'move'
-    data: [204, 860]
+    data: [204, 870]
   - op: 'patrol'
   - op: 'move'
-    data: [195, 785]
+    data: [195, 795]
   - op: 'patrol'
