@@ -8,4 +8,4 @@ next_pos_list:
 reward_pos: [980, 405]
 op_list:
   - op: 'no_pos_move'
-    data: [960, 390]
+    data: [940, 388]
