@@ -15,6 +15,7 @@ from gui.sr_basic_view import SrBasicView
 from sr.app import Application, one_stop_service, AppRunRecord
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
 from sr.app.routine import echo_of_war
+from sr.app.sim_uni import sim_universe_app
 from sr.context import Context
 from sr.mystools import mys_config
 from sr.mystools.mys_config import MysConfig
@@ -461,8 +462,11 @@ class OneStopView(ft.Row, SrBasicView):
         echo_record = echo_of_war.get_record()
         self.echo.update_value(str(echo_record.left_times))
 
-        forgotten_hall_record = sr.app.treasures_lightward.treasures_lightward_record.get_record()
-        self.hall.update_value(str(forgotten_hall_record.star))
+        # forgotten_hall_record = treasures_lightward_record.get_record()
+        # self.hall.update_value(str(forgotten_hall_record.star))
+
+        sim_uni_record = sim_universe_app.get_record()
+        self.sim_times.update_value(str(sim_uni_record.weekly_times))
 
     def _update_schedule_dropdown(self):
         """

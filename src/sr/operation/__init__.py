@@ -542,6 +542,7 @@ class StateOperation(Operation):
                  nodes: Optional[List[StateOperationNode]] = None,
                  edges: Optional[List[StateOperationEdge]] = None,
                  specified_start_node: Optional[StateOperationNode] = None,
+                 timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         带有状态的指令
@@ -553,7 +554,7 @@ class StateOperation(Operation):
         :param specified_start_node: 指定的开始节点。当网图有环时候使用，指定后脚本不会根据网图入度自动判断开始节点。
         :param op_callback: 指令的回调
         """
-        super().__init__(ctx, op_name=op_name, try_times=try_times, op_callback=op_callback)
+        super().__init__(ctx, op_name=op_name, try_times=try_times, timeout_seconds=timeout_seconds, op_callback=op_callback)
 
         self.edge_list: List[StateOperationEdge] = []
         """边列表"""
@@ -670,6 +671,10 @@ class StateOperation(Operation):
                                                          wait=self._current_node.wait_after_op)
         else:
             return Operation.round_fail('节点处理函数和指令都没有设置')
+
+        log.info('%s 节点 %s 返回状态 %s', self.display_name, self._current_node.cn,
+                 coalesce_gt(current_round_result.status,
+                             ('成功' if current_round_result.is_success else '失败'), model='ui'))
 
         if current_round_result.result == Operation.WAIT or current_round_result.result == Operation.RETRY:
             # 等待或重试的 直接返回

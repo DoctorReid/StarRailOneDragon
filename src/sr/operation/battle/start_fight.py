@@ -97,7 +97,7 @@ class StartFightForElite(StateOperation):
                 self.technique_point = op_result.data
             else:
                 self.technique_point = 0  # 识别失败时直接认为是0
-            return Operation.round_success()
+        return Operation.round_success()
 
     def _get_character_list(self) -> OperationOneRoundResult:
         """

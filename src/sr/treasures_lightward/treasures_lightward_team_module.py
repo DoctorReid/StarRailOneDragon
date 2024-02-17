@@ -1,3 +1,4 @@
+import copy
 import time
 from typing import List, Set, Optional
 
@@ -5,6 +6,7 @@ from basic.log_utils import log
 from sr.const.character_const import is_attack_character, SILVERWOLF, is_survival_character, is_support_character, \
     Character, get_character_by_id, CharacterCombatType, ATTACK_PATH_LIST, SURVIVAL_PATH_LIST, SUPPORT_PATH_LIST
 from sr.performance_recorder import record_performance
+from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
 
 class TreasuresLightwardTeamModuleType:
@@ -30,19 +32,26 @@ NODE_PHASE_SUPPORT: int = 4  # 辅助
 
 class TreasuresLightwardTeamModule:
 
-    def __init__(self, module_name: str, combat_type: str, module_type: str, character_id_list: List[str]):
+    def __init__(self, module_name: str, character_id_list: List[str], enable_fh: bool = True, enable_pf: bool = True):
 
         self.module_name: str = module_name
         """配队名称"""
 
-        self.combat_type: str = combat_type
-        """应对属性 暂时不使用"""
-
-        self.module_type: str = module_type
-        """配队模块 暂时不使用"""
-
         self.character_id_list: List[str] = character_id_list
         """配队角色列表"""
+
+        self.enable_fh: bool = enable_fh
+        """忘却之庭中启用"""
+
+        self.enable_pf: bool = enable_pf
+        """虚构叙事中启用"""
+
+    def fit_schedule_type(self, schedule_type: TreasuresLightwardTypeEnum):
+        if schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL:
+            return self.enable_fh
+        elif schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION:
+            return self.enable_pf
+        return False
 
     @property
     def with_attack(self) -> bool:

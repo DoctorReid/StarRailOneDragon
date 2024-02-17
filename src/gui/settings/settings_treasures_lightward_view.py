@@ -10,10 +10,9 @@ from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig, get_config
-from sr.treasures_lightward.treasures_lightward_team_module import TEAM_MODULE_ATTACK, TEAM_MODULE_LIST, \
-    TreasuresLightwardTeamModule
-from sr.const.character_const import CHARACTER_LIST, QUANTUM, CHARACTER_COMBAT_TYPE_LIST
+from sr.const.character_const import CHARACTER_LIST, QUANTUM
 from sr.context import Context
+from sr.treasures_lightward.treasures_lightward_team_module import TEAM_MODULE_ATTACK, TreasuresLightwardTeamModule
 
 
 class TeamListItem(ft.Row):
@@ -30,20 +29,6 @@ class TeamListItem(ft.Row):
         self.module_name_input = ft.TextField(label=gt('模块名称', 'ui'), value=self.team_value.module_name,
                                               width=80, on_change=self._on_module_name_changed)
 
-        self.module_type_dropdown = ft.Dropdown(
-            label=gt('模块', 'ui'), width=80,
-            options=[ft.dropdown.Option(text=gt(i.module_name_cn, 'ui'), key=i.module_type) for i in TEAM_MODULE_LIST],
-            value=self.team_value.module_type,
-            on_change=self._on_module_type_changed
-        )  # 暂时用不到
-
-        self.combat_type_dropdown = ft.Dropdown(
-            label=gt('应对属性', 'ui'), width=80,
-            options=[ft.dropdown.Option(text=gt(i.cn, 'ui'), key=i.id) for i in CHARACTER_COMBAT_TYPE_LIST],
-            value=self.team_value.combat_type,
-            on_change=self._on_combat_type_changed
-        )  # 暂时用不到
-
         self.character_dropdown_list: List[ft.Dropdown] = []
         for i in range(max_character_cnt):
             dropdown = ft.Dropdown(label='%s %d' % (gt('角色', 'ui'), (i + 1)),
@@ -53,11 +38,25 @@ class TeamListItem(ft.Row):
                 dropdown.options.append(ft.dropdown.Option(text=gt(c.cn, 'ui'), key=c.id))
             self.character_dropdown_list.append(dropdown)
 
+        self.enable_fh = ft.Dropdown(label=gt('忘却之庭', 'ui'),
+                                     value='true' if self.team_value.enable_fh else 'false', width=80,
+                                     options=[
+                                         ft.dropdown.Option(text=gt('启用', 'ui'), key='true'),
+                                         ft.dropdown.Option(text=gt('禁用', 'ui'), key='false')
+                                     ], on_change=self._on_fh_enable_changed)
+        self.enable_pf = ft.Dropdown(label=gt('虚构叙事', 'ui'),
+                                     value='true' if self.team_value.enable_fh else 'false', width=80,
+                                     options=[
+                                         ft.dropdown.Option(text=gt('启用', 'ui'), key='true'),
+                                         ft.dropdown.Option(text=gt('禁用', 'ui'), key='false')
+                                     ], on_change=self._on_pf_enable_changed)
         self.del_btn = ft.IconButton(icon=ft.icons.DELETE_FOREVER_OUTLINED, data=id(self), on_click=on_click_del)
 
         controls = [self.module_name_input]
         for dropdown in self.character_dropdown_list:
             controls.append(ft.Container(content=dropdown, data=id(self), on_click=on_choose_team_member))
+        controls.append(self.enable_fh)
+        controls.append(self.enable_pf)
         controls.append(self.del_btn)
 
         super().__init__(controls=controls)
@@ -77,22 +76,22 @@ class TeamListItem(ft.Row):
         self.team_value.module_name = self.module_name_input.value
         self._on_value_changed()
 
-    def _on_module_type_changed(self, e):
+    def _on_fh_enable_changed(self, e):
         """
-        模块类型改变的回调
+        忘却之庭 启用/禁用
         :param e:
         :return:
         """
-        self.team_value.module_type = self.module_type_dropdown.value
+        self.team_value.enable_fh = self.enable_fh.value == 'true'
         self._on_value_changed()
 
-    def _on_combat_type_changed(self, e):
+    def _on_pf_enable_changed(self, e):
         """
-        应对属性改变的回调
+        虚构叙事 启用/禁用
         :param e:
         :return:
         """
-        self.team_value.combat_type = self.combat_type_dropdown.value
+        self.team_value.enable_pf = self.enable_pf.value == 'true'
         self._on_value_changed()
 
     def _on_value_changed(self):
@@ -186,8 +185,7 @@ class TeamList(ft.ListView):
             if not existed_name:
                 break
 
-        new_team_value = TreasuresLightwardTeamModule(module_name=new_module_name, combat_type=QUANTUM.id,
-                                                      module_type=TEAM_MODULE_ATTACK.module_type, character_id_list=[])
+        new_team_value = TreasuresLightwardTeamModule(module_name=new_module_name, character_id_list=[])
         new_list_item = self._list_view_item(new_team_value)
         self.controls.append(new_list_item)
 
@@ -260,7 +258,7 @@ class TeamList(ft.ListView):
             self._on_list_item_value_changed()
 
 
-class SettingsForgottenHallView(SrBasicView, ft.Row):
+class SettingsTreasuresLightwardView(SrBasicView, ft.Row):
 
     def __init__(self, page: ft.Page, ctx: Context):
         SrBasicView.__init__(self, page, ctx)
@@ -300,11 +298,11 @@ class SettingsForgottenHallView(SrBasicView, ft.Row):
         self.chosen_item.update_team_member(character_id_list)
 
 
-_settings_forgotten_hall_view: Optional[SettingsForgottenHallView] = None
+_settings_treasures_lightward_view: Optional[SettingsTreasuresLightwardView] = None
 
 
-def get(page: ft.Page, ctx: Context) -> SettingsForgottenHallView:
-    global _settings_forgotten_hall_view
-    if _settings_forgotten_hall_view is None:
-        _settings_forgotten_hall_view = SettingsForgottenHallView(page, ctx)
-    return _settings_forgotten_hall_view
+def get(page: ft.Page, ctx: Context) -> SettingsTreasuresLightwardView:
+    global _settings_treasures_lightward_view
+    if _settings_treasures_lightward_view is None:
+        _settings_treasures_lightward_view = SettingsTreasuresLightwardView(page, ctx)
+    return _settings_treasures_lightward_view

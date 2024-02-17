@@ -3,7 +3,7 @@ from typing import Optional, List, ClassVar
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import AppDescription, Application2, AppRunRecord, register_app
+from sr.app import Application2, AppRunRecord
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig, get_config
 from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRecord, get_record, \
     TreasuresLightwardScheduleRecord
@@ -12,7 +12,6 @@ from sr.const.character_const import CharacterCombatType, Character
 from sr.context import Context
 from sr.operation import StateOperationEdge, StateOperationNode, OperationResult, OperationOneRoundResult, Operation
 from sr.operation.combine.challenge_forgotten_hall_mission import ChallengeForgottenHallMission
-from sr.treasures_lightward.op.check_star import TlCheckTotalStar
 from sr.operation.unit.forgotten_hall.check_next_challenge_mission import CheckMaxUnlockMission
 from sr.operation.unit.forgotten_hall.get_reward_in_fh import GetRewardInForgottenHall
 from sr.operation.unit.guide import GuideTabEnum
@@ -20,11 +19,9 @@ from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard
+from sr.treasures_lightward.op.check_star import TlCheckTotalStar
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 from sr.treasures_lightward.treasures_lightward_team_module import search_best_mission_team
-
-TREASURES_LIGHTWARD_APP = AppDescription(cn='逐光捡金', id='treasures_lightward')
-register_app(TREASURES_LIGHTWARD_APP)
 
 
 class TreasuresLightwardApp(Application2):
@@ -53,10 +50,10 @@ class TreasuresLightwardApp(Application2):
         edges.append(StateOperationEdge(fh_check_record, fh_check_total_star, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))  # 需要进行挑战 检测星数
 
         fh_finished = StateOperationNode('【忘却之庭】设置完成', self._set_schedule_finished)
-        edges.append(StateOperationEdge(fh_check_total_star, fh_finished, status=TlCheckTotalStar.STATUS_FULL_STAR))  # 满星的时候直接设置为成功
+        # edges.append(StateOperationEdge(fh_check_total_star, fh_finished, status=TlCheckTotalStar.STATUS_FULL_STAR))  # 满星的时候直接设置为成功
 
         fh_get_reward = StateOperationNode('【忘却之庭】领取奖励', op=GetRewardInForgottenHall(ctx))
-        edges.append(StateOperationEdge(fh_finished, fh_finished))
+        edges.append(StateOperationEdge(fh_finished, fh_get_reward))
 
         fh_back_menu = StateOperationNode('【忘却之庭】返回菜单', op=OpenPhoneMenu(ctx))
         edges.append(StateOperationEdge(fh_get_reward, fh_back_menu))
@@ -96,15 +93,15 @@ class TreasuresLightwardApp(Application2):
         else:
             return Operation.round_retry('点击%s失败', area.text)
 
-    def _choose_story(self):
+    def _choose_pure_fiction(self):
         """
         在【指南】-【逐光捡金】画面 选择【虚构叙事】
         :return:
         """
-        area = ScreenTreasuresLightWard.TL_CATEGORY_STORY.value
+        area = ScreenTreasuresLightWard.TL_CATEGORY_PURE_FICTION.value
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
-            self.schedule_type = TreasuresLightwardTypeEnum.STORY
+            self.schedule_type = TreasuresLightwardTypeEnum.PURE_FICTION
             return Operation.round_success(wait=1)
         else:
             return Operation.round_retry('点击%s失败', area.text)
@@ -184,8 +181,9 @@ class TreasuresLightwardApp(Application2):
         :return:
         """
         module_list = self.config.team_module_list
+        filter_module_list = [module for module in module_list if module.fit_schedule_type(self.schedule_type)]
         log.info('开始计算配队 所需属性为 %s', [i.cn for combat_types in node_combat_types for i in combat_types])
-        return search_best_mission_team(node_combat_types, module_list)
+        return search_best_mission_team(node_combat_types, filter_module_list)
 
     def _update_record_after_stop(self, result: OperationResult):
         """
@@ -193,10 +191,7 @@ class TreasuresLightwardApp(Application2):
         :param result: 运行结果
         :return:
         """
-        if not result.success or self.run_record.star < 30:
-            self.run_record.update_status(AppRunRecord.STATUS_FAIL)
-        else:
-            self.run_record.update_status(AppRunRecord.STATUS_SUCCESS)
+        self.run_record.update_status(AppRunRecord.STATUS_SUCCESS)
 
     def _on_max_unlock_done(self, op_result: OperationResult):
         """
@@ -214,17 +209,19 @@ class TreasuresLightwardApp(Application2):
                 for i in range(1, max_unlock_num + 1):
                     if self.run_record.get_mission_star(self.challenge_schedule, i) < 3:
                         self._current_mission_num = i
-                        break
+                    break
 
     def _challenge_next_mission(self) -> OperationOneRoundResult:
         """
         获取下一个挑战关卡的指令
         :return: 指令
         """
-        if self.run_record.star == 36:
+        if self.run_record.get_total_star(self.challenge_schedule) == 36:
             return Operation.round_success()
 
-        op = ChallengeForgottenHallMission(self.ctx, self._current_mission_num, 2,
+        op = ChallengeForgottenHallMission(self.ctx,
+                                           self.schedule_type,
+                                           self._current_mission_num, 2,
                                            cal_team_func=self._cal_team_member,
                                            mission_star_callback=self._update_mission_star)
         return Operation.round_by_op(op.execute())

@@ -9,7 +9,7 @@ from basic import os_utils
 from basic.i18_utils import gt, update_default_lang
 from gui import log_view, calibrator_view, version, one_stop_view, scheduler
 from gui.settings import gui_config, settings_basic_view, settings_trailblaze_power_view, settings_echo_of_war_view, \
-    settings_world_patrol_view, settings_mys_view, settings_forgotten_hall_view, settings_sim_uni_view
+    settings_world_patrol_view, settings_mys_view, settings_treasures_lightward_view, settings_sim_uni_view
 from gui.settings.gui_config import ThemeColors, GuiConfig
 from gui.sim_uni import sim_uni_draft_route_view, sim_uni_challenge_config_view
 from gui.sr_basic_view import SrBasicView
@@ -247,7 +247,7 @@ class StarRailAutoProxy:
             elif self.settings_rail.selected_index == 3:
                 return settings_echo_of_war_view.get(self.sr_ctx)
             elif self.settings_rail.selected_index == 4:
-                return settings_forgotten_hall_view.get(self.flet_page, self.sr_ctx)
+                return settings_treasures_lightward_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 5:
                 return settings_sim_uni_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 6:

@@ -2,6 +2,7 @@ from typing import List, Optional
 
 import sr.app
 import sr.app.routine.assignments
+import sr.app.treasures_lightward
 import sr.app.treasures_lightward.treasures_lightward_app
 import sr.app.treasures_lightward.treasures_lightward_record
 from basic.i18_utils import gt
@@ -175,7 +176,7 @@ def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
         return TrailblazePower(ctx)
     elif app_id == ECHO_OF_WAR.id:
         return EchoOfWar(ctx)
-    elif app_id == treasures_lightward_app.TREASURES_LIGHTWARD_APP.id:
+    elif app_id == sr.app.treasures_lightward.TREASURES_LIGHTWARD_APP.id:
         return treasures_lightward_app.TreasuresLightwardApp(ctx)
     elif app_id == sim_universe_app.SIM_UNIVERSE.id:
         return sim_universe_app.SimUniverseApp(ctx)
@@ -201,7 +202,7 @@ def get_app_run_record_by_id(app_id: str) -> Optional[AppRunRecord]:
         return trailblaze_power.get_record()
     elif app_id == ECHO_OF_WAR.id:
         return echo_of_war.get_record()
-    elif app_id == sr.app.treasures_lightward.treasures_lightward_app.TREASURES_LIGHTWARD_APP.id:
+    elif app_id == sr.app.treasures_lightward.TREASURES_LIGHTWARD_APP.id:
         return sr.app.treasures_lightward.treasures_lightward_record.get_record()
     elif app_id == sim_universe_app.SIM_UNIVERSE.id:
         return sim_universe_app.get_record()

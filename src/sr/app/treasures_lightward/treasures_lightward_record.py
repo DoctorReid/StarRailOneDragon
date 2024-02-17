@@ -3,7 +3,7 @@ from typing import Optional, TypedDict, List
 from basic import str_utils
 from basic.os_utils import get_sunday_dt, dt_day_diff
 from sr.app import AppRunRecord, app_record_current_dt_str
-from sr.app.treasures_lightward.treasures_lightward_app import TREASURES_LIGHTWARD_APP
+from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
 
@@ -17,8 +17,6 @@ class TreasuresLightwardScheduleRecord(TypedDict):
     add_dt: str  # 开始记录的日期
     mission_star: dict[int, int]  # 每一关的星数
     finished: bool  # 是否完成挑战
-
-
 
 
 class TreasuresLightwardRecord(AppRunRecord):
@@ -122,12 +120,12 @@ class TreasuresLightwardRecord(AppRunRecord):
         return self.should_challenge_by_type(TreasuresLightwardTypeEnum.FORGOTTEN_HALL)
 
     @property
-    def should_challenge_story(self) -> bool:
+    def should_challenge_pure_fiction(self) -> bool:
         """
         判断当前是否应该挑战 虚构叙事
         :return:
         """
-        return self.should_challenge_by_type(TreasuresLightwardTypeEnum.STORY)
+        return self.should_challenge_by_type(TreasuresLightwardTypeEnum.PURE_FICTION)
 
     def should_challenge_by_type(self, schedule_type: TreasuresLightwardTypeEnum) -> bool:
         """
@@ -162,13 +160,11 @@ class TreasuresLightwardRecord(AppRunRecord):
 
         return False
 
-    @property
-    def star(self) -> int:
-        return self.get('star', 0)
-
-    @star.setter
-    def star(self, new_value: int):
-        self.update('star', new_value)
+    def get_total_star(self, schedule: TreasuresLightwardScheduleRecord) -> int:
+        total_star = 0
+        for value in schedule['mission_star'].values():
+            total_star += value
+        return total_star
 
     def get_mission_star(self, schedule: TreasuresLightwardScheduleRecord, mission_num: int):
         """

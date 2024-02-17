@@ -43,13 +43,13 @@ class TlCheckTotalStar(Operation):
         if star == -1:
             return Operation.round_retry('获取不到星数', wait=1)
         elif (self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL and star > 36) or \
-                (self.schedule_type == TreasuresLightwardTypeEnum.STORY and star > 12):
+                (self.schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION and star > 12):
             return Operation.round_retry('星数值异常 %d' % star, wait=1)
         else:
             if self.star_callback is not None:
                 self.star_callback(star)
             full_star = (self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL and star == 36) or \
-                (self.schedule_type == TreasuresLightwardTypeEnum.STORY and star == 12)
+                (self.schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION and star == 12)
             return Operation.round_success(status=TlCheckTotalStar.STATUS_FULL_STAR if full_star else None, data=star)
 
     def _get_star_cnt(self, screen: MatLike) -> int:
@@ -58,7 +58,7 @@ class TlCheckTotalStar(Operation):
         :param screen: 屏幕截图
         :return: 星数。如果没有获取到就返回-1
         """
-        area = ScreenTreasuresLightWard.CM_TOTAL_STAR.value
+        area = ScreenTreasuresLightWard.FH_TOTAL_STAR.value
         part = cv2_utils.crop_image_only(screen, area.rect)
         # cv2_utils.show_image(part, win_name='_get_star_cnt')
         ocr_str = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)

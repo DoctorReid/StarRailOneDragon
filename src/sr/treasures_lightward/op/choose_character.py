@@ -14,7 +14,7 @@ from sr.image.image_holder import ImageHolder
 from sr.operation import Operation, OperationOneRoundResult
 
 
-class ChooseCharacterInForgottenHall(Operation):
+class TlChooseCharacter(Operation):
 
     CHARACTER_LIST_RECT: ClassVar[Rect] = Rect(40, 140, 560, 930)
 
@@ -35,12 +35,12 @@ class ChooseCharacterInForgottenHall(Operation):
             if self.ctx.controller.click(pos.center):
                 return Operation.round_success()
             else:
-                return Operation.round_retry('点击头像失败')
+                return Operation.round_retry('点击头像失败', wait=1)
         else:
-            drag_from = ChooseCharacterInForgottenHall.CHARACTER_LIST_RECT.center
-            drag_to = drag_from + (Point(0, -200) if self.op_round % 2 == 0 else Point(0, 200))
+            drag_from = TlChooseCharacter.CHARACTER_LIST_RECT.center
+            drag_to = drag_from + (Point(0, -300) if self.op_round % 2 == 0 else Point(0, 300))
             self.ctx.controller.drag_to(drag_to, drag_from)
-            return Operation.round_retry('找不到对应头像')
+            return Operation.round_retry('找不到对应头像', wait=1)
 
     def _get_character_pos(self, screen: Optional[MatLike] = None) -> Optional[MatchResult]:
         """
@@ -50,7 +50,7 @@ class ChooseCharacterInForgottenHall(Operation):
         """
         if screen is None:
             screen: MatLike = self.screenshot()
-        part, _ = cv2_utils.crop_image(screen, ChooseCharacterInForgottenHall.CHARACTER_LIST_RECT)
+        part, _ = cv2_utils.crop_image(screen, TlChooseCharacter.CHARACTER_LIST_RECT)
 
         template = self.ctx.ih.get_character_avatar_template(self.character.id)
         if template is None:
@@ -62,41 +62,12 @@ class ChooseCharacterInForgottenHall(Operation):
             source_kps, source_desc,
             template.kps, template.desc,
             template.origin.shape[1], template.origin.shape[0],
-            knn_distance_percent=0.5
+            knn_distance_percent=0.4
         )
 
         if character_pos is not None:
-            character_pos.x += ChooseCharacterInForgottenHall.CHARACTER_LIST_RECT.left_top.x
-            character_pos.y += ChooseCharacterInForgottenHall.CHARACTER_LIST_RECT.left_top.y
+            character_pos.x += TlChooseCharacter.CHARACTER_LIST_RECT.left_top.x
+            character_pos.y += TlChooseCharacter.CHARACTER_LIST_RECT.left_top.y
             return character_pos
 
         return None
-
-
-if __name__ == '__main__':
-    # ctx = get_context()
-    # ctx.init_image_matcher()
-    ih = ImageHolder()
-    screen = get_debug_image('5')
-    # part, _ = cv2_utils.crop_image(screen, CHARACTER_RECT)
-    source_kps, source_desc = cv2_utils.feature_detect_and_compute(screen)
-    template = ih.get_character_avatar_template('danhengimbibitorlunae')
-    source_kps, source_desc = cv2_utils.feature_detect_and_compute(screen)
-    template_kps, template_desc = cv2_utils.feature_detect_and_compute(template.origin)
-    good_matches, offset_x, offset_y, scale = cv2_utils.feature_match(source_kps, source_desc, template_kps, template_desc, None)
-
-    if offset_x is not None:
-        template_w = template.origin.shape[1]
-        template_h = template.origin.shape[0]
-        # 小地图缩放后的宽度和高度
-        scaled_width = int(template_w * scale)
-        scaled_height = int(template_h * scale)
-
-        result = MatchResult(1, offset_x, offset_y, scaled_width, scaled_height, template_scale=scale)
-        print(result)
-
-        cv2_utils.show_image(screen, result, win_name='screen', wait=0)
-
-    # op = ChooseCharacter(ctx, DANHENGIMBIBITORLUNAE)
-    #
-    # op._get_character_pos(screen)

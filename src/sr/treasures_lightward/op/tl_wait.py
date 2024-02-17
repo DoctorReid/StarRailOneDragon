@@ -8,7 +8,7 @@ from sr.context import Context
 from sr.operation import Operation, OperationOneRoundResult
 
 
-class WaitNodeStart(Operation):
+class TlWaitNodeStart(Operation):
 
     EXIT_BTN: ClassVar[Rect] = Rect(0, 0, 75, 115)  # 左上方的退出按钮
 
@@ -31,11 +31,11 @@ class WaitNodeStart(Operation):
         screen = self.screenshot()
 
         if self.first:  # 节点1的时候有一个效果提示
-            click = self.ocr_and_click_one_line('点击空白处关闭', WaitNodeStart.FIRST_CLICK_EMPTY_RECT)
+            click = self.ocr_and_click_one_line('点击空白处关闭', TlWaitNodeStart.FIRST_CLICK_EMPTY_RECT)
             if click == Operation.OCR_CLICK_SUCCESS:
                 return Operation.round_success(wait=1)
 
-        part, _ = cv2_utils.crop_image(screen, WaitNodeStart.EXIT_BTN)
+        part, _ = cv2_utils.crop_image(screen, TlWaitNodeStart.EXIT_BTN)
 
         match_result_list = self.ctx.im.match_template(part, 'ui_icon_10', only_best=True)
 

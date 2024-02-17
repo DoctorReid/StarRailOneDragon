@@ -15,7 +15,7 @@ from sr.context import Context, get_context
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.combine import CombineOperation
 from sr.operation.unit.click import ClickPoint
-from sr.operation.unit.forgotten_hall.choose_character import ChooseCharacterInForgottenHall
+from sr.treasures_lightward.op.choose_character import TlChooseCharacter
 
 
 class SessionInfo:  # 关卡的信息
@@ -208,7 +208,7 @@ class ChooseTeamInForgottenHall(Operation):
             team = self.teams[idx]
             ops.append(ClickPoint(self.ctx, session.character_rect_list[0].center))
             for character in team:
-                ops.append(ChooseCharacterInForgottenHall(self.ctx, character.id))
+                ops.append(TlChooseCharacter(self.ctx, character.id))
         op = CombineOperation(
             self.ctx,
             ops=ops,
