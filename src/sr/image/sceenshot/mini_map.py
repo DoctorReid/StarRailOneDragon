@@ -724,17 +724,19 @@ def get_road_mask_for_sim_uni(
     :param center_mask: 中间正方形部分的掩码 用于道路区域
     :return:
     """
-    road_mask = cv2_utils.color_in_range(mm_del_radio, [45, 45, 45], [55, 55, 55])
+    road_mask = cv2_utils.color_in_range(mm_del_radio, [45, 45, 45], [60, 60, 60])
     dilate_arrow_mask = cv2_utils.dilate(arrow_mask, 5)
     road_mask_2 = cv2.bitwise_or(road_mask, dilate_arrow_mask)
-    road_mask_3 = cv2_utils.connection_erase(road_mask_2, threshold=50, erase_white=False, connectivity=4)
+    enemy_mask = get_enemy_road_mask(mm_del_radio)
+    road_mask_3 = cv2.bitwise_or(road_mask_2, enemy_mask)
+    road_mask_4 = cv2_utils.connection_erase(road_mask_3, threshold=50, erase_white=False, connectivity=4)
 
     # 获取中心点坐标
     center_x = mm_del_radio.shape[1] // 2
     center_y = mm_del_radio.shape[0] // 2
 
-    # cv2_utils.show_image(road_mask_3, win_name='road_mask_3')
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask_3, connectivity=8)
+    # cv2_utils.show_image(road_mask_4, win_name='road_mask_4')
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask_4, connectivity=8)
     # 找到包含中心点的最大连通块
     max_area = -1
     max_label = -1
@@ -748,13 +750,13 @@ def get_road_mask_for_sim_uni(
     b, g, r = cv2.split(mm_del_radio)
     color_threshold = 3
     if len(b[cond]) == 0 or len(g[cond]) == 0 or len(r[cond]) == 0:
-        return road_mask_3
+        return road_mask_4
     avg_b = np.mean(b[cond])
     avg_g = np.mean(g[cond])
     avg_r = np.mean(r[cond])
 
     # 只保留连通块平均颜色与中心块差不多的
-    final_road_mask = np.zeros(road_mask_3.shape, dtype=np.uint8)
+    final_road_mask = np.zeros(road_mask_4.shape, dtype=np.uint8)
     for label in range(1, num_labels):
         # tmp = np.zeros(mm.shape, dtype=np.uint8)
         cond = np.where(labels == label)

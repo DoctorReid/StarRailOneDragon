@@ -8,7 +8,7 @@ from basic import Point, cal_utils
 from basic.img import MatchResult, cv2_utils
 from basic.img.os import get_debug_image, save_debug_image
 from basic.log_utils import log
-from sr import cal_pos
+from sr import cal_pos, performance_recorder
 from sr.const import map_const
 from sr.const.map_const import Region
 from sr.context import get_context
@@ -34,6 +34,8 @@ class TestCase:
 
 
 standard_case_list: List[TestCase] = [
+    TestCase(map_const.P01_R04_F2, Point(777, 388), 1, running=False, possible_pos=(804, 388, 30)),
+
     TestCase(map_const.P02_R11_F1, Point(585, 587), 1, running=False, possible_pos=(544, 594, 72))
 ]
 
@@ -50,16 +52,17 @@ class TestCalPosForSimUni(test.SrTestBase):
             #     continue
             result = self.run_one_test_case(case, show=False)
             if not result:
-                fail_cnt += 0
+                fail_cnt += 1
                 log.info('%s 计算坐标失败', case.unique_id)
 
+        performance_recorder.log_all_performance()
         self.assertTrue(fail_cnt == 0)
 
     def test_init_case(self):
-        screen = get_debug_image('_1708066879565')
+        screen = get_debug_image('_1708141410981')
         mm = mini_map.cut_mini_map(screen)
         for case in standard_case_list:
-            if case.region != map_const.P02_R11_F1 and case.num != 1:
+            if case.region != map_const.P01_R04_F2 and case.num != 1:
                 continue
             self.save_test_image(mm, case.image_name)
             self.run_one_test_case(case, show=True)
@@ -96,7 +99,6 @@ class TestCalPosForSimUni(test.SrTestBase):
         dis = cal_utils.distance_between(pos, case.pos)
 
         return dis < 5
-
 
     def test_for_debug(self):
         ctx = get_context()

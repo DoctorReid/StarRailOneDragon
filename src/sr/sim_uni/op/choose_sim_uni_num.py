@@ -2,20 +2,18 @@ from typing import ClassVar, Optional, Callable
 
 from cv2.typing import MatLike
 
-from basic import Point, Rect, str_utils
+from basic import Point, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult, OperationResult
+from sr.screen_area.sim_uni import ScreenSimUniEntry
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN
 
 
 class ChooseSimUniNum(Operation):
-
-    CURRENT_NUM_RECT: ClassVar[Rect] = Rect(805, 515, 945, 552)  # 当前宇宙文本的位置
-    GOING_RECT: ClassVar[Rect] = Rect(813, 484, 888, 511)  # 进行中
 
     CURRENT_BTN: ClassVar[Point] = Point(1276, 567)  # 选择当前宇宙
     PREVIOUS_BTN: ClassVar[Point] = Point(1216, 198)  # 换到上一个宇宙
@@ -76,13 +74,15 @@ class ChooseSimUniNum(Operation):
         if screen is None:
             screen = self.screenshot()
 
-        part, _ = cv2_utils.crop_image(screen, ChooseSimUniNum.CURRENT_NUM_RECT)
+        area_list = [ScreenSimUniEntry.CURRENT_NUM_1.value, ScreenSimUniEntry.CURRENT_NUM_2.value]
+        for area in area_list:
+            part = cv2_utils.crop_image_only(screen, area.rect)
 
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+            ocr_result = self.ctx.ocr.ocr_for_single_line(part)
 
-        for num, word in UNI_NUM_CN.items():
-            if str_utils.find_by_lcs(gt(word, 'ocr'), ocr_result, percent=1):
-                return num
+            for num, word in UNI_NUM_CN.items():
+                if str_utils.find_by_lcs(gt(word, 'ocr'), ocr_result, percent=1):
+                    return num
 
         return None
 
@@ -95,8 +95,8 @@ class ChooseSimUniNum(Operation):
         if screen is None:
             screen = self.screenshot()
 
-        return self.ctx.ocr.match_word_in_one_line(screen, '进行中',
-                                                   part_rect=ChooseSimUniNum.GOING_RECT,
-                                                   lcs_percent=0.1
-                                                   )
-
+        area_list = [ScreenSimUniEntry.GOING_1.value, ScreenSimUniEntry.GOING_2.value]
+        for area in area_list:
+            if self.find_area(area, screen):
+                return True
+        return False

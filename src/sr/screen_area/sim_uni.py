@@ -11,3 +11,8 @@ class ScreenSimUniEntry(Enum):
 
     WEEKLY_REWARD_ICON = ScreenArea(pc_rect=Rect(360, 950, 410, 1000), template_id='ui_alert')  # 每周积分旁边的小红点
     WEEKLY_REWARD_CLAIM = ScreenArea(pc_rect=Rect(1425, 740, 1765, 782), text='一键领取')  # 领取每周积分奖励的按钮
+
+    GOING_1 = ScreenArea(pc_rect=Rect(813, 484, 888, 511), text='进行中')
+    GOING_2 = ScreenArea(pc_rect=Rect(813, 505, 888, 540), text='进行中')
+    CURRENT_NUM_1 = ScreenArea(pc_rect=Rect(805, 515, 945, 552))
+    CURRENT_NUM_2 = ScreenArea(pc_rect=Rect(805, 546, 945, 583))

@@ -10,7 +10,9 @@ from basic.img import cv2_utils
 from basic.img.os import save_debug_image, get_debug_image
 from basic.log_utils import log
 from sr.app import Application2
-from sr.const import map_const, STANDARD_CENTER_POS, STANDARD_RESOLUTION_W
+from sr.app.sim_uni.sim_uni_route_holder import get_sim_uni_route_list
+from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute
+from sr.const import map_const, STANDARD_CENTER_POS, STANDARD_RESOLUTION_W, operation_const
 from sr.const.map_const import Region, region_with_another_floor, PLANET_2_REGION
 from sr.context import Context, get_context
 from sr.image.sceenshot import large_map
@@ -19,6 +21,7 @@ from sr.operation.unit.choose_planet import ChoosePlanet
 from sr.operation.unit.choose_region import ChooseRegion
 from sr.operation.unit.open_map import OpenMap
 from sr.operation.unit.scale_large_map import ScaleLargeMap
+from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 from sr.win import Window, WinRect
 
 
@@ -508,8 +511,87 @@ def _init_map_for_sim_uni():
             large_map.save_large_map_image(sim_uni_mask, region, 'sim_uni_mask')
 
 
+def fix_all_after_map_record(region: Region, dx: int, dy: int):
+    """
+    大地图重新绘制后 修改对应的文件
+    :param region: 区域
+    :param dx: 新地图与旧地图的偏移量
+    :param dy: 新地图与旧地图的偏移量
+    :return:
+    """
+    # fix_world_patrol_route_after_map_record(region, dx, dy)
+    fix_sim_uni_route_after_map_record(region, dx, dy)
+
+
+def fix_world_patrol_route_after_map_record(region: Region, dx: int, dy: int):
+    """
+    大地图重新绘制后 修改对应的路线
+    :param region: 区域
+    :param dx: 新地图与旧地图的偏移量
+    :param dy: 新地图与旧地图的偏移量
+    :return:
+    """
+
+    to_fix_op = [
+        operation_const.OP_MOVE,
+        operation_const.OP_SLOW_MOVE,
+        operation_const.OP_NO_POS_MOVE,
+        operation_const.OP_UPDATE_POS
+    ]
+
+    for floor in [-1, 0, 1, 2, 3]:
+        floor_region = map_const.region_with_another_floor(region, floor)
+        if floor_region is None:
+            continue
+
+        all_route_id_list = load_all_route_id()
+
+        for route_id in all_route_id_list:
+            route = WorldPatrolRoute(route_id)
+            if route.tp.region != floor_region:
+                continue
+            for route_item in route.route_list:
+                if route_item['op'] in to_fix_op:
+                    route_item['data'][0] += dx
+                    route_item['data'][1] += dy
+            route.save()
+
+
+def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
+    """
+    大地图重新绘制后 修改模拟宇宙对应的路线
+    :param region: 区域
+    :param dx: 新地图与旧地图的偏移量
+    :param dy: 新地图与旧地图的偏移量
+    :return:
+    """
+
+    to_fix_op = [
+        operation_const.OP_MOVE,
+        operation_const.OP_SLOW_MOVE,
+        operation_const.OP_NO_POS_MOVE,
+        operation_const.OP_UPDATE_POS
+    ]
+
+    for floor in [-1, 0, 1, 2, 3]:
+        floor_region = map_const.region_with_another_floor(region, floor)
+        if floor_region is None:
+            continue
+
+        for level_type_enum in SimUniLevelTypeEnum:
+            route_list = get_sim_uni_route_list(level_type_enum.value)
+            for route in route_list:
+                if route.region != floor_region:
+                    continue
+                for route_item in route.op_list:
+                    if route_item['op'] in to_fix_op:
+                        route_item['data'][0] += dx
+                        route_item['data'][1] += dy
+                route.save()
+
+
 if __name__ == '__main__':
-    r = map_const.P01_R04_F2
+    r = map_const.P03_R06_F1
     # print(LargeMapRecorder.same_as_last_row(r, 6, 4))
     # LargeMapRecorder.do_merge_1(r, 8, 4, show=True)
     # exit(0)
@@ -522,6 +604,7 @@ if __name__ == '__main__':
                            # floor_list=[2]
                            )
 
-    ctx.init_all(renew=True)
+    # ctx.init_all(renew=True)
     # app.execute()
-    app.do_save()
+    # app.do_save()
+    fix_all_after_map_record(r, 0, 15)

@@ -7,4 +7,4 @@ next_pos_list:
   - [1185, 873]
 op_list:
   - op: 'slow_move'
-    data: [1170, 882]
+    data: [1170, 897]

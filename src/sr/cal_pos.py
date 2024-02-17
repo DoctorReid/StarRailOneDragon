@@ -539,17 +539,17 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
-    mm = mm_info.origin_del_radio
     template = cv2.cvtColor(mm_info.origin_del_radio, cv2.COLOR_BGR2GRAY)
     # road_mask = mini_map.get_road_mask_v4(mm,
     #                                       sp_mask=mm_info.sp_mask,
     #                                       arrow_mask=mm_info.arrow_mask,
     #                                       center_mask=mm_info.center_mask
     #                                       )
-    road_mask = mini_map.get_road_mask_for_sim_uni(mm,
-                                                   arrow_mask=mm_info.arrow_mask,
-                                                   center_mask=mm_info.center_mask)
-    dilate_road_mask = cv2_utils.dilate(road_mask, 10)  # 把白色边缘包括进来
+    if mm_info.road_mask is None:
+        mm_info.road_mask = mini_map.get_road_mask_for_sim_uni(mm_info.origin_del_radio,
+                                                               arrow_mask=mm_info.arrow_mask,
+                                                               center_mask=mm_info.center_mask)
+    dilate_road_mask = cv2_utils.dilate(mm_info.road_mask, 10)  # 把白色边缘包括进来
     template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
 
     if scale_list is None:
@@ -560,7 +560,7 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
         scale = target.template_scale if target is not None else 1
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm, win_name='mini_map')
+        cv2_utils.show_image(mm_info.origin_del_radio, win_name='mini_map')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
         cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
@@ -600,9 +600,10 @@ def sim_uni_cal_pos_by_road_mask(im: ImageMatcher,
     #                                               arrow_mask=mm_info.arrow_mask,
     #                                               center_mask=mm_info.center_mask
     #                                               )
-    mm_info.road_mask = mini_map.get_road_mask_for_sim_uni(mm_info.origin_del_radio,
-                                                           arrow_mask=mm_info.arrow_mask,
-                                                           center_mask=mm_info.center_mask)
+    if mm_info.road_mask is None:
+        mm_info.road_mask = mini_map.get_road_mask_for_sim_uni(mm_info.origin_del_radio,
+                                                               arrow_mask=mm_info.arrow_mask,
+                                                               center_mask=mm_info.center_mask)
     template = mm_info.road_mask
     template_mask = mm_info.circle_mask
 
@@ -617,7 +618,7 @@ def sim_uni_cal_pos_by_road_mask(im: ImageMatcher,
         scale = target.template_scale if target is not None else 1
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
+        cv2_utils.show_image(mm_info.origin_del_radio, win_name='mini_map')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
         cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
