@@ -520,7 +520,9 @@ def fix_all_after_map_record(region: Region, dx: int, dy: int):
     :return:
     """
     # fix_world_patrol_route_after_map_record(region, dx, dy)
-    fix_sim_uni_route_after_map_record(region, dx, dy)
+    # fix_sim_uni_route_after_map_record(region, dx, dy)
+    fix_sim_uni_route_after_map_record_2(region, dx, dy)
+    fix_sim_uni_route_after_map_record_3(region, dx, dy)
 
 
 def fix_world_patrol_route_after_map_record(region: Region, dx: int, dy: int):
@@ -579,7 +581,10 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
             continue
 
         for level_type_enum in SimUniLevelTypeEnum:
-            route_list = get_sim_uni_route_list(level_type_enum.value)
+            level_type = level_type_enum.value
+            if level_type.route_id != level_type.type_id:
+                continue
+            route_list = get_sim_uni_route_list(level_type)
             for route in route_list:
                 if route.region != floor_region:
                     continue
@@ -590,8 +595,84 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
                 route.save()
 
 
+def fix_sim_uni_route_after_map_record_2(region: Region, dx: int, dy: int):
+    """
+    大地图重新绘制后 修改模拟宇宙对应的路线
+    :param region: 区域
+    :param dx: 新地图与旧地图的偏移量
+    :param dy: 新地图与旧地图的偏移量
+    :return:
+    """
+
+    to_fix_op = [
+        operation_const.OP_MOVE,
+        operation_const.OP_SLOW_MOVE,
+        operation_const.OP_NO_POS_MOVE,
+        operation_const.OP_UPDATE_POS
+    ]
+
+    for floor in [-1, 0, 1, 2, 3]:
+        floor_region = map_const.region_with_another_floor(region, floor)
+        if floor_region is None:
+            continue
+
+        for level_type_enum in SimUniLevelTypeEnum:
+            level_type = level_type_enum.value
+            if level_type.route_id == level_type.type_id:
+                continue
+            route_list = get_sim_uni_route_list(level_type)
+            for route in route_list:
+                if route.region != floor_region:
+                    continue
+                for route_item in route.op_list:
+                    if route_item['op'] in to_fix_op:
+                        route_item['data'][0] -= dx
+                        route_item['data'][1] -= dy
+                route.save()
+
+
+def fix_sim_uni_route_after_map_record_3(region: Region, dx: int, dy: int):
+    """
+    大地图重新绘制后 修改模拟宇宙对应的路线
+    :param region: 区域
+    :param dx: 新地图与旧地图的偏移量
+    :param dy: 新地图与旧地图的偏移量
+    :return:
+    """
+
+    to_fix_op = [
+        operation_const.OP_MOVE,
+        operation_const.OP_SLOW_MOVE,
+        operation_const.OP_NO_POS_MOVE,
+        operation_const.OP_UPDATE_POS
+    ]
+
+    for floor in [-1, 0, 1, 2, 3]:
+        floor_region = map_const.region_with_another_floor(region, floor)
+        if floor_region is None:
+            continue
+
+        for level_type_enum in SimUniLevelTypeEnum:
+            level_type = level_type_enum.value
+            if level_type.route_id != level_type.type_id:
+                continue
+            route_list = get_sim_uni_route_list(level_type)
+            for route in route_list:
+                if route.region != floor_region:
+                    continue
+                if route.start_pos is not None:
+                    route.start_pos += Point(dx, dy)
+                if route.reward_pos is not None:
+                    route.reward_pos += Point(dx, dy)
+                if route.next_pos_list is not None and len(route.next_pos_list) > 0:
+                    for pos in route.next_pos_list:
+                        pos.x += dx
+                        pos.y += dy
+                route.save()
+
+
 if __name__ == '__main__':
-    r = map_const.P01_R04_F2
+    r = map_const.P03_R06_F1
     # print(LargeMapRecorder.same_as_last_row(r, 6, 4))
     # LargeMapRecorder.do_merge_1(r, 8, 4, show=True)
     # exit(0)
@@ -607,4 +688,4 @@ if __name__ == '__main__':
     # ctx.init_all(renew=True)
     # app.execute()
     # app.do_save()
-    fix_all_after_map_record(r, 10, 1)
+    fix_all_after_map_record(r, 0, 15)

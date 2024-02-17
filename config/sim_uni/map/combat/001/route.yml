@@ -2,10 +2,10 @@ support_world: [8]
 planet: '仙舟「罗浮」'
 region: '太卜司'
 floor: 1
-start_pos: [209, 448]
+start_pos: [209, 463]
 next_pos_list:
-  - [197, 333]
-  - [221, 333]
+  - [197, 348]
+  - [221, 348]
 op_list:
   - op: 'move'
     data: [193, 434]
