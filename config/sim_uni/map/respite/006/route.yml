@@ -2,9 +2,9 @@ support_world: [7, 8]
 planet: '仙舟「罗浮」'
 region: '流云渡'
 floor: 1
-start_pos: [686, 1360]
+start_pos: [692, 1370]
 next_pos_list:
-  - [764, 1357]
+  - [770, 1367]
 op_list:
   - op: 'slow_move'
     data: [745, 1383]
