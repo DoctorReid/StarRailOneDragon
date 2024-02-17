@@ -191,12 +191,14 @@ class SimUniRunRouteOp(StateOperation):
 class SimUniRunRouteBase(StateOperation):
 
     def __init__(self, ctx: Context,
+                 world_num: int,
                  level_type: SimUniLevelType,
                  config: Optional[SimUniChallengeConfig] = None
                  ):
         """
         模拟宇宙 按照路线执行的基类
         """
+        self.world_num: int = world_num
         self.level_type: SimUniLevelType = level_type
         self.route: Optional[SimUniRoute] = None
         self.current_pos: Optional[Point] = None
@@ -229,7 +231,7 @@ class SimUniRunRouteBase(StateOperation):
         匹配路线
         :return:
         """
-        op = SimUniMatchRoute(self.ctx, 8, self.level_type,
+        op = SimUniMatchRoute(self.ctx, self.world_num, self.level_type,
                               op_callback=self._update_route)
         return Operation.round_by_op(op.execute())
 
@@ -287,11 +289,11 @@ class SimUniRunRouteBase(StateOperation):
 
 class SimUniRunCombatRoute(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType,
                  config: Optional[SimUniChallengeConfig] = None,
                  ):
 
-        super().__init__(ctx, level_type, config=config)
+        super().__init__(ctx, world_num, level_type, config=config)
 
     def _before_route(self) -> OperationOneRoundResult:
         """
@@ -386,14 +388,14 @@ class SimUniInteractAfterRoute(StateOperation):
 
 class SimUniRunInteractRoute(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType,
                  config: Optional[SimUniChallengeConfig] = None,
                  ):
         """
         需要交互的楼层使用
         :param ctx:
         """
-        super().__init__(ctx, level_type, config)
+        super().__init__(ctx, world_num, level_type, config)
 
         is_respite = level_type == SimUniLevelTypeEnum.RESPITE.value
         self.icon_template_id: str = 'mm_sp_herta' if is_respite else 'mm_sp_event'
@@ -565,6 +567,8 @@ class SimUniRunEliteAfterRoute(StateOperation):
         移动停止后的惯性可能导致人物偏移 更新坐标方便进入沉浸奖励
         :return:
         """
+        if self.route.last_op['op'] == operation_const.OP_NO_POS_MOVE:
+            return Operation.round_success()
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
@@ -637,13 +641,13 @@ class SimUniRunEliteAfterRoute(StateOperation):
 
 class SimUniRunEliteRoute(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType,
                  config: Optional[SimUniChallengeConfig] = None,
                  max_reward_to_get: int = 0,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None
                  ):
 
-        super().__init__(ctx, level_type, config)
+        super().__init__(ctx, world_num, level_type, config)
 
         self.with_enemy: bool = True
         self.no_icon: bool = False

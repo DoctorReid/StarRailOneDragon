@@ -95,15 +95,15 @@ class SimUniRunLevel(StateOperation):
         :return:
         """
         if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
-            op = SimUniRunCombatRoute(self.ctx, self.level_type, config=self.config)
+            op = SimUniRunCombatRoute(self.ctx, self.world_num, self.level_type, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
                 self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
                 self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value or \
                 self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            op = SimUniRunInteractRoute(self.ctx, self.level_type, config=self.config)
+            op = SimUniRunInteractRoute(self.ctx, self.world_num, self.level_type, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            op = SimUniRunEliteRoute(self.ctx, self.level_type, config=self.config,
+            op = SimUniRunEliteRoute(self.ctx, self.world_num, self.level_type, config=self.config,
                                      max_reward_to_get=self.max_reward_to_get,
                                      get_reward_callback=self.get_reward_callback)
         else:

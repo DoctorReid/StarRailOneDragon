@@ -258,3 +258,10 @@ class SimUniRoute:
         if num not in self.support_world:
             self.support_world.append(num)
             self.support_world.sort()
+
+    @property
+    def last_op(self) -> Optional[SimUniRouteOperation]:
+        if self.op_list is None or len(self.op_list) == 0:
+            return None
+        else:
+            return self.op_list[-1]
