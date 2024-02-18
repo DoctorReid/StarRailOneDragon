@@ -6,15 +6,14 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, AppDescription, register_app
+from sr.app import Application, AppRunRecord, AppDescription, register_app, app_record_current_dt_str
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.mystools import mys_config
-from sr.operation import Operation, OperationResult
+from sr.operation import Operation
 from sr.operation.unit.claim_assignment import ClaimAssignment
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
-
 
 ASSIGNMENTS = AppDescription(cn='委托', id='assignments')
 register_app(ASSIGNMENTS)
@@ -24,6 +23,14 @@ class AssignmentsRecord(AppRunRecord):
 
     def __init__(self):
         super().__init__(ASSIGNMENTS.id)
+
+    def check_and_update_status(self):
+        """
+        检查并更新状态 各个app按需实现
+        :return:
+        """
+        if self._should_reset_by_dt() or self.claim_dt < app_record_current_dt_str():
+            self.reset_record()
 
     def _should_reset_by_dt(self):
         """
@@ -41,6 +48,22 @@ class AssignmentsRecord(AppRunRecord):
                 return True
         return False
 
+    @property
+    def claim_dt(self) -> str:
+        """
+        领取委托奖励的日期
+        :return:
+        """
+        return self.get('claim_dt', '20240101')
+
+    @claim_dt.setter
+    def claim_dt(self, new_value: str):
+        """
+        领取委托奖励的日期
+        :return:
+        """
+        self.update('claim_dt', new_value)
+
 
 assignments_record: Optional[AssignmentsRecord] = None
 
@@ -57,6 +80,7 @@ class Assignments(Application):
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('委托', 'ui'),
                          run_record=get_record())
+        self.run_record: AssignmentsRecord = get_record()
         self.phase: int = 0
 
     def _init_before_execute(self):
@@ -85,6 +109,7 @@ class Assignments(Application):
             op = ClaimAssignment(self.ctx)
             if op.execute().success:
                 self.phase += 1
+                self.run_record.claim_dt = app_record_current_dt_str()
                 return Operation.WAIT
             else:
                 return Operation.FAIL
