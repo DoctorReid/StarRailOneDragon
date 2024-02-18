@@ -19,6 +19,7 @@ config/echo_of_war.yml
 config/world_patrol.yml
 config/mystool
 config/forgotten_hall.yml
+config/treasures_lightward.yml
 config/sim_uni/app_config.yml
 config/sim_uni/challenge_config/*.yml
 !config/sim_uni/challenge_config/*_sample.yml
