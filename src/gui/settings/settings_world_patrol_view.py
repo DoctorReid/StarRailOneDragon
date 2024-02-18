@@ -22,10 +22,12 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i))for i in range(10)],
                                              on_change=self._on_team_num_changed)
         self.whitelist_dropdown = ft.Dropdown(on_change=self._on_whitelist_changed)
+        self.tech_fight_cb = ft.Checkbox(on_change=self._on_tech_fight_changed)
         self.plan_list = SettingsList(
             controls=[
                 SettingsListItem('使用配队', self.team_num_dropdown),
-                SettingsListItem('特定路线名单', self.whitelist_dropdown)
+                SettingsListItem('特定路线名单', self.whitelist_dropdown),
+                SettingsListItem('秘技开怪', self.tech_fight_cb)
             ],
             width=400
         )
@@ -53,6 +55,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
     def _init_by_config(self):
         self.team_num_dropdown.value = str(self.config.team_num)
         self.whitelist_dropdown.value = self.config.whitelist_id
+        self.tech_fight_cb.value = self.config.technique_fight
         self.update()
 
     def _on_team_num_changed(self, e):
@@ -70,6 +73,14 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         :return:
         """
         self.config.whitelist_id = self.whitelist_dropdown.value
+
+    def _on_tech_fight_changed(self, e):
+        """
+        秘技开怪变更
+        :param e:
+        :return:
+        """
+        self.config.technique_fight = self.tech_fight_cb.value
 
 
 _settings_world_patrol_view: Optional[SettingsWorldPatrolView] = None

@@ -93,7 +93,7 @@ class SimUniEnterFight(Operation):
                                                      bless=True,
                                                      curio=True,
                                                      empty_to_close=True,
-                                                     fast_recover=True)
+                                                     fast_recover=self.use_technique)
 
     def _update_not_in_world_time(self):
         """

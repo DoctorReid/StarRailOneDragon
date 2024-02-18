@@ -314,7 +314,7 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
             else:
                 return Operation.round_retry('点击确认失败', wait=0.5)
         elif not self.ctx.technique_used:
-            if state == ScreenNormalWorld.CHARACTER_ICON.value.text:
+            if state == ScreenNormalWorld.CHARACTER_ICON.value.status:
                 self.ctx.controller.use_technique()
                 self.ctx.technique_used = True
                 return Operation.round_wait(wait=1.5)

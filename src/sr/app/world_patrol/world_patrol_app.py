@@ -79,7 +79,7 @@ class WorldPatrol(Application):
         route_id = self.route_id_list[self.current_route_idx]
 
         self.current_route_start_time = time.time()
-        op = WorldPatrolRunRoute(self.ctx, route_id)
+        op = WorldPatrolRunRoute(self.ctx, route_id, technique_fight=self.config.technique_fight)
         route_result = op.execute().success
         if route_result:
             if not self.ignore_record:

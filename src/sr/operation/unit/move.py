@@ -143,6 +143,7 @@ class MoveDirectly(Operation):
                  stop_afterwards: bool = True,
                  no_run: bool = False,
                  no_battle: bool = False,
+                 technique_fight: bool = False,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         从当前位置 朝目标点直线前行
@@ -171,6 +172,7 @@ class MoveDirectly(Operation):
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
         self.no_battle: bool = no_battle  # 本次移动是否没有战斗
+        self.technique_fight: bool = technique_fight  # 是否使用秘技进入战斗
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -264,7 +266,7 @@ class MoveDirectly(Operation):
             if self.stop_move_time is None:
                 self.stop_move_time = time.time()
             log.info('移动中被袭击')
-            fight = EnterAutoFight(self.ctx)
+            fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight)
             fight_start_time = time.time()
             fight_result = fight.execute()
             fight_end_time = time.time()
@@ -292,7 +294,7 @@ class MoveDirectly(Operation):
         if self.stop_move_time is None:
             self.stop_move_time = time.time()
 
-        fight = EnterAutoFight(self.ctx)
+        fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight)
         fight_start_time = time.time()
         op_result = fight.execute()
         if not op_result.success:

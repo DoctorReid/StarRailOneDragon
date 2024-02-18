@@ -322,6 +322,14 @@ class WorldPatrolConfig(ConfigHolder):
     def whitelist_id(self, new_value: str):
         self.update('whitelist_id', new_value)
 
+    @property
+    def technique_fight(self) -> bool:
+        return self.get('technique_fight', False)
+
+    @technique_fight.setter
+    def technique_fight(self, new_value: bool):
+        self.update('technique_fight', new_value)
+
 
 world_patrol_config: Optional[WorldPatrolConfig] = None
 

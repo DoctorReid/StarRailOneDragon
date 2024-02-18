@@ -8,21 +8,26 @@ from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolRoute
 from sr.const import operation_const, map_const
 from sr.const.map_const import Region
 from sr.context import Context
-from sr.operation import Operation, OperationSuccess, OperationResult, OperationFail
-from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationNode, \
-    StatusCombineOperationEdge2
+from sr.image.sceenshot import screen_state
+from sr.operation import Operation, OperationResult, OperationFail, StateOperation, \
+    StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
+from sr.operation.unit.team import CheckTeamMembersInWorld
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
+from sr.screen_area.dialog import ScreenDialog
+from sr.screen_area.normal_world import ScreenNormalWorld
 
 
-class WorldPatrolRunRoute(StatusCombineOperation2):
+class WorldPatrolRunRoute(StateOperation):
 
     STATUS_ALL_DONE: ClassVar[str] = '执行结束'
 
-    def __init__(self, ctx: Context, route_id: WorldPatrolRouteId):
+    def __init__(self, ctx: Context,
+                 route_id: WorldPatrolRouteId,
+                 technique_fight: bool = False):
         """
         运行一条锄地路线
         :param ctx:
@@ -32,60 +37,105 @@ class WorldPatrolRunRoute(StatusCombineOperation2):
         self.op_idx: int = -2
         self.current_pos: Point = self.route.tp.tp_pos
         self.current_region: Region = self.route.tp.region
+        self.technique_fight: bool = technique_fight  # 使用秘技开怪
 
         edges = []
-        op_node = StatusCombineOperationNode('执行路线指令', op_func=self._next_op)
-        edges.append(StatusCombineOperationEdge2(op_node, op_node, ignore_status=True))
+        tp = StateOperationNode('传送', op=Transport(ctx, self.route.tp))
+        use_tech = StateOperationNode('使用秘技', self._use_tech)
+        edges.append(StateOperationEdge(tp, use_tech))
 
-        finish_node = StatusCombineOperationNode('结束', OperationSuccess(ctx))
-        edges.append(StatusCombineOperationEdge2(op_node, finish_node, status=WorldPatrolRunRoute.STATUS_ALL_DONE))
+        op_node = StateOperationNode('执行路线指令', self._next_op)
+        edges.append(StateOperationEdge(use_tech, op_node))
+        edges.append(StateOperationEdge(op_node, op_node, ignore_status=True))
 
-        super().__init__(ctx, op_name='%s %s' % (gt('锄地路线', 'ui'), self.route.display_name),
+        finish = StateOperationNode('结束', self._finish)
+        edges.append(StateOperationEdge(op_node, finish, status=WorldPatrolRunRoute.STATUS_ALL_DONE))
+
+        super().__init__(ctx,
+                         op_name='%s %s' % (gt('锄地路线', 'ui'), self.route.display_name),
                          edges=edges,
-                         specified_start_node=op_node
                          )
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.op_idx: int = -2
+        self.op_idx: int = -1
         self.current_pos: Point = self.route.tp.tp_pos
         self.current_region: Region = self.route.tp.region
         log.info('准备执行线路 %s', self.route.display_name)
         log.info('感谢以下人员提供本路线 %s', self.route.author_list)
 
-    def _next_op(self) -> Operation:
+    def _use_tech(self) -> OperationOneRoundResult:
+        """
+        如果是秘技开怪 且是上buff类的 就在路线运行前上buff
+        :return:
+        """
+        if not self.technique_fight:
+            return Operation.round_success()
+
+        check_members = CheckTeamMembersInWorld(self.ctx)
+        check_members_result = check_members.execute()
+
+        if not check_members_result.success:
+            return Operation.round_retry(status=check_members_result.status, wait=1)
+
+        if not self.ctx.is_buff_technique:
+            return Operation.round_success()
+
+        screen = self.screenshot()
+
+        state = screen_state.get_world_patrol_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                           in_world=True, fast_recover=True)
+        if state == ScreenDialog.FAST_RECOVER_TITLE.value.text:  # 使用秘技后出现快速恢复对话框
+            self.ctx.technique_used = False
+            click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value, screen)
+            if click == Operation.OCR_CLICK_SUCCESS:
+                return Operation.round_wait(wait=0.5)
+            else:
+                return Operation.round_retry('点击确认失败', wait=0.5)
+        elif not self.ctx.technique_used:
+            if state == ScreenNormalWorld.CHARACTER_ICON.value.status:
+                self.ctx.controller.use_technique()
+                self.ctx.technique_used = True
+                return Operation.round_wait(wait=1.5)
+            else:
+                return Operation.round_retry('未在大世界画面', wait=1)
+        else:
+            return Operation.round_success()
+
+    def _next_op(self) -> OperationOneRoundResult:
         """
         下一个操作指令
         :return:
         """
         self.op_idx += 1
 
-        if self.op_idx == -1:
-            return Transport(self.ctx, self.route.tp)
-        # elif self.op_idx == 0:  # 测试传送点用
+        # if self.op_idx == 0:  # 测试传送点用
         #     return OperationSuccess(self.ctx, status=WorldPatrolRunRoute.STATUS_ALL_DONE)
 
         if self.op_idx >= len(self.route.route_list):
-            return OperationSuccess(self.ctx, status=WorldPatrolRunRoute.STATUS_ALL_DONE)
+            return Operation.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
 
         route_item = self.route.route_list[self.op_idx]
         next_route_item = self.route.route_list[self.op_idx + 1] if self.op_idx + 1 < len(self.route.route_list) else None
 
         if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
-            return self.move(route_item, next_route_item)
+            op = self.move(route_item, next_route_item)
         elif route_item['op'] == operation_const.OP_PATROL:
-            return EnterAutoFight(self.ctx)
+            op = EnterAutoFight(self.ctx)
         elif route_item['op'] == operation_const.OP_INTERACT:
-            return Interact(self.ctx, route_item['data'])
+            op = Interact(self.ctx, route_item['data'])
         elif route_item['op'] == operation_const.OP_WAIT:
-            return self.wait(route_item['data'][0], float(route_item['data'][1]))
+            op = self.wait(route_item['data'][0], float(route_item['data'][1]))
         elif route_item['op'] == operation_const.OP_UPDATE_POS:
             next_pos = Point(route_item['data'][0], route_item['data'][1])
-            return OperationSuccess(self.ctx, data=next_pos, op_callback=self._update_pos_after_op)
+            self._update_pos_after_op(OperationResult(True, data=next_pos))
+            return Operation.round_success()
         else:
-            return OperationFail(self.ctx, status='错误的锄大地指令 %s' % route_item['op'])
+            return Operation.round_fail(status='错误的锄大地指令 %s' % route_item['op'])
 
-    def move(self, route_item, next_route_item):
+        return Operation.round_by_op(op.execute())
+
+    def move(self, route_item, next_route_item) -> Operation:
         """
         移动到某个点
         :param route_item: 本次指令
@@ -140,3 +190,10 @@ class WorldPatrolRunRoute(StatusCombineOperation2):
             return WaitInSeconds(self.ctx, seconds)
         else:
             return OperationFail(self.ctx, status='错误的wait类型 %s' % wait_type)
+
+    def _finish(self) -> OperationOneRoundResult:
+        """
+        路线执行完毕
+        :return:
+        """
+        return Operation.round_success()

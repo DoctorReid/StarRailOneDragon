@@ -449,7 +449,8 @@ def get_world_patrol_screen_state(
         screen: MatLike, im: ImageMatcher, ocr: OcrMatcher,
         in_world: bool = False,
         battle: bool = False,
-        battle_fail: bool = False):
+        battle_fail: bool = False,
+        fast_recover: bool = False):
     """
     获取锄大地的画面状态
     :param screen: 屏幕截图
@@ -458,6 +459,7 @@ def get_world_patrol_screen_state(
     :param in_world: 可能在大世界
     :param battle: 可能在战斗
     :param battle_fail: 可能在战斗失败
+    :param fast_recover: 可能在快速恢复
     :return:
     """
     if in_world and is_normal_in_world(screen, im):
@@ -465,6 +467,9 @@ def get_world_patrol_screen_state(
 
     if battle_fail and is_battle_fail(screen, ocr):
         return ScreenState.BATTLE_FAIL.value
+
+    if fast_recover and in_screen_by_area_text(screen, ocr, ScreenDialog.FAST_RECOVER_TITLE.value):
+        return ScreenDialog.FAST_RECOVER_TITLE.value.text
 
     if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
         return ScreenState.BATTLE.value
