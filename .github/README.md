@@ -1,5 +1,3 @@
-中文 | [English](https://github.com/DoctorReid/StarRailAutoProxy/tree/main/.github/README_en.md)
-
 # Honkai Star Rail - One Dragon
 崩坏：星穹铁道 - 一条龙 - 基于图像识别的自动游戏脚本，适用于PC端。
 
@@ -15,7 +13,7 @@
 
 - [锄大地](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%94%84%E5%A4%A7%E5%9C%B0) `2.0 已完成`
 - [日常](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8) `已完成`
-- [模拟宇宙](https://github.com/DoctorReid/StarRailAutoProxy/wiki/%E5%8A%9F%E8%83%BD_%E6%A8%A1%E6%8B%9F%E5%AE%87%E5%AE%99) `测试中`
+- [模拟宇宙](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%A8%A1%E6%8B%9F%E5%AE%87%E5%AE%99) `测试中`
 
 ![APP主页](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/app.png)
 
