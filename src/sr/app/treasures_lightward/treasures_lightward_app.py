@@ -39,34 +39,43 @@ class TreasuresLightwardApp(Application2):
         choose_treasure = StateOperationNode('选择【逐光捡金】', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_4.value))
         edges.append(StateOperationEdge(choose_guide, choose_treasure))
 
-        # 忘却之庭部分指令
+        # 忘却之庭
         choose_fh = StateOperationNode('选择【忘却之庭】', self._choose_forgotten_hall)
         edges.append(StateOperationEdge(choose_treasure, choose_fh))
 
         fh_check_record = StateOperationNode('检测【忘却之庭】记录', self._check_record_and_tp)
         edges.append(StateOperationEdge(choose_fh, fh_check_record))
 
-        fh_check_total_star = StateOperationNode('【忘却之庭】检测总星数', self._check_total_star)
-        edges.append(StateOperationEdge(fh_check_record, fh_check_total_star, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))  # 需要进行挑战 检测星数
+        # 虚构叙事
+        choose_pf = StateOperationNode('选择【虚构叙事】', self._choose_pure_fiction)
+        edges.append(StateOperationEdge(fh_check_record, choose_pf, ignore_status=True))  # 忘却之庭完成后 进行虚构叙事
 
-        fh_finished = StateOperationNode('【忘却之庭】设置完成', self._set_schedule_finished)
-        # edges.append(StateOperationEdge(fh_check_total_star, fh_finished, status=TlCheckTotalStar.STATUS_FULL_STAR))  # 满星的时候直接设置为成功
+        pf_check_record = StateOperationNode('检测【虚构叙事】记录', self._check_record_and_tp)
+        edges.append(StateOperationEdge(choose_pf, pf_check_record))
 
-        fh_get_reward = StateOperationNode('【忘却之庭】领取奖励', op=GetRewardInForgottenHall(ctx))
-        edges.append(StateOperationEdge(fh_finished, fh_get_reward))
+        # 公共挑战部分
+        check_total_star = StateOperationNode('检测总星数', self._check_total_star)
+        edges.append(StateOperationEdge(fh_check_record, check_total_star, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))  # 需要进行挑战 检测星数
+        edges.append(StateOperationEdge(pf_check_record, check_total_star, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))  # 需要进行挑战 检测星数
 
-        fh_back_menu = StateOperationNode('【忘却之庭】返回菜单', op=OpenPhoneMenu(ctx))
-        edges.append(StateOperationEdge(fh_get_reward, fh_back_menu))
-        edges.append(StateOperationEdge(fh_back_menu, choose_guide))  # 继续下一期的挑战
+        finished = StateOperationNode('设置完成', self._set_schedule_finished)
+        edges.append(StateOperationEdge(check_total_star, finished, status=TlCheckTotalStar.STATUS_FULL_STAR))  # 满星的时候直接设置为成功
 
-        fh_check_max_unlock = StateOperationNode('【忘却之庭】最大的已解锁关卡', op=CheckMaxUnlockMission(ctx, self._on_max_unlock_done))
-        edges.append(StateOperationEdge(fh_check_total_star, fh_check_max_unlock, ignore_status=True))  # 非满星的时候找到开始关卡
+        get_reward = StateOperationNode('领取奖励', op=GetRewardInForgottenHall(ctx))
+        edges.append(StateOperationEdge(finished, get_reward))
 
-        fh_challenge_mission = StateOperationNode('【忘却之庭】挑战关卡', self._challenge_next_mission)
-        edges.append(StateOperationEdge(fh_check_max_unlock, fh_challenge_mission))  # 挑战
+        back_menu = StateOperationNode('返回菜单', op=OpenPhoneMenu(ctx))
+        edges.append(StateOperationEdge(get_reward, back_menu))
+        edges.append(StateOperationEdge(back_menu, choose_guide))  # 继续下一期的挑战
 
-        edges.append(StateOperationEdge(fh_challenge_mission, fh_challenge_mission, status='3'))  # 循环挑战到满星
-        edges.append(StateOperationEdge(fh_challenge_mission, fh_finished, ignore_status=True))  # 没满星就不挑战下一个了
+        check_max_unlock = StateOperationNode('最大的已解锁关卡', op=CheckMaxUnlockMission(ctx, self._on_max_unlock_done))
+        edges.append(StateOperationEdge(check_total_star, check_max_unlock, ignore_status=True))  # 非满星的时候找到开始关卡
+
+        challenge_mission = StateOperationNode('挑战关卡', self._challenge_next_mission)
+        edges.append(StateOperationEdge(check_max_unlock, challenge_mission))  # 挑战
+
+        edges.append(StateOperationEdge(challenge_mission, challenge_mission, status='3'))  # 循环挑战到满星
+        edges.append(StateOperationEdge(challenge_mission, finished, ignore_status=True))  # 没满星就不挑战下一个了
 
         super().__init__(ctx, op_name=gt('逐光捡金', 'ui'),
                          run_record=self.run_record, edges=edges)
@@ -74,11 +83,13 @@ class TreasuresLightwardApp(Application2):
         self.schedule_type: TreasuresLightwardTypeEnum = TreasuresLightwardTypeEnum.FORGOTTEN_HALL  # 当前挑战类型
         self.challenge_schedule: Optional[TreasuresLightwardScheduleRecord] = None  # 当前挑战的期数
         self.config: TreasuresLightwardConfig = get_config()
-        self._current_mission_num: int = 1
+        self.current_mission_num: int = 1  # 当前挑战的关卡
+        self.max_unlock_num: int = 1  # 最大解锁的关卡
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self._current_mission_num = 1
+        self.current_mission_num = 1
+        self.max_unlock_num = 1
 
     def _choose_forgotten_hall(self):
         """
@@ -161,18 +172,19 @@ class TreasuresLightwardApp(Application2):
         self.run_record.save()
         return Operation.round_success()
 
-    def _update_mission_star(self, mission_num: int, star: int):
+    def _on_mission_finished(self, op_result: OperationResult):
+        """
+        通关后更新星数 并找到下一个需要挑战的关卡
+        :param op_result:
+        :return:
+        """
+        mission_num: int = self.current_mission_num
+        star: int = op_result.data
         log.info('%s 关卡 %d 当前星数 %d', self.challenge_schedule['schedule_name'], mission_num, star)
         self.run_record.update_mission_star(self.challenge_schedule, mission_num, star)
 
-        if self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL and mission_num <= 7:  # 第7关前可以使用最后一关的星数
-            for i in range(mission_num):
-                previous_mission_star = self.run_record.get_mission_star(self.challenge_schedule, i + 1)
-                if previous_mission_star == 0:  # 不可能有0星还能完成后面的
-                    self.run_record.update_mission_star(self.challenge_schedule, i + 1, star)
-
-        if mission_num == self._current_mission_num and star == 3:  # 进入下一关
-            self._current_mission_num += 1
+        if star == 3:  # 进入下一关
+            self.current_mission_num += 1
 
     def _cal_team_member(self, node_combat_types: List[List[CharacterCombatType]]) -> Optional[List[List[Character]]]:
         """
@@ -195,33 +207,58 @@ class TreasuresLightwardApp(Application2):
 
     def _on_max_unlock_done(self, op_result: OperationResult):
         """
-        更新最大的未解锁关卡 忘却之庭部分
+        更新最大的未解锁关卡 初始化最初挑战的关卡
         :return:
         """
+        last_num: int = self.get_num_able_to_continue()
         if op_result.success:
             max_unlock_num: int = op_result.data
-            if max_unlock_num <= 7:
-                for i in range(max_unlock_num, 0, -1):  # 7 ~ 1 哪个没3星就从哪个开始
+            if max_unlock_num <= last_num:
+                for i in range(max_unlock_num, 0, -1):  # 可以从上期继续的 优先挑战高的
                     if self.run_record.get_mission_star(self.challenge_schedule, i) < 3:
-                        self._current_mission_num = i
+                        self.current_mission_num = i
                         break
-            else:  # 已经解锁第7关之后了 哪关没满就打哪
+            else:  # 已经解锁可继续之后的 哪关没满就打哪
                 for i in range(1, max_unlock_num + 1):
                     if self.run_record.get_mission_star(self.challenge_schedule, i) < 3:
-                        self._current_mission_num = i
+                        self.current_mission_num = i
                     break
+
+    def get_num_able_to_continue(self) -> int:
+        """
+        根据类型 获取可以从上期继续的关卡数
+        :return:
+        """
+        if self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL:
+            return 7
+        elif self.schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION:
+            return 3
+        else:
+            return 1
+
+    def get_max_num(self) -> int:
+        """
+        获取最大关卡
+        :return:
+        """
+        if self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL:
+            return 12
+        elif self.schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION:
+            return 4
+        else:
+            return 1
 
     def _challenge_next_mission(self) -> OperationOneRoundResult:
         """
         获取下一个挑战关卡的指令
         :return: 指令
         """
-        if self.run_record.get_total_star(self.challenge_schedule) == 36:
+        if self.current_mission_num > self.get_max_num():
             return Operation.round_success()
 
         op = ChallengeForgottenHallMission(self.ctx,
                                            self.schedule_type,
-                                           self._current_mission_num, 2,
+                                           self.current_mission_num, 2,
                                            cal_team_func=self._cal_team_member,
-                                           mission_star_callback=self._update_mission_star)
+                                           op_callback=self._on_mission_finished)
         return Operation.round_by_op(op.execute())

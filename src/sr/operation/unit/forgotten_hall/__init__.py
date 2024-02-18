@@ -74,6 +74,21 @@ def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchRes
 
         mission_num_pos[mission_num] = MatchResult(1, rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1)
 
+    # 对于 10 以上的关卡 有可能只识别到单个数字 这时候要排除掉
+    for i in range(3):  # 目前只可能出现 0 1 2
+        if i not in mission_num_pos:
+            continue
+        pos1 = mission_num_pos[i].center
+
+        for j in range(i + 1, 13):  # 对比其他更大的数字 其位置不应该在这些数字的右方
+            if j not in mission_num_pos:
+                continue
+            pos2 = mission_num_pos[j].center
+
+            if pos1.x > pos2.x:
+                del mission_num_pos[i]
+                break
+
     return mission_num_pos
 
 

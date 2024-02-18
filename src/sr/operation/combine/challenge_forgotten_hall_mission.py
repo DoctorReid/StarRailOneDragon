@@ -21,7 +21,7 @@ class ChallengeForgottenHallMission(StatusCombineOperation2):
     def __init__(self, ctx: Context, schedule_type: TreasuresLightwardTypeEnum,
                  mission_num: int, node_cnt: int,
                  cal_team_func: Callable,
-                 mission_star_callback: Optional[Callable[[int, int], None]] = None,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None
                  ):
         """
         需要已经在逐光捡金选择关卡的页面
@@ -30,14 +30,13 @@ class ChallengeForgottenHallMission(StatusCombineOperation2):
         :param ctx: 上下文
         :param mission_num: 关卡编号
         :param node_cnt: 节点数量
-        :param mission_star_callback: 获取到的关卡星数回调
         :param cal_team_func:
         """
         edges: List[StatusCombineOperationEdge2] = []
 
         wait_in_hall = StatusCombineOperationNode('等待逐光捡金界面', WaitInHall(ctx))
 
-        check_star = StatusCombineOperationNode('检查星数', CheckMissionStar(ctx, mission_num, mission_star_callback))
+        check_star = StatusCombineOperationNode('检查星数', CheckMissionStar(ctx, mission_num))
         edges.append(StatusCombineOperationEdge2(wait_in_hall, check_star))
 
         full_star = StatusCombineOperationNode('满星结束', OperationSuccess(ctx, '3'))
@@ -64,11 +63,11 @@ class ChallengeForgottenHallMission(StatusCombineOperation2):
             edges.append(StatusCombineOperationEdge2(node_fight, back_to_hall, status=ScreenTreasuresLightWard.AFTER_BATTLE_FAIL.value.text))
             last_op = node_fight
 
-        check_star_2 = StatusCombineOperationNode('挑战后再检查星数', CheckMissionStar(ctx, mission_num, mission_star_callback))
+        check_star_2 = StatusCombineOperationNode('挑战后再检查星数', CheckMissionStar(ctx, mission_num))
         edges.append(StatusCombineOperationEdge2(back_to_hall, check_star_2))
 
         super().__init__(ctx, op_name='%s %d' % (gt('逐光捡金 挑战关卡'), mission_num),
-                         edges=edges)
+                         edges=edges, op_callback=op_callback)
 
         self.teams: Optional[List[List[Character]]] = None
         """各个节点的配队"""
