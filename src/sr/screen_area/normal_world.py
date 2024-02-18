@@ -20,3 +20,6 @@ class ScreenNormalWorld(Enum):
 
     TECHNIQUE_POINT_1 = ScreenArea(pc_rect=Rect(1654, 836, 1674, 862))
     TECHNIQUE_POINT_2 = ScreenArea(pc_rect=Rect(1684, 836, 1704, 862))  # 2.0版本更新后 这块UI改变了 按ESC之后会变成上面的
+
+    TECH_STATUS = ScreenArea(pc_rect=Rect(1767, 232, 1857, 255), text='状态效果')  # 右方 角色列表上方
+    TECH_KEY = ScreenArea(pc_rect=Rect(1789, 823, 1807, 841))  # 秘技 显示快捷键的位置

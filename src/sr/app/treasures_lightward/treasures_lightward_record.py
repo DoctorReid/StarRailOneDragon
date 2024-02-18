@@ -219,8 +219,9 @@ class TreasuresLightwardRecord(AppRunRecord):
                 continue
             if schedule['add_dt'] > latest_dt:
                 latest_dt = schedule['add_dt']
-                total_star = schedule['total_star']
+                total_star = self.get_total_star(schedule)
         return total_star
+
 
 _treasures_lightward_record: Optional[TreasuresLightwardRecord] = None
 

@@ -41,8 +41,11 @@ class WorldPatrolRunRoute(StateOperation):
 
         edges = []
         tp = StateOperationNode('传送', op=Transport(ctx, self.route.tp))
+        check_members = StateOperationNode('检测组队', self._check_members)
+        edges.append(StateOperationEdge(tp, check_members))
+
         use_tech = StateOperationNode('使用秘技', self._use_tech)
-        edges.append(StateOperationEdge(tp, use_tech))
+        edges.append(StateOperationEdge(check_members, use_tech))
 
         op_node = StateOperationNode('执行路线指令', self._next_op)
         edges.append(StateOperationEdge(use_tech, op_node))
@@ -64,21 +67,22 @@ class WorldPatrolRunRoute(StateOperation):
         log.info('准备执行线路 %s', self.route.display_name)
         log.info('感谢以下人员提供本路线 %s', self.route.author_list)
 
+    def _check_members(self) -> OperationOneRoundResult:
+        """
+        检测队员
+        :return:
+        """
+        check_members = CheckTeamMembersInWorld(self.ctx)
+        check_members_result = check_members.execute()
+
+        return Operation.round_by_op(check_members_result)
+
     def _use_tech(self) -> OperationOneRoundResult:
         """
         如果是秘技开怪 且是上buff类的 就在路线运行前上buff
         :return:
         """
-        if not self.technique_fight:
-            return Operation.round_success()
-
-        check_members = CheckTeamMembersInWorld(self.ctx)
-        check_members_result = check_members.execute()
-
-        if not check_members_result.success:
-            return Operation.round_retry(status=check_members_result.status, wait=1)
-
-        if not self.ctx.is_buff_technique:
+        if not self.technique_fight or not self.ctx.is_buff_technique:
             return Operation.round_success()
 
         screen = self.screenshot()
@@ -91,7 +95,7 @@ class WorldPatrolRunRoute(StateOperation):
             if click == Operation.OCR_CLICK_SUCCESS:
                 return Operation.round_wait(wait=0.5)
             else:
-                return Operation.round_retry('点击确认失败', wait=0.5)
+                return Operation.round_retry('点击确认失败', wait=1.5)
         elif not self.ctx.technique_used:
             if state == ScreenNormalWorld.CHARACTER_ICON.value.status:
                 self.ctx.controller.use_technique()
@@ -121,7 +125,7 @@ class WorldPatrolRunRoute(StateOperation):
         if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
         elif route_item['op'] == operation_const.OP_PATROL:
-            op = EnterAutoFight(self.ctx)
+            op = EnterAutoFight(self.ctx, use_technique=self.technique_fight)
         elif route_item['op'] == operation_const.OP_INTERACT:
             op = Interact(self.ctx, route_item['data'])
         elif route_item['op'] == operation_const.OP_WAIT:
@@ -160,6 +164,7 @@ class WorldPatrolRunRoute(StateOperation):
         return MoveDirectly(self.ctx, current_lm_info, next_lm_info=next_lm_info,
                             target=next_pos, start=current_pos,
                             stop_afterwards=stop_afterwards, no_run=no_run,
+                            technique_fight=self.technique_fight,
                             op_callback=self._update_pos_after_op)
 
     def _update_pos_after_op(self, op_result: OperationResult):

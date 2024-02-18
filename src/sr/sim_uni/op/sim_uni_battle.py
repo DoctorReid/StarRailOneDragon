@@ -43,6 +43,8 @@ class SimUniEnterFight(Operation):
         self.last_attack_time: float = 0
         self.last_alert_time: float = 0  # 上次警报时间
         self.last_not_in_world_time: float = 0  # 上次不在移动画面的时间
+        self.last_state: str = ''  # 上一次的画面状态
+        self.current_state: str = ''  # 这一次的画面状态
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_direction: int = 0  # 攻击方向
         self.config: Optional[SimUniChallengeConfig] = config  # 挑战配置
@@ -57,25 +59,27 @@ class SimUniEnterFight(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        state = self._get_screen_state(screen)
+        self.last_state = self.current_state
+        self.current_state = self._get_screen_state(screen)
 
-        if state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
+        if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
+            self._update_in_world()
             return self._try_attack(screen)
-        elif state == screen_state.ScreenState.SIM_BLESS.value:
+        elif self.current_state == screen_state.ScreenState.SIM_BLESS.value:
             return self._choose_bless()
-        elif state == screen_state.ScreenState.SIM_CURIOS.value:
+        elif self.current_state == screen_state.ScreenState.SIM_CURIOS.value:
             return self._choose_curio()
-        elif state == screen_state.ScreenState.EMPTY_TO_CLOSE.value:
+        elif self.current_state == screen_state.ScreenState.EMPTY_TO_CLOSE.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return Operation.round_wait(wait=1)
-        elif state == screen_state.ScreenState.BATTLE_FAIL.value:
+        elif self.current_state == screen_state.ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return Operation.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
-        elif state == ScreenDialog.FAST_RECOVER_TITLE.value.text:
+        elif self.current_state == ScreenDialog.FAST_RECOVER_TITLE.value.text:
             result = self._recover_technique_point()
-            self.last_alert_time = time.time()  # 恢复秘技点的时间不应该在计算内
+            self._update_not_in_world_time()  # 恢复秘技点的时间不应该在计算内
             return result
-        elif state == screen_state.ScreenState.BATTLE.value:
+        elif self.current_state == screen_state.ScreenState.BATTLE.value:
             return self._in_battle()
 
         return Operation.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
@@ -94,6 +98,14 @@ class SimUniEnterFight(Operation):
                                                      curio=True,
                                                      empty_to_close=True,
                                                      fast_recover=self.use_technique)
+
+    def _update_in_world(self):
+        """
+        在大世界画面的更新
+        :return:
+        """
+        if self.last_state != screen_state.ScreenState.NORMAL_IN_WORLD.value:
+            self._update_not_in_world_time()
 
     def _update_not_in_world_time(self):
         """
@@ -169,15 +181,17 @@ class SimUniEnterFight(Operation):
             if self.use_technique and not self.ctx.technique_used:
                 technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
 
-                if self.ctx.is_buff_technique:
+                if technique_point is None:  # 部分机器运行速度快 右上角图标出来了当下面秘技点还没出来 这时候还不能使用秘技
+                    pass
+                elif self.ctx.is_buff_technique:
                     self.ctx.controller.use_technique()
                     self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
-                    self.last_alert_time = time.time()  # 使用秘技的时间不应该在计算内
+                    self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
                 elif mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
                     self.ctx.controller.use_technique()
                     self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
 
-                if self.ctx.technique_used and (technique_point is None or technique_point == 0):
+                if self.ctx.technique_used and technique_point == 0:
                     self.last_alert_time += 0.5
                     return Operation.round_wait(wait=0.5)
 

@@ -273,6 +273,10 @@ class Context:
             return False
         return self.current_character_list[0].technique_type in (TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK)
 
+    @property
+    def is_pc(self) -> bool:
+        return self.platform == 'PC'
+
 
 def try_open_game() -> bool:
     """

@@ -312,7 +312,7 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
             if click == Operation.OCR_CLICK_SUCCESS:
                 return Operation.round_wait(wait=0.5)
             else:
-                return Operation.round_retry('点击确认失败', wait=0.5)
+                return Operation.round_retry('点击确认失败', wait=1.5)
         elif not self.ctx.technique_used:
             if state == ScreenNormalWorld.CHARACTER_ICON.value.status:
                 self.ctx.controller.use_technique()

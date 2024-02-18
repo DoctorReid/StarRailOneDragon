@@ -7,11 +7,10 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.config import game_config
 from sr.context import Context
-from sr.control import GameController
-from sr.image.sceenshot import mini_map, battle, screen_state
+from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.check_technique_point import CheckTechniquePoint
-from sr.operation.unit.enable_auto_fight import EnableAutoFight
+from sr.operation.unit.technique import pc_can_use_technique
 from sr.screen_area.dialog import ScreenDialog
 
 
@@ -32,6 +31,8 @@ class EnterAutoFight(Operation):
         self.last_attack_time: float = 0
         self.last_alert_time: float = 0  # 上次警报时间
         self.last_not_in_world_time: float = 0  # 上次不在移动画面的时间
+        self.last_state: str = ''  # 上一次的画面状态
+        self.current_state: str = ''  # 这一次的画面状态
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_direction: int = 0  # 攻击方向
         self.use_technique: bool = use_technique  # 使用秘技开怪
@@ -40,26 +41,39 @@ class EnterAutoFight(Operation):
         super()._init_before_execute()
         self.last_attack_time = time.time()
         self.last_alert_time = time.time()  # 上次警报时间
-        self.last_not_in_world_time = time.time()  # 上次不在移动画面的时间
+        self.last_not_in_world_time = time.time() - 1.5  # 上次不在移动画面的时间
         self.attack_direction: int = 0  # 攻击方向
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        state = screen_state.get_world_patrol_screen_state(screen, self.ctx.im, self.ctx.ocr,
-                                                           in_world=True, battle=True, battle_fail=True,
-                                                           fast_recover=self.use_technique)
-        if state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
+        self.last_state = self.current_state
+        self.current_state = screen_state.get_world_patrol_screen_state(
+            screen, self.ctx.im, self.ctx.ocr,
+            in_world=True, battle=True, battle_fail=True,
+            fast_recover=self.use_technique)
+        if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
+            self._update_in_world()
             return self._try_attack(screen)
-        elif state == screen_state.ScreenState.BATTLE_FAIL.value:
+        elif self.current_state == screen_state.ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return Operation.round_fail(EnterAutoFight.STATUS_BATTLE_FAIL, wait=5)
-        elif state == ScreenDialog.FAST_RECOVER_TITLE.value.text:
+        elif self.current_state == ScreenDialog.FAST_RECOVER_TITLE.value.text:
             result = self._recover_technique_point()
-            self.last_alert_time = time.time()  # 恢复秘技点的时间不应该在计算内
+            self._update_not_in_world_time()  # 恢复秘技点的时间不应该在计算内
             return result
-        elif state == screen_state.ScreenState.BATTLE.value:
+        elif self.current_state == screen_state.ScreenState.BATTLE.value:
             return self._in_battle()
+        else:
+            return Operation.round_retry('未知画面', wait=1)
+
+    def _update_in_world(self):
+        """
+        在大世界画面的更新
+        :return:
+        """
+        if self.last_state != screen_state.ScreenState.NORMAL_IN_WORLD.value:
+            self._update_not_in_world_time()
 
     def _try_attack(self, screen: MatLike) -> OperationOneRoundResult:
         """
@@ -81,18 +95,20 @@ class EnterAutoFight(Operation):
         if self.use_technique and not self.ctx.is_buff_technique:  # 攻击类每次都需要使用
             self.ctx.technique_used = False
 
-        if self.use_technique and not self.ctx.technique_used:
+        if self.use_technique and not self.ctx.technique_used and \
+                (not self.ctx.is_pc or pc_can_use_technique(screen, self.ctx.ocr, self.gc.key_technique)):  # 普通锄大地战斗后 会有一段时间才能进行操作 可以操作时 操作按键会显示出来
             technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
-
-            if self.ctx.is_buff_technique:
+            if technique_point is None:  # 部分机器运行速度快 右上角图标出来了当下面秘技点还没出来 这时候还不能使用秘技
+                pass
+            elif self.ctx.is_buff_technique:
                 self.ctx.controller.use_technique()
                 self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
-                self.last_alert_time = time.time()  # 使用秘技的时间不应该在计算内
+                self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
             elif mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
                 self.ctx.controller.use_technique()
                 self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
 
-            if self.ctx.technique_used and (technique_point is None or technique_point == 0):
+            if self.ctx.technique_used and technique_point == 0:
                 self.last_alert_time += 0.5
                 return Operation.round_wait(wait=0.5)
 

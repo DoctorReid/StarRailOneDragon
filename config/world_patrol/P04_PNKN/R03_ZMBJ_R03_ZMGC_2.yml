@@ -7,9 +7,9 @@ route:
   - op: 'move'
     data: [1277, 756]
   - op: 'move'
-    data: [1277, 828]
+    data: [1277, 823]
   - op: 'move'
-    data: [1216, 828]
+    data: [1216, 823]
   - op: 'move'
     data: [1210, 878]
   - op: 'move'
