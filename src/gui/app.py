@@ -19,7 +19,7 @@ from sr.config.game_config import GameConfig
 from sr.context import get_context, Context
 
 
-class StarRailAutoProxy:
+class StarRailOneDragon:
 
     def __init__(self, page: ft.Page, ctx: Context):
         self.flet_page: ft.Page = page
@@ -27,7 +27,7 @@ class StarRailAutoProxy:
 
         ui_config = gui_config.get()
         page.theme_mode = ft.ThemeMode.LIGHT if ui_config.theme_usage == ft.ThemeMode.LIGHT.value else ft.ThemeMode.DARK
-        page.title = gt('崩坏：星穹铁道 自动代理器', model='ui') + ' ' + version.get_current_version()
+        page.title = gt('崩坏：星穹铁道 一条龙', model='ui') + ' ' + version.get_current_version()
         page.padding = 0
 
         theme: ThemeColors = gui_config.theme()
@@ -290,10 +290,10 @@ def run_app(page: ft.Page):
     scheduler.start()
 
     ctx = get_context()
-    StarRailAutoProxy(page, ctx)
+    StarRailOneDragon(page, ctx)
 
 
 if __name__ == '__main__':
     if os_utils.is_debug():
         logging.getLogger("flet_core").setLevel(logging.INFO)
-    ft.app(target=run_app, name='StarRailAutoProxy')
+    ft.app(target=run_app, name='StarRailOneDragon')

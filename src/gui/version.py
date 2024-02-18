@@ -42,7 +42,7 @@ def get_latest_release_info(proxy: Optional[str] = None, pre_release: bool = Fal
     proxies = {'http': proxy_to_use, 'https': proxy_to_use} if proxy_to_use is not None else None
 
     if pre_release:  # 获取pre-release
-        url = 'https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases'
+        url = 'https://api.github.com/repos/DoctorReid/StarRailOneDragon/releases'
         response = requests.get(url, proxies=proxies)
         if response.status_code != 200:
             log.error('获取最新版本信息失败 %s', response.content)
@@ -50,7 +50,7 @@ def get_latest_release_info(proxy: Optional[str] = None, pre_release: bool = Fal
         else:
             return response.json()[0]
     else:  # 获取最新release信息
-        url = 'https://api.github.com/repos/DoctorReid/StarRailAutoProxy/releases/latest'
+        url = 'https://api.github.com/repos/DoctorReid/StarRailOneDragon/releases/latest'
         response = requests.get(url, proxies=proxies)
         if response.status_code != 200:
             log.error('获取最新版本信息失败 %s', response.content)
@@ -188,7 +188,7 @@ def delete_old_files():
     正式下载更新前 删除旧的文件夹内容
     :return:
     """
-    shutil.rmtree(os_utils.get_path_under_work_dir('.temp', 'StarRailAutoProxy'))
+    shutil.rmtree(os_utils.get_path_under_work_dir('.temp', 'StarRailOneDragon'))
 
 
 def download_and_unzip(name_2_url: dict[str, str], to_update: set[str] = None,
@@ -204,7 +204,7 @@ def download_and_unzip(name_2_url: dict[str, str], to_update: set[str] = None,
     if to_update is None or 'requirements' in to_update:
         filename, url = None, None
         for i in name_2_url.keys():
-            if i.startswith('StarRailAutoProxy') and i.endswith('.zip'):
+            if i.startswith('StarRailOneDragon') and i.endswith('.zip'):
                 filename = i
                 url = name_2_url[i]
         download_file(filename, url, proxy)

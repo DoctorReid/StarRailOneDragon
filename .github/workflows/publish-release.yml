@@ -50,36 +50,36 @@ jobs:
           pip install -r requirements.txt
 
       - name: Package Exe by PyInstaller
-        run: pyinstaller src/gui/app.py --name StarRailAutoProxy --clean --noconfirm --noconsole --icon "images/ui/icon.ico" --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --collect-all paddle --collect-all paddleocr --collect-all shapely --collect-all pyclipper --collect-all skimage --collect-all imghdr --collect-all imgaug --collect-all lmdb
+        run: pyinstaller src/gui/app.py --name StarRailOneDragon --clean --noconfirm --noconsole --icon "images/ui/icon.ico" --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --collect-all paddle --collect-all paddleocr --collect-all shapely --collect-all pyclipper --collect-all skimage --collect-all imghdr --collect-all imgaug --collect-all lmdb
 
       - name: Checkout wiki
         uses: actions/checkout@v4
         with:
-          repository: DoctorReid/StarRailAutoProxy.wiki
+          repository: DoctorReid/StarRailOneDragon.wiki
           ref: master
           fetch-depth: 1
           path: wiki
 
       - name: Zip All
         run: |
-          cp ./wiki/output/README.pdf ./dist/StarRailAutoProxy/
+          cp ./wiki/output/README.pdf ./dist/StarRailOneDragon/
           cd dist
-          7z a StarRailAutoProxy-${{ github.event.release.tag_name }}.zip StarRailAutoProxy
-          7z a -r config.zip StarRailAutoProxy/_internal/config/**
-          7z a -r data.zip StarRailAutoProxy/_internal/data/**
-          7z a -r images.zip StarRailAutoProxy/_internal/images/**
-          7z a -r model.zip StarRailAutoProxy/_internal/model/**
-          7z a -r src.zip StarRailAutoProxy/StarRailAutoProxy.exe
+          7z a StarRailOneDragon-${{ github.event.release.tag_name }}.zip StarRailOneDragon
+          7z a -r config.zip StarRailOneDragon/_internal/config/**
+          7z a -r data.zip StarRailOneDragon/_internal/data/**
+          7z a -r images.zip StarRailOneDragon/_internal/images/**
+          7z a -r model.zip StarRailOneDragon/_internal/model/**
+          7z a -r src.zip StarRailOneDragon/StarRailOneDragon.exe
 
       - name: Upload All
         run: |
           cd dist
-          gh release upload ${{ github.event.release.tag_name }} StarRailAutoProxy-${{ github.event.release.tag_name }}.zip --clobber
+          gh release upload ${{ github.event.release.tag_name }} StarRailOneDragon-${{ github.event.release.tag_name }}.zip --clobber
           gh release upload ${{ github.event.release.tag_name }} config.zip --clobber
           gh release upload ${{ github.event.release.tag_name }} data.zip --clobber
           gh release upload ${{ github.event.release.tag_name }} images.zip --clobber
           gh release upload ${{ github.event.release.tag_name }} model.zip --clobber
           gh release upload ${{ github.event.release.tag_name }} src.zip --clobber
-          gh release upload ${{ github.event.release.tag_name }} StarRailAutoProxy/_internal/version.yml --clobber
+          gh release upload ${{ github.event.release.tag_name }} StarRailOneDragon/_internal/version.yml --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

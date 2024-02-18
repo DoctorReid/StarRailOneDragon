@@ -19,7 +19,7 @@ jobs:
       - name: Checkout wiki
         uses: actions/checkout@v4
         with:
-          repository: DoctorReid/StarRailAutoProxy.wiki
+          repository: DoctorReid/StarRailOneDragon.wiki
           ref: master
           fetch-depth: 1
           path: wiki
