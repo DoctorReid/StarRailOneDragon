@@ -16,6 +16,7 @@ class TreasuresLightwardScheduleRecord(TypedDict):
     schedule_name: str  # 该期挑战的名称
     add_dt: str  # 开始记录的日期
     mission_star: dict[int, int]  # 每一关的星数
+    total_star: int  # 总星数
     finished: bool  # 是否完成挑战
 
 
@@ -75,6 +76,7 @@ class TreasuresLightwardRecord(AppRunRecord):
             schedule_type=schedule_type.value,
             schedule_name=schedule_name,
             mission_star={},
+            total_star=0,
             add_dt=app_record_current_dt_str(),
             finished=False)
         old_list.append(new_schedule)
@@ -161,10 +163,12 @@ class TreasuresLightwardRecord(AppRunRecord):
         return False
 
     def get_total_star(self, schedule: TreasuresLightwardScheduleRecord) -> int:
-        total_star = 0
-        for value in schedule['mission_star'].values():
-            total_star += value
-        return total_star
+        """
+        某期挑战的总星数
+        :param schedule: 当前挑战的期数
+        :return: 星数
+        """
+        return 0 if 'total_star' not in schedule else schedule['total_star']
 
     def get_mission_star(self, schedule: TreasuresLightwardScheduleRecord, mission_num: int):
         """
@@ -176,18 +180,47 @@ class TreasuresLightwardRecord(AppRunRecord):
         stars = schedule['mission_star']
         return stars[mission_num] if mission_num in stars else 0
 
+    def update_total_star(self, schedule: TreasuresLightwardScheduleRecord, total_star: int):
+        """
+        更新某一期的总星数
+        :param schedule:
+        :param total_star:
+        :return:
+        """
+        schedule['total_star'] = total_star
+        self.save()
+
     def update_mission_star(self, schedule: TreasuresLightwardScheduleRecord, mission_num: int, star: int):
         """
-        更新某个关卡的星数
+        更新某个关卡的星数 同时增量更新总星数
         :param schedule: 当前挑战的期数
         :param mission_num: 关卡编号
         :param star: 星数
         :return:
         """
         stars = schedule['mission_star']
+        last_star = 0 if mission_num not in stars[mission_num] else stars[mission_num]
         stars[mission_num] = star
+
+        last_total_star = 0 if 'total_star' not in schedule else schedule['total_star']
+        schedule['total_star'] = last_total_star - last_star + star
         self.save()
 
+    def get_latest_total_star(self, schedule_type: TreasuresLightwardTypeEnum):
+        """
+        获取某类型的
+        :param schedule_type:
+        :return:
+        """
+        latest_dt = '20230101'
+        total_star = 0
+        for schedule in self.schedule_list:
+            if schedule['schedule_type'] != schedule_type.value:
+                continue
+            if schedule['add_dt'] > latest_dt:
+                latest_dt = schedule['add_dt']
+                total_star = schedule['total_star']
+        return total_star
 
 _treasures_lightward_record: Optional[TreasuresLightwardRecord] = None
 

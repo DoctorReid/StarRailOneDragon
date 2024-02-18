@@ -1,4 +1,4 @@
-from typing import ClassVar
+from typing import ClassVar, Optional, Callable
 
 from cv2.typing import MatLike
 
@@ -8,7 +8,7 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
@@ -23,12 +23,12 @@ class TlCheckTotalStar(Operation):
     EMPTY_POINT: ClassVar[Point] = Point(900, 100)
 
     def __init__(self, ctx: Context, schedule_type: TreasuresLightwardTypeEnum,
-                 star_callback=None):
+                 op_callback: Optional[Callable[[OperationResult], None]] = None):
         super().__init__(ctx, try_times=5,
-                         op_name='%s %s' % (gt(schedule_type.value, 'ui'), gt('获取总星数', 'ui'))
+                         op_name='%s %s' % (gt(schedule_type.value, 'ui'), gt('获取总星数', 'ui')),
+                         op_callback=op_callback
                          )
         self.schedule_type: TreasuresLightwardTypeEnum = schedule_type
-        self.star_callback = star_callback  # 获取星数的回调
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
@@ -46,8 +46,6 @@ class TlCheckTotalStar(Operation):
                 (self.schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION and star > 12):
             return Operation.round_retry('星数值异常 %d' % star, wait=1)
         else:
-            if self.star_callback is not None:
-                self.star_callback(star)
             full_star = (self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL and star == 36) or \
                 (self.schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION and star == 12)
             return Operation.round_success(status=TlCheckTotalStar.STATUS_FULL_STAR if full_star else None, data=star)

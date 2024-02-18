@@ -58,7 +58,7 @@ class TreasuresLightwardApp(Application2):
         edges.append(StateOperationEdge(fh_check_record, check_total_star, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))  # 需要进行挑战 检测星数
         edges.append(StateOperationEdge(pf_check_record, check_total_star, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))  # 需要进行挑战 检测星数
 
-        finished = StateOperationNode('设置完成', self._set_schedule_finished)
+        finished = StateOperationNode('设置完成', self._check_schedule_finished)
         edges.append(StateOperationEdge(check_total_star, finished, status=TlCheckTotalStar.STATUS_FULL_STAR))  # 满星的时候直接设置为成功
 
         get_reward = StateOperationNode('领取奖励', op=GetRewardInForgottenHall(ctx))
@@ -74,7 +74,7 @@ class TreasuresLightwardApp(Application2):
         challenge_mission = StateOperationNode('挑战关卡', self._challenge_next_mission)
         edges.append(StateOperationEdge(check_max_unlock, challenge_mission))  # 挑战
 
-        edges.append(StateOperationEdge(challenge_mission, challenge_mission, status='3'))  # 循环挑战到满星
+        edges.append(StateOperationEdge(challenge_mission, challenge_mission, status='3'))  # 该关卡满星就循环挑战下一关
         edges.append(StateOperationEdge(challenge_mission, finished, ignore_status=True))  # 没满星就不挑战下一个了
 
         super().__init__(ctx, op_name=gt('逐光捡金', 'ui'),
@@ -161,20 +161,30 @@ class TreasuresLightwardApp(Application2):
         :return:
         """
         op = TlCheckTotalStar(self.ctx, self.schedule_type)
-        return Operation.round_by_op(op.execute())
+        op_result = op.execute()
+        if op_result.success:
+            self.run_record.update_total_star(self.challenge_schedule, op_result.data)
+        return Operation.round_by_op(op_result)
 
-    def _set_schedule_finished(self) -> OperationOneRoundResult:
+    def _check_schedule_finished(self) -> OperationOneRoundResult:
         """
-        设置某一期为挑战完成
+        挑战结束后 判断星数是否已经满星 满星则将该期设置为完成
         :return:
         """
-        self.challenge_schedule['finished'] = True
-        self.run_record.save()
+        op = TlCheckTotalStar(self.ctx, self.schedule_type)
+        op_result = op.execute()
+        if op_result.success:
+            self.run_record.update_total_star(self.challenge_schedule, op_result.data)
+
+        if self.challenge_schedule['total_star'] >= self.get_max_num() * 3:
+            self.challenge_schedule['finished'] = True
+            self.run_record.save()
         return Operation.round_success()
 
     def _on_mission_finished(self, op_result: OperationResult):
         """
-        通关后更新星数 并找到下一个需要挑战的关卡
+        通关后更新星数
+        并找到下一个需要挑战的关卡
         :param op_result:
         :return:
         """
@@ -253,7 +263,8 @@ class TreasuresLightwardApp(Application2):
         获取下一个挑战关卡的指令
         :return: 指令
         """
-        if self.current_mission_num > self.get_max_num():
+        if self.current_mission_num > self.get_max_num() or \
+                self.run_record.get_total_star(self.challenge_schedule) >= self.get_max_num() * 3:
             return Operation.round_success()
 
         op = ChallengeForgottenHallMission(self.ctx,

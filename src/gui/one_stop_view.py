@@ -16,9 +16,11 @@ from sr.app import Application, one_stop_service, AppRunRecord
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
 from sr.app.routine import echo_of_war
 from sr.app.sim_uni import sim_universe_app
+from sr.app.treasures_lightward import treasures_lightward_record
 from sr.context import Context
 from sr.mystools import mys_config
 from sr.mystools.mys_config import MysConfig
+from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
 info_text_width = 200
 info_text_spacing = 5
@@ -228,8 +230,9 @@ class OneStopView(ft.Row, SrBasicView):
         self.sim_times = Label2NormalValueRow('通关次数', '未实现')
         sim_row = ft.Row(controls=[self.sim_rank, self.sim_times])
 
-        self.hall = Label2NormalValueRow('逐光捡金(本地)', '0', suffix_label='30')
-        hall_row = ft.Row(controls=[self.hall])
+        self.forgotten_hall = Label2NormalValueRow('忘却之庭(本地)', '0', suffix_label='/36')
+        self.pure_fiction = Label2NormalValueRow('虚构叙事(本地)', '0', suffix_label='/12')
+        treasures_lightward_row = ft.Row(controls=[self.forgotten_hall, self.pure_fiction])
 
         self.card_title = components.CardTitleText('游戏角色状态')
         refresh_btn = ft.IconButton(icon=ft.icons.REFRESH, on_click=self._update_character_status)
@@ -241,7 +244,7 @@ class OneStopView(ft.Row, SrBasicView):
                 assignment_row_2,
                 training_row,
                 sim_row,
-                hall_row
+                treasures_lightward_row
             ], auto_scroll=True, spacing=10)
         character_info_card = components.Card(character_info_content, title=character_info_title, width=info_card_width, height=320)
 
@@ -462,8 +465,9 @@ class OneStopView(ft.Row, SrBasicView):
         echo_record = echo_of_war.get_record()
         self.echo.update_value(str(echo_record.left_times))
 
-        # forgotten_hall_record = treasures_lightward_record.get_record()
-        # self.hall.update_value(str(forgotten_hall_record.star))
+        tl_record = treasures_lightward_record.get_record()
+        self.forgotten_hall.update_value(str(tl_record.get_latest_total_star(TreasuresLightwardTypeEnum.FORGOTTEN_HALL)))
+        self.pure_fiction.update_value(str(tl_record.get_latest_total_star(TreasuresLightwardTypeEnum.PURE_FICTION)))
 
         sim_uni_record = sim_universe_app.get_record()
         self.sim_times.update_value(str(sim_uni_record.weekly_times))
