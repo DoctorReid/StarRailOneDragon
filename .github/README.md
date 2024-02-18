@@ -1,5 +1,5 @@
 # Honkai Star Rail - One Dragon
-崩坏：星穹铁道 - 一条龙 - 基于图像识别的自动游戏脚本，适用于PC端。
+__崩坏：星穹铁道 - 一条龙__ - 基于图像识别的自动游戏脚本，适用于PC端。
 
 本脚本的终极目标是可以让你在日常```忘掉```这个游戏，做到完全的托管。
 
@@ -15,9 +15,9 @@
 - [日常](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8) `已完成`
 - [模拟宇宙](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%A8%A1%E6%8B%9F%E5%AE%87%E5%AE%99) `测试中`
 
-![APP主页](https://github.com/DoctorReid/StarRailAutoProxy/blob/main/.github/wiki/app.png)
+![APP主页](https://github.com/DoctorReid/StarRailOneDragon/blob/main/.github/wiki/app.png)
 
-[当前进度](https://github.com/DoctorReid/StarRailProxy/milestone/5)
+[当前进度](https://github.com/DoctorReid/StarRailOneDragon/milestone/5)
 
 ## 免责声明
 本软件是一个外部工具旨在自动化崩坏星轨的游戏玩法。它被设计成仅通过现有用户界面与游戏交互,并遵守相关法律法规。该软件包旨在提供简化和用户通过功能与游戏交互,并且它不打算以任何方式破坏游戏平衡或提供任何不公平的优势。该软件包不会以任何方式修改任何游戏文件或游戏代码。
