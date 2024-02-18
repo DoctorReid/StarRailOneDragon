@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from typing import List, Optional
 
@@ -20,12 +21,14 @@ class AppRunRecord(ConfigHolder):
     def __init__(self, app_id: str):
         self.dt: str = ''
         self.run_time: str = ''
+        self.run_time_float: float = 0
         self.run_status: int = AppRunRecord.STATUS_WAIT  # 0=未运行 1=成功 2=失败 3=运行中
         super().__init__(app_id, sub_dir=['app_run_record'], sample=False)
 
     def _init_after_read_file(self):
         self.dt = self.get('dt', app_record_current_dt_str())
         self.run_time = self.get('run_time', '-')
+        self.run_time_float = self.get('run_time_float', 0)
         self.run_status = self.get('run_status', AppRunRecord.STATUS_WAIT)
 
     def check_and_update_status(self):
@@ -48,8 +51,10 @@ class AppRunRecord(ConfigHolder):
         if not only_status:
             self.dt = app_record_current_dt_str()
             self.run_time = app_record_now_time_str()
+            self.run_time_float = time.time()
             self.update('dt', self.dt, False)
             self.update('run_time', self.run_time, False)
+            self.update('run_time_float', self.run_time_float, False)
 
         self.save()
 

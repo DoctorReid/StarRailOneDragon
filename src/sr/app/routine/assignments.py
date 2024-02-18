@@ -38,14 +38,20 @@ class AssignmentsRecord(AppRunRecord):
         有任何一个委托可以接受
         :return:
         """
-        super()._should_reset_by_dt()
+        if super()._should_reset_by_dt():
+            return True
         config = mys_config.get()
-        now = time.time()
-        usage_time = now - config.refresh_time
-        e_arr = config.expeditions
-        for e in e_arr:
-            if e.remaining_time - usage_time <= 0:
-                return True
+
+        if self.claim_dt >= app_record_current_dt_str() or self.run_time_float > config.refresh_time:
+            return False
+
+        if config.refresh_time > 0:
+            now = time.time()
+            usage_time = now - config.refresh_time
+            e_arr = config.expeditions
+            for e in e_arr:
+                if e.remaining_time - usage_time <= 0:
+                    return True
         return False
 
     @property
