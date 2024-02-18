@@ -6,7 +6,7 @@ from sr.app import Application, AppRunRecord, app_record_current_dt_str, AppDesc
 from sr.config import game_config
 from sr.const import game_config_const, map_const
 from sr.context import Context
-from sr.operation import Operation, OperationResult
+from sr.operation import Operation
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
 from sr.operation.unit.back_to_world import BackToWorld
@@ -69,7 +69,7 @@ class BuyXianzhouParcel(Application):
             Transport(self.ctx, map_const.P03_R02_SP02),
             MoveDirectly(self.ctx,
                          lm_info=self.ctx.ih.get_large_map(map_const.P03_R02_SP02.region),
-                         target=Point(390, 780),
+                         target=map_const.P03_R02_SP08.lm_pos,
                          start=map_const.P03_R02_SP02.tp_pos),
             Interact(self.ctx, '茂贞', single_line=True),
             TalkInteract(self.ctx, '我想买个过期邮包试试手气', lcs_percent=0.55),
