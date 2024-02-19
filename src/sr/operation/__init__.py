@@ -35,6 +35,19 @@ class OperationOneRoundResult:
     def is_success(self) -> bool:
         return self.result == Operation.SUCCESS
 
+    @property
+    def status_display(self) -> str:
+        if self.result == Operation.SUCCESS:
+            return '成功'
+        elif self.result == Operation.RETRY:
+            return '重试'
+        elif self.result == Operation.WAIT:
+            return '等待'
+        elif self.result == Operation.FAIL:
+            return '失败'
+        else:
+            return '未知'
+
 
 class OperationResult:
 
@@ -673,8 +686,7 @@ class StateOperation(Operation):
             return Operation.round_fail('节点处理函数和指令都没有设置')
 
         log.info('%s 节点 %s 返回状态 %s', self.display_name, self._current_node.cn,
-                 coalesce_gt(current_round_result.status,
-                             ('成功' if current_round_result.is_success else '失败'), model='ui'))
+                 coalesce_gt(current_round_result.status, current_round_result.status_display, model='ui'))
 
         if current_round_result.result == Operation.WAIT or current_round_result.result == Operation.RETRY:
             # 等待或重试的 直接返回
