@@ -28,14 +28,13 @@ class WorldPatrolWhiteListView(components.Card, SrBasicView):
         self.cancel_edit_existed_btn = ft.ElevatedButton(text='取消编辑已有名单', on_click=self.clear_chosen_whitelist, disabled=True)
         self.save_list_btn = ft.ElevatedButton(text='保存', on_click=self.save_list, disabled=True)
         self.delete_list_btn = ft.ElevatedButton(text='删除', on_click=self.delete_list, disabled=True)
-        self.clear_list_btn = ft.ElevatedButton(text='清空', on_click=self.clear_selected_route, disabled=True)
+
         self.existed_id_list: List[str] = []  # 名单列表
         whitelist_id_row = ft.Row(controls=[
             self.existed_list_dropdown,
             self.cancel_edit_existed_btn,
             self.save_list_btn,
             self.delete_list_btn,
-            self.clear_list_btn
         ])
         self.chosen_whitelist: Optional[WorldPatrolWhitelist] = None
 
@@ -62,28 +61,30 @@ class WorldPatrolWhiteListView(components.Card, SrBasicView):
         self.add_planet_btn = ft.ElevatedButton(text='添加星球', disabled=True, on_click=self.on_add_planet_clicked)
         self.add_region_btn = ft.ElevatedButton(text='添加区域', disabled=True, on_click=self.on_add_region_clicked)
         self.add_route_btn = ft.ElevatedButton(text='添加路线', disabled=True, on_click=self.on_add_route_clicked)
-        route_row = ft.Row(controls=[self.planet_dropdown, self.region_dropdown, self.existed_route_dropdown,
-                                     self.add_planet_btn, self.add_region_btn, self.add_route_btn])
+        self.clear_list_btn = ft.ElevatedButton(text='清空', on_click=self.clear_selected_route, disabled=True)
+        route_row = ft.Row(controls=[self.planet_dropdown, self.region_dropdown, self.existed_route_dropdown])
+        btn_row = ft.Row(controls=[self.add_planet_btn, self.add_region_btn, self.add_route_btn, self.clear_list_btn])
 
         self.existed_route_id_list: List[WorldPatrolRouteId] = []  # 加载的所有列表
         self.selected_route_id_list: List[WorldPatrolRouteId] = []  # 选择进名单的列表
 
-        self.image_width = 1000
+        self.image_width = 650
         self.map_img = ft.Image(src="a.png", fit=ft.ImageFit.CONTAIN, visible=False)
 
-        self.display_route_list = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
+        self.display_route_list = ft.ListView(expand=1, spacing=10, auto_scroll=True)
 
         route_display_part = ft.Column(controls=[
             ft.Container(content=whitelist_id_row, padding=20),
             ft.Container(content=name_type_route, padding=20),
             ft.Container(content=route_row, padding=20),
+            ft.Container(content=btn_row, padding=20),
             ft.Container(content=self.map_img, width=self.image_width, height=self.image_width,
                          alignment=ft.alignment.top_left)
         ], scroll=ft.ScrollMode.AUTO)
 
         content = ft.Row(controls=[
             route_display_part,
-            ft.Container(content=self.display_route_list, padding=5, width=400)
+            ft.Container(content=self.display_route_list, padding=5, width=300)
         ])
 
         components.Card.__init__(self, content)
@@ -328,7 +329,7 @@ class WorldPatrolWhiteListView(components.Card, SrBasicView):
         for route_id in self.selected_route_id_list:
             route_text_list.append(
                 ft.Row(controls=[
-                    ft.TextButton(text=route_id.display_name, on_click=self.on_list_route_selected),
+                    ft.TextButton(text=route_id.display_name, on_click=self.on_list_route_selected, width=250),
                     ft.IconButton(icon=ft.icons.DELETE_FOREVER_ROUNDED, tooltip="删除", data=route_id.unique_id, on_click=self.on_delete_route)
                 ])
             )
