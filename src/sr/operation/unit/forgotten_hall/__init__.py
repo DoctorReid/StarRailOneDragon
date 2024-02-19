@@ -67,6 +67,9 @@ def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchRes
 
         ocr_result = ctx.ocr.ocr_for_single_line(white_number_part)
         # cv2_utils.show_image(white_number_part, win_name='part', wait=0)
+        digit_str = str_utils.remove_not_digit(ocr_result)
+        if len(digit_str) != 2:  # 避免识别错误 只有两位数字的才认为是对的
+            continue
 
         mission_num = str_utils.get_positive_digits(ocr_result, err=-1)
         if mission_num == -1:
@@ -115,7 +118,7 @@ def get_mission_num_pos(ctx: Context, target_mission_num: int, screen: MatLike,
                     break
 
             drag_from = CHOOSE_MISSION_RECT.center
-            drag_to = drag_from + Point((600 if existed_larger else -600), 0)
+            drag_to = drag_from + Point((800 if existed_larger else -800), 0)
             ctx.controller.drag_to(drag_to, drag_from, duration=0.3)
             time.sleep(0.5)
         return None

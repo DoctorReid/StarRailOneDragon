@@ -192,18 +192,14 @@ class TreasuresLightwardRecord(AppRunRecord):
 
     def update_mission_star(self, schedule: TreasuresLightwardScheduleRecord, mission_num: int, star: int):
         """
-        更新某个关卡的星数 同时增量更新总星数
+        更新某个关卡的星数
         :param schedule: 当前挑战的期数
         :param mission_num: 关卡编号
         :param star: 星数
         :return:
         """
         stars = schedule['mission_star']
-        last_star = 0 if mission_num not in stars[mission_num] else stars[mission_num]
         stars[mission_num] = star
-
-        last_total_star = 0 if 'total_star' not in schedule else schedule['total_star']
-        schedule['total_star'] = last_total_star - last_star + star
         self.save()
 
     def get_latest_total_star(self, schedule_type: TreasuresLightwardTypeEnum):

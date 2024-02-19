@@ -375,6 +375,6 @@ class StatusCombineOperation2(Operation):
 
     def round_result_by_op(self, op_result: OperationResult) -> OperationOneRoundResult:
         if op_result.success:
-            return self.round_success(op_result.status)
+            return self.round_success(op_result.status, data=op_result.data)
         else:
-            return self.round_fail(op_result.status)
+            return self.round_fail(op_result.status, data=op_result.data)

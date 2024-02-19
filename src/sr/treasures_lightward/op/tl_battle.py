@@ -11,7 +11,7 @@ from sr.operation import Operation, OperationResult, StateOperation, StateOperat
     OperationOneRoundResult
 from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.forgotten_hall.wait_in_hall import WaitInHall
-from sr.operation.unit.move import MoveToEnemy
+from sr.operation.unit.move import MoveToEnemy, MoveForward
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard
 from sr.treasures_lightward.op.tl_wait import TlWaitNodeStart
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
@@ -37,8 +37,13 @@ class TlNodeFight(StateOperation):
         edges: List[StateOperationEdge] = []
 
         node_start = StateOperationNode('等待节点开始', op=TlWaitNodeStart(ctx, is_first_node, timeout_seconds=15))
+
         move = StateOperationNode('向敌人移动', op=MoveToEnemy(ctx))
         edges.append(StateOperationEdge(node_start, move))
+
+        move_towards = StateOperationNode('向前移动', op=MoveForward(ctx, 2))  # 有可能红点在比较远 先向前移动看看
+        edges.append(StateOperationEdge(move, move_towards, success=False, status=MoveToEnemy.STATUS_ENEMY_NOT_FOUND))
+        edges.append(StateOperationEdge(move_towards, move))
 
         enter_fight = StateOperationNode('进入战斗', op=StartFightForElite(ctx, character_list=team, skip_point_check=True))
         edges.append(StateOperationEdge(move, enter_fight))

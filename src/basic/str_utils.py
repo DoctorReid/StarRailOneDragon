@@ -73,10 +73,19 @@ def get_positive_digits(v: str, err: Optional[int] = 0) -> Optional[int]:
     :return: 字符串中的数字
     """
     try:
-        return int(re.sub(r"\D", "", v))
+        return int(remove_not_digit(v))
     except Exception:
         log.debug('目标字符串中没有数字 %s', v)
         return err
+
+
+def remove_not_digit(v: str) -> str:
+    """
+    移除字符串中的非数字部分
+    :param v:
+    :return:
+    """
+    return re.sub(r"\D", "", v)
 
 
 def find_best_match_by_lcs(word: str, target_word_list: List[str],

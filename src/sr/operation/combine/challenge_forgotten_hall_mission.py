@@ -39,7 +39,7 @@ class ChallengeForgottenHallMission(StatusCombineOperation2):
         check_star = StatusCombineOperationNode('检查星数', CheckMissionStar(ctx, mission_num))
         edges.append(StatusCombineOperationEdge2(wait_in_hall, check_star))
 
-        full_star = StatusCombineOperationNode('满星结束', OperationSuccess(ctx, '3'))
+        full_star = StatusCombineOperationNode('满星结束', OperationSuccess(ctx, '3', data=3))
         edges.append(StatusCombineOperationEdge2(check_star, full_star, status='3'))  # 3颗满了就可以跳过本次挑战了
 
         enter_mission = StatusCombineOperationNode('选择关卡', ChooseMission(ctx, mission_num))

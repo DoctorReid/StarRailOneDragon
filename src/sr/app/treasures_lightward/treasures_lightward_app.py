@@ -74,7 +74,10 @@ class TreasuresLightwardApp(Application2):
         challenge_mission = StateOperationNode('挑战关卡', self._challenge_next_mission)
         edges.append(StateOperationEdge(check_max_unlock, challenge_mission))  # 挑战
 
-        edges.append(StateOperationEdge(challenge_mission, challenge_mission, status='3'))  # 该关卡满星就循环挑战下一关
+        check_total_star_before_next = StateOperationNode('关卡后检测总星数', self._check_total_star)
+        edges.append(StateOperationEdge(challenge_mission, check_total_star_before_next, status='3'))  # 该关卡满星就循环挑战下一关
+        edges.append(StateOperationEdge(check_total_star_before_next, challenge_mission))
+
         edges.append(StateOperationEdge(challenge_mission, finished, ignore_status=True))  # 没满星就不挑战下一个了
 
         super().__init__(ctx, op_name=gt('逐光捡金', 'ui'),
@@ -85,11 +88,13 @@ class TreasuresLightwardApp(Application2):
         self.config: TreasuresLightwardConfig = get_config()
         self.current_mission_num: int = 1  # 当前挑战的关卡
         self.max_unlock_num: int = 1  # 最大解锁的关卡
+        self.challenged_set: set[str] = set()  # 本次运行已经挑战的
 
     def _init_before_execute(self):
         super()._init_before_execute()
         self.current_mission_num = 1
         self.max_unlock_num = 1
+        self.challenged_set = set()
 
     def _choose_forgotten_hall(self):
         """
@@ -135,11 +140,11 @@ class TreasuresLightwardApp(Application2):
 
                 part = cv2_utils.crop_image_only(screen, name_area_list[i].rect)
                 schedule_name = self.ctx.ocr.ocr_for_single_line(part)
-                existed_schedule = self.run_record.match_existed_schedule(self.schedule_type, schedule_name)
+                existed_schedule: TreasuresLightwardScheduleRecord = self.run_record.match_existed_schedule(self.schedule_type, schedule_name)
                 if existed_schedule is None:
                     self.challenge_schedule = self.run_record.add_schedule(self.schedule_type, schedule_name)
                     to_challenge_idx = i
-                elif not existed_schedule['finished']:
+                elif not existed_schedule['finished'] and existed_schedule['schedule_name'] not in self.challenged_set:
                     self.challenge_schedule = existed_schedule
                     to_challenge_idx = i
 
@@ -148,6 +153,8 @@ class TreasuresLightwardApp(Application2):
 
         if to_challenge_idx == -1:  # 没有需要挑战的
             return Operation.round_success()
+
+        self.challenged_set.add(self.challenge_schedule['schedule_name'])
 
         click_tp = self.ctx.controller.click(tp_area_list[to_challenge_idx].rect.center)
         if click_tp:
@@ -188,6 +195,8 @@ class TreasuresLightwardApp(Application2):
         :param op_result:
         :return:
         """
+        if not op_result.success:
+            return
         mission_num: int = self.current_mission_num
         star: int = op_result.data
         log.info('%s 关卡 %d 当前星数 %d', self.challenge_schedule['schedule_name'], mission_num, star)
@@ -223,6 +232,7 @@ class TreasuresLightwardApp(Application2):
         last_num: int = self.get_num_able_to_continue()
         if op_result.success:
             max_unlock_num: int = op_result.data
+            log.info('最大已解锁关卡 %02d', max_unlock_num)
             if max_unlock_num <= last_num:
                 for i in range(max_unlock_num, 0, -1):  # 可以从上期继续的 优先挑战高的
                     if self.run_record.get_mission_star(self.challenge_schedule, i) < 3:
@@ -232,7 +242,7 @@ class TreasuresLightwardApp(Application2):
                 for i in range(1, max_unlock_num + 1):
                     if self.run_record.get_mission_star(self.challenge_schedule, i) < 3:
                         self.current_mission_num = i
-                    break
+                        break
 
     def get_num_able_to_continue(self) -> int:
         """
