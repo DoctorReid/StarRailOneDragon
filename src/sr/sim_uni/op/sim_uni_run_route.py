@@ -308,6 +308,7 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
         screen = self.screenshot()
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       in_world=True, fast_recover=True)
+        log.debug('当前画面 %s', state)
         if state == ScreenDialog.FAST_RECOVER_TITLE.value.text:  # 使用秘技后出现快速恢复对话框
             self.ctx.technique_used = False
             click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value, screen)

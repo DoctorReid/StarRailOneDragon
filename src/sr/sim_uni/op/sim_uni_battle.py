@@ -6,6 +6,7 @@ from cv2.typing import MatLike
 from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
@@ -62,6 +63,7 @@ class SimUniEnterFight(Operation):
         self.last_state = self.current_state
         self.current_state = self._get_screen_state(screen)
 
+        log.debug('当前画面 %s', self.current_state)
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             self._update_in_world()
             return self._try_attack(screen)
