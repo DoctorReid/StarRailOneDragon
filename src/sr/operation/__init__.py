@@ -421,7 +421,7 @@ class Operation:
             mrl = self.ctx.im.match_template(part, area.template_id, threshold=area.template_match_threshold)
             if mrl.max is None:
                 return Operation.OCR_CLICK_NOT_FOUND
-            elif self.ctx.controller.click(mrl.max):
+            elif self.ctx.controller.click(mrl.max.center + rect.left_top):
                 return Operation.OCR_CLICK_SUCCESS
             else:
                 return Operation.OCR_CLICK_FAIL
