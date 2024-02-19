@@ -184,7 +184,7 @@ class SimUniRoute:
                         last_floor = pos[2]
                     else:
                         cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
-                elif route_item['op'] == operation_const.OP_PATROL:
+                elif route_item['op'] in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
                     cfg += "  - op: '%s'\n" % route_item['op']
                 elif route_item['op'] == operation_const.OP_INTERACT:
                     cfg += "  - op: '%s'\n" % route_item['op']

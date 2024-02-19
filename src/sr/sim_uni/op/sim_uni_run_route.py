@@ -141,6 +141,8 @@ class SimUniRunRouteOp(StateOperation):
             op = self._move_by_no_pos(current_op)
         elif current_op['op'] == operation_const.OP_PATROL:
             op = SimUniEnterFight(self.ctx, config=self.config)
+        elif current_op['op'] == operation_const.OP_DISPOSABLE:
+            op = SimUniEnterFight(self.ctx, config=self.config, disposable=True)
         else:
             return Operation.round_fail('未知指令')
 

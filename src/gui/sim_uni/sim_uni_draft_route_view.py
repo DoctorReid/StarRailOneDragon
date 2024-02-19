@@ -74,11 +74,12 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.back_btn = components.RectOutlinedButton(text='后退', disabled=True, on_click=self._del_last_op)
         self.reset_btn = components.RectOutlinedButton(text='重置', disabled=True, on_click=self._clear_op)
         self.patrol_btn = components.RectOutlinedButton(text='攻击怪物', disabled=True, on_click=self._add_patrol)
+        self.disposable_btn = components.RectOutlinedButton(text='攻击破坏物', disabled=True, on_click=self._add_disposable)
         self.slow_move_btn = components.RectOutlinedButton(text='禁疾跑', disabled=True, on_click=self._change_slow_move)
         self.no_pos_move_btn = components.RectOutlinedButton(text='机械移动', disabled=True, on_click=self._change_no_pos_move)
         self.add_next_btn = components.RectOutlinedButton(text='下层入口', disabled=True, on_click=self._add_next)
         self.add_reward_btn = components.RectOutlinedButton(text='沉浸奖励', disabled=True, on_click=self._add_reward)
-        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn,
+        op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn, self.disposable_btn,
                                       self.no_pos_move_btn, self.slow_move_btn,
                                       self.add_next_btn, self.add_reward_btn])
 
@@ -258,7 +259,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                         color = (255, 255, 255)
                     cv2.line(display_image, last_point.tuple(), pos.tuple(), color=color, thickness=2)
                 last_point = pos
-            elif route_item['op'] == operation_const.OP_PATROL:
+            elif route_item['op'] in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
                 if last_point is not None:
                     cv2.circle(display_image, last_point.tuple(), 10, color=(0, 255, 255), thickness=2)
             elif route_item['op'] == operation_const.OP_INTERACT:
@@ -409,6 +410,15 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.chosen_route.op_list.append(SimUniRouteOperation(op=operation_const.OP_PATROL))
         self._on_op_list_changed()
 
+    def _add_disposable(self, e):
+        """
+        添加攻击破坏物的点
+        :param e:
+        :return:
+        """
+        self.chosen_route.op_list.append(SimUniRouteOperation(op=operation_const.OP_DISPOSABLE))
+        self._on_op_list_changed()
+
     def _change_slow_move(self, e):
         """
         将最后一个移动点改为慢走
@@ -526,6 +536,9 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         self.patrol_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
         self.patrol_btn.update()
+
+        self.disposable_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
+        self.disposable_btn.update()
 
         self.slow_move_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
         self.slow_move_btn.update()
