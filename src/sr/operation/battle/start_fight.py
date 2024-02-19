@@ -136,6 +136,7 @@ class StartFightForElite(StateOperation):
                 self.technique_order.append(i)
                 break
 
+        # 任何攻击类只能有一个 选择之后就可以返回了
         for i in range(4):  # 输出位攻击类
             if self.character_list[i] is None:
                 continue
@@ -159,6 +160,9 @@ class StartFightForElite(StateOperation):
             if self.character_list[i].technique_type in (TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK):
                 self.technique_order.append(i)
                 return Operation.round_success()
+
+        # 可能存在没有攻击类的角色 此时也需要兜底返回
+        return Operation.round_success()
 
     def _use_technique(self) -> OperationOneRoundResult:
         """
