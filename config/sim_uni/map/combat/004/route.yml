@@ -1,4 +1,4 @@
-support_world: [8]
+support_world: [4, 5, 8]
 planet: '雅利洛-VI'
 region: '边缘通路'
 floor: 0

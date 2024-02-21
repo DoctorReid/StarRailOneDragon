@@ -236,7 +236,8 @@ class MoveToNextLevel(StateOperation):
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
-                self.ctx.controller.turn_by_angle(100)  # 这里要避免能被360整除 否则某些区域会转一圈又刚好被盖住
+                # 因为前面已经转向了入口 所以就算被遮挡 只要稍微转一点应该就能看到了
+                self.ctx.controller.turn_by_angle(25)  # 这里要避免能被360整除 否则某些区域会转一圈又刚好被盖住
                 return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
             target = self._get_target_entry(type_list)
