@@ -1,5 +1,9 @@
 import time
+import os
+import yaml
+import psutil
 
+from basic import os_utils
 from basic.log_utils import log
 
 
@@ -20,12 +24,13 @@ class PerformanceRecord:
         if t < self.min:
             self.min = t
 
+    @property
     def avg(self):
         return self.total / self.cnt if self.cnt > 0 else 0
 
     def __str__(self):
         return ('[%s] 次数: %d 平均耗时: %.6f 最高耗时: %.6f, 最低耗时: %.6f, 总耗时: %.6f' %
-                (self.id, self.cnt, self.avg(), self.max, self.min, self.total))
+                (self.id, self.cnt, self.avg, self.max, self.min, self.total))
 
 
 class PerformanceRecorder:
@@ -74,11 +79,25 @@ def get(id: str):
 
 
 def log_all_performance():
-    log.debug(get('analyse_mini_map'))
-    log.debug(get('cal_character_pos_by_sp_result'))
-    # log.debug(get('cal_character_pos_by_feature_match'))
-    log.debug(get('cal_character_pos_by_gray'))
-    log.debug(get('cal_character_pos_by_road_mask'))
-    log.debug(get('sim_uni_cal_pos_by_gray'))
-    log.debug(get('sim_uni_cal_pos_by_road_mask'))
-    # log.debug(get('cal_character_pos_by_original'))
+    for v in recorder.record_map.values():
+        log.debug(str(v))
+
+    save_performance_record()
+
+def save_performance_record():
+    """
+    保存性能记录 用于辨别问题
+    :return:
+    """
+    path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'performance.txt')
+    data = {}
+    data['cpu_frequency'] = psutil.cpu_freq().current
+    data['cpu_count'] = f"{psutil.cpu_count()}MHz"
+    memory_info = psutil.virtual_memory()
+    data['memory_total'] = f"{memory_info.total / (1024.0 ** 3)} GB"
+    data['memory_used'] = f"{memory_info.used / (1024.0 ** 3)} GB"
+    for k, v in recorder.record_map.items():
+        data['time_%s' % k] = v.avg
+
+    with open(path, 'w', encoding='utf-8') as file:
+        yaml.dump(data, file)
