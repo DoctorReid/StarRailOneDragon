@@ -18,6 +18,7 @@ from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
 from sr.operation.unit.guide.survival_index import SurvivalIndexCategoryEnum
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
+from sr.screen_area.sim_uni import ScreenSimUniEntry
 from sr.sim_uni.op.choose_sim_uni_diff import ChooseSimUniDiff
 from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
 from sr.sim_uni.op.choose_sim_uni_path import ChooseSimUniPath
@@ -113,8 +114,6 @@ def get_record() -> SimUniverseRecord:
 
 
 class SimUniverseApp(Application2):
-
-    SURVIVAL_TRANSPORT_BTN: ClassVar[Rect] = Rect(1489, 523, 1616, 566)  # 传送
 
     STATUS_ALL_FINISHED: ClassVar[str] = '已完成通关次数'
     STATUS_EXCEPTION: ClassVar[str] = '异常次数过多'
@@ -253,7 +252,7 @@ class SimUniverseApp(Application2):
         点击传送
         :return:
         """
-        click = self.ocr_and_click_one_line('传送', SimUniverseApp.SURVIVAL_TRANSPORT_BTN)
+        click = self.find_and_click_area(ScreenSimUniEntry.GUIDE_TRANSPORT.value)
         if click == Operation.OCR_CLICK_SUCCESS:
             return Operation.round_success(wait=3)
         else:
