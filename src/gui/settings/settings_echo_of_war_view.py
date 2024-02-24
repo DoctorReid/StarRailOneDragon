@@ -2,6 +2,7 @@ from typing import List, Optional, Callable
 
 import flet as ft
 
+import sr.app.echo_of_war.echo_of_war_config
 from basic.i18_utils import gt
 from gui import components
 from gui.components.character_input import CharacterInput
@@ -9,7 +10,7 @@ from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr.app.routine import echo_of_war
-from sr.app.routine.echo_of_war import EchoOfWarConfig, EchoOfWarPlanItem
+from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem, EchoOfWarConfig
 from sr.const.character_const import CHARACTER_LIST
 from sr.const.map_const import TransportPoint
 from sr.context import Context
@@ -97,7 +98,7 @@ class PlanListItem(ft.Row):
 class PlanList(ft.ListView):
 
     def __init__(self, on_click_support: Callable):
-        self.config: EchoOfWarConfig = echo_of_war.get_config()
+        self.config: EchoOfWarConfig = sr.app.echo_of_war.echo_of_war_config.get_config()
         plan_item_list: List[EchoOfWarPlanItem] = self.config.plan_list
 
         super().__init__(controls=[self._list_view_item(i) for i in plan_item_list])
@@ -153,7 +154,7 @@ class SettingsEchoOfWarView(SrBasicView, ft.Row):
 
     def __init__(self, ctx: Context):
         self.ctx: Context = ctx
-        self.config = echo_of_war.get_config()
+        self.config = sr.app.echo_of_war.echo_of_war_config.get_config()
 
         plan_title = components.CardTitleText(gt('挑战规划', 'ui'))
         self.plan_list = PlanList(on_click_support=self.show_choose_support_character)

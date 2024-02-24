@@ -1,7 +1,5 @@
 from typing import List, Optional
 
-import sr.app.daily_training.daily_training_app
-import sr.app.daily_training.daily_training_run_record
 from basic.config import ConfigHolder
 from basic.i18_utils import gt
 from sr.app.app_description import AppDescriptionEnum, AppDescription
@@ -9,8 +7,9 @@ from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.assignments.assignments_app import AssignmentsApp
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcelApp
-from sr.app.routine import support_character, nameless_honor, email_attachment, echo_of_war
-from sr.app.routine.echo_of_war import ECHO_OF_WAR, EchoOfWar
+from sr.app.daily_training.daily_training_app import DailyTrainingApp
+from sr.app.routine import support_character, nameless_honor, email_attachment
+from sr.app.routine.echo_of_war import EchoOfWarApp
 from sr.app.routine.email_attachment import Email, EMAIL
 from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
 from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
@@ -168,13 +167,13 @@ class OneStopService(Application):
         elif app_id == NAMELESS_HONOR.id:
             return ClaimNamelessHonor(ctx)
         elif app_id == AppDescriptionEnum.DAILY_TRAINING.value.id:
-            return sr.app.daily_training.daily_training_app.DailyTrainingApp(ctx)
+            return DailyTrainingApp(ctx)
         elif app_id == AppDescriptionEnum.BUY_XIANZHOU_PARCEL.value.id:
             return BuyXianzhouParcelApp(ctx)
         elif app_id == AppDescriptionEnum.TRAILBLAZE_POWER.value.id:
             return TrailblazePower(ctx)
-        elif app_id == ECHO_OF_WAR.id:
-            return EchoOfWar(ctx)
+        elif app_id == AppDescriptionEnum.ECHO_OF_WAR.value.id:
+            return EchoOfWarApp(ctx)
         elif app_id == AppDescriptionEnum.TREASURES_LIGHTWARD.value.id:
             return TreasuresLightwardApp(ctx)
         elif app_id == sim_universe_app.SIM_UNIVERSE.id:
@@ -199,8 +198,8 @@ class OneStopService(Application):
             return ctx.buy_xz_parcel_run_record
         elif app_id == AppDescriptionEnum.TRAILBLAZE_POWER.value.id:
             return ctx.tp_run_record
-        elif app_id == ECHO_OF_WAR.id:
-            return echo_of_war.get_record()
+        elif app_id == AppDescriptionEnum.ECHO_OF_WAR.value.id:
+            return ctx.echo_run_record
         elif app_id == AppDescriptionEnum.TREASURES_LIGHTWARD.value.id:
             return ctx.tl_run_record
         elif app_id == sim_universe_app.SIM_UNIVERSE.id:

@@ -13,6 +13,8 @@ from basic.log_utils import log
 from sr.app.assignments.assignments_run_record import AssignmentsRunRecord
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_run_record import BuyXianZhouParcelRunRecord
 from sr.app.daily_training.daily_training_run_record import DailyTrainingRunRecord
+from sr.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
+from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
@@ -70,6 +72,9 @@ class Context:
         self.tp_config: Optional[TrailblazePowerConfig] = None
         self.tp_run_record: Optional[TrailblazePowerRunRecord] = None
 
+        self.echo_config: Optional[EchoOfWarConfig] = None
+        self.echo_run_record: Optional[EchoOfWarRunRecord] = None
+
         self.tl_config: Optional[TreasuresLightwardConfig] = None
         self.tl_run_record: Optional[TreasuresLightwardRunRecord] = None
 
@@ -105,6 +110,11 @@ class Context:
         self.tp_run_record = TrailblazePowerRunRecord(self.tp_config)
         self.tp_run_record.move_to_account_idx(account_idx)
 
+        self.echo_config = EchoOfWarConfig()
+        self.echo_config.move_to_account_idx(account_idx)
+        self.echo_run_record = EchoOfWarRunRecord()
+        self.echo_run_record.move_to_account_idx(account_idx)
+
         self.tl_config = TreasuresLightwardConfig()
         self.tl_config.move_to_account_idx(account_idx)
         self.tl_run_record = TreasuresLightwardRunRecord()
@@ -132,6 +142,9 @@ class Context:
 
         self.tp_config = TrailblazePowerConfig(account_idx)
         self.tp_run_record = TrailblazePowerRunRecord(self.tp_config, account_idx)
+
+        self.echo_config = EchoOfWarConfig(account_idx)
+        self.echo_run_record = EchoOfWarRunRecord(account_idx)
 
         self.tl_config = TreasuresLightwardConfig(account_idx)
         self.tl_run_record = TreasuresLightwardRunRecord(account_idx)

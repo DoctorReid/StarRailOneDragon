@@ -3,6 +3,7 @@ from typing import List, Optional, Callable
 
 import flet as ft
 
+import sr.app.echo_of_war.echo_of_war_run_record
 from basic import win_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
@@ -463,7 +464,7 @@ class OneStopView(ft.Row, SrBasicView):
         更新角色状态 - 本地部分数据
         :return:
         """
-        echo_record = echo_of_war.get_record()
+        echo_record = self.sr_ctx.echo_run_record
         self.echo.update_value(str(echo_record.left_times))
 
         tl_record = treasures_lightward_record.get_record()
