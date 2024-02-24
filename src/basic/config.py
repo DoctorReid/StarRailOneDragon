@@ -77,11 +77,11 @@ class ConfigHolder:
     def config_file_path(self) -> str:
         return config_utils.get_config_file_path(self.mod, sub_dir=self.sub_dir)
 
-    def move_to_account_idx(self, script_account_idx: int):
+    def move_to_account_idx(self, account_idx: int):
         """
         将当前配置移动到对应的脚本账号中
         :return:
         """
         self.delete()  # 删除旧的配置
-        self.account_idx = script_account_idx
+        self.account_idx = account_idx
         self.save()  # 保存新的配置

@@ -2,8 +2,8 @@ import asyncio
 import time
 from typing import Optional, List
 
-from basic.log_utils import log
 from basic.config import ConfigHolder
+from basic.log_utils import log
 from sr.mystools import login
 from sr.mystools.data_model import StarRailNoteExpedition
 from sr.mystools.plugin_data import PluginDataManager
@@ -13,9 +13,10 @@ from sr.mystools.user_data import UserAccount
 
 class MysConfig(ConfigHolder):
 
-    def __init__(self):
-        super().__init__('mys', sub_dir=['mystool'], sample=False)
-        self._user_id: str = 'fix'
+    def __init__(self, account_idx: Optional[int] = None):
+        super().__init__('mys', account_idx=account_idx,
+                         sub_dir=['mystool'], sample=False)
+        self._user_id: str = '%02d' % account_idx
         self._mys_conf = PluginDataManager.plugin_data
         self._login_expired: bool = False
 
@@ -210,13 +211,3 @@ class MysConfig(ConfigHolder):
             expeditions.append(StarRailNoteExpedition.model_validate(e))
 
         return expeditions
-
-
-_mys_config: Optional[MysConfig] = None
-
-
-def get() -> MysConfig:
-    global _mys_config
-    if _mys_config is None:
-        _mys_config = MysConfig()
-    return _mys_config

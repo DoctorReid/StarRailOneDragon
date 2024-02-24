@@ -33,7 +33,7 @@ class SettingsMysView(SrBasicView, ft.Row):
         self.login_card = components.Card(login_card_content, title=login_card_title, width=250)
 
         ft.Row.__init__(self, controls=[settings_card, self.login_card], spacing=10)
-        self.config: MysConfig = mys_config.get()
+        self.config: MysConfig = self.sr_ctx.mys_config
 
     def handle_after_show(self):
         self._update_login_related_components()

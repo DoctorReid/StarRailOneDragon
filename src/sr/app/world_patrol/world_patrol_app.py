@@ -8,8 +8,8 @@ from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
-from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolWhitelist, load_all_route_id, \
-    load_all_whitelist_id
+from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, load_all_route_id
+from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
 from sr.context import Context

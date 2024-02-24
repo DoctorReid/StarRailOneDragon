@@ -10,8 +10,8 @@ from basic.log_utils import log
 from gui import components
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_draft_route_view
-from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolRoute, WorldPatrolWhitelist, \
-    load_all_route_id, load_all_whitelist_id
+from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolRoute, load_all_route_id
+from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.const.map_const import PLANET_LIST, PLANET_2_REGION
 from sr.context import Context
 

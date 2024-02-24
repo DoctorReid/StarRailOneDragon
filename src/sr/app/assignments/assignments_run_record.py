@@ -3,12 +3,13 @@ from typing import Optional
 
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
-from sr.mystools import mys_config
+from sr.mystools.mys_config import MysConfig
 
 
 class AssignmentsRunRecord(AppRunRecord):
 
-    def __init__(self, account_idx: Optional[int] = None):
+    def __init__(self, mys_config: MysConfig, account_idx: Optional[int] = None):
+        self.mys_config: MysConfig = mys_config
         super().__init__(AppDescriptionEnum.ASSIGNMENTS.value.id, account_idx=account_idx)
 
     def check_and_update_status(self):
@@ -27,7 +28,7 @@ class AssignmentsRunRecord(AppRunRecord):
         """
         if super()._should_reset_by_dt():
             return True
-        config = mys_config.get()
+        config = self.mys_config
 
         if self.claim_dt >= self.get_current_dt() or self.run_time_float > config.refresh_time:
             return False

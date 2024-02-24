@@ -8,8 +8,7 @@ class WorldPatrolConfig(ConfigHolder):
 
     def __init__(self, account_idx: Optional[int] = None):
         super().__init__(AppDescriptionEnum.WORLD_PATROL.value.id,
-                         account_idx=account_idx,
-                         sub_dir=['world_patrol'])
+                         account_idx=account_idx)
 
     @property
     def team_num(self) -> int:

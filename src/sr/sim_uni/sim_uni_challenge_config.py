@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import List
+from typing import List, Optional
 
 from basic import os_utils
 from basic.config import ConfigHolder
@@ -10,8 +10,9 @@ _MAX_WITH_SAMPLE = 8
 
 class SimUniChallengeConfig(ConfigHolder):
 
-    def __init__(self, idx: int, mock: bool = False):
+    def __init__(self, idx: int, account_idx: Optional[int] = None, mock: bool = False):
         super().__init__('%02d' % idx, sub_dir=['sim_uni', 'challenge_config'], sample=idx <= _MAX_WITH_SAMPLE,
+                         account_idx=account_idx,
                          mock=mock)
 
         self.idx = idx
@@ -100,59 +101,71 @@ class SimUniChallengeConfig(ConfigHolder):
         self.update('technique_fight', new_value)
 
 
-def load_all_challenge_config() -> List[SimUniChallengeConfig]:
-    config_list = []
-    for i in range(1, _MAX_WITH_SAMPLE + 1):  # 有模板的部分
-        config_list.append(SimUniChallengeConfig(i))
+class SimUniChallengeAllConfig:
 
-    base_dir = get_challenge_config_dir()
-    for file in os.listdir(base_dir):
-        if not file.endswith('.yml'):
-            continue
+    def __init__(self, account_idx: Optional[int] = None):
+        self.account_idx: Optional[int] = account_idx
 
-        if file.endswith('_sample.yml'):
-            continue
+    def load_all_challenge_config(self) -> List[SimUniChallengeConfig]:
+        config_list = []
+        for i in range(1, _MAX_WITH_SAMPLE + 1):  # 有模板的部分
+            config_list.append(SimUniChallengeConfig(i, account_idx=self.account_idx))
 
-        idx = int(file[:-4])
-        if idx <= _MAX_WITH_SAMPLE:
-            continue
+        base_dir = self.get_challenge_config_dir()
+        for file in os.listdir(base_dir):
+            if not file.endswith('.yml'):
+                continue
 
-        config_list.append(SimUniChallengeConfig(idx))
+            if file.endswith('_sample.yml'):
+                continue
 
-    return config_list
+            idx = int(file[:-4])
+            if idx <= _MAX_WITH_SAMPLE:
+                continue
 
+            config_list.append(SimUniChallengeConfig(idx, account_idx=self.account_idx))
 
-def get_challenge_config_dir() -> str:
-    return os_utils.get_path_under_work_dir('config', 'sim_uni', 'challenge_config')
+        return config_list
 
+    def get_challenge_config_dir(self) -> str:
+        return os_utils.get_path_under_work_dir('config', '%02d' % self.account_idx,
+                                                'sim_uni', 'challenge_config')
 
-def get_next_id() -> int:
-    """
-    为新建获取下一个id
-    :return:
-    """
-    base_dir = get_challenge_config_dir()
-    idx = _MAX_WITH_SAMPLE + 1  # 获取合法的下标
-    while True:
-        route_dir = os.path.join(base_dir, '%02d' % idx)
-        if os.path.exists(route_dir):
-            idx += 1
-        else:
-            break
-    return idx
+    def get_next_id(self) -> int:
+        """
+        为新建获取下一个id
+        :return:
+        """
+        base_dir = self.get_challenge_config_dir()
+        idx = _MAX_WITH_SAMPLE + 1  # 获取合法的下标
+        while True:
+            route_dir = os.path.join(base_dir, '%02d' % idx)
+            if os.path.exists(route_dir):
+                idx += 1
+            else:
+                break
+        return idx
 
+    def create_new_challenge_config(self, sample_idx: int = 0) -> SimUniChallengeConfig:
+        """
+        创建一个新的配置
+        :return:
+        """
+        idx = self.get_next_id()
+        base_dir = self.get_challenge_config_dir()
 
-def create_new_challenge_config(sample_idx: int = 0) -> SimUniChallengeConfig:
-    """
-    创建一个新的配置
-    :return:
-    """
-    idx = get_next_id()
-    base_dir = get_challenge_config_dir()
+        from_file = os.path.join(base_dir, '01_sample.yml' if sample_idx == 0 else ('%02d.yml' % sample_idx))
+        to_file = os.path.join(base_dir, '%02d.yml' % idx)
 
-    from_file = os.path.join(base_dir, '01_sample.yml' if sample_idx == 0 else ('%02d.yml' % sample_idx))
-    to_file = os.path.join(base_dir, '%02d.yml' % idx)
+        shutil.copy2(from_file, to_file)
 
-    shutil.copy2(from_file, to_file)
+        return SimUniChallengeConfig(idx, account_idx=self.account_idx)
 
-    return SimUniChallengeConfig(idx)
+    def move_to_account_idx(self, account_idx: int):
+        """
+        将当前配置移动到对应的脚本账号中
+        :return:
+        """
+        config_list = self.load_all_challenge_config()
+        for config in config_list:
+            config.move_to_account_idx(account_idx)

@@ -10,7 +10,7 @@ from gui.sr_app_view import SrAppView
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
-from sr.app.world_patrol.world_patrol_route import WorldPatrolWhitelist, load_all_whitelist_id
+from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.context import Context
 
 

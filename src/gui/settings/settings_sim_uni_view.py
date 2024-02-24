@@ -9,7 +9,6 @@ from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr.context import Context
-from sr.sim_uni.sim_uni_challenge_config import load_all_challenge_config
 from sr.sim_uni.sim_uni_const import SimUniWorldEnum
 
 
@@ -63,7 +62,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         self._load_config()
 
     def _load_existed_challenge_config_list(self):
-        all_config_list = load_all_challenge_config()
+        all_config_list = self.sr_ctx.sim_uni_challenge_all_config.load_all_challenge_config()
         for uni_dd in [self.uni_03_dd, self.uni_04_dd, self.uni_05_dd, self.uni_06_dd, self.uni_07_dd, self.uni_08_dd]:
             uni_dd.options = [
                 ft.dropdown.Option(key=config.uid, text=config.name) for config in all_config_list
@@ -130,11 +129,11 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         self.config.daily_times = int(text)
 
 
-_settings_account_view: Optional[SettingsSimUniView] = None
+_settings_sim_uni_view: Optional[SettingsSimUniView] = None
 
 
 def get(page: ft.Page, ctx: Context) -> SettingsSimUniView:
-    global _settings_account_view
+    global _settings_sim_uni_view
     if _settings_sim_uni_view is None:
         _settings_sim_uni_view = SettingsSimUniView(page, ctx)
 

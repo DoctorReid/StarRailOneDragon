@@ -67,13 +67,3 @@ class SimUniConfig(ConfigHolder):
     @daily_times.setter
     def daily_times(self, new_value: int):
         self.update('daily_times', new_value)
-
-
-_sim_uni_app_config: Optional[SimUniConfig] = None
-
-
-def get_sim_uni_app_config() -> SimUniConfig:
-    global _sim_uni_app_config
-    if _sim_uni_app_config is None:
-        _sim_uni_app_config = SimUniConfig()
-    return _sim_uni_app_config

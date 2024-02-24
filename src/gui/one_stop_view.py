@@ -3,8 +3,6 @@ from typing import List, Optional, Callable
 
 import flet as ft
 
-import sr.app.one_stop_service.one_stop_service_config
-import sr.app.sim_uni.sim_uni_run_record
 from basic import win_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
@@ -12,11 +10,11 @@ from gui import snack_bar, components, scheduler
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app import one_stop_service
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
-from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
+from sr.app.one_stop_service.one_stop_service_app import OneStopServiceApp
+from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
 from sr.app.treasures_lightward import treasures_lightward_record
 from sr.context import Context
 from sr.mystools import mys_config
@@ -179,14 +177,14 @@ class AppList(ft.ListView):
         config: OneStopServiceConfig = self.ctx.one_stop_service_config
         run_app_id_list: List[str] = config.run_app_id_list
         for app_id in self.app_id_list:
-            app_record = OneStopService.get_app_run_record_by_id(app_id, self.ctx)
+            app_record = OneStopServiceApp.get_app_run_record_by_id(app_id, self.ctx)
             on: bool = app_id in run_app_id_list
             if app_record is not None:
                 self.item_map[app_id].update_status(app_record, on)
 
     def set_disabled(self, disabled: bool):
         for app_id in self.app_id_list:
-            app_record = OneStopService.get_app_run_record_by_id(app_id)
+            app_record = OneStopServiceApp.get_app_run_record_by_id(app_id)
             if app_record is not None:
                 self.item_map[app_id].set_disabled(disabled)
 
@@ -322,9 +320,9 @@ class OneStopView(ft.Row, SrBasicView):
         if not self._check_ctx_stop():
             return
 
-        run_record = OneStopService.get_app_run_record_by_id(app_id)
+        run_record = OneStopServiceApp.get_app_run_record_by_id(app_id)
         run_record.check_and_update_status()
-        self.running_app = OneStopService.get_app_by_id(app_id, self.sr_ctx)
+        self.running_app = OneStopServiceApp.get_app_by_id(app_id, self.sr_ctx)
         if self.running_app is None:
             log.error('非法的任务入参')
             self.running_app = None
@@ -346,7 +344,7 @@ class OneStopView(ft.Row, SrBasicView):
         :param asyn: 异步启动
         :return:
         """
-        self.running_app = OneStopService(self.sr_ctx)
+        self.running_app = OneStopServiceApp(self.sr_ctx)
 
         if asyn:
             t = threading.Thread(target=self.running_app.execute)
@@ -436,7 +434,7 @@ class OneStopView(ft.Row, SrBasicView):
         更新角色状态 - 便签部分数据
         :return:
         """
-        config: MysConfig = mys_config.get()
+        config: MysConfig = self.sr_ctx.mys_config
         config.update_note()
         if not config.is_login:
             self.card_title.update_title('游戏角色状态(登录失效)')

@@ -10,7 +10,7 @@ from gui.components import RectOutlinedButton, SettingsListItem, SettingsList, C
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig, load_all_challenge_config, create_new_challenge_config
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.context import Context
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id, level_type_from_name, \
     SimUniPath, SimUniBlessLevel, SimUniBlessEnum, bless_enum_from_title, SimUniCurioEnum, \
@@ -274,7 +274,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         加载现有配置
         :return:
         """
-        self.existed_config_list = load_all_challenge_config()
+        self.existed_config_list = self.sr_ctx.sim_uni_challenge_all_config.load_all_challenge_config()
         self.existed_dropdown.options = [
             ft.dropdown.Option(key=str(config.idx), text=gt(config.name, 'ui')) for config in self.existed_config_list
         ]
@@ -365,7 +365,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        chosen_config = create_new_challenge_config()
+        chosen_config = self.sr_ctx.sim_uni_challenge_all_config.create_new_challenge_config()
         self._on_existed_list_changed(chosen_config.idx)
 
     def _on_copy_clicked(self, e):
@@ -374,7 +374,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        chosen_config = create_new_challenge_config(self.chosen_config.idx)
+        chosen_config = self.sr_ctx.sim_uni_challenge_all_config.create_new_challenge_config(self.chosen_config.idx)
         chosen_config.name = chosen_config.name + ' - copy'
         self._on_existed_list_changed(chosen_config.idx)
 

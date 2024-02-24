@@ -39,8 +39,10 @@ from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import fill_uid_black
+from sr.mystools.mys_config import MysConfig
 from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig
 from sr.win import Window
 
 
@@ -85,8 +87,10 @@ class Context:
         self.tl_run_record: Optional[TreasuresLightwardRunRecord] = None
 
         self.sim_uni_config: Optional[SimUniConfig] = None
+        self.sim_uni_challenge_all_config: Optional[SimUniChallengeAllConfig] = None
         self.sim_uni_run_record: Optional[SimUniRunRecord] = None
 
+        self.mys_config: Optional[MysConfig] = None
         self.assignments_run_record: Optional[AssignmentsRunRecord] = None
         self.buy_xz_parcel_run_record: Optional[BuyXianZhouParcelRunRecord] = None
         self.daily_training_run_record: Optional[DailyTrainingRunRecord] = None
@@ -113,15 +117,17 @@ class Context:
         self.game_config = GameConfig()
         self.game_config.move_to_account_idx(account_idx)
 
-        # 锄大地移动了目录 需要自己重新设置
-        # self.world_patrol_config = WorldPatrolConfig()
-        # self.world_patrol_config.move_to_account_idx(account_idx)
+        self.mys_config = MysConfig()
+        self.mys_config.move_to_account_idx(account_idx)
+
+        self.world_patrol_config = WorldPatrolConfig()
+        self.world_patrol_config.move_to_account_idx(account_idx)
         self.world_patrol_run_record = WorldPatrolRunRecord()
         self.world_patrol_run_record.move_to_account_idx(account_idx)
 
         self.tp_config = TrailblazePowerConfig()
         self.tp_config.move_to_account_idx(account_idx)
-        self.tp_run_record = TrailblazePowerRunRecord(self.tp_config)
+        self.tp_run_record = TrailblazePowerRunRecord(self.tp_config, self.mys_config)
         self.tp_run_record.move_to_account_idx(account_idx)
 
         self.echo_config = EchoOfWarConfig()
@@ -136,10 +142,12 @@ class Context:
 
         self.sim_uni_config = SimUniConfig()
         self.sim_uni_config.move_to_account_idx(account_idx)
+        self.sim_uni_challenge_all_config = SimUniChallengeAllConfig()
+        self.sim_uni_challenge_all_config.move_to_account_idx(account_idx)
         self.sim_uni_run_record = SimUniRunRecord(self.sim_uni_config)
         self.sim_uni_run_record.move_to_account_idx(account_idx)
 
-        self.assignments_run_record = AssignmentsRunRecord()
+        self.assignments_run_record = AssignmentsRunRecord(self.mys_config)
         self.assignments_run_record.move_to_account_idx(account_idx)
 
         self.buy_xz_parcel_run_record = BuyXianZhouParcelRunRecord()
@@ -167,12 +175,13 @@ class Context:
         """
         account_idx = self.one_dragon_config.current_active_account.idx
         self.game_config = GameConfig(account_idx)
+        self.mys_config = MysConfig(account_idx)
 
         self.world_patrol_config = WorldPatrolConfig(account_idx)
         self.world_patrol_run_record = WorldPatrolRunRecord(account_idx)
 
         self.tp_config = TrailblazePowerConfig(account_idx)
-        self.tp_run_record = TrailblazePowerRunRecord(self.tp_config, account_idx)
+        self.tp_run_record = TrailblazePowerRunRecord(self.tp_config, self.mys_config, account_idx)
 
         self.echo_config = EchoOfWarConfig(account_idx)
         self.echo_run_record = EchoOfWarRunRecord(account_idx)
@@ -181,9 +190,10 @@ class Context:
         self.tl_run_record = TreasuresLightwardRunRecord(account_idx)
 
         self.sim_uni_config = SimUniConfig(account_idx)
+        self.sim_uni_challenge_all_config = SimUniChallengeAllConfig(account_idx)
         self.sim_uni_run_record = SimUniRunRecord(self.sim_uni_config, account_idx)
 
-        self.assignments_run_record = AssignmentsRunRecord(account_idx)
+        self.assignments_run_record = AssignmentsRunRecord(self.mys_config, account_idx)
         self.buy_xz_parcel_run_record = BuyXianZhouParcelRunRecord(account_idx)
         self.daily_training_run_record = DailyTrainingRunRecord(account_idx)
         self.email_run_record = EmailRunRecord(account_idx)
