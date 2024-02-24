@@ -3,7 +3,6 @@ from typing import List, Optional, Callable
 
 import flet as ft
 
-import sr.app.echo_of_war.echo_of_war_run_record
 from basic import win_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
@@ -11,11 +10,10 @@ from gui import snack_bar, components, scheduler
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app import one_stop_service, AppRunRecord
+from sr.app import one_stop_service
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.application_base import Application
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
-from sr.app.routine import echo_of_war
 from sr.app.sim_uni import sim_universe_app
 from sr.app.treasures_lightward import treasures_lightward_record
 from sr.context import Context

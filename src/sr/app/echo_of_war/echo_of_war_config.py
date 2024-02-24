@@ -2,7 +2,6 @@ from typing import TypedDict, List, Optional
 
 from basic.config import ConfigHolder
 from sr.app.app_description import AppDescriptionEnum
-from sr.app.routine.echo_of_war import ECHO_OF_WAR
 from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexMissionEnum, SurvivalIndexCategoryEnum
 
 

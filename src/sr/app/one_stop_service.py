@@ -9,7 +9,7 @@ from sr.app.assignments.assignments_app import AssignmentsApp
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcelApp
 from sr.app.daily_training.daily_training_app import DailyTrainingApp
 from sr.app.routine import support_character, nameless_honor, email_attachment
-from sr.app.routine.echo_of_war import EchoOfWarApp
+from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr.app.routine.email_attachment import Email, EMAIL
 from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
 from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER

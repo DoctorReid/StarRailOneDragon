@@ -9,10 +9,8 @@ from gui.components.character_input import CharacterInput
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app.routine import echo_of_war
 from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem, EchoOfWarConfig
 from sr.const.character_const import CHARACTER_LIST
-from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission, \
     SurvivalIndexMissionEnum
