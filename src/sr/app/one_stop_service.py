@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 import sr.app
-import sr.app.routine.assignments
+import sr.app.assignments.assignments_run_record
 import sr.app.trailblaze_power.trailblaze_power_run_record
 import sr.app.treasures_lightward
 import sr.app.treasures_lightward.treasures_lightward_app
@@ -12,9 +12,9 @@ from basic.i18_utils import gt
 from sr.app.app_description import AppDescriptionEnum, AppDescription
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
-from sr.app.routine import assignments, support_character, nameless_honor, daily_training_app, buy_parcel, \
+from sr.app.assignments.assignments_app import AssignmentsApp
+from sr.app.routine import support_character, nameless_honor, daily_training_app, buy_parcel, \
     email_attachment, echo_of_war
-from sr.app.routine.assignments import Assignments, ASSIGNMENTS
 from sr.app.routine.buy_parcel import BuyXianzhouParcel, BUY_XIANZHOU_PARCEL
 from sr.app.routine.echo_of_war import ECHO_OF_WAR, EchoOfWar
 from sr.app.routine.email_attachment import Email, EMAIL
@@ -165,8 +165,8 @@ class OneStopService(Application):
     def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
         if app_id == AppDescriptionEnum.WORLD_PATROL.value.id:
             return WorldPatrol(ctx)
-        elif app_id == ASSIGNMENTS.id:
-            return Assignments(ctx)
+        elif app_id == AppDescriptionEnum.ASSIGNMENTS.value.id:
+            return AssignmentsApp(ctx)
         elif app_id == EMAIL.id:
             return Email(ctx)
         elif app_id == SUPPORT_CHARACTER.id:
@@ -191,8 +191,8 @@ class OneStopService(Application):
     def get_app_run_record_by_id(app_id: str, ctx: Context) -> Optional[AppRunRecord]:
         if app_id == AppDescriptionEnum.WORLD_PATROL.value.id:
             return ctx.world_patrol_run_record
-        elif app_id == ASSIGNMENTS.id:
-            return assignments.get_record()
+        elif app_id == AppDescriptionEnum.ASSIGNMENTS.value.id:
+            return ctx.assignments_run_record
         elif app_id == EMAIL.id:
             return email_attachment.get_record()
         elif app_id == SUPPORT_CHARACTER.id:
