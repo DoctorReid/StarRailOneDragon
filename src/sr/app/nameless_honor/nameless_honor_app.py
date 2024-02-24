@@ -1,48 +1,20 @@
 import time
-from typing import Optional
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app.app_run_record import AppRunRecord, AppDescription, register_app
 from sr.app.application_base import Application
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
-from sr.image.sceenshot.screen_state import ScreenState, in_secondary_ui
+from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
-NAMELESS_HONOR = AppDescription(cn='无名勋礼', id='nameless_honor')
-register_app(NAMELESS_HONOR)
 
-
-class NamelessHonorRecord(AppRunRecord):
-
-    def __init__(self):
-        super().__init__(NAMELESS_HONOR.id)
-
-    def _should_reset_by_dt(self) -> bool:
-        """
-        根据时间判断是否应该重置状态
-        :return: 总是尝试
-        """
-        return True
-
-
-nameless_honor_record: Optional[NamelessHonorRecord] = None
-
-
-def get_record() -> NamelessHonorRecord:
-    global nameless_honor_record
-    if nameless_honor_record is None:
-        nameless_honor_record = NamelessHonorRecord()
-    return nameless_honor_record
-
-
-class ClaimNamelessHonor(Application):
+class NamelessHonorApp(Application):
 
     """
     1. 从菜单打开无名勋礼 如果有红点的话
@@ -53,7 +25,7 @@ class ClaimNamelessHonor(Application):
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('收取无名勋礼', 'ui'),
-                         run_record=get_record())
+                         run_record=ctx.nameless_honor_run_record)
 
         self.phase: int = 0
 

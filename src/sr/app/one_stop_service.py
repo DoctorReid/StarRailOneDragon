@@ -9,9 +9,9 @@ from sr.app.assignments.assignments_app import AssignmentsApp
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcelApp
 from sr.app.daily_training.daily_training_app import DailyTrainingApp
 from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
-from sr.app.email.email_app import Email
-from sr.app.routine import support_character, nameless_honor
-from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
+from sr.app.email.email_app import EmailApp
+from sr.app.nameless_honor.nameless_honor_app import NamelessHonorApp
+from sr.app.routine import support_character
 from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
 from sr.app.sim_uni import sim_universe_app
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
@@ -161,11 +161,11 @@ class OneStopService(Application):
         elif app_id == AppDescriptionEnum.ASSIGNMENTS.value.id:
             return AssignmentsApp(ctx)
         elif app_id == AppDescriptionEnum.EMAIL.value.id:
-            return Email(ctx)
+            return EmailApp(ctx)
         elif app_id == SUPPORT_CHARACTER.id:
             return SupportCharacter(ctx)
-        elif app_id == NAMELESS_HONOR.id:
-            return ClaimNamelessHonor(ctx)
+        elif app_id == AppDescriptionEnum.NAMELESS_HONOR.value.id:
+            return NamelessHonorApp(ctx)
         elif app_id == AppDescriptionEnum.DAILY_TRAINING.value.id:
             return DailyTrainingApp(ctx)
         elif app_id == AppDescriptionEnum.BUY_XIANZHOU_PARCEL.value.id:
@@ -190,8 +190,8 @@ class OneStopService(Application):
             return ctx.email_run_record
         elif app_id == SUPPORT_CHARACTER.id:
             return support_character.get_record()
-        elif app_id == NAMELESS_HONOR.id:
-            return nameless_honor.get_record()
+        elif app_id == AppDescriptionEnum.NAMELESS_HONOR.value.id:
+            return ctx.nameless_honor_run_record
         elif app_id == AppDescriptionEnum.DAILY_TRAINING.value.id:
             return ctx.daily_training_run_record
         elif app_id == AppDescriptionEnum.BUY_XIANZHOU_PARCEL.value.id:

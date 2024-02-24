@@ -15,7 +15,7 @@ from sr.operation import Operation
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 
-class Email(Application):
+class EmailApp(Application):
 
     """
     收取邮件奖励 但不会删除邮件
@@ -53,10 +53,10 @@ class Email(Application):
                 return Operation.WAIT
         elif self.phase == 2:  # 检测并点击全部领取
             screen: MatLike = self.screenshot()
-            claim_all_part, _ = cv2_utils.crop_image(screen, Email.CLAIM_ALL_RECT)
+            claim_all_part, _ = cv2_utils.crop_image(screen, EmailApp.CLAIM_ALL_RECT)
             ocr_result = self.ctx.ocr.ocr_for_single_line(claim_all_part, strict_one_line=True)
             if str_utils.find_by_lcs(gt('全部领取', 'ocr'), ocr_result, percent=0.5):
-                self.ctx.controller.click(Email.CLAIM_ALL_RECT.center)
+                self.ctx.controller.click(EmailApp.CLAIM_ALL_RECT.center)
                 self.phase += 1
                 time.sleep(1)
                 return Operation.WAIT
