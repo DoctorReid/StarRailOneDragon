@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, AppDescription, register_app, app_record_current_dt_str
+from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
@@ -29,7 +29,7 @@ class AssignmentsRecord(AppRunRecord):
         检查并更新状态 各个app按需实现
         :return:
         """
-        if self._should_reset_by_dt() or self.claim_dt < app_record_current_dt_str():
+        if self._should_reset_by_dt() or self.claim_dt < self.get_current_dt():
             self.reset_record()
 
     def _should_reset_by_dt(self):
@@ -42,7 +42,7 @@ class AssignmentsRecord(AppRunRecord):
             return True
         config = mys_config.get()
 
-        if self.claim_dt >= app_record_current_dt_str() or self.run_time_float > config.refresh_time:
+        if self.claim_dt >= self.get_current_dt() or self.run_time_float > config.refresh_time:
             return False
 
         if config.refresh_time > 0:
@@ -115,7 +115,7 @@ class Assignments(Application):
             op = ClaimAssignment(self.ctx)
             if op.execute().success:
                 self.phase += 1
-                self.run_record.claim_dt = app_record_current_dt_str()
+                self.run_record.claim_dt = self.run_record.get_current_dt()
                 return Operation.WAIT
             else:
                 return Operation.FAIL

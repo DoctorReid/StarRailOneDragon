@@ -1,7 +1,7 @@
 import flet as ft
 from typing import TypedDict, Optional, List
 
-from sr.config import ConfigHolder
+from basic.config import ConfigHolder
 
 
 class GuiTheme:

@@ -4,6 +4,7 @@ from basic.img import cv2_utils
 from basic.img.os import get_test_image
 from sr.const import map_const
 from sr.const.map_const import Region
+from sr.context import get_context
 from sr.image import ImageMatcher
 from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
@@ -44,9 +45,10 @@ def _test_get_active_level():
 
 
 def _test_init_large_map(region: Region):
+    ctx = get_context()
     ih: ImageHolder = ImageHolder()
     im: ImageMatcher = CvImageMatcher(ih)
-    large_map.init_large_map(region, ih.get_large_map(region).raw, im, save=True)
+    large_map.init_large_map(region, ih.get_large_map(region).raw, im, ctx.game_config.mini_map_pos, save=True)
 
 
 if __name__ == '__main__':

@@ -140,7 +140,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.keyboard_hook = keyboard.on_press(self._on_key_press)
         screen = get_debug_image('5')
         if screen is not None:
-            self.mini_map_image = mini_map.cut_mini_map(screen)
+            self.mini_map_image = mini_map.cut_mini_map(screen, self.sr_ctx.game_config.mini_map_pos)
             self._show_screenshot_mm()
 
     def handle_after_hide(self):
@@ -161,7 +161,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.sr_ctx.init_controller()
         self.sr_ctx.controller.init()
         screen = self.sr_ctx.controller.screenshot()
-        self.mini_map_image = mini_map.cut_mini_map(screen)
+        self.mini_map_image = mini_map.cut_mini_map(screen, self.sr_ctx.game_config.mini_map_pos)
         self._show_screenshot_mm()
         self._update_screenshot_row()
 

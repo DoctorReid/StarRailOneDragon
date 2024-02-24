@@ -11,6 +11,7 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import const
 from sr.config import game_config
+from sr.config.game_config import MiniMapPos
 from sr.const.map_const import Planet, Region, PLANET_LIST
 from sr.image import TemplateImage, ImageMatcher, get_large_map_dir_path
 from sr.image.image_holder import ImageHolder
@@ -42,7 +43,7 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Optional[Planet]:
     log.debug('屏幕左上方获取星球结果 %s', planet_name_str)
     if planet_name_str is not None:
         for p in PLANET_LIST:
-            if str_utils.find_by_lcs(gt(p.cn, 'ocr'), planet_name_str, percent=game_config.get().planet_lcs_percent):
+            if str_utils.find_by_lcs(gt(p.cn, 'ocr'), planet_name_str, percent=0.55):
                 return p
 
     return None
@@ -214,6 +215,7 @@ def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
 
 
 def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
+                   mm_pos: MiniMapPos,
                    expand_arr: List = None,
                    save: bool = False) -> LargeMapInfo:
     """
@@ -229,7 +231,7 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
     info.region = region
     info.raw = raw
     if expand_arr is None:
-        expand_arr = get_expand_arr(raw)
+        expand_arr = get_expand_arr(raw, mm_pos)
     info.origin = expand_raw(raw, expand_arr)
     gray = cv2.cvtColor(info.origin, cv2.COLOR_BGRA2GRAY)
     sp_mask, info.sp_result = get_sp_mask_by_template_match(info, im)
@@ -264,7 +266,7 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
     return info
 
 
-def get_expand_arr(raw: MatLike):
+def get_expand_arr(raw: MatLike, mm_pos: MiniMapPos):
     """
     如果道路太贴近大地图边缘 使用小地图模板匹配的时候会匹配失败
     如果最后截图高度或宽度跟大地图圈定范围CUT_MAP_RECT一致 则choose_transport_point中两个大地图做模板匹配可能会报错
@@ -275,7 +277,6 @@ def get_expand_arr(raw: MatLike):
     # 道路掩码图
     mask: MatLike = get_large_map_road_mask(raw)
 
-    mm_pos = game_config.get().mini_map_pos
     padding = mm_pos.r + 10  # 边缘至少留一个小地图半径的空白
 
     # 四个方向需要拓展多少像素

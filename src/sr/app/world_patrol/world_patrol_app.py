@@ -6,7 +6,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app import Application, AppRunRecord, world_patrol
 from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolWhitelist, WorldPatrolRecord, \
-    load_all_route_id, WorldPatrolConfig, get_config, load_all_whitelist_id
+    load_all_route_id, WorldPatrolConfig, load_all_whitelist_id
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
 from sr.config import game_config
 from sr.context import Context
@@ -30,7 +30,7 @@ class WorldPatrol(Application):
         self.ignore_record: bool = ignore_record
         self.current_route_start_time = time.time()  # 当前路线开始时间
 
-        self.config: WorldPatrolConfig = get_config()
+        self.config: WorldPatrolConfig = ctx.world_patrol_config
         self.team_num: Optional[int] = team_num
         if whitelist is None:
             valid_whitelist_id_list = load_all_whitelist_id()
@@ -61,7 +61,7 @@ class WorldPatrol(Application):
         :return:
         """
         self.ctx.ih.preheat_for_world_patrol()
-        mm_r = game_config.get().mini_map_pos.r
+        mm_r = self.ctx.game_config.mini_map_pos.r
         for i in range(-2, 2):
             mini_map_angle_alas.RotationRemapData((mm_r + i) * 2)
 

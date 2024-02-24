@@ -52,15 +52,13 @@ def cal_little_map_pos(screen: MatLike) -> MiniMapPos:
         log.error('无法找到小地图的圆')
 
 
-def cut_mini_map(screen: MatLike, mm_pos: Optional[MiniMapPos] = None):
+def cut_mini_map(screen: MatLike, mm_pos: MiniMapPos):
     """
     从整个游戏窗口截图中 裁剪出小地图部分
     :param screen: 屏幕截图
     :param mm_pos: 小地图位置的配置
     :return:
     """
-    if mm_pos is None:
-        mm_pos = game_config.get().mini_map_pos
     return screen[mm_pos.ly:mm_pos.ry, mm_pos.lx:mm_pos.rx]
 
 
@@ -296,7 +294,7 @@ def get_track_road_mask(mm: MatLike) -> MatLike:
     return cv2.inRange(mm, lower_color, upper_color)
 
 
-def is_under_attack(mm: MatLike, mm_pos: Optional[MiniMapPos] = None,
+def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
                     strict: bool = False,
                     show: bool = False) -> bool:
     """
@@ -308,8 +306,6 @@ def is_under_attack(mm: MatLike, mm_pos: Optional[MiniMapPos] = None,
     :param show: debug用 显示中间结果图片
     :return: 是否被锁定
     """
-    if mm_pos is None:
-        mm_pos = game_config.get().mini_map_pos
     w, h = mm.shape[1], mm.shape[0]
     cx, cy = w // 2, h // 2
     r = mm_pos.r

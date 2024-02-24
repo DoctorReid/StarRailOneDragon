@@ -89,7 +89,7 @@ class ChooseTransportPoint(Operation):
             lower_color = np.array([55, 55, 55], dtype=np.uint8)
             upper_color = np.array([255, 255, 255], dtype=np.uint8)
             gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
-            current_lang: str = game_config.get().lang
+            current_lang: str = self.ctx.game_config.lang
             if current_lang == game_config_const.LANG_CN:
                 gold_part = cv2_utils.dilate(gold_part, 1)
             tp_name_str: str = None

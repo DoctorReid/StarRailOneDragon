@@ -3,11 +3,11 @@ from typing import Optional, TypedDict, List
 from cv2.typing import MatLike
 
 from basic import os_utils, str_utils
+from basic.config import ConfigHolder
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import Application, AppDescription, register_app, AppRunRecord, app_record_current_dt_str
-from sr.config import ConfigHolder
+from sr.app import Application, AppDescription, register_app, AppRunRecord
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
@@ -39,7 +39,7 @@ class EchoOfWarRecord(AppRunRecord):
         根据时间判断是否应该重置状态 每周重置一次
         :return:
         """
-        current_dt = app_record_current_dt_str()
+        current_dt = self.get_current_dt()
         sunday_dt = os_utils.get_sunday_dt(self.dt)
         return current_dt > sunday_dt
 
@@ -57,7 +57,7 @@ class EchoOfWarRecord(AppRunRecord):
         基于当前时间显示的运行状态
         :return:
         """
-        current_dt = app_record_current_dt_str()
+        current_dt = self.get_current_dt()
         sunday_dt = os_utils.get_sunday_dt(self.dt)
         if current_dt > sunday_dt:
             return AppRunRecord.STATUS_WAIT

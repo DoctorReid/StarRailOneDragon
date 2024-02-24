@@ -54,7 +54,7 @@ class ClaimAssignment(Operation):
         """
         claim_btn_part, _ = cv2_utils.crop_image(screen, ClaimAssignment.CLAIM_BTN_RECT)
         ocr_result = self.ctx.ocr.ocr_for_single_line(claim_btn_part, strict_one_line=True)
-        lcs_percent = 0.3 if game_config_const.LANG_CN == game_config.get().lang else 0.55
+        lcs_percent = 0.3 if game_config_const.LANG_CN == self.ctx.game_config.lang else 0.55
         if str_utils.find_by_lcs(gt('领取', 'ocr'), ocr_result, percent=lcs_percent):
             self.ctx.controller.click(ClaimAssignment.CLAIM_BTN_RECT.center)
             log.info('检测到【领取】 点击')

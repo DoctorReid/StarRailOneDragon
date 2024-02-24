@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
-from sr.config import ConfigHolder
+from basic.config import ConfigHolder
 from sr.treasures_lightward.treasures_lightward_team_module import TreasuresLightwardTeamModule
 
 

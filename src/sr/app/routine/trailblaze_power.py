@@ -9,7 +9,7 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app import AppRunRecord, AppDescription, register_app, Application2
 from sr.app.sim_uni.sim_universe_app import SimUniverseApp
-from sr.config import ConfigHolder
+from basic.config import ConfigHolder
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import large_map
@@ -70,8 +70,8 @@ class TrailblazePowerPlanItem(TypedDict):
 
 class TrailblazePowerConfig(ConfigHolder):
 
-    def __init__(self):
-        super().__init__(TRAILBLAZE_POWER.id)
+    def __init__(self, script_account_idx: Optional[int] = None):
+        super().__init__(TRAILBLAZE_POWER.id, script_account_idx=script_account_idx)
 
     def _init_after_read_file(self):
         """

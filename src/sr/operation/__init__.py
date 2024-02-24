@@ -99,7 +99,7 @@ class Operation:
         self.last_screenshot: Optional[MatLike] = None
         """上一次的截图 用于出错时保存"""
 
-        self.gc: GameConfig = game_config.get()
+        self.gc: GameConfig = ctx.game_config
         """游戏配置"""
 
         self.timeout_seconds: float = timeout_seconds

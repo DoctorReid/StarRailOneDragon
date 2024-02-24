@@ -227,7 +227,7 @@ class LargeMapRecorder(Application2):
                     log.error('层数截图大小不一致 %s %s', shape, shape2)
 
             # 不同楼层需要拓展的大小可能不一致 保留一个最大的
-            lp2, rp2, tp2, bp2 = large_map.get_expand_arr(raw)
+            lp2, rp2, tp2, bp2 = large_map.get_expand_arr(raw, ctx.game_config.mini_map_pos)
             if lp is None or lp2 > lp:
                 lp = lp2
             if rp is None or rp2 > rp:
@@ -244,7 +244,7 @@ class LargeMapRecorder(Application2):
             if target_region is None:
                 continue
             raw = large_map.get_large_map_image(target_region, 'raw')
-            large_map.init_large_map(target_region, raw, self.ctx.im,
+            large_map.init_large_map(target_region, raw, self.ctx.im, self.ctx.game_config.mini_map_pos,
                                      expand_arr=[lp, rp, tp, bp], save=True)
 
         return Operation.round_success()

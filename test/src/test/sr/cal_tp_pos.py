@@ -24,7 +24,7 @@ def cal_one(tp: TransportPoint, debug_image: str = None, show: bool = False):
     image_path = get_tp_image_path(tp)
     if debug_image is not None:
         image = get_debug_image(debug_image)
-        mm = mini_map.cut_mini_map(image)
+        mm = mini_map.cut_mini_map(image, self.ctx.game_config.mini_map_pos)
         cv2.imwrite(image_path, mm)
     else:
         mm = cv2_utils.read_image(image_path)

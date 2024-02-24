@@ -47,7 +47,7 @@ class SettingsView(components.Card, SrBasicView):
 
         self.debug_mode_check = ft.Checkbox(label=gt('调试模式', 'ui'), on_change=self._on_debug_mode_changed)
 
-        self.game_config: GameConfig = game_config.get()
+        self.game_config: GameConfig = self.sr_ctx.game_config
         self.interact_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_interact')
         self.technique_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_technique')
         self.open_map_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_open_map')

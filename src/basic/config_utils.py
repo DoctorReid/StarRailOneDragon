@@ -20,7 +20,8 @@ def get_config_file_path(name: str, sub_dir: Optional[List[str]] = None):
     return os.path.join(dir_path, '%s.yml' % name)
 
 
-def get_sample_config_file_path(name: str, sub_dir: List[str] = None):
+def get_sample_config_file_path(name: str,
+                                sub_dir: List[str] = None):
     """
     获取样例配置文件的完整路径
     :param name: 配置名
@@ -30,25 +31,46 @@ def get_sample_config_file_path(name: str, sub_dir: List[str] = None):
     return get_config_file_path('%s_sample' % name, sub_dir=sub_dir)
 
 
-def read_config(name: str, sample: bool = True, sub_dir: List[str] = None):
+def read_config(name: str,
+                script_account_idx: Optional[int] = None,
+                sub_dir: List[str] = None) -> Optional[dict]:
     """
-    读取具体的配置 如果不存在 读取默认配置
+    读取具体的配置
     :param name: 配置名
-    :param sample: 找不到时是否找同目录下的sample
+    :param script_account_idx: 脚本账号ID
     :param sub_dir: 子目录
     :return: 配置内容
     """
+    sub_dir = get_sub_dir_with_account(script_account_idx, sub_dir)
     path = get_config_file_path(name, sub_dir=sub_dir)
-    data = None
+    data: Optional[dict] = None
     if os.path.exists(path):
         with open(path, 'r', encoding='utf-8') as file:
             data = yaml.safe_load(file)
-    if data is None and sample:
-        data = read_sample_config(name, sub_dir=sub_dir)
+
     return data
 
 
-def read_sample_config(name: str, sub_dir: List[str] = None):
+def get_sub_dir_with_account(
+        script_account_idx: Optional[int] = None,
+        sub_dir: List[str] = None) -> Optional[List[str]]:
+    """
+    获取对应的子文件夹目录
+    :param script_account_idx: 脚本账号ID
+    :param sub_dir: 子目录
+    :return:
+    """
+    if script_account_idx is not None:
+        first_dir = '%02d' % script_account_idx
+        if sub_dir is None:
+            sub_dir = [first_dir]
+        else:
+            sub_dir = [first_dir] + sub_dir
+    return sub_dir
+
+
+def read_sample_config(name: str,
+                       sub_dir: List[str] = None):
     """
     读取样例配置
     :param name: 配置名
@@ -63,14 +85,18 @@ def read_sample_config(name: str, sub_dir: List[str] = None):
         return None
 
 
-def save_config(name: str, data: dict, sub_dir: Optional[List[str]] = None):
+def save_config(data: dict, name: str,
+                script_account_idx: Optional[int] = None,
+                sub_dir: Optional[List[str]] = None):
     """
     保存配置
-    :param name: 配置模块
     :param data: 值
+    :param name: 配置模块
+    :param script_account_idx: 脚本账号ID
     :param sub_dir: 子目录
     :return:
     """
+    sub_dir = get_sub_dir_with_account(script_account_idx, sub_dir)
     path = get_config_file_path(name, sub_dir=sub_dir)
     with open(path, 'w', encoding='utf-8') as file:
         yaml.dump(data, file)
@@ -107,21 +133,24 @@ def deep_del_extra_prop(source: dict, target: dict):
         del target[key]
 
 
-def async_sample(name: str, sub_dir: Optional[List[str]] = None) -> dict:
+def read_config_with_sample(name: str,
+                            script_account_idx: Optional[int] = None,
+                            sub_dir: Optional[List[str]] = None) -> dict:
     """
-    将样例配置同步到具体配置中
+    读取配置 并将样例配置同步到具体配置中
     :param name: 模块名称
+    :param script_account_idx: 脚本账号ID
     :param sub_dir: 子目录
     :return: 同步后的配置
     """
     sample = read_sample_config(name, sub_dir)
-    config = read_config(name, False, sub_dir)
+    config = read_config(name, script_account_idx, sub_dir)
     if config is None:
         config = sample
     else:
         deep_copy_missing_prop(sample, config)
         deep_del_extra_prop(sample, config)
 
-    save_config(name, config, sub_dir=sub_dir)
+    save_config(config, name, script_account_idx=script_account_idx, sub_dir=sub_dir)
     return config
 

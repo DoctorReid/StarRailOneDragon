@@ -113,7 +113,7 @@ class TurnToAngle(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         current_angle = mini_map.analyse_angle(mm)
 
         angle_delta = cal_utils.angle_delta(current_angle, self.target_angle)
@@ -170,7 +170,7 @@ class MoveDirectly(Operation):
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
         self.stop_move_time: Optional[float] = None  # 停止移动的时间
 
-        self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
+        self.run_mode = game_config_const.RUN_MODE_OFF if no_run else self.ctx.game_config.run_mode
         self.no_battle: bool = no_battle  # 本次移动是否没有战斗
         self.technique_fight: bool = technique_fight  # 是否使用秘技进入战斗
 
@@ -204,7 +204,7 @@ class MoveDirectly(Operation):
         if be_attacked is not None:
             return be_attacked
 
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
 
         check_enemy = self.check_enemy_and_attack(mm)  # 根据小地图判断是否被怪锁定 是的话停下来处理敌人
         if check_enemy is not None:
@@ -288,7 +288,7 @@ class MoveDirectly(Operation):
             return None
         if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
             return None
-        if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos):
+        if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         if self.stop_move_time is None:
@@ -420,7 +420,7 @@ class MoveDirectly(Operation):
         if len(self.pos) == 0:
             return
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
         last_pos = self.pos[-1]
         self.ctx.controller.move_towards(last_pos, self.target, mm_info.angle,
@@ -452,7 +452,7 @@ class MoveToEnemy(Operation):
         :param timeout_seconds: 超时时间
         """
         super().__init__(ctx, op_name=gt('向敌人移动', 'ui'), timeout_seconds=timeout_seconds)
-        self.run_mode = game_config_const.RUN_MODE_OFF if no_run else game_config.get().run_mode
+        self.run_mode = game_config_const.RUN_MODE_OFF if no_run else self.ctx.game_config.run_mode
         self.last_move_time: float = 0  # 上一次移动的时间
 
     def _init_before_execute(self):
@@ -461,7 +461,7 @@ class MoveToEnemy(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         pos = mini_map.find_one_enemy_pos(self.ctx.im, mm=mm)
 
         if pos is None:
@@ -538,7 +538,7 @@ class MoveWithoutPos(StateOperation):
     def _turn(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         angle = mini_map.analyse_angle(mm)
 
         self.ctx.controller.turn_by_pos(self.start, self.target, angle)

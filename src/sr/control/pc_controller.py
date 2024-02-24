@@ -23,10 +23,10 @@ class PcController(GameController):
     MOUSEEVENTF_LEFTDOWN = 0x0002
     MOUSEEVENTF_LEFTUP = 0x0004
 
-    def __init__(self, win: Window, ocr: OcrMatcher):
+    def __init__(self, win: Window, ocr: OcrMatcher, gc: GameConfig):
         super().__init__(ocr)
         self.win: Window = win
-        self.gc: GameConfig = game_config.get()
+        self.gc: GameConfig = gc
         self.turn_dx: float = self.gc.get('turn_dx')
         self.run_speed: float = 30
         self.is_moving: bool = False

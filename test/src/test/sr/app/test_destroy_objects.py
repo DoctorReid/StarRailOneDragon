@@ -36,7 +36,7 @@ class TestDestroyObjects(test.SrTestBase):
 
         for idx in range(len(img_names)):
             screen = get_debug_image(img_names[idx])
-            mm = mini_map.cut_mini_map(screen)
+            mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
             path = self.get_test_image_path(str(idx + 1))
 
             cv2.imwrite(path, mm)

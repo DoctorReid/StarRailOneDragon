@@ -3,7 +3,7 @@ import shutil
 from typing import List, Optional
 
 from basic import os_utils
-from sr.config import ConfigHolder
+from basic.config import ConfigHolder
 from sr.sim_uni.sim_uni_const import SimUniWorldEnum
 
 _MAX_WITH_SAMPLE = 8

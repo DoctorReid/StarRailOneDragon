@@ -42,7 +42,7 @@ class Calibrator(Application):
 
             screenshot = self.screenshot()
         mm_pos: MiniMapPos = mini_map.cal_little_map_pos(screenshot)
-        cfg: GameConfig = game_config.get()
+        cfg: GameConfig = self.ctx.game_config
         cfg.update('mini_map', {
             'x': mm_pos.x,
             'y': mm_pos.y,
@@ -85,7 +85,7 @@ class Calibrator(Application):
         log.info('平均旋转角度 %.4f', avg_turn_angle)
         ans = float(turn_distance / avg_turn_angle)
         log.info('每度移动距离 %.4f', ans)
-        gc: GameConfig = game_config.get()
+        gc: GameConfig = self.ctx.game_config
         gc.update('turn_dx', ans)
         gc.save()
         log.info('[转向校准] 完成')
@@ -96,7 +96,7 @@ class Calibrator(Application):
         self.ctx.controller.move('w')
         time.sleep(1)
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
         log.info('当前角度 %.2f', next_angle)
         return next_angle
@@ -126,7 +126,7 @@ class Calibrator(Application):
         while True:
             now_time = time.time()
             screen = self.ctx.controller.screenshot()
-            mm = mini_map.cut_mini_map(screen)
+            mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
 
             lx, ly = last_pos.x, last_pos.y
             move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - last_record_time) if last_record_time > 0 else 0

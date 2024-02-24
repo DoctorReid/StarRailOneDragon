@@ -3,9 +3,8 @@ from typing import Optional, List, ClassVar, Callable
 from basic import os_utils, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import AppDescription, register_app, AppRunRecord, Application2, app_record_current_dt_str
+from sr.app import AppDescription, register_app, AppRunRecord, Application2
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
-from sr.config import game_config
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import screen_state
@@ -47,7 +46,7 @@ class SimUniverseRecord(AppRunRecord):
         :return:
         """
         if self._should_reset_by_dt():
-            if os_utils.is_monday(app_record_current_dt_str()):
+            if os_utils.is_monday(self.get_current_dt()):
                 return AppRunRecord.STATUS_WAIT
             elif self.weekly_times >= self.config.weekly_times:  # 已完成本周次数
                 return AppRunRecord.STATUS_SUCCESS
@@ -65,7 +64,7 @@ class SimUniverseRecord(AppRunRecord):
         :return:
         """
         super().reset_record()
-        current_dt = app_record_current_dt_str()
+        current_dt = self.get_current_dt()
         if os_utils.get_money_dt(current_dt) != os_utils.get_money_dt(self.dt):
             self.weekly_times = 0
         self.daily_times = 0
@@ -126,7 +125,7 @@ class SimUniverseApp(Application2):
         模拟宇宙应用 需要在大世界中非战斗、非特殊关卡界面中开启
         :param ctx:
         """
-        gc = game_config.get()
+        gc = ctx.game_config
         self.config: SimUniAppConfig = get_sim_uni_app_config()
 
         edges: List[StateOperationEdge] = []

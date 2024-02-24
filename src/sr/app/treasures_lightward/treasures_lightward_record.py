@@ -2,7 +2,7 @@ from typing import Optional, TypedDict, List
 
 from basic import str_utils
 from basic.os_utils import get_sunday_dt, dt_day_diff
-from sr.app import AppRunRecord, app_record_current_dt_str
+from sr.app import AppRunRecord
 from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
@@ -33,7 +33,7 @@ class TreasuresLightwardRecord(AppRunRecord):
         """
         old_turn = self.get_turn_by_dt(self.dt)
 
-        current_dt = app_record_current_dt_str()
+        current_dt = self.get_current_dt()
         current_turn = self.get_turn_by_dt(current_dt)
 
         return current_turn > old_turn
@@ -77,7 +77,7 @@ class TreasuresLightwardRecord(AppRunRecord):
             schedule_name=schedule_name,
             mission_star={},
             total_star=0,
-            add_dt=app_record_current_dt_str(),
+            add_dt=self.get_current_dt(),
             finished=False)
         old_list.append(new_schedule)
         self.schedule_list = old_list
@@ -146,7 +146,7 @@ class TreasuresLightwardRecord(AppRunRecord):
 
         # 找出日期对应的轮次
         old_turn = self.get_turn_by_dt(last_dt)
-        current_dt = app_record_current_dt_str()
+        current_dt = self.get_current_dt()
         current_turn = self.get_turn_by_dt(current_dt)
 
         # 可能有新一轮

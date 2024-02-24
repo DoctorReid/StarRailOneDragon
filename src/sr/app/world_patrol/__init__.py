@@ -3,12 +3,12 @@ from typing import List, Optional
 
 import numpy as np
 
-from basic import os_utils, config_utils
+from basic import os_utils
+from basic.config import ConfigHolder
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import app_record_now_time_str, app_record_current_dt_str, AppRunRecord, AppDescription, \
+from sr.app import app_record_now_time_str, AppRunRecord, AppDescription, \
     register_app
-from sr.config import ConfigHolder
 from sr.const import map_const, operation_const
 from sr.const.map_const import Planet, Region, TransportPoint, PLANET_2_REGION, REGION_2_SP, PLANET_LIST
 
@@ -197,7 +197,6 @@ class WorldPatrolWhitelist(ConfigHolder):
 class WorldPatrolRecord(AppRunRecord):
 
     def __init__(self, ):
-        self.current_dt: str = app_record_current_dt_str()
         self.finished: List[str] = []
         self.time_cost: dict[str, List] = {}
         super().__init__(WORLD_PATROL.id)
@@ -303,8 +302,8 @@ def get_record() -> WorldPatrolRecord:
 
 class WorldPatrolConfig(ConfigHolder):
 
-    def __init__(self):
-        super().__init__('world_patrol')
+    def __init__(self, script_account_idx: Optional[int] = None):
+        super().__init__('world_patrol', script_account_idx=script_account_idx, sub_dir=['world_patrol'])
 
     @property
     def team_num(self) -> int:
@@ -329,14 +328,3 @@ class WorldPatrolConfig(ConfigHolder):
     @technique_fight.setter
     def technique_fight(self, new_value: bool):
         self.update('technique_fight', new_value)
-
-
-world_patrol_config: Optional[WorldPatrolConfig] = None
-
-
-def get_config() -> WorldPatrolConfig:
-    global world_patrol_config
-    if world_patrol_config is None:
-        world_patrol_config = WorldPatrolConfig()
-    return world_patrol_config
-

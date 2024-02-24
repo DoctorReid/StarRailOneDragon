@@ -130,11 +130,11 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         self.config.daily_times = int(text)
 
 
-_settings_sim_uni_view: Optional[SettingsSimUniView] = None
+_settings_account_view: Optional[SettingsSimUniView] = None
 
 
 def get(page: ft.Page, ctx: Context) -> SettingsSimUniView:
-    global _settings_sim_uni_view
+    global _settings_account_view
     if _settings_sim_uni_view is None:
         _settings_sim_uni_view = SettingsSimUniView(page, ctx)
 

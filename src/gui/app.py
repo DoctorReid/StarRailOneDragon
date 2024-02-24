@@ -14,8 +14,6 @@ from gui.settings.gui_config import ThemeColors, GuiConfig
 from gui.sim_uni import sim_uni_draft_route_view, sim_uni_challenge_config_view
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
-from sr.config import game_config
-from sr.config.game_config import GameConfig
 from sr.context import get_context, Context
 
 
@@ -281,15 +279,13 @@ class StarRailOneDragon:
 
 
 def run_app(page: ft.Page):
+    ctx = get_context()
     ui_config: GuiConfig = gui_config.get()
     ui_config.init_system_theme(page.platform_brightness.value)
 
-    gc: GameConfig = game_config.get()
-    update_default_lang(gc.lang)
+    update_default_lang(ctx.game_config.lang)
 
     scheduler.start()
-
-    ctx = get_context()
     StarRailOneDragon(page, ctx)
 
 

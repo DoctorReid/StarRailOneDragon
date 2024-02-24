@@ -164,8 +164,8 @@ class SimUniEnterFight(Operation):
         :return:
         """
         now_time = time.time()
-        mm = mini_map.cut_mini_map(screen)
-        if not mini_map.is_under_attack(mm, game_config.get().mini_map_pos, strict=True):
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
+        if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos, strict=True):
             if now_time - self.last_alert_time > SimUniEnterFight.EXIT_AFTER_NO_ALTER_TIME:
                 return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:

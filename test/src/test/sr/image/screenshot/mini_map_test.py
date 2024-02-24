@@ -9,7 +9,7 @@ from basic import os_utils
 from basic.img import cv2_utils
 from basic.img.os import get_debug_image_dir, get_test_image, save_debug_image, get_debug_image
 from basic.log_utils import log
-from sr.config import game_config
+from sr.context import get_context
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map, mini_map_angle_alas
@@ -45,7 +45,7 @@ def _test_get_arrow_mask():
 
 def _test_analyse_arrow_and_angle():
     screen = get_debug_image('1697036916493')
-    mm = mini_map.cut_mini_map(screen)
+    mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
     _, _, angle = mini_map.analyse_arrow_and_angle(mm, im)
     print(angle)
 
@@ -129,7 +129,8 @@ def _test_cut_mini_map():
 
 
 def _test_is_under_attack():
-    mm_pos = game_config.get().mini_map_pos
+    ctx = get_context()
+    mm_pos = ctx.game_config.mini_map_pos
 
     mm = get_test_image('under_1', sub_dir='battle')
     assert mini_map.is_under_attack(mm, mm_pos=mm_pos, show=False, strict=False)  # True

@@ -53,7 +53,7 @@ def _test_async_config():
     print(b)
     config_utils.deep_del_extra_prop(a, b)
     print(b)
-    config_utils.async_sample('game')
+    config_utils.read_config_with_sample('game')
 
 
 def _test_save_config():

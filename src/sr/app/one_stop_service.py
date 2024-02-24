@@ -20,7 +20,7 @@ from sr.app.sim_uni import sim_universe_app
 from sr.app.treasures_lightward import treasures_lightward_app
 from sr.app.world_patrol import WORLD_PATROL
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
-from sr.config import ConfigHolder
+from basic.config import ConfigHolder
 from sr.context import Context
 from sr.operation import Operation
 

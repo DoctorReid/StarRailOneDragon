@@ -1,9 +1,8 @@
 from typing import Optional
 
-from basic import Point, os_utils
+from basic import os_utils
 from basic.i18_utils import gt
-from sr.app import Application, AppRunRecord, app_record_current_dt_str, AppDescription, register_app
-from sr.config import game_config
+from sr.app import Application, AppRunRecord, AppDescription, register_app
 from sr.const import game_config_const, map_const
 from sr.context import Context
 from sr.operation import Operation
@@ -30,7 +29,7 @@ class BuyParcelRecord(AppRunRecord):
         根据时间判断是否应该重置状态 每周重置一次
         :return:
         """
-        current_dt = app_record_current_dt_str()
+        current_dt = self.get_current_dt()
         sunday_dt = os_utils.get_sunday_dt(self.dt)
         return current_dt > sunday_dt
 
@@ -40,7 +39,7 @@ class BuyParcelRecord(AppRunRecord):
         基于当前时间显示的运行状态
         :return:
         """
-        current_dt = app_record_current_dt_str()
+        current_dt = self.get_current_dt()
         sunday_dt = os_utils.get_sunday_dt(self.dt)
         if current_dt > sunday_dt:
             return AppRunRecord.STATUS_WAIT
@@ -89,7 +88,7 @@ class BuyXianzhouParcel(Application):
             return Operation.FAIL
 
     def get_item_name_lcs_percent(self) -> float:
-        lang = game_config.get().lang
+        lang = self.ctx.game_config.lang
         if lang == game_config_const.LANG_CN:
             return 0.8
         elif lang == game_config_const.LANG_EN:

@@ -48,7 +48,7 @@ class TestSimUniRouteApp(Application2):
 
     def _check_route(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         route = match_best_sim_uni_route(self.uni_num, self.level_type, mm)
 
         if route is not None and route.uid == self.route.uid:

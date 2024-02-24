@@ -10,6 +10,9 @@ from basic import os_utils
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
+from sr.app.routine.trailblaze_power import TrailblazePowerConfig
+from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
+from sr.app.world_patrol import WorldPatrolConfig
 from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
@@ -23,6 +26,7 @@ from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import fill_uid_black
+from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.win import Window
 
@@ -45,6 +49,55 @@ class Context:
         self.resume_callback: dict = {}
         self.stop_callback: dict = {}
 
+        self.recorder: PerformanceRecorder = get_recorder()
+        self.open_game_by_script: bool = False  # 脚本启动的游戏
+        self.first_transport: bool = True  # 第一次传送
+
+        self.current_character_list: List[Character] = []
+        self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
+
+        self.one_dragon_config: OneDragonConfig = OneDragonConfig()
+        self.game_config: Optional[GameConfig] = None
+        self.world_patrol_config: Optional[WorldPatrolConfig] = None
+        self.tp_config: Optional[TrailblazePowerConfig] = None
+        self.tl_config: Optional[TreasuresLightwardConfig] = None
+
+        self.init_if_no_account()
+        self.init_config_by_account()
+        self.init_keyboard_callback()
+
+    def init_if_no_account(self):
+        """
+        无账号时做的初始化
+        :return:
+        """
+        if len(self.one_dragon_config.account_list) > 0:
+            return
+        account: OneDragonAccount = self.one_dragon_config.create_new_account(True)
+
+        self.game_config = GameConfig()
+        self.game_config.move_to_account_idx(account.idx)
+
+        # 锄大地移动了目录 需要自己重新设置
+        # self.world_patrol_config = WorldPatrolConfig()
+        # self.world_patrol_config.move_to_account_idx(account.idx)
+
+        self.tp_config = TrailblazePowerConfig()
+        self.tp_config.move_to_account_idx(account.idx)
+
+
+    def init_config_by_account(self):
+        """
+        加载账号对应的配置
+        :return:
+        """
+        pass
+
+    def init_keyboard_callback(self):
+        """
+        注册按键监听
+        :return:
+        """
         keyboard.on_press(self.on_key_press)
         self.register_key_press('f9', self.switch)
         self.register_key_press('f10', self.stop_running)
@@ -52,12 +105,6 @@ class Context:
         if self.platform == 'PC':
             self.register_key_press('f12', self.mouse_position)
 
-        self.recorder: PerformanceRecorder = get_recorder()
-        self.open_game_by_script: bool = False  # 脚本启动的游戏
-        self.first_transport: bool = True  # 第一次传送
-
-        self.current_character_list: List[Character] = []
-        self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
 
     def register_key_press(self, key, callback):
         if key not in self.press_event:
@@ -233,7 +280,7 @@ class Context:
         if renew:
             self.ocr = None
         if self.ocr is None:
-            self.ocr = get_ocr_matcher(game_config.get().lang)
+            self.ocr = get_ocr_matcher(self.game_config.lang)
         log.info('加载OCR识别器完毕')
         return True
 
@@ -277,20 +324,18 @@ class Context:
     def is_pc(self) -> bool:
         return self.platform == 'PC'
 
-
-def try_open_game() -> bool:
-    """
-    尝试打开游戏 如果有配置游戏路径的话
-    :return:
-    """
-    gc: GameConfig = game_config.get()
-    if gc.game_path == '':
-        log.info('未配置游戏路径 无法自动启动')
-        return False
-    global_context.running = 1
-    log.info('尝试自动启动游戏 路径为 %s', gc.game_path)
-    subprocess.Popen(gc.game_path)
-    return True
+    def try_open_game(self) -> bool:
+        """
+        尝试打开游戏 如果有配置游戏路径的话
+        :return:
+        """
+        if self.game_config.game_path == '':
+            log.info('未配置游戏路径 无法自动启动')
+            return False
+        global_context.running = 1
+        log.info('尝试自动启动游戏 路径为 %s', self.game_config.game_path)
+        subprocess.Popen(self.game_config.game_path)
+        return True
 
 
 def get_game_win() -> Window:

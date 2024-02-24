@@ -59,7 +59,7 @@ class EnterGame(Operation):
             return Operation.round_wait()
 
         if enter_game_ui.in_login_phase(screen, self.ctx.ocr):
-            gc = game_config.get()
+            gc = self.ctx.game_config
             if len(gc.game_account) == 0 or len(gc.game_account_password) == 0:
                 log.error('未配置账号密码 请自行输入密码登录后再启动脚本')
                 return Operation.round_wait()

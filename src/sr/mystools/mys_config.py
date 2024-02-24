@@ -3,7 +3,7 @@ import time
 from typing import Optional, List
 
 from basic.log_utils import log
-from sr.config import ConfigHolder
+from basic.config import ConfigHolder
 from sr.mystools import login
 from sr.mystools.data_model import StarRailNoteExpedition
 from sr.mystools.plugin_data import PluginDataManager

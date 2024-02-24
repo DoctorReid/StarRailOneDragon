@@ -52,7 +52,7 @@ class SimUniMatchRoute(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
 
         if route is None:
@@ -439,7 +439,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         """
         is_respite = self.level_type == SimUniLevelTypeEnum.RESPITE.value
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         angle = mini_map.analyse_angle(mm)
         radio_to_del = mini_map.get_radio_to_del(self.ctx.im, angle)
         mm_del_radio = mini_map.remove_radio(mm, radio_to_del)
@@ -557,7 +557,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
         :return:
         """
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         angle = mini_map.analyse_angle(mm)
         start_pos = self.route.start_pos
         elite_pos = self.route.op_list[0]['data']
@@ -573,7 +573,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
         if self.route.last_op['op'] == operation_const.OP_NO_POS_MOVE:
             return Operation.round_success()
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
 
         lm_info = self.ctx.ih.get_large_map(self.route.region)
@@ -593,7 +593,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
             return Operation.round_retry(MoveDirectly.STATUS_NO_POS, wait=1)
 
     def _move_to_reward(self) -> OperationOneRoundResult:
-        gc = game_config.get()
+        gc = self.ctx.game_config
         if self.max_reward_to_get <= 0 and not gc.is_debug:
             return Operation.round_success(SimUniRunEliteAfterRoute.STATUS_NO_NEED_REWARD)
         elif self.route.reward_pos is None:
@@ -669,7 +669,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
         :return:
         """
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         red_pos = mini_map.find_one_enemy_pos(self.ctx.im, mm=mm)
         if red_pos is None:
             self.no_icon = True

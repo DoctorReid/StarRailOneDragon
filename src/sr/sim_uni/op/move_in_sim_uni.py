@@ -130,7 +130,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             return None
         if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
             return None
-        if not mini_map.is_under_attack(mm):
+        if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         if self.stop_move_time is None:
@@ -204,12 +204,12 @@ class MoveToNextLevel(StateOperation):
         :return:
         """
         if self.current_pos is None or self.next_pos is None:
-            if game_config.get().is_debug:
+            if self.ctx.game_config.is_debug:
                 return Operation.round_fail('未配置下层入口')
             else:
                 return Operation.round_success()
         screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
         log.debug('当前位置 %s 目标位置 %s', self.current_pos, self.next_pos)
         self.ctx.controller.turn_by_pos(self.current_pos, self.next_pos, mm_info.angle)
@@ -408,7 +408,7 @@ class MoveToMiniMapInteractIcon(Operation):
         if interact is not None:
             return interact
 
-        mm = mini_map.cut_mini_map(screen)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         target_pos = self._get_event_pos(mm)
 
         if target_pos is None:

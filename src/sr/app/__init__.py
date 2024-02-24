@@ -4,7 +4,8 @@ from typing import List, Optional
 
 from basic import os_utils
 from basic.log_utils import log
-from sr.config import game_config, ConfigHolder
+from sr.config import game_config
+from basic.config import ConfigHolder
 from sr.const import game_config_const
 from sr.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge
@@ -18,7 +19,8 @@ class AppRunRecord(ConfigHolder):
     STATUS_FAIL = 2
     STATUS_RUNNING = 3
 
-    def __init__(self, app_id: str):
+    def __init__(self, app_id: str, server_region: str = game_config_const.SERVER_REGION_CN):
+        self.server_region: str = server_region  # 游戏对应的服务器
         self.dt: str = ''
         self.run_time: str = ''
         self.run_time_float: float = 0
@@ -26,7 +28,7 @@ class AppRunRecord(ConfigHolder):
         super().__init__(app_id, sub_dir=['app_run_record'], sample=False)
 
     def _init_after_read_file(self):
-        self.dt = self.get('dt', app_record_current_dt_str())
+        self.dt = self.get('dt', self.get_current_dt())
         self.run_time = self.get('run_time', '-')
         self.run_time_float = self.get('run_time_float', 0)
         self.run_status = self.get('run_status', AppRunRecord.STATUS_WAIT)
@@ -49,7 +51,7 @@ class AppRunRecord(ConfigHolder):
         self.run_status = new_status
         self.update('run_status', self.run_status, False)
         if not only_status:
-            self.dt = app_record_current_dt_str()
+            self.dt = self.get_current_dt()
             self.run_time = app_record_now_time_str()
             self.run_time_float = time.time()
             self.update('dt', self.dt, False)
@@ -81,8 +83,16 @@ class AppRunRecord(ConfigHolder):
         根据时间判断是否应该重置状态
         :return:
         """
-        current_dt = app_record_current_dt_str()
+        current_dt = self.get_current_dt()
         return self.dt != current_dt
+
+    def get_current_dt(self) -> str:
+        """
+        获取当前时间的dt
+        :return:
+        """
+        utc_offset = game_config_const.SERVER_TIME_OFFSET.get(self.server_region)
+        return os_utils.get_dt(utc_offset)
 
 
 class Application(Operation):
@@ -268,6 +278,7 @@ class Application2(StateOperation):
         return ''
 
 
+
 def app_record_now_time_str() -> str:
     """
     返回当前时间字符串
@@ -275,16 +286,6 @@ def app_record_now_time_str() -> str:
     """
     current_time = datetime.now()
     return current_time.strftime("%m-%d %H:%M")
-
-
-def app_record_current_dt_str() -> str:
-    """
-    游戏区服当前的日期
-    :return:
-    """
-    sr = game_config.get().server_region
-    utc_offset = game_config_const.SERVER_TIME_OFFSET.get(sr)
-    return os_utils.get_dt(utc_offset)
 
 
 class AppDescription:

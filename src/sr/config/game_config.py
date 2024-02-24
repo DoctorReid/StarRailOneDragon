@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sr.config import ConfigHolder
+from basic.config import ConfigHolder
 from sr.const import game_config_const, ocr_const
 from sr.const.game_config_const import SERVER_REGION_CN
 
@@ -25,9 +25,9 @@ class MiniMapPos:
 
 class GameConfig(ConfigHolder):
 
-    def __init__(self):
+    def __init__(self, script_account_idx: Optional[int] = None):
         self.mini_map_pos: Optional[MiniMapPos] = None
-        super().__init__('game')
+        super().__init__('game', script_account_idx=script_account_idx)
 
     def _init_after_read_file(self):
         mini_map = self.data['mini_map']
@@ -256,16 +256,3 @@ class GameConfig(ConfigHolder):
         :return:
         """
         self.update('is_debug', new_value)
-
-
-_gc = None
-
-
-def get() -> GameConfig:
-    global _gc
-    if _gc is None:
-        _gc = GameConfig()
-
-    return _gc
-
-
