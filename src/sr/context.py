@@ -11,6 +11,7 @@ from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.app.assignments.assignments_run_record import AssignmentsRunRecord
+from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_run_record import BuyXianZhouParcelRunRecord
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
@@ -68,11 +69,11 @@ class Context:
         self.tp_config: Optional[TrailblazePowerConfig] = None
         self.tp_run_record: Optional[TrailblazePowerRunRecord] = None
 
-        # self.assignments_config = None  # 未有
-        self.assignments_run_record: Optional[AssignmentsRunRecord] = None
-
         self.tl_config: Optional[TreasuresLightwardConfig] = None
         self.tl_run_record: Optional[TreasuresLightwardRunRecord] = None
+
+        self.assignments_run_record: Optional[AssignmentsRunRecord] = None
+        self.buy_xz_parcel_run_record: Optional[BuyXianZhouParcelRunRecord] = None
 
         self.init_if_no_account()
         self.init_config_by_account()
@@ -102,13 +103,16 @@ class Context:
         self.tp_run_record = TrailblazePowerRunRecord(self.tp_config)
         self.tp_run_record.move_to_account_idx(account_idx)
 
-        self.assignments_run_record = AssignmentsRunRecord()
-        self.assignments_run_record.move_to_account_idx(account_idx)
-
         self.tl_config = TreasuresLightwardConfig()
         self.tl_config.move_to_account_idx(account_idx)
         self.tl_run_record = TreasuresLightwardRunRecord()
         self.tl_run_record.move_to_account_idx(account_idx)
+
+        self.assignments_run_record = AssignmentsRunRecord()
+        self.assignments_run_record.move_to_account_idx(account_idx)
+
+        self.buy_xz_parcel_run_record = BuyXianZhouParcelRunRecord()
+        self.buy_xz_parcel_run_record.move_to_account_idx(account_idx)
 
     def init_config_by_account(self):
         """
@@ -124,7 +128,12 @@ class Context:
         self.tp_config = TrailblazePowerConfig(account_idx)
         self.tp_run_record = TrailblazePowerRunRecord(self.tp_config, account_idx)
 
+        self.tl_config = TreasuresLightwardConfig(account_idx)
+        self.tl_run_record = TreasuresLightwardRunRecord(account_idx)
+
         self.assignments_run_record = AssignmentsRunRecord(account_idx)
+
+        self.buy_xz_parcel_run_record = BuyXianZhouParcelRunRecord(account_idx)
 
     def init_keyboard_callback(self):
         """

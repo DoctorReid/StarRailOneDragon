@@ -22,8 +22,8 @@ class TreasuresLightwardScheduleRecord(TypedDict):
 
 class TreasuresLightwardRunRecord(AppRunRecord):
 
-    def __init__(self):
-        super().__init__(AppDescriptionEnum.TREASURES_LIGHTWARD.value.id)
+    def __init__(self, account_idx: Optional[int] = None):
+        super().__init__(AppDescriptionEnum.TREASURES_LIGHTWARD.value.id, account_idx=account_idx)
         self.base_sunday: str = '20240204'
 
     def _should_reset_by_dt(self):

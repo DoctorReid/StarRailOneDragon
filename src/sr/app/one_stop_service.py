@@ -6,9 +6,8 @@ from sr.app.app_description import AppDescriptionEnum, AppDescription
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.assignments.assignments_app import AssignmentsApp
-from sr.app.routine import support_character, nameless_honor, daily_training_app, buy_parcel, \
-    email_attachment, echo_of_war
-from sr.app.routine.buy_parcel import BuyXianzhouParcel, BUY_XIANZHOU_PARCEL
+from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcelApp
+from sr.app.routine import support_character, nameless_honor, daily_training_app, email_attachment, echo_of_war
 from sr.app.routine.echo_of_war import ECHO_OF_WAR, EchoOfWar
 from sr.app.routine.email_attachment import Email, EMAIL
 from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
@@ -168,8 +167,8 @@ class OneStopService(Application):
             return ClaimNamelessHonor(ctx)
         elif app_id == daily_training_app.DAILY_TRAINING.id:
             return daily_training_app.DailyTrainingApp(ctx)
-        elif app_id == BUY_XIANZHOU_PARCEL.id:
-            return BuyXianzhouParcel(ctx)
+        elif app_id == AppDescriptionEnum.BUY_XIANZHOU_PARCEL.value.id:
+            return BuyXianzhouParcelApp(ctx)
         elif app_id == AppDescriptionEnum.TRAILBLAZE_POWER.value.id:
             return TrailblazePower(ctx)
         elif app_id == ECHO_OF_WAR.id:
@@ -194,8 +193,8 @@ class OneStopService(Application):
             return nameless_honor.get_record()
         elif app_id == daily_training_app.DAILY_TRAINING.id:
             return daily_training_app.get_record()
-        elif app_id == BUY_XIANZHOU_PARCEL.id:
-            return buy_parcel.get_record()
+        elif app_id == AppDescriptionEnum.BUY_XIANZHOU_PARCEL.value.id:
+            return ctx.buy_xz_parcel_run_record
         elif app_id == AppDescriptionEnum.TRAILBLAZE_POWER.value.id:
             return ctx.tp_run_record
         elif app_id == ECHO_OF_WAR.id:

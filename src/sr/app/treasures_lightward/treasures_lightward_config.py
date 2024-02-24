@@ -7,8 +7,8 @@ from sr.treasures_lightward.treasures_lightward_team_module import TreasuresLigh
 
 class TreasuresLightwardConfig(ConfigHolder):
 
-    def __init__(self):
-        ConfigHolder.__init__(self, AppDescriptionEnum.TREASURES_LIGHTWARD.value.id)
+    def __init__(self, account_idx: Optional[int] = None):
+        ConfigHolder.__init__(self, AppDescriptionEnum.TREASURES_LIGHTWARD.value.id, account_idx=account_idx)
 
     def _init_after_read_file(self):
         pass
