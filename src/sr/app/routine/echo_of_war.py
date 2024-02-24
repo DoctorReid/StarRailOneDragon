@@ -13,8 +13,8 @@ from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation
 from sr.operation.combine.challenge_ehco_of_war import ChallengeEchoOfWar
-from sr.operation.unit.guide.survival_index import SurvivalIndexMissionEnum, SurvivalIndexCategoryEnum, \
-    SurvivalIndexMission
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission, \
+    SurvivalIndexMissionEnum
 from sr.operation.unit.open_map import OpenMap
 
 ECHO_OF_WAR = AppDescription(cn='历战余响', id='echo_of_war')

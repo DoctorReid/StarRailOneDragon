@@ -1,18 +1,18 @@
 import time
 from typing import Optional
 
-from sr.app import AppRunRecord
-from sr.app.trailblaze_power import TRAILBLAZE_POWER
+from sr.app.app_run_record import AppRunRecord
+from sr.app.app_description import AppDescriptionEnum
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.mystools import mys_config
-from sr.operation.unit.guide.survival_index import SurvivalIndexMission, SurvivalIndexMissionEnum
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexMission, SurvivalIndexMissionEnum
 
 
-class TrailblazePowerRecord(AppRunRecord):
+class TrailblazePowerRunRecord(AppRunRecord):
 
     def __init__(self, tp_config: TrailblazePowerConfig, account_idx: Optional[int] = None):
         self.tp_config: TrailblazePowerConfig = tp_config
-        super().__init__(TRAILBLAZE_POWER.id)
+        super().__init__(AppDescriptionEnum.TRAILBLAZE_POWER.value.id, account_idx=account_idx)
 
     def _should_reset_by_dt(self):
         """
@@ -29,11 +29,11 @@ class TrailblazePowerRecord(AppRunRecord):
         return False
 
 
-trailblaze_power_record: Optional[TrailblazePowerRecord] = None
+trailblaze_power_record: Optional[TrailblazePowerRunRecord] = None
 
 
-def get_record() -> TrailblazePowerRecord:
+def get_record() -> TrailblazePowerRunRecord:
     global trailblaze_power_record
     if trailblaze_power_record is None:
-        trailblaze_power_record = TrailblazePowerRecord()
+        trailblaze_power_record = TrailblazePowerRunRecord()
     return trailblaze_power_record

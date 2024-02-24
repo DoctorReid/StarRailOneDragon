@@ -2,7 +2,7 @@ from typing import Optional, TypedDict, List
 
 from basic import str_utils
 from basic.os_utils import get_sunday_dt, dt_day_diff
-from sr.app import AppRunRecord
+from sr.app.app_run_record import AppRunRecord
 from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 

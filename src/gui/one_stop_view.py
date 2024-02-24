@@ -3,8 +3,6 @@ from typing import List, Optional, Callable
 
 import flet as ft
 
-import sr.app
-import sr.app.treasures_lightward.treasures_lightward_record
 from basic import win_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
@@ -13,6 +11,7 @@ from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr.app import one_stop_service, AppRunRecord
+from sr.app.app_description import AppDescriptionEnum
 from sr.app.application_base import Application
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
 from sr.app.routine import echo_of_war
@@ -123,7 +122,7 @@ class AppList(ft.ListView):
 
         self.app_id_list: List[str] = one_stop_service.get_config().order_app_id_list
         for app_id in self.app_id_list:
-            app = sr.app.get_app_desc_by_id(app_id)
+            app = AppDescriptionEnum[app_id.upper()].value
             if app is None:
                 continue
             item = AppListItem(app.cn, app.id,

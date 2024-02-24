@@ -1,7 +1,7 @@
 from typing import TypedDict, Optional, List
 
 from basic.config import ConfigHolder
-from sr.app.trailblaze_power import TRAILBLAZE_POWER
+from sr.app.app_description import AppDescriptionEnum
 
 
 class TrailblazePowerPlanItem(TypedDict):
@@ -16,7 +16,7 @@ class TrailblazePowerPlanItem(TypedDict):
 class TrailblazePowerConfig(ConfigHolder):
 
     def __init__(self, account_idx: Optional[int] = None):
-        super().__init__(TRAILBLAZE_POWER.id, account_idx=account_idx)
+        super().__init__(AppDescriptionEnum.TRAILBLAZE_POWER.value.id, account_idx=account_idx)
 
     def _init_after_read_file(self):
         """

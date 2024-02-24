@@ -7,7 +7,7 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
-from sr.app import AppRunRecord, AppDescription, register_app
+from sr.app.app_run_record import AppRunRecord, AppDescription, register_app
 from sr.app.application_base import Application
 from sr.const import phone_menu_const
 from sr.context import Context

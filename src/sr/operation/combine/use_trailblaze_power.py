@@ -12,7 +12,7 @@ from sr.operation.battle.click_challenge import ClickChallenge
 from sr.operation.battle.click_start_challenge import ClickStartChallenge
 from sr.operation.battle.wait_battle_reward import WaitBattleReward
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.guide.survival_index import SurvivalIndexMission, SurvivalIndexCategoryEnum
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.wait import WaitInWorld
 

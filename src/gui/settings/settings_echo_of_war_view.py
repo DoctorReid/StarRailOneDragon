@@ -13,8 +13,8 @@ from sr.app.routine.echo_of_war import EchoOfWarConfig, EchoOfWarPlanItem
 from sr.const.character_const import CHARACTER_LIST
 from sr.const.map_const import TransportPoint
 from sr.context import Context
-from sr.operation.unit.guide.survival_index import SurvivalIndexMissionEnum, SurvivalIndexCategoryEnum, \
-    SurvivalIndexMission
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission, \
+    SurvivalIndexMissionEnum
 
 
 class PlanListItem(ft.Row):

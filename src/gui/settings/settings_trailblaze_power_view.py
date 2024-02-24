@@ -11,8 +11,8 @@ from gui.sr_basic_view import SrBasicView
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem, TrailblazePowerConfig
 from sr.const.character_const import CHARACTER_LIST
 from sr.context import Context
-from sr.operation.unit.guide.survival_index import SurvivalIndexMissionEnum, SurvivalIndexMission, \
-    SurvivalIndexCategoryEnum, SurvivalIndexCategory
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategory, SurvivalIndexCategoryEnum, \
+    SurvivalIndexMission, SurvivalIndexMissionEnum
 
 
 class PlanListItem(ft.Row):

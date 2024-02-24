@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 from basic.i18_utils import gt
-from sr.app import AppRunRecord, AppDescription, register_app
+from sr.app.app_run_record import AppRunRecord, AppDescription, register_app
 from sr.app.application_base import Application2
 from sr.const import phone_menu_const
 from sr.const.traing_mission_const import MISSION_SALVAGE_RELIC, MISSION_DESTRUCTIBLE_OBJECTS, MISSION_USE_TECHNIQUE, \

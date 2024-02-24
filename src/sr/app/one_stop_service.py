@@ -9,8 +9,8 @@ import sr.app.treasures_lightward.treasures_lightward_record
 import sr.app.world_patrol.world_patrol_run_record
 from basic.config import ConfigHolder
 from basic.i18_utils import gt
-from sr.app import AppRunRecord, AppDescription
-from sr.app.app_description import AppDescriptionEnum
+from sr.app.app_description import AppDescriptionEnum, AppDescription
+from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.routine import assignments, support_character, nameless_honor, daily_training_app, buy_parcel, \
     email_attachment, echo_of_war
@@ -21,7 +21,6 @@ from sr.app.routine.email_attachment import Email, EMAIL
 from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
 from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
 from sr.app.sim_uni import sim_universe_app
-from sr.app.trailblaze_power import TRAILBLAZE_POWER
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward import treasures_lightward_app
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
@@ -37,7 +36,8 @@ class OneStopServiceConfig(ConfigHolder):
     def _init_after_read_file(self):
         current_list = self.order_app_id_list
         need_update: bool = False
-        for app in sr.app.ALL_APP_LIST:
+        for app_enum in AppDescriptionEnum:
+            app = app_enum.value
             if app.id not in current_list:
                 current_list.append(app.id)
                 need_update = True
@@ -45,7 +45,8 @@ class OneStopServiceConfig(ConfigHolder):
         new_list = []
         for app_id in current_list:
             valid = False
-            for app in sr.app.ALL_APP_LIST:
+            for app_enum in AppDescriptionEnum:
+                app = app_enum.value
                 if app_id == app.id:
                     valid = True
                     break
@@ -111,11 +112,11 @@ class OneStopService(Application):
         for app_id in get_config().order_app_id_list:
             if app_id not in run_app_list:
                 continue
-            update_app_run_record_before_start(app_id, self.ctx)
-            record = get_app_run_record_by_id(app_id, self.ctx)
+            OneStopService.update_app_run_record_before_start(app_id, self.ctx)
+            record = OneStopService.get_app_run_record_by_id(app_id, self.ctx)
 
             if record.run_status_under_now != AppRunRecord.STATUS_SUCCESS:
-                self.app_list.append(sr.app.get_app_desc_by_id(app_id))
+                self.app_list.append(AppDescriptionEnum[app_id.upper()].value)
 
         self.app_idx: int = 0
 
@@ -176,7 +177,7 @@ class OneStopService(Application):
             return daily_training_app.DailyTrainingApp(ctx)
         elif app_id == BUY_XIANZHOU_PARCEL.id:
             return BuyXianzhouParcel(ctx)
-        elif app_id == TRAILBLAZE_POWER.id:
+        elif app_id == AppDescriptionEnum.TRAILBLAZE_POWER.value.id:
             return TrailblazePower(ctx)
         elif app_id == ECHO_OF_WAR.id:
             return EchoOfWar(ctx)
@@ -202,8 +203,8 @@ class OneStopService(Application):
             return daily_training_app.get_record()
         elif app_id == BUY_XIANZHOU_PARCEL.id:
             return buy_parcel.get_record()
-        elif app_id == TRAILBLAZE_POWER.id:
-            return sr.app.trailblaze_power.trailblaze_power_run_record.get_record()
+        elif app_id == AppDescriptionEnum.TRAILBLAZE_POWER.value.id:
+            return ctx.tp_run_record
         elif app_id == ECHO_OF_WAR.id:
             return echo_of_war.get_record()
         elif app_id == sr.app.treasures_lightward.TREASURES_LIGHTWARD_APP.id:

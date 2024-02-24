@@ -3,7 +3,7 @@ from typing import Optional, List, ClassVar
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import AppRunRecord, register_app
+from sr.app.app_run_record import AppRunRecord, register_app
 from sr.app.application_base import Application2
 from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig, get_config

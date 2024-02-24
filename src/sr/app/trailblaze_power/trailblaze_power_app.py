@@ -6,12 +6,9 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import AppRunRecord, register_app
 from sr.app.application_base import Application2
 from sr.app.sim_uni.sim_universe_app import SimUniverseApp
-from sr.app.trailblaze_power import TRAILBLAZE_POWER
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
-from sr.app.trailblaze_power.trailblaze_power_run_record import get_record
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import large_map
@@ -19,14 +16,11 @@ from sr.operation import StateOperationNode, StateOperationEdge, OperationOneRou
 from sr.operation.combine.use_trailblaze_power import UseTrailblazePower
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
-from sr.operation.unit.guide.survival_index import SurvivalIndexMission, SurvivalIndexMissionEnum, \
-    SurvivalIndexCategoryEnum
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission, \
+    SurvivalIndexMissionEnum
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.operation.unit.open_map import OpenMap
-
-
-register_app(TRAILBLAZE_POWER)
 
 
 class TrailblazePower(Application2):
@@ -67,7 +61,7 @@ class TrailblazePower(Application2):
         super().__init__(ctx, try_times=5,
                          op_name=gt('开拓力', 'ui'),
                          edges=edges, specified_start_node=check_task,
-                         run_record=get_record())
+                         run_record=ctx.tp_run_record)
         self.power: Optional[int] = None  # 剩余开拓力
         self.qty: Optional[int] = None  # 沉浸器数量
         self.last_challenge_point: Optional[SurvivalIndexMission] = None
@@ -75,7 +69,6 @@ class TrailblazePower(Application2):
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        get_record().update_status(AppRunRecord.STATUS_RUNNING)
         self.last_challenge_point = None
         self.power = None
 

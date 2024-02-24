@@ -8,7 +8,6 @@ from basic.i18_utils import gt, coalesce_gt
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
-from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.context import Context
 from sr.image.sceenshot import fill_uid_black

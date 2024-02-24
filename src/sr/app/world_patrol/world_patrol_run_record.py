@@ -2,8 +2,8 @@ from typing import List, Optional
 
 import numpy as np
 
-from sr.app import AppRunRecord
 from sr.app.app_description import AppDescriptionEnum
+from sr.app.app_run_record import AppRunRecord
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId
 
 

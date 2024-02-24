@@ -10,7 +10,7 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.guide.survival_index import SurvivalIndexCategory, SurvivalIndexCategoryEnum
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategory, SurvivalIndexCategoryEnum
 
 CATEGORY_LIST_RECT = Rect(270, 300, 680, 910)
 

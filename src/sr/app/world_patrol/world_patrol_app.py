@@ -5,7 +5,7 @@ from typing import List, Iterator, Optional
 import sr.app.world_patrol.world_patrol_run_record
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import AppRunRecord
+from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolWhitelist, load_all_route_id, \

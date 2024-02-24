@@ -1,7 +1,7 @@
 import test
 from sr.context import get_context
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.guide.survival_index import SurvivalIndexMissionEnum, SurvivalIndexCategoryEnum
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMissionEnum
 
 
 class TestSurvivalIndex(test.SrTestBase):

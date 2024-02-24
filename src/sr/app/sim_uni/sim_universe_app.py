@@ -15,7 +15,7 @@ from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
-from sr.operation.unit.guide.survival_index import SurvivalIndexCategoryEnum
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.sim_uni import ScreenSimUniEntry

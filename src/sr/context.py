@@ -11,6 +11,7 @@ from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
+from sr.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
@@ -58,9 +59,13 @@ class Context:
 
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
         self.game_config: Optional[GameConfig] = None
+
         self.world_patrol_config: Optional[WorldPatrolConfig] = None
         self.world_patrol_run_record: Optional[WorldPatrolRunRecord] = None
+
         self.tp_config: Optional[TrailblazePowerConfig] = None
+        self.tp_run_record: Optional[TrailblazePowerRunRecord] = None
+
         self.tl_config: Optional[TreasuresLightwardConfig] = None
 
         self.init_if_no_account()
@@ -88,6 +93,8 @@ class Context:
 
         self.tp_config = TrailblazePowerConfig()
         self.tp_config.move_to_account_idx(account_idx)
+        self.tp_run_record = TrailblazePowerRunRecord(self.tp_config)
+        self.tp_run_record.move_to_account_idx(account_idx)
 
     def init_config_by_account(self):
         """
@@ -96,8 +103,13 @@ class Context:
         """
         account_idx = self.one_dragon_config.current_active_account.idx
         self.game_config = GameConfig(account_idx)
+
         self.world_patrol_config = WorldPatrolConfig(account_idx)
+        self.world_patrol_run_record = WorldPatrolRunRecord(account_idx)
+
         self.tp_config = TrailblazePowerConfig(account_idx)
+        self.tp_run_record = TrailblazePowerRunRecord(self.tp_config, account_idx)
+
 
     def init_keyboard_callback(self):
         """
