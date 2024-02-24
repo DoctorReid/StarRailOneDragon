@@ -3,6 +3,7 @@ from typing import List, Optional, Callable
 
 import flet as ft
 
+import sr.app.one_stop_service.one_stop_service_config
 import sr.app.sim_uni.sim_uni_run_record
 from basic import win_utils
 from basic.i18_utils import gt
@@ -120,7 +121,7 @@ class AppList(ft.ListView):
         self.item_map: dict[str, AppListItem] = {}
         theme: ThemeColors = gui_config.theme()
 
-        self.app_id_list: List[str] = one_stop_service.get_config().order_app_id_list
+        self.app_id_list: List[str] = ctx.one_stop_service_config.order_app_id_list
         for app_id in self.app_id_list:
             app = AppDescriptionEnum[app_id.upper()].value
             if app is None:
@@ -159,13 +160,13 @@ class AppList(ft.ListView):
         temp = self.app_id_list[target_idx - 1]
         self.app_id_list[target_idx - 1] = self.app_id_list[target_idx]
         self.app_id_list[target_idx] = temp
-        one_stop_service.get_config().order_app_id_list = self.app_id_list
+        self.ctx.one_stop_service_config.order_app_id_list = self.app_id_list
         self.update()
 
     def _on_item_switch_changed(self, e):
         app_id: str = e.control.data
         on: bool = e.control.value
-        config: OneStopServiceConfig = one_stop_service.get_config()
+        config: OneStopServiceConfig = self.ctx.one_stop_service_config
         run_app_id_list: List[str] = config.run_app_id_list
         if on and app_id not in run_app_id_list:
             run_app_id_list.append(app_id)
@@ -175,7 +176,7 @@ class AppList(ft.ListView):
             config.run_app_id_list = run_app_id_list
 
     def update_all_app_status(self):
-        config: OneStopServiceConfig = one_stop_service.get_config()
+        config: OneStopServiceConfig = self.ctx.one_stop_service_config
         run_app_id_list: List[str] = config.run_app_id_list
         for app_id in self.app_id_list:
             app_record = OneStopService.get_app_run_record_by_id(app_id, self.ctx)
@@ -478,7 +479,7 @@ class OneStopView(ft.Row, SrBasicView):
         初始化定时启动下拉框的值
         :return:
         """
-        config: OneStopServiceConfig = one_stop_service.get_config()
+        config: OneStopServiceConfig = self.sr_ctx.one_stop_service_config
         self.schedule_1_dropdown.value = config.schedule_hour_1
         self.schedule_1_dropdown.update()
         self.schedule_2_dropdown.value = config.schedule_hour_2
@@ -504,7 +505,7 @@ class OneStopView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        config: OneStopServiceConfig = one_stop_service.get_config()
+        config: OneStopServiceConfig = self.sr_ctx.one_stop_service_config
         if e.control == self.schedule_1_dropdown:
             config.schedule_hour_1 = self.schedule_1_dropdown.value
         else:

@@ -1,9 +1,7 @@
 from typing import List, Optional
 
-import sr.app.sim_uni.sim_uni_run_record
-from basic.config import ConfigHolder
 from basic.i18_utils import gt
-from sr.app.app_description import AppDescriptionEnum, AppDescription
+from sr.app.app_description import AppDescription, AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.assignments.assignments_app import AssignmentsApp
@@ -13,7 +11,6 @@ from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr.app.email.email_app import EmailApp
 from sr.app.nameless_honor.nameless_honor_app import NamelessHonorApp
 from sr.app.support_character.support_character_app import SupportCharacterApp
-from sr.app.sim_uni import sim_uni_app
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
@@ -21,92 +18,17 @@ from sr.context import Context
 from sr.operation import Operation
 
 
-class OneStopServiceConfig(ConfigHolder):
-
-    def __init__(self):
-        super().__init__('one_stop_service')
-
-    def _init_after_read_file(self):
-        current_list = self.order_app_id_list
-        need_update: bool = False
-        for app_enum in AppDescriptionEnum:
-            app = app_enum.value
-            if app.id not in current_list:
-                current_list.append(app.id)
-                need_update = True
-
-        new_list = []
-        for app_id in current_list:
-            valid = False
-            for app_enum in AppDescriptionEnum:
-                app = app_enum.value
-                if app_id == app.id:
-                    valid = True
-                    break
-            if valid:
-                new_list.append(app_id)
-            else:
-                need_update = True
-
-        if need_update:
-            self.order_app_id_list = new_list
-
-    @property
-    def order_app_id_list(self) -> List[str]:
-        return self.get('app_order')
-
-    @order_app_id_list.setter
-    def order_app_id_list(self, new_list: List[str]):
-        self.update('app_order', new_list)
-        self.save()
-
-    @property
-    def run_app_id_list(self) -> List[str]:
-        return self.get('app_run')
-
-    @run_app_id_list.setter
-    def run_app_id_list(self, new_list: List[str]):
-        self.update('app_run', new_list)
-        self.save()
-
-    @property
-    def schedule_hour_1(self):
-        return self.get('schedule_hour_1', 'none')
-
-    @schedule_hour_1.setter
-    def schedule_hour_1(self, new_value: str):
-        self.update('schedule_hour_1', new_value)
-
-    @property
-    def schedule_hour_2(self):
-        return self.get('schedule_hour_2', 'none')
-
-    @schedule_hour_2.setter
-    def schedule_hour_2(self, new_value: str):
-        self.update('schedule_hour_2', new_value)
-
-
-one_stop_service_config: OneStopServiceConfig = None
-
-
-def get_config() -> OneStopServiceConfig:
-    global one_stop_service_config
-    if one_stop_service_config is None:
-        one_stop_service_config = OneStopServiceConfig()
-    return one_stop_service_config
-
-
-class OneStopService(Application):
+class OneStopServiceApp(Application):
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('一条龙', 'ui'))
         self.app_list: List[AppDescription] = []
-        run_app_list = get_config().run_app_id_list
-        for app_id in get_config().order_app_id_list:
+        run_app_list = ctx.one_stop_service_config.run_app_id_list
+        for app_id in ctx.one_stop_service_config.order_app_id_list:
             if app_id not in run_app_list:
                 continue
-            OneStopService.update_app_run_record_before_start(app_id, self.ctx)
-            record = OneStopService.get_app_run_record_by_id(app_id, self.ctx)
+            OneStopServiceApp.update_app_run_record_before_start(app_id, self.ctx)
+            record = OneStopServiceApp.get_app_run_record_by_id(app_id, self.ctx)
 
             if record.run_status_under_now != AppRunRecord.STATUS_SUCCESS:
                 self.app_list.append(AppDescriptionEnum[app_id.upper()].value)
@@ -213,6 +135,6 @@ class OneStopService(Application):
         :param app_id:
         :return:
         """
-        record: Optional[AppRunRecord] = OneStopService.get_app_run_record_by_id(app_id, ctx)
+        record: Optional[AppRunRecord] = OneStopServiceApp.get_app_run_record_by_id(app_id, ctx)
         if record is not None:
             record.check_and_update_status()

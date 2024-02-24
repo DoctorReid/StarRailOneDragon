@@ -17,6 +17,7 @@ from sr.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr.app.email.email_run_record import EmailRunRecord
 from sr.app.nameless_honor.nameless_honor_run_record import NamelessHonorRunRecord
+from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
 from sr.app.sim_uni.sim_uni_config import SimUniConfig
 from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr.app.support_character.support_character_run_record import SupportCharacterRunRecord
@@ -93,6 +94,8 @@ class Context:
         self.nameless_honor_run_record: Optional[NamelessHonorRunRecord] = None
         self.support_character_run_record: Optional[SupportCharacterRunRecord] = None
 
+        self.one_stop_service_config: Optional[OneStopServiceConfig] = None
+
         self.init_if_no_account()
         self.init_config_by_account()
         self.init_keyboard_callback()
@@ -154,6 +157,9 @@ class Context:
         self.support_character_run_record = SupportCharacterRunRecord()
         self.support_character_run_record.move_to_account_idx(account_idx)
 
+        self.one_stop_service_config = OneStopServiceConfig()
+        self.one_stop_service_config.move_to_account_idx(account_idx)
+
     def init_config_by_account(self):
         """
         加载账号对应的配置
@@ -174,8 +180,8 @@ class Context:
         self.tl_config = TreasuresLightwardConfig(account_idx)
         self.tl_run_record = TreasuresLightwardRunRecord(account_idx)
 
-        self.sim_uni_config = SimUniConfig()
-        self.sim_uni_run_record = SimUniRunRecord(self.sim_uni_config)
+        self.sim_uni_config = SimUniConfig(account_idx)
+        self.sim_uni_run_record = SimUniRunRecord(self.sim_uni_config, account_idx)
 
         self.assignments_run_record = AssignmentsRunRecord(account_idx)
         self.buy_xz_parcel_run_record = BuyXianZhouParcelRunRecord(account_idx)
@@ -183,6 +189,8 @@ class Context:
         self.email_run_record = EmailRunRecord(account_idx)
         self.nameless_honor_run_record = NamelessHonorRunRecord(account_idx)
         self.support_character_run_record = SupportCharacterRunRecord(account_idx)
+
+        self.one_stop_service_config = OneStopServiceConfig(account_idx)
 
     def init_keyboard_callback(self):
         """
