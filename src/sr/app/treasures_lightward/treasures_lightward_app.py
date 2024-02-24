@@ -3,11 +3,10 @@ from typing import Optional, List, ClassVar
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app.app_run_record import AppRunRecord, register_app
+from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application2
-from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig, get_config
-from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRecord, get_record, \
+from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord, get_record, \
     TreasuresLightwardScheduleRecord
 from sr.const import phone_menu_const
 from sr.const.character_const import CharacterCombatType, Character
@@ -25,14 +24,13 @@ from sr.treasures_lightward.op.check_star import TlCheckTotalStar
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 from sr.treasures_lightward.treasures_lightward_team_module import search_best_mission_team
 
-register_app(TREASURES_LIGHTWARD_APP)
 
 class TreasuresLightwardApp(Application2):
 
     STATUS_SHOULD_CHALLENGE: ClassVar[str] = '进行挑战'
 
     def __init__(self, ctx: Context):
-        self.run_record: Optional[TreasuresLightwardRecord] = get_record()
+        self.run_record: Optional[TreasuresLightwardRunRecord] = get_record()
         edges: List[StateOperationEdge] = []
 
         open_menu = StateOperationNode('打开菜单', op=OpenPhoneMenu(ctx))

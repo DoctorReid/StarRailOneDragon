@@ -2,8 +2,8 @@ from typing import Optional, TypedDict, List
 
 from basic import str_utils
 from basic.os_utils import get_sunday_dt, dt_day_diff
+from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
-from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
 
@@ -20,10 +20,10 @@ class TreasuresLightwardScheduleRecord(TypedDict):
     finished: bool  # 是否完成挑战
 
 
-class TreasuresLightwardRecord(AppRunRecord):
+class TreasuresLightwardRunRecord(AppRunRecord):
 
     def __init__(self):
-        super().__init__(TREASURES_LIGHTWARD_APP.id)
+        super().__init__(AppDescriptionEnum.TREASURES_LIGHTWARD.value.id)
         self.base_sunday: str = '20240204'
 
     def _should_reset_by_dt(self):
@@ -219,11 +219,11 @@ class TreasuresLightwardRecord(AppRunRecord):
         return total_star
 
 
-_treasures_lightward_record: Optional[TreasuresLightwardRecord] = None
+_treasures_lightward_record: Optional[TreasuresLightwardRunRecord] = None
 
 
-def get_record() -> TreasuresLightwardRecord:
+def get_record() -> TreasuresLightwardRunRecord:
     global _treasures_lightward_record
     if _treasures_lightward_record is None:
-        _treasures_lightward_record = TreasuresLightwardRecord()
+        _treasures_lightward_record = TreasuresLightwardRunRecord()
     return _treasures_lightward_record

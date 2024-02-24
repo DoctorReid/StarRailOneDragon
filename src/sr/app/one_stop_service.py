@@ -1,12 +1,5 @@
 from typing import List, Optional
 
-import sr.app
-import sr.app.assignments.assignments_run_record
-import sr.app.trailblaze_power.trailblaze_power_run_record
-import sr.app.treasures_lightward
-import sr.app.treasures_lightward.treasures_lightward_app
-import sr.app.treasures_lightward.treasures_lightward_record
-import sr.app.world_patrol.world_patrol_run_record
 from basic.config import ConfigHolder
 from basic.i18_utils import gt
 from sr.app.app_description import AppDescriptionEnum, AppDescription
@@ -22,7 +15,7 @@ from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
 from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
 from sr.app.sim_uni import sim_universe_app
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
-from sr.app.treasures_lightward import treasures_lightward_app
+from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.context import Context
 from sr.operation import Operation
@@ -181,8 +174,8 @@ class OneStopService(Application):
             return TrailblazePower(ctx)
         elif app_id == ECHO_OF_WAR.id:
             return EchoOfWar(ctx)
-        elif app_id == sr.app.treasures_lightward.TREASURES_LIGHTWARD_APP.id:
-            return treasures_lightward_app.TreasuresLightwardApp(ctx)
+        elif app_id == AppDescriptionEnum.TREASURES_LIGHTWARD.value.id:
+            return TreasuresLightwardApp(ctx)
         elif app_id == sim_universe_app.SIM_UNIVERSE.id:
             return sim_universe_app.SimUniverseApp(ctx)
         return None
@@ -207,8 +200,8 @@ class OneStopService(Application):
             return ctx.tp_run_record
         elif app_id == ECHO_OF_WAR.id:
             return echo_of_war.get_record()
-        elif app_id == sr.app.treasures_lightward.TREASURES_LIGHTWARD_APP.id:
-            return sr.app.treasures_lightward.treasures_lightward_record.get_record()
+        elif app_id == AppDescriptionEnum.TREASURES_LIGHTWARD.value.id:
+            return ctx.tl_run_record
         elif app_id == sim_universe_app.SIM_UNIVERSE.id:
             return sim_universe_app.get_record()
         return None

@@ -14,6 +14,7 @@ from sr.app.assignments.assignments_run_record import AssignmentsRunRecord
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
+from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.config.game_config import GameConfig
@@ -71,6 +72,7 @@ class Context:
         self.assignments_run_record: Optional[AssignmentsRunRecord] = None
 
         self.tl_config: Optional[TreasuresLightwardConfig] = None
+        self.tl_run_record: Optional[TreasuresLightwardRunRecord] = None
 
         self.init_if_no_account()
         self.init_config_by_account()
@@ -102,6 +104,11 @@ class Context:
 
         self.assignments_run_record = AssignmentsRunRecord()
         self.assignments_run_record.move_to_account_idx(account_idx)
+
+        self.tl_config = TreasuresLightwardConfig()
+        self.tl_config.move_to_account_idx(account_idx)
+        self.tl_run_record = TreasuresLightwardRunRecord()
+        self.tl_run_record.move_to_account_idx(account_idx)
 
     def init_config_by_account(self):
         """

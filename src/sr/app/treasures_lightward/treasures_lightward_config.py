@@ -1,14 +1,14 @@
 from typing import List, Optional
 
-from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
 from basic.config import ConfigHolder
+from sr.app.app_description import AppDescriptionEnum
 from sr.treasures_lightward.treasures_lightward_team_module import TreasuresLightwardTeamModule
 
 
 class TreasuresLightwardConfig(ConfigHolder):
 
     def __init__(self):
-        ConfigHolder.__init__(self, TREASURES_LIGHTWARD_APP.id)
+        ConfigHolder.__init__(self, AppDescriptionEnum.TREASURES_LIGHTWARD.value.id)
 
     def _init_after_read_file(self):
         pass
