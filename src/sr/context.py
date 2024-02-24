@@ -12,6 +12,7 @@ from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.app.assignments.assignments_run_record import AssignmentsRunRecord
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_run_record import BuyXianZhouParcelRunRecord
+from sr.app.daily_training.daily_training_run_record import DailyTrainingRunRecord
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
@@ -74,6 +75,7 @@ class Context:
 
         self.assignments_run_record: Optional[AssignmentsRunRecord] = None
         self.buy_xz_parcel_run_record: Optional[BuyXianZhouParcelRunRecord] = None
+        self.daily_training_run_record: Optional[DailyTrainingRunRecord] = None
 
         self.init_if_no_account()
         self.init_config_by_account()
@@ -114,6 +116,9 @@ class Context:
         self.buy_xz_parcel_run_record = BuyXianZhouParcelRunRecord()
         self.buy_xz_parcel_run_record.move_to_account_idx(account_idx)
 
+        self.daily_training_run_record = DailyTrainingRunRecord()
+        self.daily_training_run_record.move_to_account_idx(account_idx)
+
     def init_config_by_account(self):
         """
         加载账号对应的配置
@@ -134,6 +139,8 @@ class Context:
         self.assignments_run_record = AssignmentsRunRecord(account_idx)
 
         self.buy_xz_parcel_run_record = BuyXianZhouParcelRunRecord(account_idx)
+
+        self.daily_training_run_record = DailyTrainingRunRecord(account_idx)
 
     def init_keyboard_callback(self):
         """

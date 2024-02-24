@@ -1,7 +1,6 @@
-from typing import Optional, List
+from typing import List
 
 from basic.i18_utils import gt
-from sr.app.app_run_record import AppRunRecord, AppDescription, register_app
 from sr.app.application_base import Application2
 from sr.const import phone_menu_const
 from sr.const.traing_mission_const import MISSION_SALVAGE_RELIC, MISSION_DESTRUCTIBLE_OBJECTS, MISSION_USE_TECHNIQUE, \
@@ -22,45 +21,8 @@ from sr.operation.unit.guide.get_training_unfinished_mission import GetTrainingU
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
-DAILY_TRAINING = AppDescription(cn='每日实训', id='daily_training')
-register_app(DAILY_TRAINING)
-
-
-class DailyTrainingRecord(AppRunRecord):
-
-    def __init__(self):
-        super().__init__(DAILY_TRAINING.id)
-
-    def reset_record(self):
-        """
-        运行记录重置 非公共部分由各app自行实现
-        :return:
-        """
-        super().reset_record()
-        self.score = 0
-
-    @property
-    def score(self) -> int:
-        return self.get('score', 0)
-
-    @score.setter
-    def score(self, new_value: int):
-        self.update('score', new_value)
-
-
-_daily_training_record: Optional[DailyTrainingRecord] = None
-
-
-def get_record() -> DailyTrainingRecord:
-    global _daily_training_record
-    if _daily_training_record is None:
-        _daily_training_record = DailyTrainingRecord()
-    return _daily_training_record
-
 
 class DailyTrainingApp(Application2):
-
-    run_record: DailyTrainingRecord
 
     def __init__(self, ctx: Context):
         edges: List[StateOperationEdge] = []
@@ -117,7 +79,7 @@ class DailyTrainingApp(Application2):
 
         super().__init__(ctx,
                          op_name='%s %s' % (gt('每日实训', 'ui'), gt('应用', 'ui')),
-                         run_record=get_record(),
+                         run_record=ctx.daily_training_run_record,
                          edges=edges,
                          specified_start_node=open_menu)
 
