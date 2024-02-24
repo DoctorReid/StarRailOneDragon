@@ -1,5 +1,5 @@
 import time
-from typing import Optional, ClassVar
+from typing import ClassVar
 
 from cv2.typing import MatLike
 
@@ -7,32 +7,12 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
-from sr.app.app_run_record import AppRunRecord, AppDescription, register_app
 from sr.app.application_base import Application
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
-
-EMAIL = AppDescription(cn='邮件', id='email')
-register_app(EMAIL)
-
-
-class EmailRecord(AppRunRecord):
-
-    def __init__(self):
-        super().__init__(EMAIL.id)
-
-
-email_record: Optional[EmailRecord] = None
-
-
-def get_record() -> EmailRecord:
-    global email_record
-    if email_record is None:
-        email_record = EmailRecord()
-    return email_record
 
 
 class Email(Application):
@@ -46,12 +26,9 @@ class Email(Application):
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('收取邮件奖励', 'ui'),
-                         run_record=get_record())
+                         run_record=ctx.email_run_record)
 
         self.phase: int = 0
-
-    def _init_before_execute(self):
-        pass
 
     def _execute_one_round(self) -> int:
         if self.phase == 0:  # 打开菜单

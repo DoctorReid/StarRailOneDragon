@@ -8,9 +8,9 @@ from sr.app.application_base import Application
 from sr.app.assignments.assignments_app import AssignmentsApp
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcelApp
 from sr.app.daily_training.daily_training_app import DailyTrainingApp
-from sr.app.routine import support_character, nameless_honor, email_attachment
 from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
-from sr.app.routine.email_attachment import Email, EMAIL
+from sr.app.email.email_app import Email
+from sr.app.routine import support_character, nameless_honor
 from sr.app.routine.nameless_honor import ClaimNamelessHonor, NAMELESS_HONOR
 from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
 from sr.app.sim_uni import sim_universe_app
@@ -160,7 +160,7 @@ class OneStopService(Application):
             return WorldPatrol(ctx)
         elif app_id == AppDescriptionEnum.ASSIGNMENTS.value.id:
             return AssignmentsApp(ctx)
-        elif app_id == EMAIL.id:
+        elif app_id == AppDescriptionEnum.EMAIL.value.id:
             return Email(ctx)
         elif app_id == SUPPORT_CHARACTER.id:
             return SupportCharacter(ctx)
@@ -186,8 +186,8 @@ class OneStopService(Application):
             return ctx.world_patrol_run_record
         elif app_id == AppDescriptionEnum.ASSIGNMENTS.value.id:
             return ctx.assignments_run_record
-        elif app_id == EMAIL.id:
-            return email_attachment.get_record()
+        elif app_id == AppDescriptionEnum.EMAIL.value.id:
+            return ctx.email_run_record
         elif app_id == SUPPORT_CHARACTER.id:
             return support_character.get_record()
         elif app_id == NAMELESS_HONOR.id:
