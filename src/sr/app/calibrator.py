@@ -7,7 +7,7 @@ from basic import cal_utils, Point, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr import cal_pos
-from sr.app import Application
+from sr.app.application_base import Application
 from sr.config import game_config
 from sr.config.game_config import GameConfig, MiniMapPos
 from sr.const import map_const

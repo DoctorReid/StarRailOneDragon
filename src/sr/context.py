@@ -10,10 +10,10 @@ from basic import os_utils
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
-from sr.app.routine.trailblaze_power import TrailblazePowerConfig
+from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
-from sr.app.world_patrol import WorldPatrolConfig
-from sr.config import game_config
+from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
+from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK
@@ -59,6 +59,7 @@ class Context:
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
         self.game_config: Optional[GameConfig] = None
         self.world_patrol_config: Optional[WorldPatrolConfig] = None
+        self.world_patrol_run_record: Optional[WorldPatrolRunRecord] = None
         self.tp_config: Optional[TrailblazePowerConfig] = None
         self.tl_config: Optional[TreasuresLightwardConfig] = None
 
@@ -74,24 +75,29 @@ class Context:
         if len(self.one_dragon_config.account_list) > 0:
             return
         account: OneDragonAccount = self.one_dragon_config.create_new_account(True)
+        account_idx = account.idx
 
         self.game_config = GameConfig()
-        self.game_config.move_to_account_idx(account.idx)
+        self.game_config.move_to_account_idx(account_idx)
 
         # 锄大地移动了目录 需要自己重新设置
         # self.world_patrol_config = WorldPatrolConfig()
-        # self.world_patrol_config.move_to_account_idx(account.idx)
+        # self.world_patrol_config.move_to_account_idx(account_idx)
+        self.world_patrol_run_record = WorldPatrolRunRecord()
+        self.world_patrol_run_record.move_to_account_idx(account_idx)
 
         self.tp_config = TrailblazePowerConfig()
-        self.tp_config.move_to_account_idx(account.idx)
-
+        self.tp_config.move_to_account_idx(account_idx)
 
     def init_config_by_account(self):
         """
         加载账号对应的配置
         :return:
         """
-        pass
+        account_idx = self.one_dragon_config.current_active_account.idx
+        self.game_config = GameConfig(account_idx)
+        self.world_patrol_config = WorldPatrolConfig(account_idx)
+        self.tp_config = TrailblazePowerConfig(account_idx)
 
     def init_keyboard_callback(self):
         """
@@ -104,7 +110,6 @@ class Context:
         self.register_key_press('f11', self.screenshot)
         if self.platform == 'PC':
             self.register_key_press('f12', self.mouse_position)
-
 
     def register_key_press(self, key, callback):
         if key not in self.press_event:
@@ -245,7 +250,7 @@ class Context:
 
         except pyautogui.PyAutoGUIException:
             log.info('未开打游戏')
-            if not try_open_game():
+            if not self.try_open_game():
                 return False
 
             self.first_transport = True  # 重新打开游戏的话 重置一下

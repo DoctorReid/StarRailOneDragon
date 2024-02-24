@@ -1,20 +1,21 @@
-import time
-from typing import Optional, TypedDict, List, ClassVar, Tuple
+from typing import ClassVar, Optional, Tuple
 
 from cv2.typing import MatLike
 
-from basic import str_utils, Rect
+from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import AppRunRecord, AppDescription, register_app, Application2
+from sr.app import AppRunRecord, register_app
+from sr.app.application_base import Application2
 from sr.app.sim_uni.sim_universe_app import SimUniverseApp
-from basic.config import ConfigHolder
+from sr.app.trailblaze_power import TRAILBLAZE_POWER
+from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
+from sr.app.trailblaze_power.trailblaze_power_run_record import get_record
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import large_map
-from sr.mystools import mys_config
-from sr.operation import Operation, StateOperationNode, OperationOneRoundResult, StateOperationEdge
+from sr.operation import StateOperationNode, StateOperationEdge, OperationOneRoundResult, Operation
 from sr.operation.combine.use_trailblaze_power import UseTrailblazePower
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
@@ -24,129 +25,8 @@ from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.operation.unit.open_map import OpenMap
 
-TRAILBLAZE_POWER = AppDescription(cn='开拓力', id='trailblaze_power')
+
 register_app(TRAILBLAZE_POWER)
-
-
-class TrailblazePowerRecord(AppRunRecord):
-
-    def __init__(self):
-        super().__init__(TRAILBLAZE_POWER.id)
-
-    def _should_reset_by_dt(self):
-        """
-        根据米游社便签判断是否有足够体力进行下一次副本
-        :return:
-        """
-        mys = mys_config.get()
-        now = time.time()
-        time_usage = now - mys.refresh_time
-        power = mys.current_stamina + time_usage // 360  # 6分钟恢复一点体力
-        config = get_config()
-        if config.next_plan_item is not None:
-            point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(config.next_plan_item['mission_id'])
-            return point is not None and power >= point.power
-        return False
-
-
-trailblaze_power_record: Optional[TrailblazePowerRecord] = None
-
-
-def get_record() -> TrailblazePowerRecord:
-    global trailblaze_power_record
-    if trailblaze_power_record is None:
-        trailblaze_power_record = TrailblazePowerRecord()
-    return trailblaze_power_record
-
-
-class TrailblazePowerPlanItem(TypedDict):
-    point_id: str  # 关卡id - 旧 20240208 进行替换
-    mission_id: str  # 关卡id - 新
-    team_num: int  # 使用配队
-    support: str
-    plan_times: int  # 计划通关次数
-    run_times: int  # 已经通关次数
-
-
-class TrailblazePowerConfig(ConfigHolder):
-
-    def __init__(self, script_account_idx: Optional[int] = None):
-        super().__init__(TRAILBLAZE_POWER.id, script_account_idx=script_account_idx)
-
-    def _init_after_read_file(self):
-        """
-        读取配置后的初始化
-        :return:
-        """
-        # 兼容旧配置 对新增字段进行默认值的填充
-        plan_list = self.plan_list
-        any_changed: bool = False
-        for plan_item in plan_list:
-            if 'support' not in plan_item:
-                plan_item['support'] = 'none'
-                any_changed = True
-            if 'mission_id' not in plan_item:
-                plan_item['mission_id'] = plan_item['point_id']
-                any_changed = True
-
-        if any_changed:
-            self.save()
-
-    def check_plan_finished(self):
-        """
-        检测计划是否都执行完了
-        执行完的话 所有执行次数置为0 重新开始下一轮
-        :return:
-        """
-        plan_list: List[TrailblazePowerPlanItem] = self.plan_list
-        for item in plan_list:
-            if item['run_times'] < item['plan_times']:
-                return
-
-        # 全部都执行完了
-        for item in plan_list:
-            item['run_times'] = 0
-
-        self.plan_list = plan_list
-
-    @property
-    def plan_list(self) -> List[TrailblazePowerPlanItem]:
-        """
-        体力规划配置
-        :return:
-        """
-        return self.get('plan_list', [])
-
-    @plan_list.setter
-    def plan_list(self, new_list: List[TrailblazePowerPlanItem]):
-        self.update('plan_list', new_list)
-
-    @property
-    def next_plan_item(self) -> Optional[TrailblazePowerPlanItem]:
-        """
-        按规划配置列表，找到第一个还没有完成的去执行
-        如果都完成了 选择第一个
-        :return: 下一个需要执行的计划
-        """
-        plan_list: List[TrailblazePowerPlanItem] = self.plan_list
-        for item in plan_list:
-            if item['run_times'] < item['plan_times']:
-                return item
-
-        if len(plan_list) > 0:
-            return plan_list[0]
-
-        return None
-
-
-trailblaze_power_config: Optional[TrailblazePowerConfig] = None
-
-
-def get_config() -> TrailblazePowerConfig:
-    global trailblaze_power_config
-    if trailblaze_power_config is None:
-        trailblaze_power_config = TrailblazePowerConfig()
-    return trailblaze_power_config
 
 
 class TrailblazePower(Application2):
@@ -191,7 +71,7 @@ class TrailblazePower(Application2):
         self.power: Optional[int] = None  # 剩余开拓力
         self.qty: Optional[int] = None  # 沉浸器数量
         self.last_challenge_point: Optional[SurvivalIndexMission] = None
-        self.config = get_config()
+        self.config = ctx.tp_config
 
     def _init_before_execute(self):
         super()._init_before_execute()

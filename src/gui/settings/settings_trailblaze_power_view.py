@@ -8,8 +8,7 @@ from gui.components.character_input import CharacterInput
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app.routine import trailblaze_power
-from sr.app.routine.trailblaze_power import TrailblazePowerConfig, TrailblazePowerPlanItem
+from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem, TrailblazePowerConfig
 from sr.const.character_const import CHARACTER_LIST
 from sr.context import Context
 from sr.operation.unit.guide.survival_index import SurvivalIndexMissionEnum, SurvivalIndexMission, \
@@ -146,8 +145,8 @@ class PlanListItem(ft.Row):
 
 class PlanList(ft.ListView):
 
-    def __init__(self, on_click_support: Callable):
-        self.config: TrailblazePowerConfig = trailblaze_power.get_config()
+    def __init__(self, config: TrailblazePowerConfig, on_click_support: Callable):
+        self.config: TrailblazePowerConfig = config
         plan_item_list: List[TrailblazePowerPlanItem] = self.config.plan_list
 
         super().__init__(controls=[self._list_view_item(i) for i in plan_item_list])
@@ -240,7 +239,7 @@ class SettingsTrailblazePowerView(SrBasicView, ft.Row):
 
     def __init__(self, ctx: Context):
         plan_title = components.CardTitleText(gt('体力规划', 'ui'))
-        self.plan_list = PlanList(self.show_choose_support_character)
+        self.plan_list = PlanList(ctx.tp_config, self.show_choose_support_character)
         plan_card = components.Card(self.plan_list, plan_title, width=800)
 
         self.character_card = CharacterInput(ctx.ih, max_chosen_num=1, on_value_changed=self._on_choose_support)

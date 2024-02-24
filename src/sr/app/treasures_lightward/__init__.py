@@ -1,4 +1,3 @@
-from sr.app import AppDescription, register_app
+from sr.app.app_description import AppDescription
 
 TREASURES_LIGHTWARD_APP = AppDescription(cn='逐光捡金', id='treasures_lightward')
-register_app(TREASURES_LIGHTWARD_APP)

@@ -25,9 +25,9 @@ class MiniMapPos:
 
 class GameConfig(ConfigHolder):
 
-    def __init__(self, script_account_idx: Optional[int] = None):
+    def __init__(self, account_idx: Optional[int] = None):
         self.mini_map_pos: Optional[MiniMapPos] = None
-        super().__init__('game', script_account_idx=script_account_idx)
+        super().__init__('game', account_idx=account_idx)
 
     def _init_after_read_file(self):
         mini_map = self.data['mini_map']

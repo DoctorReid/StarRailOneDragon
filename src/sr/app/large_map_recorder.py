@@ -9,9 +9,9 @@ from basic import Point
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image, get_debug_image
 from basic.log_utils import log
-from sr.app import Application2
+from sr.app.application_base import Application2
 from sr.app.sim_uni.sim_uni_route_holder import get_sim_uni_route_list
-from sr.app.world_patrol import load_all_route_id, WorldPatrolRoute
+from sr.app.world_patrol.world_patrol_route import WorldPatrolRoute, load_all_route_id
 from sr.const import map_const, STANDARD_CENTER_POS, STANDARD_RESOLUTION_W, operation_const
 from sr.const.map_const import Region, region_with_another_floor, PLANET_2_REGION
 from sr.context import Context, get_context

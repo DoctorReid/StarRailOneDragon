@@ -1,7 +1,7 @@
 import unittest
 
 import test
-from sr.app.routine.trailblaze_power import TrailblazePower
+from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.context import get_context
 
 

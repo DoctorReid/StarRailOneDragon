@@ -1,7 +1,7 @@
 from typing import Optional, ClassVar
 
 from basic.i18_utils import gt
-from sr.app import Application2
+from sr.app.application_base import Application2
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.app.sim_uni.sim_universe_app import get_record

@@ -4,7 +4,7 @@ import sr.const.operation_const
 from basic import Point
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolRoute
+from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolRoute
 from sr.const import operation_const, map_const
 from sr.const.map_const import Region
 from sr.context import Context

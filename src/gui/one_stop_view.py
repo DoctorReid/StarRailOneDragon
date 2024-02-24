@@ -12,7 +12,8 @@ from gui import snack_bar, components, scheduler
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app import Application, one_stop_service, AppRunRecord
+from sr.app import one_stop_service, AppRunRecord
+from sr.app.application_base import Application
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
 from sr.app.routine import echo_of_war
 from sr.app.sim_uni import sim_universe_app
@@ -114,8 +115,9 @@ class AppListItem(ft.Row):
 
 class AppList(ft.ListView):
 
-    def __init__(self, run_app_callback):
+    def __init__(self, ctx: Context, run_app_callback):
         super().__init__()
+        self.ctx: Context = ctx
         self.item_map: dict[str, AppListItem] = {}
         theme: ThemeColors = gui_config.theme()
 
@@ -177,14 +179,14 @@ class AppList(ft.ListView):
         config: OneStopServiceConfig = one_stop_service.get_config()
         run_app_id_list: List[str] = config.run_app_id_list
         for app_id in self.app_id_list:
-            app_record = one_stop_service.get_app_run_record_by_id(app_id)
+            app_record = OneStopService.get_app_run_record_by_id(app_id, self.ctx)
             on: bool = app_id in run_app_id_list
             if app_record is not None:
                 self.item_map[app_id].update_status(app_record, on)
 
     def set_disabled(self, disabled: bool):
         for app_id in self.app_id_list:
-            app_record = one_stop_service.get_app_run_record_by_id(app_id)
+            app_record = OneStopService.get_app_run_record_by_id(app_id)
             if app_record is not None:
                 self.item_map[app_id].set_disabled(disabled)
 
@@ -277,7 +279,7 @@ class OneStopView(ft.Row, SrBasicView):
 
         left_part = ft.Container(ft.Column(controls=[character_info_card, status_card], spacing=10))
 
-        self.app_list = AppList(run_app_callback=self.run_app)
+        self.app_list = AppList(self.sr_ctx, run_app_callback=self.run_app)
 
         app_list_card = components.Card(self.app_list, title=components.CardTitleText('任务列表'), width=300)
         app_list_part = ft.Container(content=app_list_card)
@@ -320,9 +322,9 @@ class OneStopView(ft.Row, SrBasicView):
         if not self._check_ctx_stop():
             return
 
-        run_record = one_stop_service.get_app_run_record_by_id(app_id)
+        run_record = OneStopService.get_app_run_record_by_id(app_id)
         run_record.check_and_update_status()
-        self.running_app = one_stop_service.get_app_by_id(app_id, self.sr_ctx)
+        self.running_app = OneStopService.get_app_by_id(app_id, self.sr_ctx)
         if self.running_app is None:
             log.error('非法的任务入参')
             self.running_app = None

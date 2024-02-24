@@ -7,7 +7,8 @@ from basic.config import ConfigHolder
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import Application, AppDescription, register_app, AppRunRecord
+from sr.app import AppDescription, register_app, AppRunRecord
+from sr.app.application_base import Application
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation

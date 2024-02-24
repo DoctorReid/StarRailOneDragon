@@ -2,13 +2,16 @@ import threading
 import time
 from typing import List, Iterator, Optional
 
+import sr.app.world_patrol.world_patrol_run_record
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import Application, AppRunRecord, world_patrol
-from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolWhitelist, WorldPatrolRecord, \
-    load_all_route_id, WorldPatrolConfig, load_all_whitelist_id
+from sr.app import AppRunRecord
+from sr.app.application_base import Application
+from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
+from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolWhitelist, load_all_route_id, \
+    load_all_whitelist_id
+from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
-from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map_angle_alas
 from sr.operation import Operation, OperationResult
@@ -22,9 +25,9 @@ class WorldPatrol(Application):
                  ignore_record: bool = False,
                  team_num: Optional[int] = None):
         super().__init__(ctx, op_name=gt('锄大地', 'ui'),
-                         run_record=world_patrol.get_record())
+                         run_record=ctx.world_patrol_run_record)
         self.route_id_list: List[WorldPatrolRouteId] = []
-        self.record: WorldPatrolRecord = None
+        self.record: WorldPatrolRunRecord = None
         self.route_iterator: Iterator = None
         self.current_route_idx: int = -1
         self.ignore_record: bool = ignore_record
@@ -40,7 +43,7 @@ class WorldPatrol(Application):
 
     def _init_before_execute(self):
         if not self.ignore_record:
-            self.record = world_patrol.get_record()
+            self.record = self.ctx.world_patrol_run_record
             self.record.update_status(AppRunRecord.STATUS_RUNNING)
 
         self.route_id_list = load_all_route_id(self.whitelist, None if self.record is None else self.record.finished)

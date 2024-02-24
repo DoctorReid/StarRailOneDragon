@@ -3,7 +3,9 @@ from typing import Optional, List, ClassVar
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app import Application2, AppRunRecord
+from sr.app import AppRunRecord, register_app
+from sr.app.application_base import Application2
+from sr.app.treasures_lightward import TREASURES_LIGHTWARD_APP
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig, get_config
 from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRecord, get_record, \
     TreasuresLightwardScheduleRecord
@@ -23,6 +25,7 @@ from sr.treasures_lightward.op.check_star import TlCheckTotalStar
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 from sr.treasures_lightward.treasures_lightward_team_module import search_best_mission_team
 
+register_app(TREASURES_LIGHTWARD_APP)
 
 class TreasuresLightwardApp(Application2):
 

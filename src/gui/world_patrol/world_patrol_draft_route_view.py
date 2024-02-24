@@ -13,7 +13,8 @@ from basic import os_utils
 from basic.log_utils import log
 from gui import snack_bar, components
 from gui.sr_basic_view import SrBasicView
-from sr.app.world_patrol import WorldPatrolRouteId, WorldPatrolRoute, WorldPatrolWhitelist, load_all_route_id
+from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolRoute, WorldPatrolWhitelist, \
+    load_all_route_id
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.const import map_const, operation_const
 from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \

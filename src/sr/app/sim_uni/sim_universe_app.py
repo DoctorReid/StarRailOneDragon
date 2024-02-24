@@ -3,7 +3,8 @@ from typing import Optional, List, ClassVar, Callable
 from basic import os_utils, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import AppDescription, register_app, AppRunRecord, Application2
+from sr.app import AppDescription, register_app, AppRunRecord
+from sr.app.application_base import Application2
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.const import phone_menu_const
 from sr.context import Context

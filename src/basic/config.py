@@ -7,10 +7,10 @@ from basic import config_utils
 class ConfigHolder:
 
     def __init__(self, module_name: str,
-                 script_account_idx: Optional[int] = None,
+                 account_idx: Optional[int] = None,
                  sample: bool = True, sub_dir: Optional[List[str]] = None, mock: bool = False):
         self.mod: str = module_name
-        self.script_account_idx: Optional[int] = script_account_idx
+        self.account_idx: Optional[int] = account_idx
         self.sample: bool = sample
         self.sub_dir: Optional[List[str]] = sub_dir
         self.data: dict = {}
@@ -24,11 +24,11 @@ class ConfigHolder:
     def _read_config(self):
         if self.sample:  # 脚本更新时 可能加入了新配置 要从sample同步过去
             self.data = config_utils.read_config_with_sample(self.mod,
-                                                             script_account_idx=self.script_account_idx,
+                                                             script_account_idx=self.account_idx,
                                                              sub_dir=self.sub_dir)
         else:
             self.data = config_utils.read_config(self.mod,
-                                                 script_account_idx=self.script_account_idx,
+                                                 script_account_idx=self.account_idx,
                                                  sub_dir=self.sub_dir)
         if self.data is None:
             self.data = {}
@@ -37,7 +37,7 @@ class ConfigHolder:
         if self.mock:
             return
         config_utils.save_config(self.data, self.mod,
-                                 script_account_idx=self.script_account_idx,
+                                 script_account_idx=self.account_idx,
                                  sub_dir=self.sub_dir)
 
     def save_diy(self, text: str):
@@ -83,5 +83,5 @@ class ConfigHolder:
         :return:
         """
         self.delete()  # 删除旧的配置
-        self.script_account_idx = script_account_idx
+        self.account_idx = script_account_idx
         self.save()  # 保存新的配置
