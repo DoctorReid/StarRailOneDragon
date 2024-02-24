@@ -7,7 +7,7 @@ from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application2
 from sr.app.sim_uni.sim_uni_config import SimUniConfig
-from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord, get_record
+from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.const import phone_menu_const
 from sr.context import Context
@@ -128,7 +128,7 @@ class SimUniApp(Application2):
                                             success=False, ignore_status=True))
             edges.append(StateOperationEdge(exception_exit, check_times_to_continue))
 
-        self.run_record: SimUniRunRecord = get_record()
+        self.run_record: SimUniRunRecord = ctx.sim_uni_run_record
         super().__init__(ctx, op_name=gt(AppDescriptionEnum.SIM_UNIVERSE.value.cn, 'ui'),
                          edges=edges, specified_start_node=check_times,
                          run_record=self.run_record)

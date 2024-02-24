@@ -13,9 +13,9 @@ from sr.context import Context
 
 class SettingsWorldPatrolView(SrBasicView, components.Card):
 
-    def __init__(self, ctx: Context):
-        self.ctx: Context = ctx
-        self.config = world_patrol.get_config()
+    def __init__(self, page: ft.Page, ctx: Context):
+        SrBasicView.__init__(self, page, ctx)
+        self.config = self.sr_ctx.world_patrol_config
 
         plan_title = components.CardTitleText(gt('锄大地', 'ui'))
 
@@ -86,8 +86,8 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
 _settings_world_patrol_view: Optional[SettingsWorldPatrolView] = None
 
 
-def get(ctx: Context) -> SettingsWorldPatrolView:
+def get(page: ft.Page, ctx: Context) -> SettingsWorldPatrolView:
     global _settings_world_patrol_view
     if _settings_world_patrol_view is None:
-        _settings_world_patrol_view = SettingsWorldPatrolView(ctx)
+        _settings_world_patrol_view = SettingsWorldPatrolView(page, ctx)
     return _settings_world_patrol_view

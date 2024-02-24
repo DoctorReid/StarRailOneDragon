@@ -13,9 +13,9 @@ from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr.app import one_stop_service
 from sr.app.app_description import AppDescriptionEnum
+from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.one_stop_service import OneStopService, OneStopServiceConfig
-from sr.app.sim_uni import sim_uni_app
 from sr.app.treasures_lightward import treasures_lightward_record
 from sr.context import Context
 from sr.mystools import mys_config
@@ -470,7 +470,7 @@ class OneStopView(ft.Row, SrBasicView):
         self.forgotten_hall.update_value(str(tl_record.get_latest_total_star(TreasuresLightwardTypeEnum.FORGOTTEN_HALL)))
         self.pure_fiction.update_value(str(tl_record.get_latest_total_star(TreasuresLightwardTypeEnum.PURE_FICTION)))
 
-        sim_uni_record = sr.app.sim_uni.sim_uni_run_record.get_record()
+        sim_uni_record = self.sr_ctx.sim_uni_run_record
         self.sim_times.update_value(str(sim_uni_record.weekly_times))
 
     def _update_schedule_dropdown(self):

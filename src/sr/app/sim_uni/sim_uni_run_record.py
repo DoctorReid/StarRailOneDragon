@@ -73,13 +73,3 @@ class SimUniRunRecord(AppRunRecord):
     @daily_times.setter
     def daily_times(self, new_value: int):
         self.update('daily_times', new_value)
-
-
-sim_universe_record: Optional[SimUniRunRecord] = None
-
-
-def get_record() -> SimUniRunRecord:
-    global sim_universe_record
-    if sim_universe_record is None:
-        sim_universe_record = SimUniRunRecord()
-    return sim_universe_record

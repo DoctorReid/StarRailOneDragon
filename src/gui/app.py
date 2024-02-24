@@ -239,7 +239,7 @@ class StarRailOneDragon:
             if self.settings_rail.selected_index == 0:
                 return settings_basic_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 1:
-                return settings_world_patrol_view.get(self.sr_ctx)
+                return settings_world_patrol_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 2:
                 return settings_trailblaze_power_view.get(self.sr_ctx)
             elif self.settings_rail.selected_index == 3:

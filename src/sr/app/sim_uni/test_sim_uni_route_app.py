@@ -2,15 +2,14 @@ from typing import Optional, ClassVar
 
 from basic.i18_utils import gt
 from sr.app.application_base import Application2
+from sr.app.sim_uni.sim_uni_config import SimUniConfig
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
-from sr.app.sim_uni.sim_uni_run_record import get_record
 from sr.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
-from sr.app.sim_uni.sim_uni_config import SimUniConfig, get_sim_uni_app_config
 from sr.sim_uni.sim_uni_const import SimUniLevelType
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
@@ -41,7 +40,7 @@ class TestSimUniRouteApp(Application2):
             edges=edges
         )
 
-        self.config: SimUniConfig = get_sim_uni_app_config()
+        self.config: SimUniConfig = self.ctx.sim_uni_config
         self.uni_num: int = uni_num
         self.level_type: SimUniLevelType = level_type
         self.route: SimUniRoute = route
@@ -65,6 +64,6 @@ class TestSimUniRouteApp(Application2):
         return Operation.round_by_op(op.execute())
 
     def _on_world_done(self, op_result: OperationResult):
-        run_record = get_record()
+        run_record = self.ctx.sim_uni_run_record
         if op_result.success:
             run_record.add_times()

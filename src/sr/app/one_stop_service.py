@@ -203,7 +203,7 @@ class OneStopService(Application):
         elif app_id == AppDescriptionEnum.TREASURES_LIGHTWARD.value.id:
             return ctx.tl_run_record
         elif app_id == AppDescriptionEnum.SIM_UNIVERSE.value.id:
-            return sr.app.sim_uni.sim_uni_run_record.get_record()
+            return ctx.sim_uni_run_record
         return None
 
     @staticmethod
