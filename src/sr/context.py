@@ -17,6 +17,7 @@ from sr.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr.app.email.email_run_record import EmailRunRecord
 from sr.app.nameless_honor.nameless_honor_run_record import NamelessHonorRunRecord
+from sr.app.support_character.support_character_run_record import SupportCharacterRunRecord
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
@@ -85,6 +86,7 @@ class Context:
         self.daily_training_run_record: Optional[DailyTrainingRunRecord] = None
         self.email_run_record: Optional[EmailRunRecord] = None
         self.nameless_honor_run_record: Optional[NamelessHonorRunRecord] = None
+        self.support_character_run_record: Optional[SupportCharacterRunRecord] = None
 
         self.init_if_no_account()
         self.init_config_by_account()
@@ -139,6 +141,9 @@ class Context:
         self.nameless_honor_run_record = NamelessHonorRunRecord()
         self.nameless_honor_run_record.move_to_account_idx(account_idx)
 
+        self.support_character_run_record = SupportCharacterRunRecord()
+        self.support_character_run_record.move_to_account_idx(account_idx)
+
     def init_config_by_account(self):
         """
         加载账号对应的配置
@@ -164,6 +169,7 @@ class Context:
         self.daily_training_run_record = DailyTrainingRunRecord(account_idx)
         self.email_run_record = EmailRunRecord(account_idx)
         self.nameless_honor_run_record = NamelessHonorRunRecord(account_idx)
+        self.support_character_run_record = SupportCharacterRunRecord(account_idx)
 
     def init_keyboard_callback(self):
         """

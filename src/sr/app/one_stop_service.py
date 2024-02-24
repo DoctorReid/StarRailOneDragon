@@ -11,8 +11,7 @@ from sr.app.daily_training.daily_training_app import DailyTrainingApp
 from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr.app.email.email_app import EmailApp
 from sr.app.nameless_honor.nameless_honor_app import NamelessHonorApp
-from sr.app.routine import support_character
-from sr.app.routine.support_character import SupportCharacter, SUPPORT_CHARACTER
+from sr.app.support_character.support_character_app import SupportCharacterApp
 from sr.app.sim_uni import sim_universe_app
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
@@ -162,8 +161,8 @@ class OneStopService(Application):
             return AssignmentsApp(ctx)
         elif app_id == AppDescriptionEnum.EMAIL.value.id:
             return EmailApp(ctx)
-        elif app_id == SUPPORT_CHARACTER.id:
-            return SupportCharacter(ctx)
+        elif app_id == AppDescriptionEnum.SUPPORT_CHARACTER.value.id:
+            return SupportCharacterApp(ctx)
         elif app_id == AppDescriptionEnum.NAMELESS_HONOR.value.id:
             return NamelessHonorApp(ctx)
         elif app_id == AppDescriptionEnum.DAILY_TRAINING.value.id:
@@ -188,8 +187,8 @@ class OneStopService(Application):
             return ctx.assignments_run_record
         elif app_id == AppDescriptionEnum.EMAIL.value.id:
             return ctx.email_run_record
-        elif app_id == SUPPORT_CHARACTER.id:
-            return support_character.get_record()
+        elif app_id == AppDescriptionEnum.SUPPORT_CHARACTER.value.id:
+            return ctx.support_character_run_record
         elif app_id == AppDescriptionEnum.NAMELESS_HONOR.value.id:
             return ctx.nameless_honor_run_record
         elif app_id == AppDescriptionEnum.DAILY_TRAINING.value.id:

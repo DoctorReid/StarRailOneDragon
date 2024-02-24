@@ -1,39 +1,18 @@
 import time
-from typing import Optional
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
-from sr.app.app_run_record import AppRunRecord, AppDescription, register_app
 from sr.app.application_base import Application
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
-SUPPORT_CHARACTER = AppDescription(cn='支援角色', id='support_character')
-register_app(SUPPORT_CHARACTER)
 
-
-class SupportCharacterRecord(AppRunRecord):
-
-    def __init__(self):
-        super().__init__(SUPPORT_CHARACTER.id)
-
-
-support_character_record: Optional[SupportCharacterRecord] = None
-
-
-def get_record() -> SupportCharacterRecord:
-    global support_character_record
-    if support_character_record is None:
-        support_character_record = SupportCharacterRecord()
-    return support_character_record
-
-
-class SupportCharacter(Application):
+class SupportCharacterApp(Application):
 
     """
     收取支援角色奖励
@@ -42,7 +21,7 @@ class SupportCharacter(Application):
 
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('支援角色奖励', 'ui'),
-                         run_record=get_record())
+                         run_record=ctx.support_character_run_record)
         self.phase: int = 0
 
     def _execute_one_round(self) -> int:

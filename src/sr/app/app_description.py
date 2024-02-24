@@ -19,4 +19,5 @@ class AppDescriptionEnum(Enum):
     DAILY_TRAINING = AppDescription(cn='每日实训', id='daily_training')
     EMAIL = AppDescription(cn='邮件', id='email')
     NAMELESS_HONOR = AppDescription(cn='无名勋礼', id='nameless_honor')
+    SUPPORT_CHARACTER = AppDescription(cn='支援角色', id='support_character')
 
