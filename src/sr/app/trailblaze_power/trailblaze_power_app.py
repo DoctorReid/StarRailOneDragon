@@ -65,7 +65,6 @@ class TrailblazePower(Application2):
         self.power: Optional[int] = None  # 剩余开拓力
         self.qty: Optional[int] = None  # 沉浸器数量
         self.last_challenge_point: Optional[SurvivalIndexMission] = None
-        self.config = ctx.tp_config
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -77,8 +76,8 @@ class TrailblazePower(Application2):
         判断下一个是什么副本
         :return:
         """
-        self.config.check_plan_finished()
-        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        self.ctx.tp_config.check_plan_finished()
+        plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
 
         if plan is None:
             return Operation.round_success()
@@ -117,7 +116,7 @@ class TrailblazePower(Application2):
         挑战普通副本
         :return:
         """
-        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
         point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
         run_times: int = self.power // point.power
         if run_times == 0:
@@ -146,9 +145,9 @@ class TrailblazePower(Application2):
         """
         log.info('挑战成功 完成次数 %d 使用体力 %d', finished_times, use_power)
         self.power -= use_power
-        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
         plan['run_times'] += finished_times
-        self.config.save()
+        self.ctx.tp_config.save()
 
     def _esc(self) -> OperationOneRoundResult:
         op = OpenPhoneMenu(self.ctx)
@@ -197,7 +196,7 @@ class TrailblazePower(Application2):
         return power, qty
 
     def _challenge_sim_uni(self) -> OperationOneRoundResult:
-        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
         point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
         run_times: int = self.power // point.power + self.qty
         if run_times == 0:
@@ -222,9 +221,9 @@ class TrailblazePower(Application2):
         :return:
         """
         log.info('获取沉浸奖励 使用体力 %d 使用沉浸器 %d', use_power, user_qty)
-        plan: Optional[TrailblazePowerPlanItem] = self.config.next_plan_item
+        plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
         plan['run_times'] += 1
-        self.config.save()
+        self.ctx.tp_config.save()
 
         self.power -= use_power
         self.qty -= user_qty
