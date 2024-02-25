@@ -37,6 +37,7 @@ class OneStopServiceApp(Application2):
         edges.append(StateOperationEdge(next_account, next_app, ignore_status=True))
         edges.append(StateOperationEdge(next_app, next_account, status=OneStopServiceApp.STATUS_ACCOUNT_APP_FINISHED))
         edges.append(StateOperationEdge(next_app, next_app, ignore_status=True))
+        edges.append(StateOperationEdge(next_app, next_app, success=False))  # 失败的时候也继续下一个应用
 
         back = StateOperationNode('切换原启用账号', self._switch_original_account)
         edges.append(StateOperationEdge(next_account, back, status=OneStopServiceApp.STATUS_ACCOUNT_FINISHED))
