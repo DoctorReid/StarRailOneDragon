@@ -309,9 +309,11 @@ class WaitEnterGame(Operation):
                 self.first_in_world_time = now
 
             if self.claim_express_supply:  # 已经领取过列车补给
+                self.ctx.first_transport = True
                 return Operation.round_success()
             else:  # 没领列车补给的话 等2秒看看有没有
                 if now - self.first_in_world_time > 2:
+                    self.ctx.first_transport = True
                     return Operation.round_success()
                 else:
                     return Operation.round_wait(wait=1)
