@@ -3,7 +3,6 @@ import time
 import sr.const
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import battle, enter_game_ui
 from sr.operation import Operation, OperationOneRoundResult
