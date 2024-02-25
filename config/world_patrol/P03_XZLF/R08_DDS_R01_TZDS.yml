@@ -27,6 +27,7 @@ route:
     data: [293, 510]
   - op: 'move'
     data: [293, 454]
+  - op: 'patrol'
   - op: 'move'
     data: [268, 454]
   - op: 'move'
@@ -45,5 +46,7 @@ route:
   - op: 'move'
     data: [524, 464]
   - op: 'move'
-    data: [516, 396]
+    data: [528, 427]
+  - op: 'move'
+    data: [523, 408]
   - op: 'patrol'

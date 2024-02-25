@@ -38,16 +38,18 @@ route:
   - op: 'move'
     data: [394, 756]
   - op: 'move'
-    data: [309, 753]
-  - op: 'move'
+    data: [334, 756]
+  - op: 'slow_move'
+    data: [309, 756]
+  - op: 'slow_move'
     data: [312, 784]
   - op: 'slow_move'
     data: [325, 784]
   - op: 'patrol'
   - op: 'slow_move'
     data: [312, 784]
-  - op: 'move'
-    data: [309, 753]
+  - op: 'slow_move'
+    data: [309, 756]
   - op: 'move'
     data: [394, 756]
   - op: 'move'
@@ -62,4 +64,7 @@ route:
     data: [565, 811]
   - op: 'move'
     data: [579, 780]
+  - op: 'patrol'
+  - op: 'move'
+    data: [574, 758]
   - op: 'patrol'

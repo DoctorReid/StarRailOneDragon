@@ -30,17 +30,5 @@ route:
   - op: 'move'
     data: [919, 607]
   - op: 'move'
-    data: [917, 696]
-  - op: 'patrol'
-  - op: 'move'
-    data: [882, 671]
-  - op: 'move'
-    data: [843, 638]
-  - op: 'move'
-    data: [793, 602]
-  - op: 'move'
-    data: [698, 586]
-  - op: 'patrol'
-  - op: 'move'
-    data: [692, 549]
+    data: [917, 564]
   - op: 'patrol'

@@ -7,14 +7,17 @@ route:
   - op: 'move'
     data: [490, 494]
   - op: 'move'
-    data: [518, 557]
+    data: [514, 557]
   - op: 'move'
-    data: [518, 649]
+    data: [514, 649]
+  - op: 'patrol'
+  - op: 'slow_move'
+    data: [540, 649]
   - op: 'patrol'
   - op: 'move'
-    data: [540, 649]
+    data: [540, 669]
   - op: 'move'
-    data: [541, 754]
+    data: [540, 754]
   - op: 'move'
     data: [500, 775]
   - op: 'patrol'

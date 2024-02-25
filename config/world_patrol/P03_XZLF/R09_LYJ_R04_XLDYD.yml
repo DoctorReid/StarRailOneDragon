@@ -9,5 +9,5 @@ route:
   - op: 'move'
     data: [1601, 396]
   - op: 'move'
-    data: [1605, 371]
+    data: [1605, 365]
   - op: 'patrol'
