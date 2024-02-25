@@ -166,6 +166,9 @@ class OneStopServiceApp(Application2):
                 after_current_app = True
                 continue
             if self.current_app_id is None or after_current_app:
+                record = OneStopServiceApp.get_app_run_record_by_id(app_id, self.ctx)
+                if record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
+                    continue
                 next_app_id = app_id
                 break
 

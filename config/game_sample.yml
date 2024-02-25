@@ -11,8 +11,5 @@ key_open_map: 'm'
 key_esc: 'esc'
 lang: 'cn'
 game_path: ''
-proxy_type: 'none'
-personal_proxy: ''
 game_account: ''
 game_account_password: ''
-is_debug: false

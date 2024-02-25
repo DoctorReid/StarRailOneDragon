@@ -211,7 +211,7 @@ class Context:
             return
 
         self.one_dragon_config.active_account(account_idx)
-        log.info('切换启动账号 %s', self.one_dragon_config.current_active_account.name)
+        log.info('切换启用账号 %s', self.one_dragon_config.current_active_account.name)
         self.init_config_by_account()
 
     def init_keyboard_callback(self):
