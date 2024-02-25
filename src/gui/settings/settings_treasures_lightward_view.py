@@ -44,7 +44,7 @@ class TeamListItem(ft.Row):
                                          ft.dropdown.Option(text=gt('禁用', 'ui'), key='false')
                                      ], on_change=self._on_fh_enable_changed)
         self.enable_pf = ft.Dropdown(label=gt('虚构叙事', 'ui'),
-                                     value='true' if self.team_value.enable_fh else 'false', width=80,
+                                     value='true' if self.team_value.enable_pf else 'false', width=80,
                                      options=[
                                          ft.dropdown.Option(text=gt('启用', 'ui'), key='true'),
                                          ft.dropdown.Option(text=gt('禁用', 'ui'), key='false')

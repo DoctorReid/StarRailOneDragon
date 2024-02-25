@@ -188,7 +188,7 @@ class PlanList(ft.ListView):
             item = container.content
             if type(item) == PlanListItem:
                 plan_item_list.append(item.value)
-        self.ctx.tl_config.plan_list = plan_item_list
+        self.ctx.tp_config.plan_list = plan_item_list
 
     def _on_click_item_up(self, e):
         target_idx = self._get_item_event_idx(e)
