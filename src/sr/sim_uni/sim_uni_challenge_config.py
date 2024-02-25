@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import List, Optional
+from typing import List
 
 from basic import os_utils
 from basic.config import ConfigHolder
@@ -10,9 +10,11 @@ _MAX_WITH_SAMPLE = 8
 
 class SimUniChallengeConfig(ConfigHolder):
 
-    def __init__(self, idx: int, account_idx: Optional[int] = None, mock: bool = False):
+    def __init__(self, idx: int, mock: bool = False):
+        """
+        模拟宇宙挑战配置 全局的 无需跟账号挂钩
+        """
         super().__init__('%02d' % idx, sub_dir=['sim_uni', 'challenge_config'], sample=idx <= _MAX_WITH_SAMPLE,
-                         account_idx=account_idx,
                          mock=mock)
 
         self.idx = idx
@@ -103,13 +105,13 @@ class SimUniChallengeConfig(ConfigHolder):
 
 class SimUniChallengeAllConfig:
 
-    def __init__(self, account_idx: Optional[int] = None):
-        self.account_idx: Optional[int] = account_idx
+    def __init__(self):
+        pass
 
     def load_all_challenge_config(self) -> List[SimUniChallengeConfig]:
         config_list = []
         for i in range(1, _MAX_WITH_SAMPLE + 1):  # 有模板的部分
-            config_list.append(SimUniChallengeConfig(i, account_idx=self.account_idx))
+            config_list.append(SimUniChallengeConfig(i))
 
         base_dir = self.get_challenge_config_dir()
         for file in os.listdir(base_dir):
@@ -123,12 +125,12 @@ class SimUniChallengeAllConfig:
             if idx <= _MAX_WITH_SAMPLE:
                 continue
 
-            config_list.append(SimUniChallengeConfig(idx, account_idx=self.account_idx))
+            config_list.append(SimUniChallengeConfig(idx))
 
         return config_list
 
     def get_challenge_config_dir(self) -> str:
-        return os_utils.get_path_under_work_dir('config', '%02d' % self.account_idx,
+        return os_utils.get_path_under_work_dir('config',
                                                 'sim_uni', 'challenge_config')
 
     def get_next_id(self) -> int:
@@ -159,13 +161,4 @@ class SimUniChallengeAllConfig:
 
         shutil.copy2(from_file, to_file)
 
-        return SimUniChallengeConfig(idx, account_idx=self.account_idx)
-
-    def move_to_account_idx(self, account_idx: int):
-        """
-        将当前配置移动到对应的脚本账号中
-        :return:
-        """
-        config_list = self.load_all_challenge_config()
-        for config in config_list:
-            config.move_to_account_idx(account_idx)
+        return SimUniChallengeConfig(idx)

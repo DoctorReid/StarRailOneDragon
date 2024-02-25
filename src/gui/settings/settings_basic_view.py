@@ -1,24 +1,114 @@
-from typing import Optional
+from typing import Optional, Callable
 
 import flet as ft
-import keyboard
-from flet_core import CrossAxisAlignment
 
-from basic import i18_utils, os_utils
+import sr.one_dragon_config
+from basic import os_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
-from gui import version, snack_bar, components
-from gui.components import SettingsList, SettingsListItem, SettingsListGroupTitle
+from gui import components, version, snack_bar
 from gui.settings import gui_config
 from gui.settings.gui_config import GuiConfig
 from gui.sr_basic_view import SrBasicView
-from sr.config import game_config
-from sr.config.game_config import GameConfig
-from sr.const import game_config_const
 from sr.context import Context
+from sr.one_dragon_config import OneDragonAccount
 
 
-class SettingsView(components.Card, SrBasicView):
+class AccountListItem(ft.Container):
+
+    def __init__(self, ctx: Context,
+                 account: OneDragonAccount,
+                 on_change: Optional[Callable[[OneDragonAccount], None]] = None,
+                 on_active: Optional[Callable[[int], None]] = None,
+                 on_delete: Optional[Callable[[int], None]] = None):
+        theme = gui_config.theme()
+        id_text = ft.Text(value='编号' + ('%02d' % account.idx))
+        self.name_input = ft.TextField(label='名称', value=account.name, width=80,
+                                       disabled=ctx.is_running, on_change=self._on_name_changed)
+        self.active_now = components.RectOutlinedButton(
+            text='当前启用' if account.active else '启用',
+            disabled=ctx.is_running or account.active,
+            on_click=self._on_active_now_changed
+        )
+        self.del_btn = ft.IconButton(icon=ft.icons.DELETE_FOREVER_OUTLINED,
+                                     disabled=ctx.is_running or account.active,
+                                     on_click=self._on_click_delete)
+        self.active_in_od = ft.Checkbox(label='加入一条龙', value=account.active_in_od,
+                                        disabled=ctx.is_running,
+                                        on_change=self._on_active_in_od_changed)
+
+        ft.Container.__init__(
+            self,
+            content=ft.Row(controls=[id_text, self.name_input, self.active_now, self.active_in_od, self.del_btn]),
+            border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])),
+            padding=10
+        )
+
+        self.ctx: Context = ctx
+        self.on_change: Optional[Callable[[OneDragonAccount], None]] = on_change
+        self.on_active: Optional[Callable[[int], None]] = on_active
+        self.on_delete: Optional[Callable[[int], None]] = on_delete
+        self.account: OneDragonAccount = account
+
+    def _on_value_changed(self):
+        """
+        值改变后的回调
+        :return:
+        """
+        if self.on_change is not None:
+            self.on_change(self.account)
+
+    def _on_name_changed(self, e):
+        """
+        名字改变
+        :return:
+        """
+        self.account.name = self.name_input.value
+        self._on_value_changed()
+
+    def _on_active_now_changed(self, e):
+        """
+        当前启用改变
+        :return:
+        """
+        if self.on_active is not None:
+            self.on_active(self.account.idx)
+
+    def _on_active_in_od_changed(self, e):
+        """
+        加入一条龙改变
+        :return:
+        """
+        self.account.active_in_od = self.active_in_od.value
+        self._on_value_changed()
+
+    def _on_click_delete(self, e):
+        """
+        点击删除
+        :param e:
+        :return:
+        """
+        if self.on_delete is not None:
+            self.on_delete(self.account.idx)
+
+    def update_account(self, account: OneDragonAccount):
+        self.account = account
+
+        self.name_input.value = self.account.name
+        self.name_input.disabled = self.ctx.is_running
+
+        self.active_now.text = '当前启用' if self.account.active else '启用'
+        self.active_now.disabled = self.ctx.is_running or self.account.active
+
+        self.active_in_od.value = self.account.active_in_od
+        self.active_in_od.disabled = self.ctx.is_running
+
+        self.del_btn.disabled = self.ctx.is_running or self.account.active
+
+        self.update()
+
+
+class SettingsBasicView(components.Card, SrBasicView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         SrBasicView.__init__(self, page, ctx)
@@ -30,43 +120,14 @@ class SettingsView(components.Card, SrBasicView):
             width=200, on_change=self._on_ui_theme_changed
         )
 
-        self.server_region_dropdown = ft.Dropdown(
-            options=[ft.dropdown.Option(text=r, key=r) for r in game_config_const.SERVER_TIME_OFFSET.keys()],
-            width=200, on_change=self.on_server_region_changed
-        )
-
-        self.lang_dropdown = ft.Dropdown(
-            options=[ft.dropdown.Option(text=k, key=v) for k, v in game_config_const.LANG_OPTS.items()],
-            width=200, on_change=self.on_lang_changed
-        )
-
-        self.run_mode_dropdown = ft.Dropdown(
-            options=[ft.dropdown.Option(text=gt(k, 'ui'), key=v) for k, v in game_config_const.RUN_MODE.items()],
-            width=200, on_change=self.on_run_mode_changed
-        )
-
         self.debug_mode_check = ft.Checkbox(label=gt('调试模式', 'ui'), on_change=self._on_debug_mode_changed)
-
-        self.game_config: GameConfig = self.sr_ctx.game_config
-        self.interact_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_interact')
-        self.technique_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_technique')
-        self.open_map_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_open_map')
-        self.esc_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_esc')
-        self.selected_key_btn: Optional[components.RectOutlinedButton] = None
-
-        self.game_path_text = ft.Text(width=230, overflow=ft.TextOverflow.ELLIPSIS)
-        self.game_path_btn = components.RectOutlinedButton(text='更改', on_click=self.show_game_path_pick)
-        game_path_row = ft.Row(controls=[self.game_path_text, self.game_path_btn], width=300, spacing=0,
-                               alignment=ft.MainAxisAlignment.START)
-        self.game_path_pick_dialog = ft.FilePicker(on_result=self.on_game_path_pick)
-        self.flet_page.overlay.append(self.game_path_pick_dialog)
 
         self.check_update_btn = components.RectOutlinedButton(text='检查更新', on_click=self.check_update)
         self.update_btn = components.RectOutlinedButton(text='更新', on_click=self.do_update, visible=False)
         self.pre_release_switch = ft.Switch(value=False, on_change=self.on_prerelease_switch)
         self.proxy_type_dropdown = ft.Dropdown(
             options=[
-                ft.dropdown.Option(text=gt(i.cn, 'ui'), key=i.id) for i in game_config_const.PROXY_TYPE_LIST
+                ft.dropdown.Option(text=gt(i.cn, 'ui'), key=i.id) for i in sr.one_dragon_config.PROXY_TYPE_LIST
             ],
             width=150, on_change=self._on_proxy_type_changed
         )
@@ -74,78 +135,136 @@ class SettingsView(components.Card, SrBasicView):
                                                  value='http://127.0.0.1:8234', disabled=True,
                                                  on_change=self._on_personal_proxy_changed)
 
-        self.account_input = ft.TextField(on_change=self._on_account_change)
-        self.password_input = ft.TextField(on_change=self._on_password_change)
+        self.width: int = 400
+        self.add_btn = components.RectOutlinedButton(text='+', on_click=self.on_account_added)
 
-        settings_list = SettingsList(
-            controls=[
-                SettingsListGroupTitle('基础'),
-                SettingsListItem('界面主题', self.gui_theme_dropdown),
-                SettingsListItem('游戏路径', game_path_row),
-                SettingsListItem('游戏区服', self.server_region_dropdown),
-                SettingsListItem('语言', self.lang_dropdown),
-                SettingsListItem('疾跑', self.run_mode_dropdown),
-                SettingsListItem('调试模式', self.debug_mode_check),
-                SettingsListGroupTitle('自动登录'),
-                SettingsListItem('账号', self.account_input),
-                SettingsListItem('密码', self.password_input),
-                SettingsListGroupTitle('按键'),
-                SettingsListItem('交互', self.interact_btn),
-                SettingsListItem('秘技', self.technique_btn),
-                SettingsListItem('打开地图', self.open_map_btn),
-                SettingsListItem('返回', self.esc_btn),
-                SettingsListGroupTitle('更新'),
-                SettingsListItem('测试版本', self.pre_release_switch),
-                SettingsListItem('代理类型', self.proxy_type_dropdown),
-                SettingsListItem('代理地址', self.personal_proxy_input),
-                SettingsListItem('检查更新', ft.Row(controls=[self.check_update_btn, self.update_btn])),
-            ],
-            width=400
-        )
+        self.settings_item_list = ft.ListView(controls=[
+            components.SettingsListGroupTitle('基础'),
+            components.SettingsListItem('界面主题', self.gui_theme_dropdown),
+            components.SettingsListItem('调试模式', self.debug_mode_check),
+            components.SettingsListGroupTitle('更新'),
+            components.SettingsListItem('测试版本', self.pre_release_switch),
+            components.SettingsListItem('代理类型', self.proxy_type_dropdown),
+            components.SettingsListItem('代理地址', self.personal_proxy_input),
+            components.SettingsListItem('检查更新', ft.Row(controls=[self.check_update_btn, self.update_btn])),
+            components.SettingsListGroupTitle('脚本账号列表'),
+            components.SettingsListItem('', self.add_btn),
+        ], width=self.width)
 
-        components.Card.__init__(self, settings_list)
-        keyboard.on_press(self._on_key_press)
+        components.Card.__init__(self, self.settings_item_list, width=500)
 
     def handle_after_show(self):
-        self._init_with_config()
+        self._load_config_and_display()
 
-    def _init_with_config(self):
+    def _load_config_and_display(self):
         """
-        页面初始化加载已有配置
+        加载配置显示
         :return:
         """
-        self.server_region_dropdown.value = self.game_config.server_region
-        self.run_mode_dropdown.value = self.game_config.run_mode
-        self.lang_dropdown.value = self.game_config.lang
-        self.game_path_text.value = self.game_config.game_path
-        self.debug_mode_check.value = self.game_config.is_debug
+        self.debug_mode_check.value = self.sr_ctx.one_dragon_config.is_debug
 
-        self.account_input.value = self.game_config.game_account
-        self.password_input.value = self.game_config.game_account_password
-
-        self.interact_btn.text = self.game_config.key_interact
-        self.technique_btn.text = self.game_config.key_technique
-        self.open_map_btn.text = self.game_config.key_open_map
-        self.esc_btn.text = self.game_config.key_esc
-
-        self.proxy_type_dropdown.value = self.game_config.proxy_type
-        self.personal_proxy_input.value = self.game_config.personal_proxy
+        self.proxy_type_dropdown.value = self.sr_ctx.one_dragon_config.proxy_type
+        self.personal_proxy_input.value = self.sr_ctx.one_dragon_config.personal_proxy
         self._update_proxy_part_display()
 
-        self.update()
+        self._init_account_list()
 
-    def on_server_region_changed(self, e):
-        self.game_config.server_region = self.server_region_dropdown.value
+    def _init_account_list(self):
+        """
+        初始化账号列表 加载、增加、删除时候使用
+        :return:
+        """
+        # 清空掉账号条目
+        while True:
+            item = self.settings_item_list.controls[-2]
+            if type(item) == components.SettingsListGroupTitle:  # 最后一个标题应该是 '脚本账号列表'
+                break
+            self.settings_item_list.controls.pop(-2)
 
-    def on_run_mode_changed(self, e):
-        self.game_config.run_mode = int(self.run_mode_dropdown.value)
+        for account in self.sr_ctx.one_dragon_config.account_list:
+            self.settings_item_list.controls.insert(
+                -1,
+                AccountListItem(self.sr_ctx, account,
+                                on_change=self.on_account_value_changed,
+                                on_active=self.on_account_actived,
+                                on_delete=self.on_account_deleted)
+            )
+        self.settings_item_list.update()
+
+    def on_account_value_changed(self, account: OneDragonAccount):
+        """
+        账号资料改变
+        :param account:
+        :return:
+        """
+        self.sr_ctx.one_dragon_config.update_account(account)
+
+    def on_account_actived(self, account_idx: int):
+        self.sr_ctx.active_account(account_idx)  # 这一步会改变 config.account_list 的值
+        self._update_account_list_display()
+
+    def on_account_added(self, e):
+        """
+        新增一个账号
+        :return:
+        """
+        account = self.sr_ctx.one_dragon_config.create_new_account(False)
+        self.settings_item_list.controls.insert(-1, AccountListItem(self.sr_ctx, account,
+                                                                    on_change=self.on_account_value_changed,
+                                                                    on_active=self.on_account_actived,
+                                                                    on_delete=self.on_account_deleted))
+        self.settings_item_list.update()
+        self._update_account_list_display()
+
+    def on_account_deleted(self, account_idx: int):
+        """
+        删除账号
+        :param account_idx:
+        :return:
+        """
+        self.sr_ctx.one_dragon_config.delete_account(account_idx)
+
+        idx = -1
+        for i in range(len(self.settings_item_list.controls)):
+            item: AccountListItem = self.settings_item_list.controls[i]
+            if type(item) != AccountListItem:
+                continue
+            if item.account.idx == account_idx:
+                idx = i
+                break
+
+        if idx != -1:
+            self.settings_item_list.controls.pop(idx)
+            self.settings_item_list.update()
+            self._update_account_list_display()
+
+    def _update_account_list_display(self):
+        """
+        跟价配置中的账号列表 更新页面的显示
+        在 one_dragon_config.account_list 改变时需要调用
+        - 增加账号
+        - 删除账号
+        - 激活账号
+        :return:
+        """
+        for item in self.settings_item_list.controls:
+            if type(item) != AccountListItem:
+                continue
+            for account in self.sr_ctx.one_dragon_config.account_list:
+                if account.idx == item.account.idx:
+                    item.update_account(account)
+                    break
+
+    def _on_ui_theme_changed(self, e):
+        """
+        UI主题改变
+        :param e:
+        :return:
+        """
+        self.gui_config.theme = self.gui_theme_dropdown.value
 
     def _on_debug_mode_changed(self, e):
-        self.game_config.is_debug = self.debug_mode_check.value
-
-    def on_lang_changed(self, e):
-        self.game_config.lang = self.lang_dropdown.value
-        i18_utils.update_default_lang(self.lang_dropdown.value)
+        self.sr_ctx.one_dragon_config.is_debug = self.debug_mode_check.value
 
     def on_prerelease_switch(self, e):
         if self.pre_release_switch.value:
@@ -154,7 +273,7 @@ class SettingsView(components.Card, SrBasicView):
             log.info(msg)
 
     def check_update(self, e):
-        version_result = version.check_new_version(proxy=self.game_config.proxy_address,
+        version_result = version.check_new_version(proxy=self.sr_ctx.one_dragon_config.proxy_address,
                                                    pre_release=self.pre_release_switch.value)
         if version_result == 2:
             msg: str = gt('检测更新请求失败', 'ui')
@@ -194,44 +313,6 @@ class SettingsView(components.Card, SrBasicView):
             self.update_btn.disabled = False
             self.update()
 
-    def show_game_path_pick(self, e):
-        self.game_path_pick_dialog.pick_files(allow_multiple=False, allowed_extensions=['exe'])
-
-    def on_game_path_pick(self, e: ft.FilePickerResultEvent):
-        if e.files is not None:
-            self.game_path_text.value = e.files[0].path
-            self.game_config.game_path = self.game_path_text.value
-            self.update()
-
-    def _on_ui_theme_changed(self, e):
-        self.gui_config.theme = self.gui_theme_dropdown.value
-
-    def _on_click_key_changed(self, e):
-        """
-        更改按键
-        :param e:
-        :return:
-        """
-        self.selected_key_btn = e.control
-        self.selected_key_btn.text = gt('请按键', 'ui')
-        self.update()
-
-    def _on_key_press(self, e):
-        """
-        更改按键
-        :param e: 按键事件
-        :return:
-        """
-        if self.selected_key_btn is None:
-            return
-
-        key = e.name
-        self.selected_key_btn.text = key
-        self.update()
-        self.game_config.update(self.selected_key_btn.data, key)
-
-        self.selected_key_btn = None
-
     def _update_proxy_part_display(self):
         """
         更新代理部分的显示
@@ -246,24 +327,19 @@ class SettingsView(components.Card, SrBasicView):
         :param e:
         :return:
         """
-        self.game_config.proxy_type = self.proxy_type_dropdown.value
+        self.sr_ctx.one_dragon_config.proxy_type = self.proxy_type_dropdown.value
         self._update_proxy_part_display()
 
     def _on_personal_proxy_changed(self, e):
-        self.game_config.personal_proxy = self.personal_proxy_input.value
-
-    def _on_account_change(self, e):
-        self.game_config.game_account = self.account_input.value
-
-    def _on_password_change(self, e):
-        self.game_config.game_account_password = self.password_input.value
+        self.sr_ctx.one_dragon_config.personal_proxy = self.personal_proxy_input.value
 
 
-sv: SettingsView = None
+_settings_basic_view: Optional[SettingsBasicView] = None
 
 
-def get(page: ft.Page, ctx: Context) -> SettingsView:
-    global sv
-    if sv is None:
-        sv = SettingsView(page, ctx)
-    return sv
+def get(page: ft.Page, ctx: Context) -> SettingsBasicView:
+    global _settings_basic_view
+    if _settings_basic_view is None:
+        _settings_basic_view = SettingsBasicView(page, ctx)
+
+    return _settings_basic_view

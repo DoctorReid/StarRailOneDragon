@@ -55,8 +55,6 @@ class SettingsSimUniView(ft.Row, SrBasicView):
 
         ft.Row.__init__(self, controls=[setting_card])
 
-        self.config = self.sr_ctx.sim_uni_config
-
     def handle_after_show(self):
         self._load_existed_challenge_config_list()
         self._load_config()
@@ -71,38 +69,38 @@ class SettingsSimUniView(ft.Row, SrBasicView):
 
     def _load_config(self):
         for uni_dd in [self.uni_03_dd, self.uni_04_dd, self.uni_05_dd, self.uni_06_dd, self.uni_07_dd, self.uni_08_dd]:
-            uni_dd.value = self.config.get(uni_dd.data)
+            uni_dd.value = self.sr_ctx.sim_uni_config.get(uni_dd.data)
             uni_dd.update()
 
-        self.weekly_uni_num.value = self.config.weekly_uni_num
+        self.weekly_uni_num.value = self.sr_ctx.sim_uni_config.weekly_uni_num
         self.weekly_uni_num.update()
 
-        self.weekly_uni_diff.value = str(self.config.weekly_uni_diff)
+        self.weekly_uni_diff.value = str(self.sr_ctx.sim_uni_config.weekly_uni_diff)
         self.weekly_uni_diff.update()
 
-        self.weekly_times.value = str(self.config.weekly_times)
+        self.weekly_times.value = str(self.sr_ctx.sim_uni_config.weekly_times)
         self.weekly_times.update()
 
-        self.daily_times.value = str(self.config.daily_times)
+        self.daily_times.value = str(self.sr_ctx.sim_uni_config.daily_times)
         self.daily_times.update()
 
     def _on_sim_uni_challenge_changed(self, e):
         """
         模拟宇宙挑战设置改变
         """
-        self.config.update(e.control.data, e.control.value)
+        self.sr_ctx.sim_uni_config.update(e.control.data, e.control.value)
 
     def _on_weekly_uni_num_changed(self, e):
         """
         每周挑战宇宙设置
         """
-        self.config.weekly_uni_num = self.weekly_uni_num.value
+        self.sr_ctx.sim_uni_config.weekly_uni_num = self.weekly_uni_num.value
 
     def _on_weekly_uni_diff_changed(self, e):
         """
         每周挑战难度设置
         """
-        self.config.weekly_uni_diff = int(self.weekly_uni_diff.value)
+        self.sr_ctx.sim_uni_config.weekly_uni_diff = int(self.weekly_uni_diff.value)
 
     def _on_weekly_times_changed(self, e):
         """
@@ -114,7 +112,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         if text != self.weekly_times.value:
             self.weekly_times.value = text
             self.weekly_times.update()
-        self.config.weekly_times = int(text)
+        self.sr_ctx.sim_uni_config.weekly_times = int(text)
 
     def _on_daily_times_changed(self, e):
         """
@@ -126,7 +124,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         if text != self.daily_times.value:
             self.daily_times.value = text
             self.daily_times.update()
-        self.config.daily_times = int(text)
+        self.sr_ctx.sim_uni_config.daily_times = int(text)
 
 
 _settings_sim_uni_view: Optional[SettingsSimUniView] = None

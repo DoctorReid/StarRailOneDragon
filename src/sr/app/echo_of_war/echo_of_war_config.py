@@ -100,14 +100,3 @@ class EchoOfWarConfig(ConfigHolder):
             return plan_list[0]
 
         return None
-
-
-echo_of_war_config: Optional[EchoOfWarConfig] = None
-
-
-def get_config() -> EchoOfWarConfig:
-    global echo_of_war_config
-    if echo_of_war_config is None:
-        echo_of_war_config = EchoOfWarConfig()
-
-    return echo_of_war_config

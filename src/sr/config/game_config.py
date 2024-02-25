@@ -1,5 +1,6 @@
 from typing import Optional
 
+import gui.version
 from basic.config import ConfigHolder
 from sr.const import game_config_const, ocr_const
 from sr.const.game_config_const import SERVER_REGION_CN
@@ -114,38 +115,6 @@ class GameConfig(ConfigHolder):
         return ocr_const.CHARACTER_NAME_LCS_PERCENT[self.lang]
 
     @property
-    def proxy_type(self) -> str:
-        """
-        代理类型
-        :return:
-        """
-        return self.get('proxy_type', 'ghproxy')
-
-    @proxy_type.setter
-    def proxy_type(self, new_value: str):
-        """
-        更新代理类型
-        :return:
-        """
-        self.update('proxy_type', new_value)
-
-    @property
-    def personal_proxy(self) -> str:
-        """
-        代理类型
-        :return:
-        """
-        return self.get('personal_proxy', '')
-
-    @personal_proxy.setter
-    def personal_proxy(self, new_value: str):
-        """
-        更新代理类型
-        :return:
-        """
-        self.update('personal_proxy', new_value)
-
-    @property
     def game_account(self) -> str:
         return self.get('game_account', '')
 
@@ -160,22 +129,6 @@ class GameConfig(ConfigHolder):
     @game_account_password.setter
     def game_account_password(self, new_value: str):
         self.update('game_account_password', new_value)
-
-
-    @property
-    def proxy_address(self) -> Optional[str]:
-        """
-        :return: 真正使用的代理地址
-        """
-        proxy_type = self.proxy_type
-        if proxy_type == game_config_const.PROXY_TYPE_NONE.id:
-            return None
-        elif proxy_type == game_config_const.PROXY_TYPE_GHPROXY.id:
-            return game_config_const.GH_PROXY_URL
-        elif proxy_type == game_config_const.PROXY_TYPE_PERSONAL.id:
-            proxy = self.personal_proxy
-            return None if proxy == '' else proxy
-        return None
 
     @property
     def key_interact(self) -> str:
@@ -240,19 +193,3 @@ class GameConfig(ConfigHolder):
         :return:
         """
         self.update('key_esc', new_value)
-
-    @property
-    def is_debug(self) -> bool:
-        """
-        调试模式
-        :return:
-        """
-        return self.get('is_debug', False)
-
-    @is_debug.setter
-    def is_debug(self, new_value: bool):
-        """
-        更新调试模式
-        :return:
-        """
-        self.update('is_debug', new_value)

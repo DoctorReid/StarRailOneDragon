@@ -1,6 +1,5 @@
 # 游戏区服
 # 各区服重置时间与UTC的偏移
-from typing import List
 
 SERVER_REGION_CN = "CN"  #国服
 SERVER_REGION_OS_ASIA = "Asia"  #国际服亚服
@@ -34,25 +33,3 @@ LANG_OPTS = {
     '简体中文': LANG_CN,
     'English': LANG_EN
 }
-
-
-class ProxyType:
-
-    def __init__(self, id: str, cn: str):
-        """
-        代理类型
-        """
-
-        self.id = id
-        """唯一标识"""
-        self.cn = cn
-        """代理类型名称"""
-
-
-PROXY_TYPE_NONE = ProxyType(id='none', cn='无')
-PROXY_TYPE_PERSONAL = ProxyType(id='personal', cn='个人代理')
-PROXY_TYPE_GHPROXY = ProxyType(id='ghproxy', cn='ghproxy')  # 似乎失效了
-
-PROXY_TYPE_LIST: List[ProxyType] = [PROXY_TYPE_NONE, PROXY_TYPE_PERSONAL, PROXY_TYPE_GHPROXY]
-
-GH_PROXY_URL = 'https://mirror.ghproxy.com/'

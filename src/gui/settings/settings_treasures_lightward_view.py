@@ -9,10 +9,9 @@ from gui.components.character_input import CharacterInput
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig, get_config
-from sr.const.character_const import CHARACTER_LIST, QUANTUM
+from sr.const.character_const import CHARACTER_LIST
 from sr.context import Context
-from sr.treasures_lightward.treasures_lightward_team_module import TEAM_MODULE_ATTACK, TreasuresLightwardTeamModule
+from sr.treasures_lightward.treasures_lightward_team_module import TreasuresLightwardTeamModule
 
 
 class TeamListItem(ft.Row):
@@ -130,9 +129,9 @@ class TeamListItem(ft.Row):
 
 class TeamList(ft.ListView):
 
-    def __init__(self, on_click_choose_member: Optional[Callable] = None):
-        self.config: TreasuresLightwardConfig = get_config()
-        plan_item_list: List[TreasuresLightwardTeamModule] = self.config.team_module_list
+    def __init__(self, ctx: Context, on_click_choose_member: Optional[Callable] = None):
+        self.ctx: Context = ctx
+        plan_item_list: List[TreasuresLightwardTeamModule] = self.ctx.tl_config.team_module_list
 
         super().__init__(controls=[self._list_view_item(i) for i in plan_item_list])
         self.add_btn = ft.Container(
@@ -143,7 +142,7 @@ class TeamList(ft.ListView):
         self._start_choose_member_callback: Optional[Callable] = on_click_choose_member
 
     def refresh_by_config(self):
-        plan_item_list: List[TreasuresLightwardTeamModule] = self.config.team_module_list
+        plan_item_list: List[TreasuresLightwardTeamModule] = self.ctx.tl_config.team_module_list
         self.controls = [self._list_view_item(i) for i in plan_item_list]
         self.controls.append(self.add_btn)
         self.update()
@@ -236,7 +235,7 @@ class TeamList(ft.ListView):
             if type(item.content) == TeamListItem:
                 component: TeamListItem = item.content
                 team_list.append(component.team_value)
-        self.config.team_module_list = team_list
+        self.ctx.tl_config.team_module_list = team_list
 
     def _on_item_click_del(self, e):
         """
@@ -263,7 +262,7 @@ class SettingsTreasuresLightwardView(SrBasicView, ft.Row):
     def __init__(self, page: ft.Page, ctx: Context):
         SrBasicView.__init__(self, page, ctx)
         team_card_title = components.CardTitleText(gt('配队规划', 'ui'))
-        self.team_list = TeamList(on_click_choose_member=self._start_choose_member)
+        self.team_list = TeamList(self.sr_ctx, on_click_choose_member=self._start_choose_member)
         team_card = components.Card(self.team_list, team_card_title, width=800)
 
         self.character_card = CharacterInput(ctx.ih, max_chosen_num=4)
@@ -272,6 +271,9 @@ class SettingsTreasuresLightwardView(SrBasicView, ft.Row):
         ft.Row.__init__(self, controls=[team_card, self.character_card], spacing=10)
 
         self.chosen_item: Optional[TeamListItem] = None
+
+    def handle_after_show(self):
+        self.team_list.refresh_by_config()
 
     def _start_choose_member(self, item: TeamListItem):
         """

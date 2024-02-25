@@ -1,15 +1,12 @@
-from typing import List
+from typing import List, Optional
 
 import flet as ft
 
-import sr.app.world_patrol.world_patrol_run_record
 from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import components
 from gui.sr_app_view import SrAppView
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
-from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
-from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.context import Context
 
@@ -18,9 +15,6 @@ class WorldPatrolRunView(SrAppView):
 
     def __init__(self, page: ft.Page, ctx: Context):
         super().__init__(page, ctx)
-        self.config: WorldPatrolConfig = ctx.world_patrol_config
-        self.record: WorldPatrolRunRecord = ctx.world_patrol_run_record
-
         self.whitelist_dropdown = ft.Dropdown(width=200, on_change=self._on_whitelist_changed)
         self.reset_btn = components.RectOutlinedButton('重置', on_click=self._on_click_reset)
 
@@ -61,11 +55,11 @@ class WorldPatrolRunView(SrAppView):
         加载配置
         :return:
         """
-        self.whitelist_dropdown.value = self.config.whitelist_id
+        self.whitelist_dropdown.value = self.sr_ctx.world_patrol_config.whitelist_id
         self.update()
 
     def run_app(self):
-        whitelist: WorldPatrolWhitelist = None
+        whitelist: Optional[WorldPatrolWhitelist] = None
         if self.whitelist_dropdown.value is not None and self.whitelist_dropdown.value != 'none':
             whitelist = WorldPatrolWhitelist(self.whitelist_dropdown.value)
         self.sr_ctx.world_patrol_run_record.check_and_update_status()
@@ -73,17 +67,17 @@ class WorldPatrolRunView(SrAppView):
         app.execute()
 
     def _on_click_reset(self, e):
-        self.record.reset_record()
+        self.sr_ctx.world_patrol_run_record.reset_record()
         log.info("运行记录已重置")
 
     def _on_whitelist_changed(self, e):
-        self.config.whitelist_id = self.whitelist_dropdown.value
+        self.sr_ctx.world_patrol_config.whitelist_id = self.whitelist_dropdown.value
 
 
-wprv: WorldPatrolRunView = None
+wprv: Optional[WorldPatrolRunView] = None
 
 
-def get(page: ft.Page, ctx: Context):
+def get(page: ft.Page, ctx: Context) -> WorldPatrolRunView:
     global wprv
     if wprv is None:
         wprv = WorldPatrolRunView(page, ctx)

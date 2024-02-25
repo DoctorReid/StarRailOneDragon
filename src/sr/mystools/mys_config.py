@@ -16,7 +16,7 @@ class MysConfig(ConfigHolder):
     def __init__(self, account_idx: Optional[int] = None):
         super().__init__('mys', account_idx=account_idx,
                          sub_dir=['mystool'], sample=False)
-        self._user_id: str = '%02d' % account_idx
+        self._user_id: str = '%02d' % account_idx if account_idx is not None else '00'
         self._mys_conf = PluginDataManager.plugin_data
         self._login_expired: bool = False
 

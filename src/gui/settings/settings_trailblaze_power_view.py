@@ -8,7 +8,7 @@ from gui.components.character_input import CharacterInput
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem, TrailblazePowerConfig
+from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr.const.character_const import CHARACTER_LIST
 from sr.context import Context
 from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategory, SurvivalIndexCategoryEnum, \
@@ -145,9 +145,9 @@ class PlanListItem(ft.Row):
 
 class PlanList(ft.ListView):
 
-    def __init__(self, config: TrailblazePowerConfig, on_click_support: Callable):
-        self.config: TrailblazePowerConfig = config
-        plan_item_list: List[TrailblazePowerPlanItem] = self.config.plan_list
+    def __init__(self, ctx: Context, on_click_support: Callable):
+        self.ctx: Context = ctx
+        plan_item_list: List[TrailblazePowerPlanItem] = self.ctx.tp_config.plan_list
 
         super().__init__(controls=[self._list_view_item(i) for i in plan_item_list])
         self.add_btn = ft.Container(components.RectOutlinedButton(text='+', on_click=self._on_add_click),
@@ -156,7 +156,7 @@ class PlanList(ft.ListView):
         self.click_support_callback: Callable = on_click_support
 
     def refresh_by_config(self):
-        plan_item_list: List[TrailblazePowerPlanItem] = self.config.plan_list
+        plan_item_list: List[TrailblazePowerPlanItem] = self.ctx.tp_config.plan_list
         self.controls = [self._list_view_item(i) for i in plan_item_list]
         self.controls.append(self.add_btn)
         self.update()
@@ -188,7 +188,7 @@ class PlanList(ft.ListView):
             item = container.content
             if type(item) == PlanListItem:
                 plan_item_list.append(item.value)
-        self.config.plan_list = plan_item_list
+        self.ctx.tl_config.plan_list = plan_item_list
 
     def _on_click_item_up(self, e):
         target_idx = self._get_item_event_idx(e)
@@ -237,9 +237,10 @@ class PlanList(ft.ListView):
 
 class SettingsTrailblazePowerView(SrBasicView, ft.Row):
 
-    def __init__(self, ctx: Context):
+    def __init__(self, page: ft.Page, ctx: Context):
+        SrBasicView.__init__(self, page, ctx)
         plan_title = components.CardTitleText(gt('体力规划', 'ui'))
-        self.plan_list = PlanList(ctx.tp_config, self.show_choose_support_character)
+        self.plan_list = PlanList(ctx, self.show_choose_support_character)
         plan_card = components.Card(self.plan_list, plan_title, width=800)
 
         self.character_card = CharacterInput(ctx.ih, max_chosen_num=1, on_value_changed=self._on_choose_support)
@@ -281,8 +282,8 @@ class SettingsTrailblazePowerView(SrBasicView, ft.Row):
 _settings_trailblaze_power_view: Optional[SettingsTrailblazePowerView] = None
 
 
-def get(ctx: Context) -> SettingsTrailblazePowerView:
+def get(page: ft.Page, ctx: Context) -> SettingsTrailblazePowerView:
     global _settings_trailblaze_power_view
     if _settings_trailblaze_power_view is None:
-        _settings_trailblaze_power_view = SettingsTrailblazePowerView(ctx)
+        _settings_trailblaze_power_view = SettingsTrailblazePowerView(page, ctx)
     return _settings_trailblaze_power_view

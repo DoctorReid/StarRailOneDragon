@@ -95,16 +95,16 @@ class PlanListItem(ft.Row):
 
 class PlanList(ft.ListView):
 
-    def __init__(self, on_click_support: Callable):
-        self.config: EchoOfWarConfig = sr.app.echo_of_war.echo_of_war_config.get_config()
-        plan_item_list: List[EchoOfWarPlanItem] = self.config.plan_list
+    def __init__(self, ctx: Context, on_click_support: Callable):
+        self.ctx: Context = ctx
+        plan_item_list: List[EchoOfWarPlanItem] = self.ctx.echo_config.plan_list
 
         super().__init__(controls=[self._list_view_item(i) for i in plan_item_list])
 
         self.click_support_callback: Callable = on_click_support
 
     def refresh_by_config(self):
-        plan_item_list: List[EchoOfWarPlanItem] = self.config.plan_list
+        plan_item_list: List[EchoOfWarPlanItem] = self.ctx.echo_config.plan_list
         self.controls = [self._list_view_item(i) for i in plan_item_list]
         self.update()
 
@@ -123,7 +123,7 @@ class PlanList(ft.ListView):
         for container in self.controls:
             item = container.content
             plan_item_list.append(item.value)
-        self.config.plan_list = plan_item_list
+        self.ctx.echo_config.plan_list = plan_item_list
 
     def _on_click_support(self, e):
         target_idx = self._get_item_event_idx(e)
@@ -150,12 +150,11 @@ class PlanList(ft.ListView):
 
 class SettingsEchoOfWarView(SrBasicView, ft.Row):
 
-    def __init__(self, ctx: Context):
-        self.ctx: Context = ctx
-        self.config = sr.app.echo_of_war.echo_of_war_config.get_config()
+    def __init__(self, page: ft.Page, ctx: Context):
+        SrBasicView.__init__(self, page, ctx)
 
         plan_title = components.CardTitleText(gt('挑战规划', 'ui'))
-        self.plan_list = PlanList(on_click_support=self.show_choose_support_character)
+        self.plan_list = PlanList(self.sr_ctx, on_click_support=self.show_choose_support_character)
         plan_card = components.Card(self.plan_list, plan_title, width=800)
 
         self.character_card = CharacterInput(ctx.ih, max_chosen_num=1, on_value_changed=self._on_choose_support)
@@ -197,9 +196,9 @@ class SettingsEchoOfWarView(SrBasicView, ft.Row):
 _settings_echo_of_war_view: Optional[SettingsEchoOfWarView] = None
 
 
-def get(ctx: Context) -> SettingsEchoOfWarView:
+def get(page: ft.Page, ctx: Context) -> SettingsEchoOfWarView:
     global _settings_echo_of_war_view
     if _settings_echo_of_war_view is None:
-        _settings_echo_of_war_view = SettingsEchoOfWarView(ctx)
+        _settings_echo_of_war_view = SettingsEchoOfWarView(page, ctx)
     return _settings_echo_of_war_view
 

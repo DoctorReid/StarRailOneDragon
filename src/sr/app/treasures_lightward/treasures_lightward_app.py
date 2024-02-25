@@ -5,7 +5,7 @@ from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application2
-from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig, get_config
+from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
 from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord, get_record, \
     TreasuresLightwardScheduleRecord
 from sr.const import phone_menu_const
@@ -86,7 +86,7 @@ class TreasuresLightwardApp(Application2):
 
         self.schedule_type: TreasuresLightwardTypeEnum = TreasuresLightwardTypeEnum.FORGOTTEN_HALL  # 当前挑战类型
         self.challenge_schedule: Optional[TreasuresLightwardScheduleRecord] = None  # 当前挑战的期数
-        self.config: TreasuresLightwardConfig = get_config()
+        self.config: TreasuresLightwardConfig = self.ctx.tl_config
         self.current_mission_num: int = 1  # 当前挑战的关卡
         self.max_unlock_num: int = 1  # 最大解锁的关卡
         self.challenged_set: set[str] = set()  # 本次运行已经挑战的

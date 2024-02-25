@@ -33,7 +33,6 @@ class SettingsMysView(SrBasicView, ft.Row):
         self.login_card = components.Card(login_card_content, title=login_card_title, width=250)
 
         ft.Row.__init__(self, controls=[settings_card, self.login_card], spacing=10)
-        self.config: MysConfig = self.sr_ctx.mys_config
 
     def handle_after_show(self):
         self._update_login_related_components()
@@ -43,9 +42,9 @@ class SettingsMysView(SrBasicView, ft.Row):
         更新登录账号相关的组件状态
         :return:
         """
-        is_login = self.config.is_login
+        is_login = self.sr_ctx.mys_config.is_login
         self.account_phone_text.visible = is_login
-        self.account_phone_text.value = self.config.phone_number if is_login else '未登录'
+        self.account_phone_text.value = self.sr_ctx.mys_config.phone_number if is_login else '未登录'
         self.logout_btn.visible = is_login
         self.login_card.visible = not is_login
         self.update()
@@ -57,7 +56,7 @@ class SettingsMysView(SrBasicView, ft.Row):
         :param e:
         :return:
         """
-        captcha_result: bool = self.config.try_captcha(self.phone_input.value)
+        captcha_result: bool = self.sr_ctx.mys_config.try_captcha(self.phone_input.value)
         if captcha_result:
             msg = '自动获取验证码成功，请查收后填入'
         else:
@@ -71,20 +70,16 @@ class SettingsMysView(SrBasicView, ft.Row):
         :param e:
         :return:
         """
-        self.config.logout()
+        self.sr_ctx.mys_config.logout()
         self._update_login_related_components()
         msg = '注销成功'
         snack_bar.show_message(msg, self.flet_page)
 
     def _login(self, e):
-        result = self.config.login(self.phone_input.value, self.captcha_input.value)
+        result = self.sr_ctx.mys_config.login(self.phone_input.value, self.captcha_input.value)
         msg = '登录成功' if result else '登录失败'
         snack_bar.show_message(msg, self.flet_page)
         self._update_login_related_components()
-
-
-
-
 
 
 _settings_mys_view: Optional[SettingsMysView] = None

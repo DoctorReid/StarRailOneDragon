@@ -6,7 +6,6 @@ from basic.i18_utils import gt
 from gui import components
 from gui.components import SettingsListItem, SettingsList
 from gui.sr_basic_view import SrBasicView
-from sr.app import world_patrol
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.context import Context
 
@@ -15,7 +14,6 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
 
     def __init__(self, page: ft.Page, ctx: Context):
         SrBasicView.__init__(self, page, ctx)
-        self.config = self.sr_ctx.world_patrol_config
 
         plan_title = components.CardTitleText(gt('锄大地', 'ui'))
 
@@ -53,9 +51,10 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         self.update()
 
     def _init_by_config(self):
-        self.team_num_dropdown.value = str(self.config.team_num)
-        self.whitelist_dropdown.value = self.config.whitelist_id
-        self.tech_fight_cb.value = self.config.technique_fight
+        config = self.sr_ctx.world_patrol_config
+        self.team_num_dropdown.value = str(config.team_num)
+        self.whitelist_dropdown.value = config.whitelist_id
+        self.tech_fight_cb.value = config.technique_fight
         self.update()
 
     def _on_team_num_changed(self, e):
@@ -64,7 +63,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         :param e:
         :return:
         """
-        self.config.team_num = int(self.team_num_dropdown.value)
+        self.sr_ctx.world_patrol_config.team_num = int(self.team_num_dropdown.value)
 
     def _on_whitelist_changed(self, e):
         """
@@ -72,7 +71,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         :param e:
         :return:
         """
-        self.config.whitelist_id = self.whitelist_dropdown.value
+        self.sr_ctx.world_patrol_config.whitelist_id = self.whitelist_dropdown.value
 
     def _on_tech_fight_changed(self, e):
         """
@@ -80,7 +79,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         :param e:
         :return:
         """
-        self.config.technique_fight = self.tech_fight_cb.value
+        self.sr_ctx.world_patrol_config.technique_fight = self.tech_fight_cb.value
 
 
 _settings_world_patrol_view: Optional[SettingsWorldPatrolView] = None

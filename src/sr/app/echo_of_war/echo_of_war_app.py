@@ -7,7 +7,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app.application_base import Application
-from sr.app.echo_of_war.echo_of_war_config import get_config, EchoOfWarPlanItem
+from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr.context import Context
 from sr.image.sceenshot import large_map
@@ -42,7 +42,7 @@ class EchoOfWarApp(Application):
             self.phase += 1
             return Operation.WAIT
         elif self.phase == 2:  # 使用体力
-            config = get_config()
+            config = self.ctx.echo_config
             config.check_plan_finished()
             plan: Optional[EchoOfWarPlanItem] = config.next_plan_item
             if plan is None:

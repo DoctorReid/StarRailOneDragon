@@ -71,7 +71,8 @@ class ConfigHolder:
         删除配置文件
         :return:
         """
-        os.remove(self.config_file_path)
+        if os.path.exists(self.config_file_path):
+            os.remove(self.config_file_path)
 
     @property
     def config_file_path(self) -> str:

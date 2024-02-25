@@ -12,7 +12,7 @@ import yaml
 
 from basic import os_utils
 from basic.log_utils import log
-from sr.const.game_config_const import GH_PROXY_URL
+from sr.one_dragon_config import GH_PROXY_URL
 
 
 @lru_cache

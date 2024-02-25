@@ -142,8 +142,6 @@ class Context:
 
         self.sim_uni_config = SimUniConfig()
         self.sim_uni_config.move_to_account_idx(account_idx)
-        self.sim_uni_challenge_all_config = SimUniChallengeAllConfig()
-        self.sim_uni_challenge_all_config.move_to_account_idx(account_idx)
         self.sim_uni_run_record = SimUniRunRecord(self.sim_uni_config)
         self.sim_uni_run_record.move_to_account_idx(account_idx)
 
@@ -190,7 +188,7 @@ class Context:
         self.tl_run_record = TreasuresLightwardRunRecord(account_idx)
 
         self.sim_uni_config = SimUniConfig(account_idx)
-        self.sim_uni_challenge_all_config = SimUniChallengeAllConfig(account_idx)
+        self.sim_uni_challenge_all_config = SimUniChallengeAllConfig()
         self.sim_uni_run_record = SimUniRunRecord(self.sim_uni_config, account_idx)
 
         self.assignments_run_record = AssignmentsRunRecord(self.mys_config, account_idx)
@@ -201,6 +199,18 @@ class Context:
         self.support_character_run_record = SupportCharacterRunRecord(account_idx)
 
         self.one_stop_service_config = OneStopServiceConfig(account_idx)
+
+    def active_account(self, account_idx: int):
+        """
+        启用一个账号 其他账号将会设置为不启用
+        :param account_idx:
+        :return:
+        """
+        if self.is_running:
+            log.error('脚本运行中 无法切换启用账号')
+            return
+        self.one_dragon_config.active_account(account_idx)
+        self.init_config_by_account()
 
     def init_keyboard_callback(self):
         """

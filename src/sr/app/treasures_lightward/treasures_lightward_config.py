@@ -27,13 +27,3 @@ class TreasuresLightwardConfig(ConfigHolder):
         for i in new_list:
             dict_arr.append(vars(i))
         self.update('team_module_list', dict_arr)
-
-
-_treasures_lightward_config: Optional[TreasuresLightwardConfig] = None
-
-
-def get_config() -> TreasuresLightwardConfig:
-    global _treasures_lightward_config
-    if _treasures_lightward_config is None:
-        _treasures_lightward_config = TreasuresLightwardConfig()
-    return _treasures_lightward_config
