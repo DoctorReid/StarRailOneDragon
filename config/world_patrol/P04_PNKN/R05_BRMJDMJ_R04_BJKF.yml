@@ -7,8 +7,8 @@ route:
   - op: 'move'
     data: [1769, 917]
   - op: 'move'
-    data: [1765, 1125]
-  - op: 'move'
+    data: [1769, 1125]
+  - op: 'slow_move'
     data: [1769, 1225]
   - op: 'move'
     data: [1655, 1263]
@@ -16,6 +16,8 @@ route:
   - op: 'move'
     data: [1620, 1313]
   - op: 'patrol'
+  - op: 'move'
+    data: [1655, 1263]
   - op: 'move'
     data: [1659, 1197]
   - op: 'patrol'
