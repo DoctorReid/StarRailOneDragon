@@ -209,7 +209,13 @@ class Context:
         if self.is_running:
             log.error('脚本运行中 无法切换启用账号')
             return
+
+        if account_idx != self.one_dragon_config.current_active_account.idx:
+            log.info('当前账号已启用 无需切换')
+            return
+
         self.one_dragon_config.active_account(account_idx)
+        log.info('切换启动账号 %s', self.one_dragon_config.current_active_account.name)
         self.init_config_by_account()
 
     def init_keyboard_callback(self):

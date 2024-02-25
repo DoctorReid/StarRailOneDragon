@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import List, Optional, ClassVar
 
 from basic.i18_utils import gt
-from sr.app.app_description import AppDescription, AppDescriptionEnum
+from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application
+from sr.app.application_base import Application, Application2
 from sr.app.assignments.assignments_app import AssignmentsApp
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcelApp
 from sr.app.daily_training.daily_training_app import DailyTrainingApp
@@ -16,44 +16,164 @@ from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.context import Context
-from sr.operation import Operation
+from sr.operation import Operation, OperationOneRoundResult, StateOperationEdge, StateOperationNode, OperationResult
 
 
-class OneStopServiceApp(Application):
+class OneStopServiceApp(Application2):
+
+    STATUS_ACCOUNT_FINISHED: ClassVar[str] = '所有账号已完成'
+    STATUS_ACCOUNT_APP_FINISHED: ClassVar[str] = '当前账号所有应用已完成'
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx, op_name=gt('一条龙', 'ui'))
-        self.app_list: List[AppDescription] = []
-        run_app_list = ctx.one_stop_service_config.run_app_id_list
-        for app_id in ctx.one_stop_service_config.order_app_id_list:
-            if app_id not in run_app_list:
-                continue
-            OneStopServiceApp.update_app_run_record_before_start(app_id, self.ctx)
-            record = OneStopServiceApp.get_app_run_record_by_id(app_id, self.ctx)
+        edges: List[StateOperationEdge] = []
 
-            if record.run_status_under_now != AppRunRecord.STATUS_SUCCESS:
-                self.app_list.append(AppDescriptionEnum[app_id.upper()].value)
+        init_account = StateOperationNode('初始化账号列表', self._init_account_order)
 
-        self.app_idx: int = 0
+        next_account = StateOperationNode('切换账号运行', self._next_account)
+        edges.append(StateOperationEdge(init_account, next_account))
+
+        next_app = StateOperationNode('运行应用', self._run_app_in_current_account)
+        edges.append(StateOperationEdge(next_account, next_app, ignore_status=True))
+        edges.append(StateOperationEdge(next_app, next_account, status=OneStopServiceApp.STATUS_ACCOUNT_APP_FINISHED))
+        edges.append(StateOperationEdge(next_app, next_app, ignore_status=True))
+
+        back = StateOperationNode('切换原启用账号', self._switch_original_account)
+        edges.append(StateOperationEdge(next_account, back, status=OneStopServiceApp.STATUS_ACCOUNT_FINISHED))
+
+        super().__init__(ctx, op_name=gt('一条龙', 'ui'),
+                         edges=edges)
+
+        self.account_idx_list: Optional[List[int]] = None  # 需要运行的账号
+        self.original_account_idx: Optional[int] = None  # 最初启用的账号
+        self.current_account_idx: Optional[int] = None  # 当前运行的账号
+        self.current_app_id: Optional[str] = None  # 当前运行的应用ID
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.app_idx = 0
+        self.account_idx_list = None
+        self.original_account_idx = None
+        self.current_account_idx = None
+        self.current_app_id = None
 
-    def _execute_one_round(self) -> int:
-        if self.app_idx >= len(self.app_list):  # 有可能刚开始就所有任务都已经执行完了
-            return Operation.SUCCESS
-        app: Application = self.get_app_by_id(self.app_list[self.app_idx].id, self.ctx)
-        app.init_context_before_start = False  # 一条龙开始时已经初始化了
-        app.stop_context_after_stop = self.app_idx >= len(self.app_list)  # 只有最后一个任务结束会停止context
+    def _init_account_order(self) -> OperationOneRoundResult:
+        """
+        初始化需要运行一条龙的账号列表
+        :return:
+        """
+        self.account_idx_list = []
 
-        result = app.execute()  # 暂时忽略结果 直接全部运行
-        self.app_idx += 1
+        for account in self.ctx.one_dragon_config.account_list:
+            if account.active:
+                self.account_idx_list.append(account.idx)
+                self.original_account_idx = account.idx
+                break
 
-        if self.app_idx >= len(self.app_list):
-            return Operation.SUCCESS
+        for account in self.ctx.one_dragon_config.account_list:
+            if not account.active and account.active_in_od:
+                self.account_idx_list.append(account.idx)
+
+        return Operation.round_success()
+
+    def _next_account(self):
+        """
+        选择下一个启用的账号
+        :return:
+        """
+        next_account_idx = self._get_next_account_idx()
+
+        if self.current_account_idx is None and next_account_idx is None:
+            return Operation.round_retry('未找到可运行账号')
+
+        if next_account_idx is None:
+            return Operation.round_success(OneStopServiceApp.STATUS_ACCOUNT_FINISHED)
+
+        self.current_account_idx = next_account_idx
+        self.ctx.active_account(self.current_account_idx)
+
+        self.current_app_id = None
+
+        return Operation.round_success()
+
+    def _get_next_account_idx(self) -> Optional[int]:
+        """
+        获取下一个启用的账号ID
+        :return:
+        """
+        next_account_idx: Optional[int] = None
+        if self.current_account_idx is None:
+            next_account_idx = self.original_account_idx
         else:
-            return Operation.WAIT
+            after_current: bool = False
+            for account in self.ctx.one_dragon_config.account_list:
+                if account.idx == self.current_account_idx:
+                    after_current = True
+                    continue
+                if after_current:
+                    next_account_idx = account.idx
+                    break
+
+        return next_account_idx
+
+    def _run_app_in_current_account(self):
+        """
+        运行账号对应的应用
+        :return:
+        """
+        next_app_id = self._get_next_app_id()
+
+        if self.current_app_id is None and next_app_id is None:
+            return Operation.round_retry('未找到可运行的应用')
+
+        if next_app_id is None:
+            return Operation.round_success(OneStopServiceApp.STATUS_ACCOUNT_APP_FINISHED)
+
+        record = OneStopServiceApp.get_app_run_record_by_id(self.current_app_id, self.ctx)
+        if record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
+            return Operation.round_success()
+
+        OneStopServiceApp.update_app_run_record_before_start(self.current_app_id, self.ctx)
+        app: Application = self.get_app_by_id(self.current_app_id, self.ctx)
+
+        if app is None:
+            return Operation.round_retry('非法的app_id %s' % self.current_app_id)
+
+        app.init_context_before_start = False  # 一条龙开始时已经初始化了
+        app.stop_context_after_stop = False
+
+        return Operation.round_by_op(app.execute())
+
+    def _get_next_app_id(self) -> Optional[str]:
+        """
+        获取下一个要运行的应用ID
+        :return:
+        """
+        next_app_id: Optional[str] = None
+        if self.current_account_idx is None:
+            return None
+
+        run_app_list = self.ctx.one_stop_service_config.run_app_id_list
+        after_current_app: bool = False
+        for app_id in self.ctx.one_stop_service_config.order_app_id_list:
+            if app_id not in run_app_list:
+                continue
+            if self.current_app_id is not None and self.current_app_id == app_id:
+                after_current_app = True
+                continue
+            if self.current_app_id is None or after_current_app:
+                next_app_id = app_id
+                break
+
+        return next_app_id
+
+    def _switch_original_account(self) -> OperationOneRoundResult:
+        """
+        切换回原来启用的账号
+        :return:
+        """
+        if self.original_account_idx is not None:
+            self.ctx.active_account(self.original_account_idx)
+
+        return Operation.round_success()
 
     @property
     def current_execution_desc(self) -> str:
@@ -61,10 +181,11 @@ class OneStopServiceApp(Application):
         当前运行的描述 用于UI展示
         :return:
         """
-        if self.app_idx >= len(self.app_list):
+        if self.current_app_id is None:
             return gt('无', 'ui')
         else:
-            return gt(self.app_list[self.app_idx].cn, 'ui')
+            app_desc = AppDescriptionEnum[self.current_app_id.upper()]
+            return gt(app_desc.value.cn, 'ui')
 
     @property
     def next_execution_desc(self) -> str:
@@ -72,10 +193,12 @@ class OneStopServiceApp(Application):
         下一步运行的描述 用于UI展示
         :return:
         """
-        if self.app_idx >= len(self.app_list) - 1:
+        next_app_id = self._get_next_app_id()
+        if next_app_id is None:
             return gt('无', 'ui')
         else:
-            return gt(self.app_list[self.app_idx + 1].cn, 'ui')
+            app_desc = AppDescriptionEnum[next_app_id.upper()]
+            return gt(app_desc.value.cn, 'ui')
 
     @staticmethod
     def get_app_by_id(app_id: str, ctx: Context) -> Optional[Application]:
@@ -139,3 +262,11 @@ class OneStopServiceApp(Application):
         record: Optional[AppRunRecord] = OneStopServiceApp.get_app_run_record_by_id(app_id, ctx)
         if record is not None:
             record.check_and_update_status()
+
+    def _after_operation_done(self, result: OperationResult):
+        """
+        应用结束后 切换到原来启用的账号
+        :param result:
+        :return:
+        """
+        super()._after_operation_done(result)
