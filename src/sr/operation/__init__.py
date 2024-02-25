@@ -722,4 +722,5 @@ class StateOperation(Operation):
             return current_round_result
 
         self._current_node = next_node
+        self.op_round = 0  # 重置 每个节点都可以重试
         return Operation.round_wait()
