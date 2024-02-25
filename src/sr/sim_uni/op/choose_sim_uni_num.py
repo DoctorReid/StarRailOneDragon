@@ -9,7 +9,7 @@ from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import Operation, OperationOneRoundResult, OperationResult
-from sr.screen_area.sim_uni import ScreenSimUniEntry
+from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN
 
 
@@ -74,7 +74,7 @@ class ChooseSimUniNum(Operation):
         if screen is None:
             screen = self.screenshot()
 
-        area_list = [ScreenSimUniEntry.CURRENT_NUM_1.value, ScreenSimUniEntry.CURRENT_NUM_2.value]
+        area_list = [ScreenSimUni.CURRENT_NUM_1.value, ScreenSimUni.CURRENT_NUM_2.value]
         for area in area_list:
             part = cv2_utils.crop_image_only(screen, area.rect)
 
@@ -95,7 +95,7 @@ class ChooseSimUniNum(Operation):
         if screen is None:
             screen = self.screenshot()
 
-        area_list = [ScreenSimUniEntry.GOING_1.value, ScreenSimUniEntry.GOING_2.value]
+        area_list = [ScreenSimUni.GOING_1.value, ScreenSimUni.GOING_2.value]
         for area in area_list:
             if self.find_area(area, screen):
                 return True

@@ -6,7 +6,7 @@ from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, StateOperationEdge
-from sr.screen_area.sim_uni import ScreenSimUniEntry
+from sr.screen_area.screen_sim_uni import ScreenSimUni
 
 
 class SimUniClaimWeeklyReward(StateOperation):
@@ -56,7 +56,7 @@ class SimUniClaimWeeklyReward(StateOperation):
         :param screen:
         :return:
         """
-        area = ScreenSimUniEntry.WEEKLY_REWARD_ICON.value
+        area = ScreenSimUni.WEEKLY_REWARD_ICON.value
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
@@ -76,7 +76,7 @@ class SimUniClaimWeeklyReward(StateOperation):
         :param screen: 屏幕截图
         :return:
         """
-        area = ScreenSimUniEntry.WEEKLY_REWARD_CLAIM.value
+        area = ScreenSimUni.WEEKLY_REWARD_CLAIM.value
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:

@@ -21,7 +21,7 @@ from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
-from sr.screen_area.sim_uni import ScreenSimUniEntry
+from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.op.choose_sim_uni_diff import ChooseSimUniDiff
 from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
 from sr.sim_uni.op.choose_sim_uni_path import ChooseSimUniPath
@@ -46,9 +46,6 @@ class SimUniApp(Application2):
         模拟宇宙应用 需要在大世界中非战斗、非特殊关卡界面中开启
         :param ctx:
         """
-        gc = ctx.game_config
-        self.config: SimUniConfig = ctx.sim_uni_config
-
         edges: List[StateOperationEdge] = []
 
         check_times = StateOperationNode('检查运行次数', self._check_times)
@@ -122,7 +119,7 @@ class SimUniApp(Application2):
                                         success=False, status=SimUniEnterFight.STATUS_BATTLE_FAIL))
         edges.append(StateOperationEdge(world_fail, check_times_to_continue))
 
-        if not gc.is_debug:  # 任何异常错误都退出当前宇宙 调试模式下不退出 直接失败等待处理
+        if not ctx.one_dragon_config.is_debug:  # 任何异常错误都退出当前宇宙 调试模式下不退出 直接失败等待处理
             exception_exit = StateOperationNode('异常退出', self._exception_exit)
             edges.append(StateOperationEdge(run_world, exception_exit,
                                             success=False, ignore_status=True))
@@ -172,22 +169,28 @@ class SimUniApp(Application2):
         点击传送
         :return:
         """
-        click = self.find_and_click_area(ScreenSimUniEntry.GUIDE_TRANSPORT.value)
-        if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=3)
-        else:
-            return Operation.round_retry('点击传送失败', wait=1)
+        area_list = [
+            ScreenSimUni.GUIDE_TRANSPORT_1.value,
+            ScreenSimUni.GUIDE_TRANSPORT_2.value
+        ]
+        screen = self.screenshot()
+        for area in area_list:
+            click = self.find_and_click_area(area, screen)
+            if click == Operation.OCR_CLICK_SUCCESS:
+                return Operation.round_success(wait=3)
+
+        return Operation.round_retry('点击传送失败', wait=1)
 
     def _choose_sim_uni_num(self) -> OperationOneRoundResult:
         if self.specified_uni_num is None:
-            world = SimUniWorldEnum[self.config.weekly_uni_num]
+            world = SimUniWorldEnum[self.ctx.sim_uni_config.weekly_uni_num]
         else:
             world = SimUniWorldEnum['WORLD_%02d' % self.specified_uni_num]
         op = ChooseSimUniNum(self.ctx, world.value.idx, op_callback=self._on_uni_num_chosen)
         return Operation.round_by_op(op.execute())
 
     def _choose_sim_uni_diff(self) -> OperationOneRoundResult:
-        op = ChooseSimUniDiff(self.ctx, self.config.weekly_uni_diff)
+        op = ChooseSimUniDiff(self.ctx, self.ctx.sim_uni_config.weekly_uni_diff)
         return Operation.round_by_op(op.execute())
 
     def _on_uni_num_chosen(self, op_result: OperationResult):
@@ -199,12 +202,12 @@ class SimUniApp(Application2):
         选择命途
         :return:
         """
-        cfg = self.config.get_challenge_config(self.current_uni_num)
+        cfg = self.ctx.sim_uni_config.get_challenge_config(self.current_uni_num)
         op = ChooseSimUniPath(self.ctx, SimUniPath[cfg.path])
         return Operation.round_by_op(op.execute())
 
     def _run_world(self) -> OperationOneRoundResult:
-        uni_challenge_config = self.config.get_challenge_config(self.current_uni_num)
+        uni_challenge_config = self.ctx.sim_uni_config.get_challenge_config(self.current_uni_num)
         get_reward = self.current_uni_num == self.specified_uni_num  # 只有当前宇宙和开拓力需要的宇宙是同一个 才能拿奖励
 
         op = SimUniRunWorld(self.ctx, self.current_uni_num,

@@ -594,7 +594,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
 
     def _move_to_reward(self) -> OperationOneRoundResult:
         gc = self.ctx.game_config
-        if self.max_reward_to_get <= 0 and not gc.is_debug:
+        if self.max_reward_to_get <= 0 and not self.ctx.one_dragon_config.is_debug:
             return Operation.round_success(SimUniRunEliteAfterRoute.STATUS_NO_NEED_REWARD)
         elif self.route.reward_pos is None:
             return Operation.round_fail(SimUniRunEliteAfterRoute.STATUS_NO_REWARD_POS)
