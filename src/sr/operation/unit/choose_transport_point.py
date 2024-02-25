@@ -60,8 +60,10 @@ class ChooseTransportPoint(Operation):
 
         if dx == 0 and dy == 0:  # 当前就能找传送点
             target: MatchResult = self.get_tp_pos(screen_map, offset)
-            if target is None:  # 没找到的话 随机滑动一下
-                self.random_drag()
+            if target is None:  # 没找到的话 按计算坐标点击
+                to_click = self.tp.lm_pos - offset.left_top + large_map.CUT_MAP_RECT.left_top
+                self.ctx.controller.click(to_click)
+                time.sleep(0.5)
             else:
                 to_click = target.center + large_map.CUT_MAP_RECT.left_top
                 self.ctx.controller.click(to_click)
