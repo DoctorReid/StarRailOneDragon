@@ -17,7 +17,6 @@ from sr.app.one_stop_service.one_stop_service_app import OneStopServiceApp
 from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
 from sr.app.treasures_lightward import treasures_lightward_record
 from sr.context import Context
-from sr.mystools import mys_config
 from sr.mystools.mys_config import MysConfig
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
@@ -511,10 +510,10 @@ class OneStopView(ft.Row, SrBasicView):
         self._set_schedule()
 
 
-osv: OneStopView = None
+osv: Optional[OneStopView] = None
 
 
-def get(page: ft.Page, ctx: Context):
+def get(page: ft.Page, ctx: Context) -> OneStopView:
     global osv
     if osv is None:
         osv = OneStopView(page, ctx)

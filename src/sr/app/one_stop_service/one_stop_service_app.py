@@ -10,6 +10,7 @@ from sr.app.daily_training.daily_training_app import DailyTrainingApp
 from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr.app.email.email_app import EmailApp
 from sr.app.nameless_honor.nameless_honor_app import NamelessHonorApp
+from sr.app.sim_uni.sim_uni_app import SimUniApp
 from sr.app.support_character.support_character_app import SupportCharacterApp
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
@@ -42,7 +43,7 @@ class OneStopServiceApp(Application):
     def _execute_one_round(self) -> int:
         if self.app_idx >= len(self.app_list):  # 有可能刚开始就所有任务都已经执行完了
             return Operation.SUCCESS
-        app: Application = self.get_app_by_id(self.app_list[self.app_idx].id)
+        app: Application = self.get_app_by_id(self.app_list[self.app_idx].id, self.ctx)
         app.init_context_before_start = False  # 一条龙开始时已经初始化了
         app.stop_context_after_stop = self.app_idx >= len(self.app_list)  # 只有最后一个任务结束会停止context
 
@@ -99,7 +100,7 @@ class OneStopServiceApp(Application):
         elif app_id == AppDescriptionEnum.TREASURES_LIGHTWARD.value.id:
             return TreasuresLightwardApp(ctx)
         elif app_id == AppDescriptionEnum.SIM_UNIVERSE.value.id:
-            return sim_universe_app.SimUniApp(ctx)
+            return SimUniApp(ctx)
         return None
 
     @staticmethod

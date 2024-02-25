@@ -185,6 +185,21 @@ class StarRailOneDragon:
         self.display_view.handle_after_show()
         keyboard.on_press(self.on_key_press)
 
+        scheduler.every_second(self.update_title)
+
+    def update_title(self):
+        """
+        更新标题显示
+        :return:
+        """
+        self.flet_page.title = '%s %s %s %s' % (
+            gt('崩坏：星穹铁道 一条龙', model='ui'),
+            version.get_current_version(),
+            gt('当前', 'ui'),
+            self.sr_ctx.one_dragon_config.current_active_account.name
+        )
+        self.flet_page.update()
+
     def on_rail_chosen(self, e):
         self.display_view.handle_after_hide()
         self.display_view = self._get_view_component()

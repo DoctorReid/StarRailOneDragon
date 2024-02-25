@@ -135,7 +135,7 @@ class SettingsBasicView(components.Card, SrBasicView):
                                                  value='http://127.0.0.1:8234', disabled=True,
                                                  on_change=self._on_personal_proxy_changed)
 
-        self.width: int = 400
+        self.width: int = 450
         self.add_btn = components.RectOutlinedButton(text='+', on_click=self.on_account_added)
 
         self.settings_item_list = ft.ListView(controls=[
@@ -151,7 +151,7 @@ class SettingsBasicView(components.Card, SrBasicView):
             components.SettingsListItem('', self.add_btn),
         ], width=self.width)
 
-        components.Card.__init__(self, self.settings_item_list, width=500)
+        components.Card.__init__(self, self.settings_item_list, width=550)
 
     def handle_after_show(self):
         self._load_config_and_display()
