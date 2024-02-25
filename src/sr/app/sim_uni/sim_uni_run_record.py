@@ -26,7 +26,8 @@ class SimUniRunRecord(AppRunRecord):
             else:
                 return AppRunRecord.STATUS_WAIT
         else:
-            if self.daily_times >= self.config.daily_times:  # 已完成本日次数
+            if self.weekly_times >= self.config.weekly_times or \
+                    self.daily_times >= self.config.daily_times:  # 已完成次数
                 return AppRunRecord.STATUS_SUCCESS
             else:
                 return AppRunRecord.STATUS_WAIT

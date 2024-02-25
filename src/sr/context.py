@@ -206,11 +206,7 @@ class Context:
         :param account_idx:
         :return:
         """
-        if self.is_running:
-            log.error('脚本运行中 无法切换启用账号')
-            return
-
-        if account_idx != self.one_dragon_config.current_active_account.idx:
+        if account_idx == self.one_dragon_config.current_active_account.idx:
             log.info('当前账号已启用 无需切换')
             return
 
@@ -365,7 +361,7 @@ class Context:
                 if self.platform == 'PC':
                     win = get_game_win()
                     win.active()
-                    self.controller = PcController(win=win, ocr=self.ocr)
+                    self.controller = PcController(win=win, ocr=self.ocr, gc=self.game_config)
 
         except pyautogui.PyAutoGUIException:
             log.info('未开打游戏')
@@ -379,7 +375,7 @@ class Context:
                     break
                 time.sleep(1)
                 try:
-                    self.controller = PcController(win=get_game_win(), ocr=self.ocr)
+                    self.controller = PcController(win=get_game_win(), ocr=self.ocr, gc=self.game_config)
                     self.running = 0
                     break
                 except pyautogui.PyAutoGUIException:
@@ -470,7 +466,7 @@ _ocr_matcher = {}
 
 
 def get_ocr_matcher(lang: str) -> OcrMatcher:
-    matcher: OcrMatcher = None
+    matcher: Optional[OcrMatcher] = None
     if lang not in _ocr_matcher:
         if lang == game_config_const.LANG_CN:
             matcher = CnOcrMatcher()

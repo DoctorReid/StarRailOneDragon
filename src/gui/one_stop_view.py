@@ -113,12 +113,12 @@ class AppListItem(ft.Row):
 class AppList(ft.ListView):
 
     def __init__(self, ctx: Context, run_app_callback):
-        super().__init__()
         self.ctx: Context = ctx
         self.item_map: dict[str, AppListItem] = {}
         theme: ThemeColors = gui_config.theme()
 
-        self.app_id_list: List[str] = ctx.one_stop_service_config.order_app_id_list
+        self.app_id_list: List[str] = ctx.one_stop_service_config.order_app_id_list.copy()
+        controls = []
         for app_id in self.app_id_list:
             app = AppDescriptionEnum[app_id.upper()].value
             if app is None:
@@ -129,10 +129,12 @@ class AppList(ft.ListView):
                                on_switch_change=self._on_item_switch_changed
                                )
             self.item_map[app.id] = item
-            self.controls.append(ft.Container(
+            controls.append(ft.Container(
                 content=item,
                 border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color']))
             ))
+
+        ft.ListView.__init__(self, controls=controls)
 
         self.run_app_callback = run_app_callback
 
@@ -183,9 +185,51 @@ class AppList(ft.ListView):
 
     def set_disabled(self, disabled: bool):
         for app_id in self.app_id_list:
-            app_record = OneStopServiceApp.get_app_run_record_by_id(app_id)
+            app_record = OneStopServiceApp.get_app_run_record_by_id(app_id, self.ctx)
             if app_record is not None:
                 self.item_map[app_id].set_disabled(disabled)
+
+    def refresh_app_order(self):
+        """
+        更新显示的顺序
+        :return:
+        """
+        new_app_id_list = self.ctx.one_stop_service_config.order_app_id_list.copy()
+        same: bool = True
+        if len(new_app_id_list) == len(self.app_id_list):
+            for i in range(len(new_app_id_list)):
+                if new_app_id_list[i] != self.app_id_list[i]:
+                    same = False
+                    break
+        else:
+            same = False
+
+        if same:  # 顺序没变的话 就不进行更新
+            return
+
+        app_id_map: dict[str, ft.Container] = {}
+        for container in self.controls:
+            if type(container) != ft.Container:
+                continue
+            item: AppListItem = container.content
+            if type(item) != AppListItem:
+                continue
+            app_id_map[item.app_id] = container
+
+        controls = []
+
+        self.app_id_list: List[str] = new_app_id_list
+        for app_id in self.app_id_list:
+            app = AppDescriptionEnum[app_id.upper()].value
+            if app is None:
+                continue
+            controls.append(app_id_map[app_id])
+
+        self.controls = []  # 这里比较奇怪 直接替换的话会有bug 部分组件的page变成None
+        self.update()
+
+        self.controls = controls
+        self.update()
 
 
 class ScheduleHour(ft.Dropdown):
@@ -287,10 +331,13 @@ class OneStopView(ft.Row, SrBasicView):
 
     def handle_after_show(self):
         self._update_app_list_status()
-        self._update_character_status()
+        self._update_character_status(True)
         self._update_schedule_dropdown()
+        self.app_list.refresh_app_order()
         self._set_schedule()
         scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
+        scheduler.every_second(self._update_character_status, tag='_update_character_status')
+        scheduler.every_second(self.app_list.refresh_app_order, tag='refresh_app_order')
         self.sr_ctx.register_status_changed_handler(self,
                                                     self._after_start,
                                                     self._after_pause,
@@ -300,6 +347,8 @@ class OneStopView(ft.Row, SrBasicView):
 
     def handle_after_hide(self):
         scheduler.cancel_with_tag('_update_app_list_status')
+        scheduler.cancel_with_tag('_update_character_status')
+        scheduler.cancel_with_tag('refresh_app_order')
         scheduler.cancel_with_tag('_update_running_app_name')
         self.sr_ctx.unregister(self)
 
@@ -319,7 +368,7 @@ class OneStopView(ft.Row, SrBasicView):
         if not self._check_ctx_stop():
             return
 
-        run_record = OneStopServiceApp.get_app_run_record_by_id(app_id)
+        run_record = OneStopServiceApp.get_app_run_record_by_id(app_id, self.sr_ctx)
         run_record.check_and_update_status()
         self.running_app = OneStopServiceApp.get_app_by_id(app_id, self.sr_ctx)
         if self.running_app is None:
@@ -417,24 +466,33 @@ class OneStopView(ft.Row, SrBasicView):
         if self.page is not None:  # 切换页面后 page 会变成空 里面的组件也不能再更新了
             self.app_list.update_all_app_status()
 
-    def _update_character_status(self, e=None):
+    def _on_character_status_refresh(self, e):
+        """
+        点击刷新按钮
+        :param e:
+        :return:
+        """
+        self._update_character_status(True)
+
+    def _update_character_status(self, update_note: bool = False):
         """
         更新角色状态
-        :param e:
+        :param update_note: 是否要更新便签
         :return:
         """
         if self.page is None:
             return
-        self._update_character_status_note_part()
+        self._update_character_status_note_part(update_note)
         self._update_character_status_local_part()
 
-    def _update_character_status_note_part(self):
+    def _update_character_status_note_part(self, update_note: bool):
         """
         更新角色状态 - 便签部分数据
         :return:
         """
         config: MysConfig = self.sr_ctx.mys_config
-        config.update_note()
+        if update_note:
+            config.update_note()
         if not config.is_login:
             self.card_title.update_title('游戏角色状态(登录失效)')
         else:

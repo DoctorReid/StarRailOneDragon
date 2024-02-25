@@ -228,3 +228,10 @@ class PcController(GameController):
         :return:
         """
         pyautogui.typewrite(to_input, interval)
+
+    def delete_all_input(self):
+        """
+        删除所有输入文本
+        :return:
+        """
+        pyautogui.press('delete')

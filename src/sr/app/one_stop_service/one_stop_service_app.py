@@ -17,6 +17,7 @@ from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwar
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.context import Context
 from sr.operation import Operation, OperationOneRoundResult, StateOperationEdge, StateOperationNode, OperationResult
+from sr.operation.unit.enter_game import LoginWithAnotherAccount
 
 
 class OneStopServiceApp(Application2):
@@ -88,9 +89,12 @@ class OneStopServiceApp(Application2):
             return Operation.round_success(OneStopServiceApp.STATUS_ACCOUNT_FINISHED)
 
         self.current_account_idx = next_account_idx
-        self.ctx.active_account(self.current_account_idx)
-
         self.current_app_id = None
+
+        if self.ctx.one_dragon_config.current_active_account.idx != next_account_idx:
+            self.ctx.active_account(self.current_account_idx)
+            op = LoginWithAnotherAccount(self.ctx)
+            return Operation.round_by_op(op.execute())
 
         return Operation.round_success()
 
@@ -104,12 +108,12 @@ class OneStopServiceApp(Application2):
             next_account_idx = self.original_account_idx
         else:
             after_current: bool = False
-            for account in self.ctx.one_dragon_config.account_list:
-                if account.idx == self.current_account_idx:
+            for account_idx in self.account_idx_list:
+                if account_idx == self.current_account_idx:
                     after_current = True
                     continue
                 if after_current:
-                    next_account_idx = account.idx
+                    next_account_idx = account_idx
                     break
 
         return next_account_idx
@@ -127,6 +131,7 @@ class OneStopServiceApp(Application2):
         if next_app_id is None:
             return Operation.round_success(OneStopServiceApp.STATUS_ACCOUNT_APP_FINISHED)
 
+        self.current_app_id = next_app_id
         record = OneStopServiceApp.get_app_run_record_by_id(self.current_app_id, self.ctx)
         if record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
             return Operation.round_success()
@@ -172,6 +177,10 @@ class OneStopServiceApp(Application2):
         """
         if self.original_account_idx is not None:
             self.ctx.active_account(self.original_account_idx)
+
+            if self.original_account_idx != self.current_account_idx:
+                op = LoginWithAnotherAccount(self.ctx)
+                return Operation.round_by_op(op.execute())
 
         return Operation.round_success()
 

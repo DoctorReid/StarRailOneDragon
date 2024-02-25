@@ -231,3 +231,10 @@ class GameController:
         :return:
         """
         pass
+
+    def delete_all_input(self):
+        """
+        删除所有输入文本
+        :return:
+        """
+        pass
