@@ -7,5 +7,5 @@ next_pos_list:
   - [726, 1221]
 reward_pos: [714, 1247]
 op_list:
-  - op: 'move'
-    data: [698, 1235]
+  - op: 'slow_move'
+    data: [695, 1233]
