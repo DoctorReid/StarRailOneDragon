@@ -11,7 +11,7 @@ from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, StateOperationEdge
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, SimUniDropBless, SimUniUpgradeBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 
 
 class SimUniEventOption:

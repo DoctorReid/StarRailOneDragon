@@ -10,7 +10,7 @@ from gui.components import RectOutlinedButton, SettingsListItem, SettingsList, C
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig, load_all_challenge_config, create_new_challenge_config
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig, load_all_challenge_config, create_new_challenge_config
 from sr.context import Context
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id, level_type_from_name, \
     SimUniPath, SimUniBlessLevel, SimUniBlessEnum, bless_enum_from_title, SimUniCurioEnum, \

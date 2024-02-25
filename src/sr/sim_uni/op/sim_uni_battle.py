@@ -17,7 +17,7 @@ from sr.operation.unit.team import SwitchMember
 from sr.screen_area.dialog import ScreenDialog
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 
 
 class SimUniEnterFight(Operation):

@@ -17,6 +17,8 @@ from sr.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr.app.email.email_run_record import EmailRunRecord
 from sr.app.nameless_honor.nameless_honor_run_record import NamelessHonorRunRecord
+from sr.app.sim_uni.sim_uni_config import SimUniConfig
+from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr.app.support_character.support_character_run_record import SupportCharacterRunRecord
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
@@ -81,6 +83,9 @@ class Context:
         self.tl_config: Optional[TreasuresLightwardConfig] = None
         self.tl_run_record: Optional[TreasuresLightwardRunRecord] = None
 
+        self.sim_uni_config: Optional[SimUniConfig] = None
+        self.sim_uni_run_record: Optional[SimUniRunRecord] = None
+
         self.assignments_run_record: Optional[AssignmentsRunRecord] = None
         self.buy_xz_parcel_run_record: Optional[BuyXianZhouParcelRunRecord] = None
         self.daily_training_run_record: Optional[DailyTrainingRunRecord] = None
@@ -126,6 +131,11 @@ class Context:
         self.tl_run_record = TreasuresLightwardRunRecord()
         self.tl_run_record.move_to_account_idx(account_idx)
 
+        self.sim_uni_config = SimUniConfig()
+        self.sim_uni_config.move_to_account_idx(account_idx)
+        self.sim_uni_run_record = SimUniRunRecord(self.sim_uni_config)
+        self.sim_uni_run_record.move_to_account_idx(account_idx)
+
         self.assignments_run_record = AssignmentsRunRecord()
         self.assignments_run_record.move_to_account_idx(account_idx)
 
@@ -163,6 +173,9 @@ class Context:
 
         self.tl_config = TreasuresLightwardConfig(account_idx)
         self.tl_run_record = TreasuresLightwardRunRecord(account_idx)
+
+        self.sim_uni_config = SimUniConfig()
+        self.sim_uni_run_record = SimUniRunRecord(self.sim_uni_config)
 
         self.assignments_run_record = AssignmentsRunRecord(account_idx)
         self.buy_xz_parcel_run_record = BuyXianZhouParcelRunRecord(account_idx)

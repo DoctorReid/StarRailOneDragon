@@ -14,7 +14,7 @@ from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.click import ClickDialogConfirm
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import match_best_bless_by_ocr, SimUniBless, SimUniBlessEnum, SimUniBlessLevel
 
 # 3个祝福的情况 每个祝福有2个框 分别是名字、命途

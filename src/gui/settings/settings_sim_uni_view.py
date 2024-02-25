@@ -8,7 +8,8 @@ from gui.components import Card, SettingsList, SettingsListItem, SettingsListGro
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.sim_uni.sim_uni_config import get_sim_uni_app_config, load_all_challenge_config
+from sr.sim_uni.sim_uni_challenge_config import load_all_challenge_config
+from sr.app.sim_uni.sim_uni_config import get_sim_uni_app_config
 from sr.context import Context
 from sr.sim_uni.sim_uni_const import SimUniWorldEnum
 

@@ -7,7 +7,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app.application_base import Application2
-from sr.app.sim_uni.sim_universe_app import SimUniverseApp
+from sr.app.sim_uni.sim_uni_app import SimUniApp
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr.const import phone_menu_const
 from sr.context import Context
@@ -207,11 +207,11 @@ class TrailblazePower(Application2):
         if run_times == 0:
             return Operation.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
 
-        op = SimUniverseApp(self.ctx,
-                            specified_uni_num=point.tp.idx,
-                            max_reward_to_get=run_times,
-                            get_reward_callback=self._on_sim_uni_get_reward
-                            )
+        op = SimUniApp(self.ctx,
+                       specified_uni_num=point.tp.idx,
+                       max_reward_to_get=run_times,
+                       get_reward_callback=self._on_sim_uni_get_reward
+                       )
         op.init_context_before_start = False
         op.stop_context_after_stop = False
         return Operation.round_by_op(op.execute())

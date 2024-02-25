@@ -1,21 +1,24 @@
 from typing import Optional, List, ClassVar, Callable
 
-from basic import os_utils, Rect
+from basic import Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.app import AppDescription, register_app, AppRunRecord
+from sr.app.app_description import AppDescriptionEnum
+from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application2
+from sr.app.sim_uni.sim_uni_config import SimUniConfig
+from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord, get_record
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import screen_state
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum
 from sr.operation import OperationResult, Operation, StateOperationEdge, StateOperationNode, \
     OperationOneRoundResult
 from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.sim_uni import ScreenSimUniEntry
@@ -27,93 +30,10 @@ from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_claim_weekly_reward import SimUniClaimWeeklyReward
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_start import SimUniStart
-from sr.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
 from sr.sim_uni.sim_uni_const import SimUniType, SimUniPath, SimUniWorldEnum
 
-SIM_UNIVERSE = AppDescription(cn='模拟宇宙', id='sim_universe')
-register_app(SIM_UNIVERSE)
 
-
-class SimUniverseRecord(AppRunRecord):
-
-    def __init__(self):
-        super().__init__(SIM_UNIVERSE.id)
-        self.config = get_sim_uni_app_config()
-
-    @property
-    def run_status_under_now(self):
-        """
-        基于当前时间显示的运行状态
-        :return:
-        """
-        if self._should_reset_by_dt():
-            if os_utils.is_monday(self.get_current_dt()):
-                return AppRunRecord.STATUS_WAIT
-            elif self.weekly_times >= self.config.weekly_times:  # 已完成本周次数
-                return AppRunRecord.STATUS_SUCCESS
-            else:
-                return AppRunRecord.STATUS_WAIT
-        else:
-            if self.daily_times >= self.config.daily_times:  # 已完成本日次数
-                return AppRunRecord.STATUS_SUCCESS
-            else:
-                return AppRunRecord.STATUS_WAIT
-
-    def reset_record(self):
-        """
-        运行记录重置 非公共部分由各app自行实现
-        :return:
-        """
-        super().reset_record()
-        current_dt = self.get_current_dt()
-        if os_utils.get_money_dt(current_dt) != os_utils.get_money_dt(self.dt):
-            self.weekly_times = 0
-        self.daily_times = 0
-
-    def add_times(self):
-        """
-        增加一次完成次数
-        :return:
-        """
-        self.daily_times = self.daily_times + 1
-        self.weekly_times = self.weekly_times + 1
-
-    @property
-    def weekly_times(self) -> int:
-        """
-        每周挑战的次数
-        :return:
-        """
-        return self.get('weekly_times', 0)
-
-    @weekly_times.setter
-    def weekly_times(self, new_value: int):
-        self.update('weekly_times', new_value)
-
-    @property
-    def daily_times(self) -> int:
-        """
-        每天挑战的次数
-        :return:
-        """
-        return self.get('daily_times', 0)
-
-    @daily_times.setter
-    def daily_times(self, new_value: int):
-        self.update('daily_times', new_value)
-
-
-sim_universe_record: Optional[SimUniverseRecord] = None
-
-
-def get_record() -> SimUniverseRecord:
-    global sim_universe_record
-    if sim_universe_record is None:
-        sim_universe_record = SimUniverseRecord()
-    return sim_universe_record
-
-
-class SimUniverseApp(Application2):
+class SimUniApp(Application2):
 
     STATUS_ALL_FINISHED: ClassVar[str] = '已完成通关次数'
     STATUS_EXCEPTION: ClassVar[str] = '异常次数过多'
@@ -127,7 +47,7 @@ class SimUniverseApp(Application2):
         :param ctx:
         """
         gc = ctx.game_config
-        self.config: SimUniAppConfig = get_sim_uni_app_config()
+        self.config: SimUniConfig = ctx.sim_uni_config
 
         edges: List[StateOperationEdge] = []
 
@@ -136,7 +56,7 @@ class SimUniverseApp(Application2):
         edges.append(StateOperationEdge(check_times, check_initial_screen))
 
         check_reward_before_exit = StateOperationNode('领取每周奖励', op=SimUniClaimWeeklyReward(ctx))
-        edges.append(StateOperationEdge(check_times, check_reward_before_exit, status=SimUniverseApp.STATUS_ALL_FINISHED))
+        edges.append(StateOperationEdge(check_times, check_reward_before_exit, status=SimUniApp.STATUS_ALL_FINISHED))
 
         back_to_world = StateOperationNode('退出', op=BackToWorld(ctx))  # 无论是否领取成功都退出
         edges.append(StateOperationEdge(check_reward_before_exit, back_to_world, ignore_status=True))
@@ -193,8 +113,8 @@ class SimUniverseApp(Application2):
         check_times_to_continue = StateOperationNode('继续检查运行次数', self._check_times)
         edges.append(StateOperationEdge(run_world, check_times_to_continue))
         edges.append(StateOperationEdge(check_times_to_continue, choose_universe_num))
-        edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniverseApp.STATUS_ALL_FINISHED))
-        edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniverseApp.STATUS_EXCEPTION))
+        edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniApp.STATUS_ALL_FINISHED))
+        edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniApp.STATUS_EXCEPTION))
 
         # 战斗失败
         world_fail = StateOperationNode('战斗失败', op=SimUniExit(ctx, exit_clicked=True))
@@ -208,8 +128,8 @@ class SimUniverseApp(Application2):
                                             success=False, ignore_status=True))
             edges.append(StateOperationEdge(exception_exit, check_times_to_continue))
 
-        self.run_record: SimUniverseRecord = get_record()
-        super().__init__(ctx, op_name=gt(SIM_UNIVERSE.cn, 'ui'),
+        self.run_record: SimUniRunRecord = get_record()
+        super().__init__(ctx, op_name=gt(AppDescriptionEnum.SIM_UNIVERSE.value.cn, 'ui'),
                          edges=edges, specified_start_node=check_times,
                          run_record=self.run_record)
 
@@ -232,14 +152,14 @@ class SimUniverseApp(Application2):
             if self.get_reward_cnt < self.max_reward_to_get:
                 return Operation.round_success()
             else:
-                return Operation.round_success(SimUniverseApp.STATUS_ALL_FINISHED)
+                return Operation.round_success(SimUniApp.STATUS_ALL_FINISHED)
 
         if self.exception_times >= 10:
-            return Operation.round_success(SimUniverseApp.STATUS_EXCEPTION)
+            return Operation.round_success(SimUniApp.STATUS_EXCEPTION)
 
         log.info('本日通关次数 %d 本周通关次数 %d', self.run_record.daily_times, self.run_record.weekly_times)
         if self.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
-            return Operation.round_success(SimUniverseApp.STATUS_ALL_FINISHED)
+            return Operation.round_success(SimUniApp.STATUS_ALL_FINISHED)
         else:
             return Operation.round_success()
 

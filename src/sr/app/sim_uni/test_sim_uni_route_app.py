@@ -4,13 +4,13 @@ from basic.i18_utils import gt
 from sr.app.application_base import Application2
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
-from sr.app.sim_uni.sim_universe_app import get_record
+from sr.app.sim_uni.sim_uni_run_record import get_record
 from sr.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
-from sr.sim_uni.sim_uni_config import SimUniAppConfig, get_sim_uni_app_config
+from sr.app.sim_uni.sim_uni_config import SimUniConfig, get_sim_uni_app_config
 from sr.sim_uni.sim_uni_const import SimUniLevelType
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
@@ -41,7 +41,7 @@ class TestSimUniRouteApp(Application2):
             edges=edges
         )
 
-        self.config: SimUniAppConfig = get_sim_uni_app_config()
+        self.config: SimUniConfig = get_sim_uni_app_config()
         self.uni_num: int = uni_num
         self.level_type: SimUniLevelType = level_type
         self.route: SimUniRoute = route

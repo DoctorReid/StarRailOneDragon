@@ -2,11 +2,11 @@ import unittest
 from typing import List
 
 import test
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.context import get_context
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
 from sr.sim_uni.sim_uni_const import SimUniCurioEnum, SimUniCurio
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 
 
 class TestChooseSimUniCurio(test.SrTestBase):

@@ -18,7 +18,7 @@ from sr.operation import OperationResult, OperationOneRoundResult, Operation, St
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
 
 

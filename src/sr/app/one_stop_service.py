@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+import sr.app.sim_uni.sim_uni_run_record
 from basic.config import ConfigHolder
 from basic.i18_utils import gt
 from sr.app.app_description import AppDescriptionEnum, AppDescription
@@ -12,7 +13,7 @@ from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr.app.email.email_app import EmailApp
 from sr.app.nameless_honor.nameless_honor_app import NamelessHonorApp
 from sr.app.support_character.support_character_app import SupportCharacterApp
-from sr.app.sim_uni import sim_universe_app
+from sr.app.sim_uni import sim_uni_app
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
@@ -175,8 +176,8 @@ class OneStopService(Application):
             return EchoOfWarApp(ctx)
         elif app_id == AppDescriptionEnum.TREASURES_LIGHTWARD.value.id:
             return TreasuresLightwardApp(ctx)
-        elif app_id == sim_universe_app.SIM_UNIVERSE.id:
-            return sim_universe_app.SimUniverseApp(ctx)
+        elif app_id == AppDescriptionEnum.SIM_UNIVERSE.value.id:
+            return sim_universe_app.SimUniApp(ctx)
         return None
 
     @staticmethod
@@ -201,8 +202,8 @@ class OneStopService(Application):
             return ctx.echo_run_record
         elif app_id == AppDescriptionEnum.TREASURES_LIGHTWARD.value.id:
             return ctx.tl_run_record
-        elif app_id == sim_universe_app.SIM_UNIVERSE.id:
-            return sim_universe_app.get_record()
+        elif app_id == AppDescriptionEnum.SIM_UNIVERSE.value.id:
+            return sr.app.sim_uni.sim_uni_run_record.get_record()
         return None
 
     @staticmethod

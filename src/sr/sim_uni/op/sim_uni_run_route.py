@@ -26,7 +26,7 @@ from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_reward import SimUniReward
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 

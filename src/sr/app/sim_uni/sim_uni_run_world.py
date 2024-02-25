@@ -6,7 +6,7 @@ from sr.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, OperationOneRoundResult, \
     StateOperationNode, StateOperationEdge
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 
 
 class SimUniRunWorld(StateOperation):

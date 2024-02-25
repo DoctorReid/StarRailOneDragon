@@ -23,5 +23,5 @@ config/treasures_lightward.yml
 config/sim_uni/app_config.yml
 config/sim_uni/challenge_config/*.yml
 !config/sim_uni/challenge_config/*_sample.yml
-config/script_account.yml
+config/one_dragon.yml
 config/[0-9]*/

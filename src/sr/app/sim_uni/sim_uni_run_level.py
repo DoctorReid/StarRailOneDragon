@@ -11,7 +11,7 @@ from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
 
 

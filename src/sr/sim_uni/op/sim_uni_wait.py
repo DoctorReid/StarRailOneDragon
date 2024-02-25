@@ -6,7 +6,7 @@ from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
-from sr.sim_uni.sim_uni_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 
 
 class SimUniWaitLevelStart(Operation):
