@@ -35,16 +35,16 @@ class TestCase:
 standard_case_list: List[TestCase] = [
     TestCase(map_const.P01_R04_F2, Point(777, 388), 1, running=False, possible_pos=(804, 388, 30)),
 
-    TestCase(map_const.P02_R11_F1, Point(585, 587), 1, running=False, possible_pos=(544, 594, 72))
+    TestCase(map_const.P04_R05_F3, Point(585, 587), 1, running=False, possible_pos=(544, 594, 72))
 ]
 
 
-class TestCalPosForSimUni(test.SrTestBase):
+class TestCalPos(test.SrTestBase):
 
     def __init__(self, *args, **kwargs):
         test.SrTestBase.__init__(self, *args, **kwargs)
 
-    def test_cal_pos_for_sim_uni(self):
+    def test_cal_pos(self):
         fail_cnt = 0
         for case in standard_case_list:
             # if case.region != map_const.P02_R11_F1 and case.num != 1:
@@ -58,8 +58,9 @@ class TestCalPosForSimUni(test.SrTestBase):
         self.assertTrue(fail_cnt == 0)
 
     def test_init_case(self):
-        screen = get_debug_image('_1708141410981')
-        mm = mini_map.cut_mini_map(screen)
+        ctx = get_context()
+        screen = get_debug_image('_1708869998042')
+        mm = mini_map.cut_mini_map(screen, ctx.game_config.mini_map_pos)
         for case in standard_case_list:
             if case.region != map_const.P01_R04_F2 and case.num != 1:
                 continue
@@ -80,7 +81,8 @@ class TestCalPosForSimUni(test.SrTestBase):
 
         lm_info = ctx.ih.get_large_map(case.region)
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], case.possible_pos)
-        mm_info = mini_map.analyse_mini_map(mm, ctx.im)
+        sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
+        mm_info = mini_map.analyse_mini_map(mm, ctx.im, sp_types=set(sp_map.keys()))
 
         pos = cal_pos.sim_uni_cal_pos(ctx.im,
                                       lm_info=lm_info,
@@ -98,43 +100,3 @@ class TestCalPosForSimUni(test.SrTestBase):
         dis = cal_utils.distance_between(pos, case.pos)
 
         return dis < 5
-
-    def test_for_debug(self):
-        ctx = get_context()
-        ctx.init_image_matcher()
-
-        screen = get_debug_image('_1707144839172')
-        mm = mini_map.cut_mini_map(screen)
-        save_debug_image(mm)
-        mm_info = mini_map.analyse_mini_map(mm, ctx.im)
-
-        for _, region_list in map_const.PLANET_2_REGION.items():
-            for region in region_list:
-                if region != map_const.P02_R10:
-                    continue
-                lm_info = ctx.ih.get_large_map(region)
-                pos: MatchResult = cal_pos.sim_uni_cal_pos_by_gray(ctx.im, lm_info, mm_info,
-                                                                   scale_list=[1], match_threshold=0.2,
-                                                                   show=True)
-                log.info('匹配 %s 结果 %s', region.display_name, pos)
-                if pos is not None:
-                    cv2_utils.show_overlap(lm_info.origin, mm_info.origin, pos.left_top.x, pos.left_top.y, win_name='overlap')
-                cv2.waitKey(0)
-
-    def test_cal_for_debug(self):
-        ctx = get_context()
-        ctx.init_image_matcher()
-
-        screen = get_debug_image('_1706412936314')
-        mm = mini_map.cut_mini_map(screen)
-        mm_info = mini_map.analyse_mini_map(mm, ctx.im)
-
-        possible_pos = (957, 392, 25)
-        region = map_const.P01_R04_F1
-        lm_info = ctx.ih.get_large_map(region)
-        lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
-        pos: Point = cal_pos.sim_uni_cal_pos(ctx.im, lm_info, mm_info,
-                                             lm_rect=lm_rect, running=True,
-                                             show=True)
-        log.info('匹配 %s 结果 %s', region.display_name, pos)
-        cv2.waitKey(0)

@@ -242,7 +242,7 @@ class MoveDirectly(Operation):
             if self.stuck_times > 12:
                 return Operation.round_fail('脱困失败')
             get_rid_of_stuck = GetRidOfStuck(self.ctx, self.stuck_times)
-            self.stop_move_time = time.time()
+            self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
             stuck_op_result = get_rid_of_stuck.execute()
             if stuck_op_result.success:
                 self.last_rec_time += stuck_op_result.data
@@ -264,7 +264,7 @@ class MoveDirectly(Operation):
             self.last_auto_fight_fail = False
             self.ctx.controller.stop_moving_forward()
             if self.stop_move_time is None:
-                self.stop_move_time = time.time()
+                self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
             log.info('移动中被袭击')
             fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight)
             fight_start_time = time.time()
@@ -292,7 +292,7 @@ class MoveDirectly(Operation):
             return None
         self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         if self.stop_move_time is None:
-            self.stop_move_time = time.time()
+            self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
 
         fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight)
         fight_start_time = time.time()
@@ -372,7 +372,7 @@ class MoveDirectly(Operation):
                 if self.no_pos_times >= 3:  # 不要再乱走了
                     self.ctx.controller.stop_moving_forward()
                     if self.stop_move_time is None:
-                        self.stop_move_time = now_time + 1  # 移动后的惯性
+                        self.stop_move_time = now_time + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
                 if self.no_pos_times >= 10:
                     return Operation.round_fail(MoveDirectly.STATUS_NO_POS)
             return Operation.round_wait()
@@ -389,7 +389,7 @@ class MoveDirectly(Operation):
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
                 if self.stop_move_time is None:
-                    self.stop_move_time = time.time()
+                    self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
             return Operation.round_success(data=next_pos)
         return None
 
