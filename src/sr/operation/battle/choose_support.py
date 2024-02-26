@@ -14,7 +14,7 @@ from sr.screen_area.screen_team import ScreenTeam
 class ChooseSupport(StateOperation):
 
     STATUS_SUPPORT_NOT_FOUND: ClassVar[str] = '未找到支援角色'
-    STATUS_SUPPORT_NO_NEED: ClassVar[str] = '无需支援角色'
+    STATUS_SUPPORT_NEEDED: ClassVar[str] = '需要支援角色'
 
     def __init__(self, ctx: Context, character_id: Optional[str]):
         """
@@ -28,7 +28,7 @@ class ChooseSupport(StateOperation):
         wait = StateOperationNode('等待画面加载', self._wait)
 
         click_support = StateOperationNode('点击支援', self._click_support)
-        edges.append(StateOperationEdge(wait, click_support))
+        edges.append(StateOperationEdge(wait, click_support, status=ChooseSupport.STATUS_SUPPORT_NEEDED))
 
         click_avatar = StateOperationNode('点击头像', self._click_avatar)
         edges.append(StateOperationEdge(click_support, click_avatar))
@@ -60,9 +60,9 @@ class ChooseSupport(StateOperation):
         area = ScreenTeam.TEAM_TITLE.value
         if self.find_area(area):
             if self.character_id is None:
-                return Operation.round_success(ChooseSupport.STATUS_SUPPORT_NO_NEED)
-            else:
                 return Operation.round_success()
+            else:
+                return Operation.round_success(ChooseSupport.STATUS_SUPPORT_NEEDED)
         else:
             return Operation.round_retry('未在%s画面' % area.status, wait=1)
 
