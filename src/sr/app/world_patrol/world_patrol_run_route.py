@@ -18,7 +18,7 @@ from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.team import CheckTeamMembersInWorld
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
 from sr.screen_area.dialog import ScreenDialog
-from sr.screen_area.normal_world import ScreenNormalWorld
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
 class WorldPatrolRunRoute(StateOperation):

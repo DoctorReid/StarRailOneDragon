@@ -2,7 +2,7 @@ from cv2.typing import MatLike
 
 from basic.img import cv2_utils
 from sr.image.ocr_matcher import OcrMatcher
-from sr.screen_area.normal_world import ScreenNormalWorld
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
 def pc_can_use_technique(screen: MatLike, ocr: OcrMatcher, key: str) -> bool:

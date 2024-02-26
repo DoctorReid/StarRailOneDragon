@@ -19,7 +19,7 @@ from sr.operation import Operation, \
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveWithoutPos, MoveDirectly
 from sr.screen_area.dialog import ScreenDialog
-from sr.screen_area.normal_world import ScreenNormalWorld
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent

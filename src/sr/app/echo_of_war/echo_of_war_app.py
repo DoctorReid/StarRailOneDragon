@@ -6,6 +6,7 @@ from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
+from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
@@ -52,7 +53,7 @@ class EchoOfWarApp(Application):
 
             run_times: int = self.power // point.power
 
-            record: EchoOfWarRunRecord = self.run_record
+            record: EchoOfWarRunRecord = self.ctx.echo_run_record
             if record.left_times < run_times:
                 run_times = record.left_times
 

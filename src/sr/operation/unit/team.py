@@ -11,7 +11,7 @@ from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.screen_area import ScreenArea
-from sr.screen_area.normal_world import ScreenNormalWorld
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
 class GetTeamMemberInWorld(Operation):

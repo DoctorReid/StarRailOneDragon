@@ -10,7 +10,7 @@ from sr.context import Context
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import battle
 from sr.operation import Operation, OperationOneRoundResult
-from sr.screen_area.normal_world import ScreenNormalWorld
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
 class CheckTechniquePoint(Operation):

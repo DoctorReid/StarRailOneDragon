@@ -11,6 +11,8 @@ from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot.phone_menu import in_phone_menu
 from sr.screen_area import ScreenArea
 from sr.screen_area.dialog import ScreenDialog
+from sr.screen_area.screen_battle import ScreenBattle
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 
 
@@ -144,13 +146,6 @@ class TargetRect(Enum):
     BATTLE_FAIL = Rect(783, 231, 1141, 308)
     """战斗失败"""
 
-    AFTER_BATTLE_RESULT_RECT_1 = Rect(820, 240, 1100, 320)
-    """战斗结束后领奖励页面 上方的结果框 有奖励的时候"""
-    AFTER_BATTLE_RESULT_RECT_2 = Rect(820, 205, 1100, 278)
-    """战斗结束后领奖励页面 上方的结果框 有双倍奖励的时候"""
-    AFTER_BATTLE_RESULT_RECT_3 = Rect(820, 320, 1100, 380)
-    """战斗结束后领奖励页面 上方的结果框 无奖励的时候"""
-
     EMPTY_TO_CLOSE = Rect(876, 878, 1048, 1026)
     """点击空白处关闭"""
 
@@ -171,8 +166,9 @@ def is_normal_in_world(screen: MatLike, im: ImageMatcher) -> bool:
     :param im: 图片匹配器
     :return:
     """
-    part, _ = cv2_utils.crop_image(screen, TargetRect.CHARACTER_ICON.value)
-    result = im.match_template(part, 'ui_icon_01', threshold=0.7)
+    area = ScreenNormalWorld.CHARACTER_ICON.value
+    part = cv2_utils.crop_image_only(screen, area.rect)
+    result = im.match_template(part, area.template_id)
     return result.max is not None
 
 
@@ -493,18 +489,23 @@ def get_tp_battle_screen_state(
     :return:
     """
     if in_world and is_normal_in_world(screen, im):
-        return ScreenState.NORMAL_IN_WORLD.value
+        return ScreenNormalWorld.CHARACTER_ICON.value.status
 
-    for rect in [
-        TargetRect.AFTER_BATTLE_RESULT_RECT_1.value,
-        TargetRect.AFTER_BATTLE_RESULT_RECT_2.value,
-        TargetRect.AFTER_BATTLE_RESULT_RECT_3.value,
-    ]:
-        part, _ = cv2_utils.crop_image(screen, rect)
+    area_list = [
+        ScreenBattle.AFTER_BATTLE_SUCCESS_1.value,
+        ScreenBattle.AFTER_BATTLE_SUCCESS_2.value,
+        ScreenBattle.AFTER_BATTLE_SUCCESS_3.value
+    ]
+
+    success_area = ScreenBattle.AFTER_BATTLE_SUCCESS_1.value
+    fail_area = ScreenBattle.AFTER_BATTLE_FAIL_1.value
+
+    for area in area_list:
+        part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
-        if battle_success and str_utils.find_by_lcs(gt('挑战成功', 'ocr'), ocr_result, percent=0.51):
-            return ScreenState.TP_BATTLE_SUCCESS.value
-        elif battle_fail and str_utils.find_by_lcs(gt('战斗失败', 'ocr'), ocr_result, percent=0.51):
-            return ScreenState.TP_BATTLE_FAIL.value
+        if battle_success and str_utils.find_by_lcs(gt(success_area.text, 'ocr'), ocr_result, percent=success_area.lcs_percent):
+            return success_area.status
+        elif battle_fail and str_utils.find_by_lcs(gt(fail_area.text, 'ocr'), ocr_result, percent=fail_area.lcs_percent):
+            return fail_area.status
 
     return ScreenState.BATTLE.value
