@@ -281,7 +281,7 @@ class SettingsBasicView(components.Card, SrBasicView):
             log.info(msg)
         elif version_result == 1:
             if os_utils.run_in_flet_exe():
-                msg: str = gt('检测到新版本 再次点击进行更新 更新过程会自动关闭脚本 完成后请自动启动', 'ui')
+                msg: str = gt('检测到新版本 再次点击进行更新 更新过程会自动关闭脚本 完成后将自动启动', 'ui')
                 snack_bar.show_message(msg, self.flet_page)
                 log.info(msg)
                 self.update_btn.visible = True
@@ -297,7 +297,7 @@ class SettingsBasicView(components.Card, SrBasicView):
             log.info(msg)
 
     def do_update(self, e):
-        msg: str = gt('即将开始更新 更新过程会自动关闭脚本 完成后请自动启动', 'ui')
+        msg: str = gt('即将开始更新 更新过程会自动关闭脚本 完成后将自动启动', 'ui')
         snack_bar.show_message(msg, self.flet_page)
         log.info(msg)
         self.update_btn.disabled = True
