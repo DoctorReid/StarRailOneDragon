@@ -1,11 +1,10 @@
 import time
-from typing import List
+from typing import List, Optional
 
 import sr.const
 from basic.i18_utils import gt
-from basic.log_utils import log
 from sr.context import Context
-from sr.image.sceenshot import battle, enter_game_ui, screen_state
+from sr.image.sceenshot import enter_game_ui, screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationEdge, StateOperationNode
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.dialog import ScreenDialog
@@ -34,11 +33,11 @@ class EnterGame(StateOperation):
                          op_name=gt('进入游戏', 'ui'),
                          edges=edges,
                          timeout_seconds=180)
-        self.need_password: bool = False
+        self.login_status: Optional[str] = None
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.need_password = False
+        self.login_status: Optional[str] = None
 
     def _wait(self) -> OperationOneRoundResult:
         """
@@ -50,12 +49,17 @@ class EnterGame(StateOperation):
         area1 = ScreenLogin.LOGIN_BTN.value
         area2 = ScreenLogin.SWITCH_PASSWORD.value
         if self.find_area(area1, screen) and self.find_area(area2, screen):
-            self.need_password = True
+            self.login_status = area2.status
+            return Operation.round_success()
+
+        area = ScreenLogin.SERVER_START_GAME.value
+        if self.find_area(area, screen):
+            self.login_status = area.status
             return Operation.round_success()
 
         area = ScreenLogin.CONFIRM_START_GAME.value
         if self.find_area(area, screen):
-            self.need_password = False
+            self.login_status = area.status
             return Operation.round_success()
 
         return Operation.round_wait(wait=1)
@@ -65,7 +69,7 @@ class EnterGame(StateOperation):
         登陆
         :return:
         """
-        op = LoginWithPassword(self.ctx, self.need_password)
+        op = LoginWithPassword(self.ctx, self.login_status)
         return Operation.round_by_op(op.execute())
 
 
@@ -157,7 +161,7 @@ class Logout(StateOperation):
 
 class LoginWithPassword(StateOperation):
 
-    def __init__(self, ctx: Context, need_password: bool = True):
+    def __init__(self, ctx: Context, login_status: Optional[str] = None):
         """
         输入密码登陆
         :param ctx:
@@ -177,10 +181,18 @@ class LoginWithPassword(StateOperation):
         confirm = StateOperationNode('点击进入', self._confirm_enter_game)
         edges.append(StateOperationEdge(server, confirm))
 
+        if login_status == ScreenLogin.SWITCH_PASSWORD.value.status:
+            specified_start_node = switch
+        elif login_status == ScreenLogin.SERVER_START_GAME.value.status:
+            specified_start_node = server
+        elif login_status == ScreenLogin.CONFIRM_START_GAME.value.status:
+            specified_start_node = confirm
+        else:
+            specified_start_node = wait
         super().__init__(ctx, try_times=20,
                          op_name=gt('登陆账号', 'ui'),
                          edges=edges,
-                         specified_start_node=wait if need_password else confirm
+                         specified_start_node=specified_start_node
                          )
 
     def _wait(self) -> OperationOneRoundResult:
@@ -309,11 +321,11 @@ class WaitEnterGame(Operation):
                 self.first_in_world_time = now
 
             if self.claim_express_supply:  # 已经领取过列车补给
-                self.ctx.first_transport = True
+                self.ctx.init_when_enter_game()
                 return Operation.round_success()
             else:  # 没领列车补给的话 等2秒看看有没有
                 if now - self.first_in_world_time > 2:
-                    self.ctx.first_transport = True
+                    self.ctx.init_when_enter_game()
                     return Operation.round_success()
                 else:
                     return Operation.round_wait(wait=1)
