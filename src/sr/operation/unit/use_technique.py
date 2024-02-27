@@ -14,6 +14,5 @@ class UseTechnique(Operation):
         super().__init__(ctx, try_times=2, op_name=gt('施放秘技', 'ui'))
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-
         self.ctx.controller.use_technique()
         return Operation.round_success()

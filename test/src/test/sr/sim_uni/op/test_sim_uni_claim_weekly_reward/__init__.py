@@ -1,11 +1,6 @@
-import unittest
-
 import test
-from basic.img import cv2_utils
 from sr.context import get_context
-from sr.image.sceenshot import screen_state
 from sr.sim_uni.op.sim_uni_claim_weekly_reward import SimUniClaimWeeklyReward
-from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from test.sr.control.mock_controller import MockController
 
 

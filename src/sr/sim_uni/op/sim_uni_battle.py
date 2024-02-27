@@ -7,7 +7,6 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
@@ -33,8 +32,7 @@ class SimUniEnterFight(Operation):
 
     def __init__(self, ctx: Context,
                  config: Optional[SimUniChallengeConfig] = None,
-                 disposable: bool = False,
-                 use_technique: bool = False):
+                 disposable: bool = False):
         """
         模拟宇宙中 主动进入战斗
         根据小地图的红圈 判断是否被敌人锁定
@@ -185,6 +183,8 @@ class SimUniEnterFight(Operation):
 
                 if technique_point is None:  # 部分机器运行速度快 右上角图标出来了当下面秘技点还没出来 这时候还不能使用秘技
                     pass
+                elif technique_point == 0 and self.ctx.no_technique_recover_consumables:  # 没有秘技恢复药了 就不使用了
+                    pass
                 elif self.ctx.is_buff_technique:
                     self.ctx.controller.use_technique()
                     self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
@@ -207,12 +207,20 @@ class SimUniEnterFight(Operation):
         :return:
         """
         self.ctx.technique_used = False  # 重置使用情况
-        click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value)
+
+        screen = self.screenshot()
+        if self.find_area(ScreenDialog.FAST_RECOVER_NO_CONSUMABLE.value, screen):
+            self.ctx.no_technique_recover_consumables = True
+            area = ScreenDialog.FAST_RECOVER_CANCEL.value
+        else:
+            area = ScreenDialog.FAST_RECOVER_CONFIRM.value
+
+        click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
             return Operation.round_wait(wait=0.5)
         else:
-            return Operation.round_retry('点击确认失败', wait=1)
+            return Operation.round_retry('点击%s失败' % area.text, wait=1)
 
     def _attack(self, now_time: float):
         if now_time - self.last_attack_time <= SimUniEnterFight.ATTACK_INTERVAL:

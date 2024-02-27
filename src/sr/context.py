@@ -65,11 +65,6 @@ class Context:
         self.stop_callback: dict = {}
 
         self.recorder: PerformanceRecorder = get_recorder()
-        self.open_game_by_script: bool = False  # 脚本启动的游戏
-        self.first_transport: bool = True  # 第一次传送
-
-        self.current_character_list: List[Character] = []
-        self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
 
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
         self.game_config: Optional[GameConfig] = None
@@ -103,6 +98,12 @@ class Context:
         self.init_if_no_account()
         self.init_config_by_account()
         self.init_keyboard_callback()
+
+        self.open_game_by_script: bool = False  # 脚本启动的游戏
+        self.first_transport: bool = True  # 第一次传送
+        self.current_character_list: List[Character] = []
+        self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
+        self.no_technique_recover_consumables: bool = False  # 没有恢复秘技的物品了
 
     def init_if_no_account(self):
         """
@@ -368,8 +369,6 @@ class Context:
             if not self.try_open_game():
                 return False
 
-            self.first_transport = True  # 重新打开游戏的话 重置一下
-
             for i in range(30):
                 if self.running == 0:
                     break
@@ -456,6 +455,14 @@ class Context:
         log.info('尝试自动启动游戏 路径为 %s', self.game_config.game_path)
         subprocess.Popen(self.game_config.game_path)
         return True
+
+    def init_when_enter_game(self):
+        """
+        进入游戏时需要做的初始化
+        :return:
+        """
+        self.first_transport = True
+        self.no_technique_recover_consumables = False
 
 
 def get_game_win() -> Window:

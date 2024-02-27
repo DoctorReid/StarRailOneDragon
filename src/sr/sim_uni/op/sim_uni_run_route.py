@@ -1,5 +1,5 @@
 import time
-from typing import Optional, ClassVar, Callable
+from typing import Optional, ClassVar, Callable, Union
 
 from cv2.typing import MatLike
 
@@ -16,6 +16,7 @@ from sr.image.sceenshot import mini_map, screen_state, large_map
 from sr.operation import Operation, \
     OperationResult, StateOperation, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
+from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveWithoutPos, MoveDirectly
 from sr.screen_area.dialog import ScreenDialog
@@ -289,12 +290,65 @@ class SimUniRunRouteBase(StateOperation):
         return Operation.round_by_op(op.execute())
 
 
+class UseTechniqueBeforeRoute(Operation):
+
+    def __init__(self, ctx: Context):
+        """
+        需在大世界页面中使用
+        在路线执行前 用当前角色使用秘技 如果是BUFF类的话
+        会检测之前是否有使用 使用后是否需要吃药等
+        :param ctx:
+        """
+        super().__init__(ctx, try_times=5,
+                         op_name=gt('路线前使用秘技', 'ui')
+                         )
+
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        if not self.ctx.is_buff_technique:
+            return Operation.round_success('非BUFF类跳过')
+
+        screen = self.screenshot()
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      in_world=True, fast_recover=True)
+        log.debug('当前画面 %s', state)
+        if state == ScreenNormalWorld.CHARACTER_ICON.value.status:  # 在大世界
+            if self.ctx.technique_used:
+                return Operation.round_success()
+
+            technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
+
+            if technique_point is None:  # 部分机器运行速度快 右上角图标出来了当下面秘技点还没出来 这时候还不能使用秘技
+                return Operation.round_retry('未检测到剩余秘技点', wait=0.5)
+            elif technique_point == 0 and self.ctx.no_technique_recover_consumables:  # 没有秘技恢复药了 就不使用了
+                return Operation.round_success()
+            else:
+                self.ctx.controller.use_technique()
+                self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
+                return Operation.round_wait(wait=1.5)
+        elif state == ScreenDialog.FAST_RECOVER_TITLE.value.text:  # 使用秘技后出现快速恢复对话框
+            self.ctx.technique_used = False
+
+            if self.find_area(ScreenDialog.FAST_RECOVER_NO_CONSUMABLE.value, screen):
+                self.ctx.no_technique_recover_consumables = True
+                area = ScreenDialog.FAST_RECOVER_CANCEL.value
+            else:
+                area = ScreenDialog.FAST_RECOVER_CONFIRM.value
+
+            click = self.find_and_click_area(area, screen)
+
+            if click == Operation.OCR_CLICK_SUCCESS:
+                return Operation.round_wait(wait=0.5)
+            else:
+                return Operation.round_retry('点击%s失败' % area.status, wait=1.5)
+        else:
+            return Operation.round_success()
+
+
 class SimUniRunCombatRoute(SimUniRunRouteBase):
 
     def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType,
                  config: Optional[SimUniChallengeConfig] = None,
                  ):
-
         super().__init__(ctx, world_num, level_type, config=config)
 
     def _before_route(self) -> OperationOneRoundResult:
@@ -302,29 +356,11 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
         如果是秘技开怪 且是上buff类的 就在路线运行前上buff
         :return:
         """
-        if not self.config.technique_fight or not self.ctx.is_buff_technique:
+        if not self.config.technique_fight or self.ctx.technique_used:
             return Operation.round_success()
-
-        screen = self.screenshot()
-        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
-                                                      in_world=True, fast_recover=True)
-        log.debug('当前画面 %s', state)
-        if state == ScreenDialog.FAST_RECOVER_TITLE.value.text:  # 使用秘技后出现快速恢复对话框
-            self.ctx.technique_used = False
-            click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value, screen)
-            if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_wait(wait=0.5)
-            else:
-                return Operation.round_retry('点击确认失败', wait=1.5)
-        elif not self.ctx.technique_used:
-            if state == ScreenNormalWorld.CHARACTER_ICON.value.status:
-                self.ctx.controller.use_technique()
-                self.ctx.technique_used = True
-                return Operation.round_wait(wait=1.5)
-            else:
-                return Operation.round_retry('未在大世界画面', wait=1)
         else:
-            return Operation.round_success()
+            op = UseTechniqueBeforeRoute(self.ctx)
+            return Operation.round_by_op(op.execute())
 
 
 class SimUniInteractAfterRoute(StateOperation):

@@ -77,11 +77,12 @@ class ChooseSimUniNum(Operation):
         area_list = [ScreenSimUni.CURRENT_NUM_1.value, ScreenSimUni.CURRENT_NUM_2.value]
         for area in area_list:
             part = cv2_utils.crop_image_only(screen, area.rect)
+            # cv2_utils.show_image(part, win_name='choose_sim_uni_num', wait=0)
 
             ocr_result = self.ctx.ocr.ocr_for_single_line(part)
 
             for num, word in UNI_NUM_CN.items():
-                if str_utils.find_by_lcs(gt(word, 'ocr'), ocr_result, percent=1):
+                if str_utils.find_by_lcs(gt('第%s世界' % word, 'ocr'), ocr_result, percent=1):
                     return num
 
         return None

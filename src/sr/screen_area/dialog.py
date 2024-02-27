@@ -12,4 +12,5 @@ class ScreenDialog(Enum):
     # 快速恢复 对话框
     FAST_RECOVER_TITLE = ScreenArea(pc_rect=Rect(890, 250, 1030, 300), text='快速恢复')
     FAST_RECOVER_CONFIRM = ScreenArea(pc_rect=Rect(1020, 790, 1330, 844), text='确认')
-
+    FAST_RECOVER_CANCEL = ScreenArea(pc_rect=Rect(592, 790, 903, 844), text='取消')
+    FAST_RECOVER_NO_CONSUMABLE = ScreenArea(pc_rect=Rect(1094, 554, 1266, 585), text='暂无可用消耗品')
