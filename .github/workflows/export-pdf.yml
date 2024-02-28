@@ -80,7 +80,7 @@ jobs:
           echo -e "\n\n" >> output/README.md
           cat "设置.md" >> output/README.md
           echo -e "\n\n" >> output/README.md
-          cat "常见Q&A.md" >> output/README.md
+          cat "问题提出.md" >> output/README.md
           pandoc output/README.md -o output/README.pdf --pdf-engine=xelatex --columns=25 --wrap=auto --variable mainfont='Noto Serif CJK SC'
 
       - name: Commit changes
