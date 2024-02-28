@@ -1,5 +1,4 @@
-import time
-from typing import Optional, ClassVar, Callable, Union
+from typing import Optional, ClassVar, Callable
 
 from cv2.typing import MatLike
 
@@ -8,8 +7,6 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import cal_pos
-from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
-from sr.config import game_config
 from sr.const import operation_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state, large_map
@@ -26,40 +23,9 @@ from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_reward import SimUniReward
-from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
-
-
-class SimUniMatchRoute(Operation):
-
-    STATUS_ROUTE_NOT_FOUND: ClassVar[str] = '匹配路线失败'
-
-    def __init__(self, ctx: Context, world_num: int,
-                 level_type: SimUniLevelType,
-                 op_callback: Optional[Callable[[OperationResult], None]] = None):
-        """
-        模拟宇宙中 根据初始的小地图 匹配路线
-        返回的 data=SimUniRoute
-        """
-        super().__init__(ctx, try_times=5,
-                         op_name='%s %s' % (
-                             gt('模拟宇宙', 'ui'),
-                             gt('匹配路线', 'ui'),
-                         ),
-                         op_callback=op_callback)
-        self.world_num: int = world_num  # 第几宇宙
-        self.level_type: SimUniLevelType = level_type
-
-    def _execute_one_round(self) -> OperationOneRoundResult:
-        screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
-
-        if route is None:
-            return Operation.round_retry(SimUniMatchRoute.STATUS_ROUTE_NOT_FOUND, wait=0.5)
-        else:
-            return Operation.round_success(data=route)
 
 
 class SimUniRunRouteOp(StateOperation):
@@ -196,6 +162,7 @@ class SimUniRunRouteBase(StateOperation):
     def __init__(self, ctx: Context,
                  world_num: int,
                  level_type: SimUniLevelType,
+                 route: SimUniRoute,
                  config: Optional[SimUniChallengeConfig] = None
                  ):
         """
@@ -203,11 +170,10 @@ class SimUniRunRouteBase(StateOperation):
         """
         self.world_num: int = world_num
         self.level_type: SimUniLevelType = level_type
-        self.route: Optional[SimUniRoute] = None
+        self.route: Optional[SimUniRoute] = route
         self.current_pos: Optional[Point] = None
         self.config: Optional[SimUniChallengeConfig] = config
 
-        match = StateOperationNode('匹配路线', self._match_route)
         before_route = StateOperationNode('指令前初始化', self._before_route)
         run_route = StateOperationNode('执行路线指令', self._run_route)
         after_route = StateOperationNode('区域特殊指令', self._after_route)
@@ -218,7 +184,7 @@ class SimUniRunRouteBase(StateOperation):
                              gt('模拟宇宙', 'ui'),
                              gt('区域-%s' % level_type.type_name, 'ui')
                          ),
-                         nodes=[match, before_route, run_route, after_route, go_next]
+                         nodes=[before_route, run_route, after_route, go_next]
                          )
 
     def _init_before_execute(self):
@@ -228,15 +194,6 @@ class SimUniRunRouteBase(StateOperation):
         super()._init_before_execute()
         self.route = None
         self.current_pos = None
-
-    def _match_route(self) -> OperationOneRoundResult:
-        """
-        匹配路线
-        :return:
-        """
-        op = SimUniMatchRoute(self.ctx, self.world_num, self.level_type,
-                              op_callback=self._update_route)
-        return Operation.round_by_op(op.execute())
 
     def _before_route(self) -> OperationOneRoundResult:
         """
@@ -346,10 +303,10 @@ class UseTechniqueBeforeRoute(Operation):
 
 class SimUniRunCombatRoute(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType,
+    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType, route: SimUniRoute,
                  config: Optional[SimUniChallengeConfig] = None,
                  ):
-        super().__init__(ctx, world_num, level_type, config=config)
+        super().__init__(ctx, world_num, level_type, route, config=config)
 
     def _before_route(self) -> OperationOneRoundResult:
         """
@@ -378,7 +335,6 @@ class SimUniInteractAfterRoute(StateOperation):
         :param interact_word: 交互文本
         :param no_icon: 小地图上没有图标 说明可能已经交互过了
         :param can_ignore_interact: 可以不交互进入下一层 - 黑塔
-        :param priority: 优先级
         """
         edges = []
 
@@ -427,14 +383,14 @@ class SimUniInteractAfterRoute(StateOperation):
 
 class SimUniRunInteractRoute(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType,
+    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType, route: SimUniRoute,
                  config: Optional[SimUniChallengeConfig] = None,
                  ):
         """
         需要交互的楼层使用
         :param ctx:
         """
-        super().__init__(ctx, world_num, level_type, config)
+        super().__init__(ctx, world_num, level_type, route, config=config)
 
         is_respite = level_type == SimUniLevelTypeEnum.RESPITE.value
         self.icon_template_id: str = 'mm_sp_herta' if is_respite else 'mm_sp_event'
@@ -455,7 +411,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         检测小地图上的图标 在大地图上的哪个位置
         :return:
         """
-        cal_pos = self._cal_interact_pos()
+        interact_pos = self._cal_interact_pos()
 
         if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
             op = SimUniEnterFight(self.ctx, config=self.config, disposable=True)  # 攻击可破坏物 统一用这个处理大乐透
@@ -463,7 +419,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
             if not op_result.success:
                 return Operation.round_fail('攻击可破坏物失败')
 
-        if not cal_pos:
+        if not interact_pos:
             return Operation.round_retry('未配置交互点坐标且识别交互图标失败')
         else:
             return Operation.round_success()
@@ -542,7 +498,6 @@ class SimUniRunEliteAfterRoute(StateOperation):
         最后返回 data=角色最新坐标
         :param ctx:
         :param level_type:
-        :param priority:
         """
         edges = []
         fight = StateOperationNode('战斗', self._fight)
@@ -629,17 +584,11 @@ class SimUniRunEliteAfterRoute(StateOperation):
             return Operation.round_retry(MoveDirectly.STATUS_NO_POS, wait=1)
 
     def _move_to_reward(self) -> OperationOneRoundResult:
-        gc = self.ctx.game_config
         if self.max_reward_to_get <= 0 and not self.ctx.one_dragon_config.is_debug:
             return Operation.round_success(SimUniRunEliteAfterRoute.STATUS_NO_NEED_REWARD)
         elif self.route.reward_pos is None:
             return Operation.round_fail(SimUniRunEliteAfterRoute.STATUS_NO_REWARD_POS)
 
-        # op = MoveDirectlyInSimUni(self.ctx, self.ctx.ih.get_large_map(self.route.region),
-        #                           start=self.current_pos, target=self.route.reward_pos,
-        #                           op_callback=self._update_pos,
-        #                           no_battle=True, no_run=True,
-        #                           )
         op = MoveWithoutPos(self.ctx,
                             start=self.current_pos, target=self.route.reward_pos,
                             op_callback=self._update_pos,
@@ -680,13 +629,13 @@ class SimUniRunEliteAfterRoute(StateOperation):
 
 class SimUniRunEliteRoute(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType,
+    def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType, route: SimUniRoute,
                  config: Optional[SimUniChallengeConfig] = None,
                  max_reward_to_get: int = 0,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None
                  ):
 
-        super().__init__(ctx, world_num, level_type, config)
+        super().__init__(ctx, world_num, level_type, route, config=config)
 
         self.with_enemy: bool = True
         self.no_icon: bool = False

@@ -1,18 +1,21 @@
 from typing import List, Optional, Callable, ClassVar
 
+from basic import str_utils
 from basic.i18_utils import gt
+from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.context import Context
+from sr.image.sceenshot import screen_state, mini_map
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationEdge, \
     StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.team import CheckTeamMembersInWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
-from sr.sim_uni.op.sim_uni_check_level_type import SimUniCheckLevelType
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
+from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
 class SimUniRunLevel(StateOperation):
@@ -44,11 +47,11 @@ class SimUniRunLevel(StateOperation):
         check_members = StateOperationNode('识别组队成员', self._check_members)
         edges.append(StateOperationEdge(wait_start, check_members))
 
-        check_level_type = StateOperationNode('识别楼层类型', self._check_level_type)
-        edges.append(StateOperationEdge(check_members, check_level_type))
+        check_route = StateOperationNode('匹配路线', self._check_route)
+        edges.append(StateOperationEdge(check_members, check_route))
 
         route = StateOperationNode('区域', self._route_op)
-        edges.append(StateOperationEdge(check_level_type, route, ignore_status=True))
+        edges.append(StateOperationEdge(check_route, route, ignore_status=True))
 
         reset = StateOperationNode('重置', self._reset)
         edges.append(StateOperationEdge(route, reset, success=False, status=MoveDirectly.STATUS_NO_POS))
@@ -59,6 +62,7 @@ class SimUniRunLevel(StateOperation):
 
         self.world_num: int = world_num
         self.level_type: Optional[SimUniLevelType] = None
+        self.route: Optional[SimUniRoute] = None
         self.config: Optional[SimUniChallengeConfig] = config
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
@@ -70,6 +74,7 @@ class SimUniRunLevel(StateOperation):
         """
         super()._init_before_execute()
         self.level_type = None
+        self.route = None
         self.reset_times = 0
 
     def _wait(self) -> OperationOneRoundResult:
@@ -80,14 +85,26 @@ class SimUniRunLevel(StateOperation):
         op = CheckTeamMembersInWorld(self.ctx)
         return Operation.round_by_op(op.execute())
 
-    def _check_level_type(self) -> OperationOneRoundResult:
-        op = SimUniCheckLevelType(self.ctx, op_callback=self._on_level_type_checked)
-        return Operation.round_by_op(op.execute())
+    def _check_route(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
 
-    def _on_level_type_checked(self, op_result: OperationResult):
-        if not op_result.success:
-            return
-        self.level_type = op_result.data
+        region_name = screen_state.get_region_name(screen, self.ctx.ocr)
+        level_type_list: List[SimUniLevelType] = [enum.value for enum in SimUniLevelTypeEnum]
+        target_list = [gt(level_type.type_name, 'ocr') for level_type in level_type_list]
+        target_idx = str_utils.find_best_match_by_lcs(region_name, target_list)
+
+        if target_idx is None:
+            return Operation.round_retry('匹配楼层类型失败', wait=1)
+
+        self.level_type = level_type_list[target_idx]
+
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
+        self.route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
+
+        if self.route is None:
+            return Operation.round_retry('匹配路线失败', wait=1)
+
+        return Operation.round_success()
 
     def _route_op(self) -> OperationOneRoundResult:
         """
@@ -95,15 +112,15 @@ class SimUniRunLevel(StateOperation):
         :return:
         """
         if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
-            op = SimUniRunCombatRoute(self.ctx, self.world_num, self.level_type, config=self.config)
+            op = SimUniRunCombatRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
                 self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
                 self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value or \
                 self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            op = SimUniRunInteractRoute(self.ctx, self.world_num, self.level_type, config=self.config)
+            op = SimUniRunInteractRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            op = SimUniRunEliteRoute(self.ctx, self.world_num, self.level_type, config=self.config,
+            op = SimUniRunEliteRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config,
                                      max_reward_to_get=self.max_reward_to_get,
                                      get_reward_callback=self.get_reward_callback)
         else:
