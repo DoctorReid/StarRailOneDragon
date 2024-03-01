@@ -30,7 +30,7 @@ class SimUniExit(StateOperation):
         click_empty = StateOperationNode('点击空白处继续', self._click_empty)
         edges.append(StateOperationEdge(click_confirm, click_empty))
 
-        super().__init__(ctx, try_times=5,
+        super().__init__(ctx, try_times=10,
                          op_name='%s %s' %
                                  (gt('模拟宇宙', 'ui'),
                                   gt('结束并结算', 'ui')),
@@ -73,7 +73,7 @@ class SimUniExit(StateOperation):
 
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=4)
+            return Operation.round_success(wait=6)
         else:
             return Operation.round_retry('点击%s失败' % area.status, wait=1)
 

@@ -21,7 +21,7 @@ class ScreenSimUni(Enum):
     CURRENT_NUM_2 = ScreenArea(pc_rect=Rect(805, 546, 945, 583))
 
     MENU_EXIT = ScreenArea(pc_rect=Rect(1323, 930, 1786, 985), text='结束并结算')
-    BATTLE_EXIT = ScreenArea(pc_rect=Rect(1323, 930, 1786, 985), text='结束并结算')
+    BATTLE_EXIT = ScreenArea(pc_rect=Rect(1038, 962, 1391, 1013), text='终止战斗并结算')
     EXIT_DIALOG_CONFIRM = ScreenArea(pc_rect=Rect(1022, 651, 1324, 697), text='确认')
 
-    EXIT_EMPTY_TO_CONTINUE = ScreenArea(pc_rect=Rect(876, 878, 1048, 1026), text='点击空白处关闭')
+    EXIT_EMPTY_TO_CONTINUE = ScreenArea(pc_rect=Rect(869, 899, 1057, 928), text='点击空白处继续')
