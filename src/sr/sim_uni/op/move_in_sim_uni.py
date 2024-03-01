@@ -81,6 +81,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
         try:
             next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, self.lm_info, mm_info,
                                                possible_pos=possible_pos,
+                                               pos_to_cal_angle=self.start_pos,
                                                lm_rect=lm_rect, running=self.ctx.controller.is_moving)
         except Exception:
             log.error('计算坐标出错', exc_info=True)
@@ -204,7 +205,7 @@ class MoveToNextLevel(StateOperation):
         :return:
         """
         if self.current_pos is None or self.next_pos is None:
-            if self.ctx.game_config.is_debug:
+            if self.ctx.one_dragon_config.is_debug:
                 return Operation.round_fail('未配置下层入口')
             else:
                 return Operation.round_success()

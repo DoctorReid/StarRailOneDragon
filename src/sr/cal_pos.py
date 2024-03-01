@@ -470,6 +470,7 @@ def sim_uni_cal_pos(
         im: ImageMatcher,
         lm_info: LargeMapInfo, mm_info: MiniMapInfo,
         possible_pos: Optional[Tuple[int, int, float]] = None,
+        pos_to_cal_angle: Optional[Point] = None,
         lm_rect: Rect = None, show: bool = False,
         running: bool = False) -> Optional[Point]:
     """
@@ -477,7 +478,8 @@ def sim_uni_cal_pos(
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
-    :param possible_pos: 可能位置 前两个为上一次的坐标，第三个为预估移动距离
+    :param possible_pos: 可能位置 前两个为上一次的坐标，
+    :param pos_to_cal_angle: 用于计算朝向的位置 通常用移动的开始点比较好 可以防止惯性撞怪导致的偏移（会产生横向移动 路程又短 计算的角度很可以大于30）
     :param lm_rect: 大地图特定区域
     :param show: 是否显示结果
     :param running: 角色是否在移动 移动时候小地图会缩小
@@ -490,13 +492,13 @@ def sim_uni_cal_pos(
 
     if result is None:  # 使用模板匹配 用原图的
         result = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
+        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle, pos_to_cal_angle=pos_to_cal_angle):
             result = None
 
     # 使用模板匹配 道路掩码误。报率高 仅在限定范围时可使用
     if result is None and lm_rect is not None:
         result = sim_uni_cal_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
-        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
+        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle, pos_to_cal_angle=pos_to_cal_angle):
             result = None
 
     if result is None:
@@ -633,12 +635,14 @@ def sim_uni_cal_pos_by_road_mask(im: ImageMatcher,
 
 def is_valid_result_with_possible_pos(result: Optional[MatchResult],
                                       possible_pos: Optional[Tuple[int, int, float]],
-                                      current_angle: Optional[float]) -> bool:
+                                      current_angle: Optional[float],
+                                      pos_to_cal_angle: Optional[Point] = None) -> bool:
     """
     判断当前计算坐标是否合理
     :param result: 坐标结果
     :param possible_pos: 可能位置 前两个为上一次的坐标，第三个为预估移动距离
     :param current_angle: 当前人物朝向
+    :param pos_to_cal_angle: 用于计算朝向的位置 通常用移动的开始点比较好 可以防止惯性撞怪导致的偏移（会产生横向移动 路程又短 计算的角度很可以大于30）
     :return:
     """
     if result is None:
@@ -655,7 +659,10 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
         log.info('计算坐标 %s 与 当前坐标 %s 距离较远 %.2f 舍弃', next_pos, last_pos, dis)
         return False
 
-    next_angle = cal_utils.get_angle_by_pts(last_pos, next_pos)
+    if pos_to_cal_angle is None:
+        next_angle = cal_utils.get_angle_by_pts(last_pos, next_pos)
+    else:
+        next_angle = cal_utils.get_angle_by_pts(pos_to_cal_angle, next_pos)
     angle_delta = cal_utils.angle_delta(current_angle, next_angle)
     if dis > 5 and abs(angle_delta) > 30:
         log.info('计算坐标 %s 的角度 %.2f 与 当前朝向 %.2f 相差较大 %.2f 舍弃',

@@ -574,6 +574,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
 
         next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, lm_info, mm_info,
                                            possible_pos=possible_pos,
+                                           pos_to_cal_angle=self.route.start_pos,
                                            lm_rect=lm_rect,
                                            running=self.ctx.controller.is_moving)
 
