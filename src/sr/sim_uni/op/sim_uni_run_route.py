@@ -312,7 +312,7 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
         if not self.config.technique_fight or self.ctx.technique_used:
             return Operation.round_success()
         else:
-            op = UseTechniqueBeforeRoute(self.ctx)
+            op = UseTechniqueBeforeRoute(self.ctx, self.config.multiple_consumable)
             return Operation.round_by_op(op.execute())
 
 

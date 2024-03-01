@@ -242,7 +242,6 @@ class MoveDirectly(Operation):
             if self.stuck_times > 12:
                 return Operation.round_fail('脱困失败')
             get_rid_of_stuck = GetRidOfStuck(self.ctx, self.stuck_times)
-            self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
             stuck_op_result = get_rid_of_stuck.execute()
             if stuck_op_result.success:
                 self.last_rec_time += stuck_op_result.data
