@@ -20,6 +20,7 @@ from sr.operation.unit.move import MoveDirectly
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
+from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
 class MoveDirectlyInSimUni(MoveDirectly):
@@ -160,8 +161,9 @@ class MoveToNextLevel(StateOperation):
     NEXT_CONFIRM_BTN: ClassVar[Rect] = Rect(1006, 647, 1330, 697)  # 确认按钮
 
     STATUS_ENTRY_NOT_FOUND: ClassVar[str] = '未找到下一层入口'
+    STATUS_ENCOUNTER_FIGHT: ClassVar[str] = '遭遇战斗'
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+    def __init__(self, ctx: Context, level_type: SimUniLevelType, route: SimUniRoute,
                  current_pos: Optional[Point] = None, next_pos_list: Optional[List[Point]] = None,
                  config: Optional[SimUniChallengeConfig] = None):
         """
@@ -180,6 +182,7 @@ class MoveToNextLevel(StateOperation):
                          nodes=[turn, move, confirm]
                          )
         self.level_type: SimUniLevelType = level_type
+        self.route: SimUniRoute = route
         self.current_pos: Optional[Point] = current_pos
         self.next_pos_list: Optional[List[Point]] = next_pos_list
         self.next_pos: Optional[Point] = None
@@ -192,11 +195,11 @@ class MoveToNextLevel(StateOperation):
         super()._init_before_execute()
         self.is_moving = False
         self.interacted = False
-        if self.next_pos_list is None or len(self.next_pos_list) == 0:
+        if self.route.next_pos_list is None or len(self.route.next_pos_list) == 0:
             self.next_pos = None
         else:
-            avg_pos_x = np.mean([pos.x for pos in self.next_pos_list], dtype=np.uint16)
-            avg_pos_y = np.mean([pos.y for pos in self.next_pos_list], dtype=np.uint16)
+            avg_pos_x = np.mean([pos.x for pos in self.route.next_pos_list], dtype=np.uint16)
+            avg_pos_y = np.mean([pos.y for pos in self.route.next_pos_list], dtype=np.uint16)
             self.next_pos = Point(avg_pos_x, avg_pos_y)
 
     def _turn_to_next(self) -> OperationOneRoundResult:
@@ -210,6 +213,18 @@ class MoveToNextLevel(StateOperation):
             else:
                 return Operation.round_success()
         screen = self.screenshot()
+
+        if not screen_state.is_normal_in_world(screen, self.ctx.im):
+            log.error('找下层入口时进入战斗 请反馈给作者 %s', self.route.display_name)
+            if self.ctx.one_dragon_config.is_debug:
+                return Operation.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
+            op = SimUniEnterFight(self.ctx, self.config)
+            op_result = op.execute()
+            if op_result.success:
+                return Operation.round_wait()
+            else:
+                return Operation.round_retry()
+
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
         log.debug('当前位置 %s 目标位置 %s', self.current_pos, self.next_pos)
@@ -220,10 +235,22 @@ class MoveToNextLevel(StateOperation):
     def _move_and_interact(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        if self.interacted:
-            if not screen_state.is_normal_in_world(screen, self.ctx.im):
-                # 兜底 - 如果已经不在大世界画面了 就认为成功了
+        in_world = screen_state.is_normal_in_world(screen, self.ctx.im)
+
+        if not in_world:
+            if self.interacted:
+                # 兜底 - 如果已经不在大世界画面且又交互过了 就认为成功了
                 return Operation.round_success()
+            else:
+                log.error('找下层入口时进入战斗 请反馈给作者 %s', self.route.display_name)
+                if self.ctx.one_dragon_config.is_debug:
+                    return Operation.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
+                op = SimUniEnterFight(self.ctx, self.config)
+                op_result = op.execute()
+                if op_result.success:
+                    return Operation.round_wait()
+                else:
+                    return Operation.round_retry()
 
         interact = self._try_interact(screen)
         if interact is not None:
