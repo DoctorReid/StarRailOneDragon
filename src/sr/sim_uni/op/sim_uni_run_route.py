@@ -230,8 +230,9 @@ class SimUniRunRouteBase(StateOperation):
         前往下一层
         :return:
         """
-        op = MoveToNextLevel(self.ctx, level_type=self.level_type, config=self.config,
-                             current_pos=self.current_pos, next_pos_list=self.route.next_pos_list)
+        op = MoveToNextLevel(self.ctx, level_type=self.level_type, route=self.route,
+                             config=self.config,
+                             current_pos=self.current_pos)
 
         return Operation.round_by_op(op.execute())
 

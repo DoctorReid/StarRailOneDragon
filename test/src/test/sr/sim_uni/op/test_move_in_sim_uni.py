@@ -1,5 +1,3 @@
-import unittest
-
 import test
 from sr.context import get_context
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel

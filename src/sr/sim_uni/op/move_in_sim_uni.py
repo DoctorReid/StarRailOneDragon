@@ -164,7 +164,7 @@ class MoveToNextLevel(StateOperation):
     STATUS_ENCOUNTER_FIGHT: ClassVar[str] = '遭遇战斗'
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType, route: SimUniRoute,
-                 current_pos: Optional[Point] = None, next_pos_list: Optional[List[Point]] = None,
+                 current_pos: Optional[Point] = None,
                  config: Optional[SimUniChallengeConfig] = None):
         """
         朝下一层入口走去 并且交互
@@ -184,7 +184,6 @@ class MoveToNextLevel(StateOperation):
         self.level_type: SimUniLevelType = level_type
         self.route: SimUniRoute = route
         self.current_pos: Optional[Point] = current_pos
-        self.next_pos_list: Optional[List[Point]] = next_pos_list
         self.next_pos: Optional[Point] = None
         self.config: Optional[SimUniChallengeConfig] = config
         self.is_moving: bool = False  # 是否正在移动
