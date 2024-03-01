@@ -192,7 +192,6 @@ class SimUniRunRouteBase(StateOperation):
         执行前的初始化 注意初始化要全面 方便一个指令重复使用
         """
         super()._init_before_execute()
-        self.route = None
         self.current_pos = None
 
     def _before_route(self) -> OperationOneRoundResult:
@@ -201,16 +200,6 @@ class SimUniRunRouteBase(StateOperation):
         :return:
         """
         return Operation.round_success()
-
-    def _update_route(self, op_result: OperationResult):
-        """
-        更新路线配置
-        :param op_result:
-        :return:
-        """
-        if op_result.success:
-            self.route: SimUniRoute = op_result.data
-            log.info('匹配路线 %s', self.route.display_name)
 
     def _run_route(self) -> OperationOneRoundResult:
         """
