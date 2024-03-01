@@ -37,6 +37,8 @@ class ChooseSimUniDiff(Operation):
         self.num: int = num
 
     def _execute_one_round(self) -> OperationOneRoundResult:
+        if self.num == 0:  # 默认难度
+            return Operation.round_success()
         screen: MatLike = self.screenshot()
 
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.SIM_TYPE_NORMAL.value):

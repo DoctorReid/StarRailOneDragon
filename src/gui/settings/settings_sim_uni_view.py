@@ -23,7 +23,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
             on_change=self._on_weekly_uni_num_changed
         )
         self.weekly_uni_diff = ft.Dropdown(
-            options=[ft.dropdown.Option(key=str(i), text=str(i)) for i in range(1, 6)],
+            options=[ft.dropdown.Option(key=str(i), text='默认' if i == 0 else str(i)) for i in range(0, 6)],
             on_change=self._on_weekly_uni_diff_changed
         )
 
