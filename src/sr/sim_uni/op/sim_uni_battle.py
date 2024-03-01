@@ -32,7 +32,8 @@ class SimUniEnterFight(Operation):
 
     def __init__(self, ctx: Context,
                  config: Optional[SimUniChallengeConfig] = None,
-                 disposable: bool = False):
+                 disposable: bool = False,
+                 no_attack: bool = False):
         """
         模拟宇宙中 主动进入战斗
         根据小地图的红圈 判断是否被敌人锁定
@@ -48,6 +49,7 @@ class SimUniEnterFight(Operation):
         self.attack_direction: int = 0  # 攻击方向
         self.config: Optional[SimUniChallengeConfig] = config  # 挑战配置
         self.disposable: bool = disposable  # 攻击可破坏物
+        self.no_attack: bool = no_attack  # 不主动攻击
         self.use_technique: bool = False if config is None else config.technique_fight  # 是否使用秘技开怪
 
     def _init_before_execute(self):
@@ -172,7 +174,9 @@ class SimUniEnterFight(Operation):
         if now_time - self.last_not_in_world_time > SimUniEnterFight.EXIT_AFTER_NO_BATTLE_TIME:
             return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
 
-        if self.disposable:
+        if self.no_attack:  # 适用于OP前就已经知道进入了战斗 这里只是等待战斗结束
+            return Operation.round_success()
+        elif self.disposable:
             self._attack(now_time)
         else:
             if self.use_technique and not self.ctx.is_buff_technique:  # 攻击类每次都需要使用
@@ -296,7 +300,7 @@ class SimUniFightElite(StateOperation):
         return Operation.round_by_op(op.execute())
 
     def _fight(self) -> OperationOneRoundResult:
-        op = SimUniEnterFight(self.ctx, config=self.config, disposable=True)  # 借用这个选项只攻击一次 且不额外使用秘技
+        op = SimUniEnterFight(self.ctx, config=self.config, no_attack=True)  # 前面已经进行攻击了 这里不需要 且不额外使用秘技
         return Operation.round_by_op(op.execute())
 
     def _switch_1(self) -> OperationOneRoundResult:
