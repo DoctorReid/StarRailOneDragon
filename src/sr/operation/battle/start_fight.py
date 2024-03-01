@@ -74,7 +74,7 @@ class StartFightForElite(StateOperation):
         self.character_list_from_param: Optional[List[Character]] = character_list
         self.character_list: List[Character] = []
         self.technique_order: List[int] = []
-        self.need_attack_finally: bool = False  # 最后需要攻击
+        self.need_attack_finally: bool = True  # 最后需要攻击
         self.skip_point_check: bool = skip_point_check  # 跳过检测秘技点
         self.technique_point: int = 5  # 秘技点
 
@@ -85,7 +85,7 @@ class StartFightForElite(StateOperation):
         super()._init_before_execute()
         self.character_list = []
         self.technique_order = []
-        self.need_attack_finally = False
+        self.need_attack_finally = True
 
     def _check_technique_point(self) -> OperationOneRoundResult:
         if self.skip_point_check:

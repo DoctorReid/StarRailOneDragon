@@ -8,11 +8,9 @@ import yaml
 from cv2.typing import MatLike
 
 from basic import Point, os_utils
-from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.const import operation_const
 from sr.const.map_const import Region, get_planet_by_cn, get_region_by_cn
-from sr.sim_uni.sim_uni_const import UNI_NUM_CN
 
 
 class SimUniRouteOperation(TypedDict):
