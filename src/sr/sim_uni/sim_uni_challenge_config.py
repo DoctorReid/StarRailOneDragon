@@ -102,6 +102,14 @@ class SimUniChallengeConfig(ConfigHolder):
     def technique_fight(self, new_value: bool):
         self.update('technique_fight', new_value)
 
+    @property
+    def multiple_consumable(self) -> bool:
+        return self.get('multiple_consumable', False)
+
+    @multiple_consumable.setter
+    def multiple_consumable(self, new_value: bool):
+        self.update('multiple_consumable', new_value)
+
 
 class SimUniChallengeAllConfig:
 

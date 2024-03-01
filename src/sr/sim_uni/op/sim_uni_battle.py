@@ -213,11 +213,16 @@ class SimUniEnterFight(Operation):
             self.ctx.no_technique_recover_consumables = True
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
         else:
-            area = ScreenDialog.FAST_RECOVER_CONFIRM.value
+            if self.ctx.consumable_used and not self.config.multiple_consumable:  # 只使用一个消耗品
+                area = ScreenDialog.FAST_RECOVER_CANCEL.value
+            else:
+                area = ScreenDialog.FAST_RECOVER_CONFIRM.value
 
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
+            if area == ScreenDialog.FAST_RECOVER_CONFIRM.value:
+                self.ctx.consumable_used = True
             return Operation.round_wait(wait=0.5)
         else:
             return Operation.round_retry('点击%s失败' % area.text, wait=1)

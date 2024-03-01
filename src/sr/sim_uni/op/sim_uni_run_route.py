@@ -249,7 +249,7 @@ class SimUniRunRouteBase(StateOperation):
 
 class UseTechniqueBeforeRoute(Operation):
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, multiple_consumable: bool):
         """
         需在大世界页面中使用
         在路线执行前 用当前角色使用秘技 如果是BUFF类的话
@@ -259,6 +259,7 @@ class UseTechniqueBeforeRoute(Operation):
         super().__init__(ctx, try_times=5,
                          op_name=gt('路线前使用秘技', 'ui')
                          )
+        self.multiple_consumable: bool = multiple_consumable
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if not self.ctx.is_buff_technique:
@@ -289,11 +290,16 @@ class UseTechniqueBeforeRoute(Operation):
                 self.ctx.no_technique_recover_consumables = True
                 area = ScreenDialog.FAST_RECOVER_CANCEL.value
             else:
-                area = ScreenDialog.FAST_RECOVER_CONFIRM.value
+                if self.ctx.consumable_used and not self.multiple_consumable:  # 只使用一个消耗品
+                    area = ScreenDialog.FAST_RECOVER_CANCEL.value
+                else:
+                    area = ScreenDialog.FAST_RECOVER_CONFIRM.value
 
             click = self.find_and_click_area(area, screen)
 
             if click == Operation.OCR_CLICK_SUCCESS:
+                if area == ScreenDialog.FAST_RECOVER_CONFIRM.value:
+                    self.ctx.consumable_used = True
                 return Operation.round_wait(wait=0.5)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1.5)

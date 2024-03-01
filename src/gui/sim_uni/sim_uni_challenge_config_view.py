@@ -231,6 +231,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
                                        on_blur=self._on_curio_text_update)
 
         self.technique_fight_checkbox = ft.Checkbox(disabled=True, on_change=self._on_technique_fight_changed)
+        self.multiple_consumable_checkbox = ft.Checkbox(disabled=True, on_change=self._on_multiple_consumable_changed)
 
         config_list = SettingsList(controls=[
             SettingsListItem(gt('选择配置', 'ui'), self.existed_dropdown),
@@ -248,6 +249,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
             SettingsListItem('', self.curio_text),
             SettingsListGroupTitle(gt('战斗', 'ui')),
             SettingsListItem(gt('秘技开怪', 'ui'), self.technique_fight_checkbox),
+            SettingsListItem(gt('连续使用消耗品', 'ui'), self.multiple_consumable_checkbox),
 
         ], width=400)
         config_card = Card(config_list)
@@ -330,6 +332,9 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.technique_fight_checkbox.disabled = not config_chosen
         self.technique_fight_checkbox.update()
 
+        self.multiple_consumable_checkbox.disabled = not config_chosen
+        self.multiple_consumable_checkbox.update()
+
     def _load_config_to_input(self):
         """
         将各个配置显示到输入框中
@@ -348,6 +353,9 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
         self.technique_fight_checkbox.value = self.chosen_config.technique_fight
         self.technique_fight_checkbox.update()
+
+        self.multiple_consumable_checkbox.value = self.chosen_config.multiple_consumable
+        self.multiple_consumable_checkbox.update()
 
     def _on_existed_list_changed(self, chosen_idx: Optional[int]):
         """
@@ -667,6 +675,14 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :return:
         """
         self.chosen_config.technique_fight = self.technique_fight_checkbox.value
+
+    def _on_multiple_consumable_changed(self, e):
+        """
+        连续使用消耗品
+        :param e:
+        :return:
+        """
+        self.chosen_config.multiple_consumable = self.multiple_consumable_checkbox.value
 
 
 _sim_uni_challenge_config_view: Optional[SimUniChallengeConfigView] = None
