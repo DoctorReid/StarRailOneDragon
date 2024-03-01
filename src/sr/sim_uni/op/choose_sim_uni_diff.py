@@ -32,7 +32,9 @@ class ChooseSimUniDiff(Operation):
         :param num: 难度 支持 1~5
         """
         super().__init__(ctx, try_times=5,
-                         op_name='%s %s %d' % (gt('模拟宇宙', 'ui'), gt('选择难度', 'ui'), num))
+                         op_name='%s %s %s' % (gt('模拟宇宙', 'ui'), gt('选择难度', 'ui'),
+                                               gt('默认', 'ui') if num == 0 else str(num))
+                         )
 
         self.num: int = num
 
