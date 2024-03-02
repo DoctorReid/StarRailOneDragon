@@ -227,6 +227,9 @@ class SimUniEnterFight(Operation):
         if click == Operation.OCR_CLICK_SUCCESS:
             if area == ScreenDialog.FAST_RECOVER_CONFIRM.value:
                 self.ctx.consumable_used = True
+            else:
+                self.ctx.consumable_used = False
+
             return Operation.round_wait(wait=0.5)
         else:
             return Operation.round_retry('点击%s失败' % area.text, wait=1)

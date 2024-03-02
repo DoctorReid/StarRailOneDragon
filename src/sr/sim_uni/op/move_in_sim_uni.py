@@ -229,7 +229,6 @@ class MoveToNextLevel(StateOperation):
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
-        log.debug('当前位置 %s 目标位置 %s', self.current_pos, self.next_pos)
         self.ctx.controller.turn_by_pos(self.current_pos, self.next_pos, mm_info.angle)
 
         return Operation.round_success(wait=0.5)  # 等待转动完成
@@ -267,7 +266,8 @@ class MoveToNextLevel(StateOperation):
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
                 # 因为前面已经转向了入口 所以就算被遮挡 只要稍微转一点应该就能看到了
-                self.ctx.controller.turn_by_angle(25)  # 这里要避免能被360整除 否则某些区域会转一圈又刚好被盖住
+                angle = (25 + 10 * self.op_round) * (1 if self.op_round % 2 == 0 else 0)  # 来回转动视角
+                self.ctx.controller.turn_by_angle(angle)
                 return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
             target = self._get_target_entry(type_list)
