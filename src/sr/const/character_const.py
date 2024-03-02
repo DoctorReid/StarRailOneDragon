@@ -192,6 +192,7 @@ XUEYI = Character(id='xueyi', cn='雪衣', path=CHARACTER_PATH_DESTRUCTION, comb
 DRRATIO = Character(id='drratio', cn='真理医生', path=CHARACTER_PATH_HUNT, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 MISHA = Character(id='misha', cn='米沙', path=CHARACTER_PATH_DESTRUCTION, combat_type=ICE, level=4, technique_type=TECHNIQUE_AREA)
 BLACKSWAN = Character(id='blackswan', cn='黑天鹅', path=CHARACTER_PATH_NIHILITY, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
+SPARKLE = Character(id='sparkle', cn='花火', path=CHARACTER_PATH_HARMONY, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -241,6 +242,7 @@ CHARACTER_LIST: List[Character] = [
     DRRATIO,
     MISHA,
     BLACKSWAN,
+    SPARKLE,
 ]
 
 
