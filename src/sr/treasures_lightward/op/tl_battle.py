@@ -1,8 +1,7 @@
-from typing import List, Optional, Callable, ClassVar
+from typing import List, Optional, Callable
 
 from cv2.typing import MatLike
 
-from basic import Rect
 from basic.i18_utils import gt
 from sr.const.character_const import Character
 from sr.context import Context
@@ -10,7 +9,6 @@ from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge, \
     OperationOneRoundResult
 from sr.operation.battle.start_fight import StartFightForElite
-from sr.operation.unit.forgotten_hall.wait_in_hall import WaitInHall
 from sr.operation.unit.move import MoveToEnemy, MoveForward
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard
 from sr.treasures_lightward.op.tl_wait import TlWaitNodeStart
@@ -21,6 +19,7 @@ class TlNodeFight(StateOperation):
 
     def __init__(self, ctx: Context,
                  is_first_node: bool,
+                 schedule_type: TreasuresLightwardTypeEnum,
                  team: Optional[List[Character]] = None,
                  op_callback: Optional[Callable[[OperationResult], None]] = None
                  ):
@@ -36,7 +35,7 @@ class TlNodeFight(StateOperation):
         """
         edges: List[StateOperationEdge] = []
 
-        node_start = StateOperationNode('等待节点开始', op=TlWaitNodeStart(ctx, is_first_node, timeout_seconds=15))
+        node_start = StateOperationNode('等待节点开始', op=TlWaitNodeStart(ctx, is_first_node))
 
         move = StateOperationNode('向敌人移动', op=MoveToEnemy(ctx))
         edges.append(StateOperationEdge(node_start, move))
@@ -57,6 +56,9 @@ class TlNodeFight(StateOperation):
                          timeout_seconds=600,
                          op_callback=op_callback)
 
+        self.schedule_type: TreasuresLightwardTypeEnum = schedule_type
+        self.last_state: Optional[str] = None
+
     def _check_screen(self) -> OperationOneRoundResult:
         """
         开始战斗后 检查当前画面并判断战斗是否结束
@@ -65,7 +67,11 @@ class TlNodeFight(StateOperation):
         screen = self.screenshot()
         state = self._get_screen_state(screen)
         if state is not None:
-            return Operation.round_success(state)
+            if self.last_state is not None and self.last_state == state:
+                return Operation.round_success(state)
+            else:
+                self.last_state = state
+                return Operation.round_retry('画面在改变')
         else:
             return Operation.round_wait('战斗中', wait=1)
 
@@ -75,12 +81,20 @@ class TlNodeFight(StateOperation):
         :param screen:
         :return:
         """
-        area_list = [
-            ScreenTreasuresLightWard.AFTER_BATTLE_SUCCESS_1.value,
-            ScreenTreasuresLightWard.AFTER_BATTLE_SUCCESS_2.value,
-            ScreenTreasuresLightWard.AFTER_BATTLE_FAIL.value,
-            ScreenTreasuresLightWard.EXIT_BTN.value,
-        ]
+        if self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL:
+            area_list = [
+                ScreenTreasuresLightWard.FH_AFTER_BATTLE_SUCCESS_1.value,
+                ScreenTreasuresLightWard.FH_AFTER_BATTLE_SUCCESS_2.value,
+                ScreenTreasuresLightWard.FH_AFTER_BATTLE_FAIL.value,
+                ScreenTreasuresLightWard.EXIT_BTN.value,
+            ]
+        else:
+            area_list = [
+                ScreenTreasuresLightWard.PF_AFTER_BATTLE_SUCCESS_1.value,
+                ScreenTreasuresLightWard.PF_AFTER_BATTLE_SUCCESS_2.value,
+                ScreenTreasuresLightWard.PF_AFTER_BATTLE_FAIL.value,
+                ScreenTreasuresLightWard.EXIT_BTN.value,
+            ]
         for area in area_list:
             if self.find_area(area, screen):
                 return area.status
@@ -119,10 +133,17 @@ class TlAfterNodeFight(StateOperation):
 
     def _click_back(self):
         screen = self.screenshot()
-        area_list = [
-            ScreenTreasuresLightWard.AFTER_BATTLE_BACK_BTN_1.value,
-            ScreenTreasuresLightWard.AFTER_BATTLE_BACK_BTN_2.value,
-        ]
+
+        if self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL:
+            area_list = [
+                ScreenTreasuresLightWard.FH_AFTER_BATTLE_BACK_BTN_1.value,
+                ScreenTreasuresLightWard.FH_AFTER_BATTLE_BACK_BTN_2.value,
+            ]
+        else:
+            area_list = [
+                ScreenTreasuresLightWard.PF_AFTER_BATTLE_BACK_BTN.value,
+            ]
+
         for area in area_list:
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
@@ -152,11 +173,18 @@ class TlAfterNodeFight(StateOperation):
         if screen_state.in_secondary_ui(screen, self.ctx.ocr, screen_state.ScreenState.FORGOTTEN_HALL.value):
             return screen_state.ScreenState.FORGOTTEN_HALL.value
 
-        area_list = [
-            ScreenTreasuresLightWard.PF_TITLE.value,
-            ScreenTreasuresLightWard.AFTER_BATTLE_QUICK_PASS_TITLE.value,
-            ScreenTreasuresLightWard.AFTER_BATTLE_QUICK_PASS_EMPTY.value,
-        ]
+        if self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL:
+            area_list = [
+                ScreenTreasuresLightWard.FH_TITLE.value,
+                ScreenTreasuresLightWard.AFTER_BATTLE_QUICK_PASS_TITLE.value,
+                ScreenTreasuresLightWard.AFTER_BATTLE_QUICK_PASS_EMPTY.value,
+            ]
+        else:
+            area_list = [
+                ScreenTreasuresLightWard.PF_TITLE.value,
+                ScreenTreasuresLightWard.AFTER_BATTLE_QUICK_PASS_TITLE.value,
+                ScreenTreasuresLightWard.AFTER_BATTLE_QUICK_PASS_EMPTY.value,
+            ]
         for area in area_list:
             if self.find_area(area, screen):
                 return area.text

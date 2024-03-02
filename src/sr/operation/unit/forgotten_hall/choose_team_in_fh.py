@@ -215,13 +215,3 @@ class ChooseTeamInForgottenHall(Operation):
             op_name='逐光捡金 选择角色'
         )
         return op.execute().success
-
-
-if __name__ == '__main__':
-    ctx = get_context()
-    ctx.init_image_matcher()
-
-    op = ChooseTeamInForgottenHall(ctx, None)
-
-    screen = get_debug_image('ChooseTeamInForgottenHall_1701876719795')
-    print(op._get_boss_combat_type(screen, ChooseTeamInForgottenHall.SESSION_2.combat_type_rect_list[1]))

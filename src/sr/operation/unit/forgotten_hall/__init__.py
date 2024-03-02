@@ -9,7 +9,7 @@ from basic import Rect, Point, str_utils, cal_utils
 from basic.img import MatchResult, cv2_utils, MatchResultList
 from sr.context import Context
 
-CHOOSE_MISSION_RECT = Rect(10, 400, 1900, 850)
+CHOOSE_MISSION_RECT = Rect(10, 261, 1900, 850)
 
 
 def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchResult]:
@@ -21,7 +21,7 @@ def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchRes
     """
     part, _ = cv2_utils.crop_image(screen, CHOOSE_MISSION_RECT)
 
-    lower_color = np.array([240, 240, 240], dtype=np.uint8)
+    lower_color = np.array([230, 230, 230], dtype=np.uint8)
     upper_color = np.array([255, 255, 255], dtype=np.uint8)
     white_part = cv2.inRange(part, lower_color, upper_color)
     # cv2_utils.show_image(white_part, win_name='white_part', wait=0)
@@ -34,11 +34,11 @@ def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchRes
         lt = Point(x, y) + CHOOSE_MISSION_RECT.left_top
         rb = Point(x + w, y + h) + CHOOSE_MISSION_RECT.left_top
         rect = Rect(lt.x - 5, lt.y - 5, rb.x + 5, rb.y + 5)
+        # print(number_part.shape)
+        if w > 40 or w < 5 or h < 25:  # 过滤过大或过小的矩阵
+            continue
         # number_part, rect = cv2_utils.crop_image(screen, rect)
         # cv2_utils.show_image(number_part, win_name='number_part', wait=0)
-        # print(number_part.shape)
-        if w > 40 or w < 10 or h < 30:  # 过滤过大或过小的矩阵
-            continue
 
         merged: bool = False  # 将较近距离的数字合并
         for another_rect in digit_rect_list:
@@ -61,8 +61,6 @@ def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchRes
         # 在矩阵中匹配数字
         number_part, rect = cv2_utils.crop_image(screen, rect)
 
-        lower_color = np.array([240, 240, 240], dtype=np.uint8)
-        upper_color = np.array([255, 255, 255], dtype=np.uint8)
         white_number_part = cv2.inRange(number_part, lower_color, upper_color)
 
         ocr_result = ctx.ocr.ocr_for_single_line(white_number_part)

@@ -1,46 +1,49 @@
-import time
-from typing import ClassVar
+from typing import List
 
-from basic import Rect
 from basic.i18_utils import gt
-from basic.img import cv2_utils
 from sr.context import Context
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
+from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard
 
 
-class TlWaitNodeStart(Operation):
+class TlWaitNodeStart(StateOperation):
 
-    EXIT_BTN: ClassVar[Rect] = Rect(0, 0, 75, 115)  # 左上方的退出按钮
-
-    FIRST_CLICK_EMPTY_RECT: ClassVar[Rect] = Rect(856, 851, 1071, 885)  # 点击空白处关闭
-
-    def __init__(self, ctx: Context, first: bool, timeout_seconds: float):
+    def __init__(self, ctx: Context, first: bool):
         """
-        需要在逐光捡金关卡内使用
+        需要在逐光捡金节点内使用
         等待界面加载
         :param ctx: 上下文
-        :param first: 是否第一关
-        :param timeout_seconds: 等待超时时间
+        :param first: 是否第一个节点
         """
-        super().__init__(ctx, op_name=gt('逐光捡金 加载关卡', 'ui'), timeout_seconds=timeout_seconds)
+        edges: List[StateOperationEdge] = []
 
-        self.first: bool = first
-        """是否第一个节点"""
+        click_empty = StateOperationNode('点击空白处关闭', self._click_empty)
+        wait = StateOperationNode('等待可移动画面', self._wait)
+        edges.append(StateOperationEdge(click_empty, wait))
 
-    def _execute_one_round(self) -> OperationOneRoundResult:
-        screen = self.screenshot()
+        super().__init__(ctx, try_times=15,
+                         op_name=gt('逐光捡金 等待节点加载', 'ui'),
+                         edges=edges,
+                         specified_start_node=click_empty if first else wait
+                         )
 
-        if self.first:  # 节点1的时候有一个效果提示
-            click = self.ocr_and_click_one_line('点击空白处关闭', TlWaitNodeStart.FIRST_CLICK_EMPTY_RECT)
-            if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(wait=1)
+    def _click_empty(self) -> OperationOneRoundResult:
+        """
+        第一个节点时存在 点击关闭显示的BUFF
+        :return:
+        """
+        click = self.find_and_click_area(ScreenTreasuresLightWard.NODE_FIRST_CLICK_EMPTY.value)
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success(wait=1)
+        else:
+            return Operation.round_retry('点击空白处关闭失败', wait=1)
 
-        part, _ = cv2_utils.crop_image(screen, TlWaitNodeStart.EXIT_BTN)
-
-        match_result_list = self.ctx.im.match_template(part, 'ui_icon_10', only_best=True)
-
-        if len(match_result_list) > 0:
+    def _wait(self) -> OperationOneRoundResult:
+        """
+        等待加载
+        :return:
+        """
+        if self.find_area(ScreenTreasuresLightWard.EXIT_BTN.value):
             return Operation.round_success()
         else:
-            time.sleep(0.5)
-            return Operation.round_wait()
+            return Operation.round_retry('未在可移动画面', wait=1)

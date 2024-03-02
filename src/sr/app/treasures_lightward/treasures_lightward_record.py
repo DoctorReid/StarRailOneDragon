@@ -217,13 +217,3 @@ class TreasuresLightwardRunRecord(AppRunRecord):
                 latest_dt = schedule['add_dt']
                 total_star = self.get_total_star(schedule)
         return total_star
-
-
-_treasures_lightward_record: Optional[TreasuresLightwardRunRecord] = None
-
-
-def get_record() -> TreasuresLightwardRunRecord:
-    global _treasures_lightward_record
-    if _treasures_lightward_record is None:
-        _treasures_lightward_record = TreasuresLightwardRunRecord()
-    return _treasures_lightward_record

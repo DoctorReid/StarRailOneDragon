@@ -522,7 +522,7 @@ class OneStopView(ft.Row, SrBasicView):
         echo_record = self.sr_ctx.echo_run_record
         self.echo.update_value(str(echo_record.left_times))
 
-        tl_record = treasures_lightward_record.get_record()
+        tl_record = self.sr_ctx.tl_run_record
         self.forgotten_hall.update_value(str(tl_record.get_latest_total_star(TreasuresLightwardTypeEnum.FORGOTTEN_HALL)))
         self.pure_fiction.update_value(str(tl_record.get_latest_total_star(TreasuresLightwardTypeEnum.PURE_FICTION)))
 

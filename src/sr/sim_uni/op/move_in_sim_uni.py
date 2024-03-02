@@ -10,7 +10,6 @@ from basic.img import MatchResult, cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
-from sr.config import game_config
 from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
@@ -95,7 +94,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if next_pos is None:
             log.error('无法判断当前人物坐标')
             if self.ctx.one_dragon_config.is_debug:
-                save_debug_image(mm)
+                save_debug_image(mm, file_name='%s_%d_%d_%d.png' % (self.lm_info.region.prl_id, possible_pos[0], possible_pos[1], int(possible_pos[2])))
 
         return next_pos, mm_info
 

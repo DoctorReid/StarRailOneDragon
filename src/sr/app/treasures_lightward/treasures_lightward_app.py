@@ -6,20 +6,20 @@ from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application2
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
-from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord, get_record, \
+from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord, \
     TreasuresLightwardScheduleRecord
 from sr.const import phone_menu_const
 from sr.const.character_const import CharacterCombatType, Character
 from sr.context import Context
 from sr.operation import StateOperationEdge, StateOperationNode, OperationResult, OperationOneRoundResult, Operation
-from sr.operation.combine.challenge_forgotten_hall_mission import ChallengeForgottenHallMission
-from sr.operation.unit.forgotten_hall.check_next_challenge_mission import CheckMaxUnlockMission
 from sr.operation.unit.forgotten_hall.get_reward_in_fh import GetRewardInForgottenHall
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard
+from sr.treasures_lightward.op.challenge_mission import ChallengeTreasuresLightwardMission
+from sr.treasures_lightward.op.check_max_unlock_mission import CheckMaxUnlockMission
 from sr.treasures_lightward.op.check_star import TlCheckTotalStar
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 from sr.treasures_lightward.treasures_lightward_team_module import search_best_mission_team
@@ -30,7 +30,7 @@ class TreasuresLightwardApp(Application2):
     STATUS_SHOULD_CHALLENGE: ClassVar[str] = '进行挑战'
 
     def __init__(self, ctx: Context):
-        self.run_record: Optional[TreasuresLightwardRunRecord] = get_record()
+        self.run_record: Optional[TreasuresLightwardRunRecord] = ctx.tl_run_record
         edges: List[StateOperationEdge] = []
 
         open_menu = StateOperationNode('打开菜单', op=OpenPhoneMenu(ctx))
@@ -69,7 +69,7 @@ class TreasuresLightwardApp(Application2):
         edges.append(StateOperationEdge(get_reward, back_menu))
         edges.append(StateOperationEdge(back_menu, choose_guide))  # 继续下一期的挑战
 
-        check_max_unlock = StateOperationNode('最大的已解锁关卡', op=CheckMaxUnlockMission(ctx, self._on_max_unlock_done))
+        check_max_unlock = StateOperationNode('最大的已解锁关卡', self._check_unlock)
         edges.append(StateOperationEdge(check_total_star, check_max_unlock, ignore_status=True))  # 非满星的时候找到开始关卡
 
         challenge_mission = StateOperationNode('挑战关卡', self._challenge_next_mission)
@@ -269,6 +269,10 @@ class TreasuresLightwardApp(Application2):
         else:
             return 1
 
+    def _check_unlock(self) -> OperationOneRoundResult:
+        op = CheckMaxUnlockMission(self.ctx, self.schedule_type, self._on_max_unlock_done)
+        return Operation.round_by_op(op.execute())
+
     def _challenge_next_mission(self) -> OperationOneRoundResult:
         """
         获取下一个挑战关卡的指令
@@ -278,9 +282,9 @@ class TreasuresLightwardApp(Application2):
                 self.run_record.get_total_star(self.challenge_schedule) >= self.get_max_num() * 3:
             return Operation.round_success()
 
-        op = ChallengeForgottenHallMission(self.ctx,
-                                           self.schedule_type,
-                                           self.current_mission_num, 2,
-                                           cal_team_func=self._cal_team_member,
-                                           op_callback=self._on_mission_finished)
+        op = ChallengeTreasuresLightwardMission(self.ctx,
+                                                self.schedule_type,
+                                                self.current_mission_num, 2,
+                                                cal_team_func=self._cal_team_member,
+                                                op_callback=self._on_mission_finished)
         return Operation.round_by_op(op.execute())
