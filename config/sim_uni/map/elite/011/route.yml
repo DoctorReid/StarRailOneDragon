@@ -5,7 +5,7 @@ floor: 2
 start_pos: [900, 390]
 next_pos_list:
   - [988, 376]
-reward_pos: [980, 405]
+reward_pos: [978, 400]
 op_list:
   - op: 'no_pos_move'
     data: [960, 390]

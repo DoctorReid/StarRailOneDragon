@@ -1,14 +1,14 @@
-support_world: [5, 6, 8]
+support_world: [5, 6, 7, 8]
 planet: '仙舟「罗浮」'
 region: '流云渡'
 floor: 1
-start_pos: [481, 1388]
+start_pos: [499, 1393]
 next_pos_list:
   - [404, 1401]
   - [404, 1378]
 op_list:
   - op: 'move'
-    data: [436, 1389]
+    data: [436, 1393]
   - op: 'patrol'
   - op: 'move'
-    data: [421, 1389]
+    data: [421, 1393]

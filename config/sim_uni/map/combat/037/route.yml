@@ -20,3 +20,4 @@ op_list:
   - op: 'patrol'
   - op: 'no_pos_move'
     data: [421, 480]
+  - op: 'patrol'
