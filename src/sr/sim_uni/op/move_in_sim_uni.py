@@ -7,6 +7,7 @@ from cv2.typing import MatLike
 from basic import Point, cal_utils, str_utils, Rect
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
+from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
 from sr.config import game_config
@@ -93,6 +94,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
 
         if next_pos is None:
             log.error('无法判断当前人物坐标')
+            if self.ctx.one_dragon_config.is_debug:
+                save_debug_image(mm)
 
         return next_pos, mm_info
 

@@ -366,6 +366,7 @@ class MoveDirectly(Operation):
         """
         if next_pos is None:
             if now_time - self.last_no_pos_time > 0.5:
+                self.ctx.controller.enter_running(False)
                 self.no_pos_times += 1
                 self.last_no_pos_time = now_time
                 if self.no_pos_times >= 3:  # 不要再乱走了

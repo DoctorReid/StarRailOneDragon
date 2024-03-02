@@ -151,6 +151,14 @@ class GameController:
         """
         pass
 
+    def enter_running(self, run: bool):
+        """
+        进入疾跑模式
+        :param run: 是否进入疾跑
+        :return:
+        """
+        pass
+
     def move(self, direction: str, press_time: float = 0):
         """
         往固定方向移动
