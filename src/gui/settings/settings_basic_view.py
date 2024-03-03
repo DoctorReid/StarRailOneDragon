@@ -301,7 +301,12 @@ class SettingsBasicView(components.Card, SrBasicView):
         self.update_btn.disabled = True
         self.update()
         try:
-            version.do_update(proxy=self.sr_ctx.one_dragon_config.proxy_address)
+            if self.specified_version_input.value is None or self.specified_version_input.value == '':
+                ver = None
+            else:
+                ver = self.specified_version_input.value
+            version.do_update(version=ver,
+                              proxy=self.sr_ctx.one_dragon_config.proxy_address)
             self.flet_page.window_close()
         except Exception:
             msg: str = gt('下载更新失败', 'ui')

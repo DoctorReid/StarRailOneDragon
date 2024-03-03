@@ -144,7 +144,7 @@ def do_update(version: Optional[str] = None, proxy: Optional[str] = None):
             for key in old_version:
                 if key in new_version \
                     and key in to_update \
-                        and new_version[key] != old_version[key]:
+                        and new_version[key] == old_version[key]:
                     to_update.remove(key)
 
     download_and_unzip(version, to_update, proxy=proxy)
