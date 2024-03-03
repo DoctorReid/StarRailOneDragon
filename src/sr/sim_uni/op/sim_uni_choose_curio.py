@@ -355,6 +355,24 @@ class SimUniDropCurio(StateOperation):
         opt_priority_list: List[int] = [99 for _ in curio_list]  # 选项的优先级
         cnt = 0
 
+        for curio_enum in SimUniCurioEnum:
+            curio = curio_enum.value
+            if not curio.negative:  # 优先丢弃负面奇物
+                continue
+            for idx, opt_curio in enumerate(curio_list):
+                if curio_enum.value == opt_curio and opt_priority_list[idx] == 99:
+                    opt_priority_list[idx] = cnt
+                    cnt += 1
+
+        for curio_enum in SimUniCurioEnum:
+            curio = curio_enum.value
+            if not curio.invalid_after_got:  # 优先丢弃已失效奇物
+                continue
+            for idx, opt_curio in enumerate(curio_list):
+                if curio_enum.value == opt_curio and opt_priority_list[idx] == 99:
+                    opt_priority_list[idx] = cnt
+                    cnt += 1
+
         for curio_id in config.curio_priority:
             curio_enum = SimUniCurioEnum[curio_id]
             for idx, opt_curio in enumerate(curio_list):

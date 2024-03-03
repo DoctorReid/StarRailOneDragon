@@ -444,9 +444,11 @@ def bless_enum_from_title(bless_title: str) -> Optional[SimUniBlessEnum]:
 
 class SimUniCurio:
 
-    def __init__(self, name: str, py: str):
+    def __init__(self, name: str, py: str, negative: bool = False, invalid_after_got: bool = False):
         self.name: str = name
         self.py: str = py
+        self.negative: bool = negative  # 负面奇物
+        self.invalid_after_got: bool = invalid_after_got  # 得到后立刻生效 然后变成无效奇物
 
     def __str__(self):
         return self.name
@@ -468,12 +470,12 @@ class SimUniCurioEnum(Enum):
     CURIO_009 = SimUniCurio('人造陨石球', 'rzysq')
     CURIO_010 = SimUniCurio('塔拉毒火焰', 'tldhy')
     CURIO_011 = SimUniCurio('降维骰子', 'jwsz')
-    CURIO_012 = SimUniCurio('万象无常骰', 'wxwcs')
-    CURIO_013 = SimUniCurio('闪耀的偏方三八面骰', 'sydpsbms')
+    CURIO_012 = SimUniCurio('万象无常骰', 'wxwcs', invalid_after_got=True)
+    CURIO_013 = SimUniCurio('闪耀的偏方三八面骰', 'sydpsbms', invalid_after_got=True)
     CURIO_014 = SimUniCurio('混沌云芝', 'hdlz')
     CURIO_015 = SimUniCurio('跃迁复眼', 'yqfy')
     CURIO_016 = SimUniCurio('异木果实', 'ymgs')
-    CURIO_017 = SimUniCurio('测不准匣', 'cbzx')
+    CURIO_017 = SimUniCurio('测不准匣', 'cbzx', invalid_after_got=True)
     CURIO_018 = SimUniCurio('香涎干酪', 'xygl')
     CURIO_019 = SimUniCurio('福灵胶', 'flj')
     CURIO_020 = SimUniCurio('永不停嘴的羊皮卷', 'ybtzdypj')
@@ -483,7 +485,7 @@ class SimUniCurioEnum(Enum):
     CURIO_024 = SimUniCurio('信仰债券', 'xyzq')
     CURIO_025 = SimUniCurio('分裂金币', 'fljb')
     CURIO_026 = SimUniCurio('分裂银币', 'flyb')
-    CURIO_027 = SimUniCurio('空无烛剪', 'wkzj')
+    CURIO_027 = SimUniCurio('空无烛剪', 'kwzj', invalid_after_got=True)
     CURIO_028 = SimUniCurio('湮灭烛剪', 'ymzj')
     CURIO_029 = SimUniCurio('天外重声大碟', 'twcsdd')
     CURIO_030 = SimUniCurio('存护火漆', 'chhq')
@@ -502,19 +504,19 @@ class SimUniCurioEnum(Enum):
     CURIO_043 = SimUniCurio('没有注释的代码', 'myzsddm')
     CURIO_044 = SimUniCurio('无限递归的代码', 'wxdgddm')
     CURIO_045 = SimUniCurio('碎星芳饵', 'sxfe')
-    CURIO_046 = SimUniCurio('虫网', 'cw')
+    CURIO_046 = SimUniCurio('虫网', 'cw', negative=True)
     CURIO_047 = SimUniCurio('天使型谢债发行机', 'tsxxzfxj')
     CURIO_048 = SimUniCurio('换境桂冠', 'hjgg')
     CURIO_049 = SimUniCurio('时空棱镜', 'sklj')
     CURIO_050 = SimUniCurio('银河大乐透', 'yhdlt')
     CURIO_051 = SimUniCurio('星际大乐透', 'xjdlt')
     CURIO_052 = SimUniCurio('万识囊', 'wsl')
-    CURIO_053 = SimUniCurio('卜筵咕咕钟', 'pyggz')
-    CURIO_054 = SimUniCurio('黑森林咕咕钟', 'hslggz')
-    CURIO_055 = SimUniCurio('永动咕咕钟', 'ydggz')
-    CURIO_056 = SimUniCurio('公司咕咕钟', 'gsggz')
-    CURIO_057 = SimUniCurio('机械咕咕钟', 'jxggz')
-    CURIO_058 = SimUniCurio('分裂咕咕钟', 'flggz')
+    CURIO_053 = SimUniCurio('卜筵咕咕钟', 'pyggz', negative=True)
+    CURIO_054 = SimUniCurio('黑森林咕咕钟', 'hslggz', negative=True)
+    CURIO_055 = SimUniCurio('永动咕咕钟', 'ydggz', negative=True)
+    CURIO_056 = SimUniCurio('公司咕咕钟', 'gsggz', negative=True)
+    CURIO_057 = SimUniCurio('机械咕咕钟', 'jxggz', negative=True)
+    CURIO_058 = SimUniCurio('分裂咕咕钟', 'flggz', negative=True)
     CURIO_059 = SimUniCurio('信标着色剂', 'xbzsj')
     CURIO_060 = SimUniCurio('粉红冲撞', 'fhcz')
 

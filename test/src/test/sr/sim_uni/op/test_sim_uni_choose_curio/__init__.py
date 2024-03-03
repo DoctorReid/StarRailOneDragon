@@ -1,12 +1,10 @@
-import unittest
 from typing import List
 
 import test
-from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.context import get_context
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
-from sr.sim_uni.sim_uni_const import SimUniCurioEnum, SimUniCurio
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_const import SimUniCurioEnum, SimUniCurio
 
 
 class TestChooseSimUniCurio(test.SrTestBase):
@@ -17,7 +15,7 @@ class TestChooseSimUniCurio(test.SrTestBase):
     def test_get_curio_pos(self):
         ctx = get_context()
         ctx.init_ocr_matcher()
-        screen = self.get_test_image('1')
+        screen = self.get_test_image_new('choose_pos_3.png')
 
         op = SimUniChooseCurio(ctx)
 
@@ -39,7 +37,7 @@ class TestChooseSimUniCurio(test.SrTestBase):
 
         op = SimUniDropCurio(ctx)
 
-        screen = self.get_test_image('drop_2')
+        screen = self.get_test_image_new('drop_2.png')
         curio_list = op._get_curio_pos(screen)
         answer: List[SimUniCurio] = [
             SimUniCurioEnum.CURIO_011.value,
@@ -49,7 +47,7 @@ class TestChooseSimUniCurio(test.SrTestBase):
         for i in range(len(answer)):
             self.assertTrue(curio_list[i].data in answer)
 
-        screen = self.get_test_image('drop_1')
+        screen = self.get_test_image_new('drop_1.png')
         curio_list = op._get_curio_pos(screen)
         answer: List[SimUniCurio] = [
             SimUniCurioEnum.CURIO_026.value,
@@ -61,7 +59,7 @@ class TestChooseSimUniCurio(test.SrTestBase):
     def test_drop_get_curio_by_priority(self):
         ctx = get_context()
         ctx.init_ocr_matcher()
-        screen = self.get_test_image('drop_2')
+        screen = self.get_test_image_new('drop_2.png')
 
         config = SimUniChallengeConfig(9, mock=True)
         op = SimUniDropCurio(ctx, config)
@@ -71,18 +69,3 @@ class TestChooseSimUniCurio(test.SrTestBase):
         mr = op._get_curio_to_choose(curio_list)
 
         self.assertEqual(SimUniCurioEnum.CURIO_006.value, mr.data)
-
-    def test_op(self):
-        ctx = get_context()
-        ctx.start_running()
-
-        op = SimUniChooseCurio(ctx)
-        op.execute()
-
-    def test_drop_op(self):
-        ctx = get_context()
-        ctx.start_running()
-        config = SimUniChallengeConfig(8)
-
-        op = SimUniDropCurio(ctx, config)
-        op.execute()
