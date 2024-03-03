@@ -142,7 +142,9 @@ def do_update(version: Optional[str] = None, proxy: Optional[str] = None):
         with open(old_version_path, 'r') as file:
             old_version = yaml.safe_load(file)
             for key in old_version:
-                if key in new_version and new_version[key] != old_version[key]:
+                if key in new_version \
+                    and key in to_update \
+                        and new_version[key] != old_version[key]:
                     to_update.remove(key)
 
     download_and_unzip(version, to_update, proxy=proxy)
