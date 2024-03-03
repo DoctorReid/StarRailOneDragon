@@ -15,6 +15,8 @@ from basic.log_utils import log
 from sr.one_dragon_config import GH_PROXY_URL
 
 
+SPECIFIED_VERSION_FILE_URL = 'https://github.com/DoctorReid/StarRailOneDragon/releases/download/%s/%s'
+
 @lru_cache
 def get_current_version() -> str:
     """
@@ -80,7 +82,7 @@ def check_specified_version(version: str, proxy: Optional[str] = None) -> int:
     :param proxy: 请求时使用的代理地址
     :return: 0 - 已是最新版本；1 - 有新版本；2 - 检查更新失败
     """
-    version_url = 'https://github.com/DoctorReid/StarRailOneDragon/releases/download/%s/version.yml' % version
+    version_url = SPECIFIED_VERSION_FILE_URL % (version, 'version.yml')
     success = download_file('version.yml', version_url, proxy=proxy)  # 第一步必选先下载新版本信息
 
     if success:
@@ -89,50 +91,61 @@ def check_specified_version(version: str, proxy: Optional[str] = None) -> int:
         return 2
 
 
-def do_update(proxy: Optional[str] = None):
+def do_update(version: Optional[str] = None, proxy: Optional[str] = None):
     """
     执行更新
     1. 比较本地和最新的 version.yml
     2. 找出需要更新的zip包，下载解压到 .temp 文件夹
     3. 关闭当前脚本
     4. 复制 .temp 中的内容到当前脚本目录
+    :param version:
     :param proxy: 下载时使用的代理地址
     :return:
     """
-    release = get_latest_release_info(proxy=proxy)
+    if version is None:
+        release = get_latest_release_info(proxy=proxy)
+        version = release['tag_name']
 
-    name_2_url = {}
+        name_2_url = {}
 
-    for asset in release["assets"]:
-        name_2_url[asset['name']] = asset["browser_download_url"]
+        for asset in release["assets"]:
+            name_2_url[asset['name']] = asset["browser_download_url"]
 
-    if 'version.yml' not in name_2_url:
-        log.error('新版本文件还没准备好')  # 理论逻辑不应该进入这里
-        return
+        if 'version.yml' not in name_2_url:
+            log.error('新版本文件还没准备好')  # 理论逻辑不应该进入这里
+            return
 
-    download_file('version.yml', name_2_url['version.yml'], proxy=proxy)  # 第一步必选先下载新版本信息
+        download_version = download_file('version.yml', name_2_url['version.yml'], proxy=proxy)  # 第一步必选先下载新版本信息
+    else:
+        check = check_specified_version(version, proxy=proxy)
+        download_version = check == 1
 
-    old_version_path = os.path.join(os_utils.get_work_dir(), 'version.yml')
-    if not os.path.exists(old_version_path):
-        download_and_unzip(name_2_url, proxy=proxy)
+    if not download_version:
+        log.error('下载新版本文件失败')
         return
 
     temp_dir = os_utils.get_path_under_work_dir('.temp')
     new_version_path = os.path.join(temp_dir, 'version.yml')
 
-    to_update = set()
-
-    with open(old_version_path, 'r') as file:
-        old_version = yaml.safe_load(file)
-
     with open(new_version_path, 'r') as file:
         new_version = yaml.safe_load(file)
 
-    for key in new_version:
-        if key not in old_version or new_version[key] != old_version[key]:
-            to_update.add(key)
+    to_update = set()
 
-    download_and_unzip(name_2_url, to_update, proxy=proxy)
+    for key in new_version:
+        if key in ['version']:
+            continue
+        to_update.add(key)
+
+    old_version_path = os.path.join(os_utils.get_work_dir(), 'version.yml')
+    if os.path.exists(old_version_path):
+        with open(old_version_path, 'r') as file:
+            old_version = yaml.safe_load(file)
+            for key in old_version:
+                if key in new_version and new_version[key] != old_version[key]:
+                    to_update.remove(key)
+
+    download_and_unzip(version, to_update, proxy=proxy)
     move_temp_and_restart()
 
 
@@ -201,30 +214,25 @@ def delete_old_files():
     shutil.rmtree(os_utils.get_path_under_work_dir('.temp', 'StarRailOneDragon'))
 
 
-def download_and_unzip(name_2_url: dict[str, str], to_update: set[str] = None,
+def download_and_unzip(version: str, to_update: set[str] = None,
                        proxy: Optional[str] = None):
     """
     下载所需的文件到 .temp 并解压
-    :param name_2_url: 文件名对应的下载路径
+    :param version: 版本号
     :param to_update: 需要更新的模块
     :param proxy: 下载使用的代理地址
     :return:
     """
     delete_old_files()
     if to_update is None or 'requirements' in to_update:
-        filename, url = None, None
-        for i in name_2_url.keys():
-            if i.startswith('StarRailOneDragon') and i.endswith('.zip'):
-                filename = i
-                url = name_2_url[i]
+        filename = 'StarRailOneDragon-%s.zip' % version
+        url = SPECIFIED_VERSION_FILE_URL % (version, filename)
         download_file(filename, url, proxy)
         unzip(filename)
     else:
         for module in to_update:
             filename = module + '.zip'
-            if filename not in name_2_url:
-                continue
-            url = name_2_url[filename]
+            url = SPECIFIED_VERSION_FILE_URL % (version, filename)
             download_file(filename, url, proxy)
             unzip(filename)
 
