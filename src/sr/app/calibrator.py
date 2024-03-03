@@ -8,11 +8,10 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr import cal_pos
 from sr.app.application_base import Application
-from sr.config import game_config
 from sr.config.game_config import GameConfig, MiniMapPos
 from sr.const import map_const
 from sr.const.map_const import TransportPoint
-from sr.context import Context, get_context
+from sr.context import Context
 from sr.image.sceenshot import mini_map, large_map, LargeMapInfo, MiniMapInfo
 from sr.operation.combine.transport import Transport
 
@@ -23,7 +22,7 @@ class Calibrator(Application):
     """
 
     def __init__(self, ctx: Context):
-        super().__init__(ctx)
+        super().__init__(ctx, op_name='校准')
 
     def _execute_one_round(self):
         self._check_mini_map_pos()
@@ -153,11 +152,3 @@ class Calibrator(Application):
 
         run_speed = np.sum(dis_arr) / np.sum(use_time_arr)
         log.info('疾跑平均速度 %.4f', run_speed)
-
-
-if __name__ == '__main__':
-    ctx = get_context()
-    ctx.running = True
-    ctx.controller.init()
-    app = Calibrator(ctx)
-    app.execute()
