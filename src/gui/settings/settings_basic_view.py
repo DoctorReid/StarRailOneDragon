@@ -124,7 +124,7 @@ class SettingsBasicView(components.Card, SrBasicView):
 
         self.check_update_btn = components.RectOutlinedButton(text='检查更新', on_click=self.check_update)
         self.update_btn = components.RectOutlinedButton(text='更新', on_click=self.do_update, visible=False)
-        self.pre_release_switch = ft.Switch(value=False, on_change=self.on_prerelease_switch)
+        self.specified_version_input = ft.TextField(hint_text='指定需要更新的版本 例如 v1.0.0')
         self.proxy_type_dropdown = ft.Dropdown(
             options=[
                 ft.dropdown.Option(text=gt(i.cn, 'ui'), key=i.id) for i in sr.one_dragon_config.PROXY_TYPE_LIST
@@ -143,7 +143,7 @@ class SettingsBasicView(components.Card, SrBasicView):
             components.SettingsListItem('界面主题', self.gui_theme_dropdown),
             components.SettingsListItem('调试模式', self.debug_mode_check),
             components.SettingsListGroupTitle('更新'),
-            components.SettingsListItem('测试版本', self.pre_release_switch),
+            components.SettingsListItem('指定版本', self.specified_version_input),
             components.SettingsListItem('代理类型', self.proxy_type_dropdown),
             components.SettingsListItem('代理地址', self.personal_proxy_input),
             components.SettingsListItem('检查更新', ft.Row(controls=[self.check_update_btn, self.update_btn])),
@@ -266,21 +266,19 @@ class SettingsBasicView(components.Card, SrBasicView):
     def _on_debug_mode_changed(self, e):
         self.sr_ctx.one_dragon_config.is_debug = self.debug_mode_check.value
 
-    def on_prerelease_switch(self, e):
-        if self.pre_release_switch.value:
-            msg: str = gt('测试版可能功能不稳定 如遇问题，可关闭后再次更新', 'ui')
-            snack_bar.show_message(msg, self.flet_page)
-            log.info(msg)
-
     def check_update(self, e):
-        version_result = version.check_new_version(proxy=self.sr_ctx.one_dragon_config.proxy_address,
-                                                   pre_release=self.pre_release_switch.value)
+        if self.specified_version_input.value is None or self.specified_version_input.value == '':
+            version_result = version.check_new_version(proxy=self.sr_ctx.one_dragon_config.proxy_address)
+        else:
+            version_result = version.check_specified_version(self.specified_version_input.value,
+                                                             proxy=self.sr_ctx.one_dragon_config.proxy_address)
+
         if version_result == 2:
             msg: str = gt('检测更新请求失败', 'ui')
             snack_bar.show_message(msg, self.flet_page)
             log.info(msg)
         elif version_result == 1:
-            if os_utils.run_in_flet_exe():
+            if not os_utils.run_in_flet_exe():
                 msg: str = gt('检测到新版本 再次点击进行更新 更新过程会自动关闭脚本 完成后将自动启动', 'ui')
                 snack_bar.show_message(msg, self.flet_page)
                 log.info(msg)
@@ -303,8 +301,7 @@ class SettingsBasicView(components.Card, SrBasicView):
         self.update_btn.disabled = True
         self.update()
         try:
-            version.do_update(proxy=self.game_config.proxy_address,
-                              pre_release=self.pre_release_switch.value)
+            version.do_update(proxy=self.sr_ctx.one_dragon_config.proxy_address)
             self.flet_page.window_close()
         except Exception:
             msg: str = gt('下载更新失败', 'ui')
