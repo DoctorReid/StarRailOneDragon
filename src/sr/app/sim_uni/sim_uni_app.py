@@ -19,8 +19,10 @@ from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
+from sr.operation.unit.interact import Interact
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.op.choose_sim_uni_diff import ChooseSimUniDiff
 from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
@@ -114,10 +116,10 @@ class SimUniApp(Application2):
         edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniApp.STATUS_EXCEPTION))
 
         # 战斗失败
-        world_fail = StateOperationNode('战斗失败', op=SimUniExit(ctx, exit_clicked=True))
-        edges.append(StateOperationEdge(run_world, world_fail,
+        fail_click_empty = StateOperationNode('战斗失败结算', self._fail_click_empty)
+        edges.append(StateOperationEdge(run_world, fail_click_empty,
                                         success=False, status=SimUniEnterFight.STATUS_BATTLE_FAIL))
-        edges.append(StateOperationEdge(world_fail, check_times_to_continue))
+        edges.append(StateOperationEdge(fail_click_empty, check_times_to_continue))
 
         if not ctx.one_dragon_config.is_debug:  # 任何异常错误都退出当前宇宙 调试模式下不退出 直接失败等待处理
             exception_exit = StateOperationNode('异常退出', self._exception_exit)
@@ -126,7 +128,8 @@ class SimUniApp(Application2):
             edges.append(StateOperationEdge(exception_exit, check_times_to_continue))
 
         self.run_record: SimUniRunRecord = ctx.sim_uni_run_record
-        super().__init__(ctx, op_name=gt(AppDescriptionEnum.SIM_UNIVERSE.value.cn, 'ui'),
+        super().__init__(ctx, try_times=5,
+                         op_name=gt(AppDescriptionEnum.SIM_UNIVERSE.value.cn, 'ui'),
                          edges=edges, specified_start_node=check_times,
                          run_record=self.run_record)
 
@@ -159,6 +162,30 @@ class SimUniApp(Application2):
             return Operation.round_success(SimUniApp.STATUS_ALL_FINISHED)
         else:
             return Operation.round_success()
+
+    def _fail_click_empty(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+        area = ScreenSimUni.EXIT_EMPTY_TO_CONTINUE.value
+
+        click = self.find_and_click_area(area, screen)
+
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success(wait=2)
+        else:
+            return Operation.round_retry('未在结算画面', wait=1)
+
+    def _interact_in_herta(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+
+        if not self.find_area(ScreenNormalWorld.CHARACTER_ICON.value, screen):
+            return Operation.round_retry('等待大世界画面', wait=1)
+
+        op = Interact(self.ctx, '模拟宇宙', lcs_percent=0.1, single_line=True, no_move=True)
+        op_result = op.execute()
+        if op_result.success:
+            return Operation.round_success(wait=2)
+        else:
+            return Operation.round_fail('加载失败')
 
     def _check_initial_screen(self) -> OperationOneRoundResult:
         screen = self.screenshot()
