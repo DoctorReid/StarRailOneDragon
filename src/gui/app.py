@@ -7,7 +7,7 @@ import keyboard
 
 from basic import os_utils
 from basic.i18_utils import gt, update_default_lang
-from gui import log_view, calibrator_view, version, one_stop_view, scheduler
+from gui import log_view, calibrator_view, version, one_stop_view, scheduler, snack_bar
 from gui.settings import gui_config, settings_game_config_view, settings_trailblaze_power_view, \
     settings_echo_of_war_view, \
     settings_world_patrol_view, settings_mys_view, settings_treasures_lightward_view, settings_sim_uni_view, \
@@ -311,6 +311,7 @@ def run_app(page: ft.Page):
 
     scheduler.start()
     StarRailOneDragon(page, ctx)
+    snack_bar.show_message('本脚本开源免费 如有付费请立即申请退款', page)
 
 
 if __name__ == '__main__':
