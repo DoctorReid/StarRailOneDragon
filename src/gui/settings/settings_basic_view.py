@@ -278,7 +278,7 @@ class SettingsBasicView(components.Card, SrBasicView):
             snack_bar.show_message(msg, self.flet_page)
             log.info(msg)
         elif version_result == 1:
-            if os_utils.run_in_flet_exe():
+            if os_utils.run_in_flet_exe() or self.sr_ctx.one_dragon_config.is_debug:
                 msg: str = gt('检测到新版本 再次点击进行更新 更新过程会自动关闭脚本 完成后将自动启动', 'ui')
                 snack_bar.show_message(msg, self.flet_page)
                 log.info(msg)
