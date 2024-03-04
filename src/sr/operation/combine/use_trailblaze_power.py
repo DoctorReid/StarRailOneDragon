@@ -1,31 +1,24 @@
 from typing import Optional, Callable, ClassVar
 
-from basic import Rect
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import screen_state
+from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission
 from sr.operation import Operation, StateOperation, OperationOneRoundResult, StateOperationNode, StateOperationEdge
 from sr.operation.battle.choose_challenge_times import ChooseChallengeTimes
 from sr.operation.battle.choose_support import ChooseSupport
 from sr.operation.battle.choose_team import ChooseTeam
 from sr.operation.battle.click_challenge import ClickChallenge
 from sr.operation.battle.click_start_challenge import ClickStartChallenge
-from sr.operation.battle.wait_battle_reward import WaitBattleReward
 from sr.operation.combine.transport import Transport
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.wait import WaitInWorld
+from sr.screen_area.screen_battle import ScreenBattle
 
 
 class UseTrailblazePower(StateOperation):
 
-    AFTER_BATTLE_CHALLENGE_AGAIN_BTN: ClassVar[Rect] = Rect(1180, 930, 1330, 960)  # 战斗结束后领奖励页面 【再来一次】按钮
-    AFTER_BATTLE_EXIT_BTN_RECT = Rect(640, 930, 780, 960)  # 战斗结束后领奖励页面 【退出关卡】按钮
-
-    STATUS_BATTLE_FAIL: ClassVar[str] = '挑战失败'
-    STATUS_CHALLENGE_AGAIN: ClassVar[str] = '再来一次'
     STATUS_CHALLENGE_EXIT_AGAIN: ClassVar[str] = '退出关卡后再来一次'
-    STATUS_FINISH_EXIT: ClassVar[str] = '挑战完成'
 
     def __init__(self, ctx: Context, mission: SurvivalIndexMission,
                  team_num: int, plan_times: int, support: Optional[str] = None,
@@ -65,14 +58,14 @@ class UseTrailblazePower(StateOperation):
         after_start_challenge = StateOperationNode('开始挑战后', self._after_start_challenge)
         edges.append(StateOperationEdge(click_start, after_start_challenge))
 
-        battle = StateOperationNode('战斗', self._battle)
+        battle = StateOperationNode('战斗', self._battle, timeout_seconds=600)
         edges.append(StateOperationEdge(after_start_challenge, battle))
 
-        edges.append(StateOperationEdge(battle, battle, status=UseTrailblazePower.STATUS_CHALLENGE_AGAIN))
+        edges.append(StateOperationEdge(battle, battle, status=ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value.status))
         edges.append(StateOperationEdge(battle, interact, status=UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN))
 
         wait_esc = StateOperationNode('等待退出', op=WaitInWorld(ctx))
-        edges.append(StateOperationEdge(battle, wait_esc, status=UseTrailblazePower.STATUS_FINISH_EXIT))
+        edges.append(StateOperationEdge(battle, wait_esc, status=ScreenBattle.AFTER_BATTLE_EXIT_BTN.value.status))
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s %d' % (gt(mission.tp.cn, 'ui'), gt('次数', 'ui'), plan_times),
@@ -186,7 +179,7 @@ class UseTrailblazePower(StateOperation):
             if not op_result.success:
                 return Operation.round_fail('未在大世界画面')
             self.ctx.controller.initiate_attack()
-            return Operation.round_success()
+            return Operation.round_success(wait=1)
         else:
             return Operation.round_success()
 
@@ -195,44 +188,50 @@ class UseTrailblazePower(StateOperation):
         战斗
         :return:
         """
-        op = WaitBattleReward(self.ctx)
-        op_result = op.execute()
-        if not op_result.success:
-            return Operation.round_by_op(op_result)
+        screen = self.screenshot()
 
-        if op_result.status == screen_state.ScreenState.TP_BATTLE_FAIL.value:
+        state = screen_state.get_tp_battle_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                        battle_success=True,
+                                                        battle_fail=True)
+
+        if state == ScreenBattle.AFTER_BATTLE_FAIL_1.value.status:
             self.battle_fail_times += 1
-            if self.battle_fail_times >= 5:  # 失败次数过多 退出
-                return Operation.round_fail(UseTrailblazePower.STATUS_BATTLE_FAIL)
-
-            click = self.ocr_and_click_one_line('再来一次', UseTrailblazePower.AFTER_BATTLE_CHALLENGE_AGAIN_BTN, lcs_percent=0.1)
-            if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_AGAIN, wait=2)  # 要等待画面加载
+            if self.battle_fail_times >= 5:
+                area = ScreenBattle.AFTER_BATTLE_EXIT_BTN.value
             else:
-                return Operation.round_retry('点击再来一次失败')
-        else:
+                area = ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value
+            click = self.find_and_click_area(area, screen)
+            if click == Operation.OCR_CLICK_SUCCESS:
+                return Operation.round_success(area.status, wait=2)  # 要等待画面加载
+            else:
+                return Operation.round_retry('点击%s失败' % area.status, wait=1)
+        elif state == ScreenBattle.AFTER_BATTLE_SUCCESS_1.value.status:
             self.finish_times += self.current_challenge_times
             if self.on_battle_success is not None:
                 self.on_battle_success(self.current_challenge_times, self.mission.power * self.current_challenge_times)
 
             if self.finish_times >= self.plan_times:
-                click = self.ocr_and_click_one_line('退出关卡', UseTrailblazePower.AFTER_BATTLE_EXIT_BTN_RECT,
-                                                    lcs_percent=0.1)
+                area = ScreenBattle.AFTER_BATTLE_EXIT_BTN.value
+                click = self.find_and_click_area(area, screen)
                 if click == Operation.OCR_CLICK_SUCCESS:
-                    return Operation.round_success(UseTrailblazePower.STATUS_FINISH_EXIT)
+                    return Operation.round_success(area.status, wait=2)
                 else:
-                    return Operation.round_retry('点击退出关卡失败')
+                    return Operation.round_retry('点击%s失败' % area.status, wait=1)
 
             next_challenge_times = self._get_current_challenge_times()
             if next_challenge_times != self.current_challenge_times:
-                click = self.ocr_and_click_one_line('退出关卡', UseTrailblazePower.AFTER_BATTLE_EXIT_BTN_RECT, lcs_percent=0.1)
+                area = ScreenBattle.AFTER_BATTLE_EXIT_BTN.value
+                click = self.find_and_click_area(area, screen)
                 if click == Operation.OCR_CLICK_SUCCESS:
-                    return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN)
+                    return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN, wait=2)
                 else:
-                    return Operation.round_retry('点击退出关卡失败')
+                    return Operation.round_retry('点击%s失败' % area.status, wait=1)
             else:
-                click = self.ocr_and_click_one_line('再来一次', UseTrailblazePower.AFTER_BATTLE_CHALLENGE_AGAIN_BTN, lcs_percent=0.1)
+                area = ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value
+                click = self.find_and_click_area(area, screen)
                 if click == Operation.OCR_CLICK_SUCCESS:
-                    return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_AGAIN, wait=2)  # 要等待画面加载
+                    return Operation.round_success(area.status, wait=2)  # 要等待画面加载
                 else:
-                    return Operation.round_retry('点击再来一次失败')
+                    return Operation.round_retry('点击%s失败' % area.status, wait=1)
+        else:
+            return Operation.round_wait('等待战斗结束', wait=1)

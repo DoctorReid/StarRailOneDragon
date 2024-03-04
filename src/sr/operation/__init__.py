@@ -486,7 +486,8 @@ class StateOperationNode:
                  func: Optional[Callable[[], OperationOneRoundResult]] = None,
                  op: Optional[Operation] = None,
                  retry_on_op_fail: bool = False,
-                 wait_after_op: Optional[float] = None):
+                 wait_after_op: Optional[float] = None,
+                 timeout_seconds: Optional[float] = None):
         """
         带状态指令的节点
         :param cn: 节点名称
@@ -494,6 +495,7 @@ class StateOperationNode:
         :param op: 该节点用于操作的指令 与func只传一个 优先使用func
         :param retry_on_op_fail: op指令失败时是否进入重试
         :param wait_after_op: op指令后的等待时间
+        :param timeout_seconds: 该节点的超时秒数
         """
 
         self.cn: str = cn
@@ -510,6 +512,9 @@ class StateOperationNode:
 
         self.wait_after_op: Optional[float] = wait_after_op
         """op指令后的等待时间"""
+
+        self.timeout_seconds: Optional[float] = timeout_seconds
+        """该节点的超时秒数"""
 
 
 class StateOperationEdge:
@@ -588,6 +593,9 @@ class StateOperation(Operation):
 
         self._current_node: Optional[StateOperationNode] = None
         """当前执行的节点"""
+
+        self._current_node_start_time: Optional[float] = None
+        """当前节点的开始运行时间"""
 
         if edges is not None:
             for edge in edges:
@@ -669,10 +677,17 @@ class StateOperation(Operation):
         super()._init_before_execute()
         self._init_network()
         self._current_node = self._start_node
+        self._current_node_start_time = time.time()
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self._current_node is None:
             return Operation.round_fail('无开始节点')
+
+        if self._current_node.timeout_seconds is not None \
+                and self._current_node_start_time is not None \
+                and time.time() - self._current_node_start_time > self._current_node.timeout_seconds:
+            return Operation.round_fail(Operation.STATUS_TIMEOUT)
+
         if self._current_node.func is not None:
             current_op = self._current_node.func
             current_round_result: OperationOneRoundResult = current_op()
@@ -723,4 +738,10 @@ class StateOperation(Operation):
 
         self._current_node = next_node
         self.op_round = 0  # 重置 每个节点都可以重试
+        self._current_node_start_time = time.time()  # 每个节点单独计算耗时
         return Operation.round_wait()
+
+    def on_resume(self):
+        super().on_resume()
+        if self._current_node_start_time is not None:
+            self._current_node_start_time += self.current_pause_time
