@@ -58,14 +58,17 @@ class UseTrailblazePower(StateOperation):
         after_start_challenge = StateOperationNode('开始挑战后', self._after_start_challenge)
         edges.append(StateOperationEdge(click_start, after_start_challenge))
 
-        battle = StateOperationNode('战斗', self._battle, timeout_seconds=600)
-        edges.append(StateOperationEdge(after_start_challenge, battle))
+        wait_battle_result = StateOperationNode('等待战斗结果', self._wait_battle_result, timeout_seconds=600)
+        edges.append(StateOperationEdge(after_start_challenge, wait_battle_result))
 
-        edges.append(StateOperationEdge(battle, battle, status=ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value.status))
-        edges.append(StateOperationEdge(battle, interact, status=UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN))
+        after_battle_result = StateOperationNode('战斗结果处理', self._after_battle_result)
+        edges.append(StateOperationEdge(wait_battle_result, after_battle_result, ignore_status=True))
+
+        edges.append(StateOperationEdge(after_battle_result, wait_battle_result, status=ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value.status))
+        edges.append(StateOperationEdge(after_battle_result, interact, status=UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN))
 
         wait_esc = StateOperationNode('等待退出', op=WaitInWorld(ctx))
-        edges.append(StateOperationEdge(battle, wait_esc, status=ScreenBattle.AFTER_BATTLE_EXIT_BTN.value.status))
+        edges.append(StateOperationEdge(after_battle_result, wait_esc, status=ScreenBattle.AFTER_BATTLE_EXIT_BTN.value.status))
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s %d' % (gt(mission.tp.cn, 'ui'), gt('次数', 'ui'), plan_times),
@@ -183,9 +186,9 @@ class UseTrailblazePower(StateOperation):
         else:
             return Operation.round_success()
 
-    def _battle(self) -> OperationOneRoundResult:
+    def _wait_battle_result(self) -> OperationOneRoundResult:
         """
-        战斗
+        等待战斗结果
         :return:
         """
         screen = self.screenshot()
@@ -196,42 +199,35 @@ class UseTrailblazePower(StateOperation):
 
         if state == ScreenBattle.AFTER_BATTLE_FAIL_1.value.status:
             self.battle_fail_times += 1
-            if self.battle_fail_times >= 5:
-                area = ScreenBattle.AFTER_BATTLE_EXIT_BTN.value
-            else:
-                area = ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value
-            click = self.find_and_click_area(area, screen)
-            if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(area.status, wait=2)  # 要等待画面加载
-            else:
-                return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return Operation.round_success(state)
         elif state == ScreenBattle.AFTER_BATTLE_SUCCESS_1.value.status:
             self.finish_times += self.current_challenge_times
             if self.on_battle_success is not None:
                 self.on_battle_success(self.current_challenge_times, self.mission.power * self.current_challenge_times)
-
-            if self.finish_times >= self.plan_times:
-                area = ScreenBattle.AFTER_BATTLE_EXIT_BTN.value
-                click = self.find_and_click_area(area, screen)
-                if click == Operation.OCR_CLICK_SUCCESS:
-                    return Operation.round_success(area.status, wait=2)
-                else:
-                    return Operation.round_retry('点击%s失败' % area.status, wait=1)
-
-            next_challenge_times = self._get_current_challenge_times()
-            if next_challenge_times != self.current_challenge_times:
-                area = ScreenBattle.AFTER_BATTLE_EXIT_BTN.value
-                click = self.find_and_click_area(area, screen)
-                if click == Operation.OCR_CLICK_SUCCESS:
-                    return Operation.round_success(UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN, wait=2)
-                else:
-                    return Operation.round_retry('点击%s失败' % area.status, wait=1)
-            else:
-                area = ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value
-                click = self.find_and_click_area(area, screen)
-                if click == Operation.OCR_CLICK_SUCCESS:
-                    return Operation.round_success(area.status, wait=2)  # 要等待画面加载
-                else:
-                    return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return Operation.round_success(state)
         else:
             return Operation.round_wait('等待战斗结束', wait=1)
+
+    def _after_battle_result(self) -> OperationOneRoundResult:
+        """
+        战斗结果出来后 点击再来一次或退出
+        :return:
+        """
+        screen = self.screenshot()
+        if self.battle_fail_times >= 5 or self.finish_times >= self.plan_times:  # 失败过多或者完成指定次数了 退出
+            area = ScreenBattle.AFTER_BATTLE_EXIT_BTN.value
+            status = area.status
+        else:  # 还需要继续挑战
+            next_challenge_times = self._get_current_challenge_times()  # 看下一次挑战轮数是否跟当前一致
+            if next_challenge_times != self.current_challenge_times:
+                area = ScreenBattle.AFTER_BATTLE_EXIT_BTN.value
+                status = UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN
+            else:
+                area = ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value
+                status = area.status
+
+        click = self.find_and_click_area(area, screen)
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success(status, wait=2)
+        else:
+            return Operation.round_retry('点击%s失败' % area.status, wait=1)
