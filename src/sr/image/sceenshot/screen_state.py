@@ -8,11 +8,11 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
-from sr.image.sceenshot.phone_menu import in_phone_menu
 from sr.screen_area import ScreenArea
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_battle import ScreenBattle
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
+from sr.screen_area.screen_phone_menu import ScreenPhoneMenu
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 
 
@@ -148,15 +148,6 @@ class TargetRect(Enum):
 
     EMPTY_TO_CLOSE = Rect(876, 878, 1048, 1026)
     """点击空白处关闭"""
-
-
-def get_screen_state(screen: MatLike, im: ImageMatcher, ocr: OcrMatcher) -> ScreenState:
-    if is_normal_in_world(screen, im):
-        return ScreenState.NORMAL_IN_WORLD
-    if in_phone_menu(screen, ocr):
-        return ScreenState.PHONE_MENU
-    if in_secondary_ui(screen, ocr, ScreenState.GUIDE.value, lcs_percent=0.1):
-        pass
 
 
 def is_normal_in_world(screen: MatLike, im: ImageMatcher) -> bool:
@@ -421,7 +412,7 @@ def get_sim_uni_initial_screen_state(screen: MatLike, im: ImageMatcher, ocr: Ocr
 
         return ScreenState.NORMAL_IN_WORLD.value
 
-    if in_phone_menu(screen, ocr):
+    if in_screen_by_area_text(screen, ocr, ScreenPhoneMenu.TRAILBLAZE_LEVEL_PART.value):
         return ScreenState.PHONE_MENU.value
 
     titles = get_ui_title(screen, ocr, rect=TargetRect.UI_TITLE.value)

@@ -11,11 +11,10 @@ class SimUniExit(StateOperation):
     STATUS_EXIT_CLICKED: ClassVar[str] = '点击结算'
     STATUS_BACK_MENU: ClassVar[str] = '返回菜单'
 
-    def __init__(self, ctx: Context, exit_clicked: bool = False):
+    def __init__(self, ctx: Context):
         """
         模拟宇宙 结束并结算
         :param ctx:
-        :param exit_clicked: 是否已经点击过退出了
         """
         edges: List[StateOperationEdge] = []
 

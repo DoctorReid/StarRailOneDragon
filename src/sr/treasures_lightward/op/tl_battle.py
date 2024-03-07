@@ -71,7 +71,7 @@ class TlNodeFight(StateOperation):
                 return Operation.round_success(state)
             else:
                 self.last_state = state
-                return Operation.round_retry('画面在改变')
+                return Operation.round_retry('画面在改变', wait=1)
         else:
             return Operation.round_wait('战斗中', wait=1)
 

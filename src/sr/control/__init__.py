@@ -77,11 +77,12 @@ class GameController:
         log.debug('OCR识别 %s 成功 准备点击 %s', gt(word, 'ui'), target_point)
         return self.click(target_point, press_time=press_time)
 
-    def click(self, pos: Point = None, press_time: float = 0) -> bool:
+    def click(self, pos: Point = None, press_time: float = 0, pc_alt: bool = False) -> bool:
         """
         点击位置
         :param pos: 点击位置 (x,y) 默认分辨率下的游戏窗口里的坐标
         :param press_time: 大于0时长按若干秒
+        :param pc_alt: 只在PC端有用 使用ALT键进行点击
         :return: 不在窗口区域时不点击 返回False
         """
         pass

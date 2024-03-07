@@ -7,6 +7,8 @@ from sr.screen_area import ScreenArea
 
 class ScreenGuide(Enum):
 
+    EXIT_BTN = ScreenArea(pc_rect=Rect())  # 右上角退出按钮
+
     GUIDE_TITLE = ScreenArea(pc_rect=Rect(98, 39, 350, 100), text='星级和平指南')  # 一级标题 TODO 未细化
 
     # 指南上方的页签

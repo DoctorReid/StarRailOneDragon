@@ -4,11 +4,12 @@ from typing import List, Optional
 import sr.const
 from basic.i18_utils import gt
 from sr.context import Context
-from sr.image.sceenshot import enter_game_ui, screen_state
+from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationEdge, StateOperationNode
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_login import ScreenLogin
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_phone_menu import ScreenPhoneMenu
 
 
@@ -330,7 +331,8 @@ class WaitEnterGame(Operation):
                 else:
                     return Operation.round_wait(wait=1)
 
-        if enter_game_ui.in_express_supply_phase(screen, self.ctx.ocr):  # 列车补给(小月卡) - 会先出现主界面
+        area = ScreenNormalWorld.EXPRESS_SUPPLY.value
+        if self.find_area(area, screen):  # 列车补给(小月卡) - 会先出现主界面
             self.ctx.controller.click(sr.const.CLICK_TO_CONTINUE_POS)
             time.sleep(3)  # 暂停一段时间再操作
             self.ctx.controller.click(sr.const.CLICK_TO_CONTINUE_POS)  # 领取需要分两个阶段 点击两次

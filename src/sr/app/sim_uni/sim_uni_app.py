@@ -1,12 +1,10 @@
 from typing import Optional, List, ClassVar, Callable
 
-from basic import Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application2
-from sr.app.sim_uni.sim_uni_config import SimUniConfig
 from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.const import phone_menu_const
@@ -256,5 +254,5 @@ class SimUniApp(Application2):
 
     def _exception_exit(self) -> OperationOneRoundResult:
         self.exception_times += 1
-        op = SimUniExit(self.ctx, exit_clicked=False)
+        op = SimUniExit(self.ctx)
         return Operation.round_by_op(op.execute())

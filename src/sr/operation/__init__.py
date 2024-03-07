@@ -407,7 +407,7 @@ class Operation:
             ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
 
             if str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent):
-                if self.ctx.controller.click(rect.center):
+                if self.ctx.controller.click(rect.center, pc_alt=area.pc_alt):
                     return Operation.OCR_CLICK_SUCCESS
                 else:
                     return Operation.OCR_CLICK_FAIL
@@ -420,7 +420,7 @@ class Operation:
             mrl = self.ctx.im.match_template(part, area.template_id, threshold=area.template_match_threshold)
             if mrl.max is None:
                 return Operation.OCR_CLICK_NOT_FOUND
-            elif self.ctx.controller.click(mrl.max.center + rect.left_top):
+            elif self.ctx.controller.click(mrl.max.center + rect.left_top, pc_alt=area.pc_alt):
                 return Operation.OCR_CLICK_SUCCESS
             else:
                 return Operation.OCR_CLICK_FAIL

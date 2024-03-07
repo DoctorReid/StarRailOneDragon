@@ -11,8 +11,6 @@ from sr.const.phone_menu_const import PhoneMenuItem
 from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
 
-
-TRAILBLAZE_LEVEL_PART = Rect(1280, 240, 1505, 275)  # 等级
 MENU_ITEMS_PART = Rect(1270, 300, 1810, 1070)  # 菜单选项
 MENU_ITEMS_AT_RIGHT_PART = Rect(1810, 230, 1915, 1030)  # 菜单侧栏选项
 ELLIPSIS_PART = Rect(1390, 50, 1810, 350)  # 省略号...的位置
@@ -26,24 +24,6 @@ NAMELESS_HONOR_TAB_1_CANCEL_BTN = Rect(620, 970, 790, 1010)  # 无名勋礼第1�
 GUIDE_TRAINING_TASK_RECT = Rect(290, 470, 1560, 680)  # 指南-实训 任务框
 GUIDE_TRAINING_ACTIVITY_CLAIM_RECT = Rect(270, 780, 1560, 890)  # 指南-实训 活跃度领取框
 GUIDE_TRAINING_REWARD_CLAIM_RECT = Rect(420, 270, 1670, 370)  # 指南-实训 奖励领取框
-
-
-def in_phone_menu(screen: MatLike, ocr: OcrMatcher) -> bool:
-    """
-    是否在菜单页面 有显示等级
-    :param screen: 屏幕截图
-    :param ocr: 文字识别器
-    :return:
-    """
-    part, _ = cv2_utils.crop_image(screen, TRAILBLAZE_LEVEL_PART)
-
-    # cv2_utils.show_image(part, win_name='in_phone_menu')
-    ocr_result: str = ocr.ocr_for_single_line(part)
-
-    if str_utils.find_by_lcs(gt('开拓等级', 'ocr'), ocr_result, percent=0.55):
-        return True
-
-    return False
 
 
 def get_phone_menu_item_pos(screen: MatLike, im: ImageMatcher, item: PhoneMenuItem, alert: bool = False) -> MatchResult:

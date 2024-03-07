@@ -6,7 +6,7 @@ from sr.screen_area import ScreenArea
 
 class ScreenNormalWorld(Enum):
 
-    CHARACTER_ICON = ScreenArea(pc_rect=Rect(1800, 0, 1900, 90), template_id='ui_icon_01', status='大世界')  # 右上角的角色图标
+    CHARACTER_ICON = ScreenArea(pc_rect=Rect(1800, 0, 1900, 90), template_id='ui_icon_01', status='大世界', pc_alt=True)  # 右上角的角色图标
 
     TEAM_MEMBER_AVATAR_1 = ScreenArea(pc_rect=Rect(1770, 275, 1873, 355))
     TEAM_MEMBER_AVATAR_2 = ScreenArea(pc_rect=Rect(1770, 375, 1873, 455))
@@ -23,3 +23,6 @@ class ScreenNormalWorld(Enum):
 
     TECH_STATUS = ScreenArea(pc_rect=Rect(1767, 232, 1857, 255), text='状态效果')  # 右方 角色列表上方
     TECH_KEY = ScreenArea(pc_rect=Rect(1789, 823, 1807, 841))  # 秘技 显示快捷键的位置
+
+    EXPRESS_SUPPLY = ScreenArea(pc_rect=Rect(870, 80, 1050, 130), text='列车补给', lcs_percent=0.55)
+    EMPTY_TO_CONTINUE = ScreenArea(pc_rect=Rect())

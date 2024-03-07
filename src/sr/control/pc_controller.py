@@ -44,11 +44,12 @@ class PcController(GameController):
         pyautogui.press(self.gc.key_open_map)
         return True
 
-    def click(self, pos: Point = None, press_time: float = 0) -> bool:
+    def click(self, pos: Point = None, press_time: float = 0, pc_alt: bool = False) -> bool:
         """
         点击位置
         :param pos: 游戏中的位置 (x,y)
         :param press_time: 大于0时长按若干秒
+        :param pc_alt: 只在PC端有用 使用ALT键进行点击
         :return: 不在窗口区域时不点击 返回False
         """
         click_pos: Point
@@ -61,7 +62,12 @@ class PcController(GameController):
             point: pyautogui.Point = pyautogui.position()
             click_pos = Point(point.x, point.y)
 
+        if pc_alt:
+            pyautogui.keyDown('alt')
+            time.sleep(0.01)
         win_utils.click(click_pos, press_time=press_time)
+        if pc_alt:
+            pyautogui.keyUp('alt')
         return True
 
     def screenshot(self) -> MatLike:

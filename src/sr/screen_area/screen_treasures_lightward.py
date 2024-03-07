@@ -45,7 +45,7 @@ class ScreenTreasuresLightWard(Enum):
     PF_AFTER_BATTLE_BACK_BTN = ScreenArea(pc_rect=Rect(788, 979, 1121, 1035), text='返回虚构叙事')  # 成功失败都是同一个
 
     # 公共 - 大世界画面
-    EXIT_BTN = ScreenArea(pc_rect=Rect(0, 0, 75, 115), template_id='ui_icon_10', status='大世界')  # 左上方 退出按钮
+    EXIT_BTN = ScreenArea(pc_rect=Rect(0, 0, 75, 115), template_id='ui_icon_10', status='逐光捡金可移动画面', pc_alt=True)  # 左上方 退出按钮
     NODE_FIRST_CLICK_EMPTY = ScreenArea(pc_rect=Rect(856, 851, 1071, 885), text='点击空白处关闭')
 
     # 公共战斗结束

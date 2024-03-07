@@ -49,10 +49,7 @@ class WorldPatrolRunRoute(StateOperation):
 
         op_node = StateOperationNode('执行路线指令', self._next_op)
         edges.append(StateOperationEdge(use_tech, op_node))
-        edges.append(StateOperationEdge(op_node, op_node, ignore_status=True))
-
-        finish = StateOperationNode('结束', self._finish)
-        edges.append(StateOperationEdge(op_node, finish, status=WorldPatrolRunRoute.STATUS_ALL_DONE))
+        edges.append(StateOperationEdge(op_node, op_node))
 
         super().__init__(ctx,
                          op_name='%s %s' % (gt('锄地路线', 'ui'), self.route.display_name),
@@ -195,10 +192,3 @@ class WorldPatrolRunRoute(StateOperation):
             return WaitInSeconds(self.ctx, seconds)
         else:
             return OperationFail(self.ctx, status='错误的wait类型 %s' % wait_type)
-
-    def _finish(self) -> OperationOneRoundResult:
-        """
-        路线执行完毕
-        :return:
-        """
-        return Operation.round_success()

@@ -1,12 +1,12 @@
 import threading
 import time
-from typing import List, Iterator, Optional
+from typing import List, Iterator, Optional, ClassVar
 
 import sr.app.world_patrol.world_patrol_run_record
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application
+from sr.app.application_base import Application, Application2
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, load_all_route_id
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
@@ -14,22 +14,36 @@ from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
 from sr.context import Context
 from sr.image.sceenshot import mini_map_angle_alas
-from sr.operation import Operation, OperationResult
+from sr.operation import Operation, OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.combine.choose_team_in_world import ChooseTeamInWorld
+from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 
 
-class WorldPatrol(Application):
+class WorldPatrol(Application2):
+
+    STATUS_ALL_ROUTE_FINISHED: ClassVar[str] = '所有路线已完成'
 
     def __init__(self, ctx: Context,
                  whitelist: Optional[WorldPatrolWhitelist] = None,
                  ignore_record: bool = False,
                  team_num: Optional[int] = None):
+        edges: List[StateOperationEdge] = []
+
+        world = StateOperationNode('返回大世界', self._back_to_world)
+        team = StateOperationNode('选择配队', self._choose_team)
+        edges.append(StateOperationEdge(world, team))
+
+        route = StateOperationNode('运行路线', self._run_route)
+        edges.append(StateOperationEdge(team, route, ignore_status=True))
+        edges.append(StateOperationEdge(route, route))
+
         super().__init__(ctx, op_name=gt('锄大地', 'ui'),
-                         run_record=ctx.world_patrol_run_record)
+                         run_record=ctx.world_patrol_run_record,
+                         edges=edges
+                         )
         self.route_id_list: List[WorldPatrolRouteId] = []
-        self.record: WorldPatrolRunRecord = None
-        self.route_iterator: Iterator = None
-        self.current_route_idx: int = -1
+        self.record: Optional[WorldPatrolRunRecord] = None
+        self.current_route_idx: int = 0
         self.ignore_record: bool = ignore_record
         self.current_route_start_time = time.time()  # 当前路线开始时间
 
@@ -48,10 +62,7 @@ class WorldPatrol(Application):
 
         self.route_id_list = load_all_route_id(self.whitelist, None if self.record is None else self.record.finished)
 
-        self.current_route_idx = -1
-
-        if self.team_num is None:
-            self.team_num = self.config.team_num
+        self.current_route_idx = 0
 
         t = threading.Thread(target=self.preheat)
         t.start()
@@ -68,17 +79,28 @@ class WorldPatrol(Application):
         for i in range(-2, 2):
             mini_map_angle_alas.RotationRemapData((mm_r + i) * 2)
 
-    def _execute_one_round(self) -> int:
-        self.current_route_idx += 1
+    def _back_to_world(self) -> OperationOneRoundResult:
+        """
+        确保在大世界中再启动
+        :return:
+        """
+        op = BackToNormalWorldPlus(self.ctx)
+        return Operation.round_by_op(op.execute())
+
+    def _choose_team(self) -> OperationOneRoundResult:
+        """
+        选择配队
+        :return:
+        """
+        team_num = self.ctx.world_patrol_config.team_num if self.team_num is None else self.team_num
+        if team_num == 0:
+            return Operation.round_success('无配队配置')
+        op = ChooseTeamInWorld(self.ctx, team_num)
+        return Operation.round_by_op(op.execute())
+
+    def _run_route(self):
         if self.current_route_idx >= len(self.route_id_list):
-            log.info('所有线路执行完毕')
-            return Operation.SUCCESS
-
-        if self.current_route_idx == 0 and self.team_num != 0:
-            op = ChooseTeamInWorld(self.ctx, self.config.team_num)
-            if not op.execute().success:
-                return Operation.FAIL
-
+            return Operation.round_success(WorldPatrol.STATUS_ALL_ROUTE_FINISHED)
         route_id = self.route_id_list[self.current_route_idx]
 
         self.current_route_start_time = time.time()
@@ -87,6 +109,15 @@ class WorldPatrol(Application):
         if route_result:
             if not self.ignore_record:
                 self.save_record(route_id, time.time() - self.current_route_start_time)
+
+        self.current_route_idx += 1
+        return Operation.round_success()
+
+    def _execute_one_round(self) -> int:
+        self.current_route_idx += 1
+        if self.current_route_idx >= len(self.route_id_list):
+            log.info('所有线路执行完毕')
+            return Operation.SUCCESS
 
         return Operation.WAIT
 
