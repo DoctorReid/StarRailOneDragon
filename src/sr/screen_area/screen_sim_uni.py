@@ -28,3 +28,6 @@ class ScreenSimUni(Enum):
 
     # 结算画面
     EXIT_EMPTY_TO_CONTINUE = ScreenArea(pc_rect=Rect(869, 899, 1057, 928), text='点击空白处继续')
+
+    # 事件画面
+    EVENT_TITLE = ScreenArea(pc_rect=Rect(190, 980, 650, 1025))

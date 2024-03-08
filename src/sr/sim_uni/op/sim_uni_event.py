@@ -2,13 +2,14 @@ from typing import ClassVar, List, Optional
 
 from cv2.typing import MatLike
 
-from basic import Rect, Point
+from basic import Rect, Point, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, StateOperationEdge
+from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, SimUniDropBless, SimUniUpgradeBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio, SimUniDropCurio
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
@@ -90,6 +91,7 @@ class SimUniEvent(StateOperation):
         self.opt_list: List[SimUniEventOption] = []
         self.config: Optional[SimUniChallengeConfig] = config
         self.skip_first_screen_check: bool = skip_first_screen_check
+        self.chosen_opt_set: set[str] = set()
 
     def _init_before_execute(self):
         """
@@ -97,6 +99,7 @@ class SimUniEvent(StateOperation):
         """
         super()._init_before_execute()
         self.opt_list = []
+        self.chosen_opt_set: set[str] = set()
 
     def _wait(self) -> OperationOneRoundResult:
         if self.skip_first_screen_check:
@@ -116,6 +119,10 @@ class SimUniEvent(StateOperation):
         """
         screen = self.screenshot()
         self.opt_list = self._get_opt_list(screen)
+        if self.ctx.one_dragon_config.is_debug:
+            title = self._get_event_title(screen)
+            if str_utils.find_by_lcs(gt('孤独太空美虫'), title, percent=0.5):
+                return Operation.round_fail()
 
         if len(self.opt_list) == 0:
             # 有可能在对话
@@ -207,6 +214,11 @@ class SimUniEvent(StateOperation):
             return Operation.round_success('点击确认失败', wait=0.25)
 
     def _do_choose_opt(self, idx: int) -> OperationOneRoundResult:
+        """
+        选择一个事件选项
+        :param idx:
+        :return:
+        """
         click = self.ctx.controller.click(self.opt_list[idx].title_rect.center)
         if click:
             self.chosen_opt = self.opt_list[idx]
@@ -225,6 +237,21 @@ class SimUniEvent(StateOperation):
         :return:
         """
         idx = len(self.opt_list) - 1
+
+        # 部分事件没有离开选项 且最后一个选项可能无法选择 这里需要遍历还没有选过的选项
+        while True:
+            title = self.opt_list[idx].title
+            chosen: bool = False
+            for chosen_title in self.chosen_opt_set:
+                if str_utils.find_by_lcs(chosen_title, title, percent=0.8):
+                    chosen = True
+                    break
+            if chosen:
+                idx -= 1
+                if idx < 0:  # 应该不存在这种情况
+                    return Operation.round_fail('所有选项都无效')
+            else:
+                break
         return self._do_choose_opt(idx)
 
     def _check_after_confirm(self) -> OperationOneRoundResult:
@@ -314,3 +341,12 @@ class SimUniEvent(StateOperation):
         #     return Operation.round_fail(status=op_result.status)
         # 这里似乎不用进去战斗画面也可以
         return Operation.round_success(wait=1)
+
+    def _get_event_title(self, screen: MatLike) -> str:
+        """
+        获取当前事件的名称
+        :return:
+        """
+        area = ScreenSimUni.EVENT_TITLE.value
+        part = cv2_utils.crop_image_only(screen, area)
+        return self.ctx.ocr.ocr_for_single_line(part)
