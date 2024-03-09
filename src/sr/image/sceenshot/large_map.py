@@ -17,7 +17,7 @@ from sr.image import TemplateImage, ImageMatcher, get_large_map_dir_path
 from sr.image.image_holder import ImageHolder
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import LargeMapInfo
-from sr.screen_area.large_map import ScreenLargeMap
+from sr.screen_area.screen_large_map import ScreenLargeMap
 
 CUT_MAP_RECT = Rect(200, 190, 1300, 930)  # 截取大地图的区域
 EMPTY_MAP_POS = Point(1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图

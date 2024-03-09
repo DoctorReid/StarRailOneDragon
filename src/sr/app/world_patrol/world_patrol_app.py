@@ -35,7 +35,7 @@ class WorldPatrol(Application2):
 
         route = StateOperationNode('运行路线', self._run_route)
         edges.append(StateOperationEdge(team, route, ignore_status=True))
-        edges.append(StateOperationEdge(route, route))
+        edges.append(StateOperationEdge(route, route, ignore_status=False))
 
         super().__init__(ctx, op_name=gt('锄大地', 'ui'),
                          run_record=ctx.world_patrol_run_record,
@@ -56,6 +56,7 @@ class WorldPatrol(Application2):
         self.whitelist: WorldPatrolWhitelist = whitelist
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         if not self.ignore_record:
             self.record = self.ctx.world_patrol_run_record
             self.record.update_status(AppRunRecord.STATUS_RUNNING)
@@ -113,14 +114,6 @@ class WorldPatrol(Application2):
         self.current_route_idx += 1
         return Operation.round_success()
 
-    def _execute_one_round(self) -> int:
-        self.current_route_idx += 1
-        if self.current_route_idx >= len(self.route_id_list):
-            log.info('所有线路执行完毕')
-            return Operation.SUCCESS
-
-        return Operation.WAIT
-
     def save_record(self, route_id: WorldPatrolRouteId, time_cost: float):
         """
         保存当天运行记录
@@ -144,8 +137,7 @@ class WorldPatrol(Application2):
 
         return total
 
-    def _after_operation_done(self, result: OperationResult):
-        Operation._after_operation_done(self, result)
+    def _update_record_after_stop(self, result: OperationResult):
         if self.ignore_record:
             return
         if not result.success:

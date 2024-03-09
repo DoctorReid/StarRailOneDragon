@@ -13,7 +13,7 @@ from sr.const.map_const import Planet, PLANET_LIST, best_match_planet_by_name
 from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation, OperationOneRoundResult
-from sr.screen_area.large_map import ScreenLargeMap
+from sr.screen_area.screen_large_map import ScreenLargeMap
 
 
 class ChoosePlanet(Operation):

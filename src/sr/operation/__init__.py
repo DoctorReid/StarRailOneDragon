@@ -726,6 +726,7 @@ class StateOperation(Operation):
                 continue
             elif edge.status == current_round_result.status:
                 next_node_id = edge.node_to.cn
+                break
 
         next_node: Optional[StateOperationNode] = None
         if next_node_id is not None:

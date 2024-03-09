@@ -1,14 +1,17 @@
 import time
-from typing import Optional
+from typing import Optional, List
+
+from cv2.typing import MatLike
 
 from basic import str_utils, Point
 from basic.i18_utils import gt
-from basic.img import cv2_utils
+from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
 from sr.const.map_const import Planet, Region, PLANET_2_REGION, best_match_region_by_name
 from sr.context import Context
 from sr.image.sceenshot import large_map
-from sr.operation import Operation
+from sr.operation import Operation, StateOperation, OperationOneRoundResult
+from sr.screen_area.screen_large_map import ScreenLargeMap
 
 
 class ChooseRegion(Operation):
@@ -19,20 +22,21 @@ class ChooseRegion(Operation):
         选择目标区域
         :param region: 区域
         """
-        super().__init__(ctx, 20, op_name=gt('选择区域 %s') % region.display_name)
+        super().__init__(ctx, try_times=20,
+                         op_name=gt('选择区域 %s') % region.display_name,
+                         )
         self.planet: Planet = region.planet
         self.region: Region = region
-        self.scroll_direction: Optional[int] = None
 
-    def _execute_one_round(self) -> int:
+    def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
         planet = large_map.get_planet(screen, self.ctx.ocr)
         if planet is None or planet != self.planet:
-            return Operation.FAIL  # 目前不在目标星球的大地图了
+            return Operation.round_fail()  # 目前不在目标星球的大地图了
 
         if self.check_tp_and_cancel(screen):
-            return Operation.RETRY
+            return Operation.round_retry(wait=1)
 
         # 判断当前选择区域是否目标区域
         current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
@@ -40,17 +44,30 @@ class ChooseRegion(Operation):
         log.info('当前区域文本 %s 匹配区域名称 %s', current_region_name, current_region.cn if current_region is not None else '')
 
         is_current: bool = (current_region is not None and current_region.pr_id == self.region.pr_id)
-        if not is_current:
-            find = self.click_target_region(screen)
-            if not find:
-                self.scroll_when_no_target_region(current_region_name)
-                return Operation.RETRY
-            else:
-                self.ctx.controller.click(large_map.EMPTY_MAP_POS)  # 将鼠标移开 防止OCR时候有一条白线 影响OCR结果
-                time.sleep(1)
-                return Operation.RETRY
 
-        # 需要选择层数
+        # 还没有选好区域
+        if not is_current:
+            region_pos_list = self.get_region_pos_list(screen)
+            pr_id_set: set[str] = set()
+            for region_pos in region_pos_list:
+                pr_id_set.add(region_pos.data.pr_id)
+                if region_pos.data.pr_id == self.region.pr_id:
+                    self.ctx.controller.click(region_pos.center)
+                    return Operation.round_retry(wait=1)
+
+            # 没有发现目标区域 需要滚动
+            with_before_region: bool = False  # 当前区域列表在目标区域之前
+            region_list = PLANET_2_REGION.get(self.region.planet.np_id)
+            for r in region_list:
+                if r.pr_id in pr_id_set:
+                    with_before_region = True
+                if r.pr_id == self.region.pr_id:
+                    break
+
+            self.scroll_region_area(1 if with_before_region else -1)
+            return Operation.round_retry(wait=1)
+
+        # 已经选好了区域 还需要选择层数
         if self.region.floor != 0:
             current_floor_str = large_map.get_active_floor(screen, self.ctx.ocr)
             log.info('当前层数 %s', current_floor_str)
@@ -60,16 +77,15 @@ class ChooseRegion(Operation):
             log.info('目标层数 %s', target_floor_str)
             if target_floor_str != current_floor_str:
                 cl = self.click_target_floor(screen, target_floor_str)
-                time.sleep(0.5)
                 if not cl:
                     log.error('未成功点击层数')
-                    return Operation.RETRY
+                    return Operation.round_retry(wait=0.5)
                 else:
-                    return Operation.SUCCESS
+                    return Operation.round_success(wait=0.5)
             else:  # 已经是目标楼层
-                return Operation.SUCCESS
+                return Operation.round_success(wait=0.5)
 
-        return Operation.SUCCESS
+        return Operation.round_success()
 
     def click_target_region(self, screen) -> bool:
         """
@@ -80,40 +96,31 @@ class ChooseRegion(Operation):
         return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT,
                                              lcs_percent=self.gc.region_lcs_percent, merge_line_distance=40)
 
-    def scroll_when_no_target_region(self, current_region_name):
+    def get_region_pos_list(self, screen: MatLike) -> List[MatchResult]:
         """
-        当前找不到目标区域时 进行滚动
-        :param current_region_name: 当前选择的区域
+        获取当前屏幕显示的区域
+        MatchResult.data = Region
+        :param screen:
         :return:
         """
-        log.info('当前界面未发现 %s 准备滚动', gt(self.region.cn, 'ui'))
-        if current_region_name is None and self.scroll_direction is None:  # 判断不了当前选择区域的情况 就先向下滚动5次 再向上滚动5次
-            log.info(self.op_round)
-            if self.op_round < 5:
-                self.scroll_region_area(1)
-            elif self.op_round == 5:
-                for _ in range(self.op_round):  # 回到原点
-                    self.scroll_region_area(-1)
-                    time.sleep(0.5)
-                self.scroll_region_area(-1)
-            else:
-                self.scroll_region_area(-1)
-        else:
-            if self.scroll_direction is None:
-                find_current: bool = False
-                region_list = PLANET_2_REGION.get(self.region.planet.np_id)
-                for r in region_list:
-                    if r == self.region:
-                        break
-                    if str_utils.find_by_lcs(gt(r.cn, 'ocr'), current_region_name, ignore_case=True,
-                                             percent=self.gc.region_lcs_percent):
-                        find_current = True
+        area = ScreenLargeMap.REGION_LIST.value
+        part = cv2_utils.crop_image_only(screen, area.rect)
+        ocr_map = self.ctx.ocr.run_ocr(part, merge_line_distance=40)
 
-                # 在找到目标区域前 当前区域已经出现 说明目标区域在下面 向下滚动
-                self.scroll_direction = 1 if find_current else -1
-            self.scroll_region_area(self.scroll_direction)
+        result_list: List[MatchResult] = []
 
-        time.sleep(1)
+        for word, mrl in ocr_map.items():
+            if mrl.max is None:
+                continue
+            result = mrl.max
+            region = best_match_region_by_name(word, planet=self.planet)
+            if region is not None:
+                result.data = region
+                result.x += area.rect.left_top.x
+                result.y += area.rect.left_top.y
+                result_list.append(result)
+
+        return result_list
 
     def scroll_region_area(self, d: int = 1):
         """
@@ -135,15 +142,13 @@ class ChooseRegion(Operation):
         return self.ctx.controller.click_ocr(screen, target_floor_str, rect=large_map.FLOOR_LIST_PART,
                                              same_word=True)
 
-    def check_tp_and_cancel(self, screen) -> bool:
+    def check_tp_and_cancel(self, screen: MatLike) -> bool:
         """
         检测右边是否出现传送 有的话 点一下空白位置取消
         :param screen:
         :return:
         """
-        tp_btn_part, _ = cv2_utils.crop_image(screen, large_map.TP_BTN_RECT)
-        # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
-        tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'])
-        if len(tp_btn_ocr) > 0:
+        area = ScreenLargeMap.TP_BTN.value
+        if self.find_area(area, screen):
             return self.ctx.controller.click(large_map.EMPTY_MAP_POS)
         return False
