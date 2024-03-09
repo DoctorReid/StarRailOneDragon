@@ -20,5 +20,6 @@ op_list:
   - op: 'move'
     data: [753, 782]
   - op: 'patrol'
-  - op: 'move'
+  - op: 'slow_move'
     data: [778, 778]
+  - op: 'patrol'
