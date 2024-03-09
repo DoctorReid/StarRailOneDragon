@@ -16,6 +16,7 @@ from sr.app.daily_training.daily_training_run_record import DailyTrainingRunReco
 from sr.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr.app.email.email_run_record import EmailRunRecord
+from sr.app.mys.mys_run_record import MysRunRecord
 from sr.app.nameless_honor.nameless_honor_run_record import NamelessHonorRunRecord
 from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
 from sr.app.sim_uni.sim_uni_config import SimUniConfig
@@ -39,7 +40,7 @@ from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import fill_uid_black
-from sr.mystools.mys_config import MysConfig
+from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig
@@ -86,6 +87,8 @@ class Context:
         self.sim_uni_run_record: Optional[SimUniRunRecord] = None
 
         self.mys_config: Optional[MysConfig] = None
+        self.mys_run_record: Optional[MysRunRecord] = None
+
         self.assignments_run_record: Optional[AssignmentsRunRecord] = None
         self.buy_xz_parcel_run_record: Optional[BuyXianZhouParcelRunRecord] = None
         self.daily_training_run_record: Optional[DailyTrainingRunRecord] = None
@@ -119,8 +122,8 @@ class Context:
         self.game_config = GameConfig()
         self.game_config.move_to_account_idx(account_idx)
 
-        self.mys_config = MysConfig()
-        self.mys_config.move_to_account_idx(account_idx)
+        self.mys_config = MysConfig(account_idx)
+        self.mys_run_record = MysRunRecord(account_idx)
 
         self.world_patrol_config = WorldPatrolConfig()
         self.world_patrol_config.move_to_account_idx(account_idx)
@@ -175,7 +178,9 @@ class Context:
         """
         account_idx = self.one_dragon_config.current_active_account.idx
         self.game_config = GameConfig(account_idx)
+
         self.mys_config = MysConfig(account_idx)
+        self.mys_run_record = MysRunRecord(account_idx)
 
         self.world_patrol_config = WorldPatrolConfig(account_idx)
         self.world_patrol_run_record = WorldPatrolRunRecord(account_idx)
@@ -250,7 +255,8 @@ class Context:
             return False
 
         self.running = 1
-        self.controller.init()
+        if self.controller is not None:
+            self.controller.init()
         self._after_start()
         return True
 

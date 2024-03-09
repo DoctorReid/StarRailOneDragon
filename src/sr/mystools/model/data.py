@@ -1,14 +1,16 @@
-"""
-### 用户数据相关
-"""
-from typing import List, Union, Optional, Any, Dict, Set, TYPE_CHECKING, AbstractSet, \
-    Mapping, Literal
-from uuid import uuid4, UUID
+import json
+from json import JSONDecodeError
+from typing import Union, Optional, Any, Dict, TYPE_CHECKING, AbstractSet, \
+    Mapping, Set, Literal, List
+from uuid import UUID, uuid4
 
 from httpx import Cookies
-from pydantic import BaseModel, validator
+from basic.log_utils import log
+from pydantic import BaseModel, ValidationError, validator, Field
 
-from .data_model import BaseModelWithSetter, Good, Address, GameRecord, BaseModelWithUpdate
+from basic.log_utils import log
+from .._version import __version__
+from ..model.common import data_path, BaseModelWithSetter, Address, BaseModelWithUpdate, Good, GameRecord
 
 if TYPE_CHECKING:
     IntStr = Union[int, str]
@@ -16,10 +18,76 @@ if TYPE_CHECKING:
     AbstractSetIntStr = AbstractSet[IntStr]
     MappingIntStrAny = Mapping[IntStr, Any]
 
+__all__ = ["plugin_data_path", "BBSCookies", "UserAccount", "ExchangePlan", "ExchangeResult", "uuid4_validate",
+           "UserData", "PluginData", "PluginDataManager"]
+
+plugin_data_path = data_path / "dataV2.json"
+_uuid_set: Set[str] = set()
+"""已使用的用户UUID密钥集合"""
+_new_uuid_in_init = False
+"""插件反序列化用户数据时，是否生成了新的UUID密钥"""
+
 
 class BBSCookies(BaseModelWithSetter, BaseModelWithUpdate):
     """
     米游社Cookies数据
+
+    # 测试 is_correct() 方法
+
+    >>> assert BBSCookies().is_correct() is False
+    >>> assert BBSCookies(stuid="123", stoken="123", cookie_token="123").is_correct() is True
+
+    # 测试 bbs_uid getter
+
+    >>> bbs_cookies = BBSCookies()
+    >>> assert not bbs_cookies.bbs_uid
+    >>> assert BBSCookies(stuid="123").bbs_uid == "123"
+
+    # 测试 bbs_uid setter
+
+    >>> bbs_cookies.bbs_uid = "123"
+    >>> assert bbs_cookies.bbs_uid == "123"
+
+    # 检查构造函数内所用的 stoken setter
+
+    >>> bbs_cookies = BBSCookies(stoken="abcd1234")
+    >>> assert bbs_cookies.stoken_v1 and not bbs_cookies.stoken_v2
+    >>> bbs_cookies = BBSCookies(stoken="v2_abcd1234==")
+    >>> assert bbs_cookies.stoken_v2 and not bbs_cookies.stoken_v1
+    >>> assert bbs_cookies.stoken == "v2_abcd1234=="
+
+    # 检查 stoken setter
+
+    >>> bbs_cookies = BBSCookies(stoken="abcd1234")
+    >>> bbs_cookies.stoken = "v2_abcd1234=="
+    >>> assert bbs_cookies.stoken_v2 == "v2_abcd1234=="
+    >>> assert bbs_cookies.stoken_v1 == "abcd1234"
+
+    # 检查 .dict 方法能否生成包含 stoken_2 类型的 stoken 的字典
+
+    >>> bbs_cookies = BBSCookies()
+    >>> bbs_cookies.stoken_v1 = "abcd1234"
+    >>> bbs_cookies.stoken_v2 = "v2_abcd1234=="
+    >>> assert bbs_cookies.dict(v2_stoken=True)["stoken"] == "v2_abcd1234=="
+
+    # 检查是否有多余的字段
+
+    >>> bbs_cookies = BBSCookies(stuid="123")
+    >>> assert all(bbs_cookies.dict())
+    >>> assert all(map(lambda x: x not in bbs_cookies, ["stoken_v1", "stoken_v2"]))
+
+    # 测试 update 方法
+
+    >>> bbs_cookies = BBSCookies(stuid="123")
+    >>> assert bbs_cookies.update({"stuid": "456", "stoken": "abc"}) is bbs_cookies
+    >>> assert bbs_cookies.stuid == "456"
+    >>> assert bbs_cookies.stoken == "abc"
+
+    >>> bbs_cookies = BBSCookies(stuid="123")
+    >>> new_cookies = BBSCookies(stuid="456", stoken="abc")
+    >>> assert bbs_cookies.update(new_cookies) is bbs_cookies
+    >>> assert bbs_cookies.stuid == "456"
+    >>> assert bbs_cookies.stoken == "abc"
     """
     stuid: Optional[str] = None
     """米游社UID"""
@@ -107,7 +175,7 @@ class BBSCookies(BaseModelWithSetter, BaseModelWithUpdate):
              include: Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']] = None,
              exclude: Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']] = None,
              by_alias: bool = False,
-             exclude_unset: bool = False, exclude_defaults: bool = False,
+             skip_defaults: Optional[bool] = None, exclude_unset: bool = False, exclude_defaults: bool = False,
              exclude_none: bool = False, v2_stoken: bool = False,
              cookie_type: bool = False) -> 'DictStrAny':
         """
@@ -145,17 +213,25 @@ class UserAccount(BaseModelWithSetter):
     """
     米游社账户数据
 
+    >>> user_account = UserAccount(
+    >>>     cookies=BBSCookies(),
+    >>>     device_id_ios="DBB8886C-C88A-4E12-A407-BE295E95E084",
+    >>>     device_id_android="64561CE4-5F43-41D7-B92F-41CEFABC7ABF"
+    >>> )
+    >>> assert isinstance(user_account, UserAccount)
+    >>> user_account.bbs_uid = "123"
+    >>> assert user_account.bbs_uid == "123"
     """
-    phone_number: Optional[str]
+    phone_number: Optional[str] = None
     """手机号"""
     cookies: BBSCookies
     """Cookies"""
     address: Optional[Address] = None
     """收货地址"""
 
-    device_id_ios: Optional[str] = None
+    device_id_ios: str
     """iOS设备用 deviceID"""
-    device_id_android: Optional[str] = None
+    device_id_android: str
     """安卓设备用 deviceID"""
     device_fp: Optional[str] = None
     """iOS设备用 deviceFp"""
@@ -168,42 +244,22 @@ class UserAccount(BaseModelWithSetter):
     '''是否开启便笺提醒'''
     platform: Literal["ios", "android"] = "ios"
     '''设备平台'''
-    mission_games: Set[type] = {}
-    '''在哪些板块执行米游币任务计划'''
-    user_stamina_threshold: int = 180
+    mission_games: List[str] = []
+    '''在哪些板块执行米游币任务计划 为 BaseMission 子类名称'''
+    user_stamina_threshold: int = 240
     '''崩铁便笺体力提醒阈值，0为一直提醒'''
     user_resin_threshold: int = 160
     '''原神便笺树脂提醒阈值，0为一直提醒'''
 
     def __init__(self, **data: Any):
         if not data.get("device_id_ios") or not data.get("device_id_android"):
-            from .utils import generate_device_id
+            from ..utils import generate_device_id
             if not data.get("device_id_ios"):
                 data.setdefault("device_id_ios", generate_device_id())
             if not data.get("device_id_android"):
                 data.setdefault("device_id_android", generate_device_id())
 
-        from . import myb_missions_api
-
-        mission_games_param: Union[List[str], Set[type], None] = data.pop(
-            "mission_games") if "mission_games" in data else None
         super().__init__(**data)
-
-        if isinstance(mission_games_param, list):
-            self.mission_games = set(map(lambda x: getattr(myb_missions_api, x), mission_games_param))
-        elif isinstance(mission_games_param, set):
-            self.mission_games = mission_games_param
-        elif mission_games_param is None:
-            self.mission_games = {myb_missions_api.BBSMission}
-
-    class Config:
-        json_encoders = {type: lambda v: v.__name__}
-
-    @validator("mission_games")
-    def mission_games_validator(cls, v):
-        from .myb_missions_api import BaseMission
-        if not all(issubclass(game, BaseMission) for game in v):
-            raise ValueError("UserAccount.mission_games 必须是 BaseMission 的子类")
 
     @property
     def bbs_uid(self):
@@ -216,6 +272,14 @@ class UserAccount(BaseModelWithSetter):
     def bbs_uid(self, value: str):
         self.cookies.bbs_uid = value
 
+    @property
+    def display_name(self):
+        """
+        显示名称
+        """
+        from ..utils.common import blur_phone
+        return f"{self.bbs_uid}({blur_phone(self.phone_number)})"
+
 
 class ExchangePlan(BaseModel):
     """
@@ -224,11 +288,11 @@ class ExchangePlan(BaseModel):
 
     good: Good
     """商品"""
-    address: Optional[Address]
+    address: Optional[Address] = None
     """地址ID"""
     account: UserAccount
     """米游社账号"""
-    game_record: Optional[GameRecord]
+    game_record: Optional[GameRecord] = None
     """商品对应的游戏的玩家账号"""
 
     def __hash__(self):
@@ -254,6 +318,7 @@ class ExchangePlan(BaseModel):
             include: Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']] = None,
             exclude: Optional[Union['AbstractSetIntStr', 'MappingIntStrAny']] = None,
             by_alias: bool = False,
+            skip_defaults: Optional[bool] = None,
             exclude_unset: bool = False,
             exclude_defaults: bool = False,
             exclude_none: bool = False,
@@ -281,12 +346,6 @@ class ExchangeResult(BaseModel):
     """兑换计划"""
 
 
-_uuid_set: Set[str] = set()
-"""已使用的用户UUID密钥集合"""
-_new_uuid_in_init = False
-"""插件反序列化用户数据时，是否生成了新的UUID密钥"""
-
-
 def uuid4_validate(v):
     """
     验证UUID是否为合法的UUIDv4
@@ -295,7 +354,7 @@ def uuid4_validate(v):
     """
     try:
         UUID(v, version=4)
-    except:
+    except Exception:
         return False
     else:
         return True
@@ -312,8 +371,10 @@ class UserData(BaseModelWithSetter):
     """是否开启通知"""
     uuid: Optional[str] = None
     """用户UUID密钥，用于不同NoneBot适配器平台之间的数据同步，因此不可泄露"""
-    qq_guilds: Optional[Dict[str, Set[int]]] = {}
-    """储存用户所在的QQ频道ID {用户ID : [频道ID]}"""
+    qq_guild: Optional[Dict[str, int]] = {}
+    """储存用户所在的QQ频道ID {用户ID : 频道ID}"""
+    qq_guilds: Optional[Dict[str, List[int]]] = Field(default={}, exclude=True)
+    """旧版（v2.1.0 之前）储存用户所在的QQ频道ID {用户ID : [频道ID]}"""
     exchange_plans: Union[Set[ExchangePlan], List[ExchangePlan]] = set()
     """兑换计划列表"""
     accounts: Dict[str, UserAccount] = {}
@@ -347,5 +408,106 @@ class UserData(BaseModelWithSetter):
             _new_uuid_in_init = True
         _uuid_set.add(self.uuid)
 
+        # 读取旧版配置中的 qq_guilds 信息，对每个账号取第一个 GuildID 值以生成新的 qq_guild Dict
+        if not self.qq_guild:
+            self.qq_guild = {k: v[0] for k, v in filter(lambda x: x[1], self.qq_guilds.items())}
+
     def __hash__(self):
         return hash(self.uuid)
+
+
+class PluginData(BaseModel):
+    version: str = __version__
+    """创建插件数据文件时的版本号"""
+    user_bind: Optional[Dict[str, str]] = {}
+    '''不同NoneBot适配器平台的用户数据绑定关系（如QQ聊天和QQ频道）(空用户数据:被绑定用户数据)'''
+    users: Dict[str, UserData] = {}
+    '''所有用户数据'''
+
+    def do_user_bind(self, src: str = None, dst: str = None, write: bool = False):
+        """
+        执行用户数据绑定同步，将src指向dst的用户数据，即src处的数据将会被dst处的数据对象替换
+
+        :param src: 源用户数据，为空则读取 self.user_bind 并执行全部绑定
+        :param dst: 目标用户数据，为空则读取 self.user_bind 并执行全部绑定
+        :param write: 是否写入插件数据文件
+        """
+        if None in [src, dst]:
+            for x, y in self.user_bind.items():
+                try:
+                    self.users[x] = self.users[y]
+                except KeyError:
+                    log.error(f"用户数据绑定失败，目标用户 {y} 不存在")
+        else:
+            try:
+                self.user_bind[src] = dst
+                self.users[src] = self.users[dst]
+            except KeyError:
+                log.error(f"用户数据绑定失败，目标用户 {dst} 不存在")
+            else:
+                if write:
+                    PluginDataManager.write_plugin_data()
+
+    def __init__(self, **data: Any):
+        super().__init__(**data)
+        self.do_user_bind(write=True)
+
+
+class PluginDataManager:
+    plugin_data: Optional[PluginData] = None
+    """加载出的插件数据对象"""
+
+    @classmethod
+    def load_plugin_data(cls):
+        """
+        加载插件数据文件
+        """
+        if plugin_data_path.exists() and plugin_data_path.is_file():
+            try:
+                with open(plugin_data_path, "r") as f:
+                    plugin_data_dict = json.load(f)
+                # 读取完整的插件数据
+                cls.plugin_data = PluginData.parse_obj(plugin_data_dict)
+            except (ValidationError, JSONDecodeError):
+                log.exception(f"读取插件数据文件失败，请检查插件数据文件 {plugin_data_path} 格式是否正确")
+                raise
+            except Exception:
+                log.exception(
+                    f"读取插件数据文件失败，请检查插件数据文件 {plugin_data_path} 是否存在且有权限读取和写入")
+                raise
+        else:
+            cls.plugin_data = PluginData()
+            try:
+                str_data = cls.plugin_data.model_dump_json(indent=4)
+                plugin_data_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(plugin_data_path, "w", encoding="utf-8") as f:
+                    f.write(str_data)
+            except (AttributeError, TypeError, ValueError, PermissionError):
+                log.exception(f"创建插件数据文件失败，请检查是否有权限读取和写入 {plugin_data_path}")
+                raise
+            else:
+                log.info(f"插件数据文件 {plugin_data_path} 不存在，已创建默认插件数据文件。")
+
+    @classmethod
+    def write_plugin_data(cls):
+        """
+        写入插件数据文件
+
+        :return: 是否成功
+        """
+        try:
+            str_data = cls.plugin_data.model_dump_json(indent=4)
+        except (AttributeError, TypeError, ValueError):
+            log.exception("数据对象序列化失败，可能是数据类型错误")
+            return False
+        else:
+            with open(plugin_data_path, "w", encoding="utf-8") as f:
+                f.write(str_data)
+            return True
+
+
+PluginDataManager.load_plugin_data()
+
+# 如果插件数据文件加载后，发现有用户没有UUID密钥，进行了生成，则需要保存写入
+if _new_uuid_in_init:
+    PluginDataManager.write_plugin_data()

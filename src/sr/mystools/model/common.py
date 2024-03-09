@@ -1,13 +1,27 @@
-"""
-### 米游社API的客户端调用所用的数据模型
-"""
 import inspect
 import time
 from abc import abstractmethod
 from datetime import datetime
+from pathlib import Path
 from typing import Optional, Literal, NamedTuple, no_type_check, Union, Dict, Any, TypeVar, Tuple, List
 
+import pytz
 from pydantic import BaseModel
+
+__all__ = ["root_path", "data_path", "BaseModelWithSetter", "BaseModelWithUpdate", "Good", "GameRecord", "GameInfo",
+           "Address", "MmtData",
+           "Award", "GameSignInfo", "MissionData", "MissionState", "GenshinNote", "StarRailNote", "GenshinNoteNotice",
+           "StarRailNoteNotice", "BaseApiStatus", "CreateMobileCaptchaStatus", "GetCookieStatus", "GetGoodDetailStatus",
+           "ExchangeStatus", "MissionStatus", "GetFpStatus", "BoardStatus", "GenshinNoteStatus", "StarRailNoteStatus",
+           "GeetestResult", "GeetestResultV4", "CommandUsage"]
+
+from basic import os_utils
+
+root_path = Path(os_utils.get_path_under_work_dir('config', 'mystool2'))
+'''NoneBot2 机器人根目录'''
+
+data_path = root_path / "data" / "nonebot-plugin-mystool"
+'''插件数据保存目录'''
 
 
 class BaseModelWithSetter(BaseModel):
@@ -63,30 +77,30 @@ class Good(BaseModelWithUpdate):
     """
     type: int
     """为 1 时商品只有在指定时间开放兑换；为 0 时商品任何时间均可兑换"""
-    next_time: Optional[int]
+    next_time: Optional[int] = None
     """为 0 表示任何时间均可兑换或兑换已结束"""
     status: Optional[Literal["online", "not_in_sell"]]
-    sale_start_time: Optional[int]
-    time_by_detail: Optional[int]
-    next_num: Optional[int]
+    sale_start_time: Optional[int] = None
+    time_by_detail: Optional[int] = None
+    next_num: Optional[int] = None
     account_exchange_num: int
     """已经兑换次数"""
     account_cycle_limit: int
     """最多可兑换次数"""
     account_cycle_type: str
     """限购类型 Literal["forever", "month", "not_limit"]"""
-    game_biz: Optional[str]
+    game_biz: Optional[str] = None
     """商品对应的游戏区服（如 hk4e_cn）（单独查询一个商品时）"""
-    game: Optional[str]
+    game: Optional[str] = None
     """商品对应的游戏"""
-    unlimit: Optional[bool]
+    unlimit: Optional[bool] = None
     """是否为不限量商品"""
 
     # 以下为实际会用到的属性
 
-    name: Optional[str]
+    name: Optional[str] = None
     """商品名称（单独查询一个商品时）"""
-    goods_name: Optional[str]
+    goods_name: Optional[str] = None
     """商品名称（查询商品列表时）"""
 
     goods_id: str
@@ -123,6 +137,29 @@ class Good(BaseModelWithUpdate):
             return sale_start_time
         else:
             return self.next_time
+
+    @property
+    def time_text(self):
+        """
+        商品的兑换时间文本
+
+        :return:
+        如果返回`None`，说明需要进一步查询商品详细信息才能获取兑换时间
+        """
+        if self.time_end:
+            return "已结束"
+        elif self.time == 0:
+            return None
+        elif self.time_limited:
+            from ..model.config import plugin_config
+            if zone := plugin_config.preference.timezone:
+                tz_info = pytz.timezone(zone)
+                date_time = datetime.fromtimestamp(self.time, tz_info)
+            else:
+                date_time = datetime.fromtimestamp(self.time)
+            return date_time.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            return "任何时间"
 
     @property
     def stoke_text(self):
@@ -327,6 +364,62 @@ class MissionState(BaseModel):
     """所有任务对应的完成进度 {mission_key, (MissionData, 当前进度)}"""
 
 
+class GenshinNote(BaseModel):
+    """
+    原神实时便笺数据 (从米游社内相关页面API的返回数据初始化)
+    """
+    current_resin: Optional[int] = None
+    """当前树脂数量"""
+    finished_task_num: Optional[int] = None
+    """每日委托完成数"""
+    current_expedition_num: Optional[int] = None
+    """探索派遣 进行中的数量"""
+    max_expedition_num: Optional[int] = None
+    """探索派遣 最多派遣数"""
+    current_home_coin: Optional[int] = None
+    """洞天财瓮 未收取的宝钱数"""
+    max_home_coin: Optional[int] = None
+    """洞天财瓮 最多可容纳宝钱数"""
+    transformer: Optional[Dict[str, Any]] = None
+    """参量质变仪相关数据"""
+    resin_recovery_time: Optional[int] = None
+    """剩余树脂恢复时间"""
+
+    @property
+    def transformer_text(self):
+        """
+        参量质变仪状态文本
+        """
+        try:
+            if not self.transformer['obtained']:
+                return '未获得'
+            elif self.transformer['recovery_time']['reached']:
+                return '已准备就绪'
+            else:
+                return f"{self.transformer['recovery_time']['Day']} 天" \
+                       f"{self.transformer['recovery_time']['Hour']} 小时 " \
+                       f"{self.transformer['recovery_time']['Minute']} 分钟"
+        except KeyError:
+            return None
+
+    @property
+    def resin_recovery_text(self):
+        """
+        剩余树脂恢复文本
+        """
+        try:
+            if not self.resin_recovery_time:
+                return ':未获得时间数据'
+            elif self.resin_recovery_time == 0:
+                return '已准备就绪'
+            else:
+                recovery_timestamp = int(time.time()) + self.resin_recovery_time
+                recovery_datetime = datetime.fromtimestamp(recovery_timestamp)
+                return f"将在{recovery_datetime.strftime('%m-%d %H:%M')}回满"
+        except KeyError:
+            return None
+
+
 class StarRailNoteExpedition(BaseModel):
     """
     崩铁实时便笺数据中的 委托
@@ -363,10 +456,10 @@ class StarRailNote(BaseModel):
     """已接受委托数量"""
     total_expedition_num: Optional[int] = None
     """最大委托数量"""
-    expeditions: Optional[List[StarRailNoteExpedition]] = None
-    """委托"""
     has_signed: Optional[bool] = None
     """当天是否签到"""
+    expeditions: Optional[List[StarRailNoteExpedition]] = None
+    """委托"""
 
     @property
     def stamina_recover_text(self):
@@ -384,6 +477,30 @@ class StarRailNote(BaseModel):
                 return f"将在{recovery_datetime.strftime('%m-%d %H:%M')}回满"
         except KeyError:
             return None
+
+
+class GenshinNoteNotice(GenshinNote):
+    """
+    原神便笺通知状态
+    """
+    current_resin: bool = False
+    """是否达到阈值"""
+    current_resin_full: bool = False
+    """是否溢出"""
+    current_home_coin: bool = False
+    transformer: bool = False
+
+
+class StarRailNoteNotice(StarRailNote):
+    """
+    星穹铁道便笺通知状态
+    """
+    current_stamina: bool = False
+    """是否达到阈值"""
+    current_stamina_full: bool = False
+    """是否溢出"""
+    current_train_score: bool = False
+    current_rogue_score: bool = False
 
 
 class BaseApiStatus(BaseModel):
@@ -510,6 +627,14 @@ class BoardStatus(BaseApiStatus):
     """获取游戏列表失败"""
 
 
+class GenshinNoteStatus(BoardStatus):
+    """
+    原神实时便笺 返回结果
+    """
+    no_genshin_account: bool = False
+    """用户没有任何原神账户"""
+
+
 class StarRailNoteStatus(BoardStatus):
     """
     星铁实时便笺 返回结果
@@ -533,5 +658,10 @@ class GeetestResultV4(BaseModel):
     captcha_output: str
 
 
-if __name__ == '__main__':
-    StarRailNote.model_validate({"current_stamina":16,"max_stamina":240,"stamina_recover_time":80566,"accepted_expedition_num":4,"total_expedition_num":4,"expeditions":[{"avatars":["https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_734174/dc7c8e4af484f0d3e49ea2f4b14dfeda.png","https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_734174/71e75b9fe581b35d2528a1525b310e1b.png"],"status":"Ongoing","remaining_time":27286,"name":"无名之地，无名之人"},{"avatars":["https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_734174/adce7db9f95d5df79da302b38c40a2bb.png","https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_734174/33d50607c0e02b18ea296d53aa2b07d9.png"],"status":"Ongoing","remaining_time":27290,"name":"阿卡夏记录"},{"avatars":["https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_734174/e772e00f591debbf185933a5e12daa4e.png","https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_734174/f9dacefa3a370c56dee1cc57588509d8.png"],"status":"Ongoing","remaining_time":27294,"name":"看不见的手"},{"avatars":["https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_734174/c9b70366adf96bfbe52768c0a3c88cbb.png","https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_734174/ef95b2d01e5598c520469d774a5fa223.png"],"status":"Ongoing","remaining_time":27299,"name":"被废弃与损害的"}],"current_train_score":100,"max_train_score":500,"current_rogue_score":14000,"max_rogue_score":14000,"has_signed":False,"sign_url":"https://webstatic.mihoyo.com/bbs/event/signin/hkrpg/index.html?bbs_auth_required=true\u0026act_id=e202304121516551\u0026bbs_auth_required=true\u0026bbs_presentation_style=fullscreen","current_reserve_stamina":0,"is_reserve_stamina_full":False,"home_url":"https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen\u0026game_id=6","note_url":"https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen\u0026game_id=6"}, strict=False)
+class CommandUsage(BaseModel):
+    """
+    插件命令用法信息
+    """
+    name: Optional[str]
+    description: Optional[str]
+    usage: Optional[str]

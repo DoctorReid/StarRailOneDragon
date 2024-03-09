@@ -9,6 +9,7 @@ from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcel
 from sr.app.daily_training.daily_training_app import DailyTrainingApp
 from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr.app.email.email_app import EmailApp
+from sr.app.mys.mys_app import MysApp
 from sr.app.nameless_honor.nameless_honor_app import NamelessHonorApp
 from sr.app.sim_uni.sim_uni_app import SimUniApp
 from sr.app.support_character.support_character_app import SupportCharacterApp
@@ -237,6 +238,8 @@ class OneStopServiceApp(Application2):
             return TreasuresLightwardApp(ctx)
         elif app_id == AppDescriptionEnum.SIM_UNIVERSE.value.id:
             return SimUniApp(ctx)
+        elif app_id == AppDescriptionEnum.MYS.value.id:
+            return MysApp(ctx)
         return None
 
     @staticmethod
@@ -263,6 +266,8 @@ class OneStopServiceApp(Application2):
             return ctx.tl_run_record
         elif app_id == AppDescriptionEnum.SIM_UNIVERSE.value.id:
             return ctx.sim_uni_run_record
+        elif app_id == AppDescriptionEnum.MYS.value.id:
+            return ctx.mys_run_record
         return None
 
     @staticmethod
@@ -275,11 +280,3 @@ class OneStopServiceApp(Application2):
         record: Optional[AppRunRecord] = OneStopServiceApp.get_app_run_record_by_id(app_id, ctx)
         if record is not None:
             record.check_and_update_status()
-
-    def _after_operation_done(self, result: OperationResult):
-        """
-        应用结束后 切换到原来启用的账号
-        :param result:
-        :return:
-        """
-        super()._after_operation_done(result)

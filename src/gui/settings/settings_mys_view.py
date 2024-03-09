@@ -1,13 +1,12 @@
-from typing import Optional
-import flet as ft
 import webbrowser
+from typing import Optional
+
+import flet as ft
 
 from basic.i18_utils import gt
 from gui import components, snack_bar
 from gui.sr_basic_view import SrBasicView
 from sr.context import Context
-from sr.mystools import mys_config
-from sr.mystools.mys_config import MysConfig
 
 
 class SettingsMysView(SrBasicView, ft.Row):
@@ -17,11 +16,17 @@ class SettingsMysView(SrBasicView, ft.Row):
         self.account_phone_text = ft.Text()
         self.logout_btn = components.RectOutlinedButton(gt('注销', 'ui'), on_click=self._on_click_logout)
         account_row_right = ft.Row(controls=[self.account_phone_text, self.logout_btn])
-        account_row = components.SettingsListItem(gt('账号状态', 'ui'), account_row_right)
 
-        setting_list = components.SettingsList(controls=[account_row])
+        self.auto_game_sign = ft.Checkbox(on_change=self._on_auto_game_sign_changed)
+        self.auto_bbs_sign = ft.Checkbox(on_change=self._on_auto_bbs_sign_changed)
+
+        setting_list = components.SettingsList(controls=[
+            components.SettingsListItem(gt('账号状态', 'ui'), account_row_right),
+            components.SettingsListItem(gt('自动游戏签到', 'ui'), self.auto_game_sign),
+            components.SettingsListItem(gt('自动米游币任务', 'ui'), self.auto_bbs_sign),
+        ])
         settings_card_title = components.CardTitleText(title=gt('米游社', 'ui'))
-        settings_card = components.Card(setting_list, title=settings_card_title)
+        settings_card = components.Card(setting_list, title=settings_card_title, width=400)
 
         self.phone_input: ft.TextField = ft.TextField(label=gt('电话号码', 'ui'), width=200)
         self.captcha_input: ft.TextField = ft.TextField(label=gt('验证码', 'ui'), width=200)
@@ -47,6 +52,10 @@ class SettingsMysView(SrBasicView, ft.Row):
         self.account_phone_text.value = self.sr_ctx.mys_config.phone_number if is_login else '未登录'
         self.logout_btn.visible = is_login
         self.login_card.visible = not is_login
+
+        self.auto_game_sign.value = self.sr_ctx.mys_config.auto_game_sign
+        self.auto_bbs_sign.value = self.sr_ctx.mys_config.auto_bbs_sign
+
         self.update()
 
     def _on_click_captcha(self, e):
@@ -80,6 +89,12 @@ class SettingsMysView(SrBasicView, ft.Row):
         msg = '登录成功' if result else '登录失败'
         snack_bar.show_message(msg, self.flet_page)
         self._update_login_related_components()
+
+    def _on_auto_game_sign_changed(self, e):
+        self.sr_ctx.mys_config.auto_game_sign = self.auto_game_sign.value
+
+    def _on_auto_bbs_sign_changed(self, e):
+        self.sr_ctx.mys_config.auto_bbs_sign = self.auto_bbs_sign.value
 
 
 _settings_mys_view: Optional[SettingsMysView] = None

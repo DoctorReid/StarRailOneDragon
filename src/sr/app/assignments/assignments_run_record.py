@@ -3,7 +3,7 @@ from typing import Optional
 
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
-from sr.mystools.mys_config import MysConfig
+from sr.mystools.one_dragon_mys_config import MysConfig
 
 
 class AssignmentsRunRecord(AppRunRecord):

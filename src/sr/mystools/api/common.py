@@ -1,6 +1,3 @@
-"""
-### 米游社一些简单API相关
-"""
 import time
 from typing import List, Optional, Tuple, Dict, Any, Union, Type
 from urllib.parse import urlencode
@@ -11,17 +8,13 @@ from pydantic import ValidationError, BaseModel
 from requests.utils import dict_from_cookiejar
 
 from basic.log_utils import log
-from sr.mystools.data_model import GameRecord, GameInfo, Good, Address, BaseApiStatus, MmtData, GeetestResult, \
+from ..model import GameRecord, GameInfo, Good, Address, BaseApiStatus, MmtData, GeetestResult, \
     GetCookieStatus, \
-    CreateMobileCaptchaStatus, GetGoodDetailStatus, ExchangeStatus, GeetestResultV4, \
-    GetFpStatus, StarRailNoteStatus, StarRailNote
-from sr.mystools.plugin_data import PluginDataManager
-from sr.mystools.user_data import UserAccount, BBSCookies, ExchangePlan, ExchangeResult
-from sr.mystools.utils import generate_device_id, generate_ds, \
+    CreateMobileCaptchaStatus, GetGoodDetailStatus, ExchangeStatus, GeetestResultV4, GenshinNote, GenshinNoteStatus, \
+    GetFpStatus, StarRailNoteStatus, StarRailNote, UserAccount, BBSCookies, ExchangePlan, ExchangeResult, plugin_env, \
+    plugin_config
+from ..utils import generate_device_id, generate_ds, \
     get_async_retry, generate_seed_id, generate_fp_locally
-
-_conf = PluginDataManager.plugin_data
-device_config = PluginDataManager.device_config
 
 URL_LOGIN_TICKET_BY_CAPTCHA = "https://webapi.account.mihoyo.com/Api/login_by_mobilecaptcha"
 URL_LOGIN_TICKET_BY_PASSWORD = "https://webapi.account.mihoyo.com/Api/login_by_password"
@@ -59,17 +52,17 @@ URL_VERIFY_VERIFICATION = "https://bbs-api.miyoushe.com/misc/api/verifyVerificat
 HEADERS_WEBAPI = {
     "Host": "webapi.account.mihoyo.com",
     "Connection": "keep-alive",
-    "sec-ch-ua": device_config.UA,
+    "sec-ch-ua": plugin_env.device_config.UA,
     "DNT": "1",
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_PC,
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_PC,
     "sec-ch-ua-mobile": "?0",
-    "User-Agent": device_config.USER_AGENT_PC,
+    "User-Agent": plugin_env.device_config.USER_AGENT_PC,
     "x-rpc-device_id": None,
     "Accept": "application/json, text/plain, */*",
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_PC,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_PC,
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     "x-rpc-client_type": "4",
-    "sec-ch-ua-platform": device_config.UA_PLATFORM,
+    "sec-ch-ua-platform": plugin_env.device_config.UA_PLATFORM,
     "Origin": "https://user.mihoyo.com",
     "Sec-Fetch-Site": "same-site",
     "Sec-Fetch-Mode": "cors",
@@ -89,15 +82,15 @@ HEADERS_PASSPORT_API = {
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "x-rpc-game_biz": "bbs_cn",
     "Accept-Encoding": "gzip, deflate, br",
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_MOBILE,
-    "User-Agent": device_config.USER_AGENT_OTHER,
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_MOBILE,
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_MOBILE,
+    "User-Agent": plugin_env.device_config.USER_AGENT_OTHER,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_MOBILE,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
     # 抓包时 "2.47.1"
 
     "x-rpc-sdk_version": "1.6.1",
     "Connection": "keep-alive",
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION
 }
 HEADERS_API_TAKUMI_PC = {
     "Host": "api-takumi.mihoyo.com",
@@ -106,28 +99,28 @@ HEADERS_API_TAKUMI_PC = {
     "Accept-Encoding": "gzip, deflate, br",
     "Connection": "keep-alive",
     "Accept": "application/json, text/plain, */*",
-    "User-Agent": device_config.USER_AGENT_PC,
+    "User-Agent": plugin_env.device_config.USER_AGENT_PC,
     "Referer": "https://bbs.mihoyo.com/",
     "Accept-Language": "zh-CN,zh-Hans;q=0.9"
 }
 HEADERS_API_TAKUMI_MOBILE = {
     "Host": "api-takumi.mihoyo.com",
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_MOBILE,
-    "User-Agent": device_config.USER_AGENT_MOBILE,
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_MOBILE,
+    "User-Agent": plugin_env.device_config.USER_AGENT_MOBILE,
     "Referer": "https://webstatic.mihoyo.com/",
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_MOBILE,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_MOBILE,
     "Origin": "https://webstatic.mihoyo.com",
     "Connection": "keep-alive",
-    "x-rpc-channel": device_config.X_RPC_CHANNEL,
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
+    "x-rpc-channel": plugin_env.device_config.X_RPC_CHANNEL,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "x-rpc-device_id": None,
     "x-rpc-client_type": "5",
     "Accept": "application/json, text/plain, */*",
     "Content-Type": "application/json;charset=utf-8",
     "Accept-Encoding": "gzip, deflate, br",
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION,
-    "x-rpc-platform": device_config.X_RPC_PLATFORM,
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION,
+    "x-rpc-platform": plugin_env.device_config.X_RPC_PLATFORM,
     "DS": None
 }
 HEADERS_GAME_RECORD = {
@@ -135,7 +128,7 @@ HEADERS_GAME_RECORD = {
     "Origin": "https://webstatic.mihoyo.com",
     "Connection": "keep-alive",
     "Accept": "application/json, text/plain, */*",
-    "User-Agent": device_config.USER_AGENT_MOBILE,
+    "User-Agent": plugin_env.device_config.USER_AGENT_MOBILE,
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "Referer": "https://webstatic.mihoyo.com/",
     "Accept-Encoding": "gzip, deflate, br"
@@ -147,23 +140,23 @@ HEADERS_BBS_API = {
     "x-rpc-device_id": generate_device_id(),
     "x-rpc-verify_key": "bll8iq97cem8",
     "x-rpc-client_type": "1",
-    "x-rpc-channel": device_config.X_RPC_CHANNEL,
+    "x-rpc-channel": plugin_env.device_config.X_RPC_CHANNEL,
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "Accept-Encoding": "gzip, deflate, br",
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION,
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION,
     "Referer": "https://app.mihoyo.com",
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_MOBILE,
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
-    "User-Agent": device_config.USER_AGENT_OTHER,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_MOBILE,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
+    "User-Agent": plugin_env.device_config.USER_AGENT_OTHER,
     "Connection": "keep-alive",
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_MOBILE
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_MOBILE
 }
 HEADERS_MYB = {
     "Host": "api-takumi.mihoyo.com",
     "Origin": "https://webstatic.mihoyo.com",
     "Connection": "keep-alive",
     "Accept": "application/json, text/plain, */*",
-    "User-Agent": device_config.USER_AGENT_MOBILE,
+    "User-Agent": plugin_env.device_config.USER_AGENT_MOBILE,
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "Referer": "https://webstatic.mihoyo.com/",
     "Accept-Encoding": "gzip, deflate, br"
@@ -171,18 +164,18 @@ HEADERS_MYB = {
 HEADERS_DEVICE = {
     "DS": None,
     "x-rpc-client_type": "2",
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION_ANDROID,
-    "x-rpc-channel": device_config.X_RPC_CHANNEL_ANDROID,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION_ANDROID,
+    "x-rpc-channel": plugin_env.device_config.X_RPC_CHANNEL_ANDROID,
     "x-rpc-device_id": None,
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_ANDROID,
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_ANDROID,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_ANDROID,
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_ANDROID,
     "Referer": "https://app.mihoyo.com",
     "Content-Type": "application/json; charset=UTF-8",
     "Host": "bbs-api.mihoyo.com",
     "Connection": "Keep-Alive",
     "Accept-Encoding": "gzip",
-    "User-Agent": device_config.USER_AGENT_ANDROID_OTHER
+    "User-Agent": plugin_env.device_config.USER_AGENT_ANDROID_OTHER
 }
 HEADERS_GOOD_LIST = {
     "Host":
@@ -197,7 +190,7 @@ HEADERS_GOOD_LIST = {
     "x-rpc-client_type":
         "5",
     "User-Agent":
-        device_config.USER_AGENT_MOBILE,
+        plugin_env.device_config.USER_AGENT_MOBILE,
     "Referer":
         "https://user.mihoyo.com/",
     "Accept-Language":
@@ -223,9 +216,9 @@ HEADERS_EXCHANGE = {
     "Referer":
         "https://webstatic.miyoushe.com/",
     "User-Agent":
-        device_config.USER_AGENT_MOBILE,
+        plugin_env.device_config.USER_AGENT_MOBILE,
     "x-rpc-app_version":
-        device_config.X_RPC_APP_VERSION,
+        plugin_env.device_config.X_RPC_APP_VERSION,
     "x-rpc-channel":
         "appstore",
     "x-rpc-client_type":
@@ -235,11 +228,11 @@ HEADERS_EXCHANGE = {
     "x-rpc-device_fp": None,
     "x-rpc-device_id": None,
     "x-rpc-device_model":
-        device_config.X_RPC_DEVICE_MODEL_MOBILE,
+        plugin_env.device_config.X_RPC_DEVICE_MODEL_MOBILE,
     "x-rpc-device_name":
-        device_config.X_RPC_DEVICE_NAME_MOBILE,
+        plugin_env.device_config.X_RPC_DEVICE_NAME_MOBILE,
     "x-rpc-sys_version":
-        device_config.X_RPC_SYS_VERSION
+        plugin_env.device_config.X_RPC_SYS_VERSION
 }
 HEADERS_ADDRESS = {
     "Host": "api-takumi.mihoyo.com",
@@ -248,7 +241,7 @@ HEADERS_ADDRESS = {
     "Connection": "keep-alive",
     "x-rpc-device_id": None,
     "x-rpc-client_type": "5",
-    "User-Agent": device_config.USER_AGENT_MOBILE,
+    "User-Agent": plugin_env.device_config.USER_AGENT_MOBILE,
     "Referer": "https://user.mihoyo.com/",
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "Accept-Encoding": "gzip, deflate, br"
@@ -262,43 +255,45 @@ HEADERS_GENSHIN_STATUS_WIDGET = {
     "x-rpc-channel": "appstore",
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "Accept-Encoding": "gzip, deflate, br",
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_MOBILE,
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_MOBILE,
     "Referer": "https://app.mihoyo.com",
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_MOBILE,
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
-    "User-Agent": device_config.USER_AGENT_WIDGET,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_MOBILE,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
+    "User-Agent": plugin_env.device_config.USER_AGENT_WIDGET,
     "Connection": "keep-alive",
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION
 }
 HEADERS_GENSHIN_STATUS_BBS = {
     "DS": None,
     "x-rpc-device_id": None,
     "Accept": "application/json,text/plain,*/*",
     "Origin": "https://webstatic.mihoyo.com",
-    "User-agent": device_config.USER_AGENT_ANDROID,
+    "User-agent": plugin_env.device_config.USER_AGENT_ANDROID,
     "Referer": "https://webstatic.mihoyo.com/",
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
     "X-Requested-With": "com.mihoyo.hyperion",
-    "x-rpc-client_type": "5"
+    "x-rpc-client_type": "5",
+    "x-rpc-tool_version": "v4.2.2-ys",
+    "x-rpc-page": "v4.2.2-ys_#/ys/daily"
 }
 
 HEADERS_STARRAIL_STATUS_WIDGET = {
     "Accept": "*/*",
     "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
-    "User-Agent": device_config.USER_AGENT_WIDGET,
+    "User-Agent": plugin_env.device_config.USER_AGENT_WIDGET,
 
     # "DS": None,
     "Referer": "https://app.mihoyo.com",
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
-    "x-rpc-channel": device_config.X_RPC_CHANNEL,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
+    "x-rpc-channel": plugin_env.device_config.X_RPC_CHANNEL,
     "x-rpc-client_type": "2",
     "x-rpc-page": '',
     "x-rpc-device_fp": '',
     "x-rpc-device_id": '',
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_MOBILE,
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_MOBILE,
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION,
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_MOBILE,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_MOBILE,
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION,
 
     "Connection": "keep-alive",
     "Host": "api-takumi-record.mihoyo.com"
@@ -328,17 +323,17 @@ class ApiResultHandler(BaseModel):
     """
     API返回的数据处理器
     """
-    content: Dict[str, Any]
+    content: Dict[str, Any] = None
     """API返回的JSON对象序列化以后的Dict对象"""
-    data: Optional[Dict[str, Any]]
+    data: Optional[Dict[str, Any]] = None
     """API返回的数据体"""
-    message: Optional[str]
+    message: Optional[str] = None
     """API返回的消息内容"""
-    retcode: Optional[int]
+    retcode: Optional[int] = None
     """API返回的状态码"""
 
     def __init__(self, content: Dict[str, Any]):
-        super().__init__(content=content, data=None, message=None, retcode=None)
+        super().__init__(content=content)
 
         self.data = self.content.get("data")
 
@@ -386,7 +381,7 @@ class ApiResultHandler(BaseModel):
         return self.message in ["invalid request"]
 
 
-async def get_game_record(account: UserAccount, retry: bool = False) -> Tuple[BaseApiStatus, Optional[List[GameRecord]]]:
+async def get_game_record(account: UserAccount, retry: bool = True) -> Tuple[BaseApiStatus, Optional[List[GameRecord]]]:
     """
     获取用户绑定的游戏账户信息，返回一个GameRecord对象的列表
 
@@ -399,15 +394,15 @@ async def get_game_record(account: UserAccount, retry: bool = False) -> Tuple[Ba
                 async with httpx.AsyncClient() as client:
                     res = await client.get(URL_GAME_RECORD.format(account.bbs_uid), headers=HEADERS_GAME_RECORD,
                                            cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
-                                           timeout=_conf.preference.timeout)
+                                           timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
                     log.info(
-                        f"获取用户游戏数据(GameRecord) - 用户 {account.bbs_uid} 登录失效")
+                        f"获取用户游戏数据(GameRecord) - 用户 {account.display_name} 登录失效")
                     log.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True), None
                 return BaseApiStatus(success=True), list(
-                    map(GameRecord.model_validate, api_result.data["list"]))
+                    map(GameRecord.parse_obj, api_result.data["list"]))
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
             log.exception("获取用户游戏数据(GameRecord) - 服务器没有正确返回")
@@ -418,7 +413,7 @@ async def get_game_record(account: UserAccount, retry: bool = False) -> Tuple[Ba
             return BaseApiStatus(network_error=True), None
 
 
-async def get_game_list(retry: bool = False) -> Tuple[BaseApiStatus, Optional[List[GameInfo]]]:
+async def get_game_list(retry: bool = True) -> Tuple[BaseApiStatus, Optional[List[GameInfo]]]:
     """
     获取米哈游游戏的详细信息，若返回`None`说明获取失败
 
@@ -430,10 +425,10 @@ async def get_game_list(retry: bool = False) -> Tuple[BaseApiStatus, Optional[Li
             with attempt:
                 headers["DS"] = generate_ds()
                 async with httpx.AsyncClient() as client:
-                    res = await client.get(URL_GAME_LIST, headers=headers, timeout=_conf.preference.timeout)
+                    res = await client.get(URL_GAME_LIST, headers=headers, timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 return BaseApiStatus(success=True), list(
-                    map(GameInfo.model_validate, api_result.data["list"]))
+                    map(GameInfo.parse_obj, api_result.data["list"]))
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
             log.exception("获取游戏信息(GameInfo) - 服务器没有正确返回")
@@ -444,7 +439,7 @@ async def get_game_list(retry: bool = False) -> Tuple[BaseApiStatus, Optional[Li
             return BaseApiStatus(network_error=True), None
 
 
-async def get_user_myb(account: UserAccount, retry: bool = False) -> Tuple[BaseApiStatus, Optional[int]]:
+async def get_user_myb(account: UserAccount, retry: bool = True) -> Tuple[BaseApiStatus, Optional[int]]:
     """
     获取用户当前米游币数量
 
@@ -457,11 +452,11 @@ async def get_user_myb(account: UserAccount, retry: bool = False) -> Tuple[BaseA
                 async with httpx.AsyncClient() as client:
                     res = await client.get(URL_MYB, headers=HEADERS_MYB,
                                            cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
-                                           timeout=_conf.preference.timeout)
+                                           timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
                     log.info(
-                        f"获取用户米游币 - 用户 {account.bbs_uid} 登录失效")
+                        f"获取用户米游币 - 用户 {account.display_name} 登录失效")
                     log.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True), None
                 return BaseApiStatus(success=True), int(api_result.data["points"])
@@ -475,7 +470,7 @@ async def get_user_myb(account: UserAccount, retry: bool = False) -> Tuple[BaseA
             return BaseApiStatus(network_error=True), None
 
 
-async def device_login(account: UserAccount, retry: bool = False):
+async def device_login(account: UserAccount, retry: bool = True):
     """
     设备登录(deviceLogin)(适用于安卓设备)
 
@@ -483,9 +478,9 @@ async def device_login(account: UserAccount, retry: bool = False):
     :param retry: 是否允许重试
     """
     data = {
-        "app_version": device_config.X_RPC_APP_VERSION,
+        "app_version": plugin_env.device_config.X_RPC_APP_VERSION,
         "device_id": account.device_id_android,
-        "device_name": device_config.X_RPC_DEVICE_NAME_ANDROID,
+        "device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_ANDROID,
         "os_version": "30",
         "platform": "Android",
         "registration_id": "1a0018970a5c00e814d"
@@ -499,11 +494,11 @@ async def device_login(account: UserAccount, retry: bool = False):
                 async with httpx.AsyncClient() as client:
                     res = await client.post(URL_DEVICE_LOGIN, headers=headers, json=data,
                                             cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
-                                            timeout=_conf.preference.timeout)
+                                            timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
                     log.info(
-                        f"设备登录(device_login) - 用户 {account.bbs_uid} 登录失效")
+                        f"设备登录(device_login) - 用户 {account.display_name} 登录失效")
                     log.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True)
                 if res.json()["message"] != "OK":
@@ -520,7 +515,7 @@ async def device_login(account: UserAccount, retry: bool = False):
             return BaseApiStatus(network_error=True)
 
 
-async def device_save(account: UserAccount, retry: bool = False):
+async def device_save(account: UserAccount, retry: bool = True):
     """
     设备保存(saveDevice)(适用于安卓设备)
 
@@ -528,9 +523,9 @@ async def device_save(account: UserAccount, retry: bool = False):
     :param retry: 是否允许重试
     """
     data = {
-        "app_version": device_config.X_RPC_APP_VERSION,
+        "app_version": plugin_env.device_config.X_RPC_APP_VERSION,
         "device_id": account.device_id_android,
-        "device_name": device_config.X_RPC_DEVICE_NAME_ANDROID,
+        "device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_ANDROID,
         "os_version": "30",
         "platform": "Android",
         "registration_id": "1a0018970a5c00e814d"
@@ -544,11 +539,11 @@ async def device_save(account: UserAccount, retry: bool = False):
                 async with httpx.AsyncClient() as client:
                     res = await client.post(URL_DEVICE_SAVE, headers=headers, json=data,
                                             cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
-                                            timeout=_conf.preference.timeout)
+                                            timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
                     log.info(
-                        f"设备保存(device_save) - 用户 {account.bbs_uid} 登录失效")
+                        f"设备保存(device_save) - 用户 {account.display_name} 登录失效")
                     log.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True)
                 if res.json()["message"] != "OK":
@@ -565,7 +560,7 @@ async def device_save(account: UserAccount, retry: bool = False):
             return BaseApiStatus(network_error=True)
 
 
-async def get_good_detail(good: Union[Good, str], retry: bool = False) -> Tuple[GetGoodDetailStatus, Optional[Good]]:
+async def get_good_detail(good: Union[Good, str], retry: bool = True) -> Tuple[GetGoodDetailStatus, Optional[Good]]:
     """
     获取某商品的详细信息
 
@@ -578,7 +573,7 @@ async def get_good_detail(good: Union[Good, str], retry: bool = False) -> Tuple[
         async for attempt in get_async_retry(retry):
             with attempt:
                 async with httpx.AsyncClient() as client:
-                    res = await client.get(URL_CHECK_GOOD.format(good_id), timeout=_conf.preference.timeout)
+                    res = await client.get(URL_CHECK_GOOD.format(good_id), timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 # -2109 商品不存在；-2105 商品已下架
                 if api_result.retcode == -2109 or api_result.message == -2105:
@@ -586,7 +581,7 @@ async def get_good_detail(good: Union[Good, str], retry: bool = False) -> Tuple[
                 if isinstance(good, Good):
                     return GetGoodDetailStatus(success=True), good.update(api_result.data)
                 else:
-                    return GetGoodDetailStatus(success=True), Good.model_validate(api_result.data, strict=False)
+                    return GetGoodDetailStatus(success=True), Good.parse_obj(api_result.data)
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
             log.exception(f"米游币商品兑换 - 获取商品详细信息: 服务器没有正确返回")
@@ -597,7 +592,7 @@ async def get_good_detail(good: Union[Good, str], retry: bool = False) -> Tuple[
             return GetGoodDetailStatus(network_error=True), None
 
 
-async def get_good_games(retry: bool = False) -> Tuple[BaseApiStatus, Optional[List[Tuple[str, str]]]]:
+async def get_good_games(retry: bool = True) -> Tuple[BaseApiStatus, Optional[List[Tuple[str, str]]]]:
     """
     获取商品分区列表
 
@@ -611,7 +606,7 @@ async def get_good_games(retry: bool = False) -> Tuple[BaseApiStatus, Optional[L
                     res = await client.get(URL_GOOD_LIST.format(page=1,
                                                                 game=""),
                                            headers=HEADERS_GOOD_LIST,
-                                           timeout=_conf.preference.timeout)
+                                           timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 return BaseApiStatus(success=True), list(map(lambda x: (x["name"], x["key"]), api_result.data["games"]))
     except tenacity.RetryError as e:
@@ -624,7 +619,7 @@ async def get_good_games(retry: bool = False) -> Tuple[BaseApiStatus, Optional[L
             return BaseApiStatus(network_error=True), None
 
 
-async def get_good_list(game: str = "", retry: bool = False) -> Tuple[
+async def get_good_list(game: str = "", retry: bool = True) -> Tuple[
     BaseApiStatus,
     Optional[List[Good]]
 ]:
@@ -644,9 +639,9 @@ async def get_good_list(game: str = "", retry: bool = False) -> Tuple[
                 async with httpx.AsyncClient() as client:
                     res = await client.get(URL_GOOD_LIST.format(page=page,
                                                                 game=game), headers=HEADERS_GOOD_LIST,
-                                           timeout=_conf.preference.timeout)
+                                           timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
-                goods = map(Good.model_validate, api_result.data["list"])
+                goods = map(Good.parse_obj, api_result.data["list"])
                 # 判断是否已经读完所有商品
                 if not goods:
                     break
@@ -665,7 +660,7 @@ async def get_good_list(game: str = "", retry: bool = False) -> Tuple[
     return BaseApiStatus(success=True), good_list
 
 
-async def get_address(account: UserAccount, retry: bool = False) -> Tuple[BaseApiStatus, Optional[List[Address]]]:
+async def get_address(account: UserAccount, retry: bool = True) -> Tuple[BaseApiStatus, Optional[List[Address]]]:
     """
     获取用户的地址数据
 
@@ -681,14 +676,14 @@ async def get_address(account: UserAccount, retry: bool = False) -> Tuple[BaseAp
                     res = await client.get(URL_ADDRESS.format(
                         round(time.time() * 1000)), headers=headers,
                         cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
-                        timeout=_conf.preference.timeout)
+                        timeout=plugin_config.preference.timeout)
                     api_result = ApiResultHandler(res.json())
                     if api_result.login_expired:
                         log.info(
-                            f"获取地址数据 - 用户 {account.bbs_uid} 登录失效")
+                            f"获取地址数据 - 用户 {account.display_name} 登录失效")
                         log.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(login_expired=True), None
-                address_list = list(map(Address.model_validate, api_result.data["list"]))
+                address_list = list(map(Address.parse_obj, api_result.data["list"]))
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
             log.exception("获取地址数据 - 服务器没有正确返回")
@@ -700,7 +695,7 @@ async def get_address(account: UserAccount, retry: bool = False) -> Tuple[BaseAp
     return BaseApiStatus(success=True), address_list
 
 
-async def check_registrable(phone_number: int, keep_client: bool = False, retry: bool = False) -> Tuple[
+async def check_registrable(phone_number: int, keep_client: bool = False, retry: bool = True) -> Tuple[
     BaseApiStatus,
     Optional[bool],
     str,
@@ -726,7 +721,7 @@ async def check_registrable(phone_number: int, keep_client: bool = False, retry:
         # await client.options(URL_REGISTRABLE.format(mobile=phone_number, t=time_now),
         #                      headers=headers, timeout=conf.preference.timeout)
         return await client.get(URL_REGISTRABLE.format(mobile=phone_number, t=time_now),
-                                headers=headers, timeout=_conf.preference.timeout)
+                                headers=headers, timeout=plugin_config.preference.timeout)
 
     try:
         async for attempt in get_async_retry(retry):
@@ -754,7 +749,7 @@ async def check_registrable(phone_number: int, keep_client: bool = False, retry:
 async def create_mmt(client: Optional[httpx.AsyncClient] = None,
                      use_v4: bool = True,
                      device_id: str = None,
-                     retry: bool = False) -> Tuple[
+                     retry: bool = True) -> Tuple[
     BaseApiStatus,
     Optional[MmtData],
     str,
@@ -783,7 +778,7 @@ async def create_mmt(client: Optional[httpx.AsyncClient] = None,
         # await client.options(URL_CREATE_MMT.format(now=time_now, t=time_now),
         #                      headers=headers, timeout=conf.preference.timeout)
         return await client.get(URL_CREATE_MMT.format(now=time_now, t=time_now),
-                                headers=headers, timeout=_conf.preference.timeout)
+                                headers=headers, timeout=plugin_config.preference.timeout)
 
     try:
         async for attempt in get_async_retry(retry):
@@ -794,7 +789,7 @@ async def create_mmt(client: Optional[httpx.AsyncClient] = None,
                     async with httpx.AsyncClient() as client:
                         res = await request()
                 api_result = ApiResultHandler(res.json())
-                return BaseApiStatus(success=True), MmtData.model_validate(api_result.data["mmt_data"], strict=False), device_id, client
+                return BaseApiStatus(success=True), MmtData.parse_obj(api_result.data["mmt_data"]), device_id, client
     except tenacity.RetryError as e:
         if client:
             await client.aclose()
@@ -813,7 +808,7 @@ async def create_mobile_captcha(phone_number: str,
                                 client: Optional[httpx.AsyncClient] = None,
                                 use_v4: bool = True,
                                 device_id: str = None,
-                                retry: bool = False
+                                retry: bool = True
                                 ) -> Tuple[CreateMobileCaptchaStatus, Optional[httpx.AsyncClient]]:
     """
     发送短信验证码，可尝试不传入 geetest_result，即不进行人机验证
@@ -832,7 +827,7 @@ async def create_mobile_captcha(phone_number: str,
         content = {
             "action_type": "login",
             "mmt_key": mmt_data.mmt_key,
-            "geetest_v4_data": geetest_result.model_dump(exclude_unset=True),
+            "geetest_v4_data": geetest_result.model_dump(),
             "mobile": phone_number,
             "t": str(round(time.time() * 1000))
         }
@@ -861,7 +856,7 @@ async def create_mobile_captcha(phone_number: str,
         return await client.post(URL_CREATE_MOBILE_CAPTCHA,
                                  params=content,
                                  headers=headers,
-                                 timeout=_conf.preference.timeout)
+                                 timeout=plugin_config.preference.timeout)
 
     try:
         async for attempt in get_async_retry(retry):
@@ -900,7 +895,7 @@ async def get_login_ticket_by_captcha(phone_number: str,
                                       captcha: int,
                                       device_id: str = None,
                                       client: Optional[httpx.AsyncClient] = None,
-                                      retry: bool = False) -> \
+                                      retry: bool = True) -> \
         Tuple[
             GetCookieStatus, Optional[BBSCookies]]:
     """
@@ -912,6 +907,9 @@ async def get_login_ticket_by_captcha(phone_number: str,
     :param client: httpx.AsyncClient 连接
     :param retry: 是否允许重试
 
+    >>> import asyncio
+    >>> coroutine = get_cookie_token_by_captcha("12345678910", 123456)
+    >>> assert asyncio.new_event_loop().run_until_complete(coroutine)[0].incorrect_captcha is True
     """
 
     headers = HEADERS_WEBAPI.copy()
@@ -932,7 +930,7 @@ async def get_login_ticket_by_captcha(phone_number: str,
         return await client.post(URL_LOGIN_TICKET_BY_CAPTCHA,
                                  headers=headers,
                                  content=encoded_params,
-                                 timeout=_conf.preference.timeout
+                                 timeout=plugin_config.preference.timeout
                                  )
 
     try:
@@ -945,7 +943,8 @@ async def get_login_ticket_by_captcha(phone_number: str,
                         res = await request()
                 api_result = ApiResultHandler(res.json())
                 if api_result.success:
-                    cookies = BBSCookies.model_validate(dict_from_cookiejar(res.cookies.jar), strict=False)
+                    cookies = BBSCookies.parse_obj(dict_from_cookiejar(
+                        res.cookies.jar))
                     if not cookies.login_ticket:
                         return GetCookieStatus(missing_login_ticket=True), None
                     else:
@@ -968,7 +967,7 @@ async def get_login_ticket_by_captcha(phone_number: str,
             return GetCookieStatus(network_error=True), None
 
 
-async def get_multi_token_by_login_ticket(cookies: BBSCookies, retry: bool = False) -> Tuple[
+async def get_multi_token_by_login_ticket(cookies: BBSCookies, retry: bool = True) -> Tuple[
     GetCookieStatus,
     Optional[BBSCookies]
 ]:
@@ -989,7 +988,7 @@ async def get_multi_token_by_login_ticket(cookies: BBSCookies, retry: bool = Fal
                     res = await client.get(
                         URL_MULTI_TOKEN_BY_LOGIN_TICKET.format(cookies.login_ticket, cookies.bbs_uid),
                         headers=HEADERS_API_TAKUMI_PC,
-                        timeout=_conf.preference.timeout)
+                        timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
                     log.warning(f"通过 login_ticket 获取 stoken: 登录失效")
@@ -1010,7 +1009,7 @@ async def get_multi_token_by_login_ticket(cookies: BBSCookies, retry: bool = Fal
             return GetCookieStatus(network_error=True), None
 
 
-async def get_cookie_token_by_captcha(phone_number: str, captcha: int, retry: bool = False) -> Tuple[
+async def get_cookie_token_by_captcha(phone_number: str, captcha: int, retry: bool = True) -> Tuple[
     GetCookieStatus,
     Optional[BBSCookies]
 ]:
@@ -1038,14 +1037,14 @@ async def get_cookie_token_by_captcha(phone_number: str, captcha: int, retry: bo
                                                 "action_type": "login",
                                                 "token_type": 6
                                             },
-                                            timeout=_conf.preference.timeout
+                                            timeout=plugin_config.preference.timeout
                                             )
                 api_result = ApiResultHandler(res.json())
                 if api_result.wrong_captcha:
                     log.info(f"登录米哈游账号 - 验证码错误")
                     return GetCookieStatus(incorrect_captcha=True), None
                 else:
-                    cookies = BBSCookies.model_validate(dict_from_cookiejar(res.cookies.jar), strict=False)
+                    cookies = BBSCookies.parse_obj(dict_from_cookiejar(res.cookies.jar))
                     if not cookies.cookie_token:
                         return GetCookieStatus(missing_cookie_token=True), None
                     elif not cookies.bbs_uid:
@@ -1063,7 +1062,7 @@ async def get_cookie_token_by_captcha(phone_number: str, captcha: int, retry: bo
 
 
 async def get_login_ticket_by_password(account: str, password: str, mmt_data: MmtData, geetest_result: GeetestResult,
-                                       retry: bool = False) -> Tuple[GetCookieStatus, Optional[BBSCookies]]:
+                                       retry: bool = True) -> Tuple[GetCookieStatus, Optional[BBSCookies]]:
     """
     使用密码登录获取login_ticket
 
@@ -1095,9 +1094,9 @@ async def get_login_ticket_by_password(account: str, password: str, mmt_data: Mm
                         URL_LOGIN_TICKET_BY_PASSWORD,
                         content=encoded_params,
                         headers=headers,
-                        timeout=_conf.preference.timeout
+                        timeout=plugin_config.preference.timeout
                     )
-                cookies = BBSCookies.model_validate(dict_from_cookiejar(res.cookies.jar), strict=False)
+                cookies = BBSCookies.parse_obj(dict_from_cookiejar(res.cookies.jar))
                 api_result = ApiResultHandler(res.json())
                 if api_result.success:
                     return GetCookieStatus(success=True), cookies
@@ -1114,7 +1113,7 @@ async def get_login_ticket_by_password(account: str, password: str, mmt_data: Mm
             return GetCookieStatus(network_error=True), None
 
 
-async def get_cookie_token_by_stoken(cookies: BBSCookies, device_id: str = None, retry: bool = False) -> Tuple[
+async def get_cookie_token_by_stoken(cookies: BBSCookies, device_id: str = None, retry: bool = True) -> Tuple[
     GetCookieStatus,
     Optional[BBSCookies]
 ]:
@@ -1141,7 +1140,7 @@ async def get_cookie_token_by_stoken(cookies: BBSCookies, device_id: str = None,
                         URL_COOKIE_TOKEN_BY_STOKEN,
                         cookies=cookies.dict(v2_stoken=True, cookie_type=True),
                         headers=headers,
-                        timeout=_conf.preference.timeout
+                        timeout=plugin_config.preference.timeout
                     )
                 api_result = ApiResultHandler(res.json())
                 if api_result.success:
@@ -1165,7 +1164,7 @@ async def get_cookie_token_by_stoken(cookies: BBSCookies, device_id: str = None,
             return GetCookieStatus(network_error=True), None
 
 
-async def get_stoken_v2_by_v1(cookies: BBSCookies, device_id: str = None, retry: bool = False) -> Tuple[
+async def get_stoken_v2_by_v1(cookies: BBSCookies, device_id: str = None, retry: bool = True) -> Tuple[
     GetCookieStatus,
     Optional[BBSCookies]
 ]:
@@ -1191,12 +1190,12 @@ async def get_stoken_v2_by_v1(cookies: BBSCookies, device_id: str = None, retry:
         async for attempt in get_async_retry(retry):
             with attempt:
                 async with httpx.AsyncClient() as client:
-                    headers.setdefault("DS", generate_ds(salt=_conf.salt_config.SALT_PROD))
+                    headers.setdefault("DS", generate_ds(salt=plugin_env.salt_config.SALT_PROD))
                     res = await client.post(
                         URL_STOKEN_V2_BY_V1,
                         cookies={"stoken": cookies.stoken_v1, "stuid": cookies.bbs_uid},
                         headers=headers,
-                        timeout=_conf.preference.timeout
+                        timeout=plugin_config.preference.timeout
                     )
                 api_result = ApiResultHandler(res.json())
                 if api_result.success:
@@ -1221,7 +1220,7 @@ async def get_stoken_v2_by_v1(cookies: BBSCookies, device_id: str = None, retry:
             return GetCookieStatus(network_error=True), None
 
 
-async def get_ltoken_by_stoken(cookies: BBSCookies, device_id: str = None, retry: bool = False) -> Tuple[
+async def get_ltoken_by_stoken(cookies: BBSCookies, device_id: str = None, retry: bool = True) -> Tuple[
     GetCookieStatus,
     Optional[BBSCookies]
 ]:
@@ -1250,7 +1249,7 @@ async def get_ltoken_by_stoken(cookies: BBSCookies, device_id: str = None, retry
                         URL_LTOKEN_BY_STOKEN,
                         cookies=cookies.dict(v2_stoken=True, cookie_type=True),
                         headers=headers,
-                        timeout=_conf.preference.timeout
+                        timeout=plugin_config.preference.timeout
                     )
                 api_result = ApiResultHandler(res.json())
                 if api_result.success:
@@ -1272,7 +1271,7 @@ async def get_ltoken_by_stoken(cookies: BBSCookies, device_id: str = None, retry
             return GetCookieStatus(network_error=True), None
 
 
-async def get_device_fp(device_id: str, retry: bool = False) -> Tuple[GetFpStatus, Optional[str]]:
+async def get_device_fp(device_id: str, retry: bool = True) -> Tuple[GetFpStatus, Optional[str]]:
     """
     获取 x-rpc-device_fp
 
@@ -1289,7 +1288,7 @@ async def get_device_fp(device_id: str, retry: bool = False) -> Tuple[GetFpStatu
         "platform": "5",
         "seed_time": str(int(time.time() * 1000)),
         "ext_fields": "{\"userAgent\":\"Mozilla\/5.0 (iPhone; CPU iPhone OS 16_2 like Mac OS X) AppleWebKit\/605.1.15 "
-                      f"(KHTML, like Gecko) miHoYoBBS\/{device_config.X_RPC_APP_VERSION}\",\"browserScreenSize"
+                      f"(KHTML, like Gecko) miHoYoBBS\/{plugin_env.device_config.X_RPC_APP_VERSION}\",\"browserScreenSize"
                       "\":243750,\"maxTouchPoints\":5,"
                       "\"isTouchSupported\":true,\"browserLanguage\":\"zh-CN\",\"browserPlat\":\"iPhone\","
                       "\"browserTimeZone\":\"Asia\/Shanghai\",\"webGlRender\":\"Apple GPU\",\"webGlVendor\":\"Apple "
@@ -1307,7 +1306,7 @@ async def get_device_fp(device_id: str, retry: bool = False) -> Tuple[GetFpStatu
                     res = await client.post(
                         URL_GET_DEVICE_FP,
                         json=content,
-                        timeout=_conf.preference.timeout
+                        timeout=plugin_config.preference.timeout
                     )
                 api_result = ApiResultHandler(res.json())
                 if api_result.data["code"] == 403 or api_result.data["msg"] == "传入的参数有误":
@@ -1360,32 +1359,32 @@ async def good_exchange(plan: ExchangePlan) -> Tuple[ExchangeStatus, Optional[Ex
             res = await client.post(
                 URL_EXCHANGE, headers=headers, json=content,
                 cookies=plan.account.cookies.dict(cookie_type=True),
-                timeout=_conf.preference.timeout)
+                timeout=plugin_config.preference.timeout)
         api_result = ApiResultHandler(res.json())
         if api_result.login_expired:
             log.info(
-                f"米游币商品兑换 - 执行兑换: 用户 {plan.account.bbs_uid} 登录失效 - 请求发送时间: {start_time}")
+                f"米游币商品兑换 - 执行兑换: 用户 {plan.account.display_name} 登录失效 - 请求发送时间: {start_time}")
             log.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(login_expired=True), None
         if api_result.success:
             log.info(
-                f"米游币商品兑换: 用户 {plan.account.bbs_uid} 商品 {plan.good.goods_id} 兑换成功！可以自行确认 - 请求发送时间: {start_time}")
+                f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 兑换成功！可以自行确认 - 请求发送时间: {start_time}")
             log.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(success=True), ExchangeResult(result=True, return_data=res.json(), plan=plan)
         else:
             log.info(
-                f"米游币商品兑换: 用户 {plan.account.bbs_uid} 商品 {plan.good.goods_id} 兑换失败，可以自行确认 - 请求发送时间: {start_time}")
+                f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 兑换失败，可以自行确认 - 请求发送时间: {start_time}")
             log.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(success=True), ExchangeResult(result=False, return_data=res.json(), plan=plan)
     except Exception as e:
         if is_incorrect_return(e):
             log.error(
-                f"米游币商品兑换: 用户 {plan.account.bbs_uid} 商品 {plan.good.goods_id} 服务器没有正确返回 - 请求发送时间: {start_time}")
+                f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 服务器没有正确返回 - 请求发送时间: {start_time}")
             log.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(incorrect_return=True), None
         else:
             log.exception(
-                f"米游币商品兑换: 用户 {plan.account.bbs_uid} 商品 {plan.good.goods_id} 请求失败 - 请求发送时间: {start_time}")
+                f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 请求失败 - 请求发送时间: {start_time}")
             return ExchangeStatus(network_error=True), None
 
 
@@ -1419,33 +1418,116 @@ def good_exchange_sync(plan: ExchangePlan) -> Tuple[ExchangeStatus, Optional[Exc
             res = client.post(
                 URL_EXCHANGE, headers=headers, json=content,
                 cookies=plan.account.cookies.dict(cookie_type=True),
-                timeout=_conf.preference.timeout)
+                timeout=plugin_config.preference.timeout)
         api_result = ApiResultHandler(res.json())
         if api_result.login_expired:
             log.info(
-                f"米游币商品兑换 - 执行兑换: 用户 {plan.account.bbs_uid} 登录失效 - 请求发送时间: {start_time}")
+                f"米游币商品兑换 - 执行兑换: 用户 {plan.account.display_name} 登录失效 - 请求发送时间: {start_time}")
             log.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(login_expired=True), None
         if api_result.success:
             log.info(
-                f"米游币商品兑换: 用户 {plan.account.bbs_uid} 商品 {plan.good.goods_id} 兑换成功！可以自行确认 - 请求发送时间: {start_time}")
+                f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 兑换成功！可以自行确认 - 请求发送时间: {start_time}")
             log.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(success=True), ExchangeResult(result=True, return_data=res.json(), plan=plan)
         else:
             log.info(
-                f"米游币商品兑换: 用户 {plan.account.bbs_uid} 商品 {plan.good.goods_id} 兑换失败，可以自行确认 - 请求发送时间: {start_time}")
+                f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 兑换失败，可以自行确认 - 请求发送时间: {start_time}")
             log.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(success=True), ExchangeResult(result=False, return_data=res.json(), plan=plan)
     except Exception as e:
         if is_incorrect_return(e):
             log.error(
-                f"米游币商品兑换: 用户 {plan.account.bbs_uid} 商品 {plan.good.goods_id} 服务器没有正确返回 - 请求发送时间: {start_time}")
+                f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 服务器没有正确返回 - 请求发送时间: {start_time}")
             log.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(incorrect_return=True), None
         else:
             log.exception(
-                f"米游币商品兑换: 用户 {plan.account.bbs_uid} 商品 {plan.good.goods_id} 请求失败 - 请求发送时间: {start_time}")
+                f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 请求失败 - 请求发送时间: {start_time}")
             return ExchangeStatus(network_error=True), None
+
+
+async def genshin_note(account: UserAccount) -> Tuple[
+    Union[BaseApiStatus, GenshinNoteStatus],
+    Optional[GenshinNote]
+]:
+    """
+    获取原神实时便笺
+
+    :param account: 用户账户数据
+    """
+    game_record_status, records = await get_game_record(account)
+    if not game_record_status:
+        return GenshinNoteStatus(game_record_failed=True), None
+    game_list_status, game_list = await get_game_list()
+    if not game_list_status:
+        return GenshinNoteStatus(game_list_failed=True), None
+    game_filter = filter(lambda x: x.en_name == 'ys', game_list)
+    game_info = next(game_filter, None)
+    if not game_info:
+        return GenshinNoteStatus(no_genshin_account=True), None
+    else:
+        game_id = game_info.id
+    flag = True
+    for record in records:
+        if record.game_id == game_id:
+            try:
+                flag = False
+                params = {"role_id": record.game_role_id, "server": record.region}
+                headers = HEADERS_GENSHIN_STATUS_BBS.copy()
+                headers["x-rpc-device_id"] = account.device_id_android
+                headers["x-rpc-device_fp"] = account.device_id_android or generate_fp_locally()
+                async for attempt in get_async_retry(False):
+                    with attempt:
+                        headers["DS"] = generate_ds(
+                            params={"role_id": record.game_role_id, "server": record.region})
+                        async with httpx.AsyncClient() as client:
+                            res = await client.get(
+                                URL_GENSHEN_NOTE_BBS,
+                                headers=headers,
+                                cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
+                                params=params,
+                                timeout=plugin_config.preference.timeout
+                            )
+                        api_result = ApiResultHandler(res.json())
+                        if api_result.login_expired:
+                            log.info(
+                                f"原神实时便笺: 用户 {account.display_name} 登录失效")
+                            log.debug(f"网络请求返回: {res.text}")
+                            return GenshinNoteStatus(login_expired=True), None
+
+                        if api_result.invalid_ds:
+                            log.info(
+                                f"原神实时便笺: 用户 {account.display_name} DS 校验失败")
+                            log.debug(f"网络请求返回: {res.text}")
+                        if api_result.retcode == 1034:
+                            log.info(
+                                f"原神实时便笺: 用户 {account.display_name} 可能被验证码阻拦")
+                            log.debug(f"网络请求返回: {res.text}")
+                        if not api_result.success:
+                            headers["DS"] = generate_ds()
+                            headers["x-rpc-device_id"] = account.device_id_ios
+                            async with httpx.AsyncClient() as client:
+                                res = await client.get(
+                                    URL_GENSHEN_NOTE_WIDGET,
+                                    headers=headers,
+                                    cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
+                                    timeout=plugin_config.preference.timeout
+                                )
+                            api_result = ApiResultHandler(res.json())
+                            return GenshinNoteStatus(success=True), \
+                                GenshinNote.parse_obj(api_result.data)
+                        return GenshinNoteStatus(success=True), GenshinNote.parse_obj(api_result.data)
+            except tenacity.RetryError as e:
+                if is_incorrect_return(e):
+                    log.exception(f"原神实时便笺: 服务器没有正确返回")
+                    log.debug(f"网络请求返回: {res.text}")
+                    return GenshinNoteStatus(incorrect_return=True), None
+                else:
+                    log.exception(f"原神实时便笺: 请求失败")
+                    return GenshinNoteStatus(network_error=True), None
+    if flag:
+        return GenshinNoteStatus(no_genshin_account=True), None
 
 
 async def starrail_note(account: UserAccount) -> Tuple[
@@ -1483,22 +1565,23 @@ async def starrail_note(account: UserAccount) -> Tuple[
                             cookies = account.cookies.dict(v2_stoken=True, cookie_type=True)
                             res = await client.get(url, headers=headers,
                                                    cookies=cookies,
-                                                   timeout=_conf.preference.timeout)
-                        log.debug(f"网络请求返回: {res.text}")
+                                                   timeout=plugin_config.preference.timeout)
                         api_result = ApiResultHandler(res.json())
                         if api_result.login_expired:
                             log.info(
-                                f"崩铁实时便笺: 用户 {account.bbs_uid} 登录失效")
+                                f"崩铁实时便笺: 用户 {account.display_name} 登录失效")
+                            log.debug(f"网络请求返回: {res.text}")
                             return StarRailNoteStatus(login_expired=True), None
 
                         if api_result.invalid_ds:
                             log.info(
-                                f"崩铁实时便笺: 用户 {account.bbs_uid} DS 校验失败")
+                                f"崩铁实时便笺: 用户 {account.display_name} DS 校验失败")
+                            log.debug(f"网络请求返回: {res.text}")
                         if api_result.retcode == 1034:
                             log.info(
-                                f"崩铁实时便笺: 用户 {account.bbs_uid} 可能被验证码阻拦")
-
-                        return StarRailNoteStatus(success=True), StarRailNote.model_validate(api_result.data, strict=False)
+                                f"崩铁实时便笺: 用户 {account.display_name} 可能被验证码阻拦")
+                            log.debug(f"网络请求返回: {res.text}")
+                        return StarRailNoteStatus(success=True), StarRailNote.parse_obj(api_result.data)
             except tenacity.RetryError as e:
                 if is_incorrect_return(e):
                     log.exception("崩铁实时便笺: 服务器没有正确返回")
@@ -1511,8 +1594,10 @@ async def starrail_note(account: UserAccount) -> Tuple[
         return StarRailNoteStatus(no_starrail_account=True), None
 
 
-async def create_verification(account: UserAccount = None, retry: bool = False) -> Tuple[
-    BaseApiStatus, Optional[MmtData]]:
+async def create_verification(
+        account: UserAccount = None,
+        retry: bool = True
+) -> Tuple[BaseApiStatus, Optional[MmtData]]:
     """
     创建人机验证任务 - 一般用于米游社讨论区签到
 
@@ -1533,10 +1618,10 @@ async def create_verification(account: UserAccount = None, retry: bool = False) 
                         URL_CREATE_VERIFICATION,
                         headers=headers,
                         cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
-                        timeout=_conf.preference.timeout
+                        timeout=plugin_config.preference.timeout
                     )
                 api_result = ApiResultHandler(res.json())
-                return BaseApiStatus(success=True), MmtData.model_validate(api_result.data, strict=False)
+                return BaseApiStatus(success=True), MmtData.parse_obj(api_result.data)
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
             log.exception("创建人机验证任务(create_verification) - 服务器没有正确返回")
@@ -1551,7 +1636,7 @@ async def verify_verification(
         mmt_data: MmtData,
         geetest_result: GeetestResult,
         account: UserAccount = None,
-        retry: bool = False
+        retry: bool = True
 ) -> BaseApiStatus:
     """
     提交人机验证结果 - 一般用于米游社讨论区签到
@@ -1581,7 +1666,7 @@ async def verify_verification(
                         headers=headers,
                         cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
                         json=content,
-                        timeout=_conf.preference.timeout)
+                        timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.retcode == 0:
                     return BaseApiStatus(success=True)
@@ -1595,148 +1680,3 @@ async def verify_verification(
         else:
             log.exception("验证人机验证结果(verify_verification) - 请求失败")
             return BaseApiStatus(network_error=True)
-
-
-async def create_mmt(client: Optional[httpx.AsyncClient] = None,
-                     use_v4: bool = True,
-                     device_id: str = None,
-                     retry: bool = False) -> Tuple[
-    BaseApiStatus,
-    Optional[MmtData],
-    str,
-    Optional[httpx.AsyncClient]
-]:
-    """
-    发送短信验证前所需的人机验证任务申请
-
-    :param client: httpx.AsyncClient 连接
-    :param use_v4: 是否使用极验第四代人机验证
-    :param device_id: 设备 ID
-    :param retry: 是否允许重试
-    :return: (API返回状态, 人机验证任务数据, 设备ID, httpx.AsyncClient连接对象)
-    """
-    headers = HEADERS_WEBAPI.copy()
-    device_id = device_id or generate_device_id()
-    headers["x-rpc-device_id"] = device_id
-    if use_v4:
-        headers.setdefault("x-rpc-source", "accountWebsite")
-
-    async def request():
-        """
-        发送请求的闭包函数
-        """
-        time_now = round(time.time() * 1000)
-        # await client.options(URL_CREATE_MMT.format(now=time_now, t=time_now),
-        #                      headers=headers, timeout=conf.preference.timeout)
-        return await client.get(URL_CREATE_MMT.format(now=time_now, t=time_now),
-                                headers=headers, timeout=_conf.preference.timeout)
-
-    try:
-        async for attempt in get_async_retry(retry):
-            with attempt:
-                if client:
-                    res = await request()
-                else:
-                    async with httpx.AsyncClient() as client:
-                        res = await request()
-                api_result = ApiResultHandler(res.json())
-                return BaseApiStatus(success=True), MmtData.model_validate(api_result.data["mmt_data"], strict=False), device_id, client
-    except tenacity.RetryError as e:
-        if client:
-            await client.aclose()
-        if is_incorrect_return(e):
-            log.exception("获取短信验证-人机验证任务(create_mmt) - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
-            return BaseApiStatus(incorrect_return=True), None, device_id, client
-        else:
-            log.exception("获取短信验证-人机验证任务(create_mmt) - 请求失败")
-            return BaseApiStatus(network_error=True), None, device_id, None
-
-
-async def create_mobile_captcha(phone_number: str,
-                                mmt_data: MmtData,
-                                geetest_result: Union[GeetestResult, GeetestResultV4] = None,
-                                client: Optional[httpx.AsyncClient] = None,
-                                use_v4: bool = True,
-                                device_id: str = None,
-                                retry: bool = False
-                                ) -> Tuple[CreateMobileCaptchaStatus, Optional[httpx.AsyncClient]]:
-    """
-    发送短信验证码，可尝试不传入 geetest_result，即不进行人机验证
-
-    :param phone_number: 手机号
-    :param mmt_data: 人机验证任务数据
-    :param geetest_result: 人机验证结果数据
-    :param client: httpx.AsyncClient 连接
-    :param use_v4: 是否使用极验第四代人机验证
-    :param device_id: 设备ID
-    :param retry: 是否允许重试
-    """
-    headers = HEADERS_WEBAPI.copy()
-    headers["x-rpc-device_id"] = device_id or generate_device_id()
-    if use_v4 and isinstance(geetest_result, GeetestResultV4):
-        content = {
-            "action_type": "login",
-            "mmt_key": mmt_data.mmt_key,
-            "geetest_v4_data": geetest_result.model_dump(exclude_unset=True),
-            "mobile": phone_number,
-            "t": str(round(time.time() * 1000))
-        }
-    elif geetest_result:
-        content = {
-            "action_type": "login",
-            "mmt_key": mmt_data.mmt_key,
-            "geetest_challenge": mmt_data.challenge,
-            "geetest_validate": geetest_result.validate,
-            "geetest_seccode": geetest_result.seccode,
-            "mobile": phone_number,
-            "t": round(time.time() * 1000)
-        }
-    else:
-        content = {
-            "action_type": "login",
-            "mmt_key": mmt_data.mmt_key,
-            "mobile": phone_number,
-            "t": round(time.time() * 1000)
-        }
-
-    async def request():
-        """
-        发送请求的闭包函数
-        """
-        return await client.post(URL_CREATE_MOBILE_CAPTCHA,
-                                 params=content,
-                                 headers=headers,
-                                 timeout=_conf.preference.timeout)
-
-    try:
-        async for attempt in get_async_retry(retry):
-            with attempt:
-                if client and not client.is_closed:
-                    res = await request()
-                else:
-                    async with httpx.AsyncClient() as client:
-                        res = await request()
-                api_result = ApiResultHandler(res.json())
-                if api_result.success:
-                    return CreateMobileCaptchaStatus(success=True), client
-                elif api_result.wrong_captcha:
-                    return CreateMobileCaptchaStatus(incorrect_geetest=True), client
-                elif api_result.retcode == -217:
-                    return CreateMobileCaptchaStatus(not_registered=True), client
-                elif api_result.retcode == -103:
-                    return CreateMobileCaptchaStatus(invalid_phone_number=True), client
-                elif api_result.retcode == -213:
-                    return CreateMobileCaptchaStatus(too_many_requests=True), client
-                else:
-                    return CreateMobileCaptchaStatus(), client
-    except tenacity.RetryError as e:
-        if client:
-            await client.aclose()
-        if is_incorrect_return(e):
-            log.exception("发送短信验证码 - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
-            return CreateMobileCaptchaStatus(incorrect_return=True), client
-        else:
-            log.exception("发送短信验证码 - 请求失败")
-            return CreateMobileCaptchaStatus(network_error=True), None

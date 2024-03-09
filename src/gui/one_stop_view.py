@@ -15,9 +15,8 @@ from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.one_stop_service.one_stop_service_app import OneStopServiceApp
 from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
-from sr.app.treasures_lightward import treasures_lightward_record
 from sr.context import Context
-from sr.mystools.mys_config import MysConfig
+from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
 info_text_width = 200

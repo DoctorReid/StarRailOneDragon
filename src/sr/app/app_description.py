@@ -22,3 +22,5 @@ class AppDescriptionEnum(Enum):
     NAMELESS_HONOR = AppDescription(cn='无名勋礼', id='nameless_honor')
     SUPPORT_CHARACTER = AppDescription(cn='支援角色', id='support_character')
 
+    MYS = AppDescription(cn='米游社', id='mys')
+

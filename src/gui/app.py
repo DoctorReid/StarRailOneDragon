@@ -221,8 +221,8 @@ class StarRailOneDragon:
                 return True
         elif self.app_rail.selected_index == 3:  # 校准
             return True
-        elif self.app_rail.selected_index == 4:
-            if self.settings_rail.selected_index == 0:  # 设置 - 基础
+        elif self.app_rail.selected_index == 4:  # 设置
+            if self.settings_rail.selected_index in [0, 7]:  # 基础、米游社
                 return True
         return False
 

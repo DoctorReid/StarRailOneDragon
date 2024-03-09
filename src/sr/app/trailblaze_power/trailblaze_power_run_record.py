@@ -5,7 +5,7 @@ from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexMission, SurvivalIndexMissionEnum
-from sr.mystools.mys_config import MysConfig
+from sr.mystools.one_dragon_mys_config import MysConfig
 
 
 class TrailblazePowerRunRecord(AppRunRecord):
@@ -29,13 +29,3 @@ class TrailblazePowerRunRecord(AppRunRecord):
             point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(self.tp_config.next_plan_item['mission_id'])
             return point is not None and power >= point.power
         return False
-
-
-trailblaze_power_record: Optional[TrailblazePowerRunRecord] = None
-
-
-def get_record() -> TrailblazePowerRunRecord:
-    global trailblaze_power_record
-    if trailblaze_power_record is None:
-        trailblaze_power_record = TrailblazePowerRunRecord()
-    return trailblaze_power_record

@@ -1,23 +1,16 @@
-"""
-### 米游社的米游币任务相关API
-"""
 import asyncio
-from typing import List, Optional, Tuple, Set, Type
+from typing import List, Optional, Tuple, Type, Dict
 
 import httpx
 import tenacity
 
 from basic.log_utils import log
-from .data_model import BaseApiStatus, MissionStatus, MissionData, \
-    MissionState
-from .plugin_data import PluginDataManager
-from .simple_api import ApiResultHandler, is_incorrect_return, create_verification, verify_verification
-from .user_data import UserAccount
-from .utils import generate_ds, \
+from ..api.common import ApiResultHandler, is_incorrect_return, create_verification, \
+    verify_verification
+from ..model import BaseApiStatus, MissionStatus, MissionData, \
+    MissionState, UserAccount, plugin_config, plugin_env
+from ..utils import generate_ds, \
     get_async_retry, get_validate
-
-_conf = PluginDataManager.plugin_data
-device_config = PluginDataManager.device_config
 
 URL_SIGN = "https://bbs-api.mihoyo.com/apihub/app/api/signIn"
 URL_GET_POST = "https://bbs-api.miyoushe.com/post/api/feeds/posts?fresh_action=1&gids={}&is_first_initialize=false" \
@@ -30,14 +23,14 @@ URL_MISSION_STATE = "https://api-takumi.mihoyo.com/apihub/wapi/getUserMissionsSt
 HEADERS_BASE = {
     "Host": "bbs-api.miyoushe.com",
     "Referer": "https://app.mihoyo.com",
-    'User-Agent': device_config.USER_AGENT_ANDROID_OTHER,
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
-    "x-rpc-channel": device_config.X_RPC_CHANNEL_ANDROID,
+    'User-Agent': plugin_env.device_config.USER_AGENT_ANDROID_OTHER,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
+    "x-rpc-channel": plugin_env.device_config.X_RPC_CHANNEL_ANDROID,
     "x-rpc-client_type": "2",
     "x-rpc-device_id": None,
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_ANDROID,
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_ANDROID,
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION_ANDROID,
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_ANDROID,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_ANDROID,
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION_ANDROID,
     "Accept-Encoding": "gzip",
     "Connection": "Keep-Alive",
     "DS": None
@@ -47,7 +40,7 @@ HEADERS_MISSION = {
     "Origin": "https://webstatic.mihoyo.com",
     "Connection": "keep-alive",
     "Accept": "application/json, text/plain, */*",
-    "User-Agent": device_config.USER_AGENT_MOBILE,
+    "User-Agent": plugin_env.device_config.USER_AGENT_MOBILE,
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "Referer": "https://webstatic.mihoyo.com/",
     "Accept-Encoding": "gzip, deflate, br"
@@ -57,14 +50,14 @@ HEADERS_GET_POSTS = {
     "Accept": "*/*",
     "x-rpc-client_type": "1",
     "x-rpc-device_id": None,
-    "x-rpc-channel": device_config.X_RPC_CHANNEL,
+    "x-rpc-channel": plugin_env.device_config.X_RPC_CHANNEL,
     "Accept-Language": "zh-CN,zh-Hans;q=0.9",
     "Accept-Encoding": "gzip, deflate, br",
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION,
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION,
     "Referer": "https://app.mihoyo.com",
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_MOBILE,
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
-    "User-Agent": device_config.USER_AGENT_OTHER,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_MOBILE,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
+    "User-Agent": plugin_env.device_config.USER_AGENT_OTHER,
     "Connection": "keep-alive"
 }
 
@@ -72,14 +65,14 @@ HEADERS_GET_POSTS = {
 HEADERS_OLD = {
     "Host": "bbs-api.mihoyo.com",
     "Referer": "https://app.mihoyo.com",
-    'User-Agent': device_config.USER_AGENT_ANDROID_OTHER,
-    "x-rpc-app_version": device_config.X_RPC_APP_VERSION,
-    "x-rpc-channel": device_config.X_RPC_CHANNEL_ANDROID,
+    'User-Agent': plugin_env.device_config.USER_AGENT_ANDROID_OTHER,
+    "x-rpc-app_version": plugin_env.device_config.X_RPC_APP_VERSION,
+    "x-rpc-channel": plugin_env.device_config.X_RPC_CHANNEL_ANDROID,
     "x-rpc-client_type": "2",
     "x-rpc-device_id": None,
-    "x-rpc-device_model": device_config.X_RPC_DEVICE_MODEL_ANDROID,
-    "x-rpc-device_name": device_config.X_RPC_DEVICE_NAME_ANDROID,
-    "x-rpc-sys_version": device_config.X_RPC_SYS_VERSION_ANDROID,
+    "x-rpc-device_model": plugin_env.device_config.X_RPC_DEVICE_MODEL_ANDROID,
+    "x-rpc-device_name": plugin_env.device_config.X_RPC_DEVICE_NAME_ANDROID,
+    "x-rpc-sys_version": plugin_env.device_config.X_RPC_SYS_VERSION_ANDROID,
     "Accept-Encoding": "gzip",
     "Connection": "Keep-Alive",
     "DS": None
@@ -90,10 +83,10 @@ class BaseMission:
     """
     米游币任务基类
     """
-    NAME = ""
+    name = ""
     """米游社分区名字"""
-    GIDS = 0
-    FID = 0
+    gids = 0
+    fid = 0
 
     SIGN = "continuous_sign"
     '''签到任务的 mission_key'''
@@ -104,7 +97,7 @@ class BaseMission:
     SHARE = "share_post_0"
     '''分享任务的 mission_key'''
 
-    AVAILABLE_GAMES: Set[Type["BaseMission"]] = set()
+    available_games: Dict[str, Type["BaseMission"]] = {}
     """可用的子类"""
 
     def __init__(self, account: UserAccount) -> None:
@@ -124,7 +117,7 @@ class BaseMission:
         :param retry: 是否允许重试
         :return: (BaseApiStatus, 签到获得的米游币数量)
         """
-        content = {"gids": self.GIDS}
+        content = {"gids": self.gids}
         try:
             async for attempt in get_async_retry(retry):
                 with attempt:
@@ -136,39 +129,39 @@ class BaseMission:
                             URL_SIGN,
                             headers=headers,
                             json=content,
-                            timeout=_conf.preference.timeout,
+                            timeout=plugin_config.preference.timeout,
                             cookies=self.account.cookies.dict(v2_stoken=True, cookie_type=True)
                         )
                     api_result = ApiResultHandler(res.json())
                     if api_result.login_expired:
                         log.error(
-                            f"米游币任务 - 讨论区签到: 用户 {self.account.bbs_uid} 登录失效")
+                            f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 登录失效")
                         log.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(login_expired=True), None
                     elif api_result.invalid_ds:
                         log.error(
-                            f"米游币任务 - 讨论区签到: 用户 {self.account.bbs_uid} DS 校验失败")
+                            f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} DS 校验失败")
                         log.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(invalid_ds=True), None
                     elif api_result.retcode == 1034:
                         log.error(
-                            f"米游币任务 - 讨论区签到: 用户 {self.account.bbs_uid} 需要完成人机验证")
+                            f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 需要完成人机验证")
                         log.debug(f"网络请求返回: {res.text}")
-                        if _conf.preference.geetest_url:
+                        if plugin_config.preference.geetest_url:
                             create_status, mmt_data = await create_verification(self.account)
                             if create_status:
                                 if geetest_result := await get_validate(mmt_data.gt, mmt_data.challenge):
                                     if await verify_verification(mmt_data, geetest_result, self.account):
                                         log.info(
-                                            f"米游币任务 - 讨论区签到: 用户 {self.account.bbs_uid} 人机验证通过")
+                                            f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 人机验证通过")
                                         continue
                         else:
                             log.info(
-                                f"米游币任务 - 讨论区签到: 用户 {self.account.bbs_uid} 未配置极验人机验证打码平台")
+                                f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 未配置极验人机验证打码平台")
                         return MissionStatus(need_verify=True), None
                     elif api_result.retcode == 1008:
                         log.warning(
-                            f"米游币任务 - 讨论区签到: 用户 {self.account.bbs_uid} 今日已经签到过了")
+                            f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 今日已经签到过了")
                         log.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(success=True, already_signed=True), 0
                     return MissionStatus(success=True), api_result.data["points"]
@@ -196,9 +189,9 @@ class BaseMission:
                     headers["x-rpc-device_id"] = self.account.device_id_ios
                     async with httpx.AsyncClient() as client:
                         res = await client.get(
-                            URL_GET_POST.format(self.GIDS),
+                            URL_GET_POST.format(self.gids),
                             headers=headers,
-                            timeout=_conf.preference.timeout
+                            timeout=plugin_config.preference.timeout
                         )
                     api_result = ApiResultHandler(res.json())
                     for post in api_result.data["list"]:
@@ -238,18 +231,18 @@ class BaseMission:
                                 res = await client.get(
                                     URL_READ.format(post_id),
                                     headers=self.headers,
-                                    timeout=_conf.preference.timeout,
+                                    timeout=plugin_config.preference.timeout,
                                     cookies=self.account.cookies.dict(v2_stoken=True, cookie_type=True)
                                 )
                             api_result = ApiResultHandler(res.json())
                             if api_result.login_expired:
                                 log.info(
-                                    f"米游币任务 - 阅读: 用户 {self.account.bbs_uid} 登录失效")
+                                    f"米游币任务 - 阅读: 用户 {self.account.display_name} 登录失效")
                                 log.debug(f"网络请求返回: {res.text}")
                                 return MissionStatus(login_expired=True)
                             if api_result.invalid_ds:
                                 log.info(
-                                    f"米游币任务 - 阅读: 用户 {self.account.bbs_uid} DS 校验失败")
+                                    f"米游币任务 - 阅读: 用户 {self.account.display_name} DS 校验失败")
                                 log.debug(f"网络请求返回: {res.text}")
                                 return MissionStatus(invalid_ds=True)
                             if api_result.message == "帖子不存在":
@@ -267,7 +260,7 @@ class BaseMission:
                         log.exception(f"米游币任务 - 阅读: 请求失败")
                         return MissionStatus(network_error=True)
                 if count != read_times:
-                    await asyncio.sleep(_conf.preference.sleep_time)
+                    await asyncio.sleep(plugin_config.preference.sleep_time)
             get_post_status, posts = await self.get_posts(retry)
             if not get_post_status:
                 return MissionStatus(failed_getting_post=True)
@@ -299,18 +292,18 @@ class BaseMission:
                                 res = await client.post(
                                     URL_LIKE, headers=headers,
                                     json={'is_cancel': False, 'post_id': post_id},
-                                    timeout=_conf.preference.timeout,
+                                    timeout=plugin_config.preference.timeout,
                                     cookies=self.account.cookies.dict(v2_stoken=True, cookie_type=True)
                                 )
                             api_result = ApiResultHandler(res.json())
                             if api_result.login_expired:
                                 log.info(
-                                    f"米游币任务 - 点赞: 用户 {self.account.bbs_uid} 登录失效")
+                                    f"米游币任务 - 点赞: 用户 {self.account.display_name} 登录失效")
                                 log.debug(f"网络请求返回: {res.text}")
                                 return MissionStatus(login_expired=True)
                             if api_result.invalid_ds:
                                 log.info(
-                                    f"米游币任务 - 点赞: 用户 {self.account.bbs_uid} DS 校验失败")
+                                    f"米游币任务 - 点赞: 用户 {self.account.display_name} DS 校验失败")
                                 log.debug(f"网络请求返回: {res.text}")
                                 return MissionStatus(invalid_ds=True)
                             if api_result.message == "帖子不存在":
@@ -327,7 +320,7 @@ class BaseMission:
                         log.exception(f"米游币任务 - 点赞: 请求失败")
                         return MissionStatus(network_error=True)
                 if count != like_times:
-                    await asyncio.sleep(_conf.preference.sleep_time)
+                    await asyncio.sleep(plugin_config.preference.sleep_time)
             get_post_status, posts = await self.get_posts(retry)
             if not get_post_status:
                 return MissionStatus(failed_getting_post=True)
@@ -353,18 +346,18 @@ class BaseMission:
                         res = await client.get(
                             URL_SHARE.format(posts[0]),
                             headers=headers,
-                            timeout=_conf.preference.timeout,
+                            timeout=plugin_config.preference.timeout,
                             cookies=self.account.cookies.dict(v2_stoken=True, cookie_type=True)
                         )
                     api_result = ApiResultHandler(res.json())
                     if api_result.login_expired:
                         log.info(
-                            f"米游币任务 - 分享: 用户 {self.account.bbs_uid} 登录失效")
+                            f"米游币任务 - 分享: 用户 {self.account.display_name} 登录失效")
                         log.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(login_expired=True)
                     if api_result.invalid_ds:
                         log.info(
-                            f"米游币任务 - 分享: 用户 {self.account.bbs_uid} DS 校验失败")
+                            f"米游币任务 - 分享: 用户 {self.account.display_name} DS 校验失败")
                         log.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(invalid_ds=True)
                     if api_result.message == "帖子不存在":
@@ -386,62 +379,75 @@ class GenshinImpactMission(BaseMission):
     """
     原神 米游币任务
     """
-    NAME = "原神"
-    GIDS = 2
-    FID = 26
+    name = "原神"
+    gids = 2
+    fid = 26
 
 
 class HonkaiImpact3Mission(BaseMission):
     """
     崩坏3 米游币任务
     """
-    NAME = "崩坏3"
-    GIDS = 1
-    FID = 1
+    name = "崩坏3"
+    gids = 1
+    fid = 1
 
 
 class HoukaiGakuen2Mission(BaseMission):
     """
     崩坏学园2 米游币任务
     """
-    NAME = "崩坏学园2"
-    GIDS = 3
-    FID = 30
+    name = "崩坏学园2"
+    gids = 3
+    fid = 30
 
 
 class TearsOfThemisMission(BaseMission):
     """
     未定事件簿 米游币任务
     """
-    NAME = "未定事件簿"
-    GIDS = 4
-    FID = 37
+    name = "未定事件簿"
+    gids = 4
+    fid = 37
 
 
 class StarRailMission(BaseMission):
     """
     崩坏：星穹铁道 米游币任务
     """
-    NAME = "崩坏：星穹铁道"
-    GIDS = 5
-    FID = 52
+    name = "崩坏：星穹铁道"
+    gids = 6
+    fid = 52
 
 
 class BBSMission(BaseMission):
     """
     大别野 米游币任务
     """
-    NAME = "大别野"
-    GIDS = 5
+    name = "综合"
+    gids = 5
     # TODO: bbs fid暂时未知
 
 
-BaseMission.AVAILABLE_GAMES.add(GenshinImpactMission)
-BaseMission.AVAILABLE_GAMES.add(HonkaiImpact3Mission)
-BaseMission.AVAILABLE_GAMES.add(HoukaiGakuen2Mission)
-BaseMission.AVAILABLE_GAMES.add(TearsOfThemisMission)
-BaseMission.AVAILABLE_GAMES.add(StarRailMission)
-BaseMission.AVAILABLE_GAMES.add(BBSMission)
+class ZenlessZoneZero(BaseMission):
+    """
+    绝区零 米游币任务
+    """
+    name = "绝区零"
+    gids = 8
+    # TODO: fid暂时未知
+
+
+for subclass in [
+    GenshinImpactMission,
+    HonkaiImpact3Mission,
+    HoukaiGakuen2Mission,
+    TearsOfThemisMission,
+    StarRailMission,
+    BBSMission,
+    ZenlessZoneZero
+]:
+    BaseMission.available_games[subclass.__name__] = subclass
 
 
 async def get_missions(account: UserAccount, retry: bool = True) -> Tuple[BaseApiStatus, Optional[List[MissionData]]]:
@@ -457,11 +463,11 @@ async def get_missions(account: UserAccount, retry: bool = True) -> Tuple[BaseAp
                 async with httpx.AsyncClient() as client:
                     res = await client.get(URL_MISSION, headers=HEADERS_MISSION,
                                            cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
-                                           timeout=_conf.preference.timeout)
+                                           timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
                     log.info(
-                        f"获取米游币任务列表: 用户 {account.bbs_uid} 登录失效")
+                        f"获取米游币任务列表: 用户 {account.display_name} 登录失效")
                     log.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True), None
                 mission_list: List[MissionData] = []
@@ -494,11 +500,11 @@ async def get_missions_state(account: UserAccount, retry: bool = True) -> Tuple[
                 async with httpx.AsyncClient() as client:
                     res = await client.get(URL_MISSION_STATE, headers=HEADERS_MISSION,
                                            cookies=account.cookies.dict(v2_stoken=True, cookie_type=True),
-                                           timeout=_conf.preference.timeout)
+                                           timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
                     log.info(
-                        f"获取米游币任务完成情况: 用户 {account.bbs_uid} 登录失效")
+                        f"获取米游币任务完成情况: 用户 {account.display_name} 登录失效")
                     log.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True), None
                 state_dict = {}

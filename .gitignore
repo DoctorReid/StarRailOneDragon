@@ -11,6 +11,7 @@ out/
 config/world_patrol/record.yml
 config/world_patrol/whitelist/*.yml
 config/mystool
+config/mystool2
 config/sim_uni/app_config.yml
 config/sim_uni/challenge_config/*.yml
 !config/sim_uni/challenge_config/*_sample.yml

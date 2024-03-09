@@ -6,7 +6,7 @@ from sr.screen_area import ScreenArea
 
 class ScreenPhoneMenu(Enum):
 
-    EXIT_BTN = ScreenArea(pc_rect=Rect())  # 关闭按钮
+    EXIT_BTN = ScreenArea(pc_rect=Rect(0,0,0,0))  # 关闭按钮
 
     TRAILBLAZE_LEVEL_PART = ScreenArea(pc_rect=Rect(1280, 240, 1505, 275), text='开拓等级', lcs_percent=0.55)
 
