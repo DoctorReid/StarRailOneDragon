@@ -202,7 +202,7 @@ class BaseGameSign:
                             f"游戏签到 - 用户 {self.account.display_name} DS 校验失败")
                         log.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(invalid_ds=True), None
-                    elif api_result.data.get("risk_code") != 0:
+                    elif api_result.data is not None and api_result.data.get("risk_code") != 0:
                         log.warning(
                             f"{plugin_config.preference.log_head}游戏签到 - 用户 {self.account.display_name} 可能被人机验证阻拦")
                         log.debug(f"{plugin_config.preference.log_head}网络请求返回: {res.text}")
