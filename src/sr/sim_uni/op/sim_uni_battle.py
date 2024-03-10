@@ -14,6 +14,7 @@ from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.team import SwitchMember
 from sr.screen_area.dialog import ScreenDialog
+from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
@@ -254,8 +255,6 @@ class SimUniEnterFight(Operation):
 
 class SimUniFightElite(StateOperation):
 
-    ENEMY_LEVEL_RECT: ClassVar[Rect] = Rect(804, 38, 915, 75)  # 等级
-
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '没有敌人'
 
     def __init__(self, ctx: Context, config: Optional[SimUniChallengeConfig] = None):
@@ -265,17 +264,18 @@ class SimUniFightElite(StateOperation):
         edges = []
 
         check = StateOperationNode('检测敌人', self._check_enemy)
-        enter_fight = StateOperationNode('秘技进入战斗', self._enter_fight)
-        edges.append(StateOperationEdge(check, enter_fight, ignore_status=True))
+        technique_fight = StateOperationNode('秘技进入战斗', self._technique_fight)
+        edges.append(StateOperationEdge(check, technique_fight, ignore_status=True))
 
         fight = StateOperationNode('战斗', self._fight)
-        edges.append(StateOperationEdge(enter_fight, fight))
+        edges.append(StateOperationEdge(technique_fight, fight))
 
         switch = StateOperationNode('切换1号位', self._switch_1)
         edges.append(StateOperationEdge(fight, switch))
         edges.append(StateOperationEdge(check, switch, status=SimUniFightElite.STATUS_ENEMY_NOT_FOUND))
 
         super().__init__(ctx,
+                         try_times=5,
                          op_name='%s %s' % (
                              gt('模拟宇宙', 'ui'),
                              gt('挑战精英首领', 'ui'),
@@ -289,22 +289,27 @@ class SimUniFightElite(StateOperation):
         判断当前是否有敌人
         :return:
         """
+        area = ScreenSimUni.ENEMY_LEVEL.value
         screen = self.screenshot()
-        part = cv2_utils.crop_image_only(screen, SimUniFightElite.ENEMY_LEVEL_RECT)
-        osc_result = self.ctx.ocr.ocr_for_single_line(part)
 
-        if str_utils.find_by_lcs(gt('等级', 'ocr'), osc_result, percent=0.1):
+        if self.find_area(area, screen):
             return Operation.round_success()
         else:
             return Operation.round_success(SimUniFightElite.STATUS_ENEMY_NOT_FOUND)
 
-    def _enter_fight(self) -> OperationOneRoundResult:
+    def _technique_fight(self) -> OperationOneRoundResult:
         op = StartFightForElite(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return Operation.round_by_op(op.execute(), wait=1)
 
     def _fight(self) -> OperationOneRoundResult:
-        op = SimUniEnterFight(self.ctx, config=self.config, no_attack=True)  # 前面已经进行攻击了 这里不需要 且不额外使用秘技
-        return Operation.round_by_op(op.execute())
+        area = ScreenSimUni.ENEMY_LEVEL.value
+        screen = self.screenshot()
+        if self.find_area(area, screen):  # 还没有进入战斗 可能是使用近战角色没有攻击到
+            self.ctx.controller.initiate_attack()
+            return Operation.round_retry('尝试攻击进入战斗画面')
+        else:
+            op = SimUniEnterFight(self.ctx, config=self.config, no_attack=True)  # 前面已经进行攻击了 这里不需要 且不额外使用秘技
+            return Operation.round_by_op(op.execute())
 
     def _switch_1(self) -> OperationOneRoundResult:
         op = SwitchMember(self.ctx, 1)

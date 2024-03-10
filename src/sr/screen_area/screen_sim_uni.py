@@ -25,6 +25,7 @@ class ScreenSimUni(Enum):
     BATTLE_EXIT = ScreenArea(pc_rect=Rect(1038, 962, 1391, 1013), text='终止战斗并结算')
     EXIT_DIALOG_CONFIRM = ScreenArea(pc_rect=Rect(1022, 651, 1324, 697), text='确认')
     LEVEL_TYPE = ScreenArea(pc_rect=Rect(52, 13, 276, 40))  # 左上角楼层类型
+    ENEMY_LEVEL = ScreenArea(pc_rect=Rect(804, 38, 915, 75), text='等级')  # 怪头上的等级
 
     # 结算画面
     EXIT_EMPTY_TO_CONTINUE = ScreenArea(pc_rect=Rect(869, 899, 1057, 928), text='点击空白处继续')
