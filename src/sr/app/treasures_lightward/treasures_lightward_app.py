@@ -12,6 +12,7 @@ from sr.const import phone_menu_const
 from sr.const.character_const import CharacterCombatType, Character
 from sr.context import Context
 from sr.operation import StateOperationEdge, StateOperationNode, OperationResult, OperationOneRoundResult, Operation
+from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.forgotten_hall.get_reward_in_fh import GetRewardInForgottenHall
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
@@ -33,7 +34,11 @@ class TreasuresLightwardApp(Application2):
         self.run_record: Optional[TreasuresLightwardRunRecord] = ctx.tl_run_record
         edges: List[StateOperationEdge] = []
 
+        world = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx))
+
         open_menu = StateOperationNode('打开菜单', op=OpenPhoneMenu(ctx))
+        edges.append(StateOperationEdge(world, open_menu))
+
         choose_guide = StateOperationNode('选择【指南】', op=ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
         edges.append(StateOperationEdge(open_menu, choose_guide))
 
@@ -54,10 +59,13 @@ class TreasuresLightwardApp(Application2):
         pf_check_record = StateOperationNode('检测【虚构叙事】记录', self._check_record_and_tp)
         edges.append(StateOperationEdge(choose_pf, pf_check_record))
 
+        pf_start_screen = StateOperationNode('【虚构叙事】新一期画面检测', self._check_pf_new_start)
+        edges.append(StateOperationEdge(pf_check_record, pf_start_screen, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))
+
         # 公共挑战部分
         check_total_star = StateOperationNode('检测总星数', self._check_total_star)
         edges.append(StateOperationEdge(fh_check_record, check_total_star, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))  # 需要进行挑战 检测星数
-        edges.append(StateOperationEdge(pf_check_record, check_total_star, status=TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE))  # 需要进行挑战 检测星数
+        edges.append(StateOperationEdge(pf_start_screen, check_total_star))  # 需要进行挑战 检测星数
 
         finished = StateOperationNode('设置完成', self._check_schedule_finished)
         edges.append(StateOperationEdge(check_total_star, finished, status=TlCheckTotalStar.STATUS_FULL_STAR))  # 满星的时候直接设置为成功
@@ -162,6 +170,20 @@ class TreasuresLightwardApp(Application2):
             return Operation.round_success(TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE, wait=3)
         else:
             return Operation.round_retry('点击传送失败', wait=1)
+
+    def _check_pf_new_start(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+
+        title = ScreenTreasuresLightWard.PF_TITLE.value
+        if self.find_area(title, screen):
+            return Operation.round_success()
+
+        start = ScreenTreasuresLightWard.PF_NEW_START.value
+        click = self.find_and_click_area(start, screen)
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success(wait=1)
+
+        return Operation.round_retry('未进入虚构叙事画面', wait=1)
 
     def _check_total_star(self) -> OperationOneRoundResult:
         """

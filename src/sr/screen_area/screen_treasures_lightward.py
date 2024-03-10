@@ -30,6 +30,7 @@ class ScreenTreasuresLightWard(Enum):
 
     # 【虚构叙事】画面
     PF_TITLE = ScreenArea(pc_rect=Rect(160, 63, 262, 90), text='虚构叙事')  # 左上角标题
+    PF_NEW_START = ScreenArea(pc_rect=Rect(1316, 870, 1652, 922), text='开启故事')  # 新一期的画面
     PF_CACOPHONY_NODE_1 = ScreenArea(pc_rect=Rect(1775, 717, 1873, 792))  # 节点1-增益效果
     PF_CACOPHONY_NODE_2 = ScreenArea(pc_rect=Rect(1775, 823, 1873, 909))  # 节点2-增益效果
     PF_CACOPHONY_OPT_1 = ScreenArea(pc_rect=Rect(806, 177, 870, 224))  # 增益效果选项1
@@ -46,6 +47,7 @@ class ScreenTreasuresLightWard(Enum):
 
     # 公共 - 大世界画面
     EXIT_BTN = ScreenArea(pc_rect=Rect(0, 0, 75, 115), template_id='ui_icon_10', status='逐光捡金可移动画面', pc_alt=True)  # 左上方 退出按钮
+    EXIT_DIALOG_CONFIRM = ScreenArea(pc_rect=Rect(1006, 644, 1327, 704), text='确认')  # 退出对话框
     NODE_FIRST_CLICK_EMPTY = ScreenArea(pc_rect=Rect(856, 851, 1071, 885), text='点击空白处关闭')
 
     # 公共战斗结束

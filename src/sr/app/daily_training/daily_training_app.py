@@ -12,6 +12,7 @@ from sr.operation.combine.dt_synthesize_consumable import DtSynthesizeConsumable
 from sr.operation.combine.dt_take_photo import DtTakePhoto
 from sr.operation.combine.dt_use_2_technique import Use2Technique
 from sr.operation.combine.salvage_relic import SalvageRelic
+from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.claim_training_reward import ClaimTrainingReward
@@ -27,7 +28,11 @@ class DailyTrainingApp(Application2):
     def __init__(self, ctx: Context):
         edges: List[StateOperationEdge] = []
 
+        world = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx))
+
         open_menu = StateOperationNode('打开菜单', op=OpenPhoneMenu(ctx))
+        edges.append(StateOperationEdge(world, open_menu))
+
         click_guide = StateOperationNode('点击【指南】', op=ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
         edges.append(StateOperationEdge(open_menu, click_guide))
 
@@ -43,7 +48,7 @@ class DailyTrainingApp(Application2):
         final_claim_reward = StateOperationNode('领取奖励', op=ClaimTrainingReward(ctx))
         edges.append(StateOperationEdge(check_score, final_claim_reward, status='500'))  # 满分退出
 
-        back_to = StateOperationNode('返回菜单', op=OpenPhoneMenu(ctx))
+        back_to = StateOperationNode('完成后返回大世界', op=BackToNormalWorldPlus(ctx))
         edges.append(StateOperationEdge(final_claim_reward, back_to))
 
         get_mission = StateOperationNode('获取一个可执行的任务', op=GetTrainingUnfinishedMission(ctx))
@@ -80,8 +85,7 @@ class DailyTrainingApp(Application2):
         super().__init__(ctx,
                          op_name='%s %s' % (gt('每日实训', 'ui'), gt('应用', 'ui')),
                          run_record=ctx.daily_training_run_record,
-                         edges=edges,
-                         specified_start_node=open_menu)
+                         edges=edges)
 
     def _update_training_score(self, score: int):
         """

@@ -10,16 +10,14 @@ from basic.img import cv2_utils, MatchResult, MatchResultList
 from sr.const.phone_menu_const import PhoneMenuItem
 from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
+from sr.screen_area.screen_phone_menu import ScreenPhoneMenu
 
 MENU_ITEMS_PART = Rect(1270, 300, 1810, 1070)  # 菜单选项
 MENU_ITEMS_AT_RIGHT_PART = Rect(1810, 230, 1915, 1030)  # 菜单侧栏选项
-ELLIPSIS_PART = Rect(1390, 50, 1810, 350)  # 省略号...的位置
+
 SUPPORT_CHARACTER_PART = Rect(940, 140, 1700, 520)  # 支援角色的框
 
 NAMELESS_HONOR_TAB_PART = Rect(810, 30, 1110, 100)  # 无名勋礼上方的tab
-NAMELESS_HONOR_TAB_1_CLAIM_PART = Rect(1270, 890, 1530, 950)  # 无名勋礼第1个tab的一键领取按钮
-NAMELESS_HONOR_TAB_2_CLAIM_PART = Rect(1520, 890, 1810, 950)  # 无名勋礼第2个tab的一键领取按钮
-NAMELESS_HONOR_TAB_1_CANCEL_BTN = Rect(620, 970, 790, 1010)  # 无名勋礼第1个tab的一键领取后的【取消】按钮
 
 GUIDE_TRAINING_TASK_RECT = Rect(290, 470, 1560, 680)  # 指南-实训 任务框
 GUIDE_TRAINING_ACTIVITY_CLAIM_RECT = Rect(270, 780, 1560, 890)  # 指南-实训 活跃度领取框
@@ -90,7 +88,8 @@ def get_phone_menu_ellipsis_pos(screen: MatLike, im: ImageMatcher, alert: bool =
     :param alert: 是否有感叹号红点
     :return:
     """
-    part, _ = cv2_utils.crop_image(screen, ELLIPSIS_PART)
+    area = ScreenPhoneMenu.ELLIPSIS_BTN.value
+    part = cv2_utils.crop_image_only(screen, area.rect)
     # cv2_utils.show_image(part, win_name='ELLIPSIS_PART')
     result_list: MatchResultList = im.match_template(part, 'ui_ellipsis', only_best=True, threshold=0.3)
     result: MatchResult = result_list.max
@@ -98,8 +97,8 @@ def get_phone_menu_ellipsis_pos(screen: MatLike, im: ImageMatcher, alert: bool =
     if result is None:
         return None
 
-    result.x += ELLIPSIS_PART.x1
-    result.y += ELLIPSIS_PART.y1
+    result.x += area.rect.x1
+    result.y += area.rect.y1
 
     if alert:
         if is_item_with_alert(screen, im, result, (50, -50)):
@@ -120,7 +119,8 @@ def get_phone_menu_ellipsis_item_pos(screen: MatLike, im: ImageMatcher, ocr: Ocr
     :param alert: 是否有感叹号红点
     :return:
     """
-    part, _ = cv2_utils.crop_image(screen, ELLIPSIS_PART)
+    area = ScreenPhoneMenu.ELLIPSIS_BTN.value
+    part = cv2_utils.crop_image_only(screen, area.rect)
 
     ocr_map = ocr.match_words(part, words=[item_cn], lcs_percent=0.55)
     if len(ocr_map) == 0:
@@ -128,8 +128,8 @@ def get_phone_menu_ellipsis_item_pos(screen: MatLike, im: ImageMatcher, ocr: Ocr
 
     result: MatchResult = ocr_map.popitem()[1].max
 
-    result.x += ELLIPSIS_PART.x1
-    result.y += ELLIPSIS_PART.y1
+    result.x += area.rect.x1
+    result.y += area.rect.y1
 
     if alert:
         if is_item_with_alert(screen, im, result, (130, -50)):
@@ -195,48 +195,6 @@ def get_nameless_honor_tab_pos(screen: MatLike, im: ImageMatcher, tab: int, aler
             return None
     else:
         return result
-
-
-def get_nameless_honor_tab_2_claim_pos(screen: MatLike, ocr: OcrMatcher):
-    """
-    获取无名勋礼第2个tab 任务的【一键领取】按钮位置
-    :param screen: 屏幕截图
-    :param ocr: 文字识别器
-    :return:
-    """
-    part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_2_CLAIM_PART)
-
-    ocr_map = ocr.match_words(part, words=['一键领取'], lcs_percent=0.55)
-    if len(ocr_map) == 0:
-        return None
-
-    result: MatchResult = ocr_map.popitem()[1].max
-
-    result.x += NAMELESS_HONOR_TAB_2_CLAIM_PART.x1
-    result.y += NAMELESS_HONOR_TAB_2_CLAIM_PART.y1
-
-    return result
-
-
-def get_nameless_honor_tab_1_claim_pos(screen: MatLike, ocr: OcrMatcher):
-    """
-    获取无名勋礼第2个tab 任务的【一键领取】按钮位置
-    :param screen: 屏幕截图
-    :param ocr: 文字识别器
-    :return:
-    """
-    part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_1_CLAIM_PART)
-
-    ocr_map = ocr.match_words(part, words=['一键领取'], lcs_percent=0.55)
-    if len(ocr_map) == 0:
-        return None
-
-    result: MatchResult = ocr_map.popitem()[1].max
-
-    result.x += NAMELESS_HONOR_TAB_1_CLAIM_PART.x1
-    result.y += NAMELESS_HONOR_TAB_1_CLAIM_PART.y1
-
-    return result
 
 
 def get_nameless_honor_tab_1_cancel_btn(screen: MatLike, ocr: OcrMatcher) -> Optional[MatchResult]:

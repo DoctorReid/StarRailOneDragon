@@ -14,6 +14,7 @@ from sr.context import Context
 from sr.image.sceenshot import large_map
 from sr.operation import StateOperationNode, StateOperationEdge, OperationOneRoundResult, Operation
 from sr.operation.combine.use_trailblaze_power import UseTrailblazePower
+from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission, \
@@ -36,7 +37,9 @@ class TrailblazePower(Application2):
     def __init__(self, ctx: Context):
         edges = []
 
+        world = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx))
         check_task = StateOperationNode('检查当前需要挑战的关卡', self._check_task)
+        edges.append(StateOperationEdge(world, check_task))
 
         check_normal_power = StateOperationNode('检查剩余开拓力', self._check_power_for_normal)
         edges.append(StateOperationEdge(check_task, check_normal_power, status=TrailblazePower.STATUS_NORMAL_TASK))
@@ -52,15 +55,15 @@ class TrailblazePower(Application2):
         edges.append(StateOperationEdge(check_sim_uni_power, challenge_sim_uni))
         edges.append(StateOperationEdge(challenge_sim_uni, check_task))
 
-        esc = StateOperationNode('退出', self._esc)
-        edges.append(StateOperationEdge(challenge_normal, esc, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
-        edges.append(StateOperationEdge(challenge_normal, esc, status=TrailblazePower.STATUS_PLAN_FINISHED))
-        edges.append(StateOperationEdge(challenge_sim_uni, esc, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
-        edges.append(StateOperationEdge(challenge_sim_uni, esc, status=TrailblazePower.STATUS_PLAN_FINISHED))
+        back = StateOperationNode('完成后返回大世界', op=BackToNormalWorldPlus(ctx))
+        edges.append(StateOperationEdge(challenge_normal, back, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
+        edges.append(StateOperationEdge(challenge_normal, back, status=TrailblazePower.STATUS_PLAN_FINISHED))
+        edges.append(StateOperationEdge(challenge_sim_uni, back, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
+        edges.append(StateOperationEdge(challenge_sim_uni, back, status=TrailblazePower.STATUS_PLAN_FINISHED))
 
         super().__init__(ctx, try_times=5,
                          op_name=gt('开拓力', 'ui'),
-                         edges=edges, specified_start_node=check_task,
+                         edges=edges,
                          run_record=ctx.tp_run_record)
         self.power: Optional[int] = None  # 剩余开拓力
         self.qty: Optional[int] = None  # 沉浸器数量
@@ -148,10 +151,6 @@ class TrailblazePower(Application2):
         plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
         plan['run_times'] += finished_times
         self.ctx.tp_config.save()
-
-    def _esc(self) -> OperationOneRoundResult:
-        op = OpenPhoneMenu(self.ctx)
-        return Operation.round_by_op(op.execute())
 
     def _check_power_for_sim_uni(self) -> OperationOneRoundResult:
         if self.qty is not None:

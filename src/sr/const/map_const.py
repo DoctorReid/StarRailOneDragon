@@ -236,6 +236,7 @@ def best_match_region_by_name(ocr_word: Optional[str], planet: Optional[Planet] 
     if ocr_word is None or len(ocr_word) == 0:
         return None
     best_region: Optional[Region] = None
+    best_lcs: int = 0
     best_lcs_percent: float = 0.1
 
     for np_id, region_list in PLANET_2_REGION.items():
@@ -245,9 +246,9 @@ def best_match_region_by_name(ocr_word: Optional[str], planet: Optional[Planet] 
             region_name = gt(region.cn, 'ocr')
             lcs = str_utils.longest_common_subsequence_length(region_name, ocr_word)
             lcs_percent = lcs / len(region_name)
-
-            if lcs_percent > best_lcs_percent:
+            if lcs > best_lcs or (lcs == best_lcs and lcs_percent > best_lcs_percent):
                 best_region = region
+                best_lcs = lcs
                 best_lcs_percent = lcs_percent
     return best_region
 
