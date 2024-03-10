@@ -356,7 +356,7 @@ class MoveDirectly(Operation):
         if next_pos is None:
             log.error('无法判断当前人物坐标')
             if self.ctx.one_dragon_config.is_debug:
-                save_debug_image(mm, file_name='%s_%d_%d_%d.png' % (self.lm_info.region.prl_id, possible_pos[0], possible_pos[1], int(possible_pos[2])))
+                save_debug_image(mm, file_name='%s_%d_%d_%d' % (self.lm_info.region.prl_id, possible_pos[0], possible_pos[1], int(possible_pos[2])))
 
         return next_pos, mm_info
 
