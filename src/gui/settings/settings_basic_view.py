@@ -10,6 +10,7 @@ from gui import components, version, snack_bar
 from gui.settings import gui_config
 from gui.settings.gui_config import GuiConfig
 from gui.sr_basic_view import SrBasicView
+from sr.app.switch_account.switch_account_app import SwitchAccountApp
 from sr.context import Context
 from sr.one_dragon_config import OneDragonAccount
 
@@ -20,26 +21,40 @@ class AccountListItem(ft.Container):
                  account: OneDragonAccount,
                  on_change: Optional[Callable[[OneDragonAccount], None]] = None,
                  on_active: Optional[Callable[[int], None]] = None,
-                 on_delete: Optional[Callable[[int], None]] = None):
+                 on_delete: Optional[Callable[[int], None]] = None,
+                 on_switch: Optional[Callable[[int], None]] = None
+                 ):
         theme = gui_config.theme()
         id_text = ft.Text(value='编号' + ('%02d' % account.idx))
         self.name_input = ft.TextField(label='名称', value=account.name, width=80,
                                        disabled=ctx.is_running, on_change=self._on_name_changed)
         self.active_now = components.RectOutlinedButton(
-            text='当前启用' if account.active else '启用',
+            text='当前' if account.active else '启用',
             disabled=ctx.is_running or account.active,
             on_click=self._on_active_now_changed
         )
         self.del_btn = ft.IconButton(icon=ft.icons.DELETE_FOREVER_OUTLINED,
                                      disabled=ctx.is_running or account.active,
                                      on_click=self._on_click_delete)
-        self.active_in_od = ft.Checkbox(label='加入一条龙', value=account.active_in_od,
+        self.active_in_od = ft.Dropdown(label='一条龙',
+                                        options=[
+                                            ft.dropdown.Option(key='True', text='是'),
+                                            ft.dropdown.Option(key='False', text='否'),
+                                        ],
+                                        value=str(account.active_in_od),
                                         disabled=ctx.is_running,
-                                        on_change=self._on_active_in_od_changed)
+                                        on_change=self._on_active_in_od_changed,
+                                        width=65
+                                        )
+        self.switch_btn = components.RectOutlinedButton(
+            text='登陆',
+            disabled=ctx.is_running or not account.active,
+            on_click=self._on_switch_clicked
+        )
 
         ft.Container.__init__(
             self,
-            content=ft.Row(controls=[id_text, self.name_input, self.active_now, self.active_in_od, self.del_btn]),
+            content=ft.Row(controls=[id_text, self.name_input, self.active_now, self.switch_btn, self.active_in_od, self.del_btn]),
             border=ft.border.only(bottom=ft.border.BorderSide(1, theme['divider_color'])),
             padding=10
         )
@@ -48,6 +63,7 @@ class AccountListItem(ft.Container):
         self.on_change: Optional[Callable[[OneDragonAccount], None]] = on_change
         self.on_active: Optional[Callable[[int], None]] = on_active
         self.on_delete: Optional[Callable[[int], None]] = on_delete
+        self.on_switch: Optional[Callable[[int], None]] = on_switch
         self.account: OneDragonAccount = account
 
     def _on_value_changed(self):
@@ -74,12 +90,21 @@ class AccountListItem(ft.Container):
         if self.on_active is not None:
             self.on_active(self.account.idx)
 
+    def _on_switch_clicked(self, e):
+        """
+        登陆另一个账号
+        :param e:
+        :return:
+        """
+        if self.on_switch is not None:
+            self.on_switch(self.account.idx)
+
     def _on_active_in_od_changed(self, e):
         """
         加入一条龙改变
         :return:
         """
-        self.account.active_in_od = self.active_in_od.value
+        self.account.active_in_od = bool(self.active_in_od.value)
         self._on_value_changed()
 
     def _on_click_delete(self, e):
@@ -97,13 +122,15 @@ class AccountListItem(ft.Container):
         self.name_input.value = self.account.name
         self.name_input.disabled = self.ctx.is_running
 
-        self.active_now.text = '当前启用' if self.account.active else '启用'
+        self.active_now.text = '当前' if self.account.active else '启用'
         self.active_now.disabled = self.ctx.is_running or self.account.active
 
-        self.active_in_od.value = self.account.active_in_od
+        self.active_in_od.value = str(self.account.active_in_od)
         self.active_in_od.disabled = self.ctx.is_running
 
         self.del_btn.disabled = self.ctx.is_running or self.account.active
+
+        self.switch_btn.disabled = self.ctx.is_running or not self.account.active
 
         self.update()
 
@@ -187,7 +214,9 @@ class SettingsBasicView(components.Card, SrBasicView):
                 AccountListItem(self.sr_ctx, account,
                                 on_change=self.on_account_value_changed,
                                 on_active=self.on_account_actived,
-                                on_delete=self.on_account_deleted)
+                                on_delete=self.on_account_deleted,
+                                on_switch=self.on_account_switch,
+                                )
             )
         self.settings_item_list.update()
 
@@ -334,6 +363,11 @@ class SettingsBasicView(components.Card, SrBasicView):
 
     def _on_personal_proxy_changed(self, e):
         self.sr_ctx.one_dragon_config.personal_proxy = self.personal_proxy_input.value
+
+    def on_account_switch(self, account_idx: int):
+        app = SwitchAccountApp(self.sr_ctx, account_idx)
+        op_result = app.execute()
+        self.handle_after_show()  # 运行后重新加载本页面
 
 
 _settings_basic_view: Optional[SettingsBasicView] = None
