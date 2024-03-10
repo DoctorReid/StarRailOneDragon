@@ -67,6 +67,10 @@ class MoveDirectlyInSimUni(MoveDirectly):
                 move_time = 1
         else:
             move_time = 1
+        log.debug('上次记录时间 %.2f 停止移动时间 %.2f 当前时间 %.2f',
+                  self.last_rec_time,
+                  0 if self.stop_move_time is None else self.stop_move_time,
+                  now_time)
         move_distance = self.ctx.controller.cal_move_distance_by_time(move_time)
         last_pos = self.pos[len(self.pos) - 1] if len(self.pos) > 0 else self.start_pos
         possible_pos = (last_pos.x, last_pos.y, move_distance)
@@ -94,7 +98,13 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if next_pos is None:
             log.error('无法判断当前人物坐标')
             if self.ctx.one_dragon_config.is_debug:
-                save_debug_image(mm, file_name='%s_%d_%d_%d.png' % (self.lm_info.region.prl_id, possible_pos[0], possible_pos[1], int(possible_pos[2])))
+                save_debug_image(mm, file_name='%s_%d_%d_%d_%s' %
+                                               (self.lm_info.region.prl_id,
+                                                possible_pos[0],
+                                                possible_pos[1],
+                                                int(possible_pos[2]),
+                                                self.ctx.controller.is_moving)
+                                 )
 
         return next_pos, mm_info
 
