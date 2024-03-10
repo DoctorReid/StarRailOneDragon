@@ -348,5 +348,5 @@ class SimUniEvent(StateOperation):
         :return:
         """
         area = ScreenSimUni.EVENT_TITLE.value
-        part = cv2_utils.crop_image_only(screen, area)
+        part = cv2_utils.crop_image_only(screen, area.rect)
         return self.ctx.ocr.ocr_for_single_line(part)
