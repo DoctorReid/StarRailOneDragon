@@ -20,9 +20,9 @@ route:
   - op: 'move'
     data: [532, 1194]
   - op: 'move'
-    data: [531, 1271]
+    data: [532, 1271]
   - op: 'patrol'
-  - op: 'move'
+  - op: 'slow_move'
     data: [500, 1268]
   - op: 'move'
     data: [476, 1267]

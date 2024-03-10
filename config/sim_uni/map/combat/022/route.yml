@@ -2,10 +2,10 @@ support_world: [3, 4, 5, 6, 7, 8]
 planet: '雅利洛-VI'
 region: '残响回廊'
 floor: 0
-start_pos: [454, 644]
+start_pos: [454, 645]
 next_pos_list:
   - [390, 654]
 op_list:
-  - op: 'move'
+  - op: 'no_pos_move'
     data: [412, 645]
   - op: 'patrol'
