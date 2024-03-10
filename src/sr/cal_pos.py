@@ -175,14 +175,12 @@ def cal_character_pos_by_gray(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
-    mm = mm_info.origin_del_radio
-    template = cv2.cvtColor(mm_info.origin_del_radio, cv2.COLOR_BGR2GRAY)
-    road_mask = mini_map.get_rough_road_mask(mm,
-                                             sp_mask=mm_info.sp_mask,
-                                             arrow_mask=mm_info.arrow_mask,
-                                             angle=mm_info.angle,
-                                             another_floor=lm_info.region.another_floor)
-    road_mask = cv2_utils.dilate(road_mask, 3)  # 把白色边缘包括进来
+    mm_del_radio = mm_info.origin_del_radio
+    template = cv2.cvtColor(mm_del_radio, cv2.COLOR_BGR2GRAY)
+    road_mask = mini_map.get_road_mask_for_world_patrol(mm_del_radio,
+                                                        sp_mask=mm_info.sp_mask,
+                                                        arrow_mask=mm_info.arrow_mask)
+    road_mask = cv2_utils.dilate(road_mask, 5)  # 把白色边缘包括进来
     template_mask = cv2.bitwise_and(mm_info.circle_mask, road_mask)
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
@@ -193,7 +191,7 @@ def cal_character_pos_by_gray(im: ImageMatcher,
         scale = target.template_scale if target is not None else 1
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm, win_name='mini_map')
+        cv2_utils.show_image(mm_del_radio, win_name='mini_map')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage), win_name='template_match_template')
         cv2_utils.show_image(template_mask, win_name='template_match_template_mask')
@@ -230,11 +228,11 @@ def cal_character_pos_by_original(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     # 使用道路掩码
     template = mm_info.origin_del_radio
-    road_mask = mini_map.get_road_mask_v4(mm_info.origin_del_radio,
-                                          sp_mask=mm_info.sp_mask,
-                                          arrow_mask=mm_info.arrow_mask,
-                                          center_mask=mm_info.center_mask
-                                          )
+    road_mask = mini_map.get_road_mask_for_world_patrol_2(mm_info.origin_del_radio,
+                                                          sp_mask=mm_info.sp_mask,
+                                                          arrow_mask=mm_info.arrow_mask,
+                                                          center_mask=mm_info.center_mask
+                                                          )
     dilate_road_mask = cv2_utils.dilate(road_mask, 3)
     template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
 
@@ -351,11 +349,11 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
     # 使用道路掩码
-    mm_info.road_mask = mini_map.get_road_mask_v4(mm_info.origin_del_radio,
-                                                  sp_mask=mm_info.sp_mask,
-                                                  arrow_mask=mm_info.arrow_mask,
-                                                  center_mask=mm_info.center_mask
-                                                  )
+    mm_info.road_mask = mini_map.get_road_mask_for_world_patrol_2(mm_info.origin_del_radio,
+                                                                  sp_mask=mm_info.sp_mask,
+                                                                  arrow_mask=mm_info.arrow_mask,
+                                                                  center_mask=mm_info.center_mask
+                                                                  )
     template = mm_info.road_mask
     template_mask = mm_info.circle_mask
 

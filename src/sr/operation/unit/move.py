@@ -9,6 +9,7 @@ from cv2.typing import MatLike
 from basic import Point, cal_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
 from sr.config import game_config
@@ -335,7 +336,7 @@ class MoveDirectly(Operation):
         sp_map = map_const.get_sp_type_in_rect(self.region, lm_rect)
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
 
-        if len(self.pos) == 0:
+        if len(self.pos) == 0:  # 第一个可以直接使用开始点 不进行计算
             return self.start_pos, mm_info
 
         try:
@@ -351,8 +352,11 @@ class MoveDirectly(Operation):
                                                  possible_pos=possible_pos,
                                                  lm_rect=lm_rect, retry_without_rect=False,
                                                  running=self.ctx.controller.is_moving)
+
         if next_pos is None:
             log.error('无法判断当前人物坐标')
+            if self.ctx.one_dragon_config.is_debug:
+                save_debug_image(mm, file_name='%s_%d_%d_%d.png' % (self.lm_info.region.prl_id, possible_pos[0], possible_pos[1], int(possible_pos[2])))
 
         return next_pos, mm_info
 

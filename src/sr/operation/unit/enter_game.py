@@ -1,7 +1,6 @@
 import time
 from typing import List, Optional
 
-import sr.const
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import screen_state
@@ -333,9 +332,10 @@ class WaitEnterGame(Operation):
 
         area = ScreenNormalWorld.EXPRESS_SUPPLY.value
         if self.find_area(area, screen):  # 列车补给(小月卡) - 会先出现主界面
-            self.ctx.controller.click(sr.const.CLICK_TO_CONTINUE_POS)
+            get_area = ScreenNormalWorld.EXPRESS_SUPPLY_GET.value
+            self.ctx.controller.click(get_area.center)
             time.sleep(3)  # 暂停一段时间再操作
-            self.ctx.controller.click(sr.const.CLICK_TO_CONTINUE_POS)  # 领取需要分两个阶段 点击两次
+            self.ctx.controller.click(get_area.center)  # 领取需要分两个阶段 点击两次
             time.sleep(1)  # 暂停一段时间再操作
             self.claim_express_supply = True
             return Operation.round_wait()

@@ -1,17 +1,14 @@
 import threading
 import time
-from typing import List, Iterator, Optional, ClassVar
+from typing import List, Optional, ClassVar
 
-import sr.app.world_patrol.world_patrol_run_record
 from basic.i18_utils import gt
-from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application, Application2
+from sr.app.application_base import Application2
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, load_all_route_id
-from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
-from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
+from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.context import Context
 from sr.image.sceenshot import mini_map_angle_alas
 from sr.operation import Operation, OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
@@ -42,7 +39,6 @@ class WorldPatrol(Application2):
                          edges=edges
                          )
         self.route_id_list: List[WorldPatrolRouteId] = []
-        self.record: Optional[WorldPatrolRunRecord] = None
         self.current_route_idx: int = 0
         self.ignore_record: bool = ignore_record
         self.current_route_start_time = time.time()  # 当前路线开始时间
@@ -57,11 +53,9 @@ class WorldPatrol(Application2):
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        if not self.ignore_record:
-            self.record = self.ctx.world_patrol_run_record
-            self.record.update_status(AppRunRecord.STATUS_RUNNING)
 
-        self.route_id_list = load_all_route_id(self.whitelist, None if self.record is None else self.record.finished)
+        self.route_id_list = load_all_route_id(self.whitelist,
+                                               None if self.ignore_record else self.ctx.world_patrol_run_record.finished)
 
         self.current_route_idx = 0
 
@@ -121,7 +115,7 @@ class WorldPatrol(Application2):
         :param time_cost: 使用时间
         :return:
         """
-        self.record.add_record(route_id, time_cost)
+        self.ctx.world_patrol_run_record.add_record(route_id, time_cost)
 
     def estimate_end_time(self):
         """
@@ -130,7 +124,7 @@ class WorldPatrol(Application2):
         """
         total = - (time.time() - self.current_route_start_time)
         for i in range(self.current_route_idx, len(self.route_id_list)):
-            total += self.record.get_estimate_time(self.route_id_list[i])
+            total += self.ctx.world_patrol_run_record.get_estimate_time(self.route_id_list[i])
 
             if total < 0:  # 只有第一条，也就是当前线路时会为负
                 total = 0
@@ -141,15 +135,15 @@ class WorldPatrol(Application2):
         if self.ignore_record:
             return
         if not result.success:
-            self.record.update_status(AppRunRecord.STATUS_FAIL)
+            self.ctx.world_patrol_run_record.update_status(AppRunRecord.STATUS_FAIL)
             return
 
         for route_id in self.route_id_list:
-            if route_id.unique_id not in self.record.finished:
-                self.record.update_status(AppRunRecord.STATUS_FAIL)
+            if route_id.unique_id not in self.ctx.world_patrol_run_record.finished:
+                self.ctx.world_patrol_run_record.update_status(AppRunRecord.STATUS_FAIL)
                 return
 
-        self.record.update_status(AppRunRecord.STATUS_SUCCESS)
+        self.ctx.world_patrol_run_record.update_status(AppRunRecord.STATUS_SUCCESS)
 
     @property
     def current_execution_desc(self) -> str:

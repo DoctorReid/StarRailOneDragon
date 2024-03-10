@@ -422,91 +422,16 @@ def remove_radio(mm: MatLike, radio_to_del: MatLike) -> MatLike:
     return origin
 
 
-def get_mini_map_road_mask(mm: MatLike,
-                           sp_mask: MatLike = None,
-                           arrow_mask: MatLike = None,
-                           angle: float = None,
-                           radio_to_del: MatLike = None,
-                           another_floor: bool = True) -> MatLike:
-    """
-    在地图中 按接近道路的颜色圈出地图的主体部分 过滤掉无关紧要的背景
-    :param mm: 地图图片
-    :param sp_mask: 特殊点的掩码 道路掩码应该排除这部分
-    :param arrow_mask: 小箭头的掩码 只有小地图有
-    :param angle: 只有小地图上需要传入 表示当前朝向
-    :param another_floor: 是否有其它楼层
-    :param radio_to_del: 朝向雷达
-    :return: 道路掩码图 能走的部分是白色255
-    """
-    origin = remove_radio(mm, radio_to_del)
-
-    # 按道路颜色圈出 当前层的颜色
-    l1 = 45
-    u1 = 65
-    lower_color = np.array([l1, l1, l1], dtype=np.uint8)
-    upper_color = np.array([u1, u1, u1], dtype=np.uint8)
-    road_mask_1 = cv2.inRange(origin, lower_color, upper_color)
-    if another_floor:  # 如果区域中包含其它图层 则考虑其它图层的颜色
-        # 按道路颜色圈出 其他层的颜色
-        l2 = 60
-        u2 = 75
-        lower_color = np.array([l2, l2, l2], dtype=np.uint8)
-        upper_color = np.array([u2, u2, u2], dtype=np.uint8)
-        road_mask_2 = cv2.inRange(origin, lower_color, upper_color)
-
-        road_mask = cv2.bitwise_or(road_mask_1, road_mask_2)
-    else:
-        road_mask = road_mask_1
-
-    road_mask = cv2.bitwise_or(road_mask, arrow_mask)
-
-    # 特殊处理敌人红点
-    enemy_mask = get_enemy_road_mask(origin)
-    road_mask = cv2.bitwise_or(road_mask, enemy_mask)
-
-    # 合并特殊点进行连通性检测
-    to_check_connection = cv2.bitwise_or(road_mask, sp_mask) if sp_mask is not None else road_mask
-    # cv2_utils.show_image(to_check_connection, win_name='to_check_connection')
-
-    # 非道路连通块 < 50的，认为是噪点 加入道路
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(to_check_connection), connectivity=4)
-    large_components = []
-    for label in range(1, num_labels):
-        if stats[label, cv2.CC_STAT_AREA] < 50:
-            large_components.append(label)
-    for label in large_components:
-        to_check_connection[labels == label] = 255
-
-    # 找到多于500个像素点的连通道路 这些才是真的路
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(to_check_connection, connectivity=4)
-    large_components = []
-    for label in range(1, num_labels):
-        if stats[label, cv2.CC_STAT_AREA] > 200:
-            large_components.append(label)
-    real_road_mask = np.zeros(origin.shape[:2], dtype=np.uint8)
-    for label in large_components:
-        real_road_mask[labels == label] = 255
-
-    # 排除掉特殊点
-    if sp_mask is not None:
-        real_road_mask = cv2.bitwise_and(real_road_mask, cv2.bitwise_not(sp_mask))
-
-    return real_road_mask
-
-
-def get_rough_road_mask(mm: MatLike,
-                        sp_mask: MatLike = None,
-                        arrow_mask: MatLike = None,
-                        angle: float = None,
-                        another_floor: bool = True):
+@record_performance
+def get_road_mask_for_world_patrol(mm: MatLike,
+                                   sp_mask: MatLike = None,
+                                   arrow_mask: MatLike = None):
     """
     获取比较粗略的道路掩码 用于原图的模板匹配
     需要用到这一步说明特殊点特征匹配无用 提取的高精度道路掩码无用
     :param mm: 小地图截图
     :param sp_mask: 特殊点的掩码
     :param arrow_mask: 小箭头的掩码 只有小地图有
-    :param angle: 只有小地图上需要传入 表示当前朝向
-    :param another_floor: 是否有其它楼层
     :return:
     """
     b, g, r = cv2.split(mm)
@@ -546,18 +471,17 @@ def get_rough_road_mask(mm: MatLike,
     for label in large_components:
         real_road_mask[labels == label] = 255
 
-    # 膨胀一下 把白色边缘弄进来
-    real_road_mask = cv2_utils.dilate(real_road_mask, 5)
     # cv2_utils.show_image(real_road_mask, win_name='road_mask_2')
 
     return real_road_mask
 
 
-def get_road_mask_v4(mm: MatLike,
-                     sp_mask: MatLike,
-                     arrow_mask: MatLike,
-                     center_mask: MatLike
-                     ):
+@record_performance
+def get_road_mask_for_world_patrol_2(mm: MatLike,
+                                     sp_mask: MatLike,
+                                     arrow_mask: MatLike,
+                                     center_mask: MatLike
+                                     ):
     """
     获取道路掩码 只包含圆中的正方形部分
     通过找最深色的模块 然后按一定色差往外拓展 避免不同背景色下道路颜色差异
@@ -710,6 +634,7 @@ def get_road_mask_v4(mm: MatLike,
     return final_road_mask
 
 
+@record_performance
 def get_road_mask_for_sim_uni(
         mm_del_radio: MatLike,
         arrow_mask: MatLike,
