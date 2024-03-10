@@ -35,7 +35,7 @@ class WorldPatrol(Application2):
         edges.append(StateOperationEdge(route, route, ignore_status=False))
 
         super().__init__(ctx, op_name=gt('锄大地', 'ui'),
-                         run_record=ctx.world_patrol_run_record,
+                         run_record=ctx.world_patrol_run_record if not ignore_record else None,
                          edges=edges
                          )
         self.route_id_list: List[WorldPatrolRouteId] = []

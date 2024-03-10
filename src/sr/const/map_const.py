@@ -252,6 +252,16 @@ def best_match_region_by_name(ocr_word: Optional[str], planet: Optional[Planet] 
     return best_region
 
 
+def get_region_by_prl_id(prd_id: str) -> Optional[Region]:
+    for np_id, region_list in PLANET_2_REGION.items():
+        for region in region_list:
+            if region.prl_id == prd_id:
+                return region
+
+    return None
+
+
+
 class TransportPoint:
 
     def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple, tp_pos: Optional[tuple] = None):
