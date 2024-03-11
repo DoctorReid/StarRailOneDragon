@@ -325,7 +325,7 @@ class SimUniEvent(StateOperation):
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
 
         if click:
-            return Operation.round_success(wait=0.5)
+            return Operation.round_success(wait=2)  # 通过是丢弃或者得到奇物祝福 有可能有二段确认 因此多等待久一点时间
         else:
             return Operation.round_retry('点击空白处关闭失败')
 
