@@ -208,7 +208,7 @@ class BaseGameSign:
                         log.debug(f"{plugin_config.preference.log_head}网络请求返回: {res.text}")
                         return BaseApiStatus(need_verify=True), MmtData.parse_obj(api_result.data)
                     else:
-                        log.success(f"游戏签到 - 用户 {self.account.display_name} 签到成功")
+                        log.info(f"游戏签到 - 用户 {self.account.display_name} 签到成功")
                         log.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(success=True), None
 
