@@ -194,7 +194,7 @@ class SimUniEnterFight(Operation):
                     self.ctx.controller.use_technique()
                     self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
                     self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
-                elif mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
+                elif self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
                     self.ctx.controller.use_technique()
                     self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
 

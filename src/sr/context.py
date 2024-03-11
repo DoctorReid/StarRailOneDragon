@@ -30,7 +30,7 @@ from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
-from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK
+from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, TECHNIQUE_ATTACK
 from sr.control import GameController
 from sr.control.pc_controller import PcController
 from sr.image import ImageMatcher
@@ -444,7 +444,19 @@ class Context:
             return False
         if self.current_character_list[0] is None:  # TODO 缺少当前角色的判断
             return False
-        return self.current_character_list[0].technique_type in (TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK)
+        return self.current_character_list[0].technique_type in [TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK]
+
+    @property
+    def is_attack_technique(self) -> bool:
+        """
+        当前角色使用的秘技是否buff类型
+        :return:
+        """
+        if self.current_character_list is None or len(self.current_character_list) == 0:
+            return False
+        if self.current_character_list[0] is None:  # TODO 缺少当前角色的判断
+            return False
+        return self.current_character_list[0].technique_type in [TECHNIQUE_ATTACK]
 
     @property
     def is_pc(self) -> bool:

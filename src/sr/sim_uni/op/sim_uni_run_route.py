@@ -31,7 +31,6 @@ from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 class SimUniRunRouteOp(StateOperation):
 
     STATUS_ALL_OP_DONE: ClassVar[str] = '执行结束'
-    STATUS_USE_TECH: ClassVar[str] = '已使用秘技'
 
     def __init__(self, ctx: Context, route: SimUniRoute,
                  config: Optional[SimUniChallengeConfig] = None,
@@ -71,21 +70,6 @@ class SimUniRunRouteOp(StateOperation):
         super()._init_before_execute()
         self.op_idx = -1
         self.current_pos: Point = self.route.start_pos
-
-    def _use_tech(self):
-        """
-        初始化
-        :return:
-        """
-        if not self.config.technique_fight or self.ctx.technique_used:
-            return Operation.round_success()
-
-        screen = self.screenshot()
-        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
-                                                      in_world=True, fast_recover=True)
-
-        if state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
-            pass
 
     def _next_op(self) -> OperationOneRoundResult:
         """
