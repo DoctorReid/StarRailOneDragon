@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Optional, Union
+from typing import ClassVar, List, Optional
 
 from cv2.typing import MatLike
 
@@ -11,6 +11,7 @@ from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.screen_area import ScreenArea
+from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
@@ -159,8 +160,6 @@ class CheckTeamMembersInWorld(Operation):
 
 class SwitchMember(StateOperation):
 
-    CONFIRM_BTN: ClassVar[Rect] = Rect(1006, 788, 1327, 846)  # 复活确认
-
     STATUS_CONFIRM: ClassVar[str] = '确认'
 
     def __init__(self, ctx: Context, num: int,
@@ -216,12 +215,17 @@ class SwitchMember(StateOperation):
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 无需复活
             return Operation.round_success()
 
-        click = self.ocr_and_click_one_line('确认', SwitchMember.CONFIRM_BTN)
+        if self.find_area(ScreenDialog.FAST_RECOVER_NO_CONSUMABLE.value, screen):
+            area = ScreenDialog.FAST_RECOVER_CANCEL.value
+        else:
+            area = ScreenDialog.FAST_RECOVER_CONFIRM.value
+
+        click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(SwitchMember.STATUS_CONFIRM, wait=1)
+            return Operation.round_success(area.status, wait=1)
         else:
-            return Operation.round_retry('点击确认失败', wait=1)
+            return Operation.round_retry('点击%s失败' % area.status, wait=1)
 
     def _wait_after_confirm(self) -> OperationOneRoundResult:
         """

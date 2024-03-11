@@ -3,9 +3,7 @@ from typing import ClassVar, List, Optional
 
 from cv2.typing import MatLike
 
-from basic import Rect, str_utils
 from basic.i18_utils import gt
-from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
