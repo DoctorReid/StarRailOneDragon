@@ -17,18 +17,23 @@ from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCateg
 
 class PlanListItem(ft.Row):
 
-    def __init__(self, item: Optional[TrailblazePowerPlanItem] = None,
+    def __init__(self, ctx: Context,
+                 item: Optional[TrailblazePowerPlanItem] = None,
                  on_value_changed: Optional[Callable] = None,
                  on_click_up: Optional[Callable] = None,
                  on_click_del: Optional[Callable] = None,
                  on_click_support: Optional[Callable] = None):
+        self.ctx: Context = ctx
         self.value: Optional[TrailblazePowerPlanItem] = item
         if self.value is None:
+            mission_id = SurvivalIndexMissionEnum.BUD_1_YLL_1.value.unique_id
+            history: TrailblazePowerPlanItem = self.ctx.tp_config.get_history_by_id(mission_id)
             self.value = TrailblazePowerPlanItem(
-                point_id=SurvivalIndexMissionEnum.BUD_1_YLL_1.value.unique_id,
-                mission_id=SurvivalIndexMissionEnum.BUD_1_YLL_1.value.unique_id,
+                point_id=mission_id,
+                mission_id=mission_id,
                 plan_times=1, run_times=0,
-                team_num=1, support='none')
+                team_num=1 if history is None else history['team_num'],
+                support='none' if history is None else history['support'])
         self.category_dropdown = ft.Dropdown(options=[
             ft.dropdown.Option(text=i.value.ui_cn, key=i.value.ui_cn) for i in SurvivalIndexCategoryEnum if i != SurvivalIndexCategoryEnum.ECHO_OF_WAR
         ],
@@ -78,6 +83,7 @@ class PlanListItem(ft.Row):
         self._update_tp_dropdown_list()
         self.plan_times_input.value = 1
         self.run_times_input.value = 0
+        self._load_history()
         self._update_value()
         self._update()
         self._on_value_changed()
@@ -85,9 +91,20 @@ class PlanListItem(ft.Row):
     def _on_tp_changed(self, e):
         self.plan_times_input.value = 1
         self.run_times_input.value = 0
+        self._load_history()
         self._update_value()
         self._update()
         self._on_value_changed()
+
+    def _load_history(self):
+        """
+        加载历史配置 只读取配队和支援
+        :return:
+        """
+        history = self.ctx.tp_config.get_history_by_id(self.tp_dropdown.value)
+        if history is not None:
+            self.team_num_dropdown.value = str(history['team_num'])
+            self.support_dropdown.value = history['support']
 
     def _on_team_num_changed(self, e):
         self._update_value()
@@ -164,7 +181,7 @@ class PlanList(ft.ListView):
     def _list_view_item(self, plan_item: Optional[TrailblazePowerPlanItem] = None) -> ft.Container:
         theme: ThemeColors = gui_config.theme()
         return ft.Container(
-                content=PlanListItem(plan_item,
+                content=PlanListItem(self.ctx, plan_item,
                                      on_value_changed=self._on_list_item_value_changed,
                                      on_click_up=self._on_click_item_up,
                                      on_click_del=self._on_item_click_del,

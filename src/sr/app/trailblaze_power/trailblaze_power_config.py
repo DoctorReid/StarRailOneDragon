@@ -64,7 +64,34 @@ class TrailblazePowerConfig(ConfigHolder):
 
     @plan_list.setter
     def plan_list(self, new_list: List[TrailblazePowerPlanItem]):
+        new_history_teams: List[TrailblazePowerPlanItem] = []
+        new_mission_id_set: set[str] = set()
+        for item in new_list:
+            new_history_teams.append(item.copy())
+            new_mission_id_set.add(item['mission_id'])
+
+        old_history_teams = self.history_teams
+        for item in old_history_teams:
+            if item['mission_id'] not in new_mission_id_set:
+                new_history_teams.append(item)
+
+        self.update('history_teams', new_history_teams, False)
         self.update('plan_list', new_list)
+
+    @property
+    def history_teams(self) -> List[TrailblazePowerPlanItem]:
+        """
+        历史配置
+        :return:
+        """
+        return self.get('history_teams', [])
+
+    def get_history_by_id(self, mission_id: str) -> Optional[TrailblazePowerPlanItem]:
+        old_history_teams = self.history_teams
+        for item in old_history_teams:
+            if item['mission_id'] == mission_id:
+                return item
+        return None
 
     @property
     def next_plan_item(self) -> Optional[TrailblazePowerPlanItem]:
