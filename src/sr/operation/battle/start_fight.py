@@ -9,7 +9,7 @@ from sr.context import Context
 from sr.image.sceenshot import battle
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode
 from sr.operation.unit.check_technique_point import CheckTechniquePoint
-from sr.operation.unit.team import GetTeamMemberInWorld
+from sr.operation.unit.team import GetTeamMemberInWorld, SwitchMember
 
 
 class Attack(Operation):
@@ -190,10 +190,10 @@ class StartFightForElite(StateOperation):
         :param idx:
         :return:
         """
-        self.ctx.controller.switch_character(idx + 1)
-        time.sleep(1)
-        self.ctx.controller.use_technique()
-        time.sleep(2)
+        switch = SwitchMember(self.ctx, idx, skip_first_screen_check=True)
+        switch_result = switch.execute()
+        if switch_result.success:
+            self.ctx.controller.use_technique()
 
     def _attack(self) -> OperationOneRoundResult:
         """
