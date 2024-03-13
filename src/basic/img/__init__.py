@@ -90,3 +90,6 @@ class MatchResultList:
             self.arr.append(a)
             if self.max is None or a.confidence > self.max.confidence:
                 self.max = a
+
+    def __getitem__(self, item):
+        return self.arr[item]

@@ -1,16 +1,15 @@
-import time
-from typing import Optional, List
-
+import difflib
+from typing import Union
 from cv2.typing import MatLike
 
-from basic import str_utils, Point
+from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
 from sr.const.map_const import Planet, Region, PLANET_2_REGION, best_match_region_by_name
 from sr.context import Context
 from sr.image.sceenshot import large_map
-from sr.operation import Operation, StateOperation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult
 from sr.screen_area.screen_large_map import ScreenLargeMap
 
 
@@ -27,6 +26,8 @@ class ChooseRegion(Operation):
                          )
         self.planet: Planet = region.planet
         self.region: Region = region
+        self.confidence: int = 0.8  # 用于判断OCR结果与区域字符串匹配度的置信值
+        self.scrolled = False  # 是否已经下拉过了
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -46,25 +47,18 @@ class ChooseRegion(Operation):
         is_current: bool = (current_region is not None and current_region.pr_id == self.region.pr_id)
 
         # 还没有选好区域
+        if self.try_times > 10:
+            self.confidence = 0.5
         if not is_current:
-            region_pos_list = self.get_region_pos_list(screen)
-            pr_id_set: set[str] = set()
-            for region_pos in region_pos_list:
-                pr_id_set.add(region_pos.data.pr_id)
-                if region_pos.data.pr_id == self.region.pr_id:
-                    self.ctx.controller.click(region_pos.center)
-                    return Operation.round_retry(wait=1)
+            region_pos:Point = self.get_region_pos(screen, confidence=self.confidence)
+            if region_pos:
+                self.ctx.controller.click(region_pos)
+                return Operation.round_retry(wait=1)
+            else:
+                self.scrolled = not self.scrolled
 
             # 没有发现目标区域 需要滚动
-            with_before_region: bool = False  # 当前区域列表在目标区域之前
-            region_list = PLANET_2_REGION.get(self.region.planet.np_id)
-            for r in region_list:
-                if r.pr_id in pr_id_set:
-                    with_before_region = True
-                if r.pr_id == self.region.pr_id:
-                    break
-
-            self.scroll_region_area(1 if with_before_region else -1)
+            self.scroll_region_area(1 if self.scrolled else -1)
             return Operation.round_retry(wait=1)
 
         # 已经选好了区域 还需要选择层数
@@ -96,7 +90,7 @@ class ChooseRegion(Operation):
         return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT,
                                              lcs_percent=self.gc.region_lcs_percent, merge_line_distance=40)
 
-    def get_region_pos_list(self, screen: MatLike) -> List[MatchResult]:
+    def get_region_pos(self, screen: MatLike, confidence:int =0.8) -> Union[Point, None]:
         """
         获取当前屏幕显示的区域
         MatchResult.data = Region
@@ -106,21 +100,16 @@ class ChooseRegion(Operation):
         area = ScreenLargeMap.REGION_LIST.value
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_map = self.ctx.ocr.run_ocr(part, merge_line_distance=40)
-
-        result_list: List[MatchResult] = []
-
-        for word, mrl in ocr_map.items():
-            if mrl.max is None:
-                continue
-            result = mrl.max
-            region = best_match_region_by_name(word, planet=self.planet)
-            if region is not None:
-                result.data = region
-                result.x += area.rect.left_top.x
-                result.y += area.rect.left_top.y
-                result_list.append(result)
-
-        return result_list
+        
+        # OCR结果的区域列表
+        ocr_region_list = list(ocr_map.keys())
+        
+        match = difflib.get_close_matches(self.region.cn, ocr_region_list, n=1, cutoff=confidence)
+        if match:
+            ocr_region: MatchResult = ocr_map[match[0]][0]
+        else:
+            return None
+        return ocr_region.center + area.rect.left_top  # 切换回全屏幕的坐标
 
     def scroll_region_area(self, d: int = 1):
         """
