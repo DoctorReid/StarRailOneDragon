@@ -145,7 +145,7 @@ class SimUniBless:
         self.full_desc: str = full_desc  # 详细描述
         self.level: SimUniBlessLevel = level
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return '%s %s' % (gt(self.path.value, 'ui'), gt(self.title, 'ui'))
 
 
@@ -450,7 +450,7 @@ class SimUniCurio:
         self.negative: bool = negative  # 负面奇物
         self.invalid_after_got: bool = invalid_after_got  # 得到后立刻生效 然后变成无效奇物
 
-    def __str__(self):
+    def __repr__(self):
         return self.name
 
 

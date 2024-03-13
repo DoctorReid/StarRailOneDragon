@@ -11,7 +11,7 @@ class Planet:
         self.id: str = i  # 用在找文件夹之类的
         self.cn: str = cn  # 中文
 
-    def __str__(self):
+    def __repr__(self):
         return '%02d - %s' % (self.num, self.cn)
 
     @property
@@ -78,7 +78,7 @@ class Region:
         self.planet: Planet = planet
         self.floor: int = floor
 
-    def __str__(self):
+    def __repr__(self):
         return '%s - %s' % (self.cn, self.id)
 
     @property
@@ -274,7 +274,7 @@ class TransportPoint:
         self.lm_pos: Point = Point(lm_pos[0], lm_pos[1])  # 在大地图的坐标
         self.tp_pos: Point = Point(tp_pos[0], tp_pos[1]) if tp_pos is not None else self.lm_pos  # 传送落地的坐标
 
-    def __str__(self):
+    def __repr__(self):
         return '%s - %s' % (self.cn, self.id)
 
     @property

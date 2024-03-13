@@ -14,7 +14,7 @@ class MatchResult:
         self.template_scale = template_scale
         self.data: Any = data
 
-    def __str__(self):
+    def __repr__(self):
         return '(%.2f, %d, %d, %d, %d, %.2f)' % (self.confidence, self.x, self.y, self.w, self.h, self.template_scale)
 
     @property
@@ -44,7 +44,7 @@ class MatchResultList:
         self.arr: List[MatchResult] = []
         self.max: Optional[MatchResult] = None
 
-    def __str__(self):
+    def __repr__(self):
         return '[%s]' % ', '.join(str(i) for i in self.arr)
 
     def __iter__(self):

@@ -28,7 +28,7 @@ class PerformanceRecord:
     def avg(self):
         return self.total / self.cnt if self.cnt > 0 else 0
 
-    def __str__(self):
+    def __repr__(self):
         return ('[%s] 次数: %d 平均耗时: %.6f 最高耗时: %.6f, 最低耗时: %.6f, 总耗时: %.6f' %
                 (self.id, self.cnt, self.avg, self.max, self.min, self.total))
 
