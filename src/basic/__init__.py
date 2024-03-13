@@ -18,7 +18,7 @@ class Point:
     def tuple(self):
         return self.x, self.y
 
-    def __str__(self):
+    def __repr__(self):
         return '(%d, %d)' % (self.x, self.y)
 
     def __add__(self, other):
@@ -48,7 +48,7 @@ class Rect:
     def center(self) -> Point:
         return Point((self.x1 + self.x2) // 2, (self.y1 + self.y2) // 2)
 
-    def __str__(self):
+    def __repr__(self):
         return '(%d, %d, %d, %d)' % (self.x1, self.y1, self.x2, self.y2)
 
     @property

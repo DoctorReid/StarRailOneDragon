@@ -20,7 +20,7 @@ class MiniMapPos:
         self.rx = self.x + self.r + 3
         self.ry = self.y + self.r + 3
 
-    def __str__(self):
+    def __repr__(self):
         return "(%d, %d) %.2f" % (self.x, self.y, self.r)
 
 
