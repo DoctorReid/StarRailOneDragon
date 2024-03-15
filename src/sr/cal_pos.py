@@ -23,7 +23,7 @@ def cal_character_pos(im: ImageMatcher,
                       possible_pos: Optional[Tuple[int, int, float]] = None,
                       lm_rect: Rect = None, show: bool = False,
                       retry_without_rect: bool = True,
-                      running: bool = False) -> Optional[Point]:
+                      running: bool = False) -> Optional[MatchResult]:
     """
     根据小地图 匹配大地图 判断当前的坐标
     :param im: 图片匹配器
@@ -76,19 +76,16 @@ def cal_character_pos(im: ImageMatcher,
         else:
             return None
 
-    offset_x = result.x
-    offset_y = result.y
-    scale = result.template_scale
-    # 小地图缩放后中心点在大地图的位置 即人物坐标
-    center_x = offset_x + result.w // 2
-    center_y = offset_y + result.h // 2
-
     if show:
-        cv2_utils.show_overlap(lm_info.origin, mm_info.origin, offset_x, offset_y, template_scale=scale, win_name='overlap')
+        # result中是缩放后的宽和高
+        cv2_utils.show_overlap(lm_info.origin, mm_info.origin,
+                               result.center.x, result.center.y,
+                               template_scale=result.template_scale,
+                               win_name='overlap')
 
-    log.debug('计算当前坐标为 (%s, %s) 使用缩放 %.2f 置信度 %.2f', center_x, center_y, scale, result.confidence)
+    log.debug('计算当前坐标为 %s 使用缩放 %.2f 置信度 %.2f', result.center, result.template_scale, result.confidence)
 
-    return Point(center_x, center_y)
+    return result
 
 
 @record_performance

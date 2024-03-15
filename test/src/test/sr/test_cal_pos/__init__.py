@@ -172,5 +172,5 @@ class TestCalPos(test.SrTestBase):
         if pos is None:
             return False
         else:
-            dis = cal_utils.distance_between(pos, case.pos)
+            dis = cal_utils.distance_between(pos.center, case.pos)
             return dis < 5

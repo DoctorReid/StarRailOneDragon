@@ -36,7 +36,7 @@ def cal_one(tp: TransportPoint, debug_image: str = None, show: bool = False):
     mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()))
     result = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=False)
 
-    log.info('%s 传送落地坐标 %s', tp.display_name, result)
+    log.info('%s 传送落地坐标 %s', tp.display_name, result.center)
     cv2.waitKey(0)
 
 

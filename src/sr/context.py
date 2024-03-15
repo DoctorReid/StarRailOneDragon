@@ -109,6 +109,8 @@ class Context:
         self.no_technique_recover_consumables: bool = False  # 没有恢复秘技的物品了
         self.consumable_used: bool = False  # 是否已经使用过消耗品了
 
+        self.record_coordinate: bool = False  # 需要记录坐标用于训练
+
     def init_if_no_account(self):
         """
         无账号时做的初始化

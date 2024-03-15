@@ -3,16 +3,14 @@ import time
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import cal_utils, Point, Rect
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr import cal_pos
 from sr.app.application_base import Application
 from sr.config.game_config import GameConfig, MiniMapPos
 from sr.const import map_const
 from sr.const.map_const import TransportPoint
 from sr.context import Context
-from sr.image.sceenshot import mini_map, large_map, LargeMapInfo, MiniMapInfo
+from sr.image.sceenshot import mini_map
 from sr.operation.combine.transport import Transport
 
 
@@ -99,56 +97,3 @@ class Calibrator(Application):
         center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
         log.info('当前角度 %.2f', next_angle)
         return next_angle
-
-    def _check_running_distance(self) -> bool:
-        """
-        检测疾跑距离 传送到 黑塔空间站-支援舱段-月台
-        应该只跑一次提供一个默认值给大家用就够了 暂时不需要用户自己校准
-        :return:
-        """
-        log.info('疾跑距离校准 开始')
-        tp: TransportPoint = map_const.P01_R04_SP02
-        op = Transport(self.ctx, tp)
-        if not op.execute().success:
-            log.error('传送到 %s %s 失败 疾跑距离校准 失败', gt(tp.region.cn, 'ocr'), gt(tp.cn, 'ocr'))
-            return False
-
-        lm_info: LargeMapInfo = self.ctx.ih.get_large_map(tp.region)
-
-        self.ctx.controller.start_moving_forward(run=True)
-
-        dis_arr = []
-        use_time_arr = []
-        last_pos = tp.tp_pos
-        last_record_time = 0
-
-        while True:
-            now_time = time.time()
-            screen = self.ctx.controller.screenshot()
-            mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-
-            lx, ly = last_pos.x, last_pos.y
-            move_distance = self.ctx.controller.cal_move_distance_by_time(now_time - last_record_time) if last_record_time > 0 else 0
-            possible_pos = (lx, ly, move_distance)
-            lm_rect: Rect = large_map.get_large_map_rect_by_pos(lm_info.origin.shape[:2], mm.shape[:2], possible_pos)
-
-            sp_map = map_const.get_sp_type_in_rect(tp.region, lm_rect)
-            mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
-            current_pos: Point = cal_pos.cal_character_pos(self.ctx.im, lm_info, mm_info, lm_rect, retry_without_rect=False, running=True)
-
-            if current_pos is None:
-                log.error('判断坐标失败')
-                continue
-
-            if last_record_time > 0:
-                dis_arr.append(cal_utils.distance_between(last_pos, current_pos))
-                use_time_arr.append(now_time - last_record_time)
-
-            last_pos = current_pos
-            last_record_time = now_time
-
-            if len(dis_arr) > 10:
-                break
-
-        run_speed = np.sum(dis_arr) / np.sum(use_time_arr)
-        log.info('疾跑平均速度 %.4f', run_speed)

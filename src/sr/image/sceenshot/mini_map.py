@@ -52,7 +52,7 @@ def cal_little_map_pos(screen: MatLike) -> MiniMapPos:
         log.error('无法找到小地图的圆')
 
 
-def cut_mini_map(screen: MatLike, mm_pos: MiniMapPos):
+def cut_mini_map(screen: MatLike, mm_pos: MiniMapPos) -> MatLike:
     """
     从整个游戏窗口截图中 裁剪出小地图部分
     :param screen: 屏幕截图

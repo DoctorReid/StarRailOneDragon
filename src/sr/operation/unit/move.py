@@ -15,6 +15,7 @@ from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
+from sr.operation.unit.record_coordinate import RecordCoordinate
 
 
 class GetRidOfStuck(Operation):
@@ -362,8 +363,10 @@ class MoveDirectly(Operation):
                                                 int(possible_pos[2]),
                                                 self.ctx.controller.is_moving)
                                  )
-
-        return next_pos, mm_info
+        else:
+            if self.ctx.record_coordinate:
+                RecordCoordinate.save(self.region, mm, next_pos)
+        return next_pos.center, mm_info
 
     def check_no_pos(self, next_pos: Point, now_time: float) -> Optional[OperationOneRoundResult]:
         """

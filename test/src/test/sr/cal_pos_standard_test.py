@@ -94,11 +94,11 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     if show:
         cv2.waitKey(0)
 
-    error = result is None or cal_utils.distance_between(result, c.pos) > 10
+    error = result is None or cal_utils.distance_between(result.center, c.pos) > 10
     if error:
-        log.error('定位错误 %s', result)
+        log.error('定位错误 %s', result.center)
     else:
-        log.info('定位正确 %s', result)
+        log.info('定位正确 %s', result.center)
 
     return error
 

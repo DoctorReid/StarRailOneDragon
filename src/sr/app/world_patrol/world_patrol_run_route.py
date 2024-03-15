@@ -15,6 +15,7 @@ from sr.operation.combine.transport import Transport
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
+from sr.operation.unit.record_coordinate import RecordCoordinate
 from sr.operation.unit.team import CheckTeamMembersInWorld
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
 from sr.screen_area.dialog import ScreenDialog
@@ -49,8 +50,8 @@ class WorldPatrolRunRoute(StateOperation):
 
         op_node = StateOperationNode('执行路线指令', self._next_op)
         edges.append(StateOperationEdge(use_tech, op_node))
-        edges.append(StateOperationEdge(op_node, op_node, ignore_status=True))
 
+        edges.append(StateOperationEdge(op_node, op_node, ignore_status=True))
         finish = StateOperationNode('结束', self._finish)
         edges.append(StateOperationEdge(op_node, finish, status=WorldPatrolRunRoute.STATUS_ALL_DONE))
 
@@ -137,7 +138,22 @@ class WorldPatrolRunRoute(StateOperation):
         else:
             return Operation.round_fail(status='错误的锄大地指令 %s' % route_item['op'])
 
-        return Operation.round_by_op(op.execute())
+        op_result = op.execute()
+
+        if self.ctx.record_coordinate and op_result.success and (
+                (  # 当前是移动 下一个不是战斗 避免被怪攻击卡死
+                    route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE] and
+                    next_route_item is not None and next_route_item['op'] != operation_const.OP_PATROL
+                )
+            or
+                (  # 当前是战斗
+                    route_item['op'] == operation_const.OP_PATROL
+                )
+        ):
+            op2 = RecordCoordinate(self.ctx, self.current_region, self.current_pos)
+            op2.execute()
+
+        return Operation.round_by_op(op_result)
 
     def move(self, route_item, next_route_item) -> Operation:
         """
@@ -160,6 +176,10 @@ class WorldPatrolRunRoute(StateOperation):
                 next_route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]
         )
         no_run = route_item['op'] == operation_const.OP_SLOW_MOVE
+
+        if self.ctx.record_coordinate:  # 需要记录坐标时 强制禁疾跑 以及到达后停止跑动
+            stop_afterwards = True
+            no_run = True
 
         return MoveDirectly(self.ctx, current_lm_info, next_lm_info=next_lm_info,
                             target=next_pos, start=current_pos,
