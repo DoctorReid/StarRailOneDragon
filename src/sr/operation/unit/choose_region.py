@@ -1,15 +1,17 @@
+import time
 import difflib
-from typing import Union
+from typing import Optional, List
+
 from cv2.typing import MatLike
 
-from basic import Point
+from basic import str_utils, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
 from sr.const.map_const import Planet, Region, PLANET_2_REGION, best_match_region_by_name
 from sr.context import Context
 from sr.image.sceenshot import large_map
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, StateOperation, OperationOneRoundResult
 from sr.screen_area.screen_large_map import ScreenLargeMap
 
 
@@ -26,8 +28,6 @@ class ChooseRegion(Operation):
                          )
         self.planet: Planet = region.planet
         self.region: Region = region
-        self.confidence: int = 0.8  # 用于判断OCR结果与区域字符串匹配度的置信值
-        self.scrolled = False  # 是否已经下拉过了
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -47,18 +47,25 @@ class ChooseRegion(Operation):
         is_current: bool = (current_region is not None and current_region.pr_id == self.region.pr_id)
 
         # 还没有选好区域
-        if self.try_times > 10:
-            self.confidence = 0.5
         if not is_current:
-            region_pos:Point = self.get_region_pos(screen, confidence=self.confidence)
-            if region_pos:
-                self.ctx.controller.click(region_pos)
-                return Operation.round_retry(wait=1)
-            else:
-                self.scrolled = not self.scrolled
+            region_pos_list = self.get_region_pos_list(screen)
+            pr_id_set: set[str] = set()
+            for region_pos in region_pos_list:
+                pr_id_set.add(region_pos.data.pr_id)
+                if region_pos.data.pr_id == self.region.pr_id:
+                    self.ctx.controller.click(region_pos.center)
+                    return Operation.round_retry(wait=1)
 
             # 没有发现目标区域 需要滚动
-            self.scroll_region_area(1 if self.scrolled else -1)
+            with_before_region: bool = False  # 当前区域列表在目标区域之前
+            region_list = PLANET_2_REGION.get(self.region.planet.np_id)
+            for r in region_list:
+                if r.pr_id in pr_id_set:
+                    with_before_region = True
+                if r.pr_id == self.region.pr_id:
+                    break
+
+            self.scroll_region_area(1 if with_before_region else -1)
             return Operation.round_retry(wait=1)
 
         # 已经选好了区域 还需要选择层数
@@ -90,26 +97,73 @@ class ChooseRegion(Operation):
         return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT,
                                              lcs_percent=self.gc.region_lcs_percent, merge_line_distance=40)
 
-    def get_region_pos(self, screen: MatLike, confidence:int =0.8) -> Union[Point, None]:
+    def get_region_pos_list(self, screen: MatLike, confidence:int =0.3) -> List[MatchResult]:
         """
         获取当前屏幕显示的区域
         MatchResult.data = Region
+        匹配全部显示的区域，是为了可以明确知道最后需要往哪个方向滚动。随机滚动存在卡死的可能。
         :param screen:
         :return:
         """
         area = ScreenLargeMap.REGION_LIST.value
         part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_map = self.ctx.ocr.run_ocr(part, merge_line_distance=40)
-        
-        # OCR结果的区域列表
-        ocr_region_list = list(ocr_map.keys())
-        
-        match = difflib.get_close_matches(self.region.cn, ocr_region_list, n=1, cutoff=confidence)
-        if match:
-            ocr_region: MatchResult = ocr_map[match[0]][0]
-        else:
-            return None
-        return ocr_region.center + area.rect.left_top  # 切换回全屏幕的坐标
+
+        # 初始化data 原来应该是 ocr 的文本
+        for word, mrl in ocr_map.items():
+            result = mrl.max
+            if result is None:
+                continue
+            result.data = None
+            result.x += area.rect.left_top.x
+            result.y += area.rect.left_top.y
+
+        # 皮诺康妮中 存在【现实】和【梦境】的小分类
+        # 通过使用区域列表 在匹配结果中找到最合适的 避免选择到【现实】和【梦境】
+        word_2_region_list: dict[str, List[Region]] = {}
+        ocr_word_list = list(ocr_map.keys())
+        plan_region_list = PLANET_2_REGION.get(self.region.planet.np_id)
+        for real_region in plan_region_list:
+            match = difflib.get_close_matches(gt(real_region.cn, 'ocr'),
+                                              ocr_word_list, n=1, cutoff=confidence)
+            if len(match) == 0:
+                continue
+
+            # 理论上 可能出现两个区域(real_region)都匹配到一个目标(ocr_word)上
+            # 例如 基座舱段 和 收容舱段 (real_region) 都匹配到了 收容舱段(ocr_word) 上
+            # 但如果截图上就只有 收容舱段(ocr_word) 想要选择 基座舱段(real_region) 也会点击到 收容舱段(ocr_word) 上
+            # 这时候先保存下来，再用 收容舱段(ocr_word) 匹配一个最佳的 real_region
+            if match[0] not in word_2_region_list:
+                word_2_region_list[match[0]] = [real_region]
+            else:
+                word_2_region_list[match[0]].append(real_region)
+
+        # 最终返回结果
+        result_list: List[MatchResult] = []  # 最终返回结果
+        for ocr_word, mrl in ocr_map.items():
+            result = mrl.max
+            if result is None:
+                continue
+            if ocr_word not in word_2_region_list:
+                continue
+
+            region_list: List[Region] = word_2_region_list[ocr_word]
+            if len(region_list) == 1:
+                result.data = region_list[0]
+            else:
+                region_name_list = [gt(region.cn, 'ocr') for region in region_list]
+                match = difflib.get_close_matches(ocr_word, region_name_list, n=1, cutoff=confidence)
+                if len(match) == 0:
+                    continue
+                for region in region_list:
+                    if gt(region.cn, 'ocr') == match[0]:
+                        result.data = region
+                        break
+
+            if result.data is not None:
+                result_list.append(result)
+
+        return result_list
 
     def scroll_region_area(self, d: int = 1):
         """

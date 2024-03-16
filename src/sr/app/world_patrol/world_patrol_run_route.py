@@ -113,8 +113,8 @@ class WorldPatrolRunRoute(StateOperation):
         """
         self.op_idx += 1
 
-        # if self.op_idx == 0:  # 测试传送点用
-        #     return Operation.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
+        if self.op_idx == 0:  # 测试传送点用
+            return Operation.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
 
         if self.op_idx >= len(self.route.route_list):
             return Operation.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
