@@ -1,3 +1,4 @@
+import difflib
 from typing import Optional, List, Dict
 
 from basic import cal_utils, Rect, Point, str_utils
@@ -235,22 +236,30 @@ def best_match_region_by_name(ocr_word: Optional[str], planet: Optional[Planet] 
     """
     if ocr_word is None or len(ocr_word) == 0:
         return None
-    best_region: Optional[Region] = None
-    best_lcs: int = 0
-    best_lcs_percent: float = 0.1
+
+    to_check_region_name_list: List[str] = []
 
     for np_id, region_list in PLANET_2_REGION.items():
         if planet is not None and planet.np_id != np_id:
             continue
         for region in region_list:
             region_name = gt(region.cn, 'ocr')
-            lcs = str_utils.longest_common_subsequence_length(region_name, ocr_word)
-            lcs_percent = lcs / len(region_name)
-            if lcs > best_lcs or (lcs == best_lcs and lcs_percent > best_lcs_percent):
-                best_region = region
-                best_lcs = lcs
-                best_lcs_percent = lcs_percent
-    return best_region
+            to_check_region_name_list.append(region_name)
+
+    match = difflib.get_close_matches(ocr_word, to_check_region_name_list, n=1)
+    if len(match) == 0:
+        return None
+    best_match = match[0]
+
+    for np_id, region_list in PLANET_2_REGION.items():
+        if planet is not None and planet.np_id != np_id:
+            continue
+        for region in region_list:
+            region_name = gt(region.cn, 'ocr')
+            if region_name == best_match:
+                return region
+
+    return None
 
 
 def get_region_by_prl_id(prd_id: str) -> Optional[Region]:
