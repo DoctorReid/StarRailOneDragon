@@ -18,3 +18,4 @@ config/sim_uni/challenge_config/*.yml
 config/*[!_sample].yml
 config/app_run_record/
 config/[0-9]*/
+StarRailGPS/

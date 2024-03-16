@@ -150,7 +150,10 @@ class WorldPatrolRunRoute(StateOperation):
                     route_item['op'] == operation_const.OP_PATROL
                 )
         ):
-            op2 = RecordCoordinate(self.ctx, self.current_region, self.current_pos)
+            record_times = 5
+            if route_item['op'] == operation_const.OP_PATROL:  # 战斗后小地图已经缩放完了 只记录一次就可以了
+                record_times = 1
+            op2 = RecordCoordinate(self.ctx, self.current_region, self.current_pos, record_times=record_times)
             op2.execute()
 
         return Operation.round_by_op(op_result)

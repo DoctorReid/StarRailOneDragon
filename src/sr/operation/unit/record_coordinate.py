@@ -17,7 +17,7 @@ from sr.operation import Operation, OperationOneRoundResult
 
 class RecordCoordinate(Operation):
 
-    def __init__(self, ctx: Context, region: Region, last_point: Point):
+    def __init__(self, ctx: Context, region: Region, last_point: Point, record_times: int = 5):
         """
         站在原地不动 进行截图和坐标记录。需要在确保不被攻击的情况下使用
         """
@@ -27,11 +27,12 @@ class RecordCoordinate(Operation):
         self.region: Region = region  # 区域
         self.lm_info: LargeMapInfo = self.ctx.ih.get_large_map(self.region)
         self.last_point: Point = last_point  # 上一个点的坐标
-        self.record_times: int = 0  # 当前已记录次数
+        self.record_times: int = record_times  # 总共需要录制的次数
+        self.current_times: int = 0  # 当前已记录次数
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-        self.record_times += 1
-        if self.record_times >= 6:
+        self.current_times += 1
+        if self.current_times > self.record_times:
             return Operation.round_success()
 
         screen = self.screenshot()
@@ -60,6 +61,7 @@ class RecordCoordinate(Operation):
             return Operation.round_wait(wait=0.5)
 
         self.save(self.region, mm, next_pos)
+        return Operation.round_wait(wait=0.5)
 
     @staticmethod
     def save(region: Region, mm: MatLike, pos: MatchResult):

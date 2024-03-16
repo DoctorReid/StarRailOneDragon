@@ -364,9 +364,9 @@ class MoveDirectly(Operation):
                                                 self.ctx.controller.is_moving)
                                  )
         else:
-            if self.ctx.record_coordinate:
+            if self.ctx.record_coordinate and now_time - self.last_rec_time > 0.5:
                 RecordCoordinate.save(self.region, mm, next_pos)
-        return next_pos.center, mm_info
+        return next_pos.center if next_pos is not None else None, mm_info
 
     def check_no_pos(self, next_pos: Point, now_time: float) -> Optional[OperationOneRoundResult]:
         """
