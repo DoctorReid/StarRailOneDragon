@@ -6,12 +6,12 @@ from basic import Point
 class MatchResult:
 
     def __init__(self, c, x, y, w, h, template_scale: float = 1, data: Any = None):
-        self.confidence = c
-        self.x = int(x)
-        self.y = int(y)
-        self.w = int(w)
-        self.h = int(h)
-        self.template_scale = template_scale
+        self.confidence: float = float(c)
+        self.x: int = int(x)
+        self.y: int = int(y)
+        self.w: int = int(w)
+        self.h: int = int(h)
+        self.template_scale: float = template_scale
         self.data: Any = data
 
     def __repr__(self):
