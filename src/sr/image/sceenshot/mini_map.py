@@ -423,226 +423,83 @@ def remove_radio(mm: MatLike, radio_to_del: MatLike) -> MatLike:
 
 
 @record_performance
-def get_road_mask_for_world_patrol(mm: MatLike,
-                                   sp_mask: MatLike = None,
-                                   arrow_mask: MatLike = None):
+def get_road_mask_for_world_patrol(mm_del_radio: MatLike,
+                                   arrow_mask: MatLike,
+                                   sp_mask: Optional[MatLike] = None,
+                                   another_floor: bool = False) -> MatLike:
     """
-    获取比较粗略的道路掩码 用于原图的模板匹配
-    需要用到这一步说明特殊点特征匹配无用 提取的高精度道路掩码无用
-    :param mm: 小地图截图
+    获取道路掩码 用于原图的模板匹配
+    :param mm_del_radio: 去除雷达的小地图图片
+    :param arrow_mask: 小箭头的掩码
     :param sp_mask: 特殊点的掩码
-    :param arrow_mask: 小箭头的掩码 只有小地图有
+    :param another_floor: 可能有另一层的地图
     :return:
     """
-    b, g, r = cv2.split(mm)
-    avg_b = np.mean(b)
-    avg_g = np.mean(g)
-    avg_r = np.mean(r)
-    # log.debug('小地图平均色彩 %d %d %d', avg_b, avg_g, avg_r)
+    l = 45
+    u = 70  # 背景色 正常是55~60附近 太亮的时候会到达这个值 或者其它楼层也会达到这个值
 
-    ub = 55 if avg_b < 70 else 100  # 太亮的时候可以提高道路颜色
-    ug = 55 if avg_g < 70 else 100
-    ur = 55 if avg_r < 70 else 100
-    lower_color = np.array([45, 45, 45], dtype=np.uint8)
-    upper_color = np.array([ub, ug, ur], dtype=np.uint8)
-    road_mask_1 = cv2.inRange(mm, lower_color, upper_color)
+    lower_color = np.array([l, l, l], dtype=np.uint8)
+    upper_color = np.array([u, u, u], dtype=np.uint8)
+    road_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的道路掩码
     # cv2_utils.show_image(road_mask_1, win_name='road_mask_1')
 
-    road_mask = cv2.bitwise_or(road_mask_1, arrow_mask)
-    road_mask = cv2.bitwise_or(road_mask, sp_mask)
-    # cv2_utils.show_image(road_mask, win_name='road_mask')
+    max_rgb = np.max(mm_del_radio, axis=2)
+    min_rgb = np.min(mm_del_radio, axis=2)
+    road_mask_2 = np.zeros(road_mask_1.shape, dtype=np.uint8)
+    road_mask_2[(max_rgb - min_rgb) <= 2] = 255  # rgb颜色差不超过2 当前层的道路就是这个颜色
+    # cv2_utils.show_image(road_mask_2, win_name='road_mask_2')
+
+    road_mask_this_floor = cv2.bitwise_and(road_mask_1, road_mask_2)
+
+    # 多层地图时 另一层的颜色是递进的 R<=G<=B 且差值在2以内
+    if another_floor:
+        b, g, r = cv2.split(mm_del_radio)
+        road_mask_3 = np.zeros(road_mask_1.shape, dtype=np.uint8)
+        road_mask_3[((b - g) >= 0) & ((b - g) <= 2) & ((g - r) >= 0) & ((g - r) <= 2)] = 255
+        road_mask_another_floor = cv2.bitwise_and(road_mask_1, road_mask_3)
+        # cv2_utils.show_image(road_mask_3, win_name='road_mask_3')
+        merge_road_mask = cv2.bitwise_or(road_mask_this_floor, road_mask_another_floor)
+    else:
+        merge_road_mask = road_mask_this_floor
+
+    if arrow_mask is not None:
+        merge_road_mask = cv2.bitwise_or(merge_road_mask, arrow_mask)
+
+    if sp_mask is not None:
+        merge_road_mask = cv2.bitwise_or(merge_road_mask, sp_mask)
+    # cv2_utils.show_image(merge_road_mask, win_name='merge_road_mask')
 
     # 非道路连通块 < 50的，认为是噪点 加入道路
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(road_mask), connectivity=4)
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(merge_road_mask), connectivity=4)
     large_components = []
     for label in range(1, num_labels):
         if stats[label, cv2.CC_STAT_AREA] < 50:
             large_components.append(label)
     for label in large_components:
-        road_mask[labels == label] = 255
+        merge_road_mask[labels == label] = 255
 
     # 找到多于500个像素点的连通道路 这些才是真的路
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask, connectivity=4)
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(merge_road_mask, connectivity=4)
     large_components = []
     for label in range(1, num_labels):
         if stats[label, cv2.CC_STAT_AREA] > 200:
             large_components.append(label)
-    real_road_mask = np.zeros(road_mask.shape[:2], dtype=np.uint8)
+    real_road_mask = np.zeros(merge_road_mask.shape[:2], dtype=np.uint8)
     for label in large_components:
         real_road_mask[labels == label] = 255
 
-    # cv2_utils.show_image(real_road_mask, win_name='road_mask_2')
+    # cv2_utils.show_image(real_road_mask, win_name='real_road_mask', wait=0)
 
     return real_road_mask
 
 
 @record_performance
-def get_road_mask_for_world_patrol_2(mm: MatLike,
-                                     sp_mask: MatLike,
-                                     arrow_mask: MatLike,
-                                     center_mask: MatLike
-                                     ):
-    """
-    获取道路掩码 只包含圆中的正方形部分
-    通过找最深色的模块 然后按一定色差往外拓展 避免不同背景色下道路颜色差异
-    :param mm: 小地图截图
-    :param sp_mask: 特殊点的掩码
-    :param arrow_mask: 小箭头的掩码 只有小地图有
-    :param center_mask: 中间正方形部分的掩码 用于道路区域
-    :return:
-    """
-    # 小地图大小
-    mm_h, mm_w = mm.shape[:2]
-    mm_cx = mm_w // 2
-    mm_cy = mm_h // 2
-    mm_r = mm_cx
-
-    # 选取小箭头附近有黑色边框 需要忽略
-    check_start_mask = center_mask.copy()
-    dilate_arrow_mask = cv2_utils.dilate(arrow_mask, 5)
-    check_start_mask[np.where(dilate_arrow_mask == 255)] = 0
-
-    # 白色边
-    white_edge = cv2_utils.color_in_range(mm, [160, 160, 160], [255, 255, 255])
-    dilate_white_edge = cv2_utils.dilate(white_edge, 10)
-    # cv2_utils.show_image(dilate_white_edge, win_name='dilate_white_edge', wait=0)
-    # 忽略白色边附近的黑色
-    check_start_mask[np.where(dilate_white_edge == 255)] = 0
-
-    # 的最深颜色开始
-    # cv2_utils.show_image(check_start_mask, win_name='check_start_mask')
-    b, g, r = cv2.split(mm)
-    min_color = 50  # 地图上有纯黑色的边 因此过滤一些太深色的部分
-    min_b = np.min(b[np.where(np.logical_and(check_start_mask == 255, b > min_color))])
-    min_g = np.min(g[np.where(np.logical_and(check_start_mask == 255, g > min_color))])
-    min_r = np.min(r[np.where(np.logical_and(check_start_mask == 255, r > min_color))])
-    # log.debug('最深颜色 (%d, %d, %d)', min_b, min_g, min_r)
-
-    color_threshold = 3
-    # 找出最深色的模块
-    lower_color = np.array([min_b, min_g, min_r], dtype=np.uint8)
-    upper_color = np.array([min_b + color_threshold, min_g + color_threshold, min_r + color_threshold], dtype=np.uint8)
-    start_mask = cv2.inRange(mm, lower_color, upper_color)
-    start_mask = cv2.bitwise_and(center_mask, start_mask)
-
-    # cv2_utils.show_image(start_mask, win_name='start_mask')
-    # cv2_utils.show_image(cv2.bitwise_and(mm, mm, mask=cv2_utils.dilate(start_mask, 5)), win_name='start_mm')
-
-    height, width = start_mask.shape
-
-    white_pixels = np.where(start_mask == 255)
-    # 将坐标转置为(x, y)格式
-    white_pixel_coordinates = list(zip(white_pixels[1], white_pixels[0]))
-
-    # BFS搜索 这里不能用numpy的数组 访问效率太低了
-    img = mm.tolist()
-    visited = np.zeros(start_mask.shape, dtype=np.uint8).tolist()  # 访问标记
-    bfs_queue = deque()
-    for c in white_pixel_coordinates:
-        bfs_queue.append(c)
-        visited[c[1]][c[0]] = 255
-
-    # 向各个方向拓展
-    directions = [
-        [-1, 0], [1, 0], [0, -1], [0, 1],
-        # [-1, -1], [1, -1], [-1, 1], [1, 1]
-    ]
-    while len(bfs_queue) > 0:
-        current_p = bfs_queue.popleft()
-
-        for i in range(len(directions)):
-            next_p = (current_p[0] + directions[i][0], current_p[1] + directions[i][1])
-            if ((next_p[0] - mm_cx) ** 2) + ((next_p[1] - mm_cy) ** 2) > ((mm_r - 10) ** 2):
-                # 超出边界了 小地图圆的边缘变暗 容易扩散到外景 因此只搜索圆中一个正方形
-                continue
-            if next_p[0] < 0 or next_p[0] >= width or next_p[1] < 0 or next_p[1] >= height:
-                # 超出边界了 小地图圆的边缘变暗 容易扩散到外景 因此只搜索圆中一个正方形
-                continue
-
-            if visited[next_p[1]][next_p[0]] == 255:
-                # 已经进入过列表了
-                continue
-
-            current_color = img[current_p[1]][current_p[0]]
-            next_color = img[next_p[1]][next_p[0]]
-
-            diff = False
-            for j in range(3):
-                # 原类型是 uint 的 避免类型转换可以节省点时间
-                dc = current_color[j] - next_color[j] if current_color[j] > next_color[j] else next_color[j] - current_color[j]
-                if dc > color_threshold:
-                    diff = True
-                    break
-            if diff:  # 过滤色差较大的
-                continue
-
-            bfs_queue.append(next_p)
-            visited[next_p[1]][next_p[0]] = 255
-
-    road_mask = np.array(visited, dtype=np.uint8)
-    # cv2_utils.show_image(road_mask, win_name='road_mask')
-
-    special_mask = cv2.bitwise_or(sp_mask, dilate_arrow_mask)
-    road_mask_2 = cv2.bitwise_or(road_mask, special_mask)  # 合并箭头和特殊点
-
-    # 50以下的黑点认为是噪点 加入道路
-    road_mask_3 = cv2_utils.connection_erase(road_mask_2, threshold=50, erase_white=False, connectivity=4)
-    # cv2_utils.show_image(road_mask_3, win_name='road_mask_3')
-
-    # 获取中心点坐标
-    center_x = mm.shape[1] // 2
-    center_y = mm.shape[0] // 2
-
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask_3, connectivity=8)
-    # 找到包含中心点的最大连通块
-    max_area = -1
-    max_label = -1
-    for label in range(1, num_labels):
-        area = stats[label, cv2.CC_STAT_AREA]
-        if area > max_area and labels[center_y, center_x] == label:
-            max_area = area
-            max_label = label
-
-    cond = np.where(np.logical_and(labels == max_label, special_mask == 0))
-    if len(b[cond]) == 0 or len(g[cond]) == 0 or len(r[cond]) == 0:
-        return road_mask_3
-    avg_b = np.mean(b[cond])
-    avg_g = np.mean(g[cond])
-    avg_r = np.mean(r[cond])
-
-    # 只保留连通块平均颜色与中心块差不多的
-    final_road_mask = np.zeros(start_mask.shape, dtype=np.uint8)
-    for label in range(1, num_labels):
-        # tmp = np.zeros(mm.shape, dtype=np.uint8)
-        cond = np.where(np.logical_and(labels == label, special_mask == 0))
-        # tmp[cond] = mm[cond]
-        # cv2_utils.show_image(tmp, win_name='tmp')
-
-        avg_b2 = np.mean(b[cond])
-        avg_g2 = np.mean(g[cond])
-        avg_r2 = np.mean(r[cond])
-
-        if abs(avg_b - avg_b2) > color_threshold or \
-                abs(avg_g - avg_g2) > color_threshold or \
-                abs(avg_r - avg_r2) > color_threshold:
-            continue
-
-        final_road_mask[np.where(labels == label)] = 255
-
-    # cv2_utils.show_image(final_road_mask, win_name='final_road_mask')
-
-    return final_road_mask
-
-
-@record_performance
 def get_road_mask_for_sim_uni(
         mm_del_radio: MatLike,
-        arrow_mask: MatLike,
-        center_mask: MatLike):
+        arrow_mask: MatLike):
     """
     获取道路掩码 模拟宇宙专用
     :param mm_del_radio: 去除雷达后的小地图
-    :param center_mask: 中间正方形部分的掩码 用于道路区域
     :return:
     """
     road_mask = cv2_utils.color_in_range(mm_del_radio, [45, 45, 45], [60, 60, 60])
@@ -698,6 +555,18 @@ def get_road_mask_for_sim_uni(
     # cv2_utils.show_image(final_road_mask, win_name='final_road_mask')
 
     return final_road_mask
+
+
+@record_performance
+def get_road_mask_for_sim_uni_2(mm_del_radio: MatLike, arrow_mask: MatLike) -> MatLike:
+    """
+    获取道路掩码 模拟宇宙专用
+    不需要考虑特殊点 以及其它楼层
+    :param mm_del_radio: 去除雷达后的小地图
+    :param arrow_mask: 小箭头
+    :return:
+    """
+    return get_road_mask_for_world_patrol(mm_del_radio, arrow_mask=arrow_mask, sp_mask=None, another_floor=False)
 
 
 def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: bool = True):

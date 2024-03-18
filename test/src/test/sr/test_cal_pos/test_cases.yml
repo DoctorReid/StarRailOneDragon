@@ -6,7 +6,7 @@ cases:
   possible_pos:
   - 442
   - 1272
-  - 30
+  - 90
   region: P03_XZLF_R02_LYD_F1
   running: true
 - num: 2

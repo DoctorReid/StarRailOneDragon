@@ -43,10 +43,10 @@ def show_image(img: MatLike,
     if rects is not None:
         to_show = img.copy()
         if type(rects) == MatchResult:
-            cv2.rectangle(to_show, (rects.x, rects.y), (rects.x + rects.w, rects.y + rects.h), (255, 255, 255), 1)
+            cv2.rectangle(to_show, (rects.x, rects.y), (rects.x + rects.w, rects.y + rects.h), (255, 0, 0), 1)
         elif type(rects) == MatchResultList:
             for i in rects:
-                cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (255, 255, 255), 1)
+                cv2.rectangle(to_show, (i.x, i.y), (i.x + i.w, i.y + i.h), (255, 0, 0), 1)
 
     cv2.imshow(win_name, to_show)
     cv2.waitKey(wait)

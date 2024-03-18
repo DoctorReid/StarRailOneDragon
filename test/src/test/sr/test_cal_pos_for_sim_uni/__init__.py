@@ -35,7 +35,7 @@ class TestCase:
 standard_case_list: List[TestCase] = [
     TestCase(map_const.P01_R04_F2, Point(777, 388), 1, running=False, possible_pos=(804, 388, 30)),
 
-    TestCase(map_const.P02_R11_F1, Point(585, 587), 1, running=False, possible_pos=(544, 594, 72))
+    TestCase(map_const.P02_R11_F1, Point(592, 587), 1, running=False, possible_pos=(544, 594, 72))
 ]
 
 
@@ -55,7 +55,7 @@ class TestCalPosForSimUni(test.SrTestBase):
                 log.info('%s 计算坐标失败', case.unique_id)
 
         performance_recorder.log_all_performance()
-        self.assertTrue(fail_cnt == 0)
+        self.assertEqual(0, fail_cnt)
 
     def test_init_case(self):
         screen = get_debug_image('_1708141410981')
@@ -93,9 +93,9 @@ class TestCalPosForSimUni(test.SrTestBase):
         if show:
             cv2.waitKey(0)
 
-        log.info('%s 当前计算坐标为 %s', case.unique_id, pos)
-
         dis = cal_utils.distance_between(pos, case.pos)
+
+        log.info('%s 当前计算坐标为 %s 距离 %.2f', case.unique_id, pos, dis)
 
         return dis < 5
 

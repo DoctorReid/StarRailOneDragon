@@ -96,7 +96,7 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
 
     error = result is None or cal_utils.distance_between(result.center, c.pos) > 10
     if error:
-        log.error('定位错误 %s', result.center)
+        log.error('定位错误 %s', result.center if result is not None else None)
     else:
         log.info('定位正确 %s', result.center)
 

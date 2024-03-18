@@ -87,15 +87,15 @@ class TestCalPos(test.SrTestBase):
         fail_cnt = 0
         self._read_test_cases()
         for case in self.cases:
-            if case.region.prl_id != 'P03_XZLF_R02_LYD_F1 ' and case.num != 2:
-                continue
-            result = self.run_one_test_case(case, show=True)
+            # if case.region.prl_id != 'P03_XZLF_R02_LYD_F1 ' and case.num != 1:
+            #     continue
+            result = self.run_one_test_case(case, show=False)
             if not result:
                 fail_cnt += 1
                 log.info('%s 计算坐标失败', case.unique_id)
 
         performance_recorder.log_all_performance()
-        self.assertTrue(fail_cnt == 0)
+        self.assertEqual(0, fail_cnt)
 
     def test_init_case(self):
         """
