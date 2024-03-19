@@ -459,6 +459,7 @@ def get_road_mask_for_world_patrol(mm_del_radio: MatLike,
         road_mask_floor = road_mask_cf
 
     road_mask_2 = cv2.bitwise_and(road_mask_1, road_mask_floor)  # 不同楼层的地图
+    cv2_utils.show_image(road_mask_2, win_name='road_mask_2')
 
     # 算敌人的掩码图
     lower_color = np.array([45, 45, 60], dtype=np.uint8)
@@ -475,6 +476,8 @@ def get_road_mask_for_world_patrol(mm_del_radio: MatLike,
 
     if sp_mask is not None:
         merge_road_mask = cv2.bitwise_or(merge_road_mask, sp_mask)
+
+    cv2_utils.show_image(merge_road_mask, win_name='merge_road_mask')
 
     return merge_road_mask
 

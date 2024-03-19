@@ -35,7 +35,9 @@ class TestCase:
 standard_case_list: List[TestCase] = [
     TestCase(map_const.P01_R04_F2, Point(777, 388), 1, running=False, possible_pos=(804, 388, 30)),
 
-    TestCase(map_const.P02_R11_F1, Point(592, 587), 1, running=False, possible_pos=(544, 594, 72))
+    TestCase(map_const.P02_R11_F1, Point(592, 587), 1, running=False, possible_pos=(544, 594, 72)),
+
+    TestCase(map_const.P02_R10, Point(592, 587), 1, running=True, possible_pos=(516, 742, 38)),
 ]
 
 
@@ -47,9 +49,9 @@ class TestCalPosForSimUni(test.SrTestBase):
     def test_cal_pos_for_sim_uni(self):
         fail_cnt = 0
         for case in standard_case_list:
-            # if case.region != map_const.P02_R11_F1 and case.num != 1:
-            #     continue
-            result = self.run_one_test_case(case, show=False)
+            if case.region != map_const.P02_R10 or case.num != 1:
+                continue
+            result = self.run_one_test_case(case, show=True)
             if not result:
                 fail_cnt += 1
                 log.info('%s 计算坐标失败', case.unique_id)
@@ -58,10 +60,11 @@ class TestCalPosForSimUni(test.SrTestBase):
         self.assertEqual(0, fail_cnt)
 
     def test_init_case(self):
-        screen = get_debug_image('_1708141410981')
-        mm = mini_map.cut_mini_map(screen)
+        ctx = get_context()
+        screen = get_debug_image('P02_YLL6_R10_DKQ_516_742_38_True')
+        mm = mini_map.cut_mini_map(screen, ctx.game_config.mini_map_pos)
         for case in standard_case_list:
-            if case.region != map_const.P01_R04_F2 and case.num != 1:
+            if case.region != map_const.P02_R10 or case.num != 1:
                 continue
             self.save_test_image(mm, case.image_name)
             self.run_one_test_case(case, show=True)

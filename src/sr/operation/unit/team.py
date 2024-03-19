@@ -167,7 +167,7 @@ class SwitchMember(StateOperation):
         """
         切换角色 需要在大世界页面
         :param ctx:
-        :param num: 第几个队友
+        :param num: 第几个队友 从1开始
         :param skip_first_screen_check: 是否跳过第一次画面状态检查
         """
         edges = []

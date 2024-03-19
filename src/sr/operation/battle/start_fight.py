@@ -187,10 +187,10 @@ class StartFightForElite(StateOperation):
     def _use_technique_by_one(self, idx):
         """
         切换角色并使用秘技
-        :param idx:
+        :param idx: 从0开始
         :return:
         """
-        switch = SwitchMember(self.ctx, idx, skip_first_screen_check=True)
+        switch = SwitchMember(self.ctx, idx + 1, skip_first_screen_check=True)
         switch_result = switch.execute()
         if switch_result.success:
             self.ctx.controller.use_technique()

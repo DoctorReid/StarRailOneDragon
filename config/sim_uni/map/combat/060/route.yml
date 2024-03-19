@@ -6,6 +6,6 @@ start_pos: [352, 574]
 next_pos_list:
   - [305, 519]
 op_list:
-  - op: 'move'
+  - op: 'no_pos_move'
     data: [328, 534]
   - op: 'patrol'
