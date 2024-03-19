@@ -435,9 +435,10 @@ def get_road_mask_for_world_patrol(mm_del_radio: MatLike,
     :param another_floor: 可能有另一层的地图
     :return:
     """
+    b, g, r = cv2.split(mm_del_radio)
+
     l = 45
     u = 70  # 背景色 正常是55~60附近 太亮的时候会到达这个值 或者其它楼层也会达到这个值
-
     lower_color = np.array([l, l, l], dtype=np.uint8)
     upper_color = np.array([u, u, u], dtype=np.uint8)
     road_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的道路掩码
@@ -445,116 +446,37 @@ def get_road_mask_for_world_patrol(mm_del_radio: MatLike,
 
     max_rgb = np.max(mm_del_radio, axis=2)
     min_rgb = np.min(mm_del_radio, axis=2)
-    road_mask_2 = np.zeros(road_mask_1.shape, dtype=np.uint8)
-    road_mask_2[(max_rgb - min_rgb) <= 2] = 255  # rgb颜色差不超过2 当前层的道路就是这个颜色
-    # cv2_utils.show_image(road_mask_2, win_name='road_mask_2')
+    road_mask_cf = np.zeros(road_mask_1.shape, dtype=np.uint8)
+    road_mask_cf[(max_rgb - min_rgb) <= 2] = 255  # rgb颜色差不超过2 当前层的道路就是这个颜色
+    # cv2_utils.show_image(road_mask_cf, win_name='road_mask_cf')
+    if another_floor:  # 多层地图时 另一层的颜色是递进的 R<=G<=B 且差值在2以内
+        road_mask_af = np.zeros(road_mask_1.shape, dtype=np.uint8)
+        road_mask_af[((b - g) >= 0) & ((b - g) <= 2) & ((g - r) >= 0) & ((g - r) <= 2)] = 255
+        # cv2_utils.show_image(road_mask_af, win_name='road_mask_af')
 
-    road_mask_this_floor = cv2.bitwise_and(road_mask_1, road_mask_2)
-
-    # 多层地图时 另一层的颜色是递进的 R<=G<=B 且差值在2以内
-    if another_floor:
-        b, g, r = cv2.split(mm_del_radio)
-        road_mask_3 = np.zeros(road_mask_1.shape, dtype=np.uint8)
-        road_mask_3[((b - g) >= 0) & ((b - g) <= 2) & ((g - r) >= 0) & ((g - r) <= 2)] = 255
-        road_mask_another_floor = cv2.bitwise_and(road_mask_1, road_mask_3)
-        # cv2_utils.show_image(road_mask_3, win_name='road_mask_3')
-        merge_road_mask = cv2.bitwise_or(road_mask_this_floor, road_mask_another_floor)
+        road_mask_floor = cv2.bitwise_or(road_mask_cf, road_mask_af)
     else:
-        merge_road_mask = road_mask_this_floor
+        road_mask_floor = road_mask_cf
+
+    road_mask_2 = cv2.bitwise_and(road_mask_1, road_mask_floor)  # 不同楼层的地图
+
+    # 算敌人的掩码图
+    lower_color = np.array([45, 45, 60], dtype=np.uint8)
+    upper_color = np.array([70, 70, 255], dtype=np.uint8)
+    enemy_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的敌人图
+    enemy_mask_2 = np.zeros(road_mask_1.shape, dtype=np.uint8)
+    enemy_mask_2[((b - g) <= 2) | ((b - g) <= 2)] = 255  # 敌人的雷达图 g 约等于 b
+    enemy_mask = cv2.bitwise_and(enemy_mask_1, enemy_mask_2)
+
+    merge_road_mask = cv2.bitwise_or(road_mask_2, enemy_mask)
 
     if arrow_mask is not None:
         merge_road_mask = cv2.bitwise_or(merge_road_mask, arrow_mask)
 
     if sp_mask is not None:
         merge_road_mask = cv2.bitwise_or(merge_road_mask, sp_mask)
-    # cv2_utils.show_image(merge_road_mask, win_name='merge_road_mask')
 
-    # 非道路连通块 < 50的，认为是噪点 加入道路
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(cv2.bitwise_not(merge_road_mask), connectivity=4)
-    large_components = []
-    for label in range(1, num_labels):
-        if stats[label, cv2.CC_STAT_AREA] < 50:
-            large_components.append(label)
-    for label in large_components:
-        merge_road_mask[labels == label] = 255
-
-    # 找到多于500个像素点的连通道路 这些才是真的路
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(merge_road_mask, connectivity=4)
-    large_components = []
-    for label in range(1, num_labels):
-        if stats[label, cv2.CC_STAT_AREA] > 200:
-            large_components.append(label)
-    real_road_mask = np.zeros(merge_road_mask.shape[:2], dtype=np.uint8)
-    for label in large_components:
-        real_road_mask[labels == label] = 255
-
-    # cv2_utils.show_image(real_road_mask, win_name='real_road_mask', wait=0)
-
-    return real_road_mask
-
-
-@record_performance
-def get_road_mask_for_sim_uni(
-        mm_del_radio: MatLike,
-        arrow_mask: MatLike):
-    """
-    获取道路掩码 模拟宇宙专用
-    :param mm_del_radio: 去除雷达后的小地图
-    :return:
-    """
-    road_mask = cv2_utils.color_in_range(mm_del_radio, [45, 45, 45], [60, 60, 60])
-    dilate_arrow_mask = cv2_utils.dilate(arrow_mask, 5)
-    road_mask_2 = cv2.bitwise_or(road_mask, dilate_arrow_mask)
-    enemy_mask = get_enemy_road_mask(mm_del_radio)
-    road_mask_3 = cv2.bitwise_or(road_mask_2, enemy_mask)
-    road_mask_4 = cv2_utils.connection_erase(road_mask_3, threshold=50, erase_white=False, connectivity=4)
-
-    # 获取中心点坐标
-    center_x = mm_del_radio.shape[1] // 2
-    center_y = mm_del_radio.shape[0] // 2
-
-    # cv2_utils.show_image(road_mask_4, win_name='road_mask_4')
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(road_mask_4, connectivity=8)
-    # 找到包含中心点的最大连通块
-    max_area = -1
-    max_label = -1
-    for label in range(1, num_labels):
-        area = stats[label, cv2.CC_STAT_AREA]
-        if area > max_area and labels[center_y, center_x] == label:
-            max_area = area
-            max_label = label
-
-    cond = np.where(labels == max_label)
-    b, g, r = cv2.split(mm_del_radio)
-    color_threshold = 3
-    if len(b[cond]) == 0 or len(g[cond]) == 0 or len(r[cond]) == 0:
-        return road_mask_4
-    avg_b = np.mean(b[cond])
-    avg_g = np.mean(g[cond])
-    avg_r = np.mean(r[cond])
-
-    # 只保留连通块平均颜色与中心块差不多的
-    final_road_mask = np.zeros(road_mask_4.shape, dtype=np.uint8)
-    for label in range(1, num_labels):
-        # tmp = np.zeros(mm.shape, dtype=np.uint8)
-        cond = np.where(labels == label)
-        # tmp[cond] = mm[cond]
-        # cv2_utils.show_image(tmp, win_name='tmp')
-
-        avg_b2 = np.mean(b[cond])
-        avg_g2 = np.mean(g[cond])
-        avg_r2 = np.mean(r[cond])
-
-        if abs(avg_b - avg_b2) > color_threshold or \
-                abs(avg_g - avg_g2) > color_threshold or \
-                abs(avg_r - avg_r2) > color_threshold:
-            continue
-
-        final_road_mask[np.where(labels == label)] = 255
-
-    # cv2_utils.show_image(final_road_mask, win_name='final_road_mask')
-
-    return final_road_mask
+    return merge_road_mask
 
 
 @record_performance

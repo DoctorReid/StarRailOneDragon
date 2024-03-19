@@ -90,7 +90,6 @@ def test_one(c: TestCase, lm_info: LargeMapInfo, show: bool = False) -> bool:
     result = cal_pos.cal_character_pos(im, lm_info, mm_info,
                                        possible_pos=None if no_possible_pos else possible_pos,
                                        lm_rect=lm_rect, show=show, retry_without_rect=False, running=c.running)
-
     if show:
         cv2.waitKey(0)
 
