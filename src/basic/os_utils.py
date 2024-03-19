@@ -41,7 +41,7 @@ def run_in_flet_exe() -> bool:
 
 def get_work_dir() -> str:
     """
-    返回项目根目录的路径 StarRailCopilot/
+    返回项目根目录的路径 StarRailOneDragon/
     :return: 项目根目录
     """
     dir_path: str = os.path.abspath(__file__)

@@ -97,12 +97,13 @@ class ChooseRegion(Operation):
         return self.ctx.controller.click_ocr(screen, self.region.cn, rect=large_map.REGION_LIST_RECT,
                                              lcs_percent=self.gc.region_lcs_percent, merge_line_distance=40)
 
-    def get_region_pos_list(self, screen: MatLike, confidence:int =0.3) -> List[MatchResult]:
+    def get_region_pos_list(self, screen: MatLike, confidence:int = 0.3) -> List[MatchResult]:
         """
         获取当前屏幕显示的区域
         MatchResult.data = Region
         匹配全部显示的区域，是为了可以明确知道最后需要往哪个方向滚动。随机滚动存在卡死的可能。
         :param screen:
+        :param confidence: 文本匹配的阈值 后续考虑替换掉 lcs_percent
         :return:
         """
         area = ScreenLargeMap.REGION_LIST.value
@@ -118,7 +119,7 @@ class ChooseRegion(Operation):
             result.x += area.rect.left_top.x
             result.y += area.rect.left_top.y
 
-        # 皮诺康妮中 存在【现实】和【梦境】的小分类
+        # 匹诺康尼中 存在【现实】和【梦境】的小分类
         # 通过使用区域列表 在匹配结果中找到最合适的 避免选择到【现实】和【梦境】
         word_2_region_list: dict[str, List[Region]] = {}
         ocr_word_list = list(ocr_map.keys())
@@ -139,7 +140,7 @@ class ChooseRegion(Operation):
                 word_2_region_list[match[0]].append(real_region)
 
         # 最终返回结果
-        result_list: List[MatchResult] = []  # 最终返回结果
+        result_list: List[MatchResult] = []
         for ocr_word, mrl in ocr_map.items():
             result = mrl.max
             if result is None:
