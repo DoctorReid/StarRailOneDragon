@@ -122,10 +122,7 @@ class StartFightForElite(StateOperation):
         if self.technique_point < len(self.technique_order):
             self.technique_order = self.technique_order[:self.technique_point]
 
-        if len(self.technique_order) == 0:
-            return Operation.round_success(StartFightForElite.STATUS_DONE)
-        else:
-            return Operation.round_success()
+        return Operation.round_success()
 
     def _get_character_list(self) -> OperationOneRoundResult:
         """
@@ -197,6 +194,8 @@ class StartFightForElite(StateOperation):
         切换角色
         :return:
         """
+        if self.technique_idx >= len(self.technique_order):
+            return Operation.round_success(StartFightForElite.STATUS_DONE)
         idx = self.technique_order[self.technique_idx]  # 从0开始
         op = SwitchMember(self.ctx, idx + 1, skip_first_screen_check=True)
         return Operation.round_by_op(op.execute())

@@ -63,6 +63,7 @@ class UseTechnique(StateOperation):
         self.use_technique: bool = False  # 是否使用了秘技
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         self.use_consumable_times: int = 0  # 使用消耗品的次数
         self.use_technique: bool = False  # 是否使用了秘技
 
