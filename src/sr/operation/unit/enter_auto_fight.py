@@ -1,5 +1,5 @@
 import time
-from typing import ClassVar, List
+from typing import ClassVar, List, Optional
 
 from cv2.typing import MatLike
 
@@ -23,7 +23,8 @@ class EnterAutoFight(Operation):
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
     STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
 
-    def __init__(self, ctx: Context, use_technique: bool = False, skip_first_screen_check: bool = False):
+    def __init__(self, ctx: Context, use_technique: bool = False,
+                 first_state: Optional[str] = None):
         """
         根据小地图的红圈 判断是否被敌人锁定 进行主动攻击
         """
@@ -36,7 +37,7 @@ class EnterAutoFight(Operation):
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_direction: int = 0  # 攻击方向
         self.use_technique: bool = use_technique  # 使用秘技开怪
-        self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次画面检测 主动攻击的时候可以跳过
+        self.first_state: Optional[str] = first_state  # 初始画面状态 传入后会跳过第一次画面状态判断
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _init_before_execute(self):
@@ -49,21 +50,24 @@ class EnterAutoFight(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
+        self.last_state = self.current_state
 
-        if self.first_screen_check and self.skip_first_screen_check:
-            self.first_screen_check = False
-            self._update_in_world()
-            return self._try_attack(screen)
+        if self.first_screen_check and self.first_state is not None:
+            self.current_state = self.first_state
+        else:
+            self.current_state = screen_state.get_world_patrol_screen_state(
+                screen, self.ctx.im, self.ctx.ocr,
+                in_world=True, battle=True, battle_fail=True,
+                fast_recover=self.use_technique)
 
         self.first_screen_check = False
-        self.last_state = self.current_state
-        self.current_state = screen_state.get_world_patrol_screen_state(
-            screen, self.ctx.im, self.ctx.ocr,
-            in_world=True, battle=True, battle_fail=True,
-            fast_recover=self.use_technique)
+
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             self._update_in_world()
-            return self._try_attack(screen)
+            round_result = self._try_attack(screen)
+            if self.ctx.controller.is_moving:  # 攻击之后再停止移动 避免停止移动的后摇
+                self.ctx.controller.stop_moving_forward()
+            return round_result
         elif self.current_state == screen_state.ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return Operation.round_fail(EnterAutoFight.STATUS_BATTLE_FAIL, wait=5)
@@ -134,8 +138,6 @@ class EnterAutoFight(Operation):
             time.sleep(0.2)
         self.attack_direction += 1
         self.ctx.controller.initiate_attack()
-        if self.ctx.controller.is_moving:  # 攻击之后再停止移动 避免停止移动的后摇
-            self.ctx.controller.stop_moving_forward()
         time.sleep(0.5)
 
     def _update_not_in_world_time(self):

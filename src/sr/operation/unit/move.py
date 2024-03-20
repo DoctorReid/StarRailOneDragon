@@ -16,6 +16,7 @@ from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, s
 from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.record_coordinate import RecordCoordinate
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
 class GetRidOfStuck(Operation):
@@ -262,7 +263,8 @@ class MoveDirectly(Operation):
             if self.stop_move_time is None:
                 self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
             log.info('移动中被袭击')
-            fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight)
+            fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight,
+                                   first_state=screen_state.ScreenState.BATTLE.value)
             fight_start_time = time.time()
             fight_result = fight.execute()
             fight_end_time = time.time()
@@ -292,7 +294,8 @@ class MoveDirectly(Operation):
         if self.stop_move_time is None:
             self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
 
-        fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight, skip_first_screen_check=True)
+        fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight,
+                               first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         fight_start_time = time.time()
         op_result = fight.execute()
         if not op_result.success:

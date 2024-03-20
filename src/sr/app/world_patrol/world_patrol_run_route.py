@@ -126,7 +126,8 @@ class WorldPatrolRunRoute(StateOperation):
         if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
         elif route_item['op'] == operation_const.OP_PATROL:
-            op = EnterAutoFight(self.ctx, use_technique=self.technique_fight)
+            op = EnterAutoFight(self.ctx, use_technique=self.technique_fight,
+                                first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         elif route_item['op'] == operation_const.OP_INTERACT:
             op = Interact(self.ctx, route_item['data'])
         elif route_item['op'] == operation_const.OP_WAIT:
@@ -177,7 +178,9 @@ class WorldPatrolRunRoute(StateOperation):
 
         stop_afterwards = not (
                 next_route_item is not None and
-                next_route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]
+                next_route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
+                                          operation_const.OP_PATROL,  # 如果下一个是攻击 则靠攻击停止移动 这样还可以取消疾跑后摇
+                                          ]
         )
         no_run = route_item['op'] == operation_const.OP_SLOW_MOVE
 
