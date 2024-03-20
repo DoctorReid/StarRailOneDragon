@@ -1,37 +1,18 @@
-from typing import List
+import os
 
 import cv2
-import os
-import yaml
 
 import test
 from basic import Point, cal_utils
-from basic.img import MatchResult, cv2_utils
-from basic.img.os import get_debug_image, save_debug_image
+from basic.img.os import get_debug_image
 from basic.log_utils import log
 from sr import cal_pos, performance_recorder
 from sr.const import map_const
-from sr.const.map_const import Region, get_region_by_prl_id
+from sr.const.map_const import get_region_by_prl_id
 from sr.context import get_context
-from sr.image.sceenshot import mini_map, large_map
-
-
-class TestCase:
-
-    def __init__(self, region: Region, pos: Point, num: int, running: bool, possible_pos: List[int]):
-        self.region: Region = region
-        self.pos: Point = pos
-        self.num: int = num
-        self.running: bool = running
-        self.possible_pos: List[int] = possible_pos
-
-    @property
-    def unique_id(self) -> str:
-        return '%s_%02d' % (self.region.prl_id, self.num)
-
-    @property
-    def image_name(self) -> str:
-        return '%s_%02d.png' % (self.region.prl_id, self.num)
+from sr.image.image_holder import ImageHolder
+from sr.image.sceenshot import mini_map, large_map, mini_map_angle_alas
+from test.sr.cal_pos.cal_pos_test_case import TestCase, read_test_cases, save_test_cases
 
 
 class TestCalPos(test.SrTestBase):
@@ -39,55 +20,20 @@ class TestCalPos(test.SrTestBase):
     def __init__(self, *args, **kwargs):
         test.SrTestBase.__init__(self, *args, **kwargs)
 
-        self.cases: List[TestCase] = []
+        ih = ImageHolder()
+        ih.preheat_for_world_patrol()  # 预热 方便后续统计耗时
+        for i in range(93, 100):  # 预热 方便后续统计耗时 不同时期截图大小可能不一致
+            mini_map_angle_alas.RotationRemapData(i * 2)
 
     @property
-    def _test_cases_path(self) -> str:
+    def cases_path(self) -> str:
         return os.path.join(self.sub_package_path, 'test_cases.yml')
-
-    def _read_test_cases(self):
-        data = []
-        path = self._test_cases_path
-        if os.path.exists(path):
-            with open(path, 'r', encoding='utf-8') as file:
-                data = yaml.safe_load(file)
-
-        self.cases = [self.dict_2_case(row) for row in data['cases']]
-
-    @staticmethod
-    def dict_2_case(data: dict) -> TestCase:
-        region = get_region_by_prl_id(data['region'])
-        pos = Point(data['pos'][0], data['pos'][1])
-        num = data['num']
-        running = data['running']
-        possible_pos = data['possible_pos']
-        return TestCase(region, pos, num, running, possible_pos)
-
-    def _save_test_cases(self):
-        data = {
-            'cases': [self.case_2_dict(c) for c in self.cases]
-        }
-        path = self._test_cases_path
-        with open(path, 'w', encoding='utf-8') as file:
-            yaml.dump(data, file)
-
-    @staticmethod
-    def case_2_dict(case: TestCase) -> dict:
-        data = {
-            'region': case.region.prl_id,
-            'pos': [case.pos.x, case.pos.y],
-            'num': case.num,
-            'running': case.running,
-            'possible_pos': [case.possible_pos[0], case.possible_pos[1], case.possible_pos[2]]
-        }
-
-        return data
 
     def test_cal_pos(self):
         fail_cnt = 0
-        self._read_test_cases()
+        self.cases = read_test_cases(self.cases_path)
         for case in self.cases:
-            # if case.region.prl_id != 'P03_XZLF_R02_LYD_F1 ' and case.num != 1:
+            # if case.unique_id != 'P03_XZLF_R03_HXG_F1_01':
             #     continue
             result = self.run_one_test_case(case, show=False)
             if not result:
@@ -115,7 +61,7 @@ class TestCalPos(test.SrTestBase):
 
         region = get_region_by_prl_id(region_prl_id)
 
-        self._read_test_cases()
+        self.cases = read_test_cases(self.cases_path)
         idx: int = 1
         while True:
             existed: bool = False
@@ -133,7 +79,7 @@ class TestCalPos(test.SrTestBase):
         case = TestCase(region, Point(pp_x, pp_y), idx, is_running, [pp_x, pp_y, pp_r])
         self.cases.append(case)
         self.cases = sorted(self.cases, key=lambda x: x.unique_id)
-        self._save_test_cases()
+        save_test_cases(self.cases, self.cases_path)
         self.save_test_image(mm, case.image_name)
         log.info('新增样例 %s %02d', region_prl_id, idx)
 
@@ -167,10 +113,10 @@ class TestCalPos(test.SrTestBase):
         if show:
             cv2.waitKey(0)
 
-        log.info('%s 当前计算坐标为 %s', case.unique_id, pos)
-
         if pos is None:
+            log.error('%s 当前计算坐标为空', case.unique_id)
             return False
         else:
             dis = cal_utils.distance_between(pos.center, case.pos)
+            log.info('%s 当前计算坐标为 %s 与目标点距离 %.2f', case.unique_id, pos.center, dis)
             return dis < 5

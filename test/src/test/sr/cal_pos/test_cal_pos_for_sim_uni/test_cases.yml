@@ -1,0 +1,16 @@
+cases:
+- region: P01_KJZHT_R04_ZYCD_F2
+  num: 1
+  pos: [777, 388]
+  possible_pos: [804, 388, 30]
+  running: False
+- region: P02_YLL6_R11_MDZ_F1
+  num: 1
+  pos: [592, 587]
+  possible_pos: [544, 594, 72]
+  running: False
+- region: P02_YLL6_R10_DKQ
+  num: 1
+  pos: [508, 747]
+  possible_pos: [516, 742, 38]
+  running: True

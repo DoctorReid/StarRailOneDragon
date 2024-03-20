@@ -171,14 +171,8 @@ def cal_character_pos_by_gray(im: ImageMatcher,
     mm_del_radio = mm_info.origin_del_radio
     template = cv2.cvtColor(mm_del_radio, cv2.COLOR_BGR2GRAY)
 
-    if mm_info.road_mask is None:
-        mm_info.road_mask = mini_map.get_road_mask_for_world_patrol(mm_info.origin_del_radio,
-                                                                    sp_mask=mm_info.sp_mask,
-                                                                    arrow_mask=mm_info.arrow_mask,
-                                                                    another_floor=lm_info.region.another_floor
-                                                                    )
-    road_mask = cv2_utils.dilate(mm_info.road_mask, 5)  # 把白色边缘包括进来
-    template_mask = cv2.bitwise_and(mm_info.circle_mask, road_mask)
+    mini_map.get_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
+    template_mask = cv2_utils.dilate(mm_info.road_mask, 3)  # 把白色边缘包括进来
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
                                                                    mini_map.get_mini_map_scale_list(running),
@@ -226,14 +220,8 @@ def cal_character_pos_by_original(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     # 使用道路掩码
     template = mm_info.origin_del_radio
-    if mm_info.road_mask is None:
-        mm_info.road_mask = mini_map.get_road_mask_for_world_patrol(mm_info.origin_del_radio,
-                                                                    sp_mask=mm_info.sp_mask,
-                                                                    arrow_mask=mm_info.arrow_mask,
-                                                                    another_floor=lm_info.region.another_floor
-                                                                    )
-    dilate_road_mask = cv2_utils.dilate(mm_info.road_mask, 3)
-    template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
+    mini_map.get_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
+    template_mask = cv2_utils.dilate(mm_info.road_mask, 3)  # 把白色边缘包括进来
 
     if scale_list is None:
         scale_list = mini_map.get_mini_map_scale_list(running)
@@ -349,13 +337,8 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
     # 使用道路掩码
-    if mm_info.road_mask is None:
-        mm_info.road_mask = mini_map.get_road_mask_for_world_patrol(mm_info.origin_del_radio,
-                                                                    sp_mask=mm_info.sp_mask,
-                                                                    arrow_mask=mm_info.arrow_mask,
-                                                                    another_floor=lm_info.region.another_floor
-                                                                    )
-    template = mm_info.road_mask
+    mini_map.get_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
+    template = cv2.bitwise_or(mm_info.road_mask, mm_info.arrow_mask)  # 需要把中心补上
     template_mask = mm_info.circle_mask
 
     if scale_list is None:
@@ -489,17 +472,17 @@ def sim_uni_cal_pos(
     # 匹配结果 是缩放后的 offset 和宽高
     result: Optional[MatchResult] = None
 
-    # 模拟宇宙中不需要考虑特殊点
+    # 模拟宇宙中 不需要考虑特殊点
+    # 模拟宇宙中 由于地图都是裁剪的 小地图缺块 不能直接使用道路掩码匹配（误报率非常高）
 
-    # 使用模板匹配 道路掩码误报率高 仅在限定范围时可使用
-    if result is None and lm_rect is not None:
-        result = sim_uni_cal_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+    if result is None:  # 使用模板匹配 灰度图
+        result = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle,
                                                  pos_to_cal_angle=pos_to_cal_angle):
             result = None
 
-    if result is None:  # 使用模板匹配 用原图的
-        result = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+    if result is None:  # 使用模板匹配 原图
+        result = sim_uni_cal_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle,
                                                  pos_to_cal_angle=pos_to_cal_angle):
             result = None
@@ -532,7 +515,7 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
                             match_threshold: float = 0.3) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
-    使用灰度图进行匹配 使用v4的道路掩码 适合在单层地图中使用
+    使用模拟宇宙专用的道路掩码图 + 灰度图
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
@@ -547,11 +530,8 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
     source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
     template = cv2.cvtColor(mm_info.origin_del_radio, cv2.COLOR_BGR2GRAY)
-    if mm_info.road_mask is None:
-        mm_info.road_mask = mini_map.get_road_mask_for_sim_uni_2(mm_info.origin_del_radio,
-                                                                 arrow_mask=mm_info.arrow_mask)
-    dilate_road_mask = cv2_utils.dilate(mm_info.road_mask, 10)  # 把白色边缘包括进来
-    template_mask = cv2.bitwise_and(mm_info.circle_mask, dilate_road_mask)
+    mini_map.get_road_mask_for_sim_uni(mm_info)
+    template_mask = cv2_utils.dilate(mm_info.road_mask, 3)  # 把白色边缘包括进来
 
     if scale_list is None:
         scale_list = mini_map.get_mini_map_scale_list(running)
@@ -577,16 +557,16 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
 
 
 @record_performance
-def sim_uni_cal_pos_by_road_mask(im: ImageMatcher,
-                                 lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                 lm_rect: Rect = None,
-                                 running: bool = False,
-                                 show: bool = False,
-                                 scale_list: List[float] = None,
-                                 match_threshold: float = 0.3) -> Optional[MatchResult]:
+def sim_uni_cal_pos_by_original(im: ImageMatcher,
+                                lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+                                lm_rect: Rect = None,
+                                running: bool = False,
+                                show: bool = False,
+                                scale_list: List[float] = None,
+                                match_threshold: float = 0.3) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
-    使用模拟宇宙专用的道路掩码图
+    使用模拟宇宙专用的道路掩码图 + 原图
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
@@ -596,12 +576,11 @@ def sim_uni_cal_pos_by_road_mask(im: ImageMatcher,
     :param scale_list: 缩放比例
     :return:
     """
-    source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
+    source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     # 使用道路掩码
-    if mm_info.road_mask is None:
-        mm_info.road_mask = mini_map.get_road_mask_for_sim_uni_2(mm_info.origin_del_radio, arrow_mask=mm_info.arrow_mask)
-    template = mm_info.road_mask
-    template_mask = mm_info.circle_mask
+    template = mm_info.origin_del_radio
+    mini_map.get_road_mask_for_sim_uni(mm_info)
+    template_mask = cv2_utils.dilate(mm_info.road_mask, 3)  # 把白色边缘包括进来
 
     if scale_list is None:
         scale_list = mini_map.get_mini_map_scale_list(running)

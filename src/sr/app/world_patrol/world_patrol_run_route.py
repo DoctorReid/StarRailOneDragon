@@ -140,12 +140,13 @@ class WorldPatrolRunRoute(StateOperation):
 
         op_result = op.execute()
 
+        # 以下代码仅用作记录坐标和小地图测试用
         if self.ctx.record_coordinate and op_result.success and (
                 (  # 当前是移动 下一个不是战斗 避免被怪攻击卡死
                     route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE] and
                     next_route_item is not None and next_route_item['op'] != operation_const.OP_PATROL
                 )
-            or
+                or
                 (  # 当前是战斗
                     route_item['op'] == operation_const.OP_PATROL
                 )

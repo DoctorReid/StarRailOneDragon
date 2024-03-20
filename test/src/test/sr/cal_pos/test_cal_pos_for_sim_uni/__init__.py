@@ -1,4 +1,4 @@
-from typing import List
+import os
 
 import cv2
 
@@ -9,36 +9,9 @@ from basic.img.os import get_debug_image, save_debug_image
 from basic.log_utils import log
 from sr import cal_pos, performance_recorder
 from sr.const import map_const
-from sr.const.map_const import Region
 from sr.context import get_context
 from sr.image.sceenshot import mini_map, large_map
-
-
-class TestCase:
-
-    def __init__(self, region: Region, pos: Point, num: int, running: bool, possible_pos: tuple = None):
-        self.region: Region = region
-        self.pos: Point = pos
-        self.num: int = num
-        self.running: bool = running
-        self.possible_pos: tuple = (*pos.tuple(), 25) if possible_pos is None else possible_pos
-
-    @property
-    def unique_id(self) -> str:
-        return '%s_%02d' % (self.region.prl_id, self.num)
-
-    @property
-    def image_name(self) -> str:
-        return '%s_%02d.png' % (self.region.prl_id, self.num)
-
-
-standard_case_list: List[TestCase] = [
-    TestCase(map_const.P01_R04_F2, Point(777, 388), 1, running=False, possible_pos=(804, 388, 30)),
-
-    TestCase(map_const.P02_R11_F1, Point(592, 587), 1, running=False, possible_pos=(544, 594, 72)),
-
-    TestCase(map_const.P02_R10, Point(592, 587), 1, running=True, possible_pos=(516, 742, 38)),
-]
+from test.sr.cal_pos.cal_pos_test_case import read_test_cases, TestCase
 
 
 class TestCalPosForSimUni(test.SrTestBase):
@@ -46,12 +19,17 @@ class TestCalPosForSimUni(test.SrTestBase):
     def __init__(self, *args, **kwargs):
         test.SrTestBase.__init__(self, *args, **kwargs)
 
+    @property
+    def cases_path(self) -> str:
+        return os.path.join(self.sub_package_path, 'test_cases.yml')
+
     def test_cal_pos_for_sim_uni(self):
         fail_cnt = 0
-        for case in standard_case_list:
-            if case.region != map_const.P02_R10 or case.num != 1:
-                continue
-            result = self.run_one_test_case(case, show=True)
+        case_list = read_test_cases(self.cases_path)
+        for case in case_list:
+            # if case.region != map_const.P02_R10 or case.num != 1:
+            #     continue
+            result = self.run_one_test_case(case, show=False)
             if not result:
                 fail_cnt += 1
                 log.info('%s 计算坐标失败', case.unique_id)
@@ -63,7 +41,8 @@ class TestCalPosForSimUni(test.SrTestBase):
         ctx = get_context()
         screen = get_debug_image('P02_YLL6_R10_DKQ_516_742_38_True')
         mm = mini_map.cut_mini_map(screen, ctx.game_config.mini_map_pos)
-        for case in standard_case_list:
+        case_list = read_test_cases(self.cases_path)
+        for case in case_list:
             if case.region != map_const.P02_R10 or case.num != 1:
                 continue
             self.save_test_image(mm, case.image_name)

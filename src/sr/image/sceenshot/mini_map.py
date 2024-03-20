@@ -387,10 +387,6 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) ->
 
     h, w = origin.shape[1], origin.shape[0]
     cx, cy = w // 2, h // 2
-    r = math.floor(h / math.sqrt(2) / 2) - 8
-    info.center_mask = np.zeros_like(info.arrow_mask)
-    info.center_mask[cy - r:cy + r, cx - r:cx + r] = 255
-    info.center_mask = cv2.bitwise_xor(info.center_mask, info.arrow_mask)
 
     info.circle_mask = np.zeros_like(info.arrow_mask)
     cv2.circle(info.circle_mask, (cx, cy), h // 2 - 5, 255, -1)  # 忽略一点圆的边缘
@@ -423,18 +419,18 @@ def remove_radio(mm: MatLike, radio_to_del: MatLike) -> MatLike:
 
 
 @record_performance
-def get_road_mask_for_world_patrol(mm_del_radio: MatLike,
-                                   arrow_mask: MatLike,
-                                   sp_mask: Optional[MatLike] = None,
-                                   another_floor: bool = False) -> MatLike:
+def get_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = False) -> MatLike:
     """
     获取道路掩码 用于原图的模板匹配
-    :param mm_del_radio: 去除雷达的小地图图片
-    :param arrow_mask: 小箭头的掩码
-    :param sp_mask: 特殊点的掩码
+    不考虑特殊点
+    :param mm_info: 小地图信息
     :param another_floor: 可能有另一层的地图
     :return:
     """
+    if mm_info.road_mask is not None:
+        return mm_info.road_mask
+
+    mm_del_radio = mm_info.origin_del_radio
     b, g, r = cv2.split(mm_del_radio)
 
     l = 45
@@ -447,11 +443,14 @@ def get_road_mask_for_world_patrol(mm_del_radio: MatLike,
     max_rgb = np.max(mm_del_radio, axis=2)
     min_rgb = np.min(mm_del_radio, axis=2)
     road_mask_cf = np.zeros(road_mask_1.shape, dtype=np.uint8)
-    road_mask_cf[(max_rgb - min_rgb) <= 2] = 255  # rgb颜色差不超过2 当前层的道路就是这个颜色
+    road_mask_cf[(max_rgb - min_rgb) <= 1] = 255  # rgb颜色差不超过1 当前层的道路就是这个颜色
     # cv2_utils.show_image(road_mask_cf, win_name='road_mask_cf')
+    b_g = None
     if another_floor:  # 多层地图时 另一层的颜色是递进的 R<=G<=B 且差值在2以内
+        b_g = b - g
+        g_r = g - r
         road_mask_af = np.zeros(road_mask_1.shape, dtype=np.uint8)
-        road_mask_af[((b - g) >= 0) & ((b - g) <= 2) & ((g - r) >= 0) & ((g - r) <= 2)] = 255
+        road_mask_af[(b_g >= 0) & (b_g <= 2) & (g_r >= 0) & (g_r <= 2)] = 255
         # cv2_utils.show_image(road_mask_af, win_name='road_mask_af')
 
         road_mask_floor = cv2.bitwise_or(road_mask_cf, road_mask_af)
@@ -459,39 +458,34 @@ def get_road_mask_for_world_patrol(mm_del_radio: MatLike,
         road_mask_floor = road_mask_cf
 
     road_mask_2 = cv2.bitwise_and(road_mask_1, road_mask_floor)  # 不同楼层的地图
-    cv2_utils.show_image(road_mask_2, win_name='road_mask_2')
+    # cv2_utils.show_image(road_mask_2, win_name='road_mask_2')
 
+    if b_g is None:
+        b_g = b - g
     # 算敌人的掩码图
-    lower_color = np.array([45, 45, 60], dtype=np.uint8)
+    lower_color = np.array([45, 45, 80], dtype=np.uint8)
     upper_color = np.array([70, 70, 255], dtype=np.uint8)
     enemy_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的敌人图
     enemy_mask_2 = np.zeros(road_mask_1.shape, dtype=np.uint8)
-    enemy_mask_2[((b - g) <= 2) | ((b - g) <= 2)] = 255  # 敌人的雷达图 g 约等于 b
+    enemy_mask_2[(b_g <= 2) | (b_g >= -2)] = 255  # 敌人的雷达图 g 约等于 b
     enemy_mask = cv2.bitwise_and(enemy_mask_1, enemy_mask_2)
+    # cv2_utils.show_image(enemy_mask, win_name='enemy_mask')
 
-    merge_road_mask = cv2.bitwise_or(road_mask_2, enemy_mask)
+    mm_info.road_mask = cv2.bitwise_or(road_mask_2, enemy_mask)
+    mm_info.road_mask = cv2.bitwise_and(mm_info.road_mask, mm_info.circle_mask)  # 只考虑圆形内部分
 
-    if arrow_mask is not None:
-        merge_road_mask = cv2.bitwise_or(merge_road_mask, arrow_mask)
-
-    if sp_mask is not None:
-        merge_road_mask = cv2.bitwise_or(merge_road_mask, sp_mask)
-
-    cv2_utils.show_image(merge_road_mask, win_name='merge_road_mask')
-
-    return merge_road_mask
+    return mm_info.road_mask
 
 
 @record_performance
-def get_road_mask_for_sim_uni_2(mm_del_radio: MatLike, arrow_mask: MatLike) -> MatLike:
+def get_road_mask_for_sim_uni(mm_info: MiniMapInfo) -> MatLike:
     """
     获取道路掩码 模拟宇宙专用
     不需要考虑特殊点 以及其它楼层
-    :param mm_del_radio: 去除雷达后的小地图
-    :param arrow_mask: 小箭头
+    :param mm_info: 小地图信息
     :return:
     """
-    return get_road_mask_for_world_patrol(mm_del_radio, arrow_mask=arrow_mask, sp_mask=None, another_floor=False)
+    return get_road_mask_for_world_patrol(mm_info, another_floor=False)
 
 
 def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: bool = True):

@@ -7,7 +7,7 @@ from sr.operation import Operation, OperationFail
 from sr.operation.combine import StatusCombineOperation, StatusCombineOperationEdge
 from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.check_technique_point import CheckTechniquePoint
-from sr.operation.unit.use_technique import UseTechnique
+from sr.operation.unit.technique import UseTechnique
 from sr.operation.unit.wait import WaitInSeconds
 
 
