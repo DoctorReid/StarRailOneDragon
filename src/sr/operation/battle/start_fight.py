@@ -1,15 +1,15 @@
 import time
-from typing import Optional, List, Union
+from typing import Optional, List, ClassVar
 
 from basic.i18_utils import gt
-from basic.log_utils import log
 from sr.const.character_const import Character, get_character_by_id, TECHNIQUE_BUFF, is_attack_character, \
     TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK, SILVERWOLF, TECHNIQUE_AREA
 from sr.context import Context
 from sr.image.sceenshot import battle
-from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.team import GetTeamMemberInWorld, SwitchMember
+from sr.operation.unit.technique import UseTechnique
 
 
 class Attack(Operation):
@@ -51,6 +51,8 @@ class StartFight(Operation):
 
 class StartFightForElite(StateOperation):
 
+    STATUS_DONE: ClassVar[str] = '使用完毕'
+
     def __init__(self, ctx: Context, character_list: Optional[List[Character]] = None,
                  skip_point_check: bool = False):
         """
@@ -62,21 +64,34 @@ class StartFightForElite(StateOperation):
         :param ctx:
         :param character_list: 当前配队 无传入时自动识别 但不准
         """
-        nodes = [
-            StateOperationNode('检测秘技点', self._check_technique_point),
-            StateOperationNode('获取角色列表', self._get_character_list),
-            StateOperationNode('获取施放顺序', self._get_technique_order),
-            StateOperationNode('施放秘技', self._use_technique),
-            StateOperationNode('攻击', self._attack),
-        ]
+        edges: List[StateOperationEdge] = []
+
+        character = StateOperationNode('获取角色列表', self._get_character_list)
+        technique_order = StateOperationNode('获取施放顺序', self._get_technique_order)
+        edges.append(StateOperationEdge(character, technique_order))
+
+        technique_point = StateOperationNode('检测秘技点', self._check_technique_point)
+        edges.append(StateOperationEdge(technique_order, technique_point))
+
+        switch = StateOperationNode('切换角色', self._switch_member)
+        edges.append(StateOperationEdge(technique_point, switch))
+
+        use = StateOperationNode('施放秘技', self._use_technique)
+        edges.append(StateOperationEdge(switch, use))
+        edges.append(StateOperationEdge(use, switch))
+
+        attack = StateOperationNode('攻击', self._attack)
+        edges.append(StateOperationEdge(switch, attack, status=StartFightForElite.STATUS_DONE))
+
         super().__init__(ctx, op_name=gt('使用秘技 进入战斗', 'ui'),
-                         nodes=nodes)
+                         edges=edges)
         self.character_list_from_param: Optional[List[Character]] = character_list
         self.character_list: List[Character] = []
         self.technique_order: List[int] = []
         self.need_attack_finally: bool = True  # 最后需要攻击
         self.skip_point_check: bool = skip_point_check  # 跳过检测秘技点
         self.technique_point: int = 5  # 秘技点
+        self.technique_idx: int = 0  # 当前到哪一个角色使用
 
     def _init_before_execute(self):
         """
@@ -86,8 +101,13 @@ class StartFightForElite(StateOperation):
         self.character_list = []
         self.technique_order = []
         self.need_attack_finally = True
+        self.technique_idx: int = 0  # 当前到哪一个角色使用
 
     def _check_technique_point(self) -> OperationOneRoundResult:
+        """
+        检测秘技点 并固定
+        :return:
+        """
         if self.skip_point_check:
             self.technique_point = 5
         else:
@@ -97,7 +117,15 @@ class StartFightForElite(StateOperation):
                 self.technique_point = op_result.data
             else:
                 self.technique_point = 0  # 识别失败时直接认为是0
-        return Operation.round_success()
+
+        # 秘技点不够的时候 减少使用
+        if self.technique_point < len(self.technique_order):
+            self.technique_order = self.technique_order[:self.technique_point]
+
+        if len(self.technique_order) == 0:
+            return Operation.round_success(StartFightForElite.STATUS_DONE)
+        else:
+            return Operation.round_success()
 
     def _get_character_list(self) -> OperationOneRoundResult:
         """
@@ -164,36 +192,27 @@ class StartFightForElite(StateOperation):
         # 可能存在没有攻击类的角色 此时也需要兜底返回
         return Operation.round_success()
 
+    def _switch_member(self) -> OperationOneRoundResult:
+        """
+        切换角色
+        :return:
+        """
+        idx = self.technique_order[self.technique_idx]  # 从0开始
+        op = SwitchMember(self.ctx, idx + 1, skip_first_screen_check=True)
+        return Operation.round_by_op(op.execute())
+
     def _use_technique(self) -> OperationOneRoundResult:
         """
-        按顺序使用秘技
+        使用秘技
         :return:
         """
-        # 秘技点不够的时候 保证主C使用
-        if self.technique_point == 0:
-            order = []
-        elif self.technique_point < len(self.technique_order):
-            order = self.technique_order[-self.technique_point:]
-        else:
-            order = self.technique_order
-
-        for idx in order:
-            self._use_technique_by_one(idx)
-            character = self.character_list[idx]
-            self.need_attack_finally = character.technique_type != TECHNIQUE_ATTACK
-
-        return Operation.round_success()
-
-    def _use_technique_by_one(self, idx):
-        """
-        切换角色并使用秘技
-        :param idx: 从0开始
-        :return:
-        """
-        switch = SwitchMember(self.ctx, idx + 1, skip_first_screen_check=True)
-        switch_result = switch.execute()
-        if switch_result.success:
-            self.ctx.controller.use_technique()
+        op = UseTechnique(self.ctx)
+        op_result = op.execute()
+        if op_result.success and op_result.data:
+            idx = self.technique_order[self.technique_idx]
+            self.need_attack_finally = self.character_list[idx].technique_type != TECHNIQUE_ATTACK
+        self.technique_idx += 1
+        return Operation.round_by_op(op_result)
 
     def _attack(self) -> OperationOneRoundResult:
         """

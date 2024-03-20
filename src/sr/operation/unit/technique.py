@@ -1,14 +1,13 @@
-from typing import Optional, ClassVar
+from typing import ClassVar, List
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from sr.const.character_const import Character
 from sr.context import Context
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import screen_state
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationEdge, StateOperationNode
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
@@ -32,7 +31,7 @@ def pc_can_use_technique(screen: MatLike, ocr: OcrMatcher, key: str) -> bool:
         return False
 
 
-class UseTechnique(Operation):
+class UseTechnique(StateOperation):
 
     STATUS_NO_NEED_CONSUMABLE: ClassVar[str] = '无需使用消耗品'
     STATUS_NO_USE_CONSUMABLE: ClassVar[str] = '没使用消耗品'
@@ -43,20 +42,33 @@ class UseTechnique(Operation):
         """
         需在大世界页面中使用
         用当前角色使用秘技
+        返回 data=是否使用了秘技
         :param ctx:
         :param use_consumable: 秘技点不足时是否可以使用消耗品 0=不可以 1=使用1个 2=连续使用至满
         """
+        edges: List[StateOperationEdge] = []
 
-        super().__init__(ctx, try_times=2, op_name=gt('施放秘技', 'ui'))
+        use = StateOperationNode('使用秘技', self._use)
+        confirm = StateOperationNode('确认', self._confirm)
+        edges.append(StateOperationEdge(use, confirm))
+        edges.append(StateOperationEdge(confirm, use, status=UseTechnique.STATUS_USE_CONSUMABLE))
+
+        super().__init__(ctx, try_times=5,
+                         op_name=gt('施放秘技', 'ui'),
+                         edges=edges,
+                         specified_start_node=use)
 
         self.use_consumable: int = use_consumable  # 是否可以使用消耗品
         self.use_consumable_times: int = 0  # 使用消耗品的次数
+        self.use_technique: bool = False  # 是否使用了秘技
 
     def _init_before_execute(self):
         self.use_consumable_times: int = 0  # 使用消耗品的次数
+        self.use_technique: bool = False  # 是否使用了秘技
 
     def _use(self) -> OperationOneRoundResult:
         self.ctx.controller.use_technique()
+        self.use_technique = True
         return Operation.round_success(wait=0.5)
 
     def _confirm(self) -> OperationOneRoundResult:
@@ -66,13 +78,15 @@ class UseTechnique(Operation):
         """
         screen = self.screenshot()
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 无需使用
-            return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE)
+            return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.use_technique)
+
+        self.use_technique = False
 
         if self.use_consumable == 0:  # 不可以使用消耗品
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5)
+                return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         elif self.find_area(ScreenDialog.FAST_RECOVER_NO_CONSUMABLE.value, screen):  # 没有消耗品可以使用
@@ -80,32 +94,32 @@ class UseTechnique(Operation):
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
                 if self.use_consumable_times > 0:
-                    return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5)
+                    return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
                 else:
-                    return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5)
+                    return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         elif self.use_consumable == 1 and self.use_consumable_times >= 1:  # 只能用1次 而已经用了
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5)
+                return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
-        else:  # 需要使用消耗品
+        else:  # 还需要使用消耗品
             area = ScreenDialog.FAST_RECOVER_CONFIRM.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
                 self.use_consumable_times += 1
-                return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5)
+                return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
             elif click == Operation.OCR_CLICK_NOT_FOUND:  # 使用满了
                 area = ScreenDialog.FAST_RECOVER_CANCEL.value
                 click = self.find_and_click_area(area, screen)
                 if click == Operation.OCR_CLICK_SUCCESS:
                     if self.use_consumable_times > 0:
-                        return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5)
+                        return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
                     else:
-                        return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5)
+                        return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
                 else:
                     return Operation.round_retry('点击%s失败' % area.status, wait=1)
             else:
