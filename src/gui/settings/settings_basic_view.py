@@ -104,7 +104,7 @@ class AccountListItem(ft.Container):
         加入一条龙改变
         :return:
         """
-        self.account.active_in_od = bool(self.active_in_od.value)
+        self.account.active_in_od = self.active_in_od.value == 'True'
         self._on_value_changed()
 
     def _on_click_delete(self, e):
@@ -367,6 +367,7 @@ class SettingsBasicView(components.Card, SrBasicView):
     def on_account_switch(self, account_idx: int):
         app = SwitchAccountApp(self.sr_ctx, account_idx)
         op_result = app.execute()
+        log.info('切换账号登录完成 %s', ('成功' if op_result.success else '失败'))
         self.handle_after_show()  # 运行后重新加载本页面
 
 
