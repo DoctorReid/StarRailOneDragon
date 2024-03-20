@@ -23,7 +23,7 @@ class EnterAutoFight(Operation):
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
     STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
 
-    def __init__(self, ctx: Context, use_technique: bool = False):
+    def __init__(self, ctx: Context, use_technique: bool = False, skip_first_screen_check: bool = False):
         """
         根据小地图的红圈 判断是否被敌人锁定 进行主动攻击
         """
@@ -36,6 +36,8 @@ class EnterAutoFight(Operation):
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_direction: int = 0  # 攻击方向
         self.use_technique: bool = use_technique  # 使用秘技开怪
+        self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次画面检测 主动攻击的时候可以跳过
+        self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -43,10 +45,17 @@ class EnterAutoFight(Operation):
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_not_in_world_time = time.time() - 1.5  # 上次不在移动画面的时间
         self.attack_direction: int = 0  # 攻击方向
+        self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
+        if self.first_screen_check and self.skip_first_screen_check:
+            self.first_screen_check = False
+            self._update_in_world()
+            return self._try_attack(screen)
+
+        self.first_screen_check = False
         self.last_state = self.current_state
         self.current_state = screen_state.get_world_patrol_screen_state(
             screen, self.ctx.im, self.ctx.ocr,
@@ -125,6 +134,8 @@ class EnterAutoFight(Operation):
             time.sleep(0.2)
         self.attack_direction += 1
         self.ctx.controller.initiate_attack()
+        if self.ctx.controller.is_moving:  # 攻击之后再停止移动 避免停止移动的后摇
+            self.ctx.controller.stop_moving_forward()
         time.sleep(0.5)
 
     def _update_not_in_world_time(self):

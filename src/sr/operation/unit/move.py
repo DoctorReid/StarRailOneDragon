@@ -286,11 +286,13 @@ class MoveDirectly(Operation):
             return None
         if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos):
             return None
-        self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
+
+        # 停下来的任务交给了 EnterAutoFight 尝试取消停止移动造成的后摇
+        # self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         if self.stop_move_time is None:
             self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
 
-        fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight)
+        fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight, skip_first_screen_check=True)
         fight_start_time = time.time()
         op_result = fight.execute()
         if not op_result.success:

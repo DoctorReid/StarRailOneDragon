@@ -80,6 +80,10 @@ class UseTechnique(StateOperation):
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 无需使用
             return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.use_technique)
 
+        area = ScreenDialog.FAST_RECOVER_TITLE.value
+        if not self.find_area(area, screen):  # 没有出现对话框的话 认为进入了战斗
+            return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.use_technique)
+
         self.use_technique = False
 
         if self.use_consumable == 0:  # 不可以使用消耗品
