@@ -195,8 +195,10 @@ class SimUniEnterFight(Operation):
             if self.use_technique and not self.ctx.is_buff_technique:  # 攻击类每次都需要使用
                 self.ctx.technique_used = False
 
-            if self.ctx.is_buff_technique or \
-                    self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
+            if not self.ctx.technique_used and (
+                self.ctx.is_buff_technique or
+                (self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm))
+            ):  # 攻击类只有附近有敌人时候才使用
                 op = UseTechnique(self.ctx,
                                   use_consumable=2 if self.config.multiple_consumable else 1,
                                   need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
