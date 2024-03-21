@@ -17,6 +17,7 @@ from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.record_coordinate import RecordCoordinate
 from sr.operation.unit.team import CheckTeamMembersInWorld
+from sr.operation.unit.technique import UseTechnique
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
@@ -86,26 +87,13 @@ class WorldPatrolRunRoute(StateOperation):
         if not self.technique_fight or not self.ctx.is_buff_technique:
             return Operation.round_success()
 
-        screen = self.screenshot()
+        op = UseTechnique(self.ctx,
+                          use_consumable=1,
+                          need_check_available=self.ctx.is_pc,
+                          need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
+                          )
 
-        state = screen_state.get_world_patrol_screen_state(screen, self.ctx.im, self.ctx.ocr,
-                                                           in_world=True, fast_recover=True)
-        if state == ScreenDialog.FAST_RECOVER_TITLE.value.text:  # 使用秘技后出现快速恢复对话框
-            self.ctx.technique_used = False
-            click = self.find_and_click_area(ScreenDialog.FAST_RECOVER_CONFIRM.value, screen)
-            if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_wait(wait=0.5)
-            else:
-                return Operation.round_retry('点击确认失败', wait=1.5)
-        elif not self.ctx.technique_used:
-            if state == ScreenNormalWorld.CHARACTER_ICON.value.status:
-                self.ctx.controller.use_technique()
-                self.ctx.technique_used = True
-                return Operation.round_wait(wait=1.5)
-            else:
-                return Operation.round_retry('未在大世界画面', wait=1)
-        else:
-            return Operation.round_success()
+        return Operation.round_by_op(op.execute())
 
     def _next_op(self) -> OperationOneRoundResult:
         """

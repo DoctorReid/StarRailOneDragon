@@ -5,19 +5,16 @@ from cv2.typing import MatLike
 from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from basic.log_utils import log
 from sr import cal_pos
 from sr.const import operation_const
 from sr.context import Context
-from sr.image.sceenshot import mini_map, screen_state, large_map
+from sr.image.sceenshot import mini_map, large_map
 from sr.operation import Operation, \
     OperationResult, StateOperation, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
-from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveWithoutPos, MoveDirectly
-from sr.screen_area.dialog import ScreenDialog
-from sr.screen_area.screen_normal_world import ScreenNormalWorld
+from sr.operation.unit.technique import UseTechnique
 from sr.sim_uni.op.move_in_sim_uni import MoveDirectlyInSimUni, MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
@@ -226,68 +223,6 @@ class SimUniRunRouteBase(StateOperation):
         return Operation.round_by_op(op.execute())
 
 
-class UseTechniqueBeforeRoute(Operation):
-
-    def __init__(self, ctx: Context, multiple_consumable: bool):
-        """
-        需在大世界页面中使用
-        在路线执行前 用当前角色使用秘技 如果是BUFF类的话
-        会检测之前是否有使用 使用后是否需要吃药等
-        :param ctx:
-        """
-        super().__init__(ctx, try_times=5,
-                         op_name=gt('路线前使用秘技', 'ui')
-                         )
-        self.multiple_consumable: bool = multiple_consumable
-
-    def _execute_one_round(self) -> OperationOneRoundResult:
-        if not self.ctx.is_buff_technique:
-            return Operation.round_success('非BUFF类跳过')
-
-        screen = self.screenshot()
-        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
-                                                      in_world=True, fast_recover=True)
-        log.debug('当前画面 %s', state)
-        if state == ScreenNormalWorld.CHARACTER_ICON.value.status:  # 在大世界
-            if self.ctx.technique_used:
-                return Operation.round_success()
-
-            technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
-
-            if technique_point is None:  # 部分机器运行速度快 右上角图标出来了当下面秘技点还没出来 这时候还不能使用秘技
-                return Operation.round_retry('未检测到剩余秘技点', wait=0.5)
-            elif technique_point == 0 and self.ctx.no_technique_recover_consumables:  # 没有秘技恢复药了 就不使用了
-                return Operation.round_success()
-            else:
-                self.ctx.controller.use_technique()
-                self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
-                return Operation.round_wait(wait=1.5)
-        elif state == ScreenDialog.FAST_RECOVER_TITLE.value.text:  # 使用秘技后出现快速恢复对话框
-            self.ctx.technique_used = False
-
-            if self.find_area(ScreenDialog.FAST_RECOVER_NO_CONSUMABLE.value, screen):
-                self.ctx.no_technique_recover_consumables = True
-                area = ScreenDialog.FAST_RECOVER_CANCEL.value
-            else:
-                if self.ctx.consumable_used and not self.multiple_consumable:  # 只使用一个消耗品
-                    area = ScreenDialog.FAST_RECOVER_CANCEL.value
-                else:
-                    area = ScreenDialog.FAST_RECOVER_CONFIRM.value
-
-            click = self.find_and_click_area(area, screen)
-
-            if click == Operation.OCR_CLICK_SUCCESS:
-                if area == ScreenDialog.FAST_RECOVER_CONFIRM.value:
-                    self.ctx.consumable_used = True
-                else:
-                    self.ctx.consumable_used = False
-                return Operation.round_wait(wait=0.5)
-            else:
-                return Operation.round_retry('点击%s失败' % area.status, wait=1.5)
-        else:
-            return Operation.round_success()
-
-
 class SimUniRunCombatRoute(SimUniRunRouteBase):
 
     def __init__(self, ctx: Context, world_num: int, level_type: SimUniLevelType, route: SimUniRoute,
@@ -303,7 +238,10 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
         if not self.config.technique_fight or self.ctx.technique_used:
             return Operation.round_success()
         else:
-            op = UseTechniqueBeforeRoute(self.ctx, self.config.multiple_consumable)
+            op = UseTechnique(self.ctx,
+                              use_consumable=2 if self.config.multiple_consumable else 1,
+                              need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
+                              )
             return Operation.round_by_op(op.execute())
 
 

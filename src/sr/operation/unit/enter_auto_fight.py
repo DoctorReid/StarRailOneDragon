@@ -4,13 +4,10 @@ from typing import ClassVar, List, Optional
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
-from basic.log_utils import log
-from sr.config import game_config
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.check_technique_point import CheckTechniquePoint
-from sr.operation.unit.technique import pc_can_use_technique
+from sr.operation.unit.technique import UseTechnique
 from sr.screen_area.dialog import ScreenDialog
 
 
@@ -108,22 +105,15 @@ class EnterAutoFight(Operation):
         if self.use_technique and not self.ctx.is_buff_technique:  # 攻击类每次都需要使用
             self.ctx.technique_used = False
 
-        if self.use_technique and not self.ctx.technique_used and \
-                (not self.ctx.is_pc or pc_can_use_technique(screen, self.ctx.ocr, self.gc.key_technique)):  # 普通锄大地战斗后 会有一段时间才能进行操作 可以操作时 操作按键会显示出来
-            technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
-            if technique_point is None:  # 部分机器运行速度快 右上角图标出来了当下面秘技点还没出来 这时候还不能使用秘技
-                pass
-            elif self.ctx.is_buff_technique:
-                self.ctx.controller.use_technique()
-                self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
+        if self.use_technique and not self.ctx.technique_used:
+            if self.ctx.is_buff_technique or \
+                    self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
+                op = UseTechnique(self.ctx, use_consumable=1,
+                                  need_check_available=self.ctx.is_pc and not self.ctx.controller.is_moving,  # 只有战斗结束刚出来的时候可能用不了秘技
+                                  need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
+                                  )
+                op_result = op.execute()
                 self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
-            elif self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
-                self.ctx.controller.use_technique()
-                self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
-
-            if self.ctx.technique_used and technique_point == 0:
-                self.last_alert_time += 0.5
-                return Operation.round_wait(wait=0.5)
 
         self._attack(now_time)
 

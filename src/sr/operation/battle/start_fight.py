@@ -7,9 +7,8 @@ from sr.const.character_const import Character, get_character_by_id, TECHNIQUE_B
 from sr.context import Context
 from sr.image.sceenshot import battle
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
-from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.team import GetTeamMemberInWorld, SwitchMember
-from sr.operation.unit.technique import UseTechnique
+from sr.operation.unit.technique import UseTechnique, CheckTechniquePoint
 
 
 class Attack(Operation):

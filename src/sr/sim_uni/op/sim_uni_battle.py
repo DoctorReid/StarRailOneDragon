@@ -9,8 +9,8 @@ from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.battle.start_fight import StartFightForElite
-from sr.operation.unit.check_technique_point import CheckTechniquePoint
 from sr.operation.unit.team import SwitchMember
+from sr.operation.unit.technique import UseTechnique
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
@@ -195,24 +195,14 @@ class SimUniEnterFight(Operation):
             if self.use_technique and not self.ctx.is_buff_technique:  # 攻击类每次都需要使用
                 self.ctx.technique_used = False
 
-            if self.use_technique and not self.ctx.technique_used:
-                technique_point = CheckTechniquePoint.get_technique_point(screen, self.ctx.ocr)
-
-                if technique_point is None:  # 部分机器运行速度快 右上角图标出来了当下面秘技点还没出来 这时候还不能使用秘技
-                    pass
-                elif technique_point == 0 and self.ctx.no_technique_recover_consumables:  # 没有秘技恢复药了 就不使用了
-                    pass
-                elif self.ctx.is_buff_technique:
-                    self.ctx.controller.use_technique()
-                    self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
-                    self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
-                elif self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
-                    self.ctx.controller.use_technique()
-                    self.ctx.technique_used = True  # 无论有没有秘技点 先设置已经使用了
-
-                if self.ctx.technique_used and technique_point == 0:
-                    self.last_alert_time += 0.5
-                    return Operation.round_wait(wait=0.5)
+            if self.ctx.is_buff_technique or \
+                    self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
+                op = UseTechnique(self.ctx,
+                                  use_consumable=2 if self.config.multiple_consumable else 1,
+                                  need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
+                                  )
+                op_result = op.execute()
+                self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
 
             self._attack(now_time)
 
