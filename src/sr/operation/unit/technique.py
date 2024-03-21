@@ -189,7 +189,7 @@ class UseTechnique(StateOperation):
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
                 self.use_consumable_times += 1
-                return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
+                return Operation.round_wait(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
             elif click == Operation.OCR_CLICK_NOT_FOUND:  # 使用满了
                 area = ScreenDialog.FAST_RECOVER_CANCEL.value
                 click = self.find_and_click_area(area, screen)

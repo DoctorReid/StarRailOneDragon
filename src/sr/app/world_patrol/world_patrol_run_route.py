@@ -8,7 +8,6 @@ from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatr
 from sr.const import operation_const, map_const
 from sr.const.map_const import Region
 from sr.context import Context
-from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationResult, OperationFail, StateOperation, \
     StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.transport import Transport
@@ -19,7 +18,6 @@ from sr.operation.unit.record_coordinate import RecordCoordinate
 from sr.operation.unit.team import CheckTeamMembersInWorld
 from sr.operation.unit.technique import UseTechnique
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
-from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
@@ -84,12 +82,11 @@ class WorldPatrolRunRoute(StateOperation):
         如果是秘技开怪 且是上buff类的 就在路线运行前上buff
         :return:
         """
-        if not self.technique_fight or not self.ctx.is_buff_technique:
+        if not self.technique_fight or not self.ctx.is_buff_technique or self.ctx.technique_used:
             return Operation.round_success()
 
         op = UseTechnique(self.ctx,
                           use_consumable=1,
-                          need_check_available=self.ctx.is_pc,
                           need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
                           )
 
