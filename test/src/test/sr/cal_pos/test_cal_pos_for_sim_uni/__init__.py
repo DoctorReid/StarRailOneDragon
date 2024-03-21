@@ -9,9 +9,10 @@ from basic.img.os import get_debug_image, save_debug_image
 from basic.log_utils import log
 from sr import cal_pos, performance_recorder
 from sr.const import map_const
+from sr.const.map_const import get_region_by_prl_id
 from sr.context import get_context
 from sr.image.sceenshot import mini_map, large_map
-from test.sr.cal_pos.cal_pos_test_case import read_test_cases, TestCase
+from test.sr.cal_pos.cal_pos_test_case import read_test_cases, TestCase, save_test_cases
 
 
 class TestCalPosForSimUni(test.SrTestBase):
@@ -27,9 +28,9 @@ class TestCalPosForSimUni(test.SrTestBase):
         fail_cnt = 0
         case_list = read_test_cases(self.cases_path)
         for case in case_list:
-            # if case.region != map_const.P02_R10 or case.num != 1:
-            #     continue
-            result = self.run_one_test_case(case, show=False)
+            if case.unique_id !='P02_YLL6_R11_MDZ_F1_02':
+                continue
+            result = self.run_one_test_case(case, show=True)
             if not result:
                 fail_cnt += 1
                 log.info('%s 计算坐标失败', case.unique_id)
@@ -39,14 +40,41 @@ class TestCalPosForSimUni(test.SrTestBase):
 
     def test_init_case(self):
         ctx = get_context()
-        screen = get_debug_image('P02_YLL6_R10_DKQ_516_742_38_True')
-        mm = mini_map.cut_mini_map(screen, ctx.game_config.mini_map_pos)
+        file_name = 'P02_YLL6_R11_MDZ_F1_487_530_30_True'
+        mm = get_debug_image(file_name)
+
+        str_list = file_name.split('_')
+        is_running = (bool)(str_list.pop())
+        pp_r = (int)(str_list.pop())
+        pp_y = (int)(str_list.pop())
+        pp_x = (int)(str_list.pop())
+        region_prl_id = '_'.join(str_list)
+
+        region = get_region_by_prl_id(region_prl_id)
+
         case_list = read_test_cases(self.cases_path)
-        for case in case_list:
-            if case.region != map_const.P02_R10 or case.num != 1:
-                continue
-            self.save_test_image(mm, case.image_name)
-            self.run_one_test_case(case, show=True)
+        idx: int = 1
+        while True:
+            existed: bool = False
+            for c in case_list:
+                if c.region.prl_id != region_prl_id:
+                    continue
+                if c.num == idx:
+                    existed = True
+                    break
+            if existed:
+                idx += 1
+            else:
+                break
+
+        case = TestCase(region, Point(pp_x, pp_y), idx, is_running, [pp_x, pp_y, pp_r])
+        case_list.append(case)
+        case_list = sorted(case_list, key=lambda x: x.unique_id)
+        save_test_cases(case_list, self.cases_path)
+
+        self.save_test_image(mm, case.image_name)
+        log.info('新增样例 %s', case.unique_id)
+        self.run_one_test_case(case, show=True)
 
     def run_one_test_case(self, case: TestCase, show: bool = False) -> bool:
         """
@@ -75,11 +103,13 @@ class TestCalPosForSimUni(test.SrTestBase):
         if show:
             cv2.waitKey(0)
 
-        dis = cal_utils.distance_between(pos, case.pos)
-
-        log.info('%s 当前计算坐标为 %s 距离 %.2f', case.unique_id, pos, dis)
-
-        return dis < 5
+        if pos is None:
+            log.error('%s 当前计算坐标为空', case.unique_id)
+            return False
+        else:
+            dis = cal_utils.distance_between(pos, case.pos)
+            log.info('%s 当前计算坐标为 %s 与目标点距离 %.2f', case.unique_id, pos, dis)
+            return dis < 5
 
     def test_for_debug(self):
         ctx = get_context()
