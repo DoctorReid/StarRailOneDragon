@@ -32,7 +32,8 @@ class SimUniEnterFight(Operation):
     def __init__(self, ctx: Context,
                  config: Optional[SimUniChallengeConfig] = None,
                  disposable: bool = False,
-                 no_attack: bool = False):
+                 no_attack: bool = False,
+                 first_state: Optional[str] = None):
         """
         模拟宇宙中 主动进入战斗
         根据小地图的红圈 判断是否被敌人锁定
@@ -50,11 +51,15 @@ class SimUniEnterFight(Operation):
         self.disposable: bool = disposable  # 攻击可破坏物
         self.no_attack: bool = no_attack  # 不主动攻击
         self.use_technique: bool = False if config is None else config.technique_fight  # 是否使用秘技开怪
+        self.first_state: Optional[str] = first_state  # 初始画面状态 传入后会跳过第一次画面状态判断
+        self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         self.last_attack_time = time.time()
         self.last_alert_time = time.time()  # 上次警报时间
         self.last_not_in_world_time = time.time()  # 上次在战斗的时间
+        self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -65,7 +70,10 @@ class SimUniEnterFight(Operation):
         log.debug('当前画面 %s', self.current_state)
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             self._update_in_world()
-            return self._try_attack(screen)
+            round_result = self._try_attack(screen)
+            if self.ctx.controller.is_moving:  # 攻击之后再停止移动 避免停止移动的后摇
+                self.ctx.controller.stop_moving_forward()
+            return round_result
         elif self.current_state == screen_state.ScreenState.SIM_BLESS.value:
             return self._choose_bless()
         elif self.current_state == screen_state.ScreenState.SIM_CURIOS.value:
@@ -91,14 +99,20 @@ class SimUniEnterFight(Operation):
         :param screen: 屏幕截图
         :return:
         """
-        return screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
-                                                     in_world=True,
-                                                     battle=True,
-                                                     battle_fail=True,
-                                                     bless=True,
-                                                     curio=True,
-                                                     empty_to_close=True,
-                                                     fast_recover=self.use_technique)
+        if self.first_screen_check and self.first_state is not None:
+            state = self.first_state
+        else:
+            state = screen_state.get_sim_uni_screen_state(
+                screen, self.ctx.im, self.ctx.ocr,
+                in_world=True,
+                battle=True,
+                battle_fail=True,
+                bless=True,
+                curio=True,
+                empty_to_close=True,
+                fast_recover=self.use_technique)
+        self.first_screen_check = False
+        return state
 
     def _update_in_world(self):
         """

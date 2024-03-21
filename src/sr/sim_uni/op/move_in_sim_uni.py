@@ -89,11 +89,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
                                                pos_to_cal_angle=self.start_pos,
                                                lm_rect=lm_rect, running=self.ctx.controller.is_moving)
         except Exception:
-            log.error('计算坐标出错', exc_info=True)
             next_pos = None
-            self.ctx.controller.stop_moving_forward()
-            if self.stop_move_time is None:
-                self.stop_move_time = time.time()
+            log.error('识别坐标失败', exc_info=True)
 
         if next_pos is None:
             log.error('无法判断当前人物坐标')
@@ -146,7 +143,9 @@ class MoveDirectlyInSimUni(MoveDirectly):
             return None
         if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos):
             return None
-        self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
+
+        # 停下来的任务交给了 SimUniEnterFight 这样可以取消停止移动造成的后摇
+        # self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
         if self.stop_move_time is None:
             self.stop_move_time = time.time()
 
@@ -377,10 +376,10 @@ class MoveToNextLevel(StateOperation):
         :return:
         """
         if self._can_interact(screen):
-            self.ctx.controller.stop_moving_forward()
             self.ctx.controller.interact(interact_type=GameController.MOVE_INTERACT_TYPE)
             log.debug('尝试交互进入下一层')
             self.interacted = True
+            self.ctx.controller.stop_moving_forward()
             return Operation.round_wait(wait=0.25)
         else:
             return None
@@ -483,8 +482,8 @@ class MoveToMiniMapInteractIcon(Operation):
         :return:
         """
         if self._can_interact(screen):
-            self.ctx.controller.stop_moving_forward()
             self.ctx.controller.interact(interact_type=GameController.MOVE_INTERACT_TYPE)
+            self.ctx.controller.stop_moving_forward()
 
             return Operation.round_wait(wait=0.25)
         else:

@@ -107,10 +107,15 @@ class SimUniRunRouteOp(StateOperation):
         :return:
         """
         next_pos = Point(current_op['data'][0], current_op['data'][1])
-        next_is_move = next_op is not None and next_op['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]
+        stop_afterwards = not (
+            next_op is not None
+            and next_op['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
+                                  operation_const.OP_PATROL,  # 如果下一个是攻击 则靠攻击停止移动 这样还可以取消疾跑后摇
+                                  ]
+        )
         op = MoveDirectlyInSimUni(self.ctx, self.ctx.ih.get_large_map(self.route.region),
                                   start=self.current_pos, target=next_pos,
-                                  stop_afterwards=not next_is_move,
+                                  stop_afterwards=stop_afterwards,
                                   op_callback=self._update_pos,
                                   config=self.config,
                                   no_battle=self.route_no_battle,
