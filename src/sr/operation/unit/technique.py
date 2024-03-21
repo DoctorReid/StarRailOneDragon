@@ -170,20 +170,19 @@ class UseTechnique(StateOperation):
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         else:  # 还需要使用消耗品
-            if self.specified_consumable is not None and not self.consumable_chosen:
+            if self.specified_consumable is not None and not self.consumable_chosen:  # 理论上只有第1次需要选择 即还没有使用任何消耗品
                 choose = self._choose_consumable(screen)
                 if not choose:
+                    self.ctx.no_technique_recover_consumables = True
                     area = ScreenDialog.FAST_RECOVER_CANCEL.value
                     click = self.find_and_click_area(area, screen)
                     if click == Operation.OCR_CLICK_SUCCESS:
-                        if self.use_consumable_times > 0:
-                            return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5,
-                                                           data=self.use_technique)
-                        else:
-                            return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5,
-                                                           data=self.use_technique)
+                        return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5,
+                                                       data=self.use_technique)
                     else:
                         return Operation.round_retry('点击%s失败' % area.status, wait=1)
+                else:
+                    self.consumable_chosen = True
 
             area = ScreenDialog.FAST_RECOVER_CONFIRM.value
             click = self.find_and_click_area(area, screen)
