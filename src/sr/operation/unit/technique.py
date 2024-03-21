@@ -60,7 +60,8 @@ class UseTechnique(StateOperation):
     def __init__(self, ctx: Context,
                  use_consumable: int = 0,
                  need_check_available: bool = False,
-                 need_check_point: bool = False
+                 need_check_point: bool = False,
+                 specified_consumable: Optional[str] = None
                  ):
         """
         需在大世界页面中使用
@@ -70,6 +71,7 @@ class UseTechnique(StateOperation):
         :param use_consumable: 秘技点不足时是否可以使用消耗品 0=不可以 1=使用1个 2=连续使用至满
         :param need_check_available: 是否需要检查秘技是否可用 普通大世界战斗后 会有一段时间才能使用秘技
         :param need_check_point: 是否检测剩余秘技点再使用。如果没有秘技点 又不能用消耗品 那就不使用了
+        :param specified_consumable: 使用特定的消耗品
         """
         edges: List[StateOperationEdge] = []
 
@@ -91,12 +93,15 @@ class UseTechnique(StateOperation):
         self.use_consumable_times: int = 0  # 使用消耗品的次数
         self.use_technique: bool = False  # 是否使用了秘技
         self.need_check_available: bool = need_check_available  # 是否需要检查秘技是否可用
-        self.need_check_point: bool = need_check_point
+        self.need_check_point: bool = need_check_point  # 是否检测剩余秘技点再使用
+        self.specified_consumable: Optional[str] = specified_consumable  # 使用特定的消耗品
+        self.consumable_chosen: bool = False  # 是否已经选择了消耗品
 
     def _init_before_execute(self):
         super()._init_before_execute()
         self.use_consumable_times: int = 0  # 使用消耗品的次数
         self.use_technique: bool = False  # 是否使用了秘技
+        self.consumable_chosen: bool = False  # 是否已经选择了消耗品
 
     def _check_technique_point(self) -> OperationOneRoundResult:
         if self.need_check_point:
@@ -165,6 +170,21 @@ class UseTechnique(StateOperation):
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         else:  # 还需要使用消耗品
+            if self.specified_consumable is not None and not self.consumable_chosen:
+                choose = self._choose_consumable(screen)
+                if not choose:
+                    area = ScreenDialog.FAST_RECOVER_CANCEL.value
+                    click = self.find_and_click_area(area, screen)
+                    if click == Operation.OCR_CLICK_SUCCESS:
+                        if self.use_consumable_times > 0:
+                            return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5,
+                                                           data=self.use_technique)
+                        else:
+                            return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5,
+                                                           data=self.use_technique)
+                    else:
+                        return Operation.round_retry('点击%s失败' % area.status, wait=1)
+
             area = ScreenDialog.FAST_RECOVER_CONFIRM.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
@@ -182,6 +202,15 @@ class UseTechnique(StateOperation):
                     return Operation.round_retry('点击%s失败' % area.status, wait=1)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
+
+    def _choose_consumable(self, screen: MatLike) -> bool:
+        """
+        选择特定的消耗品
+        :param screen:
+        :return: 是否找到目标消耗品
+        """
+        # TODO 这里做匹配和点击
+        return True
 
 
 class CheckTechniquePoint(Operation):
