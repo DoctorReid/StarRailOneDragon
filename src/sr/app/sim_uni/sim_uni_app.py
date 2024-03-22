@@ -1,3 +1,4 @@
+import threading
 from typing import Optional, List, ClassVar, Callable
 
 from basic.i18_utils import gt
@@ -9,7 +10,7 @@ from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.const import phone_menu_const
 from sr.context import Context
-from sr.image.sceenshot import screen_state
+from sr.image.sceenshot import screen_state, mini_map
 from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum
 from sr.operation import OperationResult, Operation, StateOperationEdge, StateOperationNode, \
     OperationOneRoundResult
@@ -144,6 +145,19 @@ class SimUniApp(Application2):
         super()._init_before_execute()
         self.get_reward_cnt = 0
         self.exception_times: int = 0
+
+        t = threading.Thread(target=self.preheat)
+        t.start()
+
+    def preheat(self):
+        """
+        预热
+        - 提前加载需要的模板
+        - 角度匹配用的矩阵
+        :return:
+        """
+        self.ctx.ih.preheat_for_world_patrol()
+        mini_map.preheat()
 
     def _check_times(self) -> OperationOneRoundResult:
         if self.specified_uni_num is not None:

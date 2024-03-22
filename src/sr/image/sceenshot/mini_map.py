@@ -1,5 +1,4 @@
-import math
-from collections import deque
+import os
 from functools import lru_cache
 from typing import Set, Optional
 
@@ -7,11 +6,10 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import cal_utils, Point
+from basic import Point, os_utils
 from basic.img import cv2_utils, MatchResultList, MatchResult
 from basic.log_utils import log
 from sr import const
-from sr.config import game_config
 from sr.config.game_config import MiniMapPos
 from sr.image import ImageMatcher, TemplateImage
 from sr.image.sceenshot import MiniMapInfo, mini_map_angle_alas
@@ -60,6 +58,18 @@ def cut_mini_map(screen: MatLike, mm_pos: MiniMapPos) -> MatLike:
     :return:
     """
     return screen[mm_pos.ly:mm_pos.ry, mm_pos.lx:mm_pos.rx]
+
+
+def preheat():
+    """
+    预热缓存
+    :return:
+    """
+    for i in range(93, 100):  # 不同时期截图大小可能不一致
+        mini_map_angle_alas.RotationRemapData(i * 2)
+
+    for i in range(int(360 // 1.875)):
+        get_radio_to_del(i * 1.875)
 
 
 def extract_arrow(mini_map: MatLike):
@@ -169,25 +179,7 @@ def analyse_angle(mini_map: MatLike) -> float:
     return mini_map_angle_alas.calculate(mini_map)
 
 
-def get_edge_mask_by_hsv(mm: MatLike, arrow_mask: MatLike):
-    """
-    废弃了 背景亮的時候效果很差
-    将小地图转化成HSV格式，然后根据亮度扣出前景
-    最后用Canny画出边缘
-    :param mm: 小地图截图
-    :param arrow_mask: 小箭头掩码 传入时忽略掉这部分
-    :return:
-    """
-    hsv = cv2.cvtColor(mm, cv2.COLOR_BGR2HSV)
-    hsv_mask = cv2.threshold(hsv[:, :, 2], 180, 255, cv2.THRESH_BINARY)[1]
-    if arrow_mask is not None:
-        hsv_mask = cv2.bitwise_and(hsv_mask, hsv_mask, mask=cv2.bitwise_not(arrow_mask))
-
-    # 膨胀一下 粗点的边缘可以抹平一些取色上的误差 后续模板匹配更准确
-    kernel = np.ones((3, 3), np.uint8)
-    return cv2.dilate(hsv_mask, kernel, iterations=1)
-
-
+@record_performance
 def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
                                  sp_types: Set = None,
                                  show: bool = False):
@@ -272,28 +264,6 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
     return sp_mask, sp_match_result
 
 
-def get_enemy_road_mask(mm: MatLike) -> MatLike:
-    """
-    在小地图上找红点敌人的道路掩码
-    :param mm: 小地图截图
-    :return: 敌人在小地图上的坐标
-    """
-    lower_color = np.array([45, 45, 80], dtype=np.uint8)
-    upper_color = np.array([60, 60, 255], dtype=np.uint8)
-    return cv2.inRange(mm, lower_color, upper_color)
-
-
-def get_track_road_mask(mm: MatLike) -> MatLike:
-    """
-    小地图上移动轨迹的掩码
-    :param mm: 小地图截图
-    :return: 掩码
-    """
-    lower_color = np.array([45, 45, 110], dtype=np.uint8)
-    upper_color = np.array([65, 65, 130], dtype=np.uint8)
-    return cv2.inRange(mm, lower_color, upper_color)
-
-
 def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
                     strict: bool = False,
                     show: bool = False) -> bool:
@@ -356,19 +326,24 @@ def get_mini_map_scale_list(running: bool):
     return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05, 1.10, 1.15, 1.20, 1.25]
 
 
+mini_map_radio_to_del: Optional[MatLike] = None
+
+
 @lru_cache
-def get_radio_to_del(im: ImageMatcher, angle: Optional[float] = None):
+def get_radio_to_del(angle: Optional[float] = None):
     """
     根据人物朝向 获取对应的雷达区域颜色
-    :param im: 图片匹配器
     :param angle: 人物朝向
     :return:
     """
-    radio_to_del = im.get_template('mini_map_radio').origin
+    global mini_map_radio_to_del
+    if mini_map_radio_to_del is None:
+        path = os.path.join(os_utils.get_path_under_work_dir('images', 'template', 'mini_map_radio'), 'origin.png')
+        mini_map_radio_to_del = cv2_utils.read_image(path)
     if angle is not None:
-        return cv2_utils.image_rotate(radio_to_del, 360 - angle)
+        return cv2_utils.image_rotate(mini_map_radio_to_del, 360 - angle)
     else:
-        return radio_to_del
+        return mini_map_radio_to_del
 
 
 @record_performance
@@ -383,18 +358,20 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) ->
     info = MiniMapInfo()
     info.origin = origin
     info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin, im)
-    info.origin_del_radio = remove_radio(info.origin, get_radio_to_del(im, info.angle))
-
-    h, w = origin.shape[1], origin.shape[0]
-    cx, cy = w // 2, h // 2
-
-    info.circle_mask = np.zeros_like(info.arrow_mask)
-    cv2.circle(info.circle_mask, (cx, cy), h // 2 - 5, 255, -1)  # 忽略一点圆的边缘
-    info.circle_mask = cv2.bitwise_xor(info.circle_mask, info.arrow_mask)
+    info.origin_del_radio = remove_radio(info.origin, get_radio_to_del(info.angle))
+    init_circle_mask(info)
 
     info.sp_mask, info.sp_result = get_sp_mask_by_feature_match(info, im, sp_types)
 
     return info
+
+
+def init_circle_mask(mm_info: MiniMapInfo):
+    h, w = mm_info.arrow_mask.shape[1], mm_info.arrow_mask.shape[0]
+    cx, cy = w // 2, h // 2
+
+    mm_info.circle_mask = np.zeros_like(mm_info.arrow_mask)
+    cv2.circle(mm_info.circle_mask, (cx, cy), h // 2 - 5, 255, -1)  # 忽略一点圆的边缘
 
 
 def remove_radio(mm: MatLike, radio_to_del: MatLike) -> MatLike:
@@ -419,7 +396,7 @@ def remove_radio(mm: MatLike, radio_to_del: MatLike) -> MatLike:
 
 
 @record_performance
-def get_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = False) -> MatLike:
+def init_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = False):
     """
     获取道路掩码 用于原图的模板匹配
     不考虑特殊点
@@ -428,7 +405,7 @@ def get_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = F
     :return:
     """
     if mm_info.road_mask is not None:
-        return mm_info.road_mask
+        return
 
     mm_del_radio = mm_info.origin_del_radio
     b, g, r = cv2.split(mm_del_radio)
@@ -474,18 +451,22 @@ def get_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = F
     mm_info.road_mask = cv2.bitwise_or(road_mask_2, enemy_mask)
     mm_info.road_mask = cv2.bitwise_and(mm_info.road_mask, mm_info.circle_mask)  # 只考虑圆形内部分
 
-    return mm_info.road_mask
+    lower_color = np.array([160, 160, 160], dtype=np.uint8)
+    upper_color = np.array([210, 210, 210], dtype=np.uint8)
+    edge_mask_rough = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的边缘掩码
+    edge_mask = cv2.bitwise_and(edge_mask_rough, road_mask_cf)  # 三色差不超过1
+    mm_info.road_mask_with_edge = cv2.bitwise_or(mm_info.road_mask, edge_mask)
 
 
 @record_performance
-def get_road_mask_for_sim_uni(mm_info: MiniMapInfo) -> MatLike:
+def init_road_mask_for_sim_uni(mm_info: MiniMapInfo):
     """
     获取道路掩码 模拟宇宙专用
     不需要考虑特殊点 以及其它楼层
     :param mm_info: 小地图信息
     :return:
     """
-    return get_road_mask_for_world_patrol(mm_info, another_floor=False)
+    init_road_mask_for_world_patrol(mm_info, another_floor=False)
 
 
 def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: bool = True):
@@ -594,7 +575,7 @@ def find_one_enemy_pos(im: ImageMatcher,
         return None
     if mm_del_radio is None:
         angle = analyse_angle(mm)
-        to_del = get_radio_to_del(im, angle)
+        to_del = get_radio_to_del(angle)
         mm_del_radio = remove_radio(mm, to_del)
 
     lower_color = np.array([0, 0, 150], dtype=np.uint8)
@@ -639,7 +620,7 @@ def with_enemy_nearby(im: ImageMatcher,
         return None
     if mm_del_radio is None:
         angle = analyse_angle(mm)
-        to_del = get_radio_to_del(im, angle)
+        to_del = get_radio_to_del(angle)
         mm_del_radio = remove_radio(mm, to_del)
 
     center_mask = np.zeros(mm.shape[:2], dtype=np.uint8)

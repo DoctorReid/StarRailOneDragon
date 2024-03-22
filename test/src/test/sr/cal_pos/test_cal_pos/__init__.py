@@ -21,9 +21,9 @@ class TestCalPos(test.SrTestBase):
         test.SrTestBase.__init__(self, *args, **kwargs)
 
         ih = ImageHolder()
-        ih.preheat_for_world_patrol()  # 预热 方便后续统计耗时
-        for i in range(93, 100):  # 预热 方便后续统计耗时 不同时期截图大小可能不一致
-            mini_map_angle_alas.RotationRemapData(i * 2)
+        # 预热 方便后续统计耗时
+        ih.preheat_for_world_patrol()
+        mini_map.preheat()
 
     @property
     def cases_path(self) -> str:

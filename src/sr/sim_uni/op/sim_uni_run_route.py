@@ -358,7 +358,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         angle = mini_map.analyse_angle(mm)
-        radio_to_del = mini_map.get_radio_to_del(self.ctx.im, angle)
+        radio_to_del = mini_map.get_radio_to_del(angle)
         mm_del_radio = mini_map.remove_radio(mm, radio_to_del)
         icon_pos = self._get_icon_pos(mm_del_radio)
         if icon_pos is None:
@@ -395,7 +395,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         :return:
         """
         angle = mini_map.analyse_angle(mm)
-        radio_to_del = mini_map.get_radio_to_del(self.ctx.im, angle)
+        radio_to_del = mini_map.get_radio_to_del(angle)
         mm_del_radio = mini_map.remove_radio(mm, radio_to_del)
         source_kps, source_desc = cv2_utils.feature_detect_and_compute(mm_del_radio)
         template = self.ctx.ih.get_template(self.icon_template_id, sub_dir='sim_uni')

@@ -68,7 +68,7 @@ def calculate(minimap: MatLike, scale: int = 1):
     https://github.com/LmeSzinc/StarRailCopilot/blob/db3e78498ea06b0d3548263773b0f2bfa9adba0d/tasks/map/minimap/minimap.py#L261
     :param minimap:
     :param scale:
-    :return:
+    :return: 1.875倍数的角度
     """
     d = minimap.shape[0]
 

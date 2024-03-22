@@ -6,7 +6,6 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-import basic.cal_utils
 from basic import cal_utils, Rect, Point
 from basic.img import MatchResult, cv2_utils, MatchResultList
 from basic.log_utils import log
@@ -36,19 +35,14 @@ def cal_character_pos(im: ImageMatcher,
     :param running: 角色是否在移动 移动时候小地图会缩小
     :return:
     """
+    # 匹配结果 是缩放后的 offset 和宽高
     result: Optional[MatchResult] = None
 
-    # 匹配结果 是缩放后的 offset 和宽高
     if mm_info.sp_result is not None and len(mm_info.sp_result) > 0:  # 有特殊点的时候 使用特殊点倒推位置
         result = cal_character_pos_by_sp_result(lm_info, mm_info, lm_rect=lm_rect, show=show)
         if result is not None and (result.template_scale > 1.3 or result.template_scale < 0.9):  # 不应该有这样的缩放 放弃这个结果
             log.debug('特殊点定位使用的缩放比例不符合预期')
             result = None
-        # 倒推位置失败 说明大地图附近有多个相同类型的特殊点 这时候使用特征匹配也没用了
-        # 只有极少部分情况需要使用特征匹配 所以不需要 mini_map.analyse_mini_map 中对所有情况都分析特征点
-        # 特征点需要跟大地图的特征点获取方式一致 见 large_map.init_large_map
-        # r2 = cal_character_pos_by_feature_match(lm_info, mm_info, lm_rect=lm_rect, show=show)
-        # result = r2
 
     if result is None:  # 使用模板匹配 用道路掩码的
         result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
@@ -84,71 +78,6 @@ def cal_character_pos(im: ImageMatcher,
 
 
 @record_performance
-def cal_character_pos_by_feature_match(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                       lm_rect: Rect = None,
-                                       show: bool = False) -> Optional[MatchResult]:
-    """
-    使用特征匹配 在大地图上匹配小地图的位置
-    :param lm_info: 大地图信息
-    :param mm_info: 小地图信息
-    :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param show: 是否显示调试结果
-    :return:
-    """
-    gray = cv2.cvtColor(mm_info.origin, cv2.COLOR_BGR2GRAY)
-    gray, feature_mask = mini_map.merge_all_map_mask(gray, mm_info.road_mask, mm_info.sp_mask)
-    template_mask = mm_info.road_mask
-    template_kps, template_desc = cv2_utils.feature_detect_and_compute(gray, mask=template_mask)
-    source_kps, source_desc = lm_info.kps, lm_info.desc
-
-    # 筛选范围内的特征点
-    if lm_rect is not None:
-        kps = []
-        desc = []
-        for i in range(len(source_kps)):
-            p: cv2.KeyPoint = source_kps[i]
-            d = source_desc[i]
-            if basic.cal_utils.in_rect(Point(p.pt[0], p.pt[1]), lm_rect):
-                kps.append(p)
-                desc.append(d)
-        source_kps = kps
-        source_desc = np.array(desc)
-
-    if len(template_kps) == 0 or len(source_kps) == 0:
-        return None
-
-    source_mask = lm_info.mask
-
-    good_matches, offset_x, offset_y, template_scale = cv2_utils.feature_match(
-        source_kps, source_desc,
-        template_kps, template_desc,
-        source_mask)
-
-    if show:
-        source = lm_info.origin
-        template = mm_info.origin
-        source_with_keypoints = cv2.drawKeypoints(source, source_kps, None)
-        cv2_utils.show_image(source_with_keypoints, win_name='source_with_keypoints')
-        template_with_keypoints = cv2.drawKeypoints(cv2.bitwise_and(template, template, mask=template_mask),
-                                                    template_kps, None)
-        cv2_utils.show_image(template_with_keypoints, win_name='template_with_keypoints')
-        all_result = cv2.drawMatches(template, template_kps, source, source_kps, good_matches, None, flags=2)
-        cv2_utils.show_image(all_result, win_name='all_match')
-
-    if offset_x is not None:
-        template_w = gray.shape[1]
-        template_h = gray.shape[0]
-        # 小地图缩放后的宽度和高度
-        scaled_width = int(template_w * template_scale)
-        scaled_height = int(template_h * template_scale)
-
-        return MatchResult(1, offset_x, offset_y, scaled_width, scaled_height,
-                           template_scale=template_scale)
-    else:
-        return None
-
-
-@record_performance
 def cal_character_pos_by_gray(im: ImageMatcher,
                               lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                               lm_rect: Rect = None,
@@ -171,8 +100,8 @@ def cal_character_pos_by_gray(im: ImageMatcher,
     mm_del_radio = mm_info.origin_del_radio
     template = cv2.cvtColor(mm_del_radio, cv2.COLOR_BGR2GRAY)
 
-    mini_map.get_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
-    template_mask = cv2_utils.dilate(mm_info.road_mask, 3)  # 把白色边缘包括进来
+    mini_map.init_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
+    template_mask = mm_info.road_mask_with_edge
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
                                                                    mini_map.get_mini_map_scale_list(running),
@@ -220,8 +149,8 @@ def cal_character_pos_by_original(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     # 使用道路掩码
     template = mm_info.origin_del_radio
-    mini_map.get_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
-    template_mask = cv2_utils.dilate(mm_info.road_mask, 3)  # 把白色边缘包括进来
+    mini_map.init_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
+    template_mask = mm_info.road_mask_with_edge
 
     if scale_list is None:
         scale_list = mini_map.get_mini_map_scale_list(running)
@@ -337,7 +266,7 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.mask, lm_rect)
     # 使用道路掩码
-    mini_map.get_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
+    mini_map.init_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
     template = cv2.bitwise_or(mm_info.road_mask, mm_info.arrow_mask)  # 需要把中心补上
     template_mask = mm_info.circle_mask
 
@@ -530,8 +459,8 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
     source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
     template = cv2.cvtColor(mm_info.origin_del_radio, cv2.COLOR_BGR2GRAY)
-    mini_map.get_road_mask_for_sim_uni(mm_info)
-    template_mask = cv2_utils.dilate(mm_info.road_mask, 3)  # 把白色边缘包括进来
+    mini_map.init_road_mask_for_sim_uni(mm_info)
+    template_mask = mm_info.road_mask_with_edge  # 把白色边缘包括进来
 
     if scale_list is None:
         scale_list = mini_map.get_mini_map_scale_list(running)
@@ -543,6 +472,7 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
         cv2_utils.show_image(mm_info.origin_del_radio, win_name='mini_map')
+        cv2_utils.show_image(mm_info.road_mask_with_edge, win_name='road_mask')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage),
                              win_name='template_match_template')
@@ -579,8 +509,8 @@ def sim_uni_cal_pos_by_original(im: ImageMatcher,
     source, lm_rect = cv2_utils.crop_image(lm_info.origin, lm_rect)
     # 使用道路掩码
     template = mm_info.origin_del_radio
-    mini_map.get_road_mask_for_sim_uni(mm_info)
-    template_mask = cv2_utils.dilate(mm_info.road_mask, 3)  # 把白色边缘包括进来
+    mini_map.init_road_mask_for_sim_uni(mm_info)
+    template_mask = mm_info.road_mask_with_edge
 
     if scale_list is None:
         scale_list = mini_map.get_mini_map_scale_list(running)

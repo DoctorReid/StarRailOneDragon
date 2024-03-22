@@ -16,6 +16,6 @@ cases:
   running: False
 - region: P02_YLL6_R11_MDZ_F1
   num: 2
-  pos: [487, 530]
+  pos: [469, 517]
   possible_pos: [487, 530, 30]
   running: True

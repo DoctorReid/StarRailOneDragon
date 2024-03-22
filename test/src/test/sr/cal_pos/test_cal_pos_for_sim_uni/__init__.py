@@ -11,6 +11,7 @@ from sr import cal_pos, performance_recorder
 from sr.const import map_const
 from sr.const.map_const import get_region_by_prl_id
 from sr.context import get_context
+from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map, large_map
 from test.sr.cal_pos.cal_pos_test_case import read_test_cases, TestCase, save_test_cases
 
@@ -20,6 +21,11 @@ class TestCalPosForSimUni(test.SrTestBase):
     def __init__(self, *args, **kwargs):
         test.SrTestBase.__init__(self, *args, **kwargs)
 
+        ih = ImageHolder()
+        # 预热 方便后续统计耗时
+        ih.preheat_for_world_patrol()
+        mini_map.preheat()
+
     @property
     def cases_path(self) -> str:
         return os.path.join(self.sub_package_path, 'test_cases.yml')
@@ -28,9 +34,9 @@ class TestCalPosForSimUni(test.SrTestBase):
         fail_cnt = 0
         case_list = read_test_cases(self.cases_path)
         for case in case_list:
-            if case.unique_id !='P02_YLL6_R11_MDZ_F1_02':
-                continue
-            result = self.run_one_test_case(case, show=True)
+            # if case.unique_id !='P02_YLL6_R11_MDZ_F1_02':
+            #     continue
+            result = self.run_one_test_case(case, show=False)
             if not result:
                 fail_cnt += 1
                 log.info('%s 计算坐标失败', case.unique_id)

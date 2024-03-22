@@ -10,7 +10,7 @@ from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, load_all_
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.context import Context
-from sr.image.sceenshot import mini_map_angle_alas
+from sr.image.sceenshot import mini_map_angle_alas, mini_map
 from sr.operation import Operation, OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.combine.choose_team_in_world import ChooseTeamInWorld
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
@@ -70,9 +70,7 @@ class WorldPatrol(Application2):
         :return:
         """
         self.ctx.ih.preheat_for_world_patrol()
-        mm_r = self.ctx.game_config.mini_map_pos.r
-        for i in range(-2, 2):
-            mini_map_angle_alas.RotationRemapData((mm_r + i) * 2)
+        mini_map.preheat()
 
     def _back_to_world(self) -> OperationOneRoundResult:
         """
