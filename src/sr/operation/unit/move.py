@@ -205,10 +205,6 @@ class MoveDirectly(Operation):
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
 
-        check_enemy = self.check_enemy_and_attack(mm)  # 根据小地图判断是否被怪锁定 是的话停下来处理敌人
-        if check_enemy is not None:
-            return check_enemy
-
         next_pos, mm_info = self.cal_pos(mm, now_time)  # 计算当前坐标
 
         check_no_pos = self.check_no_pos(next_pos, now_time)  # 坐标计算失败处理
@@ -220,6 +216,10 @@ class MoveDirectly(Operation):
             return check_arrive
 
         self.move(next_pos, now_time, mm_info)
+
+        check_enemy = self.check_enemy_and_attack(mm)  # 根据小地图判断是否被怪锁定 是的话停下来处理敌人
+        if check_enemy is not None:
+            return check_enemy
 
         return Operation.round_wait()
 
