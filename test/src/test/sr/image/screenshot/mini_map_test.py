@@ -97,7 +97,7 @@ def _test_get_sp_mask_by_feature_match():
     mm = mini_map.cut_mini_map(screen)
     info = mini_map.analyse_mini_map(mm, im)
 
-    mini_map.get_sp_mask_by_feature_match(info, im, show=True)
+    mini_map.init_sp_mask_by_feature_match(info, im, show=True)
     cv2.waitKey(0)
 
 

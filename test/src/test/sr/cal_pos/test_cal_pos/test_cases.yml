@@ -36,8 +36,8 @@ cases:
   running: False
 - region: P01_KJZHT_R03_SRCD_F1
   num: 2
-  pos: [306, 422]
-  possible_pos: [306, 422, 25]
+  pos: [310, 422]
+  possible_pos: [306, 410, 25]
   running: False
 - region: P01_KJZHT_R03_SRCD_F1
   num: 3
@@ -162,7 +162,7 @@ cases:
 - region: P03_XZLF_R09_LYJ
   num: 1
   pos: [972, 402]
-  possible_pos: [963, 360, 30]
+  possible_pos: [963, 400, 40]
   running: True
 - region: P03_XZLF_R10_SY
   num: 1

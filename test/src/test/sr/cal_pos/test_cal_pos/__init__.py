@@ -33,8 +33,6 @@ class TestCalPos(test.SrTestBase):
         fail_cnt = 0
         self.cases = read_test_cases(self.cases_path)
         for case in self.cases:
-            # if case.unique_id != 'P03_XZLF_R03_HXG_F1_01':
-            #     continue
             result = self.run_one_test_case(case, show=False)
             if not result:
                 fail_cnt += 1
@@ -42,6 +40,21 @@ class TestCalPos(test.SrTestBase):
 
         performance_recorder.log_all_performance()
         self.assertEqual(0, fail_cnt)
+
+    def test_specified_one(self):
+        fail_cnt = 0
+        self.cases = read_test_cases(self.cases_path)
+        for case in self.cases:
+            if case.unique_id != 'P01_KJZHT_R03_SRCD_F1_02':
+                continue
+            result = self.run_one_test_case(case, show=True)
+            if not result:
+                fail_cnt += 1
+                log.info('%s 计算坐标失败', case.unique_id)
+
+        performance_recorder.log_all_performance()
+        self.assertEqual(0, fail_cnt)
+
 
     def test_init_case(self):
         """
@@ -98,8 +111,8 @@ class TestCalPos(test.SrTestBase):
         lm_info = ctx.ih.get_large_map(case.region)
         possible_pos = tuple(case.possible_pos)
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
-        sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
-        mm_info = mini_map.analyse_mini_map(mm, ctx.im, sp_types=set(sp_map.keys()))
+
+        mm_info = mini_map.analyse_mini_map(mm, ctx.im)
 
         pos = cal_pos.cal_character_pos(ctx.im,
                                         lm_info=lm_info,

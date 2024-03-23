@@ -1,11 +1,10 @@
-from typing import List
 import os
 
 import cv2
 
 from basic import os_utils
 from basic.img import cv2_utils
-from basic.img.os import get_debug_image, get_test_image, get_test_image_path
+from basic.img.os import get_debug_image
 from basic.log_utils import log
 from sr import cal_pos
 from sr.const import map_const
@@ -32,8 +31,7 @@ def cal_one(tp: TransportPoint, debug_image: str = None, show: bool = False):
     possible_pos = (*(tp.lm_pos.tuple()), 50)
     lm_info: LargeMapInfo = ih.get_large_map(tp.region)
     lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
-    sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
-    mm_info = mini_map.analyse_mini_map(mm, im, sp_types=set(sp_map.keys()))
+    mm_info = mini_map.analyse_mini_map(mm, im)
     result = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=show, retry_without_rect=False, running=False)
 
     log.info('%s 传送落地坐标 %s', tp.display_name, result.center)

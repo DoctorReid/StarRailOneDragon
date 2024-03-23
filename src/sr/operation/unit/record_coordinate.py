@@ -45,8 +45,7 @@ class RecordCoordinate(Operation):
         possible_pos = (self.last_point.x, self.last_point.y, move_distance)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-        sp_map = map_const.get_sp_type_in_rect(self.region, lm_rect)
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
+        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
 
         try:
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,

@@ -38,12 +38,6 @@ def cal_character_pos(im: ImageMatcher,
     # 匹配结果 是缩放后的 offset 和宽高
     result: Optional[MatchResult] = None
 
-    if mm_info.sp_result is not None and len(mm_info.sp_result) > 0:  # 有特殊点的时候 使用特殊点倒推位置
-        result = cal_character_pos_by_sp_result(lm_info, mm_info, lm_rect=lm_rect, show=show)
-        if result is not None and (result.template_scale > 1.3 or result.template_scale < 0.9):  # 不应该有这样的缩放 放弃这个结果
-            log.debug('特殊点定位使用的缩放比例不符合预期')
-            result = None
-
     if result is None:  # 使用模板匹配 用道路掩码的
         result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
@@ -52,6 +46,12 @@ def cal_character_pos(im: ImageMatcher,
     if result is None:  # 使用模板匹配 用灰度图的
         result = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
+            result = None
+
+    if result is None:  # 看看有没有特殊点 使用特殊点倒推位置
+        result = cal_character_pos_by_sp_result(im, lm_info, mm_info, lm_rect=lm_rect, show=show)
+        if result is not None and (result.template_scale > 1.3 or result.template_scale < 0.9):  # 不应该有这样的缩放 放弃这个结果
+            log.debug('特殊点定位使用的缩放比例不符合预期')
             result = None
 
     if result is None:  # 使用模板匹配 用原图的
@@ -177,17 +177,24 @@ def cal_character_pos_by_original(im: ImageMatcher,
 
 
 @record_performance
-def cal_character_pos_by_sp_result(lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+def cal_character_pos_by_sp_result(im: ImageMatcher,
+                                   lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                    lm_rect: Rect = None,
                                    show: bool = False) -> Optional[MatchResult]:
     """
     根据特殊点 计算小地图在大地图上的位置
+    :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
     :param lm_rect: 圈定的大地图区域 传入后更准确
     :param show: 是否显示调试结果
     :return:
     """
+    sp_types = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
+    if len(sp_types) == 0:
+        return None
+    mini_map.init_sp_mask_by_feature_match(mm_info, im, sp_types)
+
     mm_height, mm_width = mm_info.origin.shape[:2]
 
     lm_sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)

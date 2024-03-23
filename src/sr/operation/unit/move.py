@@ -338,8 +338,7 @@ class MoveDirectly(Operation):
                   move_time, self.ctx.controller.is_moving)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-        sp_map = map_const.get_sp_type_in_rect(self.region, lm_rect)
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im, sp_types=set(sp_map.keys()))
+        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
 
         if len(self.pos) == 0:  # 第一个可以直接使用开始点 不进行计算
             return self.start_pos, mm_info

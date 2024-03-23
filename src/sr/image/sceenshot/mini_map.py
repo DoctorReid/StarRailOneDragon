@@ -180,9 +180,9 @@ def analyse_angle(mini_map: MatLike) -> float:
 
 
 @record_performance
-def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
-                                 sp_types: Set = None,
-                                 show: bool = False):
+def init_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
+                                  sp_types: Set = None,
+                                  show: bool = False):
     """
     在小地图上找到特殊点 使用特征匹配 每个模板最多只能找到一个
     特征点提取匹配、画掩码耗时都很少 主要花费在读模板 真实运行有缓存就没问题
@@ -192,13 +192,18 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
     :param show: 是否展示结果
     :return:
     """
+    if mm_info.sp_mask is not None:
+        return
+
     sp_mask = np.zeros_like(mm_info.circle_mask)
     sp_match_result = {}
 
     if sp_types is None or len(sp_types) == 0:  # 没有特殊点
-        return sp_mask, sp_match_result
+        mm_info.sp_mask = sp_mask
+        mm_info.sp_result = sp_match_result
+        return
 
-    source = mm_info.origin
+    source = mm_info.origin_del_radio
     source_mask = mm_info.circle_mask
     source_kps, source_desc = cv2_utils.feature_detect_and_compute(source, mask=source_mask)
     for prefix in ['mm_tp', 'mm_sp', 'mm_boss']:
@@ -261,7 +266,8 @@ def get_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
-    return sp_mask, sp_match_result
+    mm_info.sp_mask = sp_mask
+    mm_info.sp_result = sp_match_result
 
 
 def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
@@ -347,7 +353,7 @@ def get_radio_to_del(angle: Optional[float] = None):
 
 
 @record_performance
-def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) -> MiniMapInfo:
+def analyse_mini_map(origin: MatLike, im: ImageMatcher) -> MiniMapInfo:
     """
     预处理 从小地图中提取出所有需要的信息
     :param origin: 小地图 左上角的一个正方形区域
@@ -360,8 +366,6 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher, sp_types: Set = None) ->
     info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin, im)
     info.origin_del_radio = remove_radio(info.origin, get_radio_to_del(info.angle))
     init_circle_mask(info)
-
-    info.sp_mask, info.sp_result = get_sp_mask_by_feature_match(info, im, sp_types)
 
     return info
 
