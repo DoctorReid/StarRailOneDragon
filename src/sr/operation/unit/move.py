@@ -183,6 +183,11 @@ class MoveDirectly(Operation):
         self.stop_move_time = None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
+        now_time = time.time()
+
+        if not self.no_battle and now_time - self.last_battle_time > MoveDirectly.fail_after_no_battle:
+            return Operation.round_fail('移动超时')
+
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
         if stuck is not None:
             return stuck
@@ -191,10 +196,6 @@ class MoveDirectly(Operation):
         # if not self.ctx.controller.is_moving:
         #     self.ctx.controller.move('w')
         #     time.sleep(0.5)  # 等待人物转过来再截图
-        now_time = time.time()
-
-        if not self.no_battle and now_time - self.last_battle_time > MoveDirectly.fail_after_no_battle:
-            return Operation.round_fail('移动超时')
 
         screen = self.screenshot()
 

@@ -190,10 +190,10 @@ def cal_character_pos_by_sp_result(im: ImageMatcher,
     :param show: 是否显示调试结果
     :return:
     """
-    sp_types = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
-    if len(sp_types) == 0:
+    sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
+    if len(sp_map) == 0:
         return None
-    mini_map.init_sp_mask_by_feature_match(mm_info, im, sp_types)
+    mini_map.init_sp_mask_by_feature_match(mm_info, im, set(sp_map.keys()))
 
     mm_height, mm_width = mm_info.origin.shape[:2]
 

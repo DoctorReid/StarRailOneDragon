@@ -153,6 +153,7 @@ class TargetRect(Enum):
 def is_normal_in_world(screen: MatLike, im: ImageMatcher) -> bool:
     """
     是否在普通大世界主界面 - 右上角是否有角色的图标
+    约3ms
     :param screen: 屏幕截图
     :param im: 图片匹配器
     :return:

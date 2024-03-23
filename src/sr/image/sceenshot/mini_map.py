@@ -276,6 +276,7 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
     """
     根据小地图边缘 判断是否被锁定
     红色色道应该有一个圆
+    约1ms
     :param mm: 小地图截图
     :param mm_pos: 小地图坐标信息
     :param strict: 是否严格判断 只有红色的框认为是被锁定
