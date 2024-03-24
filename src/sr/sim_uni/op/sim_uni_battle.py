@@ -204,7 +204,8 @@ class SimUniEnterFight(Operation):
                                   need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
                                   )
                 op_result = op.execute()
-                self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
+                if op_result.data:  # 使用了秘技的话
+                    self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
 
             self._attack(now_time)
 
