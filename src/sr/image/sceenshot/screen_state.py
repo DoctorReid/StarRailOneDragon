@@ -329,7 +329,9 @@ def get_sim_uni_screen_state(
         battle: bool = False,
         battle_fail: bool = False,
         reward: bool = False,
-        fast_recover: bool = False) -> Optional[str]:
+        fast_recover: bool = False,
+        express_supply: bool = False,
+) -> Optional[str]:
     """
     获取模拟宇宙中的画面状态
     :param screen: 屏幕截图
@@ -347,6 +349,7 @@ def get_sim_uni_screen_state(
     :param battle_fail: 可能在战斗失败
     :param reward: 可能在沉浸奖励
     :param fast_recover: 可能在快速恢复
+    :param express_supply: 可能在列车补给
     :return:
     """
     if in_world and is_normal_in_world(screen, im):
@@ -363,6 +366,9 @@ def get_sim_uni_screen_state(
 
     if fast_recover and in_screen_by_area_text(screen, ocr, ScreenDialog.FAST_RECOVER_TITLE.value):
         return ScreenDialog.FAST_RECOVER_TITLE.value.text
+
+    if express_supply and in_screen_by_area_text(screen, ocr, ScreenNormalWorld.EXPRESS_SUPPLY.value):
+        return ScreenNormalWorld.EXPRESS_SUPPLY.value.status
 
     titles = get_ui_title(screen, ocr, rect=TargetRect.SIM_UNI_UI_TITLE.value)
     sim_uni_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles)
@@ -438,7 +444,9 @@ def get_world_patrol_screen_state(
         in_world: bool = False,
         battle: bool = False,
         battle_fail: bool = False,
-        fast_recover: bool = False):
+        fast_recover: bool = False,
+        express_supply: bool = False,
+):
     """
     获取锄大地的画面状态
     :param screen: 屏幕截图
@@ -448,6 +456,7 @@ def get_world_patrol_screen_state(
     :param battle: 可能在战斗
     :param battle_fail: 可能在战斗失败
     :param fast_recover: 可能在快速恢复
+    :param express_supply: 可能在列车补给
     :return:
     """
     if in_world and is_normal_in_world(screen, im):
@@ -458,6 +467,9 @@ def get_world_patrol_screen_state(
 
     if fast_recover and in_screen_by_area_text(screen, ocr, ScreenDialog.FAST_RECOVER_TITLE.value):
         return ScreenDialog.FAST_RECOVER_TITLE.value.text
+
+    if express_supply and in_screen_by_area_text(screen, ocr, ScreenNormalWorld.EXPRESS_SUPPLY.value):
+        return ScreenNormalWorld.EXPRESS_SUPPLY.value.status
 
     if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
         return ScreenState.BATTLE.value

@@ -11,7 +11,7 @@ from sr.operation import Operation, OperationOneRoundResult, StateOperation, Sta
 from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.team import SwitchMember
 from sr.operation.unit.technique import UseTechnique
-from sr.screen_area.dialog import ScreenDialog
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
 from sr.sim_uni.op.sim_uni_choose_curio import SimUniChooseCurio
@@ -65,7 +65,15 @@ class SimUniEnterFight(Operation):
         screen = self.screenshot()
 
         self.last_state = self.current_state
-        self.current_state = self._get_screen_state(screen)
+
+        if self.first_screen_check and self.first_state is not None:
+            self.current_state = self.first_state
+        else:
+            # 为了保证及时攻击 外层仅判断是否在大世界画面 非大世界画面时再细分处理
+            self.current_state = screen_state.get_sim_uni_screen_state(
+                screen, self.ctx.im, self.ctx.ocr,
+                in_world=True, battle=True)
+        self.first_screen_check = False
 
         log.debug('当前画面 %s', self.current_state)
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
@@ -74,45 +82,12 @@ class SimUniEnterFight(Operation):
             if self.ctx.controller.is_moving:  # 攻击之后再停止移动 避免停止移动的后摇
                 self.ctx.controller.stop_moving_forward()
             return round_result
-        elif self.current_state == screen_state.ScreenState.SIM_BLESS.value:
-            return self._choose_bless()
-        elif self.current_state == screen_state.ScreenState.SIM_CURIOS.value:
-            return self._choose_curio()
-        elif self.current_state == screen_state.ScreenState.EMPTY_TO_CLOSE.value:
-            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_wait(wait=1)
-        elif self.current_state == screen_state.ScreenState.BATTLE_FAIL.value:
-            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
-        elif self.current_state == ScreenDialog.FAST_RECOVER_TITLE.value.text:
-            result = self._recover_technique_point()
-            self._update_not_in_world_time()  # 恢复秘技点的时间不应该在计算内
-            return result
         elif self.current_state == screen_state.ScreenState.BATTLE.value:
-            return self._in_battle()
-
-        return Operation.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
-
-    def _get_screen_state(self, screen: MatLike) -> Optional[str]:
-        """
-        获取当前屏幕状态
-        :param screen: 屏幕截图
-        :return:
-        """
-        if self.first_screen_check and self.first_state is not None:
-            state = self.first_state
+            round_result = self._handle_not_in_world(screen)
+            self._update_not_in_world_time()
+            return round_result
         else:
-            state = screen_state.get_sim_uni_screen_state(
-                screen, self.ctx.im, self.ctx.ocr,
-                in_world=True,
-                battle=True,
-                battle_fail=True,
-                bless=True,
-                curio=True,
-                empty_to_close=True,
-                fast_recover=self.use_technique)
-        self.first_screen_check = False
-        return state
+            return Operation.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
 
     def _update_in_world(self):
         """
@@ -211,35 +186,6 @@ class SimUniEnterFight(Operation):
 
         return Operation.round_wait()
 
-    def _recover_technique_point(self) -> OperationOneRoundResult:
-        """
-        恢复秘技点
-        :return:
-        """
-        self.ctx.technique_used = False  # 重置使用情况
-
-        screen = self.screenshot()
-        if self.find_area(ScreenDialog.FAST_RECOVER_NO_CONSUMABLE.value, screen):
-            self.ctx.no_technique_recover_consumables = True
-            area = ScreenDialog.FAST_RECOVER_CANCEL.value
-        else:
-            if self.ctx.consumable_used and not self.config.multiple_consumable:  # 只使用一个消耗品
-                area = ScreenDialog.FAST_RECOVER_CANCEL.value
-            else:
-                area = ScreenDialog.FAST_RECOVER_CONFIRM.value
-
-        click = self.find_and_click_area(area, screen)
-
-        if click == Operation.OCR_CLICK_SUCCESS:
-            if area == ScreenDialog.FAST_RECOVER_CONFIRM.value:
-                self.ctx.consumable_used = True
-            else:
-                self.ctx.consumable_used = False
-
-            return Operation.round_wait(wait=0.5)
-        else:
-            return Operation.round_retry('点击%s失败' % area.text, wait=1)
-
     def _attack(self, now_time: float):
         if now_time - self.last_attack_time <= SimUniEnterFight.ATTACK_INTERVAL:
             return
@@ -252,6 +198,50 @@ class SimUniEnterFight(Operation):
         self.attack_direction += 1
         self.ctx.controller.initiate_attack()
         time.sleep(0.5)
+
+    def _handle_not_in_world(self, screen: MatLike) -> OperationOneRoundResult:
+        """
+        统一处理不在大世界画面的情况
+        :param screen:
+        :return:
+        """
+        state = screen_state.get_sim_uni_screen_state(
+            screen, self.ctx.im, self.ctx.ocr,
+            in_world=False,
+            battle=True,
+            battle_fail=True,
+            bless=True,
+            curio=True,
+            empty_to_close=True)
+        if state == screen_state.ScreenState.SIM_BLESS.value:
+            return self._choose_bless()
+        elif state == screen_state.ScreenState.SIM_CURIOS.value:
+            return self._choose_curio()
+        elif state == screen_state.ScreenState.EMPTY_TO_CLOSE.value:
+            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
+            return Operation.round_wait(wait=1)
+        elif state == screen_state.ScreenState.BATTLE_FAIL.value:
+            self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
+            return Operation.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
+        elif state == ScreenNormalWorld.EXPRESS_SUPPLY.value.status:
+            return self._claim_express_supply()
+        elif state == screen_state.ScreenState.BATTLE.value:
+            return self._in_battle()
+        else:
+            return Operation.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
+
+    def _claim_express_supply(self) -> OperationOneRoundResult:
+        """
+        领取小月卡
+        :return:
+        """
+        get_area = ScreenNormalWorld.EXPRESS_SUPPLY_GET.value
+        self.ctx.controller.click(get_area.center)
+        time.sleep(3)  # 暂停一段时间再操作
+        self.ctx.controller.click(get_area.center)  # 领取需要分两个阶段 点击两次
+        time.sleep(1)  # 暂停一段时间再操作
+
+        return Operation.round_wait()
 
     def on_resume(self):
         super().on_resume()
