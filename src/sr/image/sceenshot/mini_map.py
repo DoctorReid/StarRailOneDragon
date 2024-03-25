@@ -330,7 +330,7 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
 
 
 def get_mini_map_scale_list(running: bool):
-    return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05, 1.10, 1.15, 1.20, 1.25]
+    return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05, 1.10, 1.15]
 
 
 mini_map_radio_to_del: Optional[MatLike] = None

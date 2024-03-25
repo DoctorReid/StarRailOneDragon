@@ -34,7 +34,7 @@ class TestCalPosForSimUni(test.SrTestBase):
         fail_cnt = 0
         case_list = read_test_cases(self.cases_path)
         for case in case_list:
-            # if case.unique_id !='P02_YLL6_R11_MDZ_F1_02':
+            # if case.unique_id !='P02_YLL6_R05_CXHL_01':
             #     continue
             result = self.run_one_test_case(case, show=False)
             if not result:
@@ -46,7 +46,7 @@ class TestCalPosForSimUni(test.SrTestBase):
 
     def test_init_case(self):
         ctx = get_context()
-        file_name = 'P02_YLL6_R11_MDZ_F1_487_530_30_True'
+        file_name = 'P02_YLL6_R05_CXHL_274_1318_30_True'
         mm = get_debug_image(file_name)
 
         str_list = file_name.split('_')

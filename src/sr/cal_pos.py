@@ -575,7 +575,7 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
     else:
         next_angle = cal_utils.get_angle_by_pts(pos_to_cal_angle, next_pos)
     angle_delta = cal_utils.angle_delta(current_angle, next_angle)
-    if dis > 5 and abs(angle_delta) > 30:
+    if dis > 5 and abs(angle_delta) > 40:
         log.info('计算坐标 %s 的角度 %.2f 与 当前朝向 %.2f 相差较大 %.2f 舍弃',
                  next_pos, next_angle, current_angle, angle_delta)
         return False
