@@ -21,11 +21,14 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
                                              on_change=self._on_team_num_changed)
         self.whitelist_dropdown = ft.Dropdown(on_change=self._on_whitelist_changed)
         self.tech_fight_cb = ft.Checkbox(on_change=self._on_tech_fight_changed)
+        self.max_consumable_cnt = ft.Dropdown(options=[ft.dropdown.Option(key=str(i), text=str(i)) for i in range(6)],
+                                              on_change=self._on_max_consumable_cnt_changed)
         self.plan_list = SettingsList(
             controls=[
                 SettingsListItem('使用配队', self.team_num_dropdown),
                 SettingsListItem('特定路线名单', self.whitelist_dropdown),
-                SettingsListItem('秘技开怪', self.tech_fight_cb)
+                SettingsListItem('秘技开怪', self.tech_fight_cb),
+                SettingsListItem('单次最多消耗品个数', self.max_consumable_cnt)
             ],
             width=400
         )
@@ -55,6 +58,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         self.team_num_dropdown.value = str(config.team_num)
         self.whitelist_dropdown.value = config.whitelist_id
         self.tech_fight_cb.value = config.technique_fight
+        self.max_consumable_cnt.value = str(config.max_consumable_cnt)
         self.update()
 
     def _on_team_num_changed(self, e):
@@ -80,6 +84,14 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         :return:
         """
         self.sr_ctx.world_patrol_config.technique_fight = self.tech_fight_cb.value
+
+    def _on_max_consumable_cnt_changed(self, e):
+        """
+        单次使用消耗品个数
+        :param e:
+        :return:
+        """
+        self.sr_ctx.world_patrol_config.max_consumable_cnt = int(self.max_consumable_cnt.value)
 
 
 _settings_world_patrol_view: Optional[SettingsWorldPatrolView] = None

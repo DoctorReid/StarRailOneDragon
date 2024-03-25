@@ -86,7 +86,7 @@ class WorldPatrolRunRoute(StateOperation):
             return Operation.round_success()
 
         op = UseTechnique(self.ctx,
-                          use_consumable=1,
+                          max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
                           need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
                           )
 

@@ -200,7 +200,7 @@ class SimUniEnterFight(Operation):
                 (self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm))
             ):  # 攻击类只有附近有敌人时候才使用
                 op = UseTechnique(self.ctx,
-                                  use_consumable=2 if self.config.multiple_consumable else 1,
+                                  max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
                                   need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
                                   )
                 op_result = op.execute()

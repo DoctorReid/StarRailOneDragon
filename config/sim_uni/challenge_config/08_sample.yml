@@ -42,4 +42,4 @@ curio_priority:
   - CURIO_049
   - CURIO_018
 technique_fight: false
-multiple_consumable: false
+max_consumable_cnt: 0

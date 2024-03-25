@@ -58,7 +58,7 @@ class UseTechnique(StateOperation):
     STATUS_USE_CONSUMABLE: ClassVar[str] = '使用了消耗品'
 
     def __init__(self, ctx: Context,
-                 use_consumable: int = 0,
+                 max_consumable_cnt: int = 0,
                  need_check_available: bool = False,
                  need_check_point: bool = False,
                  specified_consumable: Optional[str] = None
@@ -68,7 +68,7 @@ class UseTechnique(StateOperation):
         用当前角色使用秘技
         返回 data=是否使用了秘技
         :param ctx:
-        :param use_consumable: 秘技点不足时是否可以使用消耗品 0=不可以 1=使用1个 2=连续使用至满
+        :param max_consumable_cnt: 秘技点不足时最多使用的消耗品个数
         :param need_check_available: 是否需要检查秘技是否可用 普通大世界战斗后 会有一段时间才能使用秘技
         :param need_check_point: 是否检测剩余秘技点再使用。如果没有秘技点 又不能用消耗品 那就不使用了
         :param specified_consumable: 使用特定的消耗品
@@ -89,7 +89,7 @@ class UseTechnique(StateOperation):
                          edges=edges,
                          specified_start_node=check)
 
-        self.use_consumable: int = use_consumable  # 是否可以使用消耗品
+        self.max_consumable_cnt: int = max_consumable_cnt  # 最多使用的消耗品个数
         self.use_consumable_times: int = 0  # 使用消耗品的次数
         self.use_technique: bool = False  # 是否使用了秘技
         self.need_check_available: bool = need_check_available  # 是否需要检查秘技是否可用
@@ -109,7 +109,7 @@ class UseTechnique(StateOperation):
             point = get_technique_point(screen, self.ctx.ocr)
             if point > 0:  # 有秘技点 随便用
                 return Operation.round_success(UseTechnique.STATUS_CAN_USE)
-            elif self.use_consumable == 0 or self.ctx.no_technique_recover_consumables:  # 没有秘技点又不能用药或者没有药 就不要用了
+            elif self.max_consumable_cnt == 0 or self.ctx.no_technique_recover_consumables:  # 没有秘技点又不能用药或者没有药 就不要用了
                 return Operation.round_success()
             else:  # 没有秘技点 可能有药 尝试
                 return Operation.round_success(UseTechnique.STATUS_CAN_USE)
@@ -144,7 +144,7 @@ class UseTechnique(StateOperation):
         self.use_technique = False
         self.ctx.technique_used = False
 
-        if self.use_consumable == 0:  # 不可以使用消耗品
+        if self.max_consumable_cnt == 0:  # 不可以使用消耗品
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
@@ -162,7 +162,7 @@ class UseTechnique(StateOperation):
                     return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
-        elif self.use_consumable == 1 and self.use_consumable_times >= 1:  # 只能用1次 而已经用了
+        elif self.max_consumable_cnt > 0 and self.use_consumable_times >= self.max_consumable_cnt:  # 已经用了足够的消耗品了
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:

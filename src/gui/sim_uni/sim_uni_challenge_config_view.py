@@ -231,7 +231,8 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
                                        on_blur=self._on_curio_text_update)
 
         self.technique_fight_checkbox = ft.Checkbox(disabled=True, on_change=self._on_technique_fight_changed)
-        self.multiple_consumable_checkbox = ft.Checkbox(disabled=True, on_change=self._on_multiple_consumable_changed)
+        self.max_consumable_cnt = ft.Dropdown(options=[ft.dropdown.Option(key=str(i), text=str(i)) for i in range(6)],
+                                              on_change=self._on_max_consumable_cnt_changed, width=100)
 
         config_list = SettingsList(controls=[
             SettingsListItem(gt('选择配置', 'ui'), self.existed_dropdown),
@@ -249,7 +250,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
             SettingsListItem('', self.curio_text),
             SettingsListGroupTitle(gt('战斗', 'ui')),
             SettingsListItem(gt('秘技开怪', 'ui'), self.technique_fight_checkbox),
-            SettingsListItem(gt('连续使用消耗品', 'ui'), self.multiple_consumable_checkbox),
+            SettingsListItem(gt('单次最多消耗品个数', 'ui'), self.max_consumable_cnt),
 
         ], width=400)
         config_card = Card(config_list)
@@ -332,8 +333,8 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.technique_fight_checkbox.disabled = not config_chosen
         self.technique_fight_checkbox.update()
 
-        self.multiple_consumable_checkbox.disabled = not config_chosen
-        self.multiple_consumable_checkbox.update()
+        self.max_consumable_cnt.disabled = not config_chosen
+        self.max_consumable_cnt.update()
 
     def _load_config_to_input(self):
         """
@@ -354,8 +355,8 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.technique_fight_checkbox.value = self.chosen_config.technique_fight
         self.technique_fight_checkbox.update()
 
-        self.multiple_consumable_checkbox.value = self.chosen_config.multiple_consumable
-        self.multiple_consumable_checkbox.update()
+        self.max_consumable_cnt.value = str(self.chosen_config.max_consumable_cnt)
+        self.max_consumable_cnt.update()
 
     def _on_existed_list_changed(self, chosen_idx: Optional[int]):
         """
@@ -655,6 +656,14 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
         self.curio_text.value = text
         self.curio_text.update()
+
+    def _on_max_consumable_cnt_changed(self, e):
+        """
+        单次使用消耗品个数
+        :param e:
+        :return:
+        """
+        self.chosen_config.max_consumable_cnt = int(self.max_consumable_cnt.value)
 
     @staticmethod
     def get_str_list(text_input: ft.TextField) -> List[str]:

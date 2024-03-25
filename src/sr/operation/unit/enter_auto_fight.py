@@ -11,6 +11,7 @@ from sr.operation.unit.technique import UseTechnique
 from sr.screen_area.dialog import ScreenDialog
 
 
+# TODO 之后需要改名成锄大地专用
 class EnterAutoFight(Operation):
     ATTACK_INTERVAL: ClassVar[float] = 0.2  # 发起攻击的间隔
     EXIT_AFTER_NO_ALTER_TIME: ClassVar[int] = 2  # 多久没警报退出
@@ -108,7 +109,7 @@ class EnterAutoFight(Operation):
         if self.use_technique and not self.ctx.technique_used:
             if self.ctx.is_buff_technique or \
                     self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm):  # 攻击类只有附近有敌人时候才使用
-                op = UseTechnique(self.ctx, use_consumable=1,
+                op = UseTechnique(self.ctx, max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
                                   need_check_available=self.ctx.is_pc and not self.ctx.controller.is_moving,  # 只有战斗结束刚出来的时候可能用不了秘技
                                   need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
                                   )

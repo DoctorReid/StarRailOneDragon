@@ -33,3 +33,11 @@ class WorldPatrolConfig(ConfigHolder):
     @technique_fight.setter
     def technique_fight(self, new_value: bool):
         self.update('technique_fight', new_value)
+
+    @property
+    def max_consumable_cnt(self) -> bool:
+        return self.get('max_consumable_cnt', 0)
+
+    @max_consumable_cnt.setter
+    def max_consumable_cnt(self, new_value: int):
+        self.update('max_consumable_cnt', new_value)
