@@ -94,17 +94,31 @@ class SimUniRunLevel(StateOperation):
         target_idx = str_utils.find_best_match_by_lcs(region_name, target_list)
 
         if target_idx is None:
+            self.level_type = None
+            self.route = None
             return Operation.round_retry('匹配楼层类型失败', wait=1)
 
-        self.level_type = level_type_list[target_idx]
+        another_route = False  # 是否匹配到另一条路线
+        target_level_type = level_type_list[target_idx]
+        if self.level_type is None or self.level_type != target_level_type:
+            self.level_type = target_level_type
+            another_route = True
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        self.route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
+        target_route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
 
-        if self.route is None:
+        if target_route is None:
+            self.level_type = None
+            self.route = None
             return Operation.round_retry('匹配路线失败', wait=1)
+        elif self.route is None or self.route.uid != target_route.uid:
+            self.route = target_route
+            another_route = True
 
-        return Operation.round_success()
+        if another_route:
+            return Operation.round_wait(wait=0.5)  # 两次匹配成功才认为是正确的路线 牺牲一点时间换取稳定性
+        else:
+            return Operation.round_success()
 
     def _route_op(self) -> OperationOneRoundResult:
         """
