@@ -41,9 +41,10 @@ class EnterAutoFight(Operation):
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.last_attack_time = time.time()
-        self.last_alert_time = time.time()  # 上次警报时间
-        self.last_not_in_world_time = time.time() - 1.5  # 上次不在移动画面的时间
+        now = time.time()
+        self.last_attack_time: float = now - EnterAutoFight.ATTACK_INTERVAL
+        self.last_alert_time: float = now  # 上次警报时间
+        self.last_not_in_world_time: float = now  # 上次不在移动画面的时间
         self.attack_direction: int = 0  # 攻击方向
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
@@ -118,7 +119,7 @@ class EnterAutoFight(Operation):
         return Operation.round_wait()
 
     def _attack(self, now_time: float):
-        if now_time - self.last_attack_time <= EnterAutoFight.ATTACK_INTERVAL:
+        if now_time - self.last_attack_time < EnterAutoFight.ATTACK_INTERVAL:
             return
         self.last_attack_time = now_time
         if self.attack_direction > 0:

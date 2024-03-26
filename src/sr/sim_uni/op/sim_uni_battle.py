@@ -56,9 +56,11 @@ class SimUniEnterFight(Operation):
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.last_attack_time = time.time()
-        self.last_alert_time = time.time()  # 上次警报时间
-        self.last_not_in_world_time = time.time()  # 上次在战斗的时间
+        now = time.time()
+        self.last_attack_time: float = now - SimUniEnterFight.ATTACK_INTERVAL
+        self.last_alert_time: float = now  # 上次警报时间
+        self.last_not_in_world_time: float = now  # 上次在战斗的时间
+        self.attack_direction: int = 0  # 攻击方向
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _execute_one_round(self) -> OperationOneRoundResult:
@@ -187,7 +189,7 @@ class SimUniEnterFight(Operation):
         return Operation.round_wait()
 
     def _attack(self, now_time: float):
-        if now_time - self.last_attack_time <= SimUniEnterFight.ATTACK_INTERVAL:
+        if now_time - self.last_attack_time < SimUniEnterFight.ATTACK_INTERVAL:
             return
         if self.disposable and self.attack_direction > 0:  # 可破坏物只攻击一次
             return
