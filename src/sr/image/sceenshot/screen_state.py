@@ -367,7 +367,10 @@ def get_sim_uni_screen_state(
     if fast_recover and in_screen_by_area_text(screen, ocr, ScreenDialog.FAST_RECOVER_TITLE.value):
         return ScreenDialog.FAST_RECOVER_TITLE.value.text
 
-    if express_supply and in_screen_by_area_text(screen, ocr, ScreenNormalWorld.EXPRESS_SUPPLY.value):
+    if express_supply and (
+            in_screen_by_area_text(screen, ocr, ScreenNormalWorld.EXPRESS_SUPPLY.value)
+            or in_screen_by_area_text(screen, ocr, ScreenNormalWorld.EXPRESS_SUPPLY_2.value)
+    ):
         return ScreenNormalWorld.EXPRESS_SUPPLY.value.status
 
     titles = get_ui_title(screen, ocr, rect=TargetRect.SIM_UNI_UI_TITLE.value)
@@ -468,7 +471,10 @@ def get_world_patrol_screen_state(
     if fast_recover and in_screen_by_area_text(screen, ocr, ScreenDialog.FAST_RECOVER_TITLE.value):
         return ScreenDialog.FAST_RECOVER_TITLE.value.text
 
-    if express_supply and in_screen_by_area_text(screen, ocr, ScreenNormalWorld.EXPRESS_SUPPLY.value):
+    if express_supply and (
+            in_screen_by_area_text(screen, ocr, ScreenNormalWorld.EXPRESS_SUPPLY.value)
+            or in_screen_by_area_text(screen, ocr, ScreenNormalWorld.EXPRESS_SUPPLY_2.value)
+    ):
         return ScreenNormalWorld.EXPRESS_SUPPLY.value.status
 
     if battle:  # 有判断的时候 不在前面的情况 就认为是战斗

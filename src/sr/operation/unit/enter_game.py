@@ -330,8 +330,8 @@ class WaitEnterGame(Operation):
                 else:
                     return Operation.round_wait(wait=1)
 
-        area = ScreenNormalWorld.EXPRESS_SUPPLY.value
-        if self.find_area(area, screen):  # 列车补给(小月卡) - 会先出现主界面
+        if self.find_area(ScreenNormalWorld.EXPRESS_SUPPLY.value, screen) \
+                or self.find_area(ScreenNormalWorld.EXPRESS_SUPPLY_2.value, screen):  # 列车补给(小月卡) - 会先出现主界面
             get_area = ScreenNormalWorld.EXPRESS_SUPPLY_GET.value
             self.ctx.controller.click(get_area.center)
             time.sleep(3)  # 暂停一段时间再操作

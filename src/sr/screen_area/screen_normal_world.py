@@ -25,6 +25,7 @@ class ScreenNormalWorld(Enum):
     TECH_KEY = ScreenArea(pc_rect=Rect(1789, 823, 1807, 841))  # 秘技 显示快捷键的位置
 
     EXPRESS_SUPPLY = ScreenArea(pc_rect=Rect(870, 80, 1050, 130), text='列车补给', lcs_percent=0.55)
+    EXPRESS_SUPPLY_2 = ScreenArea(pc_rect=Rect(870, 50, 1050, 110), text='列车补给', lcs_percent=0.55)
     EXPRESS_SUPPLY_GET = ScreenArea(pc_rect=Rect(855, 892, 1078, 932), text='点击领取今日补贴')
 
     EMPTY_TO_CLOSE = ScreenArea(pc_rect=Rect(866, 925, 1062, 965), text='点击空白处关闭')

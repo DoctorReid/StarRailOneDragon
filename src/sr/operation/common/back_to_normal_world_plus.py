@@ -90,8 +90,8 @@ class BackToNormalWorldPlus(Operation):
             return Operation.round_wait(wait=5)
 
         # 列车补给 - 点击空白处继续
-        express_supply = ScreenNormalWorld.EXPRESS_SUPPLY.value
-        if self.find_area(express_supply, screen):
+        if self.find_area(ScreenNormalWorld.EXPRESS_SUPPLY.value, screen) \
+                or self.find_area(ScreenNormalWorld.EXPRESS_SUPPLY_2.value, screen):
             express_supply_get = ScreenNormalWorld.EXPRESS_SUPPLY_GET.value
             self.ctx.controller.click(express_supply_get.center)
             time.sleep(3)  # 暂停一段时间再操作
