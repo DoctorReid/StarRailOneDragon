@@ -29,8 +29,11 @@ class EchoOfWarApp(Application2):
         open_map = StateOperationNode('打开地图', op=OpenMap(ctx))
         edges.append(StateOperationEdge(world, open_map))
 
+        check_power = StateOperationNode('检查体力', self._check_power)
+        edges.append(StateOperationEdge(open_map, check_power))
+
         use = StateOperationNode('挑战', self._use_power)
-        edges.append(StateOperationEdge(open_map, use))
+        edges.append(StateOperationEdge(check_power, use))
 
         super().__init__(ctx, op_name=gt('历战余响', 'ui'),
                          run_record=ctx.echo_run_record,
