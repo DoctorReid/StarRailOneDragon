@@ -65,8 +65,6 @@ class EnterAutoFight(Operation):
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             self._update_in_world()
             round_result = self._try_attack(screen)
-            if self.ctx.controller.is_moving:  # 攻击之后再停止移动 避免停止移动的后摇
-                self.ctx.controller.stop_moving_forward()
             return round_result
         elif self.current_state == screen_state.ScreenState.BATTLE.value:
             round_result = self._handle_not_in_world(screen)
@@ -122,12 +120,11 @@ class EnterAutoFight(Operation):
         if now_time - self.last_attack_time < EnterAutoFight.ATTACK_INTERVAL:
             return
         self.last_attack_time = now_time
-        if self.attack_direction > 0:
-            self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
-            time.sleep(0.2)
-        self.attack_direction += 1
         self.ctx.controller.initiate_attack()
+        self.ctx.controller.stop_moving_forward()  # 攻击之后再停止移动 避免停止移动的后摇
         time.sleep(0.5)
+        self.attack_direction += 1
+        self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
 
     def _update_not_in_world_time(self):
         """
