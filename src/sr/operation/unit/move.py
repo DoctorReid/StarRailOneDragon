@@ -142,6 +142,7 @@ class MoveDirectly(Operation):
                  no_run: bool = False,
                  no_battle: bool = False,
                  technique_fight: bool = False,
+                 technique_only: bool = False,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         从当前位置 朝目标点直线前行
@@ -171,6 +172,7 @@ class MoveDirectly(Operation):
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else self.ctx.game_config.run_mode
         self.no_battle: bool = no_battle  # 本次移动是否没有战斗
         self.technique_fight: bool = technique_fight  # 是否使用秘技进入战斗
+        self.technique_only: bool = technique_only  # 是否只使用秘技进入战斗
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -264,7 +266,9 @@ class MoveDirectly(Operation):
             if self.stop_move_time is None:
                 self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
             log.info('移动中被袭击')
-            fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight,
+            fight = EnterAutoFight(self.ctx,
+                                   technique_fight=self.technique_fight,
+                                   technique_only=self.technique_only,
                                    first_state=screen_state.ScreenState.BATTLE.value)
             fight_start_time = time.time()
             fight_result = fight.execute()
@@ -295,7 +299,9 @@ class MoveDirectly(Operation):
         if self.stop_move_time is None:
             self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
 
-        fight = EnterAutoFight(self.ctx, use_technique=self.technique_fight,
+        fight = EnterAutoFight(self.ctx,
+                               technique_fight=self.technique_fight,
+                               technique_only=self.technique_only,
                                first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         fight_start_time = time.time()
         op_result = fight.execute()

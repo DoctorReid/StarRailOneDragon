@@ -2,4 +2,5 @@ team_num: 0
 route_list: ''
 whitelist_id: ''
 technique_fight: false
+technique_only: false
 max_consumable_cnt: 0

@@ -103,6 +103,18 @@ class SimUniChallengeConfig(ConfigHolder):
         self.update('technique_fight', new_value)
 
     @property
+    def technique_only(self) -> bool:
+        """
+        仅秘技开怪
+        :return:
+        """
+        return self.get('technique_only', False)
+
+    @technique_only.setter
+    def technique_only(self, new_value: bool):
+        self.update('technique_only', new_value)
+
+    @property
     def max_consumable_cnt(self) -> bool:
         return self.get('max_consumable_cnt', 0)
 

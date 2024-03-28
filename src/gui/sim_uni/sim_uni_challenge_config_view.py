@@ -231,6 +231,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
                                        on_blur=self._on_curio_text_update)
 
         self.technique_fight_checkbox = ft.Checkbox(disabled=True, on_change=self._on_technique_fight_changed)
+        self.technique_only_checkbox = ft.Checkbox(disabled=True, on_change=self._on_technique_only_changed)
         self.max_consumable_cnt = ft.Dropdown(options=[ft.dropdown.Option(key=str(i), text=str(i)) for i in range(6)],
                                               on_change=self._on_max_consumable_cnt_changed, width=100)
 
@@ -250,6 +251,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
             SettingsListItem('', self.curio_text),
             SettingsListGroupTitle(gt('战斗', 'ui')),
             SettingsListItem(gt('秘技开怪', 'ui'), self.technique_fight_checkbox),
+            SettingsListItem(gt('仅秘技开怪', 'ui'), self.technique_only_checkbox),
             SettingsListItem(gt('单次最多消耗品个数', 'ui'), self.max_consumable_cnt),
 
         ], width=400)
@@ -333,6 +335,9 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.technique_fight_checkbox.disabled = not config_chosen
         self.technique_fight_checkbox.update()
 
+        self.technique_only_checkbox.disabled = not config_chosen
+        self.technique_only_checkbox.update()
+
         self.max_consumable_cnt.disabled = not config_chosen
         self.max_consumable_cnt.update()
 
@@ -354,6 +359,9 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
 
         self.technique_fight_checkbox.value = self.chosen_config.technique_fight
         self.technique_fight_checkbox.update()
+
+        self.technique_only_checkbox.value = self.chosen_config.technique_only
+        self.technique_only_checkbox.update()
 
         self.max_consumable_cnt.value = str(self.chosen_config.max_consumable_cnt)
         self.max_consumable_cnt.update()
@@ -684,6 +692,14 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         :return:
         """
         self.chosen_config.technique_fight = self.technique_fight_checkbox.value
+
+    def _on_technique_only_changed(self, e):
+        """
+        仅秘技开怪更改
+        :param e:
+        :return:
+        """
+        self.chosen_config.technique_only = self.technique_only_checkbox.value
 
     def _on_multiple_consumable_changed(self, e):
         """

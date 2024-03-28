@@ -50,7 +50,8 @@ class SimUniEnterFight(Operation):
         self.config: Optional[SimUniChallengeConfig] = config  # 挑战配置
         self.disposable: bool = disposable  # 攻击可破坏物
         self.no_attack: bool = no_attack  # 不主动攻击
-        self.use_technique: bool = False if config is None else config.technique_fight  # 是否使用秘技开怪
+        self.technique_fight: bool = False if config is None else config.technique_fight  # 是否使用秘技开怪
+        self.technique_only: bool = False if config is None else config.technique_only  # 是否仅用秘技开怪
         self.first_state: Optional[str] = first_state  # 初始画面状态 传入后会跳过第一次画面状态判断
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
@@ -167,22 +168,23 @@ class SimUniEnterFight(Operation):
         elif self.disposable:
             self._attack(now_time)
         else:
-            if self.use_technique and not self.ctx.is_buff_technique:  # 攻击类每次都需要使用
-                self.ctx.technique_used = False
-
-            if self.use_technique and not self.ctx.technique_used and (
-                self.ctx.is_buff_technique or
-                (self.ctx.is_attack_technique and mini_map.with_enemy_nearby(self.ctx.im, mm))
-            ):  # 攻击类只有附近有敌人时候才使用
+            current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
+            if self.technique_fight and not self.ctx.technique_used and \
+                    (self.ctx.is_buff_technique or self.ctx.is_attack_technique):  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx,
                                   max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
                                   need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
                                   )
                 op_result = op.execute()
-                if op_result.data:  # 使用了秘技的话
+                current_use_tech = op_result.data
+                if current_use_tech:  # 使用了秘技的话
                     self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
 
-            self._attack(now_time)
+            if self.technique_fight and self.technique_only and current_use_tech:
+                # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击
+                pass
+            else:
+                self._attack(now_time)
 
         return Operation.round_wait()
 

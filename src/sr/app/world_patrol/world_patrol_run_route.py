@@ -26,8 +26,7 @@ class WorldPatrolRunRoute(StateOperation):
     STATUS_ALL_DONE: ClassVar[str] = '执行结束'
 
     def __init__(self, ctx: Context,
-                 route_id: WorldPatrolRouteId,
-                 technique_fight: bool = False):
+                 route_id: WorldPatrolRouteId):
         """
         运行一条锄地路线
         :param ctx:
@@ -37,7 +36,6 @@ class WorldPatrolRunRoute(StateOperation):
         self.op_idx: int = -2
         self.current_pos: Point = self.route.tp.tp_pos
         self.current_region: Region = self.route.tp.region
-        self.technique_fight: bool = technique_fight  # 使用秘技开怪
 
         edges = []
         tp = StateOperationNode('传送', op=Transport(ctx, self.route.tp))
@@ -82,7 +80,7 @@ class WorldPatrolRunRoute(StateOperation):
         如果是秘技开怪 且是上buff类的 就在路线运行前上buff
         :return:
         """
-        if not self.technique_fight or not self.ctx.is_buff_technique or self.ctx.technique_used:
+        if not self.ctx.world_patrol_config.technique_fight or not self.ctx.is_buff_technique or self.ctx.technique_used:
             return Operation.round_success()
 
         op = UseTechnique(self.ctx,
@@ -111,7 +109,9 @@ class WorldPatrolRunRoute(StateOperation):
         if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
         elif route_item['op'] == operation_const.OP_PATROL:
-            op = EnterAutoFight(self.ctx, use_technique=self.technique_fight,
+            op = EnterAutoFight(self.ctx,
+                                technique_fight=self.ctx.world_patrol_config.technique_fight,
+                                technique_only=self.ctx.world_patrol_config.technique_only,
                                 first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         elif route_item['op'] == operation_const.OP_INTERACT:
             op = Interact(self.ctx, route_item['data'])
@@ -176,7 +176,8 @@ class WorldPatrolRunRoute(StateOperation):
         return MoveDirectly(self.ctx, current_lm_info, next_lm_info=next_lm_info,
                             target=next_pos, start=current_pos,
                             stop_afterwards=stop_afterwards, no_run=no_run,
-                            technique_fight=self.technique_fight,
+                            technique_fight=self.ctx.world_patrol_config.technique_fight,
+                            technique_only=self.ctx.world_patrol_config.technique_only,
                             op_callback=self._update_pos_after_op)
 
     def _update_pos_after_op(self, op_result: OperationResult):
