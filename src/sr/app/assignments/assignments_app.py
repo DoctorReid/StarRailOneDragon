@@ -12,6 +12,7 @@ from sr.operation import Operation, StateOperationNode, StateOperationEdge, Oper
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.claim_assignment import ClaimAssignment
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
+from sr.screen_area.screen_phone_menu import ScreenPhoneMenu
 
 
 class AssignmentsApp(Application2):
@@ -32,13 +33,16 @@ class AssignmentsApp(Application2):
         claim = StateOperationNode('领取委托奖励', self._claim)
         edges.append(StateOperationEdge(click, claim, status=AssignmentsApp.STATUS_WITH_ALERT))
 
+        send = StateOperationNode('再次派遣', self._send)
+        edges.append(StateOperationEdge(claim, send))
+
         back = StateOperationNode('完成后返回大世界', op=BackToNormalWorldPlus(ctx))
-        edges.append(StateOperationEdge(claim, back))
+        edges.append(StateOperationEdge(send, back))
         edges.append(StateOperationEdge(click, back, status=AssignmentsApp.STATUS_NO_ALERT))
 
         super().__init__(ctx, op_name=gt('委托', 'ui'),
                          run_record=ctx.assignments_run_record,
-                         edges=edges
+                         edges=edges,
                          )
 
     def _click_assignment(self) -> OperationOneRoundResult:
@@ -54,12 +58,20 @@ class AssignmentsApp(Application2):
             return Operation.round_success(AssignmentsApp.STATUS_WITH_ALERT, wait=1)
 
     def _claim(self) -> OperationOneRoundResult:
-        op = ClaimAssignment(self.ctx)
-        op_result = op.execute()
-        if op_result.success:
-            self.ctx.assignments_run_record.claim_dt = self.ctx.assignments_run_record.get_current_dt()
+        screen = self.screenshot()
+        area = ScreenPhoneMenu.ASSIGNMENTS_CLAIM.value
+        if self.find_and_click_area(area, screen) == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success()
+        else:
+            return Operation.round_retry(status='点击%s失败' % area.status, wait=1)
 
-        return Operation.round_by_op(op_result)
+    def _send(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+        area = ScreenPhoneMenu.ASSIGNMENTS_SEND_AGAIN.value
+        if self.find_and_click_area(area, screen) == Operation.OCR_CLICK_SUCCESS:
+            return Operation.round_success()
+        else:
+            return Operation.round_retry(status='点击%s失败' % area.status, wait=1)
 
     @property
     def current_execution_desc(self) -> str:
