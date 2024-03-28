@@ -10,7 +10,7 @@ from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, load_all_
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.context import Context
-from sr.image.sceenshot import mini_map_angle_alas, mini_map
+from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.combine.choose_team_in_world import ChooseTeamInWorld
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
@@ -97,7 +97,7 @@ class WorldPatrol(Application2):
         route_id = self.route_id_list[self.current_route_idx]
 
         self.current_route_start_time = time.time()
-        op = WorldPatrolRunRoute(self.ctx, route_id, technique_fight=self.config.technique_fight)
+        op = WorldPatrolRunRoute(self.ctx, route_id)
         route_result = op.execute().success
         if route_result:
             if not self.ignore_record:

@@ -343,6 +343,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
             op_result = op.execute()
             if not op_result.success:
                 return Operation.round_fail('攻击可破坏物失败')
+            self.ctx.no_technique_recover_consumables = False  # 休整层默认恢复秘技点
 
         if not interact_pos:
             return Operation.round_retry('未配置交互点坐标且识别交互图标失败')

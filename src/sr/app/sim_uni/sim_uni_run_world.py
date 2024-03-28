@@ -44,6 +44,7 @@ class SimUniRunWorld(StateOperation):
     def _init_before_execute(self):
         super()._init_before_execute()
         self.get_reward_cnt = 0
+        self.ctx.no_technique_recover_consumables = False  # 模拟宇宙重新开始时重置
 
     def _run_level(self) -> OperationOneRoundResult:
         op = SimUniRunLevel(self.ctx, self.world_num, config=self.config,

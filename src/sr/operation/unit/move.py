@@ -230,7 +230,7 @@ class MoveDirectly(Operation):
         判断是否被困且进行移动
         :return: 如果被困次数过多就返回失败
         """
-        if len(self.pos) == 0:
+        if len(self.pos) == 0 or self.no_pos_times > 0:  # 识别不到坐标的时候也不要乱走了
             return None
 
         first_pos = self.pos[0]

@@ -41,6 +41,7 @@ class EnterAutoFight(Operation):
         self.technique_only: bool = technique_only  # 仅使用秘技开怪
         self.first_state: Optional[str] = first_state  # 初始画面状态 传入后会跳过第一次画面状态判断
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
+        self.first_tech_after_battle: bool = False  # 是否战斗画面后第一次使用秘技
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -50,6 +51,7 @@ class EnterAutoFight(Operation):
         self.last_not_in_world_time: float = now  # 上次不在移动画面的时间
         self.attack_direction: int = 0  # 攻击方向
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
+        self.first_tech_after_battle: bool = False  # 是否战斗画面后第一次使用秘技
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -68,6 +70,8 @@ class EnterAutoFight(Operation):
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             self._update_in_world()
             round_result = self._try_attack(screen)
+            self.attack_direction += 1
+            self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
             return round_result
         elif self.current_state == screen_state.ScreenState.BATTLE.value:
             round_result = self._handle_not_in_world(screen)
@@ -102,16 +106,17 @@ class EnterAutoFight(Operation):
             return Operation.round_success(None if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
 
         current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
-        if self.technique_fight and not self.ctx.technique_used and \
-                (self.ctx.is_buff_technique or self.ctx.is_attack_technique):  # 识别到秘技类型才能使用
+        if (self.technique_fight and not self.ctx.technique_used
+                and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
+                and (self.ctx.is_buff_technique or self.ctx.is_attack_technique)):  # 识别到秘技类型才能使用
             op = UseTechnique(self.ctx, max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
-                              need_check_available=self.ctx.is_pc and not self.ctx.controller.is_moving,  # 只有战斗结束刚出来的时候可能用不了秘技
-                              need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
+                              need_check_available=self.ctx.is_pc and self.first_tech_after_battle,  # 只有战斗结束刚出来的时候可能用不了秘技
                               )
             op_result = op.execute()
             current_use_tech = op_result.data
-            if current_use_tech:  # 使用了秘技的话
-                self._update_not_in_world_time()  # 使用秘技的时间不应该在计算内
+            self.first_tech_after_battle = False
+            if current_use_tech and self.ctx.is_buff_technique:
+                self._update_not_in_world_time()  # 使用BUFF类秘技的时间不应该在计算内
 
         if self.technique_fight and self.technique_only and current_use_tech:
             # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击
@@ -128,8 +133,6 @@ class EnterAutoFight(Operation):
         self.ctx.controller.initiate_attack()
         self.ctx.controller.stop_moving_forward()  # 攻击之后再停止移动 避免停止移动的后摇
         time.sleep(0.5)
-        self.attack_direction += 1
-        self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
 
     def _update_not_in_world_time(self):
         """
@@ -172,6 +175,7 @@ class EnterAutoFight(Operation):
         """
         self.with_battle = True
         self.ctx.technique_used = False
+        self.first_tech_after_battle = True
         return Operation.round_wait(wait=1)
 
     def _claim_express_supply(self) -> OperationOneRoundResult:

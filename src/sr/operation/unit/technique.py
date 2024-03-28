@@ -70,7 +70,7 @@ class UseTechnique(StateOperation):
         :param ctx:
         :param max_consumable_cnt: 秘技点不足时最多使用的消耗品个数
         :param need_check_available: 是否需要检查秘技是否可用 普通大世界战斗后 会有一段时间才能使用秘技
-        :param need_check_point: 是否检测剩余秘技点再使用。如果没有秘技点 又不能用消耗品 那就不使用了
+        :param need_check_point: 是否检测剩余秘技点再使用。如果没有秘技点 又不能用消耗品 那就不使用了。目前OCR较慢 不建议开启
         :param specified_consumable: 使用特定的消耗品
         """
         edges: List[StateOperationEdge] = []
@@ -107,7 +107,7 @@ class UseTechnique(StateOperation):
         if self.need_check_point:
             screen = self.screenshot()
             point = get_technique_point(screen, self.ctx.ocr)
-            if point > 0:  # 有秘技点 随便用
+            if point is not None and point > 0:  # 有秘技点 随便用
                 return Operation.round_success(UseTechnique.STATUS_CAN_USE)
             elif self.max_consumable_cnt == 0 or self.ctx.no_technique_recover_consumables:  # 没有秘技点又不能用药或者没有药 就不要用了
                 return Operation.round_success()
@@ -157,10 +157,10 @@ class UseTechnique(StateOperation):
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                self.ctx.no_technique_recover_consumables = True  # 设置没有药可以用了
                 if self.use_consumable_times > 0:
                     return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
                 else:
+                    self.ctx.no_technique_recover_consumables = True  # 设置没有药可以用了
                     return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
