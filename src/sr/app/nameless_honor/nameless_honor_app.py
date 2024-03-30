@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import MatchResult
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
@@ -16,7 +16,7 @@ from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.screen_namess_honor import ScreenNamelessHonor
 
 
-class NamelessHonorApp(Application2):
+class NamelessHonorApp(Application):
 
     STATUS_WITH_ALERT: ClassVar[str] = '红点'
     STATUS_NO_ALERT: ClassVar[str] = '无红点'

@@ -19,7 +19,8 @@ from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import LargeMapInfo
 from sr.screen_area.screen_large_map import ScreenLargeMap
 
-CUT_MAP_RECT = Rect(200, 190, 1300, 930)  # 截取大地图的区域
+CUT_MAP_RECT = Rect(200, 190, 1300, 930)  # 主区域 在屏幕上截取大地图的区域
+SUB_CUT_MAP_RECT = Rect(200, 190, 1600, 955)  # 子区域 在屏幕上截取大地图的区域
 EMPTY_MAP_POS = Point(1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
 TP_BTN_RECT = Rect(1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
 REGION_LIST_RECT = Rect(1480, 200, 1820, 1000)
@@ -27,6 +28,15 @@ FLOOR_LIST_PART = Rect(30, 730, 100, 1000)
 
 LARGE_MAP_POWER_RECT = Rect(1635, 54, 1678, 72)  # 大地图上显示体力的位置
 EMPTY_COLOR: int = 210  # 大地图空白地方的颜色
+
+
+def get_screen_map_rect(region: Region) -> Rect:
+    """
+    获取区域对应的屏幕上大地图范围
+    :param region: 区域
+    :return:
+    """
+    return CUT_MAP_RECT if region.parent is None else SUB_CUT_MAP_RECT
 
 
 def get_planet(screen: MatLike, ocr: OcrMatcher) -> Optional[Planet]:
@@ -106,7 +116,7 @@ def get_sp_mask_by_template_match(lm_info: LargeMapInfo, im: ImageMatcher,
     source = lm_info.origin if template_type == 'origin' else lm_info.gray
     sp_mask = np.zeros(source.shape[:2], dtype=np.uint8)
     # 找出特殊点位置
-    for prefix in ['mm_tp', 'mm_sp', 'mm_boss']:
+    for prefix in ['mm_tp', 'mm_sp', 'mm_boss', 'mm_sub']:
         for i in range(100):
             if i == 0:
                 continue
@@ -233,10 +243,10 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
     if expand_arr is None:
         expand_arr = get_expand_arr(raw, mm_pos)
     info.origin = expand_raw(raw, expand_arr)
-    gray = cv2.cvtColor(info.origin, cv2.COLOR_BGRA2GRAY)
+    info.gray = cv2.cvtColor(info.origin, cv2.COLOR_BGRA2GRAY)
     sp_mask, info.sp_result = get_sp_mask_by_template_match(info, im)
     road_mask = get_large_map_road_mask(info.origin, sp_mask)
-    info.gray, info.mask = merge_all_map_mask(gray, road_mask, sp_mask)
+    info.mask = merge_all_map_mask(road_mask, sp_mask)
     info.kps, info.desc = cv2_utils.feature_detect_and_compute(info.gray, mask=info.mask)
 
     if save:
@@ -266,12 +276,14 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
     return info
 
 
-def get_expand_arr(raw: MatLike, mm_pos: MiniMapPos):
+def get_expand_arr(raw: MatLike, mm_pos: MiniMapPos, screen_map_rect: Rect):
     """
     如果道路太贴近大地图边缘 使用小地图模板匹配的时候会匹配失败
     如果最后截图高度或宽度跟大地图圈定范围CUT_MAP_RECT一致 则choose_transport_point中两个大地图做模板匹配可能会报错
     这些情况需要拓展一下大地图
     :param raw: 大地图原图
+    :param mm_pos: 小地图位置
+    :param screen_map_rect: 屏幕上大地图的区域
     :return: 各个方向需要扩展的大小
     """
     # 道路掩码图
@@ -287,10 +299,10 @@ def get_expand_arr(raw: MatLike, mm_pos: MiniMapPos):
     bp = 0 if bottom[1] + padding < raw.shape[0] else bottom[1] + padding + 1 - raw.shape[0]
 
     # raw 尺寸至少跟CUT_MAP_RECT一致 所以只有上面没有拓展的情况要
-    if tp == 0 and bp == 0 and raw.shape[0] == CUT_MAP_RECT.y2 - CUT_MAP_RECT.y1:
+    if tp == 0 and bp == 0 and raw.shape[0] == screen_map_rect.y2 - screen_map_rect.y1:
         tp = 5
         bp = 5
-    if lp == 0 and rp == 0 and raw.shape[1] == CUT_MAP_RECT.x2 - CUT_MAP_RECT.x1:
+    if lp == 0 and rp == 0 and raw.shape[1] == screen_map_rect.x2 - screen_map_rect.x1:
         lp = 5
         rp = 5
 
@@ -371,23 +383,17 @@ def get_large_map_road_mask(map_image: MatLike,
     return real_road_mask
 
 
-def merge_all_map_mask(gray_image: MatLike, road_mask, sp_mask):
+def merge_all_map_mask(road_mask, sp_mask):
     """
-    :param gray_image:
     :param road_mask:
     :param sp_mask:
     :return:
     """
-    usage = gray_image.copy()
-
     # 稍微膨胀一下
     kernel = np.ones((5, 5), np.uint8)
     expand_sp_mask = cv2.dilate(sp_mask, kernel, iterations=1)
 
-    all_mask = cv2.bitwise_or(road_mask, expand_sp_mask)
-    usage[np.where(all_mask == 0)] = const.COLOR_WHITE_GRAY
-    usage[np.where(road_mask == 255)] = const.COLOR_MAP_ROAD_GRAY
-    return usage, all_mask
+    return cv2.bitwise_or(road_mask, expand_sp_mask)
 
 
 def get_edge_mask(road_mask: MatLike):

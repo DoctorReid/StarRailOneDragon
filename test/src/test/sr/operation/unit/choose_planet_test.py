@@ -5,7 +5,7 @@ from basic.img import cv2_utils
 from basic.img.os import get_test_image
 from sr import const
 from sr.context import get_context, Context
-from sr.operation.unit.choose_planet import ChoosePlanet
+from sr.operation.unit.op_map import ChoosePlanet
 
 
 def _test_open_choose_planet(op: ChoosePlanet, ctx: Context):

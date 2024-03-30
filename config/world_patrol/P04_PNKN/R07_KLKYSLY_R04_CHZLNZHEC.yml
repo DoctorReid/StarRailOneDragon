@@ -1,0 +1,15 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '克劳克影视乐园'
+floor: 2
+tp: '存护之蕾·拟造花萼（赤）'
+route:
+  - op: 'move'
+    data: [875, 1292]
+  - op: 'move'
+    data: [886, 1321]
+  - op: 'move'
+    data: [830, 1336]
+  - op: 'move'
+    data: [773, 1348]
+  - op: 'patrol'

@@ -354,11 +354,11 @@ class WorldPatrolWhiteListView(components.Card, SrBasicView):
             self.update_display_route_list()
 
 
-gv: WorldPatrolWhiteListView = None
+_world_patrol_draft_route_view: WorldPatrolWhiteListView = None
 
 
 def get(page: ft.Page, ctx: Context) -> WorldPatrolWhiteListView:
-    global gv
+    global _world_patrol_draft_route_view
     if gv is None:
         gv = WorldPatrolWhiteListView(page, ctx)
 

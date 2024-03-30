@@ -1,0 +1,28 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '朝露公馆'
+floor: 1
+tp: '梦主大厅'
+route:
+  - op: 'move'
+    data: [707, 698]
+  - op: 'move'
+    data: [706, 561]
+  - op: 'slow_move'
+    data: [737, 554]
+  - op: 'move'
+    data: [870, 556]
+  - op: 'slow_move'
+    data: [893, 556]
+  - op: 'move'
+    data: [924, 556]
+  - op: 'move'
+    data: [925, 667]
+  - op: 'slow_move'
+    data: [923, 690]
+  - op: 'move'
+    data: [946, 690]
+  - op: 'patrol'
+  - op: 'move'
+    data: [900, 690]
+  - op: 'patrol'

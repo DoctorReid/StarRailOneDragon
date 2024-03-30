@@ -3,12 +3,12 @@ from typing import List, Optional, ClassVar
 from basic.i18_utils import gt
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application, Application2
+from sr.app.application_base import Application
 from sr.app.assignments.assignments_app import AssignmentsApp
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcelApp
+from sr.app.claim_email.email_app import EmailApp
 from sr.app.daily_training.daily_training_app import DailyTrainingApp
 from sr.app.echo_of_war.echo_of_war_app import EchoOfWarApp
-from sr.app.email.email_app import EmailApp
 from sr.app.mys.mys_app import MysApp
 from sr.app.nameless_honor.nameless_honor_app import NamelessHonorApp
 from sr.app.sim_uni.sim_uni_app import SimUniApp
@@ -17,11 +17,11 @@ from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.context import Context
-from sr.operation import Operation, OperationOneRoundResult, StateOperationEdge, StateOperationNode, OperationResult
+from sr.operation import Operation, OperationOneRoundResult, StateOperationEdge, StateOperationNode
 from sr.operation.unit.enter_game import LoginWithAnotherAccount
 
 
-class OneStopServiceApp(Application2):
+class OneStopServiceApp(Application):
 
     STATUS_ACCOUNT_FINISHED: ClassVar[str] = '所有账号已完成'
     STATUS_ACCOUNT_APP_FINISHED: ClassVar[str] = '当前账号所有应用已完成'

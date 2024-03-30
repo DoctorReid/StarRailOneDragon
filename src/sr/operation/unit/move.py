@@ -351,18 +351,22 @@ class MoveDirectly(Operation):
             return self.start_pos, mm_info
 
         try:
+            real_move_time = self.ctx.controller.get_move_time()
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
                                                  possible_pos=possible_pos,
                                                  lm_rect=lm_rect, retry_without_rect=False,
-                                                 running=self.ctx.controller.is_moving)
+                                                 running=self.ctx.controller.is_moving,
+                                                 real_move_time=real_move_time
+                                                 )
+            if next_pos is None and self.next_lm_info is not None:
+                next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info,
+                                                     possible_pos=possible_pos,
+                                                     lm_rect=lm_rect, retry_without_rect=False,
+                                                     running=self.ctx.controller.is_moving,
+                                                     real_move_time=real_move_time)
         except Exception:
             next_pos = None
             log.error('识别坐标失败', exc_info=True)
-        if next_pos is None and self.next_lm_info is not None:
-            next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info,
-                                                 possible_pos=possible_pos,
-                                                 lm_rect=lm_rect, retry_without_rect=False,
-                                                 running=self.ctx.controller.is_moving)
 
         if next_pos is None:
             log.error('无法判断当前人物坐标')

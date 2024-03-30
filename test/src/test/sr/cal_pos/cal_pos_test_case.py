@@ -9,12 +9,14 @@ from sr.const.map_const import Region
 
 class TestCase:
 
-    def __init__(self, region: Region, pos: Point, num: int, running: bool, possible_pos: List[int]):
+    def __init__(self, region: Region, pos: Point, num: int, running: bool, possible_pos: List[int],
+                 real_move_time: float = 0):
         self.region: Region = region
         self.pos: Point = pos
         self.num: int = num
         self.running: bool = running
         self.possible_pos: List[int] = possible_pos
+        self.real_move_time: float = real_move_time
 
     @property
     def unique_id(self) -> str:
@@ -48,6 +50,7 @@ def save_test_cases(case_list: List[TestCase], case_file_path: str):
         cfg += f'  pos: [{case.pos.x}, {case.pos.y}]\n'
         cfg += f'  possible_pos: [{case.possible_pos[0]}, {case.possible_pos[1]}, {case.possible_pos[2]}]\n'
         cfg += f'  running: {case.running}\n'
+        cfg += f'  real_move_time: {case.real_move_time}\n'
 
     with open(case_file_path, 'w', encoding='utf-8') as file:
         file.write(cfg)
@@ -58,5 +61,6 @@ def dict_2_case(data: dict) -> TestCase:
     pos = Point(data['pos'][0], data['pos'][1])
     num = data['num']
     running = data['running']
+    real_move_time = data.get('real_move_time', 0)
     possible_pos = data['possible_pos']
-    return TestCase(region, pos, num, running, possible_pos)
+    return TestCase(region, pos, num, running, possible_pos, real_move_time)

@@ -4,7 +4,7 @@ from typing import List, Optional, ClassVar
 
 from basic.i18_utils import gt
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, load_all_route_id
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
@@ -16,7 +16,7 @@ from sr.operation.combine.choose_team_in_world import ChooseTeamInWorld
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 
 
-class WorldPatrol(Application2):
+class WorldPatrol(Application):
 
     STATUS_ALL_ROUTE_FINISHED: ClassVar[str] = '所有路线已完成'
 

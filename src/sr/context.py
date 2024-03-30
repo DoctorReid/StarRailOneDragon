@@ -15,7 +15,7 @@ from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_run_record import BuyXianZho
 from sr.app.daily_training.daily_training_run_record import DailyTrainingRunRecord
 from sr.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
-from sr.app.email.email_run_record import EmailRunRecord
+from sr.app.claim_email.email_run_record import EmailRunRecord
 from sr.app.mys.mys_run_record import MysRunRecord
 from sr.app.nameless_honor.nameless_honor_run_record import NamelessHonorRunRecord
 from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
@@ -31,6 +31,7 @@ from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, TECHNIQUE_ATTACK
+from sr.const.map_const import Planet, Region
 from sr.control import GameController
 from sr.control.pc_controller import PcController
 from sr.image import ImageMatcher
@@ -45,6 +46,17 @@ from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig
 from sr.win import Window
+
+
+class PosInfo:
+
+    def __init__(self, planet: Optional[Planet] = None, region: Optional[Region] = None):
+        """
+        当前位置信息 包含大地图
+        """
+        self.large_map_scale: int = 5  # 当前大地图缩放比例
+        self.planet: Planet = planet
+        self.region: Region = region
 
 
 class Context:
@@ -103,11 +115,12 @@ class Context:
         self.init_keyboard_callback()
 
         self.open_game_by_script: bool = False  # 脚本启动的游戏
-        self.first_transport: bool = True  # 第一次传送
         self.current_character_list: List[Character] = []
         self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
         self.no_technique_recover_consumables: bool = False  # 没有恢复秘技的物品了 为True的时候就不使用秘技了
         self.consumable_used: bool = False  # 是否已经使用过消耗品了
+
+        self.pos_info: PosInfo = PosInfo()
 
         self.record_coordinate: bool = False  # 需要记录坐标用于训练
 
@@ -477,13 +490,21 @@ class Context:
         subprocess.Popen(self.game_config.game_path)
         return True
 
-    def init_when_enter_game(self):
+    def init_after_enter_game(self):
         """
-        进入游戏时需要做的初始化
+        进入游戏后需要做的初始化
         :return:
         """
-        self.first_transport = True
+        self.pos_info.large_map_scale = 5
         self.no_technique_recover_consumables = False
+
+    def init_before_app_start(self):
+        """
+        应用开始前的初始化
+        :return:
+        """
+        self.pos_info.planet = None
+        self.pos_info.region = None
 
 
 def get_game_win() -> Window:

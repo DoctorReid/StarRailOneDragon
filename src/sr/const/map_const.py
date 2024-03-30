@@ -72,12 +72,19 @@ def best_match_planet_by_name(ocr_word: str) -> Optional[Planet]:
 
 class Region:
 
-    def __init__(self, num: int, i: str, cn: str, planet: Planet, floor: int = 0):
+    def __init__(self, num: int, i: str, cn: str, planet: Planet, floor: int = 0,
+                 parent: Optional = None,
+                 enter_template_id: Optional[str] = None,
+                 enter_lm_pos: Optional[Point] = None):
         self.num: int = num  # 编号 方便列表排序
         self.id: str = i  # id 用在找文件夹之类的
         self.cn: str = cn  # 中文 用在OCR
         self.planet: Planet = planet
         self.floor: int = floor
+        self.parent: Region = parent  # 子区域才会有 属于哪个具体区域
+        self.enter_template_id: str = enter_template_id  # 子区域才会有 入口对应的模板ID
+        self.enter_lm_pos: Point = enter_lm_pos  # 子区域才会有 在具体区域的哪个位置进入
+        self.large_map_scale: int = 0 if parent is None else 5
 
     def __repr__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -197,6 +204,12 @@ P04_R04 = Region(4, "ZZDM", "稚子的梦", P04)
 P04_R05_F1 = Region(5, "BRMJDMJ", "「白日梦」酒店-梦境", P04, floor=1)
 P04_R05_F2 = Region(5, "BRMJDMJ", "「白日梦」酒店-梦境", P04, floor=2)
 P04_R05_F3 = Region(5, "BRMJDMJ", "「白日梦」酒店-梦境", P04, floor=3)
+P04_R06_F1 = Region(6, "ZLGG", "朝露公馆", P04, floor=1)
+P04_R06_F2 = Region(6, "ZLGG", "朝露公馆", P04, floor=2)
+P04_R06_SUB_01 = Region(6, "CSSH", "城市沙盒", P04,
+                        parent=P04_R06_F1, enter_template_id='mm_sub_01', enter_lm_pos=Point(667, 692))
+P04_R07_F1 = Region(7, "KLKYSLY", "克劳克影视乐园", P04, floor=1)
+P04_R07_F2 = Region(7, "KLKYSLY", "克劳克影视乐园", P04, floor=2)
 
 
 # 这里的顺序需要保持和界面上的区域顺序一致
@@ -206,7 +219,8 @@ PLANET_2_REGION: Dict[str, List[Region]] = {
                 P02_R11_F1, P02_R11_F2, P02_R12_F1, P02_R12_F2],
     P03.np_id: [P03_R01, P03_R02_F1, P03_R02_F2, P03_R03_F1, P03_R03_F2, P03_R04, P03_R05, P03_R06_F1, P03_R06_F2,
                 P03_R07, P03_R08_F1, P03_R08_F2, P03_R09, P03_R10],
-    P04.np_id: [P04_R01_F1, P04_R01_F2, P04_R01_F3, P04_R02_F1, P04_R02_F2, P04_R02_F3, P04_R03, P04_R04, P04_R05_F1, P04_R05_F2, P04_R05_F3]
+    P04.np_id: [P04_R01_F1, P04_R01_F2, P04_R01_F3, P04_R02_F1, P04_R02_F2, P04_R02_F3, P04_R03, P04_R04, P04_R05_F1, P04_R05_F2, P04_R05_F3,
+                P04_R06_F1, P04_R06_F2, P04_R06_SUB_01, P04_R07_F1, P04_R07_F2]
 }
 
 
@@ -641,6 +655,29 @@ P04_R05_SP10 = TransportPoint('CZZLNZHEJ', '藏珍之蕾·拟造花萼（金）'
 P04_R05_SP11 = TransportPoint('MQZJQSSD', '梦潜之径·侵蚀隧洞', P04_R05_F3, 'mm_tp_09', (1874, 1809), (1866, 1817))
 P04_R05_SP12 = TransportPoint('RMC', '入梦池', P04_R05_F3, 'mm_sp_10', (1857, 920))
 
+P04_R06_SP01 = TransportPoint('MZDT', '梦主大厅', P04_R06_F1, 'mm_tp_03', (611, 681), tp_pos=(666, 722))
+P04_R06_SP02 = TransportPoint('CLJLDDS', '草绿经理的「大树」', P04_R06_F1, 'mm_sp_14', (677, 657))
+P04_R06_SP03 = TransportPoint('CSSPRK', '城市沙盘入口', P04_R06_F1, 'mm_sub_01', (666, 693))
+P04_R06_SP04 = TransportPoint('YBC', '迎宾处', P04_R06_F2, 'mm_tp_03', (690, 1354), tp_pos=(671, 1329))
+
+P04_R06_SUB_01_SP01 = TransportPoint('CSSH', '城市沙盒', P04_R06_SUB_01, 'mm_tp_03', (946, 923), tp_pos=(975, 905))
+P04_R06_SUB_01_SP02 = TransportPoint('CNZXNZXY', '嗔怒之形·凝滞虚影', P04_R06_SUB_01, 'mm_tp_06', (946, 923), tp_pos=(922, 924))
+
+P04_R07_SP01 = TransportPoint('YCDM', '影城大门', P04_R07_F1, 'mm_tp_03', (1244, 884), tp_pos=(1267, 903))
+P04_R07_SP02 = TransportPoint('HJDSK', '黄金的时刻', P04_R07_F1, 'mm_sp_02', (1272, 910))
+P04_R07_SP03 = TransportPoint('WEN', '沃尔纳', P04_R07_F1, 'mm_sp_03', (1146, 819))
+P04_R07_SP04 = TransportPoint('CSQLY', '仓鼠球乐园', P04_R07_F2, 'mm_tp_03', (664, 424), tp_pos=(688, 433))
+P04_R07_SP05 = TransportPoint('FYQRK', '放映区入口', P04_R07_F2, 'mm_tp_03', (490, 895), tp_pos=(528, 912))
+P04_R07_SP06 = TransportPoint('HNBPJD', '哈努帮派基地', P04_R07_F2, 'mm_tp_03', (705, 1456), tp_pos=(702, 1442))
+P04_R07_SP07 = TransportPoint('CHZLNZHEC', '存护之蕾·拟造花萼（赤）', P04_R07_F2, 'mm_tp_07', (832, 1243), tp_pos=(837, 1247))
+P04_R07_SP08 = TransportPoint('MMXZZTCT', '美梦小镇主题餐厅', P04_R07_F2, 'mm_sp_03', (478, 830))
+P04_R07_SP09 = TransportPoint('XXHNXD', '小小哈努行动', P04_R07_F2, 'mm_sp_11', (776, 439))
+P04_R07_SP10 = TransportPoint('XXHNXD', '小小哈努行动', P04_R07_F2, 'mm_sp_11', (816, 1405))
+P04_R07_SP11 = TransportPoint('HJGZDDS', '黄金公子的「大树」', P04_R07_F2, 'mm_sp_14', (819, 493))
+P04_R07_SP12 = TransportPoint('CSQQSSDYJG', '《仓鼠球骑士：速度与坚果》', P04_R07_F2, 'mm_sp_17', (756, 333))
+P04_R07_SP13 = TransportPoint('HNXDLZD', '《哈努兄弟：狼之道》', P04_R07_F2, 'mm_sp_17', (634, 1465))
+
+
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
     P01_R02.pr_id: [P01_R02_SP01, P01_R02_SP02, P01_R02_SP03, P01_R02_SP04],
@@ -682,7 +719,11 @@ REGION_2_SP = {
     P04_R03.pr_id: [P04_R03_SP01, P04_R03_SP02, P04_R03_SP03, P04_R03_SP04, P04_R03_SP05, P04_R03_SP06, P04_R03_SP07, P04_R03_SP08, P04_R03_SP09, P04_R03_SP10],
     P04_R04.pr_id: [P04_R04_SP01, P04_R04_SP02, P04_R04_SP03, P04_R04_SP04, P04_R04_SP05],
     P04_R05_F1.pr_id: [P04_R05_SP01, P04_R05_SP02, P04_R05_SP03, P04_R05_SP04, P04_R05_SP05, P04_R05_SP06, P04_R05_SP07, P04_R05_SP08, P04_R05_SP09, P04_R05_SP10,
-                       P04_R05_SP11, P04_R05_SP12]
+                       P04_R05_SP11, P04_R05_SP12],
+    P04_R06_F1.pr_id: [P04_R06_SP01, P04_R06_SP02, P04_R06_SP03, P04_R06_SP04],
+    P04_R06_SUB_01.pr_id: [P04_R06_SUB_01_SP01, P04_R06_SUB_01_SP02],
+    P04_R07_F1.pr_id: [P04_R07_SP01, P04_R07_SP02, P04_R07_SP03, P04_R07_SP04, P04_R07_SP05, P04_R07_SP06, P04_R07_SP07, P04_R07_SP08, P04_R07_SP09, P04_R07_SP10,
+                       P04_R07_SP11, P04_R07_SP12, P04_R07_SP13,]
 }
 
 

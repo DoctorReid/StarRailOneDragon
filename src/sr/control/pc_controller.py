@@ -31,6 +31,7 @@ class PcController(GameController):
         self.run_speed: float = 30
         self.is_moving: bool = False
         self.is_running: bool = False  # 是否在疾跑
+        self.start_move_time: float = 0
 
     def init(self):
         self.win.active()
@@ -133,17 +134,24 @@ class PcController(GameController):
         if direction not in ['w', 's', 'a', 'd']:
             log.error('非法的方向移动 %s', direction)
             return False
+        self.start_move_time = time.time()
         if press_time > 0:
             pyautogui.keyDown(direction)
             self.is_moving = True
             self.enter_running(run)
             time.sleep(press_time)
             pyautogui.keyUp(direction)
-            self.is_moving = False
-            self.is_running = False
+            self.stop_moving_forward()
         else:
             pyautogui.press(direction)
         return True
+
+    def get_move_time(self) -> float:
+        """
+        获取跑动的时间
+        :return:
+        """
+        return time.time() - self.start_move_time if self.is_moving else 0
 
     def start_moving_forward(self, run: bool = False):
         """

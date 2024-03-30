@@ -46,7 +46,7 @@ class SimUniEnterFight(Operation):
         self.last_state: str = ''  # 上一次的画面状态
         self.current_state: str = ''  # 这一次的画面状态
         self.with_battle: bool = False  # 是否有进入战斗
-        self.attack_direction: int = 0  # 攻击方向
+        self.attack_times: int = 0  # 攻击次数
         self.config: Optional[SimUniChallengeConfig] = config  # 挑战配置
         self.disposable: bool = disposable  # 攻击可破坏物
         self.no_attack: bool = no_attack  # 不主动攻击
@@ -61,7 +61,7 @@ class SimUniEnterFight(Operation):
         self.last_attack_time: float = now - SimUniEnterFight.ATTACK_INTERVAL
         self.last_alert_time: float = now  # 上次警报时间
         self.last_not_in_world_time: float = now  # 上次在战斗的时间
-        self.attack_direction: int = 0  # 攻击方向
+        self.attack_times: int = 0  # 攻击次数
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _execute_one_round(self) -> OperationOneRoundResult:
@@ -82,9 +82,9 @@ class SimUniEnterFight(Operation):
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             self._update_in_world()
             round_result = self._try_attack(screen)
+            self.attack_times += 1
             if not self.disposable:
-                self.attack_direction += 1
-                self.ctx.controller.move(SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
+                self.ctx.controller.move(SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
             return round_result
         elif self.current_state == screen_state.ScreenState.BATTLE.value:
             round_result = self._handle_not_in_world(screen)
@@ -194,7 +194,7 @@ class SimUniEnterFight(Operation):
     def _attack(self, now_time: float):
         if now_time - self.last_attack_time < SimUniEnterFight.ATTACK_INTERVAL:
             return
-        if self.disposable and self.attack_direction > 0:  # 可破坏物只攻击一次
+        if self.disposable and self.attack_times > 0:  # 可破坏物只攻击一次
             return
         self.last_attack_time = now_time
         self.ctx.controller.initiate_attack()

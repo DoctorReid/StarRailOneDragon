@@ -107,7 +107,8 @@ class SimUniRunRouteOp(StateOperation):
         stop_afterwards = not (
             next_op is not None
             and next_op['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
-                                  operation_const.OP_PATROL,  # 如果下一个是攻击 则靠攻击停止移动 这样还可以取消疾跑后摇
+                                  # 如果下一个是攻击 则靠攻击停止移动 这样还可以取消疾跑后摇
+                                  operation_const.OP_PATROL, operation_const.OP_DISPOSABLE,
                                   ]
         )
         op = MoveDirectlyInSimUni(self.ctx, self.ctx.ih.get_large_map(self.route.region),
@@ -502,7 +503,8 @@ class SimUniRunEliteAfterRoute(StateOperation):
                                            possible_pos=possible_pos,
                                            pos_to_cal_angle=self.route.start_pos,
                                            lm_rect=lm_rect,
-                                           running=self.ctx.controller.is_moving)
+                                           running=self.ctx.controller.is_moving,
+                                           real_move_time=0)
 
         if next_pos is not None:
             self.current_pos = next_pos

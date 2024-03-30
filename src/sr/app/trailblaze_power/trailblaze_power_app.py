@@ -6,7 +6,7 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.app.sim_uni.sim_uni_app import SimUniApp
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr.const import phone_menu_const
@@ -24,7 +24,7 @@ from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.operation.unit.open_map import OpenMap
 
 
-class TrailblazePower(Application2):
+class TrailblazePower(Application):
 
     SIM_UNI_POWER_RECT: ClassVar[Rect] = Rect(1474, 56, 1518, 78)  # 模拟宇宙 体力
     SIM_UNI_QTY_RECT: ClassVar[Rect] = Rect(1672, 56, 1707, 78)  # 模拟宇宙 沉浸器数量

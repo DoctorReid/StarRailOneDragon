@@ -1,7 +1,7 @@
 from typing import List
 
 from basic.i18_utils import gt
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.const import phone_menu_const
 from sr.const.traing_mission_const import MISSION_SALVAGE_RELIC, MISSION_DESTRUCTIBLE_OBJECTS, MISSION_USE_TECHNIQUE, \
     MISSION_TAKE_PHOTO, MISSION_SYNTHESIZE_CONSUMABLE
@@ -23,7 +23,7 @@ from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 
-class DailyTrainingApp(Application2):
+class DailyTrainingApp(Application):
 
     def __init__(self, ctx: Context):
         edges: List[StateOperationEdge] = []

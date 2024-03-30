@@ -149,9 +149,13 @@ class CheckTeamMembersInWorld(Operation):
             for character in CHARACTER_LIST:
                 template = self.ctx.ih.get_character_avatar_template(character.id)
 
+                if template is None:
+                    log.error('%s 角色头像文件缺失 请下载最新的images.zip 更新', character.cn)
+                    continue
+
                 mr = cv2_utils.feature_match_for_one(source_kps, source_desc,
-                                                template.kps, template.desc,
-                                                template.origin.shape[1], template.origin.shape[0])
+                                                     template.kps, template.desc,
+                                                     template.origin.shape[1], template.origin.shape[0])
 
                 if mr is not None:
                     self.character_list[i] = character

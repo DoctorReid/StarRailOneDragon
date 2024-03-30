@@ -1,0 +1,23 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '克劳克影视乐园'
+floor: 1
+tp: '影城大门'
+route:
+  - op: 'move'
+    data: [1187, 946]
+  - op: 'move'
+    data: [1187, 984]
+  - op: 'move'
+    data: [1125, 991]
+  - op: 'move'
+    data: [985, 999]
+  - op: 'move'
+    data: [935, 1000]
+  - op: 'move'
+    data: [906, 1000]
+  - op: 'move'
+    data: [884, 1020]
+  - op: 'move'
+    data: [863, 1039]
+  - op: 'patrol'

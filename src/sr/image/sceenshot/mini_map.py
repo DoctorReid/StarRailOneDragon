@@ -1,3 +1,4 @@
+import math
 import os
 from functools import lru_cache
 from typing import Set, Optional
@@ -206,7 +207,7 @@ def init_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
     source = mm_info.origin_del_radio
     source_mask = mm_info.circle_mask
     source_kps, source_desc = cv2_utils.feature_detect_and_compute(source, mask=source_mask)
-    for prefix in ['mm_tp', 'mm_sp', 'mm_boss']:
+    for prefix in ['mm_tp', 'mm_sp', 'mm_boss', 'mm_sub']:
         for i in range(100):
             if i == 0:
                 continue
@@ -327,10 +328,6 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
         cv2.waitKey(0)
 
     return find
-
-
-def get_mini_map_scale_list(running: bool):
-    return [1.25, 1.20, 1.15, 1.10] if running else [1, 1.05, 1.10, 1.15]
 
 
 mini_map_radio_to_del: Optional[MatLike] = None

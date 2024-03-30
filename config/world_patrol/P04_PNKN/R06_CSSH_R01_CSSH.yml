@@ -1,0 +1,28 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '城市沙盒'
+floor: 0
+tp: '城市沙盒'
+route:
+  - op: 'move'
+    data: [968, 865]
+  - op: 'move'
+    data: [991, 840]
+  - op: 'move'
+    data: [1150, 839]
+  - op: 'move'
+    data: [1158, 813]
+  - op: 'patrol'
+  - op: 'move'
+    data: [1215, 800]
+  - op: 'patrol'
+  - op: 'move'
+    data: [1193, 756]
+  - op: 'move'
+    data: [1190, 646]
+  - op: 'move'
+    data: [1132, 551]
+  - op: 'patrol'
+  - op: 'move'
+    data: [1177, 548]
+  - op: 'patrol'

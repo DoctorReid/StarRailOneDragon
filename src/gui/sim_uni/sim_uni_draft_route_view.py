@@ -207,8 +207,14 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                 # if region != map_const.P03_R03_F1:
                 #     continue
                 lm_info = self.sr_ctx.ih.get_large_map(region)
+                if lm_info is None or lm_info.origin is None or lm_info.gray is None:
+                    log.error('找不到大地图 %s', region.prl_id)
+                    continue
                 pos: MatchResult = cal_pos.sim_uni_cal_pos_by_gray(self.sr_ctx.im, lm_info, mm_info,
                                                                    scale_list=[1], match_threshold=0.2)
+                if pos is None:
+                    pos = cal_pos.sim_uni_cal_pos_by_original(self.sr_ctx.im, lm_info, mm_info,
+                                                              scale_list=[1], match_threshold=0.2)
                 log.info('匹配 %s 结果 %s', region.display_name, pos)
                 if pos is None:
                     continue

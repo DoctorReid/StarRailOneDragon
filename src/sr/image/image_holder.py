@@ -121,7 +121,7 @@ class ImageHolder:
         锄大地预热加载模板
         :return:
         """
-        for prefix in ['mm_tp', 'mm_sp', 'mm_boss']:
+        for prefix in ['mm_tp', 'mm_sp', 'mm_boss', 'mm_sub']:
             for i in range(100):
                 if i == 0:
                     continue

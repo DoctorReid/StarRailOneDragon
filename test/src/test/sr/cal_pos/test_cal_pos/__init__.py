@@ -7,11 +7,10 @@ from basic import Point, cal_utils
 from basic.img.os import get_debug_image
 from basic.log_utils import log
 from sr import cal_pos, performance_recorder
-from sr.const import map_const
 from sr.const.map_const import get_region_by_prl_id
 from sr.context import get_context
 from sr.image.image_holder import ImageHolder
-from sr.image.sceenshot import mini_map, large_map, mini_map_angle_alas
+from sr.image.sceenshot import mini_map, large_map
 from test.sr.cal_pos.cal_pos_test_case import TestCase, read_test_cases, save_test_cases
 
 
@@ -45,7 +44,7 @@ class TestCalPos(test.SrTestBase):
         fail_cnt = 0
         self.cases = read_test_cases(self.cases_path)
         for case in self.cases:
-            if case.unique_id != 'P01_KJZHT_R03_SRCD_F1_02':
+            if case.unique_id != 'P04_PNKN_R06_CSSH_02':
                 continue
             result = self.run_one_test_case(case, show=True)
             if not result:
@@ -55,14 +54,13 @@ class TestCalPos(test.SrTestBase):
         performance_recorder.log_all_performance()
         self.assertEqual(0, fail_cnt)
 
-
     def test_init_case(self):
         """
         从debug中初始化
         :return:
         """
         ctx = get_context()
-        file_name: str = 'P03_XZLF_R02_LYD_F1_419_1318_30_True'
+        file_name: str = '_1711787600419'
         mm = get_debug_image(file_name)
 
         str_list = file_name.split('_')
@@ -94,7 +92,7 @@ class TestCalPos(test.SrTestBase):
         self.cases = sorted(self.cases, key=lambda x: x.unique_id)
         save_test_cases(self.cases, self.cases_path)
         self.save_test_image(mm, case.image_name)
-        log.info('新增样例 %s %02d', region_prl_id, idx)
+        log.info('新增样例 %s', case.unique_id)
 
     def run_one_test_case(self, case: TestCase, show: bool = False) -> bool:
         """
@@ -119,6 +117,7 @@ class TestCalPos(test.SrTestBase):
                                         mm_info=mm_info,
                                         possible_pos=possible_pos,
                                         running=case.running,
+                                        real_move_time=case.real_move_time,
                                         lm_rect=lm_rect,
                                         retry_without_rect=False,
                                         show=show
@@ -131,5 +130,5 @@ class TestCalPos(test.SrTestBase):
             return False
         else:
             dis = cal_utils.distance_between(pos.center, case.pos)
-            log.info('%s 当前计算坐标为 %s 与目标点距离 %.2f', case.unique_id, pos.center, dis)
+            log.info('%s 当前计算坐标为 %s 与目标点 %s 距离 %.2f', case.unique_id, pos.center, case.pos, dis)
             return dis < 5

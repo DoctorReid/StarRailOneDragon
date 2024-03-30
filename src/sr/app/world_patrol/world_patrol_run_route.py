@@ -113,6 +113,10 @@ class WorldPatrolRunRoute(StateOperation):
                                 technique_fight=self.ctx.world_patrol_config.technique_fight,
                                 technique_only=self.ctx.world_patrol_config.technique_only,
                                 first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
+        elif route_item['op'] == operation_const.OP_DISPOSABLE:
+            op = EnterAutoFight(self.ctx,
+                                first_state=ScreenNormalWorld.CHARACTER_ICON.value.status,
+                                disposable=True)
         elif route_item['op'] == operation_const.OP_INTERACT:
             op = Interact(self.ctx, route_item['data'])
         elif route_item['op'] == operation_const.OP_WAIT:
@@ -130,7 +134,8 @@ class WorldPatrolRunRoute(StateOperation):
         if self.ctx.record_coordinate and op_result.success and (
                 (  # 当前是移动 下一个不是战斗 避免被怪攻击卡死
                     route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE] and
-                    next_route_item is not None and next_route_item['op'] != operation_const.OP_PATROL
+                    next_route_item is not None and
+                    next_route_item['op'] not in [operation_const.OP_PATROL]
                 )
                 or
                 (  # 当前是战斗

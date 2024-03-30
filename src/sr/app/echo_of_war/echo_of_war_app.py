@@ -7,7 +7,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr.context import Context
@@ -19,7 +19,7 @@ from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.open_map import OpenMap
 
 
-class EchoOfWarApp(Application2):
+class EchoOfWarApp(Application):
 
     def __init__(self, ctx: Context):
         edges: List[StateOperationEdge] = []

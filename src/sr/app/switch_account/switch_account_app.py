@@ -1,13 +1,13 @@
 from typing import List
 
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.context import Context
 from sr.operation import Operation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.enter_game import LoginWithAnotherAccount
 
 
-class SwitchAccountApp(Application2):
+class SwitchAccountApp(Application):
 
     def __init__(self, ctx: Context, target_account_idx: int):
         edges: List[StateOperationEdge] = []

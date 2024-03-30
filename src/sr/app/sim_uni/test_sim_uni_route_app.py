@@ -1,7 +1,7 @@
 from typing import Optional, ClassVar
 
 from basic.i18_utils import gt
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.app.sim_uni.sim_uni_config import SimUniConfig
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
@@ -14,7 +14,7 @@ from sr.sim_uni.sim_uni_const import SimUniLevelType
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
-class TestSimUniRouteApp(Application2):
+class TestSimUniRouteApp(Application):
 
     STATUS_NO_ROUTE_MATCHED: ClassVar[str] = '匹配不到路线'
 

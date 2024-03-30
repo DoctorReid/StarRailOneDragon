@@ -1,3 +1,5 @@
+from typing import Optional
+
 import flet as ft
 
 from gui.sr_app_view import SrAppView
@@ -15,11 +17,11 @@ class CalibratorView(SrAppView):
         app.execute()
 
 
-gv: CalibratorView = None
+_calibrator_view: Optional[CalibratorView] = None
 
 
-def get(page: ft.Page, ctx: Context):
-    global gv
-    if gv is None:
-        gv = CalibratorView(page, ctx)
-    return gv
+def get(page: ft.Page, ctx: Context) -> CalibratorView:
+    global _calibrator_view
+    if _calibrator_view is None:
+        _calibrator_view = CalibratorView(page, ctx)
+    return _calibrator_view

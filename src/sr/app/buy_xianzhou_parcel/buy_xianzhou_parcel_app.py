@@ -1,5 +1,5 @@
 from basic.i18_utils import gt
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.const import map_const
 from sr.context import Context
 from sr.operation import StateOperationNode
@@ -11,7 +11,7 @@ from sr.operation.unit.store.buy_store_item import BuyStoreItem
 from sr.operation.unit.store.click_store_item import ClickStoreItem
 
 
-class BuyXianzhouParcelApp(Application2):
+class BuyXianzhouParcelApp(Application):
 
     def __init__(self, ctx: Context):
         nodes = [

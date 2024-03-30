@@ -3,12 +3,12 @@ import asyncio
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.context import Context
 from sr.operation import Operation, OperationOneRoundResult, StateOperationNode, OperationResult
 
 
-class MysApp(Application2):
+class MysApp(Application):
 
     def __init__(self, ctx: Context):
 

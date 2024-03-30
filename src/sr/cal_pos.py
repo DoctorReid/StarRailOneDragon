@@ -1,4 +1,5 @@
 import concurrent.futures
+import math
 from concurrent.futures import Future
 from typing import List, Optional, Tuple
 
@@ -17,12 +18,37 @@ from sr.performance_recorder import record_performance
 cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='cal_pos')
 
 
+def get_mini_map_scale_list(running: bool, real_move_time: float = 0):
+    """
+    :param running: 是否在移动
+    :param real_move_time: 真正按住移动的时间
+    :return:
+    """
+    scale = 1.25
+    scale_list = [scale]
+    if running:
+        # 0 ~ 2 秒 每0.4秒减少一个缩放比例
+        max_to_add = 5 - math.floor(real_move_time // 0.4)
+        if max_to_add < 0:
+            max_to_add = 0
+    else:
+        # 不移动的时候可以尝试所有缩放比例 因为这时候没有效率的要求
+        max_to_add = 5
+
+    for i in range(max_to_add):
+        scale -= 0.05
+        scale_list.append(scale)
+
+    return scale_list
+
+
 def cal_character_pos(im: ImageMatcher,
                       lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                       possible_pos: Optional[Tuple[int, int, float]] = None,
                       lm_rect: Rect = None, show: bool = False,
                       retry_without_rect: bool = True,
-                      running: bool = False) -> Optional[MatchResult]:
+                      running: bool = False,
+                      real_move_time: float = 0) -> Optional[MatchResult]:
     """
     根据小地图 匹配大地图 判断当前的坐标
     :param im: 图片匹配器
@@ -33,35 +59,39 @@ def cal_character_pos(im: ImageMatcher,
     :param retry_without_rect: 失败时是否去除特定区域进行全图搜索
     :param show: 是否显示结果
     :param running: 角色是否在移动 移动时候小地图会缩小
+    :param real_move_time: 真实移动时间
     :return:
     """
     # 匹配结果 是缩放后的 offset 和宽高
     result: Optional[MatchResult] = None
 
+    scale_list = get_mini_map_scale_list(running, real_move_time)
+    # print(real_move_time, scale_list)
+
     if result is None:  # 使用模板匹配 用道路掩码的
-        result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
             result = None
 
     if result is None:  # 使用模板匹配 用灰度图的
-        result = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
             result = None
 
     if result is None:  # 看看有没有特殊点 使用特殊点倒推位置
-        result = cal_character_pos_by_sp_result(im, lm_info, mm_info, lm_rect=lm_rect, show=show)
+        result = cal_character_pos_by_sp_result(im, lm_info, mm_info, lm_rect=lm_rect)
         if result is not None and (result.template_scale > 1.3 or result.template_scale < 0.9):  # 不应该有这样的缩放 放弃这个结果
             log.debug('特殊点定位使用的缩放比例不符合预期')
             result = None
 
     if result is None:  # 使用模板匹配 用原图的
-        result = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
             result = None
 
     if result is None:
         if lm_rect is not None and retry_without_rect:  # 整张大地图试试
-            return cal_character_pos(im, lm_info, mm_info, running=running, show=show)
+            return cal_character_pos(im, lm_info, mm_info, running=False, show=show)
         else:
             return None
 
@@ -81,7 +111,7 @@ def cal_character_pos(im: ImageMatcher,
 def cal_character_pos_by_gray(im: ImageMatcher,
                               lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                               lm_rect: Rect = None,
-                              running: bool = False,
+                              scale_list: List[float] = None,
                               show: bool = False) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
@@ -90,7 +120,7 @@ def cal_character_pos_by_gray(im: ImageMatcher,
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
     :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param running: 任务是否在跑动
+    :param scale_list: 缩放比例
     :param show: 是否显示调试结果
     :return:
     """
@@ -104,8 +134,7 @@ def cal_character_pos_by_gray(im: ImageMatcher,
     template_mask = mm_info.road_mask_with_edge
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
-                                                                   mini_map.get_mini_map_scale_list(running),
-                                                                   0.3)
+                                                                   scale_list, 0.3)
 
     if show:
         scale = target.template_scale if target is not None else 1
@@ -129,7 +158,6 @@ def cal_character_pos_by_gray(im: ImageMatcher,
 def cal_character_pos_by_original(im: ImageMatcher,
                                   lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                   lm_rect: Rect = None,
-                                  running: bool = False,
                                   show: bool = False,
                                   scale_list: List[float] = None,
                                   match_threshold: float = 0.3) -> Optional[MatchResult]:
@@ -140,7 +168,6 @@ def cal_character_pos_by_original(im: ImageMatcher,
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
     :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param running: 任务是否在跑动
     :param show: 是否显示调试结果
     :param scale_list: 缩放比例
     :param match_threshold: 模板匹配的阈值
@@ -151,9 +178,6 @@ def cal_character_pos_by_original(im: ImageMatcher,
     template = mm_info.origin_del_radio
     mini_map.init_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
     template_mask = mm_info.road_mask_with_edge
-
-    if scale_list is None:
-        scale_list = mini_map.get_mini_map_scale_list(running)
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
                                                                    scale_list, match_threshold)
@@ -179,15 +203,13 @@ def cal_character_pos_by_original(im: ImageMatcher,
 @record_performance
 def cal_character_pos_by_sp_result(im: ImageMatcher,
                                    lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                   lm_rect: Rect = None,
-                                   show: bool = False) -> Optional[MatchResult]:
+                                   lm_rect: Rect = None) -> Optional[MatchResult]:
     """
     根据特殊点 计算小地图在大地图上的位置
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
     :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param show: 是否显示调试结果
     :return:
     """
     sp_map = map_const.get_sp_type_in_rect(lm_info.region, lm_rect)
@@ -256,7 +278,6 @@ def cal_character_pos_by_sp_result(im: ImageMatcher,
 def cal_character_pos_by_road_mask(im: ImageMatcher,
                                    lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                    lm_rect: Rect = None,
-                                   running: bool = False,
                                    show: bool = False,
                                    scale_list: List[float] = None) -> Optional[MatchResult]:
     """
@@ -266,7 +287,6 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
     :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param running: 任务是否在跑动
     :param show: 是否显示调试结果
     :param scale_list: 缩放比例
     :return:
@@ -276,9 +296,6 @@ def cal_character_pos_by_road_mask(im: ImageMatcher,
     mini_map.init_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
     template = cv2.bitwise_or(mm_info.road_mask, mm_info.arrow_mask)  # 需要把中心补上
     template_mask = mm_info.circle_mask
-
-    if scale_list is None:
-        scale_list = mini_map.get_mini_map_scale_list(running)
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
                                                                    scale_list,
@@ -392,7 +409,7 @@ def sim_uni_cal_pos(
         possible_pos: Optional[Tuple[int, int, float]] = None,
         pos_to_cal_angle: Optional[Point] = None,
         lm_rect: Rect = None, show: bool = False,
-        running: bool = False) -> Optional[Point]:
+        running: bool = False, real_move_time: float = 0) -> Optional[Point]:
     """
     根据小地图 匹配大地图 判断当前的坐标。模拟宇宙中使用
     :param im: 图片匹配器
@@ -403,22 +420,25 @@ def sim_uni_cal_pos(
     :param lm_rect: 大地图特定区域
     :param show: 是否显示结果
     :param running: 角色是否在移动 移动时候小地图会缩小
+    :param real_move_time: 真正按住移动的时间
     :return:
     """
     # 匹配结果 是缩放后的 offset 和宽高
     result: Optional[MatchResult] = None
 
+    scale_list = get_mini_map_scale_list(running, real_move_time)
+
     # 模拟宇宙中 不需要考虑特殊点
     # 模拟宇宙中 由于地图都是裁剪的 小地图缺块 不能直接使用道路掩码匹配（误报率非常高）
 
     if result is None:  # 使用模板匹配 灰度图
-        result = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle,
                                                  pos_to_cal_angle=pos_to_cal_angle):
             result = None
 
     if result is None:  # 使用模板匹配 原图
-        result = sim_uni_cal_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, running=running, show=show)
+        result = sim_uni_cal_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
         if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle,
                                                  pos_to_cal_angle=pos_to_cal_angle):
             result = None
@@ -445,7 +465,6 @@ def sim_uni_cal_pos(
 def sim_uni_cal_pos_by_gray(im: ImageMatcher,
                             lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                             lm_rect: Rect = None,
-                            running: bool = False,
                             show: bool = False,
                             scale_list: List[float] = None,
                             match_threshold: float = 0.3) -> Optional[MatchResult]:
@@ -456,7 +475,6 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
     :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param running: 任务是否在跑动
     :param show: 是否显示调试结果
     :param scale_list: 缩放比例
     :param match_threshold: 模板匹配的阈值
@@ -469,8 +487,6 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
     mini_map.init_road_mask_for_sim_uni(mm_info)
     template_mask = mm_info.road_mask_with_edge  # 把白色边缘包括进来
 
-    if scale_list is None:
-        scale_list = mini_map.get_mini_map_scale_list(running)
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask, scale_list,
                                                                    match_threshold)
 
@@ -497,7 +513,6 @@ def sim_uni_cal_pos_by_gray(im: ImageMatcher,
 def sim_uni_cal_pos_by_original(im: ImageMatcher,
                                 lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                                 lm_rect: Rect = None,
-                                running: bool = False,
                                 show: bool = False,
                                 scale_list: List[float] = None,
                                 match_threshold: float = 0.3) -> Optional[MatchResult]:
@@ -508,7 +523,6 @@ def sim_uni_cal_pos_by_original(im: ImageMatcher,
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
     :param lm_rect: 圈定的大地图区域 传入后更准确
-    :param running: 任务是否在跑动
     :param show: 是否显示调试结果
     :param scale_list: 缩放比例
     :return:
@@ -518,9 +532,6 @@ def sim_uni_cal_pos_by_original(im: ImageMatcher,
     template = mm_info.origin_del_radio
     mini_map.init_road_mask_for_sim_uni(mm_info)
     template_mask = mm_info.road_mask_with_edge
-
-    if scale_list is None:
-        scale_list = mini_map.get_mini_map_scale_list(running)
 
     target: MatchResult = template_match_with_scale_list_parallely(im, source, template, template_mask,
                                                                    scale_list,
@@ -558,7 +569,7 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
     """
     if result is None:
         return False
-    if possible_pos is None or current_angle is None:  # 无传入时不判断
+    if possible_pos is None:  # 无传入时不判断
         return True
 
     last_pos = Point(possible_pos[0], possible_pos[1])
@@ -569,6 +580,9 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
     if dis > move_distance * 1.1:
         log.info('计算坐标 %s 与 当前坐标 %s 距离较远 %.2f 舍弃', next_pos, last_pos, dis)
         return False
+
+    if current_angle is None:
+        return True
 
     if pos_to_cal_angle is None:
         next_angle = cal_utils.get_angle_by_pts(last_pos, next_pos)

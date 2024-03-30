@@ -169,6 +169,13 @@ class GameController:
         """
         pass
 
+    def get_move_time(self) -> float:
+        """
+        获取跑动的时间
+        :return:
+        """
+        pass
+
     def cal_move_distance_by_time(self, seconds: float):
         """
         根据时间计算移动距离

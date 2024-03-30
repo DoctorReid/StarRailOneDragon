@@ -4,7 +4,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
 from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord, \
     TreasuresLightwardScheduleRecord
@@ -26,7 +26,7 @@ from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardT
 from sr.treasures_lightward.treasures_lightward_team_module import search_best_mission_team
 
 
-class TreasuresLightwardApp(Application2):
+class TreasuresLightwardApp(Application):
 
     STATUS_SHOULD_CHALLENGE: ClassVar[str] = '进行挑战'
 

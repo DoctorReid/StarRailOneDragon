@@ -5,7 +5,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.const import phone_menu_const
@@ -34,7 +34,7 @@ from sr.sim_uni.op.sim_uni_start import SimUniStart
 from sr.sim_uni.sim_uni_const import SimUniType, SimUniPath, SimUniWorldEnum
 
 
-class SimUniApp(Application2):
+class SimUniApp(Application):
 
     STATUS_ALL_FINISHED: ClassVar[str] = '已完成通关次数'
     STATUS_EXCEPTION: ClassVar[str] = '异常次数过多'

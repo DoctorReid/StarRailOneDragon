@@ -3,7 +3,7 @@ from cv2.typing import MatLike
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
 from sr.context import Context, get_context
-from sr.operation.unit.scale_large_map import ScaleLargeMap
+from sr.operation.unit.op_map import ScaleLargeMap
 
 
 def _test_click_scale():

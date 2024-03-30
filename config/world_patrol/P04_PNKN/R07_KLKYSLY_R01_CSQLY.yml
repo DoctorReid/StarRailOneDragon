@@ -1,0 +1,16 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '克劳克影视乐园'
+floor: 2
+tp: '仓鼠球乐园'
+route:
+  - op: 'move'
+    data: [699, 474]
+  - op: 'move'
+    data: [727, 554]
+  - op: 'patrol'
+  - op: 'move'
+    data: [667, 564]
+  - op: 'move'
+    data: [659, 535]
+  - op: 'patrol'

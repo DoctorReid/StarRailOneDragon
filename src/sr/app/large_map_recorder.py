@@ -5,27 +5,25 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Point
+from basic import Point, Rect
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image, get_debug_image
 from basic.log_utils import log
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.app.sim_uni.sim_uni_route_holder import get_sim_uni_route_list
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRoute, load_all_route_id
-from sr.const import map_const, STANDARD_CENTER_POS, STANDARD_RESOLUTION_W, operation_const
+from sr.const import map_const, STANDARD_CENTER_POS, operation_const
 from sr.const.map_const import Region, region_with_another_floor, PLANET_2_REGION
 from sr.context import Context, get_context
 from sr.image.sceenshot import large_map
 from sr.operation import Operation, StateOperationNode, OperationOneRoundResult
-from sr.operation.unit.choose_planet import ChoosePlanet
-from sr.operation.unit.choose_region import ChooseRegion
+from sr.operation.unit.op_map import ChoosePlanet, ChooseRegion, ChooseFloor
 from sr.operation.unit.open_map import OpenMap
-from sr.operation.unit.scale_large_map import ScaleLargeMap
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 from sr.win import Window, WinRect
 
 
-class LargeMapRecorder(Application2):
+class LargeMapRecorder(Application):
     """
     开发用的截图工具 只支持PC版 需要自己缩放大地图到最小比例
     把整个大地图记录下来
@@ -39,6 +37,7 @@ class LargeMapRecorder(Application2):
 
         nodes.append(StateOperationNode('打开地图', op=OpenMap(ctx)))
         nodes.append(StateOperationNode('选择星球', op=ChoosePlanet(ctx, region.planet)))
+        nodes.append(StateOperationNode('选择区域', op=ChooseRegion(ctx, region)))
         nodes.append(StateOperationNode('截图', self._do_screenshot))
         nodes.append(StateOperationNode('保存', self.do_save))
 
@@ -75,7 +74,7 @@ class LargeMapRecorder(Application2):
         if self.current_region is None:
             return Operation.round_wait()
 
-        op = ChooseRegion(self.ctx, self.current_region)
+        op = ChooseFloor(self.ctx, self.current_region.floor)
         op_result = op.execute()
         if not op_result.success:
             return Operation.round_fail('选择区域失败')
@@ -133,7 +132,8 @@ class LargeMapRecorder(Application2):
             if not self.ctx.running:
                 return
             screen = self.screenshot()
-            map_part = cv2_utils.crop_image_only(screen, large_map.CUT_MAP_RECT)
+            screen_map_rect = large_map.get_screen_map_rect(self.region)
+            map_part = cv2_utils.crop_image_only(screen, screen_map_rect)
             save_debug_image(map_part, '%s_%02d_%02d' % (self.current_region.prl_id, self.row, self.col))
             if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], map_part):
                 img.append(map_part)
@@ -174,7 +174,7 @@ class LargeMapRecorder(Application2):
             if i == 0:
                 merge = img[i]
             else:
-                merge = cv2_utils.concat_horizontally(merge, img[i], decision_width=large_map.CUT_MAP_RECT.x2 - large_map.CUT_MAP_RECT.x1 - 300)
+                merge = cv2_utils.concat_horizontally(merge, img[i], decision_width=self.screen_map_rect.width - 300)
 
         cv2_utils.show_image(merge, win_name='region.prl_id')
 
@@ -190,7 +190,7 @@ class LargeMapRecorder(Application2):
             if not self.ctx.running:
                 return
             screen = self.screenshot()
-            map_part = cv2_utils.crop_image_only(screen, large_map.CUT_MAP_RECT)
+            map_part = cv2_utils.crop_image_only(screen, self.screen_map_rect)
             save_debug_image(map_part, LargeMapRecorder.region_part_image_name(self.current_region, self.row, self.col))
             cv2_utils.show_image(map_part, win_name='screenshot_vertically_map_part')
             if len(img) == 0 or not cv2_utils.is_same_image(img[len(img) - 1], map_part):
@@ -227,7 +227,8 @@ class LargeMapRecorder(Application2):
                     log.error('层数截图大小不一致 %s %s', shape, shape2)
 
             # 不同楼层需要拓展的大小可能不一致 保留一个最大的
-            lp2, rp2, tp2, bp2 = large_map.get_expand_arr(raw, ctx.game_config.mini_map_pos)
+            screen_map_rect = large_map.get_screen_map_rect(target_region)
+            lp2, rp2, tp2, bp2 = large_map.get_expand_arr(raw, ctx.game_config.mini_map_pos, screen_map_rect)
             if lp is None or lp2 > lp:
                 lp = lp2
             if rp is None or rp2 > rp:
@@ -420,18 +421,18 @@ class LargeMapRecorder(Application2):
     @staticmethod
     def do_merge_1(region: Region, max_row: int, max_col: int, skip_height: Optional[int] = None, show=False):
         img_list: List[List[MatLike]] = []
-        for row in range(max_row):
+        for row in range(max_row + 1):
             img_list.append([])
-            for col in range(max_col):
+            for col in range(max_col + 1):
                 img = get_debug_image(LargeMapRecorder.region_part_image_name(region, row, col))
                 img_list[row].append(img)
 
         # # 先求出每列的重叠宽度
         overlap_width_list: List[List[int]] = []
-        for i in range(max_col):
+        for i in range(max_col + 1):
             overlap_width_list.append([])
-        for row in range(max_row):
-            for col in range(1, max_col):
+        for row in range(max_row + 1):
+            for col in range(1, max_col + 1):
                 prev_img = img_list[row][col - 1]
                 next_img = img_list[row][col]
                 overlap_width = LargeMapRecorder.get_overlap_width(prev_img, next_img, show=show)
@@ -439,11 +440,11 @@ class LargeMapRecorder(Application2):
                 overlap_width_list[col].append(overlap_width)
 
         overlap_width_median: List[int] = [0]
-        for col in range(1, max_col):
+        for col in range(1, max_col + 1):
             overlap_width_median.append(int(np.median(overlap_width_list[col])))
 
-        for row in range(max_row):
-            for col in range(1, max_col):
+        for row in range(max_row + 1):
+            for col in range(1, max_col + 1):
                 if abs(overlap_width_list[col][row] - overlap_width_median[col]) > 5:
                     log.info('%02d行 %02d列 重叠宽度偏离较大 %d', row, col, overlap_width_list[row][col])
 
@@ -452,9 +453,9 @@ class LargeMapRecorder(Application2):
 
         # 按重叠宽度的中位数对每行图片进行合并
         row_image_list: List[MatLike] = []
-        for row in range(max_row):
+        for row in range(max_row + 1):
             merge = img_list[row][0]
-            for col in range(1, max_col):
+            for col in range(1, max_col + 1):
                 overlap_w = overlap_width_median[col]
                 extra_part = img_list[row][col][:, overlap_w + 1:]
                 # 水平拼接两张图像
@@ -519,10 +520,8 @@ def fix_all_after_map_record(region: Region, dx: int, dy: int):
     :param dy: 新地图与旧地图的偏移量
     :return:
     """
-    # fix_world_patrol_route_after_map_record(region, dx, dy)
-    # fix_sim_uni_route_after_map_record(region, dx, dy)
-    fix_sim_uni_route_after_map_record_2(region, dx, dy)
-    fix_sim_uni_route_after_map_record_3(region, dx, dy)
+    fix_world_patrol_route_after_map_record(region, dx, dy)
+    fix_sim_uni_route_after_map_record(region, dx, dy)
 
 
 def fix_world_patrol_route_after_map_record(region: Region, dx: int, dy: int):
@@ -607,9 +606,9 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 
 
 if __name__ == '__main__':
-    r = map_const.P01_R03_B1
-    # print(LargeMapRecorder.same_as_last_row(r, 6, 4))
-    # LargeMapRecorder.do_merge_1(r, 8, 4, show=True)
+    r = map_const.P04_R07_F1
+    # print(LargeMapRecorder.same_as_last_row(r, 6, 2))
+    # LargeMapRecorder.do_merge_1(r, 6, 2, show=True)
     # exit(0)
 
     # 执行前先传送到别的地图 确保当前地图上没有无关的任务标记

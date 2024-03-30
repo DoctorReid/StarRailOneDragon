@@ -5,7 +5,7 @@ from basic.img.os import get_test_image, get_debug_image
 from sr.const import map_const
 from sr.const.map_const import TransportPoint
 from sr.context import get_context
-from sr.operation.unit.choose_transport_point import ChooseTransportPoint
+from sr.operation.unit.op_map import ChooseTransportPoint
 
 
 def _test_get_tp_pos():

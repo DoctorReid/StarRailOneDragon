@@ -7,7 +7,7 @@ route:
   - op: 'move'
     data: [750, 261]
   - op: 'move'
-    data: [716, 285]
+    data: [716, 287]
   - op: 'move'
     data: [683, 326]
   - op: 'patrol'

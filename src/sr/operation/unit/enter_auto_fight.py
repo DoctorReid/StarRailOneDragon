@@ -25,7 +25,8 @@ class EnterAutoFight(Operation):
     def __init__(self, ctx: Context,
                  technique_fight: bool = False,
                  technique_only: bool = False,
-                 first_state: Optional[str] = None):
+                 first_state: Optional[str] = None,
+                 disposable: bool = False):
         """
         根据小地图的红圈 判断是否被敌人锁定 进行主动攻击
         """
@@ -36,12 +37,13 @@ class EnterAutoFight(Operation):
         self.last_state: str = ''  # 上一次的画面状态
         self.current_state: str = ''  # 这一次的画面状态
         self.with_battle: bool = False  # 是否有进入战斗
-        self.attack_direction: int = 0  # 攻击方向
+        self.attack_times: int = 0  # 攻击次数
         self.technique_fight: bool = technique_fight  # 使用秘技开怪
         self.technique_only: bool = technique_only  # 仅使用秘技开怪
         self.first_state: Optional[str] = first_state  # 初始画面状态 传入后会跳过第一次画面状态判断
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
         self.first_tech_after_battle: bool = False  # 是否战斗画面后第一次使用秘技
+        self.disposable: bool = disposable  # 是否攻击可破坏物 开启时无法使用秘技
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -49,7 +51,7 @@ class EnterAutoFight(Operation):
         self.last_attack_time: float = now - EnterAutoFight.ATTACK_INTERVAL
         self.last_alert_time: float = now  # 上次警报时间
         self.last_not_in_world_time: float = now  # 上次不在移动画面的时间
-        self.attack_direction: int = 0  # 攻击方向
+        self.attack_times: int = 0  # 攻击次数
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
         self.first_tech_after_battle: bool = False  # 是否战斗画面后第一次使用秘技
 
@@ -70,8 +72,9 @@ class EnterAutoFight(Operation):
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             self._update_in_world()
             round_result = self._try_attack(screen)
-            self.attack_direction += 1
-            self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_direction % 4])
+            self.attack_times += 1
+            if not self.disposable:
+                self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
             return round_result
         elif self.current_state == screen_state.ScreenState.BATTLE.value:
             round_result = self._handle_not_in_world(screen)
@@ -128,6 +131,8 @@ class EnterAutoFight(Operation):
 
     def _attack(self, now_time: float):
         if now_time - self.last_attack_time < EnterAutoFight.ATTACK_INTERVAL:
+            return
+        if self.disposable and self.attack_times > 0:
             return
         self.last_attack_time = now_time
         self.ctx.controller.initiate_attack()

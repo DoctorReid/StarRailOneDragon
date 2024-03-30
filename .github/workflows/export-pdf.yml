@@ -70,6 +70,8 @@ jobs:
           echo -e "\n\n" >> output/README.md
           cat "功能_锄大地.md" >> output/README.md
           echo -e "\n\n" >> output/README.md
+          cat "功能_锄地路线录制.md" >> output/README.md
+          echo -e "\n\n" >> output/README.md
           cat "功能_日常.md" >> output/README.md
           echo -e "\n\n" >> output/README.md
           cat "功能_逐光捡金.md" >> output/README.md

@@ -87,7 +87,9 @@ class MoveDirectlyInSimUni(MoveDirectly):
             next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, self.lm_info, mm_info,
                                                possible_pos=possible_pos,
                                                pos_to_cal_angle=self.start_pos,
-                                               lm_rect=lm_rect, running=self.ctx.controller.is_moving)
+                                               lm_rect=lm_rect,
+                                               running=self.ctx.controller.is_moving,
+                                               real_move_time=self.ctx.controller.get_move_time())
         except Exception:
             next_pos = None
             log.error('识别坐标失败', exc_info=True)

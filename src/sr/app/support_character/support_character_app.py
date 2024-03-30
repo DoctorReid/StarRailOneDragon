@@ -4,7 +4,7 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.img import MatchResult
-from sr.app.application_base import Application2
+from sr.app.application_base import Application
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.operation import Operation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
@@ -12,7 +12,7 @@ from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 
 
-class SupportCharacterApp(Application2):
+class SupportCharacterApp(Application):
 
     STATUS_WITH_ALERT: ClassVar[str] = '红点'
     STATUS_NO_ALERT: ClassVar[str] = '无红点'
