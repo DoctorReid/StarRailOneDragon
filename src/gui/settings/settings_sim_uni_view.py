@@ -36,6 +36,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         self.uni_06_dd = ft.Dropdown(data='sim_uni_06', on_change=self._on_sim_uni_challenge_changed)
         self.uni_07_dd = ft.Dropdown(data='sim_uni_07', on_change=self._on_sim_uni_challenge_changed)
         self.uni_08_dd = ft.Dropdown(data='sim_uni_08', on_change=self._on_sim_uni_challenge_changed)
+        self.uni_09_dd = ft.Dropdown(data='sim_uni_09', on_change=self._on_sim_uni_challenge_changed)
 
         config_list = SettingsList(controls=[
             SettingsListGroupTitle(gt('模拟宇宙', 'ui')),
@@ -50,6 +51,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
             SettingsListItem(gt('第六宇宙', 'ui'), self.uni_06_dd),
             SettingsListItem(gt('第七宇宙', 'ui'), self.uni_07_dd),
             SettingsListItem(gt('第八宇宙', 'ui'), self.uni_08_dd),
+            SettingsListItem(gt('第九宇宙', 'ui'), self.uni_09_dd),
         ], width=500)
         setting_card = Card(config_list)
 
@@ -61,14 +63,16 @@ class SettingsSimUniView(ft.Row, SrBasicView):
 
     def _load_existed_challenge_config_list(self):
         all_config_list = self.sr_ctx.sim_uni_challenge_all_config.load_all_challenge_config()
-        for uni_dd in [self.uni_03_dd, self.uni_04_dd, self.uni_05_dd, self.uni_06_dd, self.uni_07_dd, self.uni_08_dd]:
+        for uni_dd in [self.uni_03_dd, self.uni_04_dd, self.uni_05_dd, self.uni_06_dd, self.uni_07_dd, self.uni_08_dd,
+                       self.uni_09_dd]:
             uni_dd.options = [
                 ft.dropdown.Option(key=config.uid, text=config.name) for config in all_config_list
             ]
             uni_dd.update()
 
     def _load_config(self):
-        for uni_dd in [self.uni_03_dd, self.uni_04_dd, self.uni_05_dd, self.uni_06_dd, self.uni_07_dd, self.uni_08_dd]:
+        for uni_dd in [self.uni_03_dd, self.uni_04_dd, self.uni_05_dd, self.uni_06_dd, self.uni_07_dd, self.uni_08_dd,
+                       self.uni_09_dd]:
             uni_dd.value = self.sr_ctx.sim_uni_config.get(uni_dd.data)
             uni_dd.update()
 

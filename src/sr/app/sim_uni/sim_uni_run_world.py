@@ -1,7 +1,7 @@
 from typing import Optional, Callable
 
 from basic.i18_utils import gt
-from sr.app.sim_uni.sim_uni_run_level import SimUniRunLevel
+from sr.sim_uni.op.sim_uni_run_level import SimUniRunLevel
 from sr.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, OperationOneRoundResult, \
     StateOperationNode, StateOperationEdge

@@ -34,6 +34,7 @@ class SimUniWorldEnum(Enum):
     WORLD_06 = SimUniWorld(6, '第六宇宙', 4)
     WORLD_07 = SimUniWorld(7, '第七宇宙', 4)
     WORLD_08 = SimUniWorld(8, '第八宇宙', 4)
+    WORLD_09 = SimUniWorld(9, '第九宇宙', 4)
 
 
 UNI_NUM_CN: dict[int, str] = {
@@ -45,6 +46,7 @@ UNI_NUM_CN: dict[int, str] = {
     6: '六',
     7: '七',
     8: '八',
+    9: '九',
 }
 
 

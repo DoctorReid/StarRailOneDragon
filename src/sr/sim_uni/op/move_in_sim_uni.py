@@ -14,7 +14,8 @@ from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, large_map, mini_map, screen_state
-from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode
+from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode, \
+    StateOperationEdge
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
@@ -166,6 +167,64 @@ class MoveDirectlyInSimUni(MoveDirectly):
         return Operation.round_wait()
 
 
+class MoveWithoutPosInSimUni(StateOperation):
+
+    STATUS_PAUSE: ClassVar[str] = '暂停结束'
+    STATUS_ARRIVE: ClassVar[str] = '到达'
+
+    def __init__(self, ctx: Context, enemy_pos: Point):
+        """
+        朝一个位置移动 先不使用疾跑
+        :param ctx: 上下文
+        :param enemy_pos: 以人物坐标为 (0, 0) 计算到的敌人的坐标
+        """
+        edges: List[StateOperationEdge] = []
+
+        turn = StateOperationNode('转向', self._turn)
+        move = StateOperationNode('移动', self._move)
+
+        super().__init__(ctx,
+                         op_name='%s %s %s' % (
+                             gt('模拟宇宙', 'ui'),
+                             gt('机械移动', 'ui'),
+                             enemy_pos
+                         ),
+                         nodes=[turn, move]
+                         )
+
+        self.start_point = Point(0, 0)
+        self.end_point = enemy_pos
+        dis = cal_utils.distance_between(self.start_point, self.end_point)
+        self.need_move_time: float = dis / self.ctx.controller.walk_speed
+        self.ever_pause: bool = False  # 程序是否暂停过 暂停了就标记完成等待重新计算距离移动
+
+    def _turn(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
+
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
+        angle = mini_map.analyse_angle(mm)
+
+        self.ctx.controller.turn_by_pos(self.start_point, self.end_point, angle)
+
+        return Operation.round_success(wait=0.5)  # 等待转向结束
+
+    def _move(self) -> OperationOneRoundResult:
+        self.ctx.controller.start_moving_forward()
+        return Operation.round_success()
+
+    def _check_arrival(self) -> OperationOneRoundResult:
+        if self.ever_pause:
+            return Operation.round_success(MoveWithoutPosInSimUni.STATUS_PAUSE)
+        if self.ctx.controller.get_move_time() >= self.need_move_time:
+            return Operation.round_success(MoveWithoutPosInSimUni.STATUS_ARRIVE)
+
+        return Operation.round_wait(wait=0.02)
+
+    def on_pause(self):
+        super().on_pause()
+        self.ever_pause = True
+
+
 class MoveToNextLevel(StateOperation):
 
     MOVE_TIME: ClassVar[float] = 1.5  # 每次移动的时间
@@ -176,14 +235,17 @@ class MoveToNextLevel(StateOperation):
     STATUS_ENTRY_NOT_FOUND: ClassVar[str] = '未找到下一层入口'
     STATUS_ENCOUNTER_FIGHT: ClassVar[str] = '遭遇战斗'
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType, route: SimUniRoute,
+    def __init__(self, ctx: Context,
+                 level_type: SimUniLevelType,
+                 route: Optional[SimUniRoute] = None,
                  current_pos: Optional[Point] = None,
                  config: Optional[SimUniChallengeConfig] = None):
         """
         朝下一层入口走去 并且交互
         :param ctx:
+        :param level_type: 当前楼层的类型 精英层的话 有可能需要确定
+        :param route: 当前使用路线
         :param current_pos: 当前人物的位置
-        :param next_pos_list: 下一层入口的位置
         :param config: 挑战配置
         """
         turn = StateOperationNode('转向入口', self._turn_to_next)
@@ -207,7 +269,7 @@ class MoveToNextLevel(StateOperation):
         super()._init_before_execute()
         self.is_moving = False
         self.interacted = False
-        if self.route.next_pos_list is None or len(self.route.next_pos_list) == 0:
+        if self.route is None or self.route.next_pos_list is None or len(self.route.next_pos_list) == 0:
             self.next_pos = None
         else:
             avg_pos_x = np.mean([pos.x for pos in self.route.next_pos_list], dtype=np.uint16)
@@ -219,6 +281,8 @@ class MoveToNextLevel(StateOperation):
         朝入口转向 方便看到所有的入口
         :return:
         """
+        if self.route is None:  # 不是使用配置路线时 不需要先转向
+            return Operation.round_success()
         if self.current_pos is None or self.next_pos is None:
             if self.ctx.one_dragon_config.is_debug:
                 return Operation.round_fail('未配置下层入口')
@@ -276,7 +340,7 @@ class MoveToNextLevel(StateOperation):
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
                 # 因为前面已经转向了入口 所以就算被遮挡 只要稍微转一点应该就能看到了
-                angle = (25 + 10 * self.op_round) * (1 if self.op_round % 2 == 0 else 0)  # 来回转动视角
+                angle = (25 + 10 * self.op_round) * (1 if self.op_round % 2 == 0 else -1)  # 来回转动视角
                 self.ctx.controller.turn_by_angle(angle)
                 return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 

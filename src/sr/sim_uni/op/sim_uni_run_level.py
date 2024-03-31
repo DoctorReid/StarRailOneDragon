@@ -12,6 +12,7 @@ from sr.operation.unit.team import CheckTeamMembersInWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
+from sr.sim_uni.op.sim_uni_run_route_v2 import SimUniRunCombatRouteV2
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
@@ -125,19 +126,12 @@ class SimUniRunLevel(StateOperation):
         获取路线指令
         :return:
         """
-        if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
-            op = SimUniRunCombatRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
-        elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
-                self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
-                self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value or \
-                self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            op = SimUniRunInteractRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
-        elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
-                self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            op = SimUniRunEliteRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config,
-                                     max_reward_to_get=self.max_reward_to_get,
-                                     get_reward_callback=self.get_reward_callback)
+        if self.world_num < 9:
+            op: Operation = self._old_route_op()
         else:
+            op: Operation = self._new_route_op()
+
+        if op is None:
             return Operation.round_fail(status='未知楼层类型 %s' % self.level_type)
 
         op_result = op.execute()
@@ -145,6 +139,36 @@ class SimUniRunLevel(StateOperation):
             return Operation.round_success(status=SimUniRunLevel.STATUS_BOSS_CLEARED)
         else:
             return Operation.round_by_op(op_result)
+
+    def _old_route_op(self) -> Optional[Operation]:
+        """
+        第九世界之前的 使用旧方法
+        :return:
+        """
+        if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
+            return SimUniRunCombatRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
+        elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
+                self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
+                self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value or \
+                self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+            return SimUniRunInteractRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
+        elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
+                self.level_type == SimUniLevelTypeEnum.BOSS.value:
+            return SimUniRunEliteRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config,
+                                       max_reward_to_get=self.max_reward_to_get,
+                                       get_reward_callback=self.get_reward_callback)
+        else:
+            return None
+
+    def _new_route_op(self) -> Optional[Operation]:
+        """
+        第九宇宙开始使用
+        :return:
+        """
+        if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
+            return SimUniRunCombatRouteV2(self.ctx)
+        else:
+            return None
 
     def _reset(self) -> OperationOneRoundResult:
         """

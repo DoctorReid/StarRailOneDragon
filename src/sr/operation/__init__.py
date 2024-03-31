@@ -357,6 +357,13 @@ class Operation:
             return Operation.round_fail(status=op_result.status, data=op_result.data, wait=wait)
 
     @staticmethod
+    def round_wait_by_op(op_result: OperationResult) -> OperationOneRoundResult:
+        if op_result.success:
+            return Operation.round_wait(op_result.status)
+        else:
+            return Operation.round_fail_by_op(op_result)
+
+    @staticmethod
     def round_fail_by_op(op_result: OperationResult) -> OperationOneRoundResult:
         return Operation.round_fail(status=op_result.status, data=op_result.data)
 

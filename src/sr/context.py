@@ -12,10 +12,10 @@ from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.app.assignments.assignments_run_record import AssignmentsRunRecord
 from sr.app.buy_xianzhou_parcel.buy_xianzhou_parcel_run_record import BuyXianZhouParcelRunRecord
+from sr.app.claim_email.email_run_record import EmailRunRecord
 from sr.app.daily_training.daily_training_run_record import DailyTrainingRunRecord
 from sr.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
-from sr.app.claim_email.email_run_record import EmailRunRecord
 from sr.app.mys.mys_run_record import MysRunRecord
 from sr.app.nameless_honor.nameless_honor_run_record import NamelessHonorRunRecord
 from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
@@ -44,7 +44,7 @@ from sr.image.sceenshot import fill_uid_black
 from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
-from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig, SimUniChallengeConfig
 from sr.win import Window
 
 
@@ -100,6 +100,16 @@ class TeamInfo:
 
     def update_character_list(self, new_character_list: List[Character]):
         self.character_list = new_character_list
+
+
+class SimUniInfo:
+
+    def __init__(self):
+        """
+        模拟宇宙信息
+        """
+        self.world_num: int = 0  # 当前第几世界
+
 
 
 class Context:
@@ -165,6 +175,7 @@ class Context:
 
         self.pos_info: PosInfo = PosInfo()
         self.team_info: TeamInfo = TeamInfo()
+        self.sim_uni_info: SimUniInfo = SimUniInfo()
 
         self.record_coordinate: bool = False  # 需要记录坐标用于训练
 
@@ -525,6 +536,13 @@ class Context:
         """
         self.pos_info.planet = None
         self.pos_info.region = None
+
+    @property
+    def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:
+        if self.sim_uni_info.world_num == 0 or self.sim_uni_config is None:
+            return None
+        else:
+            return self.sim_uni_config.get_challenge_config(self.sim_uni_info.world_num)
 
 
 def get_game_win() -> Window:

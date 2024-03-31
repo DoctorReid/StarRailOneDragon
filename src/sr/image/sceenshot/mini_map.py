@@ -1,7 +1,7 @@
 import math
 import os
 from functools import lru_cache
-from typing import Set, Optional
+from typing import Set, Optional, List
 
 import cv2
 import numpy as np
@@ -606,6 +606,15 @@ def find_one_enemy_pos(im: ImageMatcher,
     center_y = int(centroids[largest_label, 1])
 
     return Point(center_x, center_y)
+
+
+def get_enemy_pos(mm_del_origin: MatLike) -> List[Point]:
+    """
+    获取敌人的位置 以小地图中心为 (0,0)
+    :param mm_del_origin: 去除雷达的小地图
+    :return:
+    """
+    return []
 
 
 def with_enemy_nearby(im: ImageMatcher,

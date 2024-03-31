@@ -225,16 +225,18 @@ class SimUniApp(Application):
             world = SimUniWorldEnum[self.ctx.sim_uni_config.weekly_uni_num]
         else:
             world = SimUniWorldEnum['WORLD_%02d' % self.specified_uni_num]
-        op = ChooseSimUniNum(self.ctx, world.value.idx, op_callback=self._on_uni_num_chosen)
-        return Operation.round_by_op(op.execute())
+        op = ChooseSimUniNum(self.ctx, world.value.idx)
+        op_result = op.execute()
+        if op_result.success:
+            self.current_uni_num = op_result.data  # 使用OP的结果 可能选的并不是原来要求的
+            self.ctx.sim_uni_info.world_num = self.current_uni_num
+        else:
+            self.ctx.sim_uni_info.world_num = 0
+        return Operation.round_by_op(op_result)
 
     def _choose_sim_uni_diff(self) -> OperationOneRoundResult:
         op = ChooseSimUniDiff(self.ctx, self.ctx.sim_uni_config.weekly_uni_diff)
         return Operation.round_by_op(op.execute())
-
-    def _on_uni_num_chosen(self, op_result: OperationResult):
-        if op_result.success:
-            self.current_uni_num = op_result.data
 
     def _choose_path(self) -> OperationOneRoundResult:
         """
