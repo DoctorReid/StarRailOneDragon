@@ -59,6 +59,49 @@ class PosInfo:
         self.region: Region = region
 
 
+class TeamInfo:
+
+    def __init__(self,
+                 character_list: Optional[List[Character]] = None,
+                 current_active: int = 1):
+        """
+        当前组队信息
+        """
+        self.character_list: List[Character] = character_list
+        self.current_active: int = current_active  # 当前使用的是第几个角色
+
+    @property
+    def is_attack_technique(self) -> bool:
+        """
+        当前角色使用的秘技是否buff类型
+        :return:
+        """
+        if self.character_list is None or len(self.character_list) == 0:
+            return False
+        if self.current_active < 0 or self.current_active >= len(self.character_list):
+            return False
+        if self.character_list[self.current_active] is None:
+            return False
+        return self.character_list[self.current_active].technique_type in [TECHNIQUE_ATTACK]
+
+    @property
+    def is_buff_technique(self) -> bool:
+        """
+        当前角色使用的秘技是否buff类型
+        :return:
+        """
+        if self.character_list is None or len(self.character_list) == 0:
+            return False
+        if self.current_active < 0 or self.current_active >= len(self.character_list):
+            return False
+        if self.character_list[self.current_active] is None:
+            return False
+        return self.character_list[self.current_active].technique_type in [TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK]
+
+    def update_character_list(self, new_character_list: List[Character]):
+        self.character_list = new_character_list
+
+
 class Context:
 
     def __init__(self):
@@ -121,6 +164,7 @@ class Context:
         self.consumable_used: bool = False  # 是否已经使用过消耗品了
 
         self.pos_info: PosInfo = PosInfo()
+        self.team_info: TeamInfo = TeamInfo()
 
         self.record_coordinate: bool = False  # 需要记录坐标用于训练
 
@@ -448,30 +492,6 @@ class Context:
         """
         self.init_controller(False)
         save_debug_image(fill_uid_black(self.controller.screenshot()))
-
-    @property
-    def is_buff_technique(self) -> bool:
-        """
-        当前角色使用的秘技是否buff类型
-        :return:
-        """
-        if self.current_character_list is None or len(self.current_character_list) == 0:
-            return False
-        if self.current_character_list[0] is None:  # TODO 缺少当前角色的判断
-            return False
-        return self.current_character_list[0].technique_type in [TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK]
-
-    @property
-    def is_attack_technique(self) -> bool:
-        """
-        当前角色使用的秘技是否buff类型
-        :return:
-        """
-        if self.current_character_list is None or len(self.current_character_list) == 0:
-            return False
-        if self.current_character_list[0] is None:  # TODO 缺少当前角色的判断
-            return False
-        return self.current_character_list[0].technique_type in [TECHNIQUE_ATTACK]
 
     @property
     def is_pc(self) -> bool:

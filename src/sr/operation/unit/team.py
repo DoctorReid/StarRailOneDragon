@@ -86,8 +86,8 @@ class CheckTeamMembersInWorld(Operation):
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             return Operation.round_retry('未在大世界画面', wait=1)
 
-        self._check_by_avatar(screen)
         self._check_by_name(screen)
+        self._check_by_avatar(screen)
 
         self.ctx.current_character_list = self.character_list
         log.info('当前配队 %s', [i.cn if i is not None else None for i in self.character_list])

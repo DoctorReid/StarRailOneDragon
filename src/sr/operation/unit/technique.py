@@ -135,7 +135,7 @@ class UseTechnique(StateOperation):
         """
         screen = self.screenshot()
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 无需使用
-            if self.ctx.is_attack_technique:  # 攻击类的 使用完就取消标记
+            if self.ctx.team_info.is_attack_technique:  # 攻击类的 使用完就取消标记
                 self.ctx.technique_used = False
             return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.use_technique)
 

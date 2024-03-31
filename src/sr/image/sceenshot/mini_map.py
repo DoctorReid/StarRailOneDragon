@@ -609,25 +609,16 @@ def find_one_enemy_pos(im: ImageMatcher,
 
 
 def with_enemy_nearby(im: ImageMatcher,
-                      mm: Optional[MatLike] = None,
-                      mm_del_radio: Optional[MatLike] = None):
+                      mm_del_radio: MatLike):
     """
     判断附近是否有敌人
     :param im: 图片匹配器
-    :param mm: 小地图图片 与下二选一
-    :param mm_del_radio: 去除雷达的小地图图片 与上二选一
+    :param mm_del_radio: 去除雷达的小地图图片
     :return:
     """
-    if mm is None and mm_del_radio is None:
-        return None
-    if mm_del_radio is None:
-        angle = analyse_angle(mm)
-        to_del = get_radio_to_del(angle)
-        mm_del_radio = remove_radio(mm, to_del)
-
-    center_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
-    cx = mm.shape[1] // 2
-    cy = mm.shape[0] // 2
+    center_mask = np.zeros(mm_del_radio.shape[:2], dtype=np.uint8)
+    cx = mm_del_radio.shape[1] // 2
+    cy = mm_del_radio.shape[0] // 2
     center_mask[cx-15:cx+15, cy-15:cy+15] = 255
 
     lower_color = np.array([0, 0, 150], dtype=np.uint8)

@@ -174,13 +174,13 @@ class SimUniEnterFight(Operation):
             current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
             if (self.technique_fight and not self.ctx.technique_used
                     and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
-                    and (self.ctx.is_buff_technique or self.ctx.is_attack_technique)):  # 识别到秘技类型才能使用
+                    and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique)):  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx,
                                   max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
                                   )
                 op_result = op.execute()
                 current_use_tech = op_result.data
-                if current_use_tech and self.ctx.is_buff_technique:
+                if current_use_tech and self.ctx.team_info.is_buff_technique:
                     self._update_not_in_world_time()  # 使用BUFF类秘技的时间不应该在计算内
 
             if self.technique_fight and self.technique_only and current_use_tech:
