@@ -5,7 +5,7 @@ from typing import List
 from basic import os_utils
 from basic.config import ConfigHolder
 
-_MAX_WITH_SAMPLE = 8
+_MAX_WITH_SAMPLE = 9
 
 
 class SimUniChallengeConfig(ConfigHolder):
