@@ -661,7 +661,7 @@ P04_R06_SP03 = TransportPoint('CSSPRK', '城市沙盘入口', P04_R06_F1, 'mm_su
 P04_R06_SP04 = TransportPoint('YBC', '迎宾处', P04_R06_F2, 'mm_tp_03', (690, 1354), tp_pos=(671, 1329))
 
 P04_R06_SUB_01_SP01 = TransportPoint('CSSH', '城市沙盒', P04_R06_SUB_01, 'mm_tp_03', (946, 923), tp_pos=(975, 905))
-P04_R06_SUB_01_SP02 = TransportPoint('CNZXNZXY', '嗔怒之形·凝滞虚影', P04_R06_SUB_01, 'mm_tp_06', (946, 923), tp_pos=(922, 924))
+P04_R06_SUB_01_SP02 = TransportPoint('CNZXNZXY', '嗔怒之形·凝滞虚影', P04_R06_SUB_01, 'mm_tp_06', (659, 1074), tp_pos=(635, 1075))
 
 P04_R07_SP01 = TransportPoint('YCDM', '影城大门', P04_R07_F1, 'mm_tp_03', (1244, 884), tp_pos=(1267, 903))
 P04_R07_SP02 = TransportPoint('HJDSK', '黄金的时刻', P04_R07_F1, 'mm_sp_02', (1272, 910))
