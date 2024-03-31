@@ -114,10 +114,19 @@ def is_within_distance(target: Point, p1: Point, p2: Point, max_distance: float 
     :param max_distance: 最大距离
     :return:
     """
-    dist12 = distance_between(p1, p2)
-    if dist12 == 0:
-        return False
+    x1, y1 = p1.x, p1.y
+    x2, y2 = p2.x, p2.y
+    x0, y0 = target.x, target.y
 
-    dist13 = abs((target.y - p1.y) * (p2.x - p1.x) - (p2.y - p1.y) * (target.x - p1.x)) / dist12
+    if x1 == x2:  # 处理垂直于 y 轴的情况
+        distance = abs(x0 - x1)
+    elif y1 == y2:  # 处理垂直于 x 轴的情况
+        distance = abs(y0 - y1)
+    else:
+        # 计算直线的方程 Ax + By + C = 0
+        A = y2 - y1
+        B = x1 - x2
+        C = x2 * y1 - x1 * y2
+        distance = abs(A * x0 + B * y0 + C) / (A ** 2 + B ** 2) ** 0.5
 
-    return dist13 <= max_distance
+    return distance <= max_distance
