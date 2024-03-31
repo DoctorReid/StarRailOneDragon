@@ -4,13 +4,15 @@ from concurrent.futures import Future
 from typing import List, Optional, Tuple
 
 import cv2
+import os
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import cal_utils, Rect, Point
+from basic import cal_utils, Rect, Point, os_utils
 from basic.img import MatchResult, cv2_utils, MatchResultList
 from basic.log_utils import log
 from sr.const import map_const
+from sr.const.map_const import Region
 from sr.image import ImageMatcher
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
 from sr.performance_recorder import record_performance
@@ -42,41 +44,70 @@ def get_mini_map_scale_list(running: bool, real_move_time: float = 0):
     return scale_list
 
 
+class VerifyPosInfo:
+
+    def __init__(self,
+                 last_pos: Optional[Point] = None,
+                 max_distance: Optional[float] = None,
+                 line_p1: Optional[Point] = None,
+                 line_p2: Optional[Point] = None):
+        """
+        校验位置需要用的信息
+        """
+        self.last_pos: Point = last_pos  # 上一个点的位置
+        self.max_distance: float = max_distance  # 可以接受的最大距离
+
+        self.line_p1: Point = line_p1  # 当前移动直线的点1
+        self.line_p2: Point = line_p2  # 当前移动直线的点2
+
+    @property
+    def yml_str(self) -> str:
+        yml = ''
+
+        if self.last_pos is not None:
+            yml += f'last_pos: {self.last_pos}\n'
+
+        if self.max_distance is not None:
+            yml += f'max_distance: {self.max_distance}\n'
+
+        if self.line_p1 is not None:
+            yml += f'line_p1: {self.line_p1}\n'
+
+        if self.line_p2 is not None:
+            yml += f'line_p2: {self.line_p2}\n'
+
+        return yml
+
+
 def cal_character_pos(im: ImageMatcher,
                       lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                      possible_pos: Optional[Tuple[int, int, float]] = None,
                       lm_rect: Rect = None, show: bool = False,
-                      retry_without_rect: bool = True,
+                      retry_without_rect: bool = False,
                       running: bool = False,
-                      real_move_time: float = 0) -> Optional[MatchResult]:
+                      real_move_time: float = 0,
+                      verify: Optional[VerifyPosInfo] = None) -> Optional[MatchResult]:
     """
     根据小地图 匹配大地图 判断当前的坐标
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
-    :param possible_pos: 可能位置 前两个为上一次的坐标，第三个为预估移动距离
     :param lm_rect: 大地图特定区域
     :param retry_without_rect: 失败时是否去除特定区域进行全图搜索
     :param show: 是否显示结果
     :param running: 角色是否在移动 移动时候小地图会缩小
     :param real_move_time: 真实移动时间
+    :param verify: 校验结果需要的信息
     :return:
     """
     # 匹配结果 是缩放后的 offset 和宽高
     result: Optional[MatchResult] = None
 
     scale_list = get_mini_map_scale_list(running, real_move_time)
-    # print(real_move_time, scale_list)
 
     if result is None:  # 使用模板匹配 用道路掩码的
         result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
-            result = None
-
-    if result is None:  # 使用模板匹配 用灰度图的
-        result = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
-            result = None
+        if not is_valid_result(result, verify):
+            return None
 
     if result is None:  # 看看有没有特殊点 使用特殊点倒推位置
         result = cal_character_pos_by_sp_result(im, lm_info, mm_info, lm_rect=lm_rect)
@@ -84,9 +115,14 @@ def cal_character_pos(im: ImageMatcher,
             log.debug('特殊点定位使用的缩放比例不符合预期')
             result = None
 
+    if result is None:  # 使用模板匹配 用灰度图的
+        result = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
+        if not is_valid_result(result, verify):
+            result = None
+
     if result is None:  # 使用模板匹配 用原图的
         result = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle):
+        if not is_valid_result(result, verify):
             result = None
 
     if result is None:
@@ -95,7 +131,7 @@ def cal_character_pos(im: ImageMatcher,
         else:
             return None
 
-    if True:
+    if show:
         # result中是缩放后的宽和高
         cv2_utils.show_overlap(lm_info.origin, mm_info.origin,
                                result.x, result.y,
@@ -406,21 +442,19 @@ def template_match_with_scale(im: ImageMatcher,
 def sim_uni_cal_pos(
         im: ImageMatcher,
         lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-        possible_pos: Optional[Tuple[int, int, float]] = None,
-        pos_to_cal_angle: Optional[Point] = None,
         lm_rect: Rect = None, show: bool = False,
-        running: bool = False, real_move_time: float = 0) -> Optional[Point]:
+        running: bool = False, real_move_time: float = 0,
+        verify: Optional[VerifyPosInfo] = None) -> Optional[Point]:
     """
     根据小地图 匹配大地图 判断当前的坐标。模拟宇宙中使用
     :param im: 图片匹配器
     :param lm_info: 大地图信息
     :param mm_info: 小地图信息
-    :param possible_pos: 可能位置 前两个为上一次的坐标，
-    :param pos_to_cal_angle: 用于计算朝向的位置 通常用移动的开始点比较好 可以防止惯性撞怪导致的偏移（会产生横向移动 路程又短 计算的角度很可以大于30）
     :param lm_rect: 大地图特定区域
     :param show: 是否显示结果
     :param running: 角色是否在移动 移动时候小地图会缩小
     :param real_move_time: 真正按住移动的时间
+    :param verify: 校验结果需要的信息
     :return:
     """
     # 匹配结果 是缩放后的 offset 和宽高
@@ -433,14 +467,12 @@ def sim_uni_cal_pos(
 
     if result is None:  # 使用模板匹配 灰度图
         result = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle,
-                                                 pos_to_cal_angle=pos_to_cal_angle):
+        if not is_valid_result(result, verify):
             result = None
 
     if result is None:  # 使用模板匹配 原图
         result = sim_uni_cal_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result_with_possible_pos(result, possible_pos, mm_info.angle,
-                                                 pos_to_cal_angle=pos_to_cal_angle):
+        if not is_valid_result(result, verify):
             result = None
 
     if result is None:
@@ -595,3 +627,51 @@ def is_valid_result_with_possible_pos(result: Optional[MatchResult],
         return False
 
     return True
+
+
+def is_valid_result(result: MatchResult, verify: VerifyPosInfo) -> bool:
+    """
+    判断当前计算坐标是否合理
+    :param result: 坐标识别结果
+    :param verify: 验证结果需要的信息
+    :return:
+    """
+    if result is None:
+        return False
+    if verify is None:
+        return True
+
+    last_pos = verify.last_pos
+    next_pos = result.center
+    dis = cal_utils.distance_between(last_pos, next_pos)
+    if dis > verify.max_distance * 1.1:
+        log.info('计算坐标 %s 与 当前坐标 %s 距离较远 %.2f 舍弃', next_pos, last_pos, dis)
+        return False
+
+    if verify.line_p1 is not None and verify.line_p2 is not None:
+        dis = cal_utils.distance_to_line(next_pos, verify.line_p1, verify.line_p2)
+        if dis > 20:
+            log.info('计算坐标 %s 与 移动直线 ( %s %s )距离较远 %.2f 舍弃',
+                     next_pos, verify.line_p1, verify.line_p2, dis)
+            return False
+
+    return True
+
+
+def save_as_test_case(mm: MatLike, region: Region, verify: VerifyPosInfo):
+    """
+    保存成测试样例
+    :param mm: 小地图图片
+    :param region: 所属区域
+    :param verify: 验证信息
+    :return:
+    """
+    now = os_utils.now_timestamp_str()
+    log.info('保存样例 %s %s', region.prl_id, now)
+    base = os_utils.get_path_under_work_dir('.debug', 'cal_pos_fail',
+                                            region.prl_id, now)
+
+    cv2.imwrite(os.path.join(base, 'mm.png'), mm)
+
+    with open(os.path.join(base, 'verify.yml'), 'w', encoding='utf-8') as file:
+        file.write(verify.yml_str)

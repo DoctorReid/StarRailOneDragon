@@ -105,13 +105,12 @@ def coalesce(*args):
     return next((arg for arg in args if arg is not None), None)
 
 
-def is_within_distance(target: Point, p1: Point, p2: Point, max_distance: float = 10) -> bool:
+def distance_to_line(target: Point, p1: Point, p2: Point) -> float:
     """
-    判断目标点是否在两点连线的一定距离内
+    目标点到直线的距离
     :param target: 目标点
     :param p1: 连线点1
     :param p2: 连线点2
-    :param max_distance: 最大距离
     :return:
     """
     x1, y1 = p1.x, p1.y
@@ -129,4 +128,4 @@ def is_within_distance(target: Point, p1: Point, p2: Point, max_distance: float 
         C = x2 * y1 - x1 * y2
         distance = abs(A * x0 + B * y0 + C) / (A ** 2 + B ** 2) ** 0.5
 
-    return distance <= max_distance
+    return distance

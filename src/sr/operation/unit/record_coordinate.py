@@ -1,14 +1,14 @@
-import cv2
 import os
-import yaml
 
+import cv2
+import yaml
 from cv2.typing import MatLike
 
 from basic import Point, os_utils
 from basic.img import MatchResult
 from basic.log_utils import log
 from sr import cal_pos
-from sr.const import map_const
+from sr.cal_pos import VerifyPosInfo
 from sr.const.map_const import Region
 from sr.context import Context
 from sr.image.sceenshot import mini_map, large_map, LargeMapInfo
@@ -48,10 +48,10 @@ class RecordCoordinate(Operation):
         mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
 
         try:
+            verify = VerifyPosInfo(last_pos=self.last_point, max_distance=move_distance)
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
-                                                 possible_pos=possible_pos,
                                                  lm_rect=lm_rect, retry_without_rect=False,
-                                                 running=False)
+                                                 running=False, verify=verify)
         except Exception:
             next_pos = None
             log.error('识别坐标失败', exc_info=True)

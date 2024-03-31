@@ -145,7 +145,7 @@ class WorldPatrolRoute:
             self.is_new = True
 
     def init_from_yaml_data(self, yaml_data: dict):
-        self.author_list = yaml_data.get('author_list', [])
+        self.author_list = yaml_data.get('author', [])
         self.tp = self.route_id.tp
         self.route_list = yaml_data.get('route', [])
 

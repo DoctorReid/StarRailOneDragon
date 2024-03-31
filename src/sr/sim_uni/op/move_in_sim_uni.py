@@ -10,6 +10,7 @@ from basic.img import MatchResult, cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
+from sr.cal_pos import VerifyPosInfo
 from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
@@ -84,13 +85,14 @@ class MoveDirectlyInSimUni(MoveDirectly):
         if len(self.pos) == 0:
             return self.start_pos, mm_info
 
+        verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
+                               line_p1=self.start_pos, line_p2=self.target)
         try:
             next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, self.lm_info, mm_info,
-                                               possible_pos=possible_pos,
-                                               pos_to_cal_angle=self.start_pos,
                                                lm_rect=lm_rect,
                                                running=self.ctx.controller.is_moving,
-                                               real_move_time=self.ctx.controller.get_move_time())
+                                               real_move_time=self.ctx.controller.get_move_time(),
+                                               verify=verify)
         except Exception:
             next_pos = None
             log.error('识别坐标失败', exc_info=True)

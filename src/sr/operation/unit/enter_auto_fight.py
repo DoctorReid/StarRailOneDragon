@@ -8,7 +8,6 @@ from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.technique import UseTechnique
-from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
@@ -75,6 +74,8 @@ class EnterAutoFight(Operation):
             self.attack_times += 1
             if not self.disposable:
                 self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
+            else:
+                return Operation.round_success()  # 攻击破坏物只攻击一下就够了
             return round_result
         elif self.current_state == screen_state.ScreenState.BATTLE.value:
             round_result = self._handle_not_in_world(screen)

@@ -4,11 +4,10 @@ import cv2
 
 import test
 from basic import Point, cal_utils
-from basic.img import MatchResult, cv2_utils
-from basic.img.os import get_debug_image, save_debug_image
+from basic.img.os import get_debug_image
 from basic.log_utils import log
 from sr import cal_pos, performance_recorder
-from sr.const import map_const
+from sr.cal_pos import VerifyPosInfo
 from sr.const.map_const import get_region_by_prl_id
 from sr.context import get_context
 from sr.image.image_holder import ImageHolder
@@ -97,14 +96,16 @@ class TestCalPosForSimUni(test.SrTestBase):
         lm_info = ctx.ih.get_large_map(case.region)
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], case.possible_pos)
         mm_info = mini_map.analyse_mini_map(mm, ctx.im)
+        verify = VerifyPosInfo(last_pos=Point(case.possible_pos[0], case.possible_pos[1]),
+                               max_distance=case.possible_pos[1])
 
         pos = cal_pos.sim_uni_cal_pos(ctx.im,
                                       lm_info=lm_info,
                                       mm_info=mm_info,
-                                      possible_pos=case.possible_pos,
                                       running=case.running,
                                       real_move_time=case.real_move_time,
                                       lm_rect=lm_rect,
+                                      verify=verify,
                                       show=show
                                       )
         if show:

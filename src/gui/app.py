@@ -317,4 +317,5 @@ def run_app(page: ft.Page):
 if __name__ == '__main__':
     if os_utils.is_debug():
         logging.getLogger("flet_core").setLevel(logging.INFO)
+    os_utils.clear_outdated_debug_files(1)  # 清理文件
     ft.app(target=run_app, name='StarRailOneDragon')

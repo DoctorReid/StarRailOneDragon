@@ -1,14 +1,16 @@
 import time
 from typing import List, Optional, Tuple, Callable, ClassVar
 
+import cv2
+import os
 from cv2.typing import MatLike
 
-from basic import Point, cal_utils
+from basic import Point, cal_utils, debug_utils, os_utils
 from basic.i18_utils import gt
-from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
-from sr.const import map_const, game_config_const
+from sr.cal_pos import VerifyPosInfo
+from sr.const import game_config_const
 from sr.const.map_const import Region
 from sr.context import Context
 from sr.control import GameController
@@ -174,6 +176,8 @@ class MoveDirectly(Operation):
         self.technique_fight: bool = technique_fight  # 是否使用秘技进入战斗
         self.technique_only: bool = technique_only  # 是否只使用秘技进入战斗
 
+        self.last_debug_image_time: float = 0  # 上一次保存截图的时间
+
     def _init_before_execute(self):
         super()._init_before_execute()
         now = time.time()
@@ -201,6 +205,10 @@ class MoveDirectly(Operation):
 
         screen = self.screenshot()
 
+        if self.ctx.one_dragon_config.is_debug and now_time - self.last_debug_image_time >= 5:
+            debug_utils.get_executor().submit(self.save_screenshot)
+            self.last_debug_image_time = now_time
+
         be_attacked = self.be_attacked(screen)  # 查看是否被攻击
         if be_attacked is not None:
             return be_attacked
@@ -224,6 +232,15 @@ class MoveDirectly(Operation):
             return check_enemy
 
         return Operation.round_wait()
+
+    def save_screenshot(self):
+        """
+        保存截图 用于训练
+        :return:
+        """
+        base = os_utils.get_path_under_work_dir('.debug', 'yolo_world_patrol', self.region.prl_id)
+        now = os_utils.now_timestamp_str()
+        cv2.imwrite(os.path.join(base, '%s.png' % now), self.last_screenshot)
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
         """
@@ -350,34 +367,32 @@ class MoveDirectly(Operation):
         if len(self.pos) == 0:  # 第一个可以直接使用开始点 不进行计算
             return self.start_pos, mm_info
 
+        verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
+                               line_p1=self.start_pos, line_p2=self.target)
         try:
             real_move_time = self.ctx.controller.get_move_time()
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
-                                                 possible_pos=possible_pos,
                                                  lm_rect=lm_rect, retry_without_rect=False,
                                                  running=self.ctx.controller.is_moving,
-                                                 real_move_time=real_move_time
-                                                 )
+                                                 real_move_time=real_move_time,
+                                                 verify=verify)
             if next_pos is None and self.next_lm_info is not None:
                 next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info,
-                                                     possible_pos=possible_pos,
                                                      lm_rect=lm_rect, retry_without_rect=False,
                                                      running=self.ctx.controller.is_moving,
-                                                     real_move_time=real_move_time)
+                                                     real_move_time=real_move_time,
+                                                     verify=verify)
         except Exception:
             next_pos = None
             log.error('识别坐标失败', exc_info=True)
 
         if next_pos is None:
             log.error('无法判断当前人物坐标')
-            if self.ctx.one_dragon_config.is_debug:
-                save_debug_image(mm, file_name='%s_%d_%d_%d_%s' %
-                                               (self.lm_info.region.prl_id,
-                                                possible_pos[0],
-                                                possible_pos[1],
-                                                int(possible_pos[2]),
-                                                self.ctx.controller.is_moving)
-                                 )
+            if self.ctx.one_dragon_config.is_debug and self.no_pos_times == 0:  # 只记录第一次识别坐标失败的
+                debug_utils.get_executor().submit(
+                    cal_pos.save_as_test_case,
+                    mm, self.region, verify
+                )
         else:
             if self.ctx.record_coordinate and now_time - self.last_rec_time > 0.5:
                 RecordCoordinate.save(self.region, mm, next_pos)

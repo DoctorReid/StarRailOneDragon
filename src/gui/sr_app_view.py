@@ -3,7 +3,7 @@ import threading
 import flet as ft
 from flet_core import CrossAxisAlignment, MainAxisAlignment
 
-from basic import win_utils, os_utils
+from basic import win_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import snack_bar, components
@@ -115,8 +115,6 @@ class SrAppView(components.Card, SrBasicView):
             log.info('执行完毕 关闭游戏')
             if self.sr_ctx.controller is not None:
                 self.sr_ctx.controller.close_game()
-
-        os_utils.clear_outdated_debug_files(3)
 
     def _on_after_done_changed(self, e):
         if self.after_done_dropdown.value != 'shutdown':

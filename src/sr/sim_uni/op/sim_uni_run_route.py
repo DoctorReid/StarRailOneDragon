@@ -6,6 +6,7 @@ from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr import cal_pos
+from sr.cal_pos import VerifyPosInfo
 from sr.const import operation_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map, large_map
@@ -499,12 +500,12 @@ class SimUniRunEliteAfterRoute(StateOperation):
         possible_pos = (self.current_pos.x, self.current_pos.y, self.ctx.controller.run_speed)
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
 
+        verify = VerifyPosInfo(last_pos=self.current_pos, max_distance=self.ctx.controller.run_speed)
         next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, lm_info, mm_info,
-                                           possible_pos=possible_pos,
-                                           pos_to_cal_angle=self.route.start_pos,
                                            lm_rect=lm_rect,
                                            running=self.ctx.controller.is_moving,
-                                           real_move_time=0)
+                                           real_move_time=0,
+                                           verify=verify)
 
         if next_pos is not None:
             self.current_pos = next_pos

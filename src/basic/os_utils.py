@@ -153,7 +153,7 @@ def dt_day_diff(dt_1: str, dt_2: str) -> int:
     return diff.days
 
 
-def clear_outdated_debug_files(days: int = 3):
+def clear_outdated_debug_files(days: int = 1):
     """
     清理过期的调试临时文件
     :return:
