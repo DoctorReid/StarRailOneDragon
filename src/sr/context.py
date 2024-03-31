@@ -63,7 +63,7 @@ class TeamInfo:
 
     def __init__(self,
                  character_list: Optional[List[Character]] = None,
-                 current_active: int = 1):
+                 current_active: int = 0):
         """
         当前组队信息
         """

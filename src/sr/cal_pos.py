@@ -36,7 +36,7 @@ def get_mini_map_scale_list(running: bool, real_move_time: float = 0):
         max_to_add = 5
 
     for i in range(max_to_add):
-        scale -= 0.05
+        scale = round(scale - 0.05, 2)
         scale_list.append(scale)
 
     return scale_list
@@ -95,7 +95,7 @@ def cal_character_pos(im: ImageMatcher,
         else:
             return None
 
-    if show:
+    if True:
         # result中是缩放后的宽和高
         cv2_utils.show_overlap(lm_info.origin, mm_info.origin,
                                result.x, result.y,

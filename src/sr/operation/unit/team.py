@@ -89,7 +89,7 @@ class CheckTeamMembersInWorld(Operation):
         self._check_by_name(screen)
         self._check_by_avatar(screen)
 
-        self.ctx.current_character_list = self.character_list
+        self.ctx.team_info.update_character_list(self.character_list)
         log.info('当前配队 %s', [i.cn if i is not None else None for i in self.character_list])
         return Operation.round_success(data=self.character_list)
 

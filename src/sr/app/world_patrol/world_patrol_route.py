@@ -74,15 +74,6 @@ class WorldPatrolRouteId:
     def equals(self, another_route_id):
         return another_route_id is not None and self.planet == another_route_id.planet and self.raw_id == another_route_id.raw_id
 
-    @property
-    def file_path(self):
-        """
-        对应的文件路径
-        :return:
-        """
-        dir_path = os_utils.get_path_under_work_dir('config', 'world_patrol', self.planet.np_id)
-        return os.path.join(dir_path, '%s.yml' % self.raw_id)
-
 
 def get_route_dir(planet: Planet) -> str:
     """

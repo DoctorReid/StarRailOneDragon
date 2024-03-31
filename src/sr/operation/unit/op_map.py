@@ -1,7 +1,7 @@
 import difflib
 import random
 import time
-from typing import ClassVar, Optional, List, Tuple, Union
+from typing import ClassVar, Optional, List, Tuple
 
 import cv2
 import numpy as np
@@ -660,7 +660,6 @@ class ScaleLargeMap(Operation):
         log.info('准备缩放地图 点击 %s %s', area.center,
                  self.ctx.controller.click(area.center))
         self.ctx.pos_info.large_map_scale += self.scale_per_time
-        print(self.ctx.pos_info.large_map_scale)
         if self.to_scale == self.ctx.pos_info.large_map_scale:
             return Operation.round_success()
         else:
