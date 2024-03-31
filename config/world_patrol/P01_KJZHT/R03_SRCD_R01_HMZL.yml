@@ -5,13 +5,21 @@ floor: 1
 tp: '毁灭之蕾·拟造花萼（赤）'
 route:
   - op: 'move'
-    data: [318, 445, -1]
+    data: [323, 340, -1]
+  - op: 'disposable'
   - op: 'move'
-    data: [257, 440]
+    data: [312, 445]
+  - op: 'patrol'
   - op: 'move'
-    data: [257, 325]
+    data: [256, 448]
   - op: 'move'
-    data: [222, 325]
+    data: [254, 326]
   - op: 'move'
-    data: [207, 415]
+    data: [224, 325]
+  - op: 'move'
+    data: [218, 380]
+  - op: 'move'
+    data: [204, 379]
+  - op: 'move'
+    data: [204, 413]
   - op: 'patrol'

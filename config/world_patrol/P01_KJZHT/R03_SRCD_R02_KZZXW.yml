@@ -5,28 +5,42 @@ floor: 1
 tp: '控制中心外'
 route:
   - op: 'move'
-    data: [392, 345]
+    data: [386, 328, 2]
   - op: 'patrol'
   - op: 'move'
-    data: [387, 375]
+    data: [397, 287]
+  - op: 'disposable'
   - op: 'move'
-    data: [397, 435]
+    data: [385, 355]
+  - op: 'disposable'
   - op: 'move'
-    data: [443, 459]
+    data: [385, 413]
+  - op: 'disposable'
+  - op: 'move'
+    data: [397, 447]
+  - op: 'move'
+    data: [442, 455]
   - op: 'patrol'
   - op: 'move'
-    data: [429, 495]
+    data: [427, 469]
   - op: 'move'
-    data: [492, 542]
+    data: [425, 489]
   - op: 'move'
-    data: [555, 546]
+    data: [443, 518]
   - op: 'move'
-    data: [572, 546, 2]
+    data: [481, 537]
+  - op: 'move'
+    data: [557, 548]
+  - op: 'move'
+    data: [573, 550]
+  - op: 'disposable'
+  - op: 'move'
+    data: [573, 540]
   - op: 'move'
     data: [572, 515]
   - op: 'move'
-    data: [610, 515]
+    data: [610, 514]
   - op: 'patrol'
   - op: 'move'
-    data: [610, 543]
+    data: [611, 543]
   - op: 'patrol'

@@ -5,5 +5,20 @@ floor: 0
 tp: '监控室'
 route:
   - op: 'move'
-    data: [640, 250]
+    data: [609, 137]
+  - op: 'disposable'
+  - op: 'move'
+    data: [635, 145]
+  - op: 'move'
+    data: [641, 248]
   - op: 'patrol'
+  - op: 'move'
+    data: [652, 283]
+  - op: 'disposable'
+  - op: 'disposable'
+  - op: 'move'
+    data: [618, 325]
+  - op: 'disposable'
+  - op: 'move'
+    data: [591, 371]
+  - op: 'disposable'

@@ -5,19 +5,40 @@ floor: 2
 tp: '电力室'
 route:
   - op: 'move'
-    data: [225, 379]
+    data: [158, 419]
+  - op: 'disposable'
+  - op: 'move'
+    data: [163, 362]
+  - op: 'disposable'
+  - op: 'move'
+    data: [186, 398]
+  - op: 'disposable'
+  - op: 'move'
+    data: [166, 386]
+  - op: 'move'
+    data: [229, 382]
   - op: 'patrol'
   - op: 'move'
-    data: [265, 379]
+    data: [247, 382]
   - op: 'move'
-    data: [272, 317]
+    data: [265, 381]
   - op: 'move'
-    data: [312, 311]
+    data: [273, 314]
+  - op: 'move'
+    data: [314, 314]
   - op: 'patrol'
   - op: 'move'
-    data: [438, 311]
+    data: [436, 313]
   - op: 'move'
-    data: [435, 230]
+    data: [440, 234]
   - op: 'move'
-    data: [557, 233]
+    data: [406, 237]
+  - op: 'disposable'
+  - op: 'move'
+    data: [563, 235]
   - op: 'patrol'
+  - op: 'move'
+    data: [632, 234]
+  - op: 'move'
+    data: [632, 217]
+  - op: 'disposable'
