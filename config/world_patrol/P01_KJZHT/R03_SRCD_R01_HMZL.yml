@@ -1,17 +1,19 @@
-author: ['DoctorReid']
+author: ['DoctorReid', 'nyehueh']
 planet: '空间站黑塔'
 region: '收容舱段'
 floor: 1
 tp: '毁灭之蕾·拟造花萼（赤）'
 route:
   - op: 'move'
-    data: [323, 340, -1]
+    data: [323, 340]
   - op: 'disposable'
   - op: 'move'
-    data: [312, 445]
+    data: [315, 418]
+  - op: 'move'
+    data: [312, 450, -1]
   - op: 'patrol'
   - op: 'move'
-    data: [256, 448]
+    data: [256, 440]
   - op: 'move'
     data: [254, 326]
   - op: 'move'

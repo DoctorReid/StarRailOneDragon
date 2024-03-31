@@ -1,4 +1,4 @@
-author: ['DoctorReid']
+author: ['DoctorReid', 'nyehueh']
 planet: '空间站黑塔'
 region: '基座舱段'
 floor: 0
@@ -8,7 +8,7 @@ route:
     data: [609, 137]
   - op: 'disposable'
   - op: 'move'
-    data: [635, 145]
+    data: [641, 140]
   - op: 'move'
     data: [641, 248]
   - op: 'patrol'
@@ -17,7 +17,7 @@ route:
   - op: 'disposable'
   - op: 'disposable'
   - op: 'move'
-    data: [618, 325]
+    data: [626, 324]
   - op: 'disposable'
   - op: 'move'
     data: [591, 371]
