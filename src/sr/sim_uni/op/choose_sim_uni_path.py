@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 from basic import Point, Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from sr.const import STANDARD_CENTER_POS
 from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
 from sr.operation import StateOperation, StateOperationNode, OperationOneRoundResult, Operation
@@ -46,7 +47,10 @@ class ChooseSimUniPath(StateOperation):
 
         target_pos = self._get_target_path_pos(screen)
 
-        if target_pos is None:
+        if target_pos is None:  # 找不到的时候往右滑一下
+            drag_from = STANDARD_CENTER_POS
+            drag_to = drag_from + Point(-200, 0)
+            self.ctx.controller.drag_to(end=drag_to, start=drag_from)
             return Operation.round_retry('未找到目标命途', wait=1)
 
         self.ctx.controller.click(target_pos)
