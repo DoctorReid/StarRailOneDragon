@@ -11,14 +11,14 @@ __崩坏：星穹铁道 - 一条龙__ - 基于图像识别的自动游戏脚本�
 
 ## 项目进度
 
-- [锄大地](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%94%84%E5%A4%A7%E5%9C%B0) `2.0 已完成`
+- [锄大地](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%94%84%E5%A4%A7%E5%9C%B0) `2.1 已完成` (不包含3D地图)
 - [日常](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8) `已完成`
-- [模拟宇宙](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%A8%A1%E6%8B%9F%E5%AE%87%E5%AE%99) `已完成`
+- [模拟宇宙](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%A8%A1%E6%8B%9F%E5%AE%87%E5%AE%99) `已完成` (不包含第九宇宙)
 - [逐光捡金](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%80%90%E5%85%89%E6%8D%A1%E9%87%91) `已完成`
 
 ![APP主页](https://github.com/DoctorReid/StarRailOneDragon/blob/main/.github/wiki/app.png)
 
-[当前进度](https://github.com/DoctorReid/StarRailOneDragon/milestone/7)
+[当前进度](https://github.com/DoctorReid/StarRailOneDragon/milestone/8)
 
 ## 免责声明
 本软件是一个外部工具旨在自动化崩坏星轨的游戏玩法。它被设计成仅通过现有用户界面与游戏交互,并遵守相关法律法规。该软件包旨在提供简化和用户通过功能与游戏交互,并且它不打算以任何方式破坏游戏平衡或提供任何不公平的优势。该软件包不会以任何方式修改任何游戏文件或游戏代码。
