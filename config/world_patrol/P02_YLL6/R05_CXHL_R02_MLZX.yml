@@ -1,15 +1,16 @@
-author: ['DoctorReid']
+author: ['DoctorReid', 'nyehueh']
 planet: '雅利洛-VI'
 region: '残响回廊'
 floor: 0
 tp: '鸣雷之形·凝滞虚影'
 route:
   - op: 'move'
-    data: [488, 630]
+    data: [485, 617]
   - op: 'move'
-    data: [484, 606]
+    data: [486, 490]
+  - op: 'disposable'
   - op: 'move'
-    data: [486, 453]
+    data: [487, 452]
   - op: 'move'
-    data: [507, 436]
+    data: [499, 441]
   - op: 'patrol'

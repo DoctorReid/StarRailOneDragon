@@ -1,9 +1,12 @@
-author: ['DoctorReid']
+author: ['DoctorReid', 'nyehueh']
 planet: '雅利洛-VI'
 region: '残响回廊'
 floor: 0
 tp: '作战指挥室'
 route:
   - op: 'move'
-    data: [482, 930]
+    data: [470, 916]
+  - op: 'patrol'
+  - op: 'move'
+    data: [472, 952]
   - op: 'patrol'

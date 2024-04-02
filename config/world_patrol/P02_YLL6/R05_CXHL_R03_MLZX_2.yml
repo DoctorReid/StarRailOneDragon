@@ -1,29 +1,36 @@
-author: ['DoctorReid', '龙女姬']
+author: ['DoctorReid', 'nyehueh']
 planet: '雅利洛-VI'
 region: '残响回廊'
 floor: 0
 tp: '鸣雷之形·凝滞虚影'
 route:
   - op: 'move'
-    data: [520, 610]
+    data: [530, 608]
+  - op: 'disposable'
   - op: 'move'
     data: [555, 610]
   - op: 'move'
-    data: [556, 540]
+    data: [552, 544]
   - op: 'move'
-    data: [658, 546]
+    data: [633, 543]
+  - op: 'disposable'
   - op: 'move'
-    data: [699, 585]
+    data: [655, 547]
+  - op: 'move'
+    data: [693, 589]
   - op: 'patrol'
   - op: 'move'
-    data: [740, 627]
+    data: [734, 627]
   - op: 'move'
-    data: [718, 647]
-  - op: 'move'
-    data: [697, 663]
+    data: [693, 665]
   - op: 'patrol'
   - op: 'move'
-    data: [668, 663]
+    data: [663, 663]
   - op: 'move'
-    data: [650, 648]
+    data: [648, 649]
   - op: 'patrol'
+  - op: 'move'
+    data: [626, 625]
+  - op: 'move'
+    data: [577, 619]
+  - op: 'disposable'

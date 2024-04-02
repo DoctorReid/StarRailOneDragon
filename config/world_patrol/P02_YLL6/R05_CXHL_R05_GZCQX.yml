@@ -1,26 +1,41 @@
-author: ['DoctorReid', '龙女姬']
+author: ['DoctorReid', 'nyehueh']
 planet: '雅利洛-VI'
 region: '残响回廊'
 floor: 0
 tp: '古战场前线'
 route:
+  - op: 'disposable'
   - op: 'move'
-    data: [490, 1232]
+    data: [487, 1232]
   - op: 'move'
-    data: [488, 1155]
+    data: [450, 1257]
+  - op: 'disposable'
+  - op: 'move'
+    data: [489, 1230]
+  - op: 'move'
+    data: [489, 1133]
   - op: 'patrol'
   - op: 'move'
-    data: [488, 1176]
+    data: [485, 1178]
   - op: 'move'
-    data: [373, 1176]
+    data: [422, 1180]
+  - op: 'move'
+    data: [388, 1184]
+  - op: 'move'
+    data: [351, 1189]
   - op: 'patrol'
   - op: 'move'
-    data: [319, 1190]
+    data: [272, 1190]
+  - op: 'disposable'
   - op: 'move'
-    data: [265, 1190]
+    data: [265, 1238]
+  - op: 'disposable'
   - op: 'move'
-    data: [265, 1320]
+    data: [265, 1321]
   - op: 'patrol'
   - op: 'move'
-    data: [303, 1320]
+    data: [297, 1322]
   - op: 'patrol'
+  - op: 'move'
+    data: [355, 1322]
+  - op: 'disposable'
