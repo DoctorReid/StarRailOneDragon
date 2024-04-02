@@ -218,18 +218,22 @@ class MoveDirectly(Operation):
         next_pos, mm_info = self.cal_pos(mm, now_time)  # 计算当前坐标
 
         check_no_pos = self.check_no_pos(next_pos, now_time)  # 坐标计算失败处理
+        if check_no_pos is None:
+            # 能识别到坐标的时候 先判断是否到达 就算被怪锁定 也交给下一个patrol指令攻击
+            check_arrive = self.check_arrive(next_pos)
+            if check_arrive is not None:
+                return check_arrive
+
+        # 被敌人锁定的时候 小地图会被染红 坐标匹配能力大减
+        # 因此 就算识别不到坐标 也要判断是否被怪锁定 以免一直识别坐标失败站在原地被袭
+        check_enemy = self.check_enemy_and_attack(mm)
+        if check_enemy is not None:
+            return check_enemy
+
         if check_no_pos is not None:
             return check_no_pos
 
-        check_arrive = self.check_arrive(next_pos)  # 判断是否到达
-        if check_arrive is not None:
-            return check_arrive
-
         self.move(next_pos, now_time, mm_info)
-
-        check_enemy = self.check_enemy_and_attack(mm)  # 根据小地图判断是否被怪锁定 是的话停下来处理敌人
-        if check_enemy is not None:
-            return check_enemy
 
         return Operation.round_wait()
 
