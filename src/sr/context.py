@@ -6,7 +6,6 @@ from typing import Optional, List
 import keyboard
 import pyautogui
 
-from basic import os_utils
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -372,8 +371,7 @@ class Context:
             t = threading.Thread(target=callback)
             t.start()
 
-        if os_utils.is_debug():
-            log_all_performance()
+        log_all_performance()
 
     def switch(self):
         if self.running == 1:

@@ -84,6 +84,7 @@ def log_all_performance():
 
     save_performance_record()
 
+
 def save_performance_record():
     """
     保存性能记录 用于辨别问题
