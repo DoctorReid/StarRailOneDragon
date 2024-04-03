@@ -1,7 +1,7 @@
 polib==1.2.0
 pyautogui==0.9.54
-onnxruntime==1.16.0
-opencv-python==4.8.0.76
+onnxruntime==1.17.0
+opencv-python==4.9.0.80
 keyboard==0.13.5
 flet==0.20.2
 pyinstaller==6.1.0
@@ -10,5 +10,6 @@ tenacity==8.2.3
 pydantic-settings==2.1.0
 pydantic==2.5.2
 paddlepaddle==2.5.2
+scipy==1.13.0
 whl//Shapely-1.8.2-cp311-cp311-win_amd64.whl  # https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely
 whl//paddleocr-2.6.0.3-py3-none-any.whl  # https://github.com/yinghaodang/PaddleOCR/tree/release/2.6rc
