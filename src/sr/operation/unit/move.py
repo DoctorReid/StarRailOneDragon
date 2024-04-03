@@ -170,6 +170,7 @@ class MoveDirectly(Operation):
         self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
         self.stop_move_time: Optional[float] = None  # 停止移动的时间
+        self.first_cal_after_battle: bool = False  # 是否战斗后第一次识别坐标
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else self.ctx.game_config.run_mode
         self.no_battle: bool = no_battle  # 本次移动是否没有战斗
@@ -298,7 +299,8 @@ class MoveDirectly(Operation):
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = time.time()
             self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-            self.move_after_battle()
+            self.first_cal_after_battle = True
+            # self.move_after_battle()
             return Operation.round_wait()
         return None
 
@@ -333,7 +335,8 @@ class MoveDirectly(Operation):
         self.last_auto_fight_fail = (op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-        self.move_after_battle()
+        self.first_cal_after_battle = True
+        # self.move_after_battle()
 
         return Operation.round_wait()
 
@@ -354,6 +357,9 @@ class MoveDirectly(Operation):
                 move_time = 1
         else:
             move_time = 1
+        if self.first_cal_after_battle:
+            move_time += 1  # 扩大范围 兼容攻击时产生的位移
+
         log.debug('上次记录时间 %.2f 停止移动时间 %.2f 当前时间 %.2f',
                   self.last_rec_time,
                   0 if self.stop_move_time is None else self.stop_move_time,
@@ -372,7 +378,8 @@ class MoveDirectly(Operation):
             return self.start_pos, mm_info
 
         verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
-                               line_p1=self.start_pos, line_p2=self.target)
+                               line_p1=self.start_pos, line_p2=self.target,
+                               max_line_distance=40 if self.first_cal_after_battle else 20)
         try:
             real_move_time = self.ctx.controller.get_move_time()
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
@@ -412,13 +419,13 @@ class MoveDirectly(Operation):
         """
         if next_pos is None:
             if now_time - self.last_no_pos_time > 0.5:
-                self.ctx.controller.enter_running(False)
+                self.ctx.controller.enter_running(False)  # 不疾跑避免跑远了
                 self.no_pos_times += 1
                 self.last_no_pos_time = now_time
                 if self.no_pos_times >= 3:  # 不要再乱走了
                     self.ctx.controller.stop_moving_forward()
                     if self.stop_move_time is None:
-                        self.stop_move_time = now_time + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
+                        self.stop_move_time = now_time + 1  # 加1秒代表惯性
                 if self.no_pos_times >= 10:
                     return Operation.round_fail(MoveDirectly.STATUS_NO_POS)
             return Operation.round_wait()
@@ -459,6 +466,7 @@ class MoveDirectly(Operation):
     def move_after_battle(self):
         """
         战斗后 继续使用上一个坐标进行移动
+        加入秘技和近战后 攻击会产生位移 直接使用上一个坐标容易卡死
         :return:
         """
         if len(self.pos) == 0:

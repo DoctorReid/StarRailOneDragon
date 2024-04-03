@@ -1,67 +1,23 @@
-author: ['DoctorReid', 'nyehueh']
+author: ['DoctorReid']
 planet: '雅利洛-VI'
 region: '城郊雪原'
 floor: 0
 tp: '回忆之蕾·拟造花萼（金）'
 route:
   - op: 'move'
-    data: [1097, 456]
-  - op: 'patrol'
-  - op: 'patrol'
+    data: [1067, 477]
   - op: 'move'
-    data: [1021, 591]
+    data: [1013, 583]
   - op: 'move'
-    data: [938, 505]
-  - op: 'move'
-    data: [922, 502]
+    data: [933, 485]
   - op: 'patrol'
   - op: 'move'
-    data: [933, 467]
+    data: [1025, 287]
+  - op: 'move'
+    data: [843, 281]
+  - op: 'move'
+    data: [711, 316]
   - op: 'patrol'
   - op: 'move'
-    data: [947, 443]
+    data: [674, 236]
   - op: 'patrol'
-  - op: 'move'
-    data: [960, 417]
-  - op: 'patrol'
-  - op: 'move'
-    data: [1014, 421]
-  - op: 'disposable'
-  - op: 'move'
-    data: [998, 351]
-  - op: 'move'
-    data: [1031, 275]
-  - op: 'disposable'
-  - op: 'move'
-    data: [963, 311]
-  - op: 'disposable'
-  - op: 'move'
-    data: [874, 246]
-  - op: 'disposable'
-  - op: 'move'
-    data: [768, 323]
-  - op: 'disposable'
-  - op: 'move'
-    data: [707, 320]
-  - op: 'patrol'
-  - op: 'move'
-    data: [708, 302]
-  - op: 'patrol'
-  - op: 'patrol'
-  - op: 'move'
-    data: [696, 310]
-  - op: 'patrol'
-  - op: 'move'
-    data: [706, 217]
-  - op: 'disposable'
-  - op: 'move'
-    data: [666, 224]
-  - op: 'patrol'
-  - op: 'move'
-    data: [612, 299]
-  - op: 'disposable'
-  - op: 'move'
-    data: [580, 190]
-  - op: 'move'
-    data: [552, 221]
-  - op: 'disposable'

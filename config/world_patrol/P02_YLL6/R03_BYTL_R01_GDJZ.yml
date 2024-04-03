@@ -1,4 +1,4 @@
-author: ['DoctorReid', 'nyehueh']
+author: ['DoctorReid']
 planet: '雅利洛-VI'
 region: '边缘通路'
 floor: 0
@@ -7,7 +7,7 @@ route:
   - op: 'move'
     data: [750, 261]
   - op: 'move'
-    data: [716, 285]
+    data: [716, 287]
   - op: 'move'
     data: [683, 326]
   - op: 'patrol'
@@ -15,65 +15,22 @@ route:
     data: [690, 354]
   - op: 'patrol'
   - op: 'move'
-    data: [698, 491]
+    data: [693, 510]
+  - op: 'move'
+    data: [665, 516]
+  - op: 'move'
+    data: [662, 635]
   - op: 'patrol'
   - op: 'move'
-    data: [694, 513]
+    data: [746, 637]
   - op: 'move'
-    data: [657, 516]
-  - op: 'move'
-    data: [655, 624]
+    data: [746, 680]
   - op: 'patrol'
   - op: 'move'
-    data: [673, 638]
-  - op: 'move'
-    data: [742, 641]
-  - op: 'move'
-    data: [780, 635]
-  - op: 'disposable'
-  - op: 'move'
-    data: [764, 601]
-  - op: 'disposable'
-  - op: 'move'
-    data: [820, 595]
-  - op: 'disposable'
-  - op: 'move'
-    data: [783, 592]
-  - op: 'move'
-    data: [779, 634]
-  - op: 'move'
-    data: [740, 639]
-  - op: 'move'
-    data: [737, 770]
+    data: [746, 835]
   - op: 'patrol'
   - op: 'move'
-    data: [752, 790]
-  - op: 'patrol'
+    data: [686, 851]
   - op: 'move'
-    data: [743, 677]
-  - op: 'patrol'
-  - op: 'move'
-    data: [743, 712]
-  - op: 'patrol'
-  - op: 'move'
-    data: [738, 789]
-  - op: 'disposable'
-  - op: 'patrol'
-  - op: 'move'
-    data: [744, 838]
-  - op: 'patrol'
-  - op: 'patrol'
-  - op: 'move'
-    data: [682, 848]
-  - op: 'disposable'
-  - op: 'move'
-    data: [578, 848]
-  - op: 'disposable'
-  - op: 'move'
-    data: [681, 846]
-  - op: 'move'
-    data: [685, 880]
-  - op: 'disposable'
-  - op: 'move'
-    data: [683, 951]
+    data: [686, 955]
   - op: 'patrol'

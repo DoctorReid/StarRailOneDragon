@@ -5,7 +5,7 @@ floor: 1
 tp: '控制中心外'
 route:
   - op: 'move'
-    data: [386, 328, 2]
+    data: [386, 328]
   - op: 'patrol'
   - op: 'move'
     data: [397, 287]
@@ -32,12 +32,10 @@ route:
   - op: 'move'
     data: [557, 548]
   - op: 'move'
-    data: [573, 550]
+    data: [573, 550, 2]
   - op: 'disposable'
   - op: 'move'
-    data: [573, 540]
-  - op: 'move'
-    data: [572, 515]
+    data: [570, 515]
   - op: 'move'
     data: [610, 514]
   - op: 'patrol'

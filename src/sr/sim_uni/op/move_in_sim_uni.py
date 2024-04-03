@@ -132,7 +132,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = fight_end_time
             self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-            self.move_after_battle()
+            self.first_cal_after_battle = True
+            # self.move_after_battle()
             return Operation.round_wait()
         return None
 
@@ -164,7 +165,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
         self.last_auto_fight_fail = (op_result.status == SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-        self.move_after_battle()
+        self.first_cal_after_battle = True
+        # self.move_after_battle()
 
         return Operation.round_wait()
 

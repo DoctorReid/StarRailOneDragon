@@ -50,7 +50,8 @@ class VerifyPosInfo:
                  last_pos: Optional[Point] = None,
                  max_distance: Optional[float] = None,
                  line_p1: Optional[Point] = None,
-                 line_p2: Optional[Point] = None):
+                 line_p2: Optional[Point] = None,
+                 max_line_distance: float = 20):
         """
         校验位置需要用的信息
         """
@@ -59,6 +60,7 @@ class VerifyPosInfo:
 
         self.line_p1: Point = line_p1  # 当前移动直线的点1
         self.line_p2: Point = line_p2  # 当前移动直线的点2
+        self.max_line_distance: float = max_line_distance  # 距离直线允许的最大的距离
 
     @property
     def yml_str(self) -> str:
