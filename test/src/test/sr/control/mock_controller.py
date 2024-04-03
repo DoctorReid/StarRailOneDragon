@@ -11,5 +11,5 @@ class MockController(GameController):
         """
         super().__init__(ocr)
 
-    def click(self, pos: Point = None, press_time: float = 0) -> bool:
+    def click(self, pos: Point = None, press_time: float = 0, pc_alt: bool = False) -> bool:
         return True
