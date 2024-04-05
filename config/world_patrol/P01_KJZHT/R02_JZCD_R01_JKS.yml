@@ -17,7 +17,7 @@ route:
   - op: 'disposable'
   - op: 'disposable'
   - op: 'move'
-    data: [626, 324]
+    data: [627, 326]
   - op: 'disposable'
   - op: 'move'
     data: [591, 371]

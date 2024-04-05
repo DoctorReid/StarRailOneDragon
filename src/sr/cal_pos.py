@@ -29,8 +29,8 @@ def get_mini_map_scale_list(running: bool, real_move_time: float = 0):
     scale = 1.25
     scale_list = [scale]
     if running:
-        # 0 ~ 2 秒 每0.4秒减少一个缩放比例
-        max_to_add = 5 - math.floor(real_move_time // 0.4)
+        # 0 ~ 5秒 每1秒减少一个缩放比例
+        max_to_add = 5 - math.floor(real_move_time // 1)
         if max_to_add < 0:
             max_to_add = 0
     else:

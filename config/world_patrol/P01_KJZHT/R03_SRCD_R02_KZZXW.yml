@@ -17,7 +17,7 @@ route:
     data: [385, 413]
   - op: 'disposable'
   - op: 'move'
-    data: [397, 447]
+    data: [402, 447]
   - op: 'move'
     data: [442, 455]
   - op: 'patrol'
