@@ -5,20 +5,29 @@ floor: 2
 tp: '药物制备间'
 route:
   - op: 'move'
-    data: [472, 748]
+    data: [501, 831]
   - op: 'move'
-    data: [433, 794]
+    data: [446, 808]
+  - op: 'disposable'
   - op: 'move'
-    data: [401, 770]
+    data: [399, 767]
   - op: 'move'
     data: [428, 725]
   - op: 'move'
-    data: [411, 711]
+    data: [392, 700]
+  - op: 'disposable'
   - op: 'move'
-    data: [338, 600]
+    data: [332, 596]
+  - op: 'disposable'
   - op: 'move'
-    data: [336, 503]
+    data: [350, 556]
+  - op: 'disposable'
+  - op: 'move'
+    data: [352, 486]
   - op: 'patrol'
   - op: 'move'
-    data: [347, 438]
+    data: [348, 434]
   - op: 'patrol'
+  - op: 'move'
+    data: [388, 359]
+  - op: 'disposable'

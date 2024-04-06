@@ -5,19 +5,40 @@ floor: 0
 tp: '回忆之蕾·拟造花萼（金）'
 route:
   - op: 'move'
-    data: [1067, 477]
+    data: [1106, 444]
+  - op: 'disposable'
   - op: 'move'
-    data: [1013, 583]
-  - op: 'move'
-    data: [933, 485]
+    data: [1064, 489]
   - op: 'patrol'
   - op: 'move'
-    data: [1025, 287]
+    data: [981, 584]
   - op: 'move'
-    data: [843, 281]
-  - op: 'move'
-    data: [711, 316]
+    data: [937, 474]
   - op: 'patrol'
   - op: 'move'
-    data: [674, 236]
+    data: [1012, 407]
+  - op: 'disposable'
+  - op: 'move'
+    data: [1019, 278]
+  - op: 'disposable'
+  - op: 'move'
+    data: [974, 313]
+  - op: 'disposable'
+  - op: 'move'
+    data: [890, 254]
+  - op: 'disposable'
+  - op: 'move'
+    data: [704, 326]
   - op: 'patrol'
+  - op: 'move'
+    data: [715, 226]
+  - op: 'disposable'
+  - op: 'move'
+    data: [689, 227]
+  - op: 'patrol'
+  - op: 'move'
+    data: [624, 292]
+  - op: 'disposable'
+  - op: 'move'
+    data: [570, 235]
+  - op: 'disposable'

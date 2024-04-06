@@ -21,6 +21,7 @@ route:
   - op: 'patrol'
   - op: 'move'
     data: [773, 688]
+  - op: 'disposable'
   - op: 'move'
     data: [745, 720]
   - op: 'move'
