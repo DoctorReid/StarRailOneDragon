@@ -4,38 +4,75 @@ region: '丹鼎司'
 floor: 1
 tp: '观颐台'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [443, 761]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [447, 846]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [445, 900]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [468, 931]
-  - op: 'move'
-    data: [499, 934]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
+    data: [513, 922]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [497, 899]
+  - idx: 8
+    op: 'move'
     data: [508, 848]
-  - op: 'move'
+  - idx: 9
+    op: 'move'
     data: [532, 862]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
     data: [532, 895]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
     data: [533, 846]
-  - op: 'move'
+  - idx: 14
+    op: 'move'
     data: [507, 848]
-  - op: 'move'
+  - idx: 15
+    op: 'move'
     data: [503, 1029]
-  - op: 'move'
-    data: [501, 1123]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
+    data: [501, 1083]
+  - idx: 17
+    op: 'move'
+    data: [512, 1103]
+  - idx: 18
+    op: 'disposable'
+  - idx: 19
+    op: 'move'
+    data: [529, 1130]
+  - idx: 20
+    op: 'move'
     data: [614, 1125]
-  - op: 'move'
+  - idx: 21
+    op: 'move'
     data: [608, 1255]
-  - op: 'move'
+  - idx: 22
+    op: 'move'
     data: [635, 1276]
-  - op: 'move'
+  - idx: 23
+    op: 'move'
+    data: [624, 1289]
+  - idx: 24
+    op: 'disposable'
+  - idx: 25
+    op: 'move'
     data: [651, 1264]
-  - op: 'patrol'
+  - idx: 26
+    op: 'patrol'

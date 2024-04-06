@@ -4,10 +4,27 @@ region: '铆钉镇'
 floor: 1
 tp: '孤儿院'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [596, 195]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [632, 184]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [679, 192]
-  - op: 'patrol'
+  - idx: 4
+    op: 'patrol'
+  - idx: 5
+    op: 'move'
+    data: [701, 278]
+  - idx: 6
+    op: 'move'
+    data: [677, 269]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [651, 317]
+  - idx: 9
+    op: 'disposable'

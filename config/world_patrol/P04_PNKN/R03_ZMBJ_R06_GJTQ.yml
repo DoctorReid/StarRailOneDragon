@@ -4,6 +4,18 @@ region: '筑梦边境'
 floor: 0
 tp: '观景台前'
 route:
-  - op: 'move'
-    data: [359, 1056]
-  - op: 'patrol'
+  - idx: 1
+    op: 'move'
+    data: [379, 1051]
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
+    data: [393, 1072]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [397, 1027]
+  - idx: 6
+    op: 'disposable'

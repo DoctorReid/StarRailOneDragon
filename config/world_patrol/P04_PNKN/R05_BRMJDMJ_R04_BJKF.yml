@@ -4,32 +4,60 @@ region: '「白日梦」酒店-梦境'
 floor: 3
 tp: '铂金客房'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [1769, 917]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
+    data: [1753, 950]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
+    data: [1775, 1058]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
     data: [1769, 1125]
-  - op: 'slow_move'
+  - idx: 7
+    op: 'slow_move'
     data: [1769, 1225]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [1655, 1263]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [1620, 1313]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 11
+    op: 'patrol'
+  - idx: 12
+    op: 'move'
     data: [1655, 1263]
-  - op: 'move'
+  - idx: 13
+    op: 'move'
     data: [1659, 1197]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 14
+    op: 'patrol'
+  - idx: 15
+    op: 'move'
     data: [1535, 1231]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 16
+    op: 'patrol'
+  - idx: 17
+    op: 'move'
     data: [1464, 1230]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 18
+    op: 'patrol'
+  - idx: 19
+    op: 'move'
     data: [1450, 1295]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 20
+    op: 'patrol'
+  - idx: 21
+    op: 'move'
     data: [1457, 1396]
-  - op: 'patrol'
+  - idx: 22
+    op: 'patrol'

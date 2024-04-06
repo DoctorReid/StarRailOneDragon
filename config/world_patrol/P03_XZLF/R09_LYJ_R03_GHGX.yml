@@ -4,31 +4,52 @@ region: '鳞渊境'
 floor: 0
 tp: '古海宫墟'
 route:
-  - op: 'move'
-    data: [1127, 428]
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [1127, 505]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [1147, 505]
-  - op: 'move'
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
     data: [1141, 580]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
     data: [1145, 607]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 7
+    op: 'patrol'
+  - idx: 8
+    op: 'move'
     data: [1110, 623]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [1079, 607]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [1046, 607]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
     data: [996, 609]
-  - op: 'patrol'
-  - op: 'move'
-    data: [919, 607]
-  - op: 'move'
-    data: [917, 564]
-  - op: 'patrol'
+  - idx: 14
+    op: 'patrol'
+  - idx: 15
+    op: 'move'
+    data: [906, 603]
+  - idx: 16
+    op: 'disposable'
+  - idx: 17
+    op: 'move'
+    data: [933, 574]
+  - idx: 18
+    op: 'move'
+    data: [910, 571]
+  - idx: 19
+    op: 'patrol'

@@ -4,24 +4,38 @@ region: '廻星港'
 floor: 1
 tp: '植船区萌甲'
 route:
-  - op: 'move'
-    data: [455, 488]
-  - op: 'move'
-    data: [458, 478]
-  - op: 'move'
-    data: [458, 434]
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [465, 450]
+  - idx: 2
+    op: 'move'
+    data: [438, 445]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
+    data: [465, 423]
+  - idx: 5
+    op: 'move'
     data: [458, 401]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [457, 352]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
     data: [459, 305]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [460, 284]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [492, 281]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 11
+    op: 'patrol'
+  - idx: 12
+    op: 'move'
     data: [513, 285]
-  - op: 'patrol'
+  - idx: 13
+    op: 'patrol'

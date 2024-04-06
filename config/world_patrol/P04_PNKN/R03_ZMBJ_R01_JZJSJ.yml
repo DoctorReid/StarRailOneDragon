@@ -4,12 +4,19 @@ region: '筑梦边境'
 floor: 0
 tp: '家族建设局'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [553, 364]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [556, 435]
-  - op: 'move'
-    data: [561, 504]
-  - op: 'move'
-    data: [643, 512]
-  - op: 'patrol'
+  - idx: 3
+    op: 'move'
+    data: [561, 510]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [671, 511]
+  - idx: 6
+    op: 'patrol'

@@ -4,8 +4,39 @@ region: '筑梦边境'
 floor: 0
 tp: '筑梦广场'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [1274, 713]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [1223, 713]
-  - op: 'patrol'
+  - idx: 3
+    op: 'patrol'
+  - idx: 4
+    op: 'move'
+    data: [1285, 718]
+  - idx: 5
+    op: 'move'
+    data: [1277, 756]
+  - idx: 6
+    op: 'move'
+    data: [1277, 823]
+  - idx: 7
+    op: 'move'
+    data: [1216, 823]
+  - idx: 8
+    op: 'move'
+    data: [1210, 878]
+  - idx: 9
+    op: 'move'
+    data: [1213, 923]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [1212, 999]
+  - idx: 12
+    op: 'move'
+    data: [1210, 1037]
+  - idx: 13
+    op: 'patrol'

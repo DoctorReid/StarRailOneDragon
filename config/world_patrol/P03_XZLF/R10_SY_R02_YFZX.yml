@@ -1,0 +1,27 @@
+author: ['DoctorReid', '天才俱乐部#85']
+planet: '仙舟「罗浮」'
+region: '绥园'
+floor: 0
+tp: '幽府之形·凝滞虚影'
+route:
+  - idx: 1
+    op: 'move'
+    data: [199, 668]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'slow_move'
+    data: [170, 645]
+  - idx: 4
+    op: 'move'
+    data: [201, 601]
+  - idx: 5
+    op: 'move'
+    data: [227, 585]
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
+    data: [253, 552]
+  - idx: 8
+    op: 'patrol'

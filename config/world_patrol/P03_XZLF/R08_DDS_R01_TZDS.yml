@@ -4,49 +4,74 @@ region: '丹鼎司'
 floor: 1
 tp: '太真丹室'
 route:
-  - op: 'move'
-    data: [551, 577]
-  - op: 'move'
+  - idx: 1
+    op: 'disposable'
+  - idx: 2
+    op: 'move'
+    data: [538, 583]
+  - idx: 3
+    op: 'move'
     data: [522, 604]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [466, 606]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
     data: [456, 616]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [442, 607]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
     data: [391, 606]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [347, 567]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [324, 569]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [318, 537]
-  - op: 'move'
+  - idx: 12
+    op: 'move'
     data: [293, 510]
-  - op: 'move'
+  - idx: 13
+    op: 'move'
     data: [293, 454]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 14
+    op: 'patrol'
+  - idx: 15
+    op: 'move'
     data: [268, 454]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
     data: [270, 423]
-  - op: 'move'
+  - idx: 17
+    op: 'move'
     data: [306, 421]
-  - op: 'move'
+  - idx: 18
+    op: 'move'
     data: [312, 440]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 19
+    op: 'move'
     data: [381, 440]
-  - op: 'move'
+  - idx: 20
+    op: 'move'
     data: [435, 506]
-  - op: 'move'
+  - idx: 21
+    op: 'move'
     data: [486, 501]
-  - op: 'move'
+  - idx: 22
+    op: 'move'
     data: [524, 464]
-  - op: 'move'
+  - idx: 23
+    op: 'move'
     data: [528, 427]
-  - op: 'move'
+  - idx: 24
+    op: 'move'
     data: [523, 408]
-  - op: 'patrol'
+  - idx: 25
+    op: 'patrol'

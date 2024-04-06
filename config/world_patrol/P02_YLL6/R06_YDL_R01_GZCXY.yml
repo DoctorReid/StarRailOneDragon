@@ -4,12 +4,22 @@ region: '永冬岭'
 floor: 0
 tp: '古战场雪原'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [428, 782]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
     data: [486, 785]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [485, 663]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
     data: [462, 609]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [482, 540]
-  - op: 'patrol'
+  - idx: 7
+    op: 'patrol'

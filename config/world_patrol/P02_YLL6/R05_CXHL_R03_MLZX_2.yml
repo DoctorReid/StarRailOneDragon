@@ -4,33 +4,51 @@ region: '残响回廊'
 floor: 0
 tp: '鸣雷之形·凝滞虚影'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [530, 608]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
     data: [555, 610]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [552, 544]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
     data: [633, 543]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
     data: [655, 547]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [693, 589]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [734, 627]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [693, 665]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
     data: [663, 663]
-  - op: 'move'
+  - idx: 14
+    op: 'move'
     data: [648, 649]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 15
+    op: 'patrol'
+  - idx: 16
+    op: 'move'
     data: [626, 625]
-  - op: 'move'
-    data: [577, 619]
-  - op: 'disposable'
+  - idx: 17
+    op: 'move'
+    data: [577, 623]
+  - idx: 18
+    op: 'disposable'

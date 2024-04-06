@@ -1,0 +1,61 @@
+author: ['DoctorReid']
+planet: '仙舟「罗浮」'
+region: '丹鼎司'
+floor: 2
+tp: '虚无之蕾·拟造花萼（赤）'
+route:
+  - idx: 1
+    op: 'move'
+    data: [636, 1134]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [659, 1172]
+  - idx: 4
+    op: 'move'
+    data: [656, 1216]
+  - idx: 5
+    op: 'move'
+    data: [741, 1222]
+  - idx: 6
+    op: 'move'
+    data: [740, 1181]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [789, 1199]
+  - idx: 9
+    op: 'disposable'
+  - idx: 10
+    op: 'move'
+    data: [800, 1156]
+  - idx: 11
+    op: 'patrol'
+  - idx: 12
+    op: 'move'
+    data: [790, 1095]
+  - idx: 13
+    op: 'patrol'
+  - idx: 14
+    op: 'move'
+    data: [745, 1098]
+  - idx: 15
+    op: 'patrol'
+  - idx: 16
+    op: 'move'
+    data: [688, 1033]
+  - idx: 17
+    op: 'move'
+    data: [643, 1024]
+  - idx: 18
+    op: 'move'
+    data: [558, 1026]
+  - idx: 19
+    op: 'patrol'
+  - idx: 20
+    op: 'move'
+    data: [567, 992]
+  - idx: 21
+    op: 'patrol'

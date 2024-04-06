@@ -1,0 +1,73 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '「白日梦」酒店-梦境'
+floor: 3
+tp: '冰酿之形·凝滞虚影'
+route:
+  - idx: 1
+    op: 'move'
+    data: [357, 1006]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [446, 1005]
+  - idx: 4
+    op: 'move'
+    data: [446, 978]
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
+    data: [444, 1058]
+  - idx: 7
+    op: 'move'
+    data: [503, 1064]
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
+    data: [550, 1064]
+  - idx: 10
+    op: 'move'
+    data: [550, 1006]
+  - idx: 11
+    op: 'move'
+    data: [604, 1007]
+  - idx: 12
+    op: 'move'
+    data: [606, 1122]
+  - idx: 13
+    op: 'move'
+    data: [606, 1158]
+  - idx: 14
+    op: 'move'
+    data: [505, 1228]
+  - idx: 15
+    op: 'patrol'
+  - idx: 16
+    op: 'move'
+    data: [540, 1254]
+  - idx: 17
+    op: 'patrol'
+  - idx: 18
+    op: 'move'
+    data: [601, 1247]
+  - idx: 19
+    op: 'patrol'
+  - idx: 20
+    op: 'move'
+    data: [691, 1231]
+  - idx: 21
+    op: 'move'
+    data: [769, 1231]
+  - idx: 22
+    op: 'move'
+    data: [770, 1260]
+  - idx: 23
+    op: 'patrol'
+  - idx: 24
+    op: 'move'
+    data: [773, 1303]
+  - idx: 25
+    op: 'patrol'

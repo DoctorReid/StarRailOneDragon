@@ -431,6 +431,7 @@ class MoveDirectly(Operation):
             return Operation.round_wait()
         else:
             self.no_pos_times = 0
+            self.first_cal_after_battle = False
 
     def check_arrive(self, next_pos: Point) -> Optional[OperationOneRoundResult]:
         """

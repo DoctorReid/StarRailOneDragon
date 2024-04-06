@@ -4,19 +4,35 @@ region: '铆钉镇'
 floor: 1
 tp: '废弃市集'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'disposable'
+  - idx: 2
+    op: 'move'
     data: [446, 375]
-  - op: 'move'
-    data: [447, 399]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
+    data: [453, 399]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
     data: [426, 399]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [410, 419]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
     data: [411, 468]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [432, 486]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [480, 525]
-  - op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [487, 547]
+  - idx: 12
+    op: 'patrol'

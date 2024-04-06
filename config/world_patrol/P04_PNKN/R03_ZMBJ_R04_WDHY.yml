@@ -4,21 +4,45 @@ region: '筑梦边境'
 floor: 0
 tp: '屋顶花园'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [886, 1386]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [882, 1410]
+  - idx: 4
+    op: 'move'
+    data: [837, 1410]
+  - idx: 5
+    op: 'move'
+    data: [821, 1396]
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
     data: [832, 1364]
-  - op: 'move'
-    data: [815, 1378]
-  - op: 'patrol'
-  - op: 'move'
-    data: [832, 1364]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [833, 1308]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [778, 1310]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 11
+    op: 'patrol'
+  - idx: 12
+    op: 'move'
     data: [729, 1315]
-  - op: 'move'
+  - idx: 13
+    op: 'move'
+    data: [713, 1367]
+  - idx: 14
+    op: 'disposable'
+  - idx: 15
+    op: 'move'
     data: [718, 1443]
-  - op: 'patrol'
+  - idx: 16
+    op: 'patrol'

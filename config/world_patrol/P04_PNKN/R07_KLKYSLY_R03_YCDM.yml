@@ -4,20 +4,31 @@ region: '克劳克影视乐园'
 floor: 1
 tp: '影城大门'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [1187, 946]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [1187, 984]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [1125, 991]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [985, 999]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
     data: [935, 1000]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [906, 1000]
-  - op: 'move'
-    data: [884, 1020]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
+    data: [888, 1022]
+  - idx: 8
+    op: 'disposable'
+  - idx: 9
+    op: 'move'
     data: [863, 1039]
-  - op: 'patrol'
+  - idx: 10
+    op: 'patrol'

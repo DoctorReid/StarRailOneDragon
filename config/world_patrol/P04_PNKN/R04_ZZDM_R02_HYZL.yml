@@ -4,10 +4,19 @@ region: '稚子的梦'
 floor: 0
 tp: '回忆走廊'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [610, 525]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [657, 524]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [670, 493]
-  - op: 'patrol'
+  - idx: 4
+    op: 'patrol'
+  - idx: 5
+    op: 'move'
+    data: [658, 461]
+  - idx: 6
+    op: 'disposable'

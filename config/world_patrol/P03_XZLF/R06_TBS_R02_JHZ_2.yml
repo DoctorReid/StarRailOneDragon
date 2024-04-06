@@ -4,45 +4,86 @@ region: '太卜司'
 floor: 1
 tp: '界寰阵'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [320, 297]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [294, 324]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [288, 405]
-  - op: 'move'
-    data: [302, 409]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 4
+    op: 'move'
+    data: [313, 404]
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
+    data: [315, 457]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
     data: [286, 435]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [230, 435]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [231, 422]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
     data: [229, 404]
-  - op: 'patrol'
-  - op: 'move'
-    data: [192, 404]
-  - op: 'move'
+  - idx: 14
+    op: 'patrol'
+  - idx: 15
+    op: 'move'
+    data: [186, 400]
+  - idx: 16
+    op: 'disposable'
+  - idx: 17
+    op: 'move'
     data: [192, 435]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 18
+    op: 'patrol'
+  - idx: 19
+    op: 'move'
     data: [230, 435]
-  - op: 'move'
+  - idx: 20
+    op: 'move'
     data: [288, 435]
-  - op: 'move'
+  - idx: 21
+    op: 'move'
     data: [285, 535]
-  - op: 'move'
+  - idx: 22
+    op: 'move'
     data: [330, 578]
-  - op: 'move'
+  - idx: 23
+    op: 'move'
+    data: [350, 573]
+  - idx: 24
+    op: 'disposable'
+  - idx: 25
+    op: 'move'
     data: [378, 595]
-  - op: 'move'
+  - idx: 26
+    op: 'move'
     data: [403, 650]
-  - op: 'move'
+  - idx: 27
+    op: 'move'
     data: [436, 681]
-  - op: 'move'
-    data: [522, 685]
-  - op: 'patrol'
+  - idx: 28
+    op: 'move'
+    data: [522, 683]
+  - idx: 29
+    op: 'patrol'
+  - idx: 30
+    op: 'move'
+    data: [552, 704]
+  - idx: 31
+    op: 'disposable'

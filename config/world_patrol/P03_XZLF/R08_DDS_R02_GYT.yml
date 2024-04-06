@@ -4,14 +4,25 @@ region: '丹鼎司'
 floor: 1
 tp: '观颐台'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [445, 763]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [447, 846]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [384, 844]
-  - op: 'move'
-    data: [383, 781]
-  - op: 'move'
-    data: [330, 777]
-  - op: 'patrol'
+  - idx: 4
+    op: 'move'
+    data: [395, 770]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [362, 788]
+  - idx: 7
+    op: 'move'
+    data: [328, 779]
+  - idx: 8
+    op: 'patrol'

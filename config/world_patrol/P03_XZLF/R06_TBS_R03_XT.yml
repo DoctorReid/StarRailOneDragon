@@ -4,46 +4,85 @@ region: '太卜司'
 floor: 2
 tp: '祥台'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [469, 1183]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [506, 1181]
-  - op: 'move'
-    data: [514, 1123]
-  - op: 'move'
-    data: [514, 1123]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
+    data: [524, 1167]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [508, 1127]
+  - idx: 6
+    op: 'move'
     data: [533, 1122]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 7
+    op: 'patrol'
+  - idx: 8
+    op: 'move'
     data: [535, 1049]
-  - op: 'move'
+  - idx: 9
+    op: 'move'
     data: [610, 1046]
-  - op: 'move'
+  - idx: 10
+    op: 'move'
     data: [638, 1045]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [673, 1045]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
     data: [638, 1045]
-  - op: 'move'
+  - idx: 14
+    op: 'move'
     data: [610, 1046]
-  - op: 'move'
+  - idx: 15
+    op: 'move'
     data: [537, 1021]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
     data: [534, 921]
-  - op: 'move'
+  - idx: 17
+    op: 'move'
     data: [561, 917]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 18
+    op: 'patrol'
+  - idx: 19
+    op: 'move'
     data: [561, 866]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 20
+    op: 'patrol'
+  - idx: 21
+    op: 'move'
     data: [503, 865]
-  - op: 'move'
+  - idx: 22
+    op: 'move'
     data: [503, 895]
-  - op: 'move'
+  - idx: 23
+    op: 'move'
+    data: [493, 931]
+  - idx: 24
+    op: 'disposable'
+  - idx: 25
+    op: 'move'
+    data: [485, 897]
+  - idx: 26
+    op: 'move'
     data: [465, 896]
-  - op: 'move'
+  - idx: 27
+    op: 'move'
     data: [299, 890]
-  - op: 'patrol'
+  - idx: 28
+    op: 'patrol'
+  - idx: 29
+    op: 'move'
+    data: [305, 907]
+  - idx: 30
+    op: 'disposable'

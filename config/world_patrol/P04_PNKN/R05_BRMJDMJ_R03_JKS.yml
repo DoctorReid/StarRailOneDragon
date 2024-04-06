@@ -4,15 +4,29 @@ region: '「白日梦」酒店-梦境'
 floor: 1
 tp: '监控室'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [571, 750]
-  - op: 'move'
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [582, 776]
+  - idx: 4
+    op: 'move'
     data: [570, 913]
-  - op: 'move'
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
     data: [422, 921]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
     data: [394, 919]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
     data: [394, 895]
-  - op: 'patrol'
+  - idx: 10
+    op: 'patrol'

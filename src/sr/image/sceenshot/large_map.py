@@ -241,7 +241,7 @@ def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,
     info.region = region
     info.raw = raw
     if expand_arr is None:
-        expand_arr = get_expand_arr(raw, mm_pos)
+        expand_arr = get_expand_arr(raw, mm_pos, get_screen_map_rect(region))
     info.origin = expand_raw(raw, expand_arr)
     info.gray = cv2.cvtColor(info.origin, cv2.COLOR_BGRA2GRAY)
     sp_mask, info.sp_result = get_sp_mask_by_template_match(info, im)

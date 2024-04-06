@@ -4,17 +4,26 @@ region: '残响回廊'
 floor: 0
 tp: '筑城领域'
 route:
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 1
+    op: 'disposable'
+  - idx: 2
+    op: 'move'
     data: [774, 406]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [803, 398]
-  - op: 'move'
-    data: [802, 310]
-  - op: 'disposable'
-  - op: 'move'
-    data: [803, 232]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 4
+    op: 'move'
+    data: [807, 310]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [800, 232]
+  - idx: 7
+    op: 'patrol'
+  - idx: 8
+    op: 'move'
     data: [777, 264]
-  - op: 'disposable'
+  - idx: 9
+    op: 'disposable'

@@ -4,16 +4,38 @@ region: '丹鼎司'
 floor: 2
 tp: '行医市集'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [866, 871]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [880, 766]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [884, 725]
-  - op: 'move'
-    data: [816, 660]
-  - op: 'move'
-    data: [795, 637]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
+    data: [841, 686]
+  - idx: 5
+    op: 'move'
+    data: [853, 666]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [790, 686]
+  - idx: 8
+    op: 'disposable'
+  - idx: 9
+    op: 'move'
+    data: [792, 641]
+  - idx: 10
+    op: 'move'
     data: [726, 573]
-  - op: 'patrol'
+  - idx: 11
+    op: 'patrol'
+  - idx: 12
+    op: 'move'
+    data: [701, 581]
+  - idx: 13
+    op: 'patrol'

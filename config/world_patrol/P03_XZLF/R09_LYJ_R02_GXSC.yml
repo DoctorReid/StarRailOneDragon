@@ -4,17 +4,46 @@ region: '鳞渊境'
 floor: 0
 tp: '宫墟深处'
 route:
-  - op: 'move'
-    data: [910, 430]
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [895, 443]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [941, 473]
+  - idx: 4
+    op: 'move'
+    data: [964, 498]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [910, 438]
+  - idx: 7
+    op: 'move'
+    data: [956, 436]
+  - idx: 8
+    op: 'disposable'
+  - idx: 9
+    op: 'move'
+    data: [916, 435]
+  - idx: 10
+    op: 'move'
     data: [922, 395]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [920, 353]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
     data: [922, 395]
-  - op: 'move'
+  - idx: 14
+    op: 'move'
     data: [955, 399]
-  - op: 'move'
+  - idx: 15
+    op: 'move'
     data: [999, 389]
-  - op: 'patrol'
+  - idx: 16
+    op: 'patrol'

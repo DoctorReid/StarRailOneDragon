@@ -2,21 +2,21 @@ author: ['DoctorReid']
 planet: '匹诺康尼'
 region: '克劳克影视乐园'
 floor: 2
-tp: '存护之蕾·拟造花萼（赤）'
+tp: '哈努帮派基地'
 route:
   - idx: 1
     op: 'move'
-    data: [879, 1255]
+    data: [578, 1471]
   - idx: 2
-    op: 'disposable'
+    op: 'move'
+    data: [564, 1406]
   - idx: 3
     op: 'move'
-    data: [862, 1306]
+    data: [534, 1378]
   - idx: 4
-    op: 'move'
-    data: [830, 1336]
+    op: 'disposable'
   - idx: 5
     op: 'move'
-    data: [773, 1348]
+    data: [438, 1419]
   - idx: 6
     op: 'patrol'

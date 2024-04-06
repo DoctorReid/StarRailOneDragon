@@ -4,11 +4,21 @@ region: '稚子的梦'
 floor: 0
 tp: '以太之蕾·拟造花萼（金）'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [611, 1069]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
     data: [595, 1115]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
+    data: [583, 1219]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
     data: [594, 1264]
-  - op: 'patrol'
+  - idx: 7
+    op: 'patrol'

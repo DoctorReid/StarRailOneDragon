@@ -4,24 +4,38 @@ region: '绥园'
 floor: 0
 tp: '谈狐林后门'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [234, 444]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [245, 418]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [234, 375]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [240, 333]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
     data: [275, 333]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
     data: [293, 327]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [293, 357]
-  - op: 'patrol'
-  - op: 'move'
-    data: [293, 327]
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
+    data: [293, 310]
+  - idx: 11
+    op: 'disposable'
+  - idx: 12
+    op: 'move'
     data: [368, 335]
-  - op: 'patrol'
+  - idx: 13
+    op: 'patrol'

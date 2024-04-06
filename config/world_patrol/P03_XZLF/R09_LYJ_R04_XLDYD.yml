@@ -4,10 +4,19 @@ region: '鳞渊境'
 floor: 0
 tp: '显龙大雩殿'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [1580, 410]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [1601, 396]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [1605, 365]
-  - op: 'patrol'
+  - idx: 4
+    op: 'patrol'
+  - idx: 5
+    op: 'move'
+    data: [1619, 359]
+  - idx: 6
+    op: 'patrol'

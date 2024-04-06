@@ -4,36 +4,65 @@ region: '工造司'
 floor: 0
 tp: '造化洪炉'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [738, 977]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [740, 1017]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [773, 1020]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
+    data: [818, 1046]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'slow_move'
     data: [779, 1058]
-  - op: 'move'
+  - idx: 7
+    op: 'slow_move'
     data: [780, 1077]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [716, 1077]
-  - op: 'move'
+  - idx: 9
+    op: 'move'
     data: [714, 1093]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
     data: [725, 1135]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
     data: [758, 1177]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 14
+    op: 'patrol'
+  - idx: 15
+    op: 'move'
+    data: [768, 1160]
+  - idx: 16
+    op: 'disposable'
+  - idx: 17
+    op: 'move'
     data: [760, 1145]
-  - op: 'move'
+  - idx: 18
+    op: 'move'
     data: [816, 1145]
-  - op: 'move'
+  - idx: 19
+    op: 'move'
     data: [882, 1145]
-  - op: 'move'
+  - idx: 20
+    op: 'move'
     data: [881, 1127]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 21
+    op: 'patrol'
+  - idx: 22
+    op: 'move'
     data: [918, 1121]
-  - op: 'patrol'
+  - idx: 23
+    op: 'patrol'

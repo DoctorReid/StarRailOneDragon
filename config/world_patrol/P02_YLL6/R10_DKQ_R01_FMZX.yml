@@ -4,13 +4,38 @@ region: '大矿区'
 floor: 0
 tp: '锋芒之形·凝滞虚影'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [513, 531]
+  - idx: 2
+    op: 'move'
+    data: [438, 545]
+  - idx: 3
+    op: 'patrol'
+  - idx: 4
+    op: 'move'
+    data: [382, 519]
+  - idx: 5
+    op: 'move'
+    data: [392, 501]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [382, 519]
+  - idx: 8
+    op: 'move'
     data: [434, 526]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'move'
     data: [443, 491]
-  - op: 'move'
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
     data: [446, 462]
-  - op: 'move'
+  - idx: 12
+    op: 'move'
     data: [486, 440]
-  - op: 'patrol'
+  - idx: 13
+    op: 'patrol'

@@ -4,38 +4,97 @@ region: '流云渡'
 floor: 1
 tp: '积玉坊'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [509, 836]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
+    data: [493, 954]
+  - idx: 3
+    op: 'patrol'
+  - idx: 4
+    op: 'move'
     data: [516, 948]
-  - op: 'patrol'
-  - op: 'move'
-    data: [516, 1009]
-  - op: 'move'
-    data: [515, 1063]
-  - op: 'move'
-    data: [515, 1128]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
+    data: [508, 1001]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [519, 1039]
+  - idx: 8
+    op: 'move'
+    data: [498, 1082]
+  - idx: 9
+    op: 'disposable'
+  - idx: 10
+    op: 'move'
+    data: [533, 1115]
+  - idx: 11
+    op: 'move'
+    data: [559, 1147]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [533, 1115]
+  - idx: 14
+    op: 'move'
+    data: [514, 1107]
+  - idx: 15
+    op: 'move'
     data: [516, 1182]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
     data: [532, 1194]
-  - op: 'move'
+  - idx: 17
+    op: 'move'
     data: [532, 1271]
-  - op: 'patrol'
-  - op: 'slow_move'
+  - idx: 18
+    op: 'patrol'
+  - idx: 19
+    op: 'slow_move'
     data: [500, 1268]
-  - op: 'move'
+  - idx: 20
+    op: 'move'
     data: [476, 1267]
-  - op: 'move'
+  - idx: 21
+    op: 'move'
     data: [438, 1267]
-  - op: 'patrol'
-  - op: 'move'
-    data: [420, 1313]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 22
+    op: 'patrol'
+  - idx: 23
+    op: 'move'
+    data: [456, 1291]
+  - idx: 24
+    op: 'patrol'
+  - idx: 25
+    op: 'slow_move'
+    data: [420, 1322]
+  - idx: 26
+    op: 'move'
+    data: [416, 1345]
+  - idx: 27
+    op: 'patrol'
+  - idx: 28
+    op: 'move'
     data: [419, 1391]
-  - op: 'move'
-    data: [428, 1412]
-  - op: 'move'
+  - idx: 29
+    op: 'move'
+    data: [403, 1416]
+  - idx: 30
+    op: 'move'
+    data: [380, 1418]
+  - idx: 31
+    op: 'disposable'
+  - idx: 32
+    op: 'move'
     data: [471, 1423]
-  - op: 'patrol'
+  - idx: 33
+    op: 'patrol'
+  - idx: 34
+    op: 'move'
+    data: [508, 1429]
+  - idx: 35
+    op: 'disposable'

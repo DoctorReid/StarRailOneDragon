@@ -4,12 +4,25 @@ region: '永冬岭'
 floor: 0
 tp: '睿治之径·侵蚀隧洞'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [560, 553]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [604, 534]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [627, 545]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [653, 557]
-  - op: 'patrol'
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
+    data: [688, 574]
+  - idx: 7
+    op: 'move'
+    data: [667, 645]
+  - idx: 8
+    op: 'disposable'

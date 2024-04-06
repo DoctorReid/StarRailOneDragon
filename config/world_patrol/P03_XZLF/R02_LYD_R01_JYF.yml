@@ -4,20 +4,41 @@ region: '流云渡'
 floor: 1
 tp: '积玉坊'
 route:
-  - op: 'move'
-    data: [572, 764]
-  - op: 'move'
-    data: [591, 760]
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [537, 767]
+  - idx: 2
+    op: 'move'
+    data: [596, 767]
+  - idx: 3
+    op: 'move'
     data: [602, 745]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [603, 710]
-  - op: 'move'
-    data: [603, 689, 2]
-  - op: 'move'
-    data: [603, 671]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
+    data: [599, 683, 2]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
     data: [561, 670]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [526, 670]
-  - op: 'patrol'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
+    data: [572, 639]
+  - idx: 11
+    op: 'move'
+    data: [560, 597]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [563, 552]
+  - idx: 14
+    op: 'disposable'

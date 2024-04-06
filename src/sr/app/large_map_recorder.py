@@ -552,9 +552,9 @@ def fix_world_patrol_route_after_map_record(region: Region, dx: int, dy: int):
             if route.tp.region != floor_region:
                 continue
             for route_item in route.route_list:
-                if route_item['op'] in to_fix_op:
-                    route_item['data'][0] += dx
-                    route_item['data'][1] += dy
+                if route_item.op in to_fix_op:
+                    route_item.data[0] += dx
+                    route_item.data[1] += dy
             route.save()
 
 
@@ -606,7 +606,7 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 
 
 if __name__ == '__main__':
-    r = map_const.P04_R07_F1
+    r = map_const.P03_R10
     # print(LargeMapRecorder.same_as_last_row(r, 6, 2))
     # LargeMapRecorder.do_merge_1(r, 6, 2, show=True)
     # exit(0)
@@ -620,6 +620,6 @@ if __name__ == '__main__':
                            )
 
     ctx.init_all(renew=True)
-    app.execute()
-    # app.do_save()
+    # app.execute()
+    app.do_save()
     # fix_all_after_map_record(r, 1, 10)

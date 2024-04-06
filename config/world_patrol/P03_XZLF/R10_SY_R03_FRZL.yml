@@ -1,48 +1,42 @@
 author: ['DoctorReid']
 planet: '仙舟「罗浮」'
-region: '流云渡'
-floor: 1
-tp: '积玉坊'
+region: '绥园'
+floor: 0
+tp: '丰饶之蕾·拟造花萼（赤）'
 route:
   - idx: 1
     op: 'move'
-    data: [537, 767]
+    data: [236, 755]
   - idx: 2
-    op: 'move'
-    data: [596, 767]
+    op: 'patrol'
   - idx: 3
     op: 'move'
-    data: [658, 733]
+    data: [285, 740]
   - idx: 4
     op: 'disposable'
   - idx: 5
     op: 'move'
-    data: [725, 736]
+    data: [303, 765]
   - idx: 6
     op: 'move'
-    data: [786, 730]
+    data: [339, 771]
   - idx: 7
-    op: 'move'
-    data: [821, 753]
-  - idx: 8
     op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [361, 776]
   - idx: 9
     op: 'move'
-    data: [857, 763]
+    data: [380, 802]
   - idx: 10
-    op: 'disposable'
+    op: 'patrol'
   - idx: 11
     op: 'move'
-    data: [846, 664]
+    data: [360, 860]
   - idx: 12
     op: 'patrol'
   - idx: 13
     op: 'move'
-    data: [861, 680]
+    data: [295, 863]
   - idx: 14
-    op: 'patrol'
-  - idx: 15
-    op: 'move'
-    data: [891, 680]
-  - idx: 16
     op: 'patrol'

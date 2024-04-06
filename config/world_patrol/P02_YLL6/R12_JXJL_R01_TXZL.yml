@@ -4,36 +4,95 @@ region: '机械聚落'
 floor: 1
 tp: '同谐之蕾·拟造花萼（赤）'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [312, 531]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
     data: [347, 548]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [402, 533]
-  - op: 'move'
-    data: [410, 485]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
+    data: [404, 496]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
     data: [410, 420]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
     data: [415, 482]
-  - op: 'move'
+  - idx: 10
+    op: 'move'
     data: [433, 482]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
+    data: [475, 483]
+  - idx: 12
+    op: 'move'
+    data: [503, 497]
+  - idx: 13
+    op: 'disposable'
+  - idx: 14
+    op: 'move'
     data: [612, 487]
-  - op: 'move'
+  - idx: 15
+    op: 'move'
     data: [635, 486]
-  - op: 'move'
-    data: [676, 493]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
+    data: [678, 496]
+  - idx: 17
+    op: 'disposable'
+  - idx: 18
+    op: 'move'
     data: [724, 451]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 19
+    op: 'move'
     data: [715, 423]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 20
+    op: 'patrol'
+  - idx: 21
+    op: 'move'
+    data: [674, 425]
+  - idx: 22
+    op: 'patrol'
+  - idx: 23
+    op: 'move'
+    data: [737, 425]
+  - idx: 24
+    op: 'move'
+    data: [752, 415]
+  - idx: 25
+    op: 'move'
+    data: [751, 393]
+  - idx: 26
+    op: 'disposable'
+  - idx: 27
+    op: 'move'
+    data: [796, 393]
+  - idx: 28
+    op: 'disposable'
+  - idx: 29
+    op: 'move'
+    data: [751, 393]
+  - idx: 30
+    op: 'move'
+    data: [720, 465]
+  - idx: 31
+    op: 'move'
     data: [737, 477]
-  - op: 'move'
+  - idx: 32
+    op: 'move'
     data: [771, 500]
-  - op: 'patrol'
+  - idx: 33
+    op: 'move'
+    data: [784, 496]
+  - idx: 34
+    op: 'patrol'

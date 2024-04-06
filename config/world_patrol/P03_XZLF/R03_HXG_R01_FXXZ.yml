@@ -4,40 +4,73 @@ region: '廻星港'
 floor: 2
 tp: '飞星小筑'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [834, 275]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [789, 276]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [736, 275]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [703, 283]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
     data: [672, 283]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [673, 301]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
     data: [710, 299]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
     data: [739, 319]
-  - op: 'move'
+  - idx: 10
+    op: 'move'
     data: [788, 321]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [846, 327]
-  - op: 'move'
+  - idx: 12
+    op: 'move'
+    data: [883, 316]
+  - idx: 13
+    op: 'disposable'
+  - idx: 14
+    op: 'move'
+    data: [846, 327]
+  - idx: 15
+    op: 'move'
     data: [849, 374]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
     data: [770, 396]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 17
+    op: 'patrol'
+  - idx: 18
+    op: 'move'
     data: [858, 413]
-  - op: 'move'
+  - idx: 19
+    op: 'move'
+    data: [900, 441]
+  - idx: 20
+    op: 'disposable'
+  - idx: 21
+    op: 'move'
     data: [861, 439]
-  - op: 'move'
+  - idx: 22
+    op: 'move'
     data: [802, 444]
-  - op: 'move'
+  - idx: 23
+    op: 'move'
     data: [801, 475]
-  - op: 'move'
+  - idx: 24
+    op: 'move'
     data: [850, 477]
-  - op: 'patrol'
+  - idx: 25
+    op: 'patrol'

@@ -4,47 +4,29 @@ region: '丹鼎司'
 floor: 2
 tp: '药使之径·侵蚀隧洞'
 route:
-  - op: 'move'
-    data: [670, 1468]
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [666, 1464]
+  - idx: 2
+    op: 'move'
+    data: [692, 1444]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
     data: [685, 1399]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
+    data: [712, 1422]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
     data: [713, 1368]
-  - op: 'move'
+  - idx: 9
+    op: 'move'
     data: [760, 1325]
-  - op: 'patrol'
-  - op: 'move'
-    data: [713, 1368]
-  - op: 'move'
-    data: [685, 1399]
-  - op: 'move'
-    data: [670, 1468]
-  - op: 'move'
-    data: [651, 1488]
-  - op: 'move'
-    data: [580, 1488]
-  - op: 'move'
-    data: [578, 1384]
-  - op: 'move'
-    data: [645, 1327]
-  - op: 'move'
-    data: [726, 1234]
-  - op: 'move'
-    data: [745, 1165]
-  - op: 'patrol'
-  - op: 'move'
-    data: [782, 1165]
-  - op: 'move'
-    data: [783, 1116]
-  - op: 'patrol'
-  - op: 'move'
-    data: [755, 1063]
-  - op: 'move'
-    data: [709, 1026]
-  - op: 'move'
-    data: [557, 1027]
-  - op: 'patrol'
-  - op: 'move'
-    data: [560, 985]
-  - op: 'patrol'
+  - idx: 10
+    op: 'patrol'

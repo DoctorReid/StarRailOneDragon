@@ -4,18 +4,42 @@ region: '铆钉镇'
 floor: 1
 tp: '巽风之形·凝滞虚影'
 route:
-  - op: 'move'
-    data: [603, 459]
-  - op: 'move'
-    data: [673, 459]
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [611, 466]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [631, 450]
+  - idx: 4
+    op: 'move'
+    data: [681, 459]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
     data: [702, 412]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
     data: [732, 417]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
     data: [732, 479]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
     data: [733, 515]
-  - op: 'patrol'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [726, 555]
+  - idx: 14
+    op: 'move'
+    data: [666, 557]
+  - idx: 15
+    op: 'disposable'

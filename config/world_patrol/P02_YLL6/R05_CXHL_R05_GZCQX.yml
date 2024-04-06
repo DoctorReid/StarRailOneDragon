@@ -4,38 +4,60 @@ region: '残响回廊'
 floor: 0
 tp: '古战场前线'
 route:
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 1
+    op: 'disposable'
+  - idx: 2
+    op: 'move'
     data: [487, 1232]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [450, 1257]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
     data: [489, 1230]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [489, 1133]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 7
+    op: 'patrol'
+  - idx: 8
+    op: 'move'
     data: [485, 1178]
-  - op: 'move'
+  - idx: 9
+    op: 'move'
     data: [422, 1180]
-  - op: 'move'
+  - idx: 10
+    op: 'move'
     data: [388, 1184]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [351, 1189]
-  - op: 'patrol'
-  - op: 'move'
-    data: [272, 1190]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [272, 1185]
+  - idx: 14
+    op: 'disposable'
+  - idx: 15
+    op: 'move'
     data: [265, 1238]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 16
+    op: 'disposable'
+  - idx: 17
+    op: 'move'
     data: [265, 1321]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 18
+    op: 'patrol'
+  - idx: 19
+    op: 'move'
     data: [297, 1322]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 20
+    op: 'patrol'
+  - idx: 21
+    op: 'move'
     data: [355, 1322]
-  - op: 'disposable'
+  - idx: 22
+    op: 'disposable'

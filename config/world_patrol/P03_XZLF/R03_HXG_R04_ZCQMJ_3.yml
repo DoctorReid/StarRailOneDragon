@@ -4,67 +4,123 @@ region: '廻星港'
 floor: 1
 tp: '植船区萌甲'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [442, 488]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [423, 486]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [422, 445]
-  - op: 'move'
-    data: [322, 442]
-  - op: 'move'
-    data: [318, 560]
-  - op: 'move'
-    data: [369, 560]
-  - op: 'patrol'
-  - op: 'move'
-    data: [380, 560]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
+    data: [305, 421]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [320, 447]
+  - idx: 7
+    op: 'move'
+    data: [310, 565]
+  - idx: 8
+    op: 'disposable'
+  - idx: 9
+    op: 'move'
+    data: [329, 555]
+  - idx: 10
+    op: 'move'
+    data: [383, 570]
+  - idx: 11
+    op: 'patrol'
+  - idx: 12
+    op: 'move'
+    data: [384, 550]
+  - idx: 13
+    op: 'patrol'
+  - idx: 14
+    op: 'move'
     data: [380, 527]
-  - op: 'move'
+  - idx: 15
+    op: 'move'
     data: [424, 526]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
     data: [426, 584]
-  - op: 'move'
+  - idx: 17
+    op: 'move'
     data: [427, 617]
-  - op: 'move'
+  - idx: 18
+    op: 'move'
     data: [415, 620]
-  - op: 'move'
+  - idx: 19
+    op: 'move'
     data: [409, 680]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 20
+    op: 'patrol'
+  - idx: 21
+    op: 'move'
     data: [402, 720]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 22
+    op: 'patrol'
+  - idx: 23
+    op: 'move'
     data: [394, 756]
-  - op: 'move'
+  - idx: 24
+    op: 'move'
     data: [334, 756]
-  - op: 'slow_move'
+  - idx: 25
+    op: 'slow_move'
     data: [309, 756]
-  - op: 'slow_move'
+  - idx: 26
+    op: 'slow_move'
     data: [312, 784]
-  - op: 'slow_move'
+  - idx: 27
+    op: 'slow_move'
     data: [325, 784]
-  - op: 'patrol'
-  - op: 'slow_move'
+  - idx: 28
+    op: 'patrol'
+  - idx: 29
+    op: 'slow_move'
     data: [312, 784]
-  - op: 'slow_move'
+  - idx: 30
+    op: 'slow_move'
     data: [309, 756]
-  - op: 'move'
+  - idx: 31
+    op: 'move'
     data: [394, 756]
-  - op: 'move'
-    data: [388, 803]
-  - op: 'move'
-    data: [426, 814]
-  - op: 'move'
-    data: [483, 815]
-  - op: 'move'
+  - idx: 32
+    op: 'move'
+    data: [406, 819]
+  - idx: 33
+    op: 'disposable'
+  - idx: 34
+    op: 'move'
+    data: [471, 814]
+  - idx: 35
+    op: 'move'
+    data: [501, 792]
+  - idx: 36
+    op: 'disposable'
+  - idx: 37
+    op: 'move'
     data: [512, 808]
-  - op: 'move'
-    data: [565, 811]
-  - op: 'move'
+  - idx: 38
+    op: 'move'
+    data: [555, 811]
+  - idx: 39
+    op: 'move'
+    data: [573, 820]
+  - idx: 40
+    op: 'disposable'
+  - idx: 41
+    op: 'move'
     data: [579, 780]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 42
+    op: 'patrol'
+  - idx: 43
+    op: 'move'
     data: [574, 758]
-  - op: 'patrol'
+  - idx: 44
+    op: 'patrol'
