@@ -93,7 +93,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.cal_pos_btn = components.RectOutlinedButton(text=gt('计算坐标', 'ui'), on_click=self._on_cal_pos_clicked, disabled=True)
         self.screen_cal_pos_btn = components.RectOutlinedButton(text=gt('R 截图计算坐标', 'ui'), on_click=self._on_screen_cal_pos_clicked, disabled=True)
         self.screen_patrol_btn = components.RectOutlinedButton(text=gt('F 截图攻击怪物', 'ui'), on_click=self._on_screen_patrol_clicked, disabled=True)
-        self.screen_disposable_btn = components.RectOutlinedButton(text=gt('5 截图可破坏物', 'ui'), on_click=self._on_screen_disposable_clicked, disabled=True)
+        self.screen_disposable_btn = components.RectOutlinedButton(text=gt('H 截图可破坏物', 'ui'), on_click=self._on_screen_disposable_clicked, disabled=True)
 
         self.patrol_btn = components.RectOutlinedButton(text='攻击怪物', disabled=True, on_click=self.add_patrol)
         self.disposable_btn = components.RectOutlinedButton(text='可破坏物', disabled=True, on_click=self.add_disposable)
@@ -186,7 +186,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
             self.cancel_last()
         if k == 'f' and self.chosen_route is not None:
             self._on_screen_patrol_clicked()
-        if k == '5' and self.chosen_route is not None:
+        if k == 'h' and self.chosen_route is not None:
             self._on_screen_disposable_clicked()
 
     def _do_screenshot(self, e=None):
