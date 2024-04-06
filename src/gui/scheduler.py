@@ -7,6 +7,9 @@ import threading
 from basic.log_utils import log
 
 
+_is_shutdown: bool = False
+
+
 def start():
     t = threading.Thread(target=_run_schedule)
     t.start()
@@ -49,8 +52,16 @@ def by_hour(hour_num: int, func: Callable, tag: Optional[str] = None):
 
 def _run_schedule():
     while True:
+        if _is_shutdown:
+            break
         try:
             schedule.run_pending()
         except Exception:
             log.error('定时任务出错', exc_info=True)
         time.sleep(1)
+
+
+def shutdown():
+    schedule.clear()
+    global _is_shutdown
+    _is_shutdown = True
