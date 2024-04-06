@@ -12,8 +12,8 @@ from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhiteli
 from sr.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
-from sr.operation.combine.choose_team_in_world import ChooseTeamInWorld
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
+from sr.operation.unit.team import SwitchMember, ChooseTeamInWorld
 
 
 class WorldPatrol(Application):
@@ -30,8 +30,11 @@ class WorldPatrol(Application):
         team = StateOperationNode('选择配队', self._choose_team)
         edges.append(StateOperationEdge(world, team))
 
+        switch = StateOperationNode('切换1号位', op=SwitchMember(ctx, 1))
+        edges.append(StateOperationEdge(team, switch))
+
         route = StateOperationNode('运行路线', self._run_route)
-        edges.append(StateOperationEdge(team, route, ignore_status=True))
+        edges.append(StateOperationEdge(switch, route, ignore_status=True))
         edges.append(StateOperationEdge(route, route, ignore_status=False))
 
         super().__init__(ctx, op_name=gt('锄大地', 'ui'),

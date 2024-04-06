@@ -6,10 +6,15 @@ from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
+from sr.const import phone_menu_const
 from sr.const.character_const import Character, CHARACTER_LIST
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
+from sr.operation.battle.choose_team import ChooseTeam
+from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
+from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
+from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area import ScreenArea
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
@@ -241,3 +246,22 @@ class SwitchMember(StateOperation):
             return Operation.round_success()
         else:
             return Operation.round_retry('未在大世界画面', wait=1)
+
+
+class ChooseTeamInWorld(StateOperation):
+
+    def __init__(self, ctx: Context, team_num: int):
+        """
+        在大世界中 根据队伍编号选择配队 选择后再返回大世界页面
+        :param ctx: 上下文
+        :param team_num: 队伍编号 从1开始
+        """
+        nodes = [
+            StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx)),
+            StateOperationNode('菜单', op=OpenPhoneMenu(ctx)),
+            StateOperationNode('编队', op=ClickPhoneMenuItem(ctx, phone_menu_const.TEAM_SETUP)),
+            StateOperationNode('选择组队', op=ChooseTeam(ctx, team_num, on=True)),
+            StateOperationNode('返回', op=BackToNormalWorldPlus(ctx)),
+        ]
+        super().__init__(ctx, op_name=gt('选择配队', 'ui'),
+                         nodes=nodes)
