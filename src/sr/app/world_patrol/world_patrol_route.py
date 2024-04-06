@@ -236,9 +236,10 @@ class WorldPatrolRoute:
         cfg += "tp: '%s'\n" % self.tp.cn
         cfg += "route:\n"
         for route_item in self.route_list:
+            cfg += f"  - idx: {route_item.idx}\n"
             if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
                                     operation_const.OP_UPDATE_POS]:
-                cfg += "  - op: '%s'\n" % route_item.op
+                cfg += "    op: '%s'\n" % route_item.op
                 pos = route_item.data
                 if len(pos) > 2 and pos[2] != last_floor:
                     cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
@@ -246,12 +247,12 @@ class WorldPatrolRoute:
                 else:
                     cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
             elif route_item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
-                cfg += "  - op: '%s'\n" % route_item.op
+                cfg += "    op: '%s'\n" % route_item.op
             elif route_item.op == operation_const.OP_INTERACT:
-                cfg += "  - op: '%s'\n" % route_item.op
+                cfg += "    op: '%s'\n" % route_item.op
                 cfg += "    data: '%s'\n" % route_item.data
             elif route_item.op == operation_const.OP_WAIT:
-                cfg += "  - op: '%s'\n" % route_item.op
+                cfg += "    op: '%s'\n" % route_item.op
                 cfg += "    data: ['%s', '%s']\n" % (route_item.data[0], route_item.data[1])
         return cfg
 
