@@ -2,7 +2,7 @@ author: ['DoctorReid']
 planet: '雅利洛-VI'
 region: '永冬岭'
 floor: 0
-tp: '古战场'
+tp: '古战场雪原'
 route:
   - op: 'move'
     data: [486, 785]

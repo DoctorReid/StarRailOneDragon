@@ -32,6 +32,9 @@ def cal_one(tp: TransportPoint, debug_image: str = None, show: bool = False):
     lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     mm_info = mini_map.analyse_mini_map(mm, ctx.im)
     result = cal_pos.cal_character_pos_by_sp_result(ctx.im, lm_info, mm_info, lm_rect=lm_rect)
+    if result is None:
+        result = cal_pos.cal_character_pos_by_gray(ctx.im, lm_info, mm_info, lm_rect=lm_rect,
+                                                   scale_list=cal_pos.get_mini_map_scale_list(False))
 
     log.info('%s 传送落地坐标 %s 使用缩放 %.2f', tp.display_name, result.center, result.template_scale)
     if show:
@@ -43,15 +46,11 @@ if __name__ == '__main__':
     ctx.init_image_matcher()
 
     sp_list = [
-        map_const.P04_R06_SUB_01_SP02,
+        map_const.P04_R07_SP01,
     ]
     img_list = [
-        '_1711793144959',
-        '_1711793153102',
-        '_1711793159120',
-        '_1711793165384',
-        '_1711793173386',
+        '_1712366467663',
     ]
     for i in range(len(sp_list)):
-        # cal_one(sp_list[i], debug_image=img_list[i], show=True)
-        cal_one(sp_list[i])
+        cal_one(sp_list[i], debug_image=img_list[i], show=True)
+        # cal_one(sp_list[i])

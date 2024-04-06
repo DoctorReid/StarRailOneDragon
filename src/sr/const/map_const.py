@@ -343,7 +343,7 @@ P01_R04_SP06 = TransportPoint('HMDKD', '毁灭的开端·历战余响', P01_R04_
 
 # 空间站黑塔 - 禁闭舱段
 P01_R05_SP01 = TransportPoint('WC', '温床', P01_R05_F2, 'mm_tp_03', (684, 306), (710, 309))
-P01_R05_SP02 = TransportPoint('WC', '集散中心', P01_R05_L3, 'mm_tp_03', (642, 500), (609, 481))
+P01_R05_SP02 = TransportPoint('JSZX', '集散中心', P01_R05_L3, 'mm_tp_03', (642, 500), (609, 484))
 P01_R05_SP03 = TransportPoint('PYM', '培养皿', P01_R05_F1, 'mm_tp_03', (669, 560), (677, 540))
 P01_R05_SP04 = TransportPoint('YWZBJ', '药物制备间', P01_R05_F2, 'mm_tp_03', (541, 796), (530, 800))
 P01_R05_SP05 = TransportPoint('SWHBX', '生物烘焙箱', P01_R05_F2, 'mm_tp_14', (541, 154), (554, 165))
@@ -390,7 +390,7 @@ P02_R03_SP06 = TransportPoint('YTZL', '以太之蕾·拟造花萼（金）', P02
 # 雅利洛 - 铁卫禁区
 P02_R04_SP01 = TransportPoint('JQGS', '禁区岗哨', P02_R04, 'mm_tp_03', (1162, 576), (1158, 586))
 P02_R04_SP02 = TransportPoint('JQQX', '禁区前线', P02_R04, 'mm_tp_03', (538, 596), (530, 587))
-P02_R04_SP03 = TransportPoint('NYSN', '能源枢纽', P02_R04, 'mm_tp_03', (750, 1102), (767, 1064))
+P02_R04_SP03 = TransportPoint('NYSN', '能源枢纽', P02_R04, 'mm_tp_03', (750, 1102), (754, 1090))
 P02_R04_SP04 = TransportPoint('YHZX', '炎华之形·凝滞虚影', P02_R04, 'mm_tp_06', (463, 442), (464, 465))
 P02_R04_SP05 = TransportPoint('XQZJ', '迅拳之径·侵蚀隧洞', P02_R04, 'mm_tp_09', (1143, 624), (1145, 617))
 P02_R04_SP06 = TransportPoint('YYHY', '以眼还眼', P02_R04, 'mm_sp_01', (438, 578))
@@ -409,8 +409,8 @@ P02_R05_SP08 = TransportPoint('TWJQ', '铁卫禁区', P02_R05, 'mm_sp02', (389, 
 P02_R05_SP09 = TransportPoint('YDL', '永冬岭', P02_R05, 'mm_sp02', (733, 1280))  # 这里旁边站着一个传送到造物之柱的士兵
 
 # 雅利洛 - 永冬岭
-P02_R06_SP01 = TransportPoint('GZC', '古战场', P02_R06, 'mm_tp_03', (366, 776), (392, 768))
-P02_R06_SP02 = TransportPoint('ZWPT', '造物平台', P02_R06, 'mm_tp_03', (784, 571), (791, 586))
+P02_R06_SP01 = TransportPoint('GZCXY', '古战场雪原', P02_R06, 'mm_tp_03', (366, 776), (372, 793))
+P02_R06_SP02 = TransportPoint('ZWPT', '造物平台', P02_R06, 'mm_tp_03', (784, 571), (811, 566))
 P02_R06_SP03 = TransportPoint('RZZJ', '睿治之径·侵蚀隧洞', P02_R06, 'mm_tp_09', (585, 663), (581, 661))
 P02_R06_SP04 = TransportPoint('CXHL', '残响回廊', P02_R06, 'mm_sp_02', (338, 793))
 P02_R06_SP05 = TransportPoint('HCDLM', '寒潮的落幕·历战余响', P02_R06, 'mm_boss_02', (814, 701))
@@ -452,7 +452,7 @@ P02_R10_SP09 = TransportPoint('PYZ', '磐岩镇', P02_R10, 'mm_sp_02', (351, 144
 P02_R11_SP01 = TransportPoint('GEY', '孤儿院', P02_R11_F1, 'mm_tp_03', (600, 211), (603, 225))
 P02_R11_SP02 = TransportPoint('FQSJ', '废弃市集', P02_R11_F1, 'mm_tp_03', (465, 374), (474, 363))
 P02_R11_SP03 = TransportPoint('RK', '入口', P02_R11_F1, 'mm_tp_03', (613, 675), (601, 663))
-P02_R11_SP04 = TransportPoint('XFZX', '巽风之形·凝滞虚影', P02_R11_F1, 'mm_tp_06', (580, 374), (582, 398))
+P02_R11_SP04 = TransportPoint('XFZX', '巽风之形·凝滞虚影', P02_R11_F1, 'mm_tp_06', (580, 374), (582, 400))
 P02_R11_SP05 = TransportPoint('ZSZL', '智识之蕾·拟造花萼（赤）', P02_R11_F1, 'mm_tp_07', (609, 608), (610, 616))
 P02_R11_SP06 = TransportPoint('JWQSYC', '旧武器试验场', P02_R11_F1, 'mm_sp_02', (767, 244))  # 与 机械聚落 重合
 P02_R11_SP07 = TransportPoint('PYZ', '磐岩镇', P02_R11_F1, 'mm_sp_02', (597, 698))
@@ -464,9 +464,9 @@ P02_R12_SP03 = TransportPoint('NYZHSS', '能源转换设施', P02_R12_F1, 'mm_tp
 P02_R12_SP04 = TransportPoint('TXZL', '同谐之蕾·拟造花萼（赤）', P02_R12_F1, 'mm_tp_07', (298, 564), (308, 557))
 
 # 仙舟罗浮 - 星槎海中枢
-P03_R01_SP01 = TransportPoint('XCMT', '星槎码头', P03_R01, 'mm_tp_03', (443, 341), (454, 343))
-P03_R01_SP02 = TransportPoint('KYT', '坤舆台', P03_R01, 'mm_tp_03', (700, 370), (698, 375))
-P03_R01_SP03 = TransportPoint('XYDD', '宣夜大道', P03_R01, 'mm_tp_03', (428, 622), (423, 628))
+P03_R01_SP01 = TransportPoint('XCMT', '星槎码头', P03_R01, 'mm_tp_03', (443, 341), (452, 347))
+P03_R01_SP02 = TransportPoint('KYT', '坤舆台', P03_R01, 'mm_tp_03', (700, 370), (702, 375))
+P03_R01_SP03 = TransportPoint('XYDD', '宣夜大道', P03_R01, 'mm_tp_03', (428, 622), (423, 639))
 P03_R01_SP04 = TransportPoint('TKZY', '天空之眼', P03_R01, 'mm_sp_01', (616, 409))
 P03_R01_SP05 = TransportPoint('LYD', '流云渡', P03_R01, 'mm_sp_02', (849, 168))
 P03_R01_SP06 = TransportPoint('CLT', '长乐天', P03_R01, 'mm_sp_02', (539, 231))
@@ -480,7 +480,7 @@ P03_R01_SP13 = TransportPoint('SZG', '赎珠阁', P03_R01, 'mm_sp_04', (375, 595
 P03_R01_SP14 = TransportPoint('SHJ4', '售货机4', P03_R01, 'mm_sp_03', (316, 698))
 P03_R01_SP15 = TransportPoint('XCT', '小吃摊', P03_R01, 'mm_sp_03', (436, 702))
 P03_R01_SP16 = TransportPoint('SCG', '司辰宫', P03_R01, 'mm_sp_05', (673, 487))
-P03_R01_SP17 = TransportPoint('PSQT', '评书奇谭', P03_R01, 'mm_tp_15', (353, 503), (353, 499))
+P03_R01_SP17 = TransportPoint('PSQT', '评书奇谭', P03_R01, 'mm_tp_15', (353, 503), (352, 502))
 
 # 仙舟罗浮 - 流云渡
 P03_R02_SP01 = TransportPoint('LYDHD', '流云渡货道', P03_R02_F2, 'mm_tp_03', (710, 432), (700, 412))
@@ -556,7 +556,7 @@ P03_R07_SP08 = TransportPoint('CZZLNZHEJ', '藏珍之蕾·拟造花萼（金）'
 # 仙舟罗浮 - 丹鼎司
 P03_R08_SP01 = TransportPoint('TZDS', '太真丹室', P03_R08_F1, 'mm_tp_03', (548, 565), (563, 570))
 P03_R08_SP02 = TransportPoint('GYT', '观颐台', P03_R08_F1, 'mm_tp_03', (439, 705), (448, 718))
-P03_R08_SP03 = TransportPoint('XYSJ', '行医市集', P03_R08_F2, 'mm_tp_03', (826, 908), (818, 880))
+P03_R08_SP03 = TransportPoint('XYSJ', '行医市集', P03_R08_F2, 'mm_tp_03', (826, 908), (818, 893))
 P03_R08_SP04 = TransportPoint('QHS', '岐黄署', P03_R08_F2, 'mm_tp_03', (819, 1542), (853, 1554))
 P03_R08_SP05 = TransportPoint('TRZX', '天人之形·凝滞虚影', P03_R08_F2, 'mm_tp_06', (1226, 1097), (1206, 1097))
 P03_R08_SP06 = TransportPoint('YSZJ', '药使之径·侵蚀隧洞', P03_R08_F2, 'mm_tp_09', (667, 1514), (668, 1498))
@@ -566,7 +566,7 @@ P03_R08_SP09 = TransportPoint('SLDY', '蜃楼遁影', P03_R08_F2, 'mm_sp_01', (8
 P03_R08_SP10 = TransportPoint('GZS', '工造司', P03_R08_F2, 'mm_sp_02', (868, 1573))
 P03_R08_SP11 = TransportPoint('YRDXYT', '永仁的小药摊', P03_R08_F2, 'mm_sp_03', (990, 768))
 P03_R08_SP12 = TransportPoint('GGDYCT', '汵汵的药材摊', P03_R08_F2, 'mm_sp_03', (837, 854))
-P03_R08_SP13 = TransportPoint('XWZLNZHEC', '虚无之蕾·拟造花萼（赤）', P03_R08_F2, 'mm_tp_07', (607, 1157), (629, 1211))
+P03_R08_SP13 = TransportPoint('XWZLNZHEC', '虚无之蕾·拟造花萼（赤）', P03_R08_F2, 'mm_tp_07', (607, 1157), (609, 1154))
 
 # 仙舟罗浮 - 鳞渊境
 P03_R09_SP01 = TransportPoint('GXSC', '宫墟深处', P03_R09, 'mm_tp_03', (891, 425), (883, 435))
@@ -652,7 +652,7 @@ P04_R05_SP07 = TransportPoint('GBXXSZL', '贵宾休息室走廊', P04_R05_F3, 'm
 P04_R05_SP08 = TransportPoint('BNZXNZXY', '冰酿之形·凝滞虚影', P04_R05_F3, 'mm_tp_06', (274, 1007), (303, 1010))
 P04_R05_SP09 = TransportPoint('TXZLNZHEC', '同谐之蕾·拟造花萼（赤）', P04_R05_F3, 'mm_tp_07', (820, 1414), (820, 1422))
 P04_R05_SP10 = TransportPoint('CZZLNZHEJ', '藏珍之蕾·拟造花萼（金）', P04_R05_F3, 'mm_tp_08', (1636, 1865), (1641, 1867))
-P04_R05_SP11 = TransportPoint('MQZJQSSD', '梦潜之径·侵蚀隧洞', P04_R05_F3, 'mm_tp_09', (1874, 1809), (1866, 1817))
+P04_R05_SP11 = TransportPoint('MQZJQSSD', '梦潜之径·侵蚀隧洞', P04_R05_F3, 'mm_tp_09', (1874, 1809), (1871, 1806))
 P04_R05_SP12 = TransportPoint('RMC', '入梦池', P04_R05_F3, 'mm_sp_10', (1857, 920))
 
 P04_R06_SP01 = TransportPoint('MZDT', '梦主大厅', P04_R06_F1, 'mm_tp_03', (611, 681), tp_pos=(666, 722))
@@ -663,7 +663,7 @@ P04_R06_SP04 = TransportPoint('YBC', '迎宾处', P04_R06_F2, 'mm_tp_03', (690, 
 P04_R06_SUB_01_SP01 = TransportPoint('CSSH', '城市沙盒', P04_R06_SUB_01, 'mm_tp_03', (946, 923), tp_pos=(975, 905))
 P04_R06_SUB_01_SP02 = TransportPoint('CNZXNZXY', '嗔怒之形·凝滞虚影', P04_R06_SUB_01, 'mm_tp_06', (659, 1074), tp_pos=(635, 1075))
 
-P04_R07_SP01 = TransportPoint('YCDM', '影城大门', P04_R07_F1, 'mm_tp_03', (1244, 884), tp_pos=(1267, 903))
+P04_R07_SP01 = TransportPoint('YCDM', '影城大门', P04_R07_F1, 'mm_tp_03', (1244, 884), tp_pos=(1262, 910))
 P04_R07_SP02 = TransportPoint('HJDSK', '黄金的时刻', P04_R07_F1, 'mm_sp_02', (1272, 910))
 P04_R07_SP03 = TransportPoint('WEN', '沃尔纳', P04_R07_F1, 'mm_sp_03', (1146, 819))
 P04_R07_SP04 = TransportPoint('CSQLY', '仓鼠球乐园', P04_R07_F2, 'mm_tp_03', (664, 424), tp_pos=(688, 433))
