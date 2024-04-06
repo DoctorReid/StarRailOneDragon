@@ -198,7 +198,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
     if left is None:
         return None
     rect = Rect(left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
-    to_ocr: MatLike = cv2_utils.crop_image(bw, rect)[0]
+    to_ocr: MatLike = cv2_utils.crop_image_only(part, rect)
     # cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
     return ocr.ocr_for_single_line(to_ocr, strict_one_line=False)
 
@@ -218,7 +218,7 @@ def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
     if left is None:
         return None
     rect = Rect(left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
-    to_ocr: MatLike = cv2_utils.crop_image_only(bw, rect)
+    to_ocr: MatLike = cv2_utils.crop_image_only(part, rect)
     # cv2_utils.show_image(to_ocr, win_name='get_active_floor', wait=0)
 
     return ocr.ocr_for_single_line(to_ocr)
