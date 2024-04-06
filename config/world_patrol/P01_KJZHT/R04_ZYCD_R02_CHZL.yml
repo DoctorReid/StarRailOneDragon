@@ -4,32 +4,52 @@ region: '支援舱段'
 floor: 2
 tp: '存护之蕾·拟造花萼（赤）'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [480, 328]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
     data: [454, 343]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
     data: [454, 380]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [485, 388]
-  - op: 'interact'
+  - idx: 7
+    op: 'interact'
     data: '配控装置'
-  - op: 'wait'
+  - idx: 8
+    op: 'wait'
+    data: ['seconds', '3']
+  - idx: 9
+    op: 'wait'
     data: ['in_world', '20']
-  - op: 'update_pos'
+  - idx: 10
+    op: 'update_pos'
     data: [485, 388, 1]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [465, 382]
-  - op: 'move'
+  - idx: 12
+    op: 'move'
     data: [470, 275]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 13
+    op: 'patrol'
+  - idx: 14
+    op: 'move'
     data: [473, 485]
-  - op: 'move'
+  - idx: 15
+    op: 'move'
     data: [388, 488]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 16
+    op: 'patrol'
+  - idx: 17
+    op: 'move'
     data: [392, 457]
-  - op: 'disposable'
+  - idx: 18
+    op: 'disposable'

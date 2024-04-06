@@ -4,41 +4,67 @@ region: '支援舱段'
 floor: 2
 tp: '电力室'
 route:
-  - op: 'move'
-    data: [158, 419]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [163, 362]
-  - op: 'disposable'
-  - op: 'move'
-    data: [186, 398]
-  - op: 'disposable'
-  - op: 'move'
-    data: [166, 386]
-  - op: 'move'
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [158, 419]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [179, 405]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [184, 382]
+  - idx: 8
+    op: 'move'
     data: [229, 382]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
     data: [247, 382]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [265, 381]
-  - op: 'move'
+  - idx: 12
+    op: 'move'
     data: [273, 314]
-  - op: 'move'
+  - idx: 13
+    op: 'move'
     data: [314, 314]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 14
+    op: 'patrol'
+  - idx: 15
+    op: 'move'
     data: [436, 313]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
     data: [440, 234]
-  - op: 'move'
+  - idx: 17
+    op: 'move'
     data: [406, 237]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 18
+    op: 'disposable'
+  - idx: 19
+    op: 'move'
+    data: [490, 226]
+  - idx: 20
+    op: 'move'
     data: [563, 235]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 21
+    op: 'patrol'
+  - idx: 22
+    op: 'move'
     data: [632, 234]
-  - op: 'move'
+  - idx: 23
+    op: 'move'
     data: [632, 217]
-  - op: 'disposable'
+  - idx: 24
+    op: 'disposable'
