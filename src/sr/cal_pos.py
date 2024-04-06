@@ -29,8 +29,8 @@ def get_mini_map_scale_list(running: bool, real_move_time: float = 0):
     scale = 1.25
     scale_list = [scale]
     if running:
-        # 0 ~ 5秒 每1秒减少一个缩放比例
-        max_to_add = 5 - math.floor(real_move_time // 1)
+        # 0 ~ 3秒 每0.6秒减少一个缩放比例
+        max_to_add = 5 - math.floor(real_move_time // 0.6)
         if max_to_add < 0:
             max_to_add = 0
     else:
@@ -109,7 +109,7 @@ def cal_character_pos(im: ImageMatcher,
     if result is None:  # 使用模板匹配 用道路掩码的
         result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
         if not is_valid_result(result, verify):
-            return None
+            result = None
 
     if result is None:  # 看看有没有特殊点 使用特殊点倒推位置
         result = cal_character_pos_by_sp_result(im, lm_info, mm_info, lm_rect=lm_rect)
