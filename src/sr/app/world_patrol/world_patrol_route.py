@@ -1,5 +1,5 @@
 import os
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Any
 
 import yaml
 
@@ -112,12 +112,31 @@ def new_route_id(planet: Planet, region: Region, tp: TransportPoint) -> WorldPat
     return WorldPatrolRouteId(planet, raw_id)
 
 
+class WorldPatrolRouteOperation:
+
+    def __init__(self, op: str, data: Any = None, idx: int = 0):
+        self.op: str = op
+        """指令类型 operation_const"""
+
+        self.data: Any = data
+        """
+        指令数据
+        move, update_pos: (x, y, floor) - 坐标和切换楼层
+        patrol, disposable: 攻击，无data
+        interact: 交互文本
+        wait: (type, timeout) - 等待类型和超时时间
+        """
+
+        self.idx: int = idx
+        """指令下标 仅在画图时有用"""
+
+
 class WorldPatrolRoute:
 
     def __init__(self, route_id: WorldPatrolRouteId):
-        self.author_list: Optional[List[str]] = None
+        self.author_list: List[str] = []
         self.tp: Optional[TransportPoint] = None
-        self.route_list: Optional[List] = None
+        self.route_list: List[WorldPatrolRouteOperation] = []
 
         self.route_id: WorldPatrolRouteId = route_id
         self.is_new: bool = False  # 新否新路线未保存
@@ -147,7 +166,23 @@ class WorldPatrolRoute:
     def init_from_yaml_data(self, yaml_data: dict):
         self.author_list = yaml_data.get('author', [])
         self.tp = self.route_id.tp
-        self.route_list = yaml_data.get('route', [])
+        yml_route_list = yaml_data.get('route', [])
+        self.route_list = []
+        for yml_route_item in yml_route_list:
+            item = WorldPatrolRouteOperation(op=yml_route_item['op'],
+                                             data=yml_route_item.get('data', None))
+            self.route_list.append(item)
+        self.init_idx()
+
+    def init_idx(self):
+        """
+        重新初始化下标
+        :return:
+        """
+        idx = 1
+        for item in self.route_list:
+            item.idx = idx
+            idx += 1
 
     @property
     def display_name(self):
@@ -201,23 +236,23 @@ class WorldPatrolRoute:
         cfg += "tp: '%s'\n" % self.tp.cn
         cfg += "route:\n"
         for route_item in self.route_list:
-            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
+            if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
                                     operation_const.OP_UPDATE_POS]:
-                cfg += "  - op: '%s'\n" % route_item['op']
-                pos = route_item['data']
+                cfg += "  - op: '%s'\n" % route_item.op
+                pos = route_item.data
                 if len(pos) > 2 and pos[2] != last_floor:
                     cfg += "    data: [%d, %d, %d]\n" % (pos[0], pos[1], pos[2])
                     last_floor = pos[2]
                 else:
                     cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
-            elif route_item['op'] in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
-                cfg += "  - op: '%s'\n" % route_item['op']
-            elif route_item['op'] == operation_const.OP_INTERACT:
-                cfg += "  - op: '%s'\n" % route_item['op']
-                cfg += "    data: '%s'\n" % route_item['data']
-            elif route_item['op'] == operation_const.OP_WAIT:
-                cfg += "  - op: '%s'\n" % route_item['op']
-                cfg += "    data: ['%s', '%s']\n" % (route_item['data'][0], route_item['data'][1])
+            elif route_item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
+                cfg += "  - op: '%s'\n" % route_item.op
+            elif route_item.op == operation_const.OP_INTERACT:
+                cfg += "  - op: '%s'\n" % route_item.op
+                cfg += "    data: '%s'\n" % route_item.data
+            elif route_item.op == operation_const.OP_WAIT:
+                cfg += "  - op: '%s'\n" % route_item.op
+                cfg += "    data: ['%s', '%s']\n" % (route_item.data[0], route_item.data[1])
         return cfg
 
     @property
@@ -231,11 +266,11 @@ class WorldPatrolRoute:
         if self.route_list is None or len(self.route_list) == 0:
             return region, pos
         for op in self.route_list:
-            if op['op'] not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
+            if op.op not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
                 continue
-            pos = Point(op['data'][0], op['data'][1])
-            if len(op['data']) > 2:
-                region = map_const.region_with_another_floor(region, op['data'][2])
+            pos = Point(op.data[0], op.data[1])
+            if len(op.data) > 2:
+                region = map_const.region_with_another_floor(region, op.data[2])
 
         return region, pos
 
@@ -250,11 +285,12 @@ class WorldPatrolRoute:
         last_region, last_pos = self.last_pos
 
         if last_region.floor == floor:
-            to_add = {'op': operation_const.OP_MOVE, 'data': (x, y)}
+            to_add = WorldPatrolRouteOperation(op=operation_const.OP_MOVE, data=(x, y))
         else:
-            to_add = {'op': operation_const.OP_MOVE, 'data': (x, y, floor)}
+            to_add = WorldPatrolRouteOperation(op=operation_const.OP_MOVE, data=(x, y, floor))
 
         self.route_list.append(to_add)
+        self.init_idx()
 
     def pop_last(self):
         """
@@ -279,14 +315,18 @@ class WorldPatrolRoute:
         增加攻击指令
         :return:
         """
-        self.route_list.append({'op': operation_const.OP_PATROL})
+        to_add = WorldPatrolRouteOperation(op=operation_const.OP_PATROL)
+        self.route_list.append(to_add)
+        self.init_idx()
 
     def add_disposable(self):
         """
         增加攻击可破坏物指令
         :return:
         """
-        self.route_list.append({'op': operation_const.OP_DISPOSABLE})
+        to_add = WorldPatrolRouteOperation(op=operation_const.OP_DISPOSABLE)
+        self.route_list.append(to_add)
+        self.init_idx()
 
     def add_interact(self, interact_text: str):
         """
@@ -294,14 +334,18 @@ class WorldPatrolRoute:
         :param interact_text: 交互文本
         :return:
         """
-        self.route_list.append({'op': operation_const.OP_INTERACT, 'data': interact_text})
+        to_add = WorldPatrolRouteOperation(op=operation_const.OP_INTERACT, data=interact_text)
+        self.route_list.append(to_add)
+        self.init_idx()
 
     def add_wait(self, wait_type: str, wait_timeout: int):
         """
         增加等待指令
         :return:
         """
-        self.route_list.append({'op': operation_const.OP_WAIT, 'data': [wait_type, wait_timeout]})
+        to_add = WorldPatrolRouteOperation(op=operation_const.OP_WAIT, data=[wait_type, wait_timeout])
+        self.route_list.append(to_add)
+        self.init_idx()
 
     def mark_last_as_update(self):
         """
@@ -309,8 +353,8 @@ class WorldPatrolRoute:
         :return:
         """
         idx = len(self.route_list) - 1
-        if self.route_list[idx]['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
-            self.route_list[idx]['op'] = operation_const.OP_UPDATE_POS
+        if self.route_list[idx].op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+            self.route_list[idx].op = operation_const.OP_UPDATE_POS
 
     def switch_slow_move(self):
         """
@@ -321,13 +365,13 @@ class WorldPatrolRoute:
             return
 
         last_op = self.route_list[len(self.route_list) - 1]
-        if last_op['op'] not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+        if last_op.op not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             return
 
-        if last_op['op'] == operation_const.OP_MOVE:
-            last_op['op'] = operation_const.OP_SLOW_MOVE
+        if last_op.op == operation_const.OP_MOVE:
+            last_op.op = operation_const.OP_SLOW_MOVE
         else:
-            last_op['op'] = operation_const.OP_MOVE
+            last_op.op = operation_const.OP_MOVE
 
     def switch_floor(self, new_floor: int):
         """
@@ -340,12 +384,12 @@ class WorldPatrolRoute:
 
         last_idx = len(self.route_list) - 1
         last_op = self.route_list[last_idx]
-        if last_op['op'] not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+        if last_op.op not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             return
 
-        self.route_list[last_idx]['data'] = (
-            self.route_list[last_idx]['data'][0],
-            self.route_list[last_idx]['data'][1],
+        self.route_list[last_idx].data = (
+            self.route_list[last_idx].data[0],
+            self.route_list[last_idx].data[1],
             new_floor
         )
 

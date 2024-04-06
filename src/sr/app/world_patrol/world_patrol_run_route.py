@@ -108,44 +108,44 @@ class WorldPatrolRunRoute(StateOperation):
         route_item = self.route.route_list[self.op_idx]
         next_route_item = self.route.route_list[self.op_idx + 1] if self.op_idx + 1 < len(self.route.route_list) else None
 
-        if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+        if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
-        elif route_item['op'] == operation_const.OP_PATROL:
+        elif route_item.op == operation_const.OP_PATROL:
             op = EnterAutoFight(self.ctx,
                                 technique_fight=self.ctx.world_patrol_config.technique_fight,
                                 technique_only=self.ctx.world_patrol_config.technique_only,
                                 first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
-        elif route_item['op'] == operation_const.OP_DISPOSABLE:
+        elif route_item.op == operation_const.OP_DISPOSABLE:
             op = EnterAutoFight(self.ctx,
                                 first_state=ScreenNormalWorld.CHARACTER_ICON.value.status,
                                 disposable=True)
-        elif route_item['op'] == operation_const.OP_INTERACT:
-            op = Interact(self.ctx, route_item['data'])
-        elif route_item['op'] == operation_const.OP_WAIT:
-            op = self.wait(route_item['data'][0], float(route_item['data'][1]))
-        elif route_item['op'] == operation_const.OP_UPDATE_POS:
-            next_pos = Point(route_item['data'][0], route_item['data'][1])
+        elif route_item.op == operation_const.OP_INTERACT:
+            op = Interact(self.ctx, route_item.data)
+        elif route_item.op == operation_const.OP_WAIT:
+            op = self.wait(route_item.data[0], float(route_item.data[1]))
+        elif route_item.op == operation_const.OP_UPDATE_POS:
+            next_pos = Point(route_item.data[0], route_item.data[1])
             self._update_pos_after_op(OperationResult(True, data=next_pos))
             return Operation.round_success()
         else:
-            return Operation.round_fail(status='错误的锄大地指令 %s' % route_item['op'])
+            return Operation.round_fail(status='错误的锄大地指令 %s' % route_item.op)
 
         op_result = op.execute()
 
         # 以下代码仅用作记录坐标和小地图测试用
         if self.ctx.record_coordinate and op_result.success and (
                 (  # 当前是移动 下一个不是战斗 避免被怪攻击卡死
-                    route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE] and
+                    route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE] and
                     next_route_item is not None and
-                    next_route_item['op'] not in [operation_const.OP_PATROL]
+                    next_route_item.op not in [operation_const.OP_PATROL]
                 )
                 or
                 (  # 当前是战斗
-                    route_item['op'] == operation_const.OP_PATROL
+                    route_item.op == operation_const.OP_PATROL
                 )
         ):
             record_times = 5
-            if route_item['op'] == operation_const.OP_PATROL:  # 战斗后小地图已经缩放完了 只记录一次就可以了
+            if route_item.op == operation_const.OP_PATROL:  # 战斗后小地图已经缩放完了 只记录一次就可以了
                 record_times = 1
             op2 = RecordCoordinate(self.ctx, self.current_region, self.current_pos, record_times=record_times)
             op2.execute()
@@ -162,19 +162,19 @@ class WorldPatrolRunRoute(StateOperation):
         current_pos = self.current_pos
         current_lm_info = self.ctx.ih.get_large_map(self.current_region)
 
-        next_pos = Point(route_item['data'][0], route_item['data'][1])
+        next_pos = Point(route_item.data[0], route_item.data[1])
         next_lm_info = None
-        if len(route_item['data']) > 2:  # 需要切换层数
-            next_region = map_const.region_with_another_floor(current_lm_info.region, route_item['data'][2])
+        if len(route_item.data) > 2:  # 需要切换层数
+            next_region = map_const.region_with_another_floor(current_lm_info.region, route_item.data[2])
             next_lm_info = self.ctx.ih.get_large_map(next_region)
 
         stop_afterwards = not (
                 next_route_item is not None and
-                next_route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
-                                          operation_const.OP_PATROL,  # 如果下一个是攻击 则靠攻击停止移动 这样还可以取消疾跑后摇
-                                          ]
+                next_route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
+                                       operation_const.OP_PATROL,  # 如果下一个是攻击 则靠攻击停止移动 这样还可以取消疾跑后摇
+                                       ]
         )
-        no_run = route_item['op'] == operation_const.OP_SLOW_MOVE
+        no_run = route_item.op == operation_const.OP_SLOW_MOVE
 
         if self.ctx.record_coordinate:  # 需要记录坐标时 强制禁疾跑 以及到达后停止跑动
             stop_afterwards = True
@@ -199,8 +199,8 @@ class WorldPatrolRunRoute(StateOperation):
         self.current_pos = op_result.data
 
         route_item = self.route.route_list[self.op_idx]
-        if len(route_item['data']) > 2:
-            self.current_region = map_const.region_with_another_floor(self.current_region, route_item['data'][2])
+        if len(route_item.data) > 2:
+            self.current_region = map_const.region_with_another_floor(self.current_region, route_item.data[2])
 
     def wait(self, wait_type: str, seconds: float) -> Operation:
         """

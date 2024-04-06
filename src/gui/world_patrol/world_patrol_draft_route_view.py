@@ -56,7 +56,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.load_route_id_list()
         self.cancel_edit_existed_btn = components.RectOutlinedButton(text='取消编辑', disabled=True, on_click=self.on_cancel_edit_existed)
         self.test_existed_btn = components.RectOutlinedButton(text='测试', disabled=True, on_click=self.test_existed)
-        self.back_btn = components.RectOutlinedButton(text='后退', disabled=True, on_click=self.cancel_last)
+        self.back_btn = components.RectOutlinedButton(text='Q 后退', disabled=True, on_click=self.cancel_last)
         self.reset_btn = components.RectOutlinedButton(text='重置', disabled=True, on_click=self.cancel_all)
         self.save_btn = components.RectOutlinedButton(text='保存', disabled=True, on_click=self.save_route)
         self.delete_btn = components.RectOutlinedButton(text='删除', disabled=True, on_click=self.delete_route)
@@ -91,6 +91,9 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.screenshot_btn = components.RectOutlinedButton(text=gt('F8 截图', 'ui'), on_click=self._do_screenshot, disabled=True)
         self.mini_map_image: Optional[MatLike] = None  # 当前显示的小地图图片
         self.cal_pos_btn = components.RectOutlinedButton(text=gt('计算坐标', 'ui'), on_click=self._on_cal_pos_clicked, disabled=True)
+        self.screen_cal_pos_btn = components.RectOutlinedButton(text=gt('R 截图计算坐标', 'ui'), on_click=self._on_screen_cal_pos_clicked, disabled=True)
+        self.screen_patrol_btn = components.RectOutlinedButton(text=gt('F 截图攻击怪物', 'ui'), on_click=self._on_screen_patrol_clicked, disabled=True)
+        self.screen_disposable_btn = components.RectOutlinedButton(text=gt('5 截图可破坏物', 'ui'), on_click=self._on_screen_disposable_clicked, disabled=True)
 
         self.patrol_btn = components.RectOutlinedButton(text='攻击怪物', disabled=True, on_click=self.add_patrol)
         self.disposable_btn = components.RectOutlinedButton(text='可破坏物', disabled=True, on_click=self.add_disposable)
@@ -113,7 +116,8 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
 
         screen_row = ft.Row(
             spacing=10,
-            controls=[self.screenshot_btn, self.cal_pos_btn]
+            controls=[self.screenshot_btn, self.cal_pos_btn,
+                      self.screen_cal_pos_btn, self.screen_patrol_btn, self.screen_disposable_btn]
         )
 
         ctrl_row = ft.Row(
@@ -176,6 +180,14 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         k = event.name
         if k == 'f8' and self.chosen_route is not None:
             self._do_screenshot()
+        if k == 'r' and self.chosen_route is not None:
+            self._on_screen_cal_pos_clicked()
+        if k == 'q' and self.chosen_route is not None:
+            self.cancel_last()
+        if k == 'f' and self.chosen_route is not None:
+            self._on_screen_patrol_clicked()
+        if k == '5' and self.chosen_route is not None:
+            self._on_screen_disposable_clicked()
 
     def _do_screenshot(self, e=None):
         """
@@ -183,9 +195,13 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         :param e:
         :return:
         """
-        self.sr_ctx.init_image_matcher()
-        self.sr_ctx.init_controller()
-        self.sr_ctx.controller.init()
+        if self.sr_ctx.im is None:
+            self.sr_ctx.init_image_matcher()
+
+        if self.sr_ctx.controller is None:
+            self.sr_ctx.init_controller()
+            self.sr_ctx.controller.init()
+
         screen = self.sr_ctx.controller.screenshot()
         self.mini_map_image = mini_map.cut_mini_map(screen, self.sr_ctx.game_config.mini_map_pos)
         self._show_screenshot_mm()
@@ -203,33 +219,80 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
             self.screenshot_mm_display.visible = True
         self.screenshot_mm_display.update()
 
-    def _on_cal_pos_clicked(self, e=None):
+    def _on_cal_pos_clicked(self, e=None) -> bool:
         """
         根据当前截图计算坐标 需要先选择好了路线
         :param e:
-        :return:
+        :return: 是否计算成功
         """
         if self.mini_map_image is None or self.chosen_route is None:
             log.info('需要先选定开始点和截图')
-            return
+            return False
         self.sr_ctx.init_image_matcher()
         mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
 
         region, last_pos = self.chosen_route.last_pos
         lm_info = self.sr_ctx.ih.get_large_map(region)
+        max_distance = 40
 
-        possible_pos = (last_pos.x, last_pos.y, 40)
-        lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, self.mini_map_image.shape[:2], possible_pos)
-        pos: MatchResult = cal_pos.cal_character_pos(self.sr_ctx.im, lm_info, mm_info, lm_rect=lm_rect,
-                                                     retry_without_rect=True, running=False)
+        while True:
+            possible_pos = (last_pos.x, last_pos.y, max_distance)
+            lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, self.mini_map_image.shape[:2], possible_pos)
+            pos: MatchResult = cal_pos.cal_character_pos(self.sr_ctx.im, lm_info, mm_info,
+                                                         lm_rect=lm_rect,
+                                                         retry_without_rect=False, running=False)
+            if pos is not None:
+                break
+            else:
+                max_distance += 20
+                if max_distance > 100:
+                    break
 
         if pos is None:
             log.info('计算坐标失败')
-            return
+            return False
 
         target_pos: Point = pos.center
         self._add_move_op(target_pos.x, target_pos.y, int(self.switch_floor_dropdown.value))
         self.draw_route_and_display()
+        return True
+
+    def _on_screen_cal_pos_clicked(self, e=None):
+        """
+        截图并计算坐标
+        :param e:
+        :return:
+        """
+        if self.screen_cal_pos_btn.disabled:
+            return
+        self._do_screenshot()
+        self._on_cal_pos_clicked()
+
+    def _on_screen_patrol_clicked(self, e=None):
+        """
+        截图并计算坐标 标记为攻击怪物
+        :param e:
+        :return:
+        """
+        if self.screen_patrol_btn.disabled:
+            return
+        self._do_screenshot()
+        pos = self._on_cal_pos_clicked()
+        if pos:
+            self.add_patrol()
+
+    def _on_screen_disposable_clicked(self, e=None):
+        """
+        截图并计算坐标 标记为可破坏物
+        :param e:
+        :return:
+        """
+        if self.screen_disposable_btn.disabled:
+            return
+        self._do_screenshot()
+        pos = self._on_cal_pos_clicked()
+        if pos:
+            self.add_disposable()
 
     def on_planet_changed(self, e):
         p: Planet = get_planet_by_cn(self.planet_dropdown.value)
@@ -385,12 +448,14 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.map_container.height = self.large_map_width
         self.map_container.update()
 
-    def cancel_last(self, e):
+    def cancel_last(self, e=None):
         """
         取消最后一个指令
         :param e:
         :return:
         """
+        if self.back_btn.disabled:
+            return
         if self.chosen_route is None:
             log.error('未选择路线')
             return
@@ -421,14 +486,14 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
             self.load_route_id_list()
             self.update_all_component_status()
 
-    def add_patrol(self, e):
+    def add_patrol(self, e=None):
         if self.chosen_route is None:
             log.error('未选择路线')
             return
         self.chosen_route.add_patrol()
         self.draw_route_and_display()
 
-    def add_disposable(self, e):
+    def add_disposable(self, e=None):
         """
         增加攻击可破坏物
         :param e:
@@ -589,8 +654,6 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.tp_dropdown.disabled = self.floor_dropdown.disabled or self.floor_dropdown.value is None
 
         self.switch_floor_dropdown.disabled = self.chosen_sp is None
-        self.screenshot_btn.disabled = self.chosen_route is None
-        self.cal_pos_btn.disabled = self.chosen_route is None or self.mini_map_image is None
         self.patrol_btn.disabled = self.chosen_sp is None
         self.disposable_btn.disabled = self.chosen_sp is None
         self.interact_text.disabled = self.chosen_sp is None
@@ -600,6 +663,12 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.add_wait_btn.disabled = self.chosen_sp is None
         self.no_run_btn.disabled = self.chosen_sp is None
         self.update_pos_btn.disabled = self.chosen_sp is None
+
+        self.screenshot_btn.disabled = self.chosen_route is None
+        self.cal_pos_btn.disabled = self.chosen_route is None or self.mini_map_image is None
+        self.screen_cal_pos_btn.disabled = self.chosen_route is None
+        self.screen_patrol_btn.disabled = self.chosen_route is None
+        self.screen_disposable_btn.disabled = self.chosen_route is None
 
         self.flet_page.update()
 
@@ -660,28 +729,30 @@ def draw_route_in_image(ctx: Context, region: Region, route: WorldPatrolRoute):
         cv2.circle(display_image, route.tp.lm_pos.tuple(), 15, color=(100, 255, 100), thickness=2)
         cv2.circle(display_image, route.tp.tp_pos.tuple(), 5, color=(0, 255, 0), thickness=2)
     for route_item in route.route_list:
-        if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
-            pos = route_item['data']
+        if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+            pos = route_item.data
             cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
             if last_point is not None:
                 cv2.line(display_image, last_point[:2], pos[:2],
-                         color=(255, 0, 0) if route_item['op'] == operation_const.OP_MOVE else (255, 255, 0),
+                         color=(255, 0, 0) if route_item.op == operation_const.OP_MOVE else (255, 255, 0),
                          thickness=2)
+            cv2.putText(display_image, str(route_item.idx), (pos[0] - 5, pos[1] - 13),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA)
             last_point = pos
-        elif route_item['op'] == operation_const.OP_PATROL:
+        elif route_item.op == operation_const.OP_PATROL:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 10, color=(0, 255, 255), thickness=2)
-        elif route_item['op'] == operation_const.OP_DISPOSABLE:
+        elif route_item.op == operation_const.OP_DISPOSABLE:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 10, color=(67, 34, 49), thickness=2)
-        elif route_item['op'] == operation_const.OP_INTERACT:
+        elif route_item.op == operation_const.OP_INTERACT:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
-        elif route_item['op'] == operation_const.OP_WAIT:
+        elif route_item.op == operation_const.OP_WAIT:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 14, color=(255, 255, 255), thickness=2)
-        elif route_item['op'] == operation_const.OP_UPDATE_POS:
-            pos = route_item['data']
+        elif route_item.op == operation_const.OP_UPDATE_POS:
+            pos = route_item.data
             cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
             last_point = pos
 
