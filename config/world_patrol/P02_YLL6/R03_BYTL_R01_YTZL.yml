@@ -1,0 +1,116 @@
+author: ['DoctorReid']
+planet: '雅利洛-VI'
+region: '边缘通路'
+floor: 0
+tp: '以太之蕾·拟造花萼（金）'
+route:
+  - idx: 1
+    op: 'disposable'
+  - idx: 2
+    op: 'move'
+    data: [646, 204]
+  - idx: 3
+    op: 'move'
+    data: [638, 183]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [655, 163]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [623, 216]
+  - idx: 8
+    op: 'move'
+    data: [622, 261]
+  - idx: 9
+    op: 'move'
+    data: [666, 306]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [700, 351]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [697, 401]
+  - idx: 14
+    op: 'patrol'
+  - idx: 15
+    op: 'move'
+    data: [705, 489]
+  - idx: 16
+    op: 'disposable'
+  - idx: 17
+    op: 'move'
+    data: [685, 518]
+  - idx: 18
+    op: 'move'
+    data: [661, 521]
+  - idx: 19
+    op: 'move'
+    data: [660, 552]
+  - idx: 20
+    op: 'move'
+    data: [666, 635]
+  - idx: 21
+    op: 'patrol'
+  - idx: 22
+    op: 'move'
+    data: [776, 640]
+  - idx: 23
+    op: 'disposable'
+  - idx: 24
+    op: 'move'
+    data: [744, 638]
+  - idx: 25
+    op: 'move'
+    data: [730, 713]
+  - idx: 26
+    op: 'disposable'
+  - idx: 27
+    op: 'move'
+    data: [740, 732]
+  - idx: 28
+    op: 'patrol'
+  - idx: 29
+    op: 'move'
+    data: [741, 777]
+  - idx: 30
+    op: 'patrol'
+  - idx: 31
+    op: 'move'
+    data: [730, 836]
+  - idx: 32
+    op: 'move'
+    data: [670, 846]
+  - idx: 33
+    op: 'disposable'
+  - idx: 34
+    op: 'move'
+    data: [629, 847]
+  - idx: 35
+    op: 'move'
+    data: [584, 857]
+  - idx: 36
+    op: 'disposable'
+  - idx: 37
+    op: 'move'
+    data: [629, 847]
+  - idx: 38
+    op: 'move'
+    data: [670, 846]
+  - idx: 39
+    op: 'move'
+    data: [691, 896]
+  - idx: 40
+    op: 'disposable'
+  - idx: 41
+    op: 'move'
+    data: [685, 970]
+  - idx: 42
+    op: 'patrol'
