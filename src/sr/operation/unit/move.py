@@ -170,7 +170,6 @@ class MoveDirectly(Operation):
         self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
         self.stop_move_time: Optional[float] = None  # 停止移动的时间
-        self.first_cal_after_battle: bool = False  # 是否战斗后第一次识别坐标
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else self.ctx.game_config.run_mode
         self.no_battle: bool = no_battle  # 本次移动是否没有战斗
@@ -206,7 +205,7 @@ class MoveDirectly(Operation):
 
         screen = self.screenshot()
 
-        if self.ctx.one_dragon_config.is_debug and now_time - self.last_debug_image_time >= 5:
+        if self.ctx.one_dragon_config.is_debug and now_time - self.last_debug_image_time >= 1:
             debug_utils.get_executor().submit(self.save_screenshot)
             self.last_debug_image_time = now_time
 
@@ -299,7 +298,7 @@ class MoveDirectly(Operation):
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = time.time()
             self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-            self.first_cal_after_battle = True
+            self.ctx.pos_info.first_cal_pos_after_fight = True
             # self.move_after_battle()
             return Operation.round_wait()
         return None
@@ -335,7 +334,7 @@ class MoveDirectly(Operation):
         self.last_auto_fight_fail = (op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-        self.first_cal_after_battle = True
+        self.ctx.pos_info.first_cal_pos_after_fight = True
         # self.move_after_battle()
 
         return Operation.round_wait()
@@ -357,7 +356,7 @@ class MoveDirectly(Operation):
                 move_time = 1
         else:
             move_time = 1
-        if self.first_cal_after_battle:
+        if self.ctx.pos_info.first_cal_pos_after_fight:
             move_time += 1  # 扩大范围 兼容攻击时产生的位移
 
         log.debug('上次记录时间 %.2f 停止移动时间 %.2f 当前时间 %.2f',
@@ -379,7 +378,7 @@ class MoveDirectly(Operation):
 
         verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
                                line_p1=self.start_pos, line_p2=self.target,
-                               max_line_distance=40 if self.first_cal_after_battle else 20)
+                               max_line_distance=40 if self.ctx.pos_info.first_cal_pos_after_fight else 20)
         try:
             real_move_time = self.ctx.controller.get_move_time()
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
@@ -431,7 +430,7 @@ class MoveDirectly(Operation):
             return Operation.round_wait()
         else:
             self.no_pos_times = 0
-            self.first_cal_after_battle = False
+            self.ctx.pos_info.first_cal_pos_after_fight = False
 
     def check_arrive(self, next_pos: Point) -> Optional[OperationOneRoundResult]:
         """

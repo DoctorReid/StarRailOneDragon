@@ -69,6 +69,10 @@ class MoveDirectlyInSimUni(MoveDirectly):
                 move_time = 1
         else:
             move_time = 1
+
+        if self.ctx.pos_info.first_cal_pos_after_fight:
+            move_time += 1  # 扩大范围 兼容攻击时产生的位移
+
         log.debug('上次记录时间 %.2f 停止移动时间 %.2f 当前时间 %.2f',
                   self.last_rec_time,
                   0 if self.stop_move_time is None else self.stop_move_time,
@@ -86,7 +90,8 @@ class MoveDirectlyInSimUni(MoveDirectly):
             return self.start_pos, mm_info
 
         verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
-                               line_p1=self.start_pos, line_p2=self.target)
+                               line_p1=self.start_pos, line_p2=self.target,
+                               max_line_distance=40 if self.ctx.pos_info.first_cal_pos_after_fight else 20)
         try:
             next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, self.lm_info, mm_info,
                                                lm_rect=lm_rect,
@@ -132,7 +137,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
                 return Operation.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = fight_end_time
             self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-            self.first_cal_after_battle = True
+            self.ctx.pos_info.first_cal_pos_after_fight = True
             # self.move_after_battle()
             return Operation.round_wait()
         return None
@@ -165,7 +170,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
         self.last_auto_fight_fail = (op_result.status == SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-        self.first_cal_after_battle = True
+        self.ctx.pos_info.first_cal_pos_after_fight = True
         # self.move_after_battle()
 
         return Operation.round_wait()

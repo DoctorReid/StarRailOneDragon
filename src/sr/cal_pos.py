@@ -81,6 +81,30 @@ class VerifyPosInfo:
         return yml
 
 
+def similar_result(result_list: List[MatchResult], least_result_cnt: int = 2) -> Optional[MatchResult]:
+    """
+    使用不同的匹配方法时 只有较小几率会出现多个相同的错误结果
+    判断结果列表中是否有相似的结果 有的话就采用
+    :param result_list: 不同匹配方法得到的结果
+    :param least_result_cnt: 只是需要多少个结果相似 自己也算一个
+    :return:
+    """
+    for r1 in result_list:
+        if r1 is None:
+            continue
+        similar_cnt: int = 0
+        for r2 in result_list:
+            if r2 is None:
+                continue
+            if cal_utils.distance_between(r1.center, r2.center) < 5:
+                similar_cnt += 1
+
+        if similar_cnt >= least_result_cnt:
+            return r1
+
+    return None
+
+
 def cal_character_pos(im: ImageMatcher,
                       lm_info: LargeMapInfo, mm_info: MiniMapInfo,
                       lm_rect: Rect = None, show: bool = False,
@@ -105,27 +129,36 @@ def cal_character_pos(im: ImageMatcher,
     result: Optional[MatchResult] = None
 
     scale_list = get_mini_map_scale_list(running, real_move_time)
+    r1 = None
+    r2 = None
+    r3 = None
+    r4 = None
 
     if result is None:  # 使用模板匹配 用道路掩码的
-        result = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result(result, verify):
-            result = None
+        r1 = cal_character_pos_by_road_mask(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
+        if is_valid_result(r1, verify):
+            result = r1
 
     if result is None:  # 看看有没有特殊点 使用特殊点倒推位置
-        result = cal_character_pos_by_sp_result(im, lm_info, mm_info, lm_rect=lm_rect)
-        if result is not None and (result.template_scale > 1.3 or result.template_scale < 0.9):  # 不应该有这样的缩放 放弃这个结果
+        r2 = cal_character_pos_by_sp_result(im, lm_info, mm_info, lm_rect=lm_rect)
+        if r2 is not None and (r2.template_scale > 1.3 or r2.template_scale < 0.9):  # 不应该有这样的缩放 放弃这个结果
             log.debug('特殊点定位使用的缩放比例不符合预期')
-            result = None
+            pass
+        else:
+            result = r2
 
     if result is None:  # 使用模板匹配 用灰度图的
-        result = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result(result, verify):
-            result = None
+        r3 = cal_character_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
+        if is_valid_result(r3, verify):
+            result = r3
 
     if result is None:  # 使用模板匹配 用原图的
-        result = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result(result, verify):
-            result = None
+        r4 = cal_character_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
+        if is_valid_result(r4, verify):
+            result = r4
+
+    if result is None:
+        result = similar_result([r1, r2, r3, r4])
 
     if result is None:
         if lm_rect is not None and retry_without_rect:  # 整张大地图试试
@@ -463,19 +496,25 @@ def sim_uni_cal_pos(
     result: Optional[MatchResult] = None
 
     scale_list = get_mini_map_scale_list(running, real_move_time)
+    r1 = None
+    r2 = None
+    r3 = None
 
     # 模拟宇宙中 不需要考虑特殊点
     # 模拟宇宙中 由于地图都是裁剪的 小地图缺块 不能直接使用道路掩码匹配（误报率非常高）
 
     if result is None:  # 使用模板匹配 灰度图
-        result = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result(result, verify):
-            result = None
+        r1 = sim_uni_cal_pos_by_gray(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
+        if is_valid_result(r1, verify):
+            result = r1
 
     if result is None:  # 使用模板匹配 原图
-        result = sim_uni_cal_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
-        if not is_valid_result(result, verify):
-            result = None
+        r2 = sim_uni_cal_pos_by_original(im, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
+        if is_valid_result(r2, verify):
+            result = r2
+
+    if result is None:  # 如果两个结果相似 直接采纳
+        result = similar_result([r1, r2])
 
     if result is None:
         return None

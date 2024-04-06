@@ -53,6 +53,7 @@ class EnterAutoFight(Operation):
         self.attack_times: int = 0  # 攻击次数
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
         self.first_tech_after_battle: bool = False  # 是否战斗画面后第一次使用秘技
+        self.ctx.pos_info.first_cal_pos_after_fight = True
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()

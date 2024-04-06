@@ -63,6 +63,7 @@ class SimUniEnterFight(Operation):
         self.last_not_in_world_time: float = now  # 上次在战斗的时间
         self.attack_times: int = 0  # 攻击次数
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
+        self.ctx.pos_info.first_cal_pos_after_fight = True
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()

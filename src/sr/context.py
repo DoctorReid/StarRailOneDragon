@@ -57,6 +57,8 @@ class PosInfo:
         self.planet: Planet = planet
         self.region: Region = region
 
+        self.first_cal_pos_after_fight: bool = False
+
 
 class TeamInfo:
 
@@ -534,6 +536,7 @@ class Context:
         """
         self.pos_info.planet = None
         self.pos_info.region = None
+        self.pos_info.first_cal_pos_after_fight = False
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:
