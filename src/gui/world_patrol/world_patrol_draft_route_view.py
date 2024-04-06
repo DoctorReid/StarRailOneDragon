@@ -754,6 +754,8 @@ def draw_route_in_image(ctx: Context, region: Region, route: WorldPatrolRoute):
         elif route_item.op == operation_const.OP_UPDATE_POS:
             pos = route_item.data
             cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
+            cv2.putText(display_image, str(route_item.idx), (pos[0] - 5, pos[1] - 13),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA)
             last_point = pos
 
     return display_image
