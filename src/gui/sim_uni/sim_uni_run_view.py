@@ -95,6 +95,7 @@ class SimUniRunView(SrAppView):
         self.sr_ctx.sim_uni_config.daily_times = int(text)
 
     def run_app(self):
+        self.sr_ctx.sim_uni_run_record.check_and_update_status()
         app = SimUniApp(self.sr_ctx)
         app.execute()
 

@@ -205,6 +205,7 @@ class TrailblazePower(Application):
         if run_times == 0:
             return Operation.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
 
+        self.ctx.sim_uni_run_record.check_and_update_status()
         op = SimUniApp(self.ctx,
                        specified_uni_num=point.tp.idx,
                        max_reward_to_get=run_times,
