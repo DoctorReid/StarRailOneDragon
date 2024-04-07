@@ -40,7 +40,7 @@ class GetTeamMemberInWorld(Operation):
         self.character_num: int = character_num
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-        screen = self.screenshot()  # _1702052217230
+        screen = self.screenshot()
         character_id = self._get_character_id(screen)
         if character_id is not None:
             return Operation.round_success(character_id)
@@ -172,12 +172,14 @@ class SwitchMember(StateOperation):
     STATUS_CONFIRM: ClassVar[str] = '确认'
 
     def __init__(self, ctx: Context, num: int,
-                 skip_first_screen_check: bool = False):
+                 skip_first_screen_check: bool = False,
+                 skip_resurrection_check: bool = False):
         """
         切换角色 需要在大世界页面
         :param ctx:
         :param num: 第几个队友 从1开始
         :param skip_first_screen_check: 是否跳过第一次画面状态检查
+        :param skip_resurrection_check: 跳过复活检测 逐光捡金中可跳过
         """
         edges = []
 
@@ -197,6 +199,7 @@ class SwitchMember(StateOperation):
         self.num: int = num
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
+        self.skip_resurrection_check: bool = skip_resurrection_check  # 跳过复活检测
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -220,6 +223,9 @@ class SwitchMember(StateOperation):
         复活确认
         :return:
         """
+        if self.skip_resurrection_check:
+            return Operation.round_success()
+
         screen = self.screenshot()
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 无需复活
             return Operation.round_success()

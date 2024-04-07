@@ -52,8 +52,10 @@ class StartFightForElite(StateOperation):
 
     STATUS_DONE: ClassVar[str] = '使用完毕'
 
-    def __init__(self, ctx: Context, character_list: Optional[List[Character]] = None,
-                 skip_point_check: bool = False):
+    def __init__(self, ctx: Context,
+                 character_list: Optional[List[Character]] = None,
+                 skip_point_check: bool = False,
+                 skip_resurrection_check: bool = False):
         """
         对不会主动攻击的精英怪开战 上BUFF之后进入战斗
         优先使用上BUFF不触发战斗的秘技 最后再使用开战技能
@@ -62,6 +64,8 @@ class StartFightForElite(StateOperation):
         - 模拟宇宙 精英怪
         :param ctx:
         :param character_list: 当前配队 无传入时自动识别 但不准
+        :param skip_point_check: 跳过使用秘技时检测秘技点 逐光捡金可用
+        :param skip_resurrection_check: 跳过切换角色时检测复活 逐光捡金可用
         """
         edges: List[StateOperationEdge] = []
 
@@ -91,6 +95,7 @@ class StartFightForElite(StateOperation):
         self.skip_point_check: bool = skip_point_check  # 跳过检测秘技点
         self.technique_point: int = 5  # 秘技点
         self.technique_idx: int = 0  # 当前到哪一个角色使用
+        self.skip_resurrection_check: bool = skip_resurrection_check  # 跳过切换角色时检测复活
 
     def _init_before_execute(self):
         """
@@ -196,7 +201,8 @@ class StartFightForElite(StateOperation):
         if self.technique_idx >= len(self.technique_order):
             return Operation.round_success(StartFightForElite.STATUS_DONE)
         idx = self.technique_order[self.technique_idx]  # 从0开始
-        op = SwitchMember(self.ctx, idx + 1, skip_first_screen_check=True)
+        op = SwitchMember(self.ctx, idx + 1, skip_first_screen_check=True,
+                          skip_resurrection_check=self.skip_resurrection_check)
         return Operation.round_by_op(op.execute())
 
     def _use_technique(self) -> OperationOneRoundResult:

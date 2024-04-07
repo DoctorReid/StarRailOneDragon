@@ -44,7 +44,10 @@ class TlNodeFight(StateOperation):
         edges.append(StateOperationEdge(move, move_towards, success=False, status=MoveToEnemy.STATUS_ENEMY_NOT_FOUND))
         edges.append(StateOperationEdge(move_towards, move))
 
-        enter_fight = StateOperationNode('进入战斗', op=StartFightForElite(ctx, character_list=team, skip_point_check=True))
+        enter_fight = StateOperationNode('进入战斗',
+                                         op=StartFightForElite(ctx, character_list=team,
+                                                               skip_point_check=True,
+                                                               skip_resurrection_check=True))
         edges.append(StateOperationEdge(move, enter_fight))
 
         check_screen = StateOperationNode('检测画面', self._check_screen)
