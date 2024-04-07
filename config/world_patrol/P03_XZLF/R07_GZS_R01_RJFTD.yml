@@ -126,8 +126,3 @@ route:
     data: [377, 486]
   - idx: 45
     op: 'disposable'
-  - idx: 46
-    op: 'move'
-    data: [333, 511]
-  - idx: 47
-    op: 'patrol'
