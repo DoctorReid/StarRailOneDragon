@@ -51,8 +51,6 @@ class WorldPatrolRouteId:
                     self.tp = sp
                     break
 
-        assert self.tp is not None
-
         self.raw_id = raw_id
 
     @property
@@ -73,6 +71,15 @@ class WorldPatrolRouteId:
 
     def equals(self, another_route_id):
         return another_route_id is not None and self.planet == another_route_id.planet and self.raw_id == another_route_id.raw_id
+
+    @property
+    def yml_file_path(self) -> str:
+        """
+        配置文件的目录
+        :return:
+        """
+        dir_path = get_route_dir(self.planet)
+        return os.path.join(dir_path, '%s.yml' % self.raw_id)
 
 
 def get_route_dir(planet: Planet) -> str:
@@ -424,6 +431,9 @@ def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str
             if idx == -1:
                 continue
             route_id: WorldPatrolRouteId = WorldPatrolRouteId(planet, filename[0:idx])
+            if route_id.tp is None:
+                log.error('存在无效路线 %s', route_id.yml_file_path)
+                continue
             if route_id.unique_id in finished_unique_id:
                 continue
 
