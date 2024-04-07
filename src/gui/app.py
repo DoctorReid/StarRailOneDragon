@@ -14,7 +14,7 @@ from gui.settings import gui_config, settings_game_config_view, settings_trailbl
     settings_world_patrol_view, settings_mys_view, settings_treasures_lightward_view, settings_sim_uni_view, \
     settings_basic_view
 from gui.settings.gui_config import ThemeColors, GuiConfig
-from gui.sim_uni import sim_uni_draft_route_view, sim_uni_challenge_config_view
+from gui.sim_uni import sim_uni_draft_route_view, sim_uni_challenge_config_view, sim_uni_run_view
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.context import get_context, Context
@@ -109,6 +109,11 @@ class StarRailOneDragon:
             min_width=100,
             min_extended_width=400,
             destinations=[
+                ft.NavigationRailDestination(
+                    icon=ft.icons.PLAY_CIRCLE_OUTLINED,
+                    selected_icon=ft.icons.PLAY_CIRCLE_ROUNDED,
+                    label=gt('运行', model='ui')
+                ),
                 ft.NavigationRailDestination(
                     icon=ft.icons.DRAW_OUTLINED,
                     selected_icon=ft.icons.DRAW,
@@ -251,21 +256,23 @@ class StarRailOneDragon:
     def _get_view_component(self) -> Optional[SrBasicView]:
         if self.app_rail.selected_index == 0:
             return one_stop_view.get(self.flet_page, self.sr_ctx)
-        elif self.app_rail.selected_index == 1:
+        elif self.app_rail.selected_index == 1:  # 锄大地
             if self.world_patrol_rail.selected_index == 0:
                 return world_patrol_run_view.get(self.flet_page, self.sr_ctx)
             if self.world_patrol_rail.selected_index == 1:
                 return world_patrol_draft_route_view.get(self.flet_page, self.sr_ctx)
             if self.world_patrol_rail.selected_index == 2:
                 return world_patrol_whitelist_view.get(self.flet_page, self.sr_ctx)
-        elif self.app_rail.selected_index == 2:
+        elif self.app_rail.selected_index == 2:  # 模拟宇宙
             if self.sim_uni_rail.selected_index == 0:
-                return sim_uni_draft_route_view.get(self.flet_page, self.sr_ctx)
+                return sim_uni_run_view.get(self.flet_page, self.sr_ctx)
             elif self.sim_uni_rail.selected_index == 1:
+                return sim_uni_draft_route_view.get(self.flet_page, self.sr_ctx)
+            elif self.sim_uni_rail.selected_index == 2:
                 return sim_uni_challenge_config_view.get(self.flet_page, self.sr_ctx)
-        elif self.app_rail.selected_index == 3:
+        elif self.app_rail.selected_index == 3:  # 校准
             return calibrator_view.get(self.flet_page, self.sr_ctx)
-        elif self.app_rail.selected_index == 4:
+        elif self.app_rail.selected_index == 4:  # 设置
             if self.settings_rail.selected_index == 0:
                 return settings_basic_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 1:
@@ -282,7 +289,7 @@ class StarRailOneDragon:
                 return settings_sim_uni_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 7:
                 return settings_mys_view.get(self.flet_page, self.sr_ctx)
-        elif self.app_rail.selected_index == 5:
+        elif self.app_rail.selected_index == 5:  # 关于
             return about_view.get(self.flet_page, self.sr_ctx)
 
         return None

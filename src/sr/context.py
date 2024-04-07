@@ -360,7 +360,8 @@ class Context:
             t.start()
 
     def stop_running(self):
-        if self.running == 0:
+        if self.running == 0:  # 初始化失败了 还没开始运行就要结束 依然触发一次停止的回调 方便使用方知道
+            self._after_stop()
             return
         log.info('停止运行')  # 这里不能先判断 self.running == 0 就退出 因为有可能启动初始化就失败 这时候需要触发 after_stop 回调各方
         if self.running == 1:  # 先触发暂停 让执行中的指令停止

@@ -56,7 +56,9 @@ class Application(StateOperation):
 
     def execute(self) -> OperationResult:
         if not self._init_context():
-            return Operation.op_fail('初始化失败')
+            op_result = Operation.op_fail('初始化失败')
+            self._after_operation_done(op_result)
+            return op_result
         self.ctx.init_before_app_start()
         result: OperationResult = super().execute()
         return result

@@ -74,11 +74,11 @@ class WorldPatrolRunView(SrAppView):
         self.sr_ctx.world_patrol_config.whitelist_id = self.whitelist_dropdown.value
 
 
-wprv: Optional[WorldPatrolRunView] = None
+_world_patrol_run_view: Optional[WorldPatrolRunView] = None
 
 
 def get(page: ft.Page, ctx: Context) -> WorldPatrolRunView:
-    global wprv
-    if wprv is None:
-        wprv = WorldPatrolRunView(page, ctx)
-    return wprv
+    global _world_patrol_run_view
+    if _world_patrol_run_view is None:
+        _world_patrol_run_view = WorldPatrolRunView(page, ctx)
+    return _world_patrol_run_view
