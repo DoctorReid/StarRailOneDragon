@@ -8,7 +8,7 @@ import keyboard
 from basic import os_utils
 from basic.i18_utils import gt, update_default_lang
 from basic.log_utils import log
-from gui import log_view, calibrator_view, version, one_stop_view, scheduler, snack_bar
+from gui import log_view, calibrator_view, version, one_stop_view, scheduler, snack_bar, about_view
 from gui.settings import gui_config, settings_game_config_view, settings_trailblaze_power_view, \
     settings_echo_of_war_view, \
     settings_world_patrol_view, settings_mys_view, settings_treasures_lightward_view, settings_sim_uni_view, \
@@ -66,6 +66,11 @@ class StarRailOneDragon:
                     icon=ft.icons.SETTINGS_OUTLINED,
                     selected_icon=ft.icons.SETTINGS,
                     label=gt('设置', model='ui')
+                ),
+                ft.NavigationRailDestination(
+                    icon=ft.icons.INFO_OUTLINE,
+                    selected_icon=ft.icons.INFO,
+                    label=gt('关于', model='ui')
                 ),
             ],
             on_change=self.on_rail_chosen
@@ -225,6 +230,8 @@ class StarRailOneDragon:
         elif self.app_rail.selected_index == 4:  # 设置
             if self.settings_rail.selected_index in [0, 7]:  # 基础、米游社
                 return True
+        elif self.app_rail.selected_index == 5:  # 关于
+            return True
         return False
 
     def _get_secondary_rail(self):
@@ -275,6 +282,8 @@ class StarRailOneDragon:
                 return settings_sim_uni_view.get(self.flet_page, self.sr_ctx)
             elif self.settings_rail.selected_index == 7:
                 return settings_mys_view.get(self.flet_page, self.sr_ctx)
+        elif self.app_rail.selected_index == 5:
+            return about_view.get(self.flet_page, self.sr_ctx)
 
         return None
 
