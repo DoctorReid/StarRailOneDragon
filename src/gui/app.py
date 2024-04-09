@@ -331,16 +331,24 @@ def run_app(page: ft.Page):
 
     def window_event(e):
         if e.data == "close":
-            scheduler.shutdown()
-            log.info('定时器已关闭')
+            clear_after_shutdown()
             page.window_destroy()
 
     page.window_prevent_close = True
     page.on_window_event = window_event
 
 
+def clear_after_shutdown():
+    """
+    在flet应用停止后 进行清理
+    :return:
+    """
+    scheduler.shutdown()
+
+
 if __name__ == '__main__':
     if os_utils.is_debug():
         logging.getLogger("flet_core").setLevel(logging.INFO)
     os_utils.clear_outdated_debug_files(1)  # 清理文件
-    ft.app(target=run_app, name='StarRailOneDragon')
+    ft.app(target=run_app, name='StarRailOneDragon')  # 这里会阻塞运行
+    clear_after_shutdown()
