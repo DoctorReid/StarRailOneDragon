@@ -1,4 +1,4 @@
-import threading
+from concurrent.futures import ThreadPoolExecutor
 from typing import List, Optional, Callable
 
 import flet as ft
@@ -18,6 +18,8 @@ from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
 from sr.context import Context
 from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
+
+_one_stop_view_executor = ThreadPoolExecutor(thread_name_prefix='one_stop_view', max_workers=1)
 
 info_text_width = 200
 info_text_spacing = 5
@@ -375,10 +377,9 @@ class OneStopView(ft.Row, SrBasicView):
             self.running_app = None
             return
 
-        t = threading.Thread(target=self.running_app.execute)
-        t.start()
+        _one_stop_view_executor.submit(self.running_app.execute)
 
-    def on_click_start(self, e):
+    def on_click_start(self, e=None):
         if not self._check_ctx_stop():
             return
         self.start_btn.disabled = True
@@ -394,8 +395,7 @@ class OneStopView(ft.Row, SrBasicView):
         self.running_app = OneStopServiceApp(self.sr_ctx)
 
         if asyn:
-            t = threading.Thread(target=self.running_app.execute)
-            t.start()
+            _one_stop_view_executor.submit(self.running_app.execute)
         else:
             self.running_app.execute()
 

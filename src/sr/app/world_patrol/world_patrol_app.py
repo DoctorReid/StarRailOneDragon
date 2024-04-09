@@ -1,4 +1,3 @@
-import threading
 import time
 from typing import List, Optional, ClassVar
 
@@ -62,8 +61,7 @@ class WorldPatrol(Application):
 
         self.current_route_idx = 0
 
-        t = threading.Thread(target=self.preheat)
-        t.start()
+        Application.get_preheat_executor().submit(self.preheat)
 
     def preheat(self):
         """

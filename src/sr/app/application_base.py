@@ -5,6 +5,10 @@ from sr.app.app_run_record import AppRunRecord
 from sr.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.enter_game import EnterGame
+from concurrent.futures import ThreadPoolExecutor
+
+
+_app_preheat_executor = ThreadPoolExecutor(thread_name_prefix='app_preheat', max_workers=1)
 
 
 class Application(StateOperation):
@@ -107,3 +111,7 @@ class Application(StateOperation):
         :return:
         """
         return ''
+
+    @staticmethod
+    def get_preheat_executor() -> ThreadPoolExecutor:
+        return _app_preheat_executor

@@ -573,7 +573,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.draw_route_and_display()
         self.update_all_component_status()
 
-    def test_existed(self, e):
+    def test_existed(self, e=None):
         if self.test_existed_btn.disabled:
             return
         whitelist: WorldPatrolWhitelist = WorldPatrolWhitelist('0')

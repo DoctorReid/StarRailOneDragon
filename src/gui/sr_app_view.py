@@ -1,4 +1,4 @@
-import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import flet as ft
 from flet_core import CrossAxisAlignment, MainAxisAlignment
@@ -9,6 +9,8 @@ from basic.log_utils import log
 from gui import snack_bar, components
 from gui.sr_basic_view import SrBasicView
 from sr.context import Context
+
+_sr_app_view_executor = ThreadPoolExecutor(thread_name_prefix='sr_app_view', max_workers=1)
 
 
 class SrAppView(components.Card, SrBasicView):
@@ -49,7 +51,7 @@ class SrAppView(components.Card, SrBasicView):
 
         components.Card.__init__(self, content)
 
-    def start(self, e):
+    def start(self, e=None):
         if self.sr_ctx.running != 0:
             snack_bar.show_message(gt('请先结束其他运行中的功能 再启动', 'ui'), self.flet_page)
             return
@@ -64,8 +66,7 @@ class SrAppView(components.Card, SrBasicView):
 
         self.sr_ctx.register_stop(self, self.after_stop)
         self.sr_ctx.register_pause(self, self.on_pause, self.on_resume)
-        t = threading.Thread(target=self.run_app)
-        t.start()
+        _sr_app_view_executor.submit(self.run_app)
 
     def on_pause(self):
         self.running_status.value = gt('暂停', model='ui')

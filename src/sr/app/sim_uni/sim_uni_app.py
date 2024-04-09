@@ -1,4 +1,3 @@
-import threading
 from typing import Optional, List, ClassVar, Callable
 
 from basic.i18_utils import gt
@@ -146,8 +145,7 @@ class SimUniApp(Application):
         self.get_reward_cnt = 0
         self.exception_times: int = 0
 
-        t = threading.Thread(target=self.preheat)
-        t.start()
+        Application.get_preheat_executor().submit(self.preheat)
 
     def preheat(self):
         """

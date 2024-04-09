@@ -1,18 +1,17 @@
+import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Optional
 
 import schedule
-import time
-import threading
 
 from basic.log_utils import log
 
-
 _is_shutdown: bool = False
+_scheduler_executor = ThreadPoolExecutor(thread_name_prefix='scheduler', max_workers=1)
 
 
 def start():
-    t = threading.Thread(target=_run_schedule)
-    t.start()
+    _scheduler_executor.submit(_run_schedule)
 
 
 def every_second(func, seconds: int = 1, tag: Optional[str] = None):

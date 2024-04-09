@@ -1,6 +1,6 @@
 import subprocess
-import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, List
 
 import keyboard
@@ -45,6 +45,8 @@ from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig, SimUniChallengeConfig
 from sr.win import Window
+
+_context_callback_executor = ThreadPoolExecutor(thread_name_prefix='context_callback', max_workers=1)
 
 
 class PosInfo:
@@ -356,8 +358,7 @@ class Context:
 
     def _after_start(self):
         for obj_id, callback in self.start_callback.items():
-            t = threading.Thread(target=callback)
-            t.start()
+            _context_callback_executor.submit(callback)
 
     def stop_running(self):
         if self.running == 0:  # 初始化失败了 还没开始运行就要结束 依然触发一次停止的回调 方便使用方知道
@@ -371,8 +372,7 @@ class Context:
 
     def _after_stop(self):
         for obj_id, callback in self.stop_callback.items():
-            t = threading.Thread(target=callback)
-            t.start()
+            _context_callback_executor.submit(callback)
 
         log_all_performance()
 
@@ -389,14 +389,12 @@ class Context:
     def _after_pause(self):
         callback_arr = self.pause_callback.copy()
         for obj_id, callback in callback_arr.items():
-            t = threading.Thread(target=callback)
-            t.start()
+            _context_callback_executor.submit(callback)
 
     def _after_resume(self):
         callback_arr = self.resume_callback.copy()
         for obj_id, callback in callback_arr.items():
-            t = threading.Thread(target=callback)
-            t.start()
+            _context_callback_executor.submit(callback)
 
     def register_status_changed_handler(self, obj,
                                         after_start_callback=None,

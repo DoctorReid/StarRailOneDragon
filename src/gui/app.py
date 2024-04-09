@@ -1,5 +1,5 @@
 import logging
-import threading
+from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
 import flet as ft
@@ -18,6 +18,8 @@ from gui.sim_uni import sim_uni_draft_route_view, sim_uni_challenge_config_view,
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.context import get_context, Context
+
+_app_executor = ThreadPoolExecutor(thread_name_prefix='app', max_workers=1)
 
 
 class StarRailOneDragon:
@@ -305,18 +307,15 @@ class StarRailOneDragon:
             return
         if self.sr_ctx.running != 0:
             return
-        t = None
         if self.app_rail.selected_index == 0:
-            t = threading.Thread(target=one_stop_view.get(self.flet_page, self.sr_ctx).on_click_start, args=[None])
+            _app_executor.submit(one_stop_view.get(self.flet_page, self.sr_ctx).on_click_start)
         elif self.app_rail.selected_index == 1:
             if self.world_patrol_rail.selected_index == 0:
-                t = threading.Thread(target=world_patrol_run_view.get(self.flet_page, self.sr_ctx).start, args=[None])
+                _app_executor.submit(world_patrol_run_view.get(self.flet_page, self.sr_ctx).start)
             elif self.world_patrol_rail.selected_index == 1:
-                t = threading.Thread(target=world_patrol_draft_route_view.get(self.flet_page, self.sr_ctx).test_existed, args=[None])
+                _app_executor.submit(world_patrol_draft_route_view.get(self.flet_page, self.sr_ctx).test_existed)
         elif self.app_rail.selected_index == 3:
-            t = threading.Thread(target=calibrator_view.get(self.flet_page, self.sr_ctx).start, args=[None])
-        if t is not None:
-            t.start()
+            _app_executor.submit(calibrator_view.get(self.flet_page, self.sr_ctx).start)
 
 
 def run_app(page: ft.Page):
