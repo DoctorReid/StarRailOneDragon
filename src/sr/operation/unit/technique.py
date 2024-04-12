@@ -13,7 +13,6 @@ from sr.operation import Operation, OperationOneRoundResult, StateOperation, Sta
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
-
 def pc_can_use_technique(screen: MatLike, ocr: OcrMatcher, key: str) -> bool:
     """
     PC端使用 判断当前是否可以使用秘技 - 秘技按钮上有显示快捷键
@@ -173,7 +172,7 @@ class UseTechnique(StateOperation):
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         else:  # 还需要使用消耗品
-            if self.specified_consumable is not None and not self.consumable_chosen:  # 理论上只有第1次需要选择 即还没有使用任何消耗品
+            if self.specified_consumable and not self.consumable_chosen:  # 理论上只有第1次需要选择 即还没有使用任何消耗品
                 choose = self._choose_consumable(screen)
                 if not choose:
                     self.ctx.no_technique_recover_consumables = True
@@ -212,7 +211,8 @@ class UseTechnique(StateOperation):
         :return: 是否找到目标消耗品
         """
         # TODO 这里做匹配和点击
-        return True
+        click = self.find_and_click_area(ScreenDialog.QUIRKY_SNACKS.value, screen)
+        return True if click else False
 
 
 class CheckTechniquePoint(Operation):
