@@ -7,6 +7,7 @@ from cv2.typing import MatLike
 
 from basic import Point, cal_utils, debug_utils, os_utils
 from basic.i18_utils import gt
+from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
@@ -176,7 +177,9 @@ class MoveDirectly(Operation):
         self.technique_fight: bool = technique_fight  # 是否使用秘技进入战斗
         self.technique_only: bool = technique_only  # 是否只使用秘技进入战斗
 
+        # 开发调试参数
         self.last_debug_image_time: float = 0  # 上一次保存截图的时间
+        self.save_yolo_image: bool = False  # 是否保存yolo截图
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -205,7 +208,7 @@ class MoveDirectly(Operation):
 
         screen = self.screenshot()
 
-        if self.ctx.one_dragon_config.is_debug and now_time - self.last_debug_image_time >= 1:
+        if self.ctx.one_dragon_config.is_debug and self.save_yolo_image and now_time - self.last_debug_image_time >= 0.5:
             debug_utils.get_executor().submit(self.save_screenshot)
             self.last_debug_image_time = now_time
 
@@ -244,6 +247,8 @@ class MoveDirectly(Operation):
         """
         base = os_utils.get_path_under_work_dir('.debug', 'yolo_world_patrol', self.region.prl_id)
         now = os_utils.now_timestamp_str()
+        uid = ScreenNormalWorld.UID.value.rect
+        cv2_utils.mark_area_as_color(self.last_screenshot, (uid.x1, uid.y1, uid.width, uid.height), (0, 0, 0))
         cv2.imwrite(os.path.join(base, '%s.png' % now), self.last_screenshot)
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:

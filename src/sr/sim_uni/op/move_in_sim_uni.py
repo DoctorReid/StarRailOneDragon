@@ -51,6 +51,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             op_callback=op_callback)
         self.op_name = '%s %s' % (gt('模拟宇宙', 'ui'), gt('移动 %s -> %s') % (start, target))
         self.config: SimUniChallengeConfig = config
+        self.save_yolo_image = True
 
     def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
         """
