@@ -333,6 +333,12 @@ def run_app(page: ft.Page):
         if e.data == "close":
             clear_after_shutdown()
             page.window_destroy()
+        elif e.data == 'restore':
+            page.window_height = 800
+            page.window_width = 1300
+            page.window_top = 100
+            page.window_left = 100
+            page.update()
 
     page.window_prevent_close = True
     page.on_window_event = window_event
