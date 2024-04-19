@@ -217,3 +217,22 @@ class OneDragonConfig(ConfigHolder):
             proxy = self.personal_proxy
             return None if proxy == '' else proxy
         return None
+
+
+    @property
+    def screen_sim_uni_route(self) -> List[str]:
+        """
+        完成了截图的模拟宇宙路线
+        :return:
+        """
+        return self.get('screen_sim_uni_route', [])
+
+    def add_screen_sim_uni_route(self, route_id: str):
+        """
+        增加完成了截图的模拟宇宙路线
+        :param route_id:
+        :return:
+        """
+        old_list = self.screen_sim_uni_route
+        old_list.append(route_id)
+        self.update('screen_sim_uni_route', old_list)

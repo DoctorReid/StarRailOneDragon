@@ -341,6 +341,10 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         interact_pos = self._cal_interact_pos()
 
         if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+            if self.ctx.one_dragon_config.is_debug:
+                if self.route.display_name not in self.ctx.one_dragon_config.screen_sim_uni_route:
+                    self.ctx.one_dragon_config.add_screen_sim_uni_route(self.route.display_name)
+                    return Operation.round_fail('%s 未进行截图' % self.route.display_name)
             op = SimUniEnterFight(self.ctx, config=self.config, disposable=True)  # 攻击可破坏物 统一用这个处理大乐透
             op_result = op.execute()
             if not op_result.success:
@@ -583,6 +587,10 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
         检测小地图上的红点 识别敌人 在大地图上的哪个位置
         :return:
         """
+        if self.ctx.one_dragon_config.is_debug:
+            if self.route.display_name not in self.ctx.one_dragon_config.screen_sim_uni_route:
+                self.ctx.one_dragon_config.add_screen_sim_uni_route(self.route.display_name)
+                return Operation.round_fail('%s 未进行截图' % self.route.display_name)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         red_pos = mini_map.find_one_enemy_pos(self.ctx.im, mm=mm)
