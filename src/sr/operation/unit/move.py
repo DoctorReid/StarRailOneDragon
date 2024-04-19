@@ -1,13 +1,12 @@
+import os
 import time
 from typing import List, Optional, Tuple, Callable, ClassVar
 
 import cv2
-import os
 from cv2.typing import MatLike
 
 from basic import Point, cal_utils, debug_utils, os_utils
 from basic.i18_utils import gt
-from basic.img import cv2_utils
 from basic.log_utils import log
 from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
@@ -15,7 +14,7 @@ from sr.const import game_config_const
 from sr.const.map_const import Region
 from sr.context import Context
 from sr.control import GameController
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state, fill_uid_black
 from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode
 from sr.operation.unit.enter_auto_fight import EnterAutoFight
 from sr.operation.unit.record_coordinate import RecordCoordinate
@@ -247,8 +246,7 @@ class MoveDirectly(Operation):
         """
         base = os_utils.get_path_under_work_dir('.debug', 'yolo_world_patrol', self.region.prl_id)
         now = os_utils.now_timestamp_str()
-        uid = ScreenNormalWorld.UID.value.rect
-        cv2_utils.mark_area_as_color(self.last_screenshot, (uid.x1, uid.y1, uid.width, uid.height), (0, 0, 0))
+        fill_uid_black(self.last_screenshot)
         cv2.imwrite(os.path.join(base, '%s.png' % now), self.last_screenshot)
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:

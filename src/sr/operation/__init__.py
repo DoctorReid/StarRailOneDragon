@@ -167,8 +167,8 @@ class Operation:
             except Exception as e:
                 round_result = self.round_retry('异常')
                 if self.last_screenshot is not None:
-                    to_save = fill_uid_black(self.last_screenshot)
-                    file_name = save_debug_image(to_save, prefix=self.__class__.__name__)
+                    fill_uid_black(self.last_screenshot)
+                    file_name = save_debug_image(self.last_screenshot, prefix=self.__class__.__name__)
                     log.error('%s 执行出错 相关截图保存至 %s', self.display_name, file_name, exc_info=True)
                 else:
                     log.error('%s 执行出错', self.display_name, exc_info=True)

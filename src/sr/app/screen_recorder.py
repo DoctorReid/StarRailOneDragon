@@ -2,7 +2,6 @@ import keyboard
 import pyautogui
 
 from basic.img import cv2_utils
-from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.app.application_base import Application
 from sr.context import Context, get_context
@@ -29,9 +28,8 @@ class ScreenRecorder(Application):
     def screenshot(self):
         log.info('截图完成')
         img = self.ctrl.screenshot()
-        no_uid = fill_uid_black(img, self.ctrl.win)
-        cv2_utils.show_image(no_uid, win_name='no_uid')
-        save_debug_image(no_uid)
+        fill_uid_black(img)
+        cv2_utils.show_image(img, win_name='no_uid')
 
     def mouse_position(self):
         rect = self.ctrl.win.get_win_rect()
