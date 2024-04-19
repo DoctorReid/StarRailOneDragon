@@ -7,5 +7,5 @@ next_pos_list:
   - [593, 475]
   - [613, 475]
 op_list:
-  - op: 'move'
+  - op: 'no_pos_move'
     data: [612, 499]

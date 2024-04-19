@@ -1,4 +1,4 @@
-support_world: [7, 8]
+support_world: [6, 7, 8]
 planet: '空间站黑塔'
 region: '收容舱段'
 floor: 1
@@ -8,4 +8,4 @@ next_pos_list:
   - [359, 260]
 op_list:
   - op: 'move'
-    data: [384, 248]
+    data: [384, 246]

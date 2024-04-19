@@ -18,5 +18,5 @@ op_list:
     data: [619, 961]
   - op: 'patrol'
   - op: 'move'
-    data: [537, 958]
+    data: [531, 958]
   - op: 'patrol'
