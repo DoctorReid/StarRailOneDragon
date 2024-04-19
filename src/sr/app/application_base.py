@@ -8,7 +8,7 @@ from sr.operation.unit.enter_game import EnterGame
 from concurrent.futures import ThreadPoolExecutor
 
 
-_app_preheat_executor = ThreadPoolExecutor(thread_name_prefix='app_preheat', max_workers=1)
+_app_preheat_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_app_preheat', max_workers=1)
 
 
 class Application(StateOperation):

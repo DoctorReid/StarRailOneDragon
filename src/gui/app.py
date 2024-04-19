@@ -19,7 +19,7 @@ from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
 from sr.context import get_context, Context
 
-_app_executor = ThreadPoolExecutor(thread_name_prefix='app', max_workers=1)
+_app_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_app', max_workers=1)
 
 
 class StarRailOneDragon:

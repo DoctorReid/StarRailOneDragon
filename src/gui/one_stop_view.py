@@ -19,7 +19,7 @@ from sr.context import Context
 from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
-_one_stop_view_executor = ThreadPoolExecutor(thread_name_prefix='one_stop_view', max_workers=1)
+_one_stop_view_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_one_stop_view', max_workers=1)
 
 info_text_width = 200
 info_text_spacing = 5

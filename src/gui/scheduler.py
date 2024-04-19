@@ -7,7 +7,7 @@ import schedule
 from basic.log_utils import log
 
 _is_shutdown: bool = False
-_scheduler_executor = ThreadPoolExecutor(thread_name_prefix='scheduler', max_workers=1)
+_scheduler_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_scheduler', max_workers=1)
 
 
 def start():
@@ -50,14 +50,14 @@ def by_hour(hour_num: int, func: Callable, tag: Optional[str] = None):
 
 
 def _run_schedule():
-    while True:
-        if _is_shutdown:
-            break
-        try:
-            schedule.run_pending()
-        except Exception:
-            log.error('定时任务出错', exc_info=True)
-        time.sleep(1)
+    if _is_shutdown:
+        return
+    try:
+        schedule.run_pending()
+    except Exception:
+        log.error('定时任务出错', exc_info=True)
+    time.sleep(1)
+    _scheduler_executor.submit(_run_schedule)
 
 
 def shutdown():

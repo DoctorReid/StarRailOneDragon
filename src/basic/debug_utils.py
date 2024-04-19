@@ -7,7 +7,7 @@ def get_executor() -> ThreadPoolExecutor:
     global _debug_executor
     if _debug_executor is None:
         _debug_executor = ThreadPoolExecutor(
-            thread_name_prefix='debug',
+            thread_name_prefix='sr_od_debug',
             max_workers=1
         )
     return _debug_executor

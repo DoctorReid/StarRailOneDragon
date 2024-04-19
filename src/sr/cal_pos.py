@@ -17,7 +17,7 @@ from sr.image import ImageMatcher
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo
 from sr.performance_recorder import record_performance
 
-cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='cal_pos')
+cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='sr_od_cal_pos')
 
 
 def get_mini_map_scale_list(running: bool, real_move_time: float = 0):

@@ -46,7 +46,7 @@ from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_p
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig, SimUniChallengeConfig
 from sr.win import Window
 
-_context_callback_executor = ThreadPoolExecutor(thread_name_prefix='context_callback', max_workers=1)
+_context_callback_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_context_callback', max_workers=1)
 
 
 class PosInfo:

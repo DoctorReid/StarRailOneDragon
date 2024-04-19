@@ -10,7 +10,7 @@ from gui import snack_bar, components
 from gui.sr_basic_view import SrBasicView
 from sr.context import Context
 
-_sr_app_view_executor = ThreadPoolExecutor(thread_name_prefix='sr_app_view', max_workers=1)
+_sr_app_view_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_sr_app_view', max_workers=1)
 
 
 class SrAppView(components.Card, SrBasicView):
