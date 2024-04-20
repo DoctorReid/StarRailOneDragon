@@ -16,7 +16,7 @@ from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state, fill_uid_black
 from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode
-from sr.operation.unit.enter_auto_fight import EnterAutoFight
+from sr.operation.unit.enter_auto_fight import WorldPatrolEnterFight
 from sr.operation.unit.record_coordinate import RecordCoordinate
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
@@ -228,7 +228,7 @@ class MoveDirectly(Operation):
 
         # 被敌人锁定的时候 小地图会被染红 坐标匹配能力大减
         # 因此 就算识别不到坐标 也要判断是否被怪锁定 以免一直识别坐标失败站在原地被袭
-        check_enemy = self.check_enemy_and_attack(mm)
+        check_enemy = self.check_enemy_and_attack(mm_info.origin_del_radio)
         if check_enemy is not None:
             return check_enemy
 
@@ -290,10 +290,10 @@ class MoveDirectly(Operation):
             if self.stop_move_time is None:
                 self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
             log.info('移动中被袭击')
-            fight = EnterAutoFight(self.ctx,
-                                   technique_fight=self.technique_fight,
-                                   technique_only=self.technique_only,
-                                   first_state=screen_state.ScreenState.BATTLE.value)
+            fight = WorldPatrolEnterFight(self.ctx,
+                                          technique_fight=self.technique_fight,
+                                          technique_only=self.technique_only,
+                                          first_state=screen_state.ScreenState.BATTLE.value)
             fight_start_time = time.time()
             fight_result = fight.execute()
             fight_end_time = time.time()
@@ -314,9 +314,11 @@ class MoveDirectly(Operation):
         """
         if self.no_battle:
             return None
-        if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
-            return None
         if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos):
+            return None
+
+        # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
+        if not mini_map.with_enemy_nearby(mm) and self.last_auto_fight_fail:
             return None
 
         # 停下来的任务交给了 EnterAutoFight 这样可以取消停止移动造成的后摇
@@ -324,17 +326,17 @@ class MoveDirectly(Operation):
         if self.stop_move_time is None:
             self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
 
-        fight = EnterAutoFight(self.ctx,
-                               technique_fight=self.technique_fight,
-                               technique_only=self.technique_only,
-                               first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
+        fight = WorldPatrolEnterFight(self.ctx,
+                                      technique_fight=self.technique_fight,
+                                      technique_only=self.technique_only,
+                                      first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         fight_start_time = time.time()
         op_result = fight.execute()
         if not op_result.success:
             return Operation.round_fail(status=op_result.status, data=op_result.data)
         fight_end_time = time.time()
 
-        self.last_auto_fight_fail = (op_result.status == EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
+        self.last_auto_fight_fail = (op_result.status == WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
         self.ctx.pos_info.first_cal_pos_after_fight = True

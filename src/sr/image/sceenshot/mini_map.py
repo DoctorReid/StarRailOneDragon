@@ -617,11 +617,9 @@ def get_enemy_pos(mm_del_origin: MatLike) -> List[Point]:
     return []
 
 
-def with_enemy_nearby(im: ImageMatcher,
-                      mm_del_radio: MatLike):
+def with_enemy_nearby(mm_del_radio: MatLike):
     """
     判断附近是否有敌人
-    :param im: 图片匹配器
     :param mm_del_radio: 去除雷达的小地图图片
     :return:
     """

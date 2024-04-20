@@ -6,7 +6,7 @@ from sr.context import Context
 from sr.image.sceenshot import LargeMapInfo
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.enter_auto_fight import EnterAutoFight
+from sr.operation.unit.enter_auto_fight import WorldPatrolEnterFight
 from sr.operation.unit.move import MoveDirectly
 
 
@@ -23,12 +23,12 @@ class DestroyObjects(CombineOperation):
         ops = [
             Transport(ctx, tp),  # 传送
             MoveDirectly(ctx, lm_info, start=tp.tp_pos, target=Point(824, 405)),
-            EnterAutoFight(ctx),
+            WorldPatrolEnterFight(ctx),
             MoveDirectly(ctx, lm_info, start=Point(824, 405), target=Point(730, 377)),
-            EnterAutoFight(ctx),
+            WorldPatrolEnterFight(ctx),
             MoveDirectly(ctx, lm_info, start=Point(730, 377), target=Point(751, 373), stop_afterwards=False),
             MoveDirectly(ctx, lm_info, start=Point(751, 373), target=Point(733, 266)),
-            EnterAutoFight(ctx),
+            WorldPatrolEnterFight(ctx),
         ]
 
         super().__init__(

@@ -11,7 +11,7 @@ from sr.context import Context
 from sr.operation import Operation, OperationResult, OperationFail, StateOperation, \
     StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.enter_auto_fight import EnterAutoFight
+from sr.operation.unit.enter_auto_fight import WorldPatrolEnterFight
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.record_coordinate import RecordCoordinate
@@ -112,14 +112,14 @@ class WorldPatrolRunRoute(StateOperation):
         if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
         elif route_item.op == operation_const.OP_PATROL:
-            op = EnterAutoFight(self.ctx,
-                                technique_fight=self.ctx.world_patrol_config.technique_fight,
-                                technique_only=self.ctx.world_patrol_config.technique_only,
-                                first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
+            op = WorldPatrolEnterFight(self.ctx,
+                                       technique_fight=self.ctx.world_patrol_config.technique_fight,
+                                       technique_only=self.ctx.world_patrol_config.technique_only,
+                                       first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         elif route_item.op == operation_const.OP_DISPOSABLE:
-            op = EnterAutoFight(self.ctx,
-                                first_state=ScreenNormalWorld.CHARACTER_ICON.value.status,
-                                disposable=True)
+            op = WorldPatrolEnterFight(self.ctx,
+                                       first_state=ScreenNormalWorld.CHARACTER_ICON.value.status,
+                                       disposable=True)
         elif route_item.op == operation_const.OP_INTERACT:
             op = Interact(self.ctx, route_item.data)
         elif route_item.op == operation_const.OP_WAIT:

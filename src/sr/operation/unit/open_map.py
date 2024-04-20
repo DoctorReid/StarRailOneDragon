@@ -7,7 +7,7 @@ from sr.control import GameController
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import large_map, battle
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.enter_auto_fight import EnterAutoFight
+from sr.operation.unit.enter_auto_fight import WorldPatrolEnterFight
 from sr.screen_area.screen_large_map import ScreenLargeMap
 
 
@@ -32,7 +32,7 @@ class OpenMap(Operation):
             return Operation.round_wait(wait=2)
 
         if battle_status == battle.BATTLING:  # 可能是路线末尾被袭击了 等待最后一次战斗结束
-            fight = EnterAutoFight(self.ctx)
+            fight = WorldPatrolEnterFight(self.ctx)
             fight.execute()
             return Operation.round_wait()
 

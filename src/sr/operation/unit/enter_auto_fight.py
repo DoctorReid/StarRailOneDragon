@@ -11,8 +11,7 @@ from sr.operation.unit.technique import UseTechnique
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
-# TODO 之后需要改名成锄大地专用
-class EnterAutoFight(Operation):
+class WorldPatrolEnterFight(Operation):
     ATTACK_INTERVAL: ClassVar[float] = 0.2  # 发起攻击的间隔
     EXIT_AFTER_NO_ALTER_TIME: ClassVar[int] = 2  # 多久没警报退出
     EXIT_AFTER_NO_BATTLE_TIME: ClassVar[int] = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
@@ -47,7 +46,7 @@ class EnterAutoFight(Operation):
     def _init_before_execute(self):
         super()._init_before_execute()
         now = time.time()
-        self.last_attack_time: float = now - EnterAutoFight.ATTACK_INTERVAL
+        self.last_attack_time: float = now - WorldPatrolEnterFight.ATTACK_INTERVAL
         self.last_alert_time: float = now  # 上次警报时间
         self.last_not_in_world_time: float = now  # 上次不在移动画面的时间
         self.attack_times: int = 0  # 攻击次数
@@ -74,7 +73,7 @@ class EnterAutoFight(Operation):
             round_result = self._try_attack(screen)
             self.attack_times += 1
             if not self.disposable:
-                self.ctx.controller.move(EnterAutoFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
+                self.ctx.controller.move(WorldPatrolEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
             else:
                 return Operation.round_success()  # 攻击破坏物只攻击一下就够了
             return round_result
@@ -102,13 +101,13 @@ class EnterAutoFight(Operation):
         now_time = time.time()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos, strict=True):
-            if now_time - self.last_alert_time > EnterAutoFight.EXIT_AFTER_NO_ALTER_TIME:
-                return Operation.round_success(None if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
+            if now_time - self.last_alert_time > WorldPatrolEnterFight.EXIT_AFTER_NO_ALTER_TIME:
+                return Operation.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:
             self.last_alert_time = now_time
 
-        if now_time - self.last_not_in_world_time > EnterAutoFight.EXIT_AFTER_NO_BATTLE_TIME:
-            return Operation.round_success(None if self.with_battle else EnterAutoFight.STATUS_ENEMY_NOT_FOUND)
+        if now_time - self.last_not_in_world_time > WorldPatrolEnterFight.EXIT_AFTER_NO_BATTLE_TIME:
+            return Operation.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
 
         current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
         if (self.technique_fight and not self.ctx.technique_used
@@ -133,7 +132,7 @@ class EnterAutoFight(Operation):
         return Operation.round_wait()
 
     def _attack(self, now_time: float):
-        if now_time - self.last_attack_time < EnterAutoFight.ATTACK_INTERVAL:
+        if now_time - self.last_attack_time < WorldPatrolEnterFight.ATTACK_INTERVAL:
             return
         if self.disposable and self.attack_times > 0:
             return
@@ -168,7 +167,7 @@ class EnterAutoFight(Operation):
 
         if state == screen_state.ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_fail(EnterAutoFight.STATUS_BATTLE_FAIL, wait=5)
+            return Operation.round_fail(WorldPatrolEnterFight.STATUS_BATTLE_FAIL, wait=5)
         elif state == ScreenNormalWorld.EXPRESS_SUPPLY.value.status:
             return self._claim_express_supply()
         elif state == screen_state.ScreenState.BATTLE.value:

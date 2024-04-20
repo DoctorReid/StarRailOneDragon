@@ -17,4 +17,4 @@ class TestGetTeamMemberInWorld(test.SrTestBase):
         ctx.init_image_matcher()
 
         mm = self.get_test_image_new('mm_no_enemy.png')
-        self.assertFalse(mini_map.with_enemy_nearby(ctx.im, mm))
+        self.assertFalse(mini_map.with_enemy_nearby(mm))
