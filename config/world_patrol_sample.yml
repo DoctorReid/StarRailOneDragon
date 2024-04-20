@@ -4,4 +4,3 @@ whitelist_id: ''
 technique_fight: false
 technique_only: false
 max_consumable_cnt: 0
-use_quirky_snacks: false

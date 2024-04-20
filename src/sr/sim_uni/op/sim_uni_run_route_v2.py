@@ -22,6 +22,10 @@ class SimUniRunCombatRouteV2(StateOperation):
 
     def __init__(self, ctx: Context):
         """
+        1. 检测地图是否有红点
+        2. 如果有红点 移动到最近的红点 并进行攻击。攻击一次后回到步骤1判断。
+        3. 如果没有红点 识别敌对物种位置，向最大的移动，并进行攻击。攻击一次后回到步骤1判断。
+        4. 如果没有红点也没有识别到敌对物种，检测下层入口位置，发现后进入下层移动。未发现则选择视角返回步骤1判断。
         """
         edges: List[StateOperationEdge] = []
 

@@ -60,7 +60,7 @@ class UseTechnique(StateOperation):
                  max_consumable_cnt: int = 0,
                  need_check_available: bool = False,
                  need_check_point: bool = False,
-                 specified_consumable: Optional[str] = None
+                 quirky_snacks: bool = False
                  ):
         """
         需在大世界页面中使用
@@ -70,7 +70,7 @@ class UseTechnique(StateOperation):
         :param max_consumable_cnt: 秘技点不足时最多使用的消耗品个数
         :param need_check_available: 是否需要检查秘技是否可用 普通大世界战斗后 会有一段时间才能使用秘技
         :param need_check_point: 是否检测剩余秘技点再使用。如果没有秘技点 又不能用消耗品 那就不使用了。目前OCR较慢 不建议开启
-        :param specified_consumable: 使用特定的消耗品
+        :param quirky_snacks: 只使用奇巧零食
         """
         edges: List[StateOperationEdge] = []
 
@@ -93,7 +93,7 @@ class UseTechnique(StateOperation):
         self.use_technique: bool = False  # 是否使用了秘技
         self.need_check_available: bool = need_check_available  # 是否需要检查秘技是否可用
         self.need_check_point: bool = need_check_point  # 是否检测剩余秘技点再使用
-        self.specified_consumable: Optional[str] = specified_consumable  # 使用特定的消耗品
+        self.quirky_snacks: bool = quirky_snacks  # 只使用奇巧零食
         self.consumable_chosen: bool = False  # 是否已经选择了消耗品
 
     def _init_before_execute(self):
@@ -172,7 +172,7 @@ class UseTechnique(StateOperation):
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         else:  # 还需要使用消耗品
-            if self.specified_consumable and not self.consumable_chosen:  # 理论上只有第1次需要选择 即还没有使用任何消耗品
+            if self.quirky_snacks and not self.consumable_chosen:  # 理论上只有第1次需要选择 即还没有使用任何消耗品
                 choose = self._choose_consumable(screen)
                 if not choose:
                     self.ctx.no_technique_recover_consumables = True
@@ -210,7 +210,6 @@ class UseTechnique(StateOperation):
         :param screen:
         :return: 是否找到目标消耗品
         """
-        # TODO 这里做匹配和点击
         click = self.find_and_click_area(ScreenDialog.QUIRKY_SNACKS.value, screen)
         return True if click else False
 

@@ -37,6 +37,7 @@ class SettingsGameConfigView(components.Card, SrBasicView):
             options=[ft.dropdown.Option(text=gt(k, 'ui'), key=v) for k, v in game_config_const.RUN_MODE.items()],
             width=200, on_change=self.on_run_mode_changed
         )
+        self.use_quirky_snacks = ft.Checkbox(on_change=self._on_use_quirky_snacks)
 
         self.interact_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_interact')
         self.technique_btn = components.RectOutlinedButton(on_click=self._on_click_key_changed, data='key_technique')
@@ -60,15 +61,16 @@ class SettingsGameConfigView(components.Card, SrBasicView):
                 SettingsListItem('游戏路径', game_path_row),
                 SettingsListItem('游戏区服', self.server_region_dropdown),
                 SettingsListItem('语言', self.lang_dropdown),
+                SettingsListGroupTitle('通用'),
                 SettingsListItem('疾跑', self.run_mode_dropdown),
-                SettingsListGroupTitle('自动登录'),
-                SettingsListItem('账号', self.account_input),
-                SettingsListItem('密码', self.password_input),
-                SettingsListGroupTitle('按键'),
+                SettingsListItem('只使用奇巧零食', self.use_quirky_snacks),
                 SettingsListItem('交互', self.interact_btn),
                 SettingsListItem('秘技', self.technique_btn),
                 SettingsListItem('打开地图', self.open_map_btn),
                 SettingsListItem('返回', self.esc_btn),
+                SettingsListGroupTitle('自动登录'),
+                SettingsListItem('账号', self.account_input),
+                SettingsListItem('密码', self.password_input),
             ],
             width=400
         )
@@ -92,6 +94,7 @@ class SettingsGameConfigView(components.Card, SrBasicView):
         self.account_input.value = self.sr_ctx.game_config.game_account
         self.password_input.value = self.sr_ctx.game_config.game_account_password
 
+        self.use_quirky_snacks.value = self.sr_ctx.game_config.use_quirky_snacks
         self.interact_btn.text = self.sr_ctx.game_config.key_interact
         self.technique_btn.text = self.sr_ctx.game_config.key_technique
         self.open_map_btn.text = self.sr_ctx.game_config.key_open_map
@@ -149,6 +152,14 @@ class SettingsGameConfigView(components.Card, SrBasicView):
 
     def _on_password_change(self, e):
         self.sr_ctx.game_config.game_account_password = self.password_input.value
+
+    def _on_use_quirky_snacks(self, e):
+        """
+        使用奇巧零食
+        :param e:
+        :return:
+        """
+        self.sr_ctx.game_config.use_quirky_snacks = self.use_quirky_snacks.value
 
 
 _settings_game_config_view: Optional[SettingsGameConfigView] = None

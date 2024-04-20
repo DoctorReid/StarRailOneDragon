@@ -53,15 +53,3 @@ class WorldPatrolConfig(ConfigHolder):
     @max_consumable_cnt.setter
     def max_consumable_cnt(self, new_value: int):
         self.update('max_consumable_cnt', new_value)
-
-    @property
-    def use_quirky_snacks(self) -> bool:
-        """
-        使用奇巧零食
-        :return:
-        """
-        return self.get('use_quirky_snacks', False)
-
-    @use_quirky_snacks.setter
-    def use_quirky_snacks(self, new_value: bool):
-        self.update('use_quirky_snacks', new_value)

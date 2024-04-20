@@ -13,3 +13,4 @@ lang: 'cn'
 game_path: ''
 game_account: ''
 game_account_password: ''
+use_quirky_snacks: false

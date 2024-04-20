@@ -178,6 +178,7 @@ class SimUniEnterFight(Operation):
                     and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique)):  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx,
                                   max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
+                                  quirky_snacks=self.ctx.game_config.use_quirky_snacks
                                   )
                 op_result = op.execute()
                 current_use_tech = op_result.data

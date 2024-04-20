@@ -193,3 +193,19 @@ class GameConfig(ConfigHolder):
         :return:
         """
         self.update('key_esc', new_value)
+
+    @property
+    def use_quirky_snacks(self) -> bool:
+        """
+        只使用奇巧零食
+        :return:
+        """
+        return self.get('use_quirky_snacks', False)
+
+    @use_quirky_snacks.setter
+    def use_quirky_snacks(self, new_value: bool):
+        """
+        只使用奇巧零食
+        :return:
+        """
+        self.update('use_quirky_snacks', new_value)
