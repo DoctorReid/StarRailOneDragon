@@ -20,7 +20,7 @@ class GuiHandler(logging.Handler):
         if self.list_view.page is not None:
             msg = self.format(record)
             self.list_view.controls.append(ft.Text(msg, size=10))
-            if len(self.list_view.controls) > 100:  # 日志限制条数
+            if len(self.list_view.controls) > 50:  # 日志限制条数
                 self.list_view.controls.pop(0)
             self.list_view.update()
 

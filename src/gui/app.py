@@ -334,10 +334,13 @@ def run_app(page: ft.Page):
             clear_after_shutdown()
             page.window_destroy()
         elif e.data == 'restore':
-            page.window_height = 800
-            page.window_width = 1300
-            page.window_top = 100
-            page.window_left = 100
+            # 判断窗口的高宽和位置 如果有问题就恢复
+            if page.window_height < 0 or page.window_width < 0:
+                page.window_height = 800
+                page.window_width = 1300
+            if page.window_top < 0 or page.window_left < 0:
+                page.window_top = 100
+                page.window_left = 100
             page.update()
 
     page.window_prevent_close = True

@@ -336,9 +336,9 @@ class OneStopView(ft.Row, SrBasicView):
         self._update_schedule_dropdown()
         self.app_list.refresh_app_order()
         self._set_schedule()
-        scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status')
-        scheduler.every_second(self._update_character_status, tag='_update_character_status')
-        scheduler.every_second(self.app_list.refresh_app_order, tag='refresh_app_order')
+        scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status', seconds=10)
+        scheduler.every_second(self._update_character_status, tag='_update_character_status', seconds=10)
+        scheduler.every_second(self.app_list.refresh_app_order, tag='refresh_app_order', seconds=10)
         self.sr_ctx.register_status_changed_handler(self,
                                                     self._after_start,
                                                     self._after_pause,
@@ -425,7 +425,7 @@ class OneStopView(ft.Row, SrBasicView):
     def _after_start(self):
         self._update_status_component()
         self.app_list.set_disabled(True)
-        scheduler.every_second(self._update_running_app_name, tag='_update_running_app_name')
+        scheduler.every_second(self._update_running_app_name, tag='_update_running_app_name', seconds=10)
 
     def _after_pause(self):
         self._update_status_component()
