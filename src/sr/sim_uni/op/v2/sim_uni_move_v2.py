@@ -23,7 +23,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
     REC_POS_INTERVAL: ClassVar[float] = 0.1
     DIS_MAX_LEN: ClassVar[int] = 2 // REC_POS_INTERVAL  # 2秒没移动
 
-    def __init__(self, ctx: Context, no_attack: bool = False):
+    def __init__(self, ctx: Context, no_attack: bool = False, stop_after_arrival: bool = False):
         """
         从小地图上判断 向其中一个红点移动
         停下来的条件有
@@ -31,6 +31,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         - 被怪物锁定
         :param ctx: 上下文
         :param no_attack: 不主动发起攻击
+        :param stop_after_arrival: 到达后停止 如果明确知道到达后会发起攻击 则可以不停止
         """
         super().__init__(ctx,
                          op_name=gt('向红点移动', 'ui'),
@@ -52,6 +53,9 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         self.no_attack: bool = no_attack
         """不发起主动攻击 适用于精英怪场合"""
 
+        self.stop_after_arrival: bool = stop_after_arrival
+        """到达后停止"""
+
     def _execute_one_round(self) -> OperationOneRoundResult:
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
         if stuck is not None:  # 只有脱困失败的时候会有返回结果
@@ -72,7 +76,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         enemy_pos_list = mini_map.get_enemy_pos(mm_info)
 
         if len(enemy_pos_list) == 0:  # 没有红点 可能太近被自身箭头覆盖了
-            return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
+            return self._arrive()
 
         # 最近的红点
         closest_dis: float = 999
@@ -85,8 +89,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
                 closest_pos = pos
 
         if closest_dis < 10:
-            save_debug_image(mm)
-            return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
+            return self._arrive()
 
         if len(self.dis) == 0:  # 第一个点 无条件放入
             return self._add_pos(now, closest_pos, closest_dis, mm_info.angle)
@@ -112,7 +115,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
 
         # 新距离比旧距离大 大概率已经到了一个点了 捕捉到的是第二个点
         if len(self.dis) > 0 and dis - self.dis[-1] > 10:
-            return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
+            return self._arrive()
 
         self.dis.append(dis)
         self.last_rec_time = now
@@ -162,6 +165,15 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         else:
             return Operation.round_by_op(op_result)
 
+    def _arrive(self) -> OperationOneRoundResult:
+        """
+        到达红点后处理
+        :return:
+        """
+        if self.stop_after_arrival:
+            self.ctx.controller.stop_moving_forward()
+        return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
+
 
 class SimUniMoveToEnemyByDetect(Operation):
 
@@ -198,7 +210,8 @@ class SimUniMoveToEnemyByDetect(Operation):
 
         # 被怪锁定了
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        if mini_map.is_under_attack(mm, strict=False):
+        mm_info = mini_map.analyse_mini_map(mm)
+        if mini_map.is_under_attack_new(mm_info):
             return self.enter_battle()
 
         # 移动2秒后 如果丢失了目标 停下来

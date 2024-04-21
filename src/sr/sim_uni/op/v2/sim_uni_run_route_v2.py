@@ -149,6 +149,8 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         if len(pos_list) == 0:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
         else:
+            if self.ctx.one_dragon_config.is_debug:  # 红点已经比较成熟 调试时强制使用yolo
+                return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_RED)
 
     def _move_by_red(self) -> OperationOneRoundResult:
@@ -262,7 +264,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
 
         # 识别下层入口
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
-        edges.append(StateOperationEdge(start_fight, check_entry, status=SimUniRunRouteBase.STATUS_NO_ENEMY))
+        edges.append(StateOperationEdge(start_fight, check_entry))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
@@ -280,7 +282,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         """
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info = mini_map.analyse_mini_map(mm)
         pos_list = mini_map.get_enemy_pos(mm_info)
         if len(pos_list) == 0:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
@@ -292,7 +294,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         往小地图红点移动
         :return:
         """
-        op = SimUniMoveToEnemyByMiniMap(self.ctx, no_attack=True)
+        op = SimUniMoveToEnemyByMiniMap(self.ctx, no_attack=True, stop_after_arrival=True)
         return Operation.round_by_op(op.execute())
 
     def _start_fight(self) -> OperationOneRoundResult:
