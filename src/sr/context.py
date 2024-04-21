@@ -509,7 +509,9 @@ class Context:
         :return:
         """
         self.init_controller(False)
-        save_debug_image(fill_uid_black(self.controller.screenshot()))
+        img = self.controller.screenshot()
+        fill_uid_black(img)
+        save_debug_image(img)
 
     @property
     def is_pc(self) -> bool:
