@@ -281,7 +281,8 @@ def get_character_by_id(c_id: str) -> Optional[Character]:
 
 
 SPECIAL_ATTACK_CHARACTER_LIST = [
-    KAFKA
+    KAFKA,
+    ACHERON
 ]
 
 
