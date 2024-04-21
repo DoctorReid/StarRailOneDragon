@@ -129,6 +129,14 @@ class GameController:
         """
         self.turn_by_distance(self.turn_dx * angle)
 
+    def turn_down(self, distance: float):
+        """
+        视角上下移动
+        :param distance: 正往下 负往上
+        :return:
+        """
+        pass
+
     def turn_by_pos(self, current_pos: Point, target_pos: Point, current_angle: float):
         """
         朝目标点转向

@@ -1,8 +1,10 @@
+import time
 from typing import List, ClassVar
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
+from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state, MiniMapInfo
@@ -41,8 +43,10 @@ class SimUniRunCombatRouteV2(StateOperation):
         # 到达红点
         edges.append(StateOperationEdge(move_by_red, fight, status=SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL))
         # 进行了战斗 就重新开始
-        edges.append(StateOperationEdge(fight, check))
-        edges.append(StateOperationEdge(move_by_red, check, status=SimUniMoveToEnemyByMiniMap.STATUS_FIGHT))
+        after_fight = StateOperationNode('战斗后处理', self._after_fight)
+        edges.append(StateOperationEdge(after_fight, check))
+        edges.append(StateOperationEdge(fight, after_fight))
+        edges.append(StateOperationEdge(move_by_red, after_fight, status=SimUniMoveToEnemyByMiniMap.STATUS_FIGHT))
 
         # 小地图没有红点 就在画面上找敌人
         detect_enemy = StateOperationNode('识别敌人', self._detect_enemy_in_screen)
@@ -51,7 +55,7 @@ class SimUniRunCombatRouteV2(StateOperation):
         move_by_detect = StateOperationNode('向敌人移动', self._move_by_detect)
         edges.append(StateOperationEdge(detect_enemy, move_by_detect, status=SimUniRunCombatRouteV2.STATUS_WITH_ENEMY))
         # 进入了战斗 就重新开始
-        edges.append(StateOperationEdge(move_by_detect, check, status=SimUniMoveToEnemyByDetect.STATUS_FIGHT))
+        edges.append(StateOperationEdge(move_by_detect, after_fight, status=SimUniMoveToEnemyByDetect.STATUS_FIGHT))
 
         # 画面上也找不到敌人 就找下层入口
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
@@ -74,6 +78,8 @@ class SimUniRunCombatRouteV2(StateOperation):
         self.current_state: str = ''  # 这一次的画面状态
         self.nothing_times: int = 0  # 识别不到任何内容的次数
 
+        self.view_down: bool = False  # 将鼠标稍微往下移动 从俯视角度看 更方便看到敌人
+
     def _check_screen(self) -> OperationOneRoundResult:
         """
         检测屏幕
@@ -94,7 +100,7 @@ class SimUniRunCombatRouteV2(StateOperation):
 
     def _handle_in_world(self, screen: MatLike) -> OperationOneRoundResult:
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
 
         if mini_map.is_under_attack_new(mm_info):
             op = SimUniEnterFight(self.ctx)
@@ -105,7 +111,8 @@ class SimUniRunCombatRouteV2(StateOperation):
         if len(pos_list) == 0:
             return Operation.round_success(SimUniRunCombatRouteV2.STATUS_NO_RED)
         else:
-            return Operation.round_success(SimUniRunCombatRouteV2.STATUS_WITH_RED)
+            return Operation.round_success(SimUniRunCombatRouteV2.STATUS_NO_RED)
+            # return Operation.round_success(SimUniRunCombatRouteV2.STATUS_WITH_RED)
 
     def _move_by_red(self) -> OperationOneRoundResult:
         """
@@ -121,6 +128,10 @@ class SimUniRunCombatRouteV2(StateOperation):
                               first_state=screen_state.ScreenState.NORMAL_IN_WORLD.value,
                               )
         return op.round_by_op(op.execute())
+
+    def _after_fight(self) -> OperationOneRoundResult:
+        self.view_down = False  # 每次战斗后 游戏中都会重置视角
+        return Operation.round_success()
 
     def _handle_not_in_world(self, screen: MatLike) -> OperationOneRoundResult:
         """
@@ -145,6 +156,11 @@ class SimUniRunCombatRouteV2(StateOperation):
         TODO 之后可以把入口识别也放到这里
         :return:
         """
+        if not self.view_down:
+            self.ctx.controller.turn_down(25)
+            self.view_down = True
+            return Operation.round_wait(wait=0.2)
+
         screen: MatLike = self.screenshot()
         self.ctx.init_yolo()
 
@@ -159,6 +175,7 @@ class SimUniRunCombatRouteV2(StateOperation):
         if with_enemy:
             return Operation.round_success(SimUniRunCombatRouteV2.STATUS_WITH_ENEMY)
         else:
+            cv2_utils.show_image(screen, win_name='_detect_enemy_in_screen')
             return Operation.round_success(SimUniRunCombatRouteV2.STATUS_NO_ENEMY)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -189,10 +206,12 @@ class SimUniRunCombatRouteV2(StateOperation):
         :return:
         """
         self.nothing_times += 1
-        if self.nothing_times >= 10:
+        if self.nothing_times >= 12:
             return Operation.round_fail(SimUniRunCombatRouteV2.STATUS_NOTHING)
 
         # angle = (25 + 10 * self.nothing_times) * (1 if self.nothing_times % 2 == 0 else -1)  # 来回转动视角
-        angle = 45  # 由于攻击之后 人物可能朝反方向了 因此要转动多一点
+        # 由于攻击之后 人物可能朝反方向了 因此要转动多一点
+        # 不要被360整除 否则转一圈之后还是被人物覆盖了看不到
+        angle = 35
         self.ctx.controller.turn_by_angle(angle)
-        return Operation.round_success()
+        return Operation.round_success(wait=0.5)

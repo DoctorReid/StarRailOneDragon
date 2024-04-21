@@ -219,10 +219,7 @@ class StarRailYOLO:
         :param input_tensor: 输入模型的图片 RGB通道
         :return: onnx模型推理得到的结果
         """
-        start = time.time()
         outputs = self.session.run(self.output_names, {self.input_names[0]: input_tensor})
-
-        log.info(f"图片推理耗时: {(time.time() - start):.3f} ms")
         return outputs
 
     def process_output(self, output, context: DetectContext) -> List[DetectResult]:

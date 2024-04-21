@@ -5,20 +5,23 @@ from cv2.typing import MatLike
 
 from basic import Point, cal_utils
 from basic.i18_utils import gt
+from basic.img import cv2_utils
+from basic.img.os import save_debug_image
 from sr.const import game_config_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.move import GetRidOfStuck
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sryolo.detector import DetectResult
+from sryolo.detector import DetectResult, draw_detections
 
 
 class SimUniMoveToEnemyByMiniMap(Operation):
     STATUS_ARRIVAL: ClassVar[str] = '已到达'
     STATUS_FIGHT: ClassVar[str] = '遭遇战斗'
 
-    DIS_MAX_LEN: ClassVar[int] = 20
+    REC_POS_INTERVAL: ClassVar[float] = 0.1
+    DIS_MAX_LEN: ClassVar[int] = 2 // REC_POS_INTERVAL  # 2秒没移动
 
     def __init__(self, ctx: Context):
         """
@@ -56,9 +59,9 @@ class SimUniMoveToEnemyByMiniMap(Operation):
             return self._enter_battle()
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
 
-        if mini_map.is_under_attack_new(mm_info, strict=True):
+        if mini_map.is_under_attack_new(mm_info, enemy=True):
             return self._enter_battle()
 
         enemy_pos_list = mini_map.get_enemy_pos(mm_info)
@@ -76,7 +79,8 @@ class SimUniMoveToEnemyByMiniMap(Operation):
                 closest_dis = dis
                 closest_pos = pos
 
-        if closest_dis < 5:
+        if closest_dis < 10:
+            save_debug_image(mm)
             return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
 
         if len(self.dis) == 0:  # 第一个点 无条件放入
@@ -98,10 +102,10 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         :param angle: 当前朝向
         :return:
         """
-        if now - self.last_rec_time <= 0.2:
+        if now - self.last_rec_time <= SimUniMoveToEnemyByMiniMap.REC_POS_INTERVAL:
             return Operation.round_wait()
 
-        # 新距离比旧距离大 多少已经到了一个点了 捕捉到的是第二个点
+        # 新距离比旧距离大 大概率已经到了一个点了 捕捉到的是第二个点
         if len(self.dis) > 0 and dis - self.dis[-1] > 10:
             return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
 
@@ -192,8 +196,9 @@ class SimUniMoveToEnemyByDetect(Operation):
         if mini_map.is_under_attack(mm, strict=False):
             return self.enter_battle()
 
-        # 固定移动2秒
-        if self.ctx.controller.is_moving and now - self.start_move_time < 2:
+        # 移动2秒后 如果丢失了目标 停下来
+        if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_enemy_times > 0:
+            self.ctx.controller.stop_moving_forward()
             return Operation.round_wait()
 
         # 移动完一轮后再判断怪的位置
@@ -201,6 +206,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         if len(enemy_pos_list) == 0:
             return self.handle_no_enemy()
         else:
+            self.show_enemy(screen, enemy_pos_list)
             return self.handle_enemy(enemy_pos_list)
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
@@ -254,7 +260,7 @@ class SimUniMoveToEnemyByDetect(Operation):
             angle = -30 if self.no_enemy_times % 2 == 0 else 30
 
         self.ctx.controller.turn_by_angle(angle)
-        return Operation.round_wait(SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY)
+        return Operation.round_wait(SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY, wait=0.5)
 
     def handle_enemy(self, enemy_pos_list: List[DetectResult]) -> OperationOneRoundResult:
         """
@@ -269,6 +275,12 @@ class SimUniMoveToEnemyByDetect(Operation):
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()
         return Operation.round_wait()
+
+    def show_enemy(self, screen: MatLike, enemy_pos_list: List[DetectResult]):
+        if not self.ctx.one_dragon_config.is_debug:
+            return
+        img = draw_detections(screen, enemy_pos_list)
+        cv2_utils.show_image(img, win_name='SimUniMoveToEnemyByDetect')
 
 
 def turn_to_detected_object(ctx: Context, obj: DetectResult):
@@ -286,5 +298,12 @@ def turn_to_detected_object(ctx: Context, obj: DetectResult):
 
     # 与画面正前方的偏移角度 就是需要转的角度
     turn_angle = mm_angle - 270
+
+    # 由于目前没有距离的推测 不要一次性转太多角度
+    max_turn_angle = 15
+    if turn_angle > max_turn_angle:
+        turn_angle = max_turn_angle
+    if turn_angle < -max_turn_angle:
+        turn_angle = -max_turn_angle
 
     ctx.controller.turn_by_angle(turn_angle)
