@@ -1,0 +1,11 @@
+support_world: [3]
+planet: '雅利洛-VI'
+region: '边缘通路'
+floor: 0
+start_pos: [740, 849]
+next_pos_list:
+  - [677, 838]
+  - [673, 858]
+op_list:
+  - op: 'move'
+    data: [695, 833]
