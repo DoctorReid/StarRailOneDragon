@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 
 from basic import Point, cal_utils
 from basic.i18_utils import gt
+from sr.const import game_config_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
 from sr.operation import Operation, OperationOneRoundResult
@@ -55,7 +56,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
             return self._enter_battle()
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
+        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
 
         if mini_map.is_under_attack_new(mm_info, strict=True):
             return self._enter_battle()
@@ -75,22 +76,20 @@ class SimUniMoveToEnemyByMiniMap(Operation):
                 closest_dis = dis
                 closest_pos = pos
 
-        if closest_dis < 10:
+        if closest_dis < 5:
             return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
 
         if len(self.dis) == 0:  # 第一个点 无条件放入
-            self._add_pos(now, closest_pos, closest_dis, mm_info.angle)
-            return Operation.round_wait()
+            return self._add_pos(now, closest_pos, closest_dis, mm_info.angle)
 
         # 只要开始移动了 目标点的角度应该在当前朝向附近
         del_angle = abs(cal_utils.get_angle_by_pts(self.current_pos, closest_pos) - 270)
         if del_angle > 20 and len(self.dis) > 3:
             pass  # 未知怎么处理
 
-        self._add_pos(now, closest_pos, closest_dis, mm_info.angle)
-        return Operation.round_wait()
+        return self._add_pos(now, closest_pos, closest_dis, mm_info.angle)
 
-    def _add_pos(self, now: float, pos: Point, dis: float, angle: float):
+    def _add_pos(self, now: float, pos: Point, dis: float, angle: float) -> OperationOneRoundResult:
         """
         记录距离 每0.2秒一次 最多20个
         :param now: 这次运行的时间
@@ -100,7 +99,11 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         :return:
         """
         if now - self.last_rec_time <= 0.2:
-            return
+            return Operation.round_wait()
+
+        # 新距离比旧距离大 多少已经到了一个点了 捕捉到的是第二个点
+        if len(self.dis) > 0 and dis - self.dis[-1] > 10:
+            return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
 
         self.dis.append(dis)
         self.last_rec_time = now
@@ -108,7 +111,9 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         if len(self.dis) > SimUniMoveToEnemyByMiniMap.DIS_MAX_LEN:
             self.dis.pop(0)
 
-        self.ctx.controller.move_towards(self.current_pos, pos, angle)
+        self.ctx.controller.move_towards(self.current_pos, pos, angle,
+                                         run=self.ctx.game_config.run_mode != game_config_const.RUN_MODE_OFF)
+        return Operation.round_wait()
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
         """

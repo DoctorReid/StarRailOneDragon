@@ -613,7 +613,9 @@ def get_enemy_pos(mm_info: MiniMapInfo) -> List[Point]:
     :return:
     """
     enemy_mask = get_enemy_mask(mm_info)
-    cx, cy = mm_info.origin.shape[:2]
+    # cv2_utils.show_image(enemy_mask, win_name='get_enemy_pos', wait=0)
+    cx = mm_info.origin.shape[1] // 2
+    cy = mm_info.origin.shape[0] // 2
 
     # 膨胀一下找连通块
     to_check = cv2_utils.dilate(enemy_mask, 5)
@@ -625,7 +627,7 @@ def get_enemy_pos(mm_info: MiniMapInfo) -> List[Point]:
         return pos_list
 
     # 找到最大的连通区域
-    for label in range(2, num_labels):
+    for label in range(1, num_labels):
         # 找到各个连通区域的中心点
         center_x = int(centroids[label, 0])
         center_y = int(centroids[label, 1])

@@ -16,7 +16,7 @@ from sryolo.detector import DetectResult
 
 class SimUniRunCombatRouteV2(StateOperation):
 
-    STATUS_WITH_RED: ClassVar[str] = '小地图无红点'
+    STATUS_WITH_RED: ClassVar[str] = '小地图有红点'
     STATUS_NO_RED: ClassVar[str] = '小地图无红点'
     STATUS_WITH_ENEMY: ClassVar[str] = '识别到敌人'
     STATUS_NO_ENEMY: ClassVar[str] = '识别不到敌人'
@@ -67,7 +67,8 @@ class SimUniRunCombatRouteV2(StateOperation):
 
         super().__init__(ctx,
                          op_name=gt('区域-战斗', 'ui'),
-                         edges=edges)
+                         edges=edges,
+                         specified_start_node=check)
 
         self.last_state: str = ''  # 上一次的画面状态
         self.current_state: str = ''  # 这一次的画面状态
@@ -99,7 +100,7 @@ class SimUniRunCombatRouteV2(StateOperation):
             op = SimUniEnterFight(self.ctx)
             return Operation.round_wait_by_op(op.execute())
 
-        pos_list = mini_map.get_enemy_pos(mm_info.origin_del_radio)
+        pos_list = mini_map.get_enemy_pos(mm_info)
 
         if len(pos_list) == 0:
             return Operation.round_success(SimUniRunCombatRouteV2.STATUS_NO_RED)
@@ -138,13 +139,13 @@ class SimUniRunCombatRouteV2(StateOperation):
         op = MoveToNextLevel(self.ctx, level_type=SimUniLevelTypeEnum.COMBAT.value)
         return Operation.round_by_op(op.execute())
 
-    def _detect_enemy_in_screen(self, screen: MatLike) -> OperationOneRoundResult:
+    def _detect_enemy_in_screen(self) -> OperationOneRoundResult:
         """
         没有红点时 判断当前画面是否有怪
         TODO 之后可以把入口识别也放到这里
-        :param screen: 游戏画面截图
         :return:
         """
+        screen: MatLike = self.screenshot()
         self.ctx.init_yolo()
 
         detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
@@ -191,6 +192,7 @@ class SimUniRunCombatRouteV2(StateOperation):
         if self.nothing_times >= 10:
             return Operation.round_fail(SimUniRunCombatRouteV2.STATUS_NOTHING)
 
-        angle = (25 + 10 * self.nothing_times) * (1 if self.nothing_times % 2 == 0 else -1)  # 来回转动视角
+        # angle = (25 + 10 * self.nothing_times) * (1 if self.nothing_times % 2 == 0 else -1)  # 来回转动视角
+        angle = 45  # 由于攻击之后 人物可能朝反方向了 因此要转动多一点
         self.ctx.controller.turn_by_angle(angle)
         return Operation.round_success()

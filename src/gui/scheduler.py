@@ -7,7 +7,7 @@ import schedule
 from basic.log_utils import log
 
 _is_shutdown: bool = False
-_scheduler_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_scheduler', max_workers=1)
+_scheduler_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_scheduler', max_workers=2)
 
 
 def start():

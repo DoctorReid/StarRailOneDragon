@@ -8,6 +8,9 @@ from cv2.typing import MatLike
 
 from basic import os_utils, Rect
 from basic.img import cv2_utils
+from basic.img.os import get_debug_image
+from sr.context import Context
+from sr.image.sceenshot import mini_map
 
 
 class SrTestBase(unittest.TestCase):
@@ -78,3 +81,20 @@ class SrTestBase(unittest.TestCase):
         if save is not None:
             file_path = self.get_test_image_path(save)
             cv2.imwrite(file_path, img2)
+
+    def get_mm_from_debug(self, ctx: Context, debug_image_name: str,
+                          save_name: Optional[str] = None) -> MatLike:
+        """
+        从debug图片中 截取小地图
+        :param ctx:
+        :param debug_image_name:
+        :return:
+        """
+        screen = get_debug_image(debug_image_name)
+        mm = mini_map.cut_mini_map(screen, ctx.game_config.mini_map_pos)
+
+        if save_name is not None:
+            img_path = os.path.join(self.sub_package_path, f'{save_name}.png')
+            cv2.imwrite(img_path, mm)
+
+        return mm

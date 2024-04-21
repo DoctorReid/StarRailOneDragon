@@ -50,8 +50,8 @@ class SimUniEnterFight(Operation):
         self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config  # 挑战配置
         self.disposable: bool = disposable  # 攻击可破坏物
         self.no_attack: bool = no_attack  # 不主动攻击
-        self.technique_fight: bool = False if config is None else config.technique_fight  # 是否使用秘技开怪
-        self.technique_only: bool = False if config is None else config.technique_only  # 是否仅用秘技开怪
+        self.technique_fight: bool = False if self.config is None else self.config.technique_fight  # 是否使用秘技开怪
+        self.technique_only: bool = False if self.config is None else self.config.technique_only  # 是否仅用秘技开怪
         self.first_state: Optional[str] = first_state  # 初始画面状态 传入后会跳过第一次画面状态判断
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
