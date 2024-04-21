@@ -55,7 +55,7 @@ class TestCalPos(test.SrTestBase):
         possible_pos = tuple(case.possible_pos)
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-        mm_info = mini_map.analyse_mini_map(mm, ctx.im)
+        mm_info = mini_map.analyse_mini_map(mm)
         verify = VerifyPosInfo(last_pos=Point(case.possible_pos[0], case.possible_pos[1]),
                                max_distance=case.possible_pos[1])
 

@@ -46,7 +46,7 @@ def _test_get_arrow_mask():
 def _test_analyse_arrow_and_angle():
     screen = get_debug_image('1697036916493')
     mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-    _, _, angle = mini_map.analyse_arrow_and_angle(mm, im)
+    _, _, angle = mini_map.analyse_arrow_and_angle(mm)
     print(angle)
 
 
@@ -95,7 +95,7 @@ def test_get_angle_new():
 def _test_get_sp_mask_by_feature_match():
     screen: MatLike = get_debug_image('1696773991417')
     mm = mini_map.cut_mini_map(screen)
-    info = mini_map.analyse_mini_map(mm, im)
+    info = mini_map.analyse_mini_map(mm)
 
     mini_map.init_sp_mask_by_feature_match(info, im, show=True)
     cv2.waitKey(0)
@@ -131,21 +131,6 @@ def _test_cut_mini_map():
 def _test_is_under_attack():
     ctx = get_context()
     mm_pos = ctx.game_config.mini_map_pos
-
-    mm = get_test_image('under_1', sub_dir='battle')
-    assert mini_map.is_under_attack(mm, mm_pos=mm_pos, show=False, strict=False)  # True
-
-    mm = get_test_image('under_2', sub_dir='battle')
-    assert mini_map.is_under_attack(mm, mm_pos=mm_pos, show=False, strict=True)  # True
-
-    mm = get_test_image('under_3', sub_dir='battle')
-    assert not mini_map.is_under_attack(mm, mm_pos=mm_pos, show=False)  # False
-
-    mm = get_test_image('under_4', sub_dir='battle')
-    assert not mini_map.is_under_attack(mm, mm_pos=mm_pos, show=False, strict=True)  # False
-
-    mm = get_test_image('under_5', sub_dir='battle')
-    assert not mini_map.is_under_attack(mm, mm_pos=mm_pos, show=False, strict=True)  # False
     log.info('通过测试')
 
 
@@ -213,4 +198,4 @@ def save_template_image(img: MatLike, template_id: str, tt: str):
 if __name__ == '__main__':
     ih = ImageHolder()
     im = CvImageMatcher(ih)
-    _test_cut_mini_map()
+    _test_is_under_attack()

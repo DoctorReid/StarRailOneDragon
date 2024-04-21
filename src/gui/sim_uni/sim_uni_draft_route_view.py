@@ -198,7 +198,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             self.chosen_route = SimUniRoute(level_type.route_id)
 
         self.sr_ctx.init_image_matcher()
-        mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
+        mm_info = mini_map.analyse_mini_map(self.mini_map_image)
 
         pos_list: List[MatchResult] = []
 
@@ -583,7 +583,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             log.info('需要先选定开始点和截图')
             return
         self.sr_ctx.init_image_matcher()
-        mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
+        mm_info = mini_map.analyse_mini_map(self.mini_map_image)
 
         lm_info = self.sr_ctx.ih.get_large_map(self.chosen_route.region)
         last_pos = self.chosen_route.last_pos

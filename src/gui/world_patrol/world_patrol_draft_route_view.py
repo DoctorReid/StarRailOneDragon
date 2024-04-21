@@ -229,7 +229,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
             log.info('需要先选定开始点和截图')
             return False
         self.sr_ctx.init_image_matcher()
-        mm_info = mini_map.analyse_mini_map(self.mini_map_image, self.sr_ctx.im)
+        mm_info = mini_map.analyse_mini_map(self.mini_map_image)
 
         region, last_pos = self.chosen_route.last_pos
         lm_info = self.sr_ctx.ih.get_large_map(region)

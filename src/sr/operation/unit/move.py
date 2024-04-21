@@ -376,7 +376,7 @@ class MoveDirectly(Operation):
                   move_time, self.ctx.controller.is_moving)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info = mini_map.analyse_mini_map(mm)
 
         if len(self.pos) == 0:  # 第一个可以直接使用开始点 不进行计算
             return self.start_pos, mm_info
@@ -478,7 +478,7 @@ class MoveDirectly(Operation):
             return
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info = mini_map.analyse_mini_map(mm)
         last_pos = self.pos[-1]
         self.ctx.controller.move_towards(last_pos, self.target, mm_info.angle,
                                          run=self.run_mode == game_config_const.RUN_MODE_BTN)
@@ -533,7 +533,7 @@ class MoveToEnemy(Operation):
             now = time.time()
             if now - self.last_move_time > 0.5:  # 隔一段时间再调整方向移动
                 self.last_enemy_pos = pos
-                _, _, angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
+                _, _, angle = mini_map.analyse_arrow_and_angle(mm)
                 self.ctx.controller.move_towards(center, pos, angle,
                                                  run=self.run_mode == game_config_const.RUN_MODE_BTN)
             return Operation.round_wait()

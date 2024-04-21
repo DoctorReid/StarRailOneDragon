@@ -43,7 +43,7 @@ class TestDestroyObjects(test.SrTestBase):
 
             lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-            mm_info = mini_map.analyse_mini_map(mm, im)
+            mm_info = mini_map.analyse_mini_map(mm)
             result = cal_pos.cal_character_pos(im, lm_info, mm_info, lm_rect=lm_rect, show=True,
                                                retry_without_rect=False, running=False)
             print(result)

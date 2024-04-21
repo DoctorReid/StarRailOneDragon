@@ -94,6 +94,6 @@ class Calibrator(Application):
         time.sleep(1)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm, self.ctx.im)
+        center_arrow_mask, arrow_mask, next_angle = mini_map.analyse_arrow_and_angle(mm)
         log.info('当前角度 %.2f', next_angle)
         return next_angle

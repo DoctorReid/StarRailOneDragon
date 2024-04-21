@@ -1,5 +1,6 @@
 import math
 import os
+import time
 from functools import lru_cache
 from typing import Set, Optional, List
 
@@ -7,7 +8,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Point, os_utils
+from basic import Point, os_utils, cal_utils
 from basic.img import cv2_utils, MatchResultList, MatchResult
 from basic.log_utils import log
 from sr import const
@@ -162,16 +163,14 @@ def get_angle_from_arrow(arrow: MatLike,
     return 360 - precise_angle
 
 
-def analyse_arrow_and_angle(mini_map: MatLike, im: ImageMatcher):
+def analyse_arrow_and_angle(mini_map: MatLike):
     """
     在小地图上获取小箭头掩码和角度
     没有性能问题
     :param mini_map: 小地图图片
-    :param im: 图片匹配器
     :return:
     """
     center_arrow_mask, arrow_mask = get_arrow_mask(mini_map)
-    # angle = get_angle_from_arrow(center_arrow_mask, im)  # 正右方向为0度 顺时针旋转为正度数
     angle = mini_map_angle_alas.calculate(mini_map)
     return center_arrow_mask, arrow_mask, angle
 
@@ -350,16 +349,15 @@ def get_radio_to_del(angle: Optional[float] = None):
 
 
 @record_performance
-def analyse_mini_map(origin: MatLike, im: ImageMatcher) -> MiniMapInfo:
+def analyse_mini_map(origin: MatLike) -> MiniMapInfo:
     """
     预处理 从小地图中提取出所有需要的信息
     :param origin: 小地图 左上角的一个正方形区域
-    :param im: 图片匹配器
     :return:
     """
     info = MiniMapInfo()
     info.origin = origin
-    info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin, im)
+    info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin)
     info.origin_del_radio = remove_radio(info.origin, get_radio_to_del(info.angle))
     init_circle_mask(info)
 
@@ -669,11 +667,12 @@ def get_enemy_mask(mm_info: MiniMapInfo, with_radio: bool = False) -> MatLike:
     :return: 敌人红点的掩码
     """
     mm_del_radio = mm_info.origin_del_radio
+    # cv2_utils.show_image(mm_del_radio, win_name='get_enemy_mask')
     b, g, r = cv2.split(mm_del_radio)
     b_g = b - g
     lower_color = np.array([45, 45, 80], dtype=np.uint8)
     if not with_radio:  # 不包含雷达的话 只取最红色的部分
-        lower_color[2] = 200
+        lower_color[2] = 170
     upper_color = np.array([70, 70, 255], dtype=np.uint8)
     enemy_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的敌人图
     enemy_mask_2 = np.zeros(mm_del_radio.shape[:2], dtype=np.uint8)
@@ -683,19 +682,45 @@ def get_enemy_mask(mm_info: MiniMapInfo, with_radio: bool = False) -> MatLike:
     return cv2.bitwise_and(enemy_mask, mm_info.circle_mask)
 
 
-def is_under_attack_new(mm_info: MiniMapInfo, strict: bool = False) -> bool:
+def with_enemy_nearby_new(mm_info: MiniMapInfo):
+    """
+    判断附近是否有敌人
+    :param mm_info: 小地图信息
+    :return:
+    """
+    enemy_pos = get_enemy_pos(mm_info)
+
+    closest_dis = 999
+    for pos in enemy_pos:
+        dis = cal_utils.distance_between(Point(0, 0), pos)
+        if dis < closest_dis:
+            closest_dis = dis
+
+    return closest_dis < mm_info.origin.shape[0] // 4  # 半个小地图内
+
+
+def is_under_attack_new(mm_info: MiniMapInfo, enemy: bool = False) -> bool:
     """
     新的被怪锁定判断
     :param mm_info: 小地图信息
-    :param strict: 严格判断 = 小地图有红框 & 小地图有红点
+    :param enemy: 小地图上是否有红点在旁边
     :return:
     """
-    under = is_under_attack(mm_info.origin_del_radio, strict=strict)
+    _, _, r = cv2.split(mm_info.origin_del_radio)
+    red_mask = np.zeros_like(r, dtype=np.uint8)
+    red_mask[r > 200] = 255
+    # cv2_utils.show_image(red_mask, win_name='red_mask', wait=0)
+
+    cx = r.shape[1] // 2
+
+    circles = cv2.HoughCircles(red_mask, cv2.HOUGH_GRADIENT, 0.3, 100,
+                               param1=10, param2=10,
+                               minRadius=cx - 10, maxRadius=cx + 10)
+    under = circles is not None
 
     if not under:
         return False
-
-    if strict and with_enemy_nearby(mm_info.origin_del_radio):
+    elif enemy:
+        return with_enemy_nearby_new(mm_info)
+    else:
         return True
-
-    return False

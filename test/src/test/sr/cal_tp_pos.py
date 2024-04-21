@@ -30,7 +30,7 @@ def cal_one(tp: TransportPoint, debug_image: str = None, show: bool = False):
     possible_pos = (*(tp.lm_pos.tuple()), 50)
     lm_info: LargeMapInfo = ctx.ih.get_large_map(tp.region)
     lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
-    mm_info = mini_map.analyse_mini_map(mm, ctx.im)
+    mm_info = mini_map.analyse_mini_map(mm)
     result = cal_pos.cal_character_pos_by_sp_result(ctx.im, lm_info, mm_info, lm_rect=lm_rect)
     if result is None:
         result = cal_pos.cal_character_pos_by_gray(ctx.im, lm_info, mm_info, lm_rect=lm_rect,

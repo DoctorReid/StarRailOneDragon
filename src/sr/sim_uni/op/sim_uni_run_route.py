@@ -498,7 +498,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
             return Operation.round_success()
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info = mini_map.analyse_mini_map(mm)
 
         lm_info = self.ctx.ih.get_large_map(self.route.region)
 

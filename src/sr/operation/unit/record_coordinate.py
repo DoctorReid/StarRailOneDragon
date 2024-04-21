@@ -45,7 +45,7 @@ class RecordCoordinate(Operation):
         possible_pos = (self.last_point.x, self.last_point.y, move_distance)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info = mini_map.analyse_mini_map(mm)
 
         try:
             verify = VerifyPosInfo(last_pos=self.last_point, max_distance=move_distance)

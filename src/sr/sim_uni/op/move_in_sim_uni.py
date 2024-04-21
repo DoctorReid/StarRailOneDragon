@@ -85,7 +85,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
                   move_time, self.ctx.controller.is_moving)
         lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-        mm_info = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info = mini_map.analyse_mini_map(mm)
 
         if len(self.pos) == 0:
             return self.start_pos, mm_info
@@ -312,7 +312,7 @@ class MoveToNextLevel(StateOperation):
                 return Operation.round_retry()
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm, self.ctx.im)
+        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
         self.ctx.controller.turn_by_pos(self.current_pos, self.next_pos, mm_info.angle)
 
         return Operation.round_success(wait=0.5)  # 等待转动完成
@@ -456,7 +456,7 @@ class MoveToNextLevel(StateOperation):
             log.debug('尝试交互进入下一层')
             self.interacted = True
             self.ctx.controller.stop_moving_forward()
-            return Operation.round_wait(wait=0.25)
+            return Operation.round_wait(wait=0.1)
         else:
             return None
 
