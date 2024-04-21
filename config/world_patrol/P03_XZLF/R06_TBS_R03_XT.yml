@@ -81,8 +81,3 @@ route:
     data: [299, 890]
   - idx: 28
     op: 'patrol'
-  - idx: 29
-    op: 'move'
-    data: [305, 907]
-  - idx: 30
-    op: 'disposable'

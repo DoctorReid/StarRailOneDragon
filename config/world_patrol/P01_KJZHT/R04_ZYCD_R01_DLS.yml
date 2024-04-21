@@ -60,11 +60,3 @@ route:
     data: [563, 235]
   - idx: 21
     op: 'patrol'
-  - idx: 22
-    op: 'move'
-    data: [632, 234]
-  - idx: 23
-    op: 'move'
-    data: [632, 217]
-  - idx: 24
-    op: 'disposable'

@@ -17,14 +17,17 @@ route:
     op: 'patrol'
   - idx: 5
     op: 'move'
-    data: [701, 278]
+    data: [677, 226]
   - idx: 6
     op: 'move'
-    data: [677, 269]
+    data: [701, 278]
   - idx: 7
-    op: 'disposable'
+    op: 'move'
+    data: [677, 269]
   - idx: 8
+    op: 'disposable'
+  - idx: 9
     op: 'move'
     data: [651, 317]
-  - idx: 9
+  - idx: 10
     op: 'disposable'
