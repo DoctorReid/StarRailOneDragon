@@ -246,6 +246,8 @@ class SimUniApp(Application):
         return Operation.round_by_op(op.execute())
 
     def _run_world(self) -> OperationOneRoundResult:
+        if self.current_uni_num >= 9 and not self.ctx.one_dragon_config.is_debug:
+            return Operation.round_fail(status=f'未支持宇宙{self.current_uni_num}')
         uni_challenge_config = self.ctx.sim_uni_config.get_challenge_config(self.current_uni_num)
         get_reward = self.current_uni_num == self.specified_uni_num  # 只有当前宇宙和开拓力需要的宇宙是同一个 才能拿奖励
 

@@ -153,7 +153,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
             return None
         if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
             return None
-        if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos):
+        if not mini_map.is_under_attack(mm):
             return None
 
         # 停下来的任务交给了 SimUniEnterFight 这样可以取消停止移动造成的后摇

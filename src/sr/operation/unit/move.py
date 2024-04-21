@@ -314,7 +314,7 @@ class MoveDirectly(Operation):
         """
         if self.no_battle:
             return None
-        if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos):
+        if not mini_map.is_under_attack(mm):
             return None
 
         # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新

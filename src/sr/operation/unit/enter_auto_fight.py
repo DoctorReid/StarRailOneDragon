@@ -100,7 +100,7 @@ class WorldPatrolEnterFight(Operation):
         """
         now_time = time.time()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos, strict=True):
+        if not mini_map.is_under_attack(mm, strict=True):
             if now_time - self.last_alert_time > WorldPatrolEnterFight.EXIT_AFTER_NO_ALTER_TIME:
                 return Operation.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:

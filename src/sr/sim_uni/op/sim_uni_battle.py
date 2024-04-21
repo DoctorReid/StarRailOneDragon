@@ -47,7 +47,7 @@ class SimUniEnterFight(Operation):
         self.current_state: str = ''  # 这一次的画面状态
         self.with_battle: bool = False  # 是否有进入战斗
         self.attack_times: int = 0  # 攻击次数
-        self.config: Optional[SimUniChallengeConfig] = config  # 挑战配置
+        self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config  # 挑战配置
         self.disposable: bool = disposable  # 攻击可破坏物
         self.no_attack: bool = no_attack  # 不主动攻击
         self.technique_fight: bool = False if config is None else config.technique_fight  # 是否使用秘技开怪
@@ -158,7 +158,7 @@ class SimUniEnterFight(Operation):
         """
         now_time = time.time()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        if not mini_map.is_under_attack(mm, self.ctx.game_config.mini_map_pos, strict=True):
+        if not mini_map.is_under_attack(mm, strict=True):
             if now_time - self.last_alert_time > SimUniEnterFight.EXIT_AFTER_NO_ALTER_TIME:
                 return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:

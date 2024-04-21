@@ -271,7 +271,7 @@ def init_sp_mask_by_feature_match(mm_info: MiniMapInfo, im: ImageMatcher,
     mm_info.sp_result = sp_match_result
 
 
-def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
+def is_under_attack(mm: MatLike,
                     strict: bool = False,
                     show: bool = False) -> bool:
     """
@@ -279,14 +279,13 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
     红色色道应该有一个圆
     约1ms
     :param mm: 小地图截图
-    :param mm_pos: 小地图坐标信息
     :param strict: 是否严格判断 只有红色的框认为是被锁定
     :param show: debug用 显示中间结果图片
     :return: 是否被锁定
     """
     w, h = mm.shape[1], mm.shape[0]
     cx, cy = w // 2, h // 2
-    r = mm_pos.r
+    r = (cx + cy) // 2
 
     circle_mask = np.zeros(mm.shape[:2], dtype=np.uint8)
     cv2.circle(circle_mask, (cx, cy), r, 255, 3)
@@ -309,7 +308,7 @@ def is_under_attack(mm: MatLike, mm_pos: MiniMapPos,
         mask = cv2.bitwise_or(red, orange)
 
     circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT, 0.3, 100, param1=10, param2=10,
-                               minRadius=mm_pos.r - 10, maxRadius=mm_pos.r + 10)
+                               minRadius=r - 10, maxRadius=r + 10)
     find: bool = circles is not None
 
     if show:
@@ -356,7 +355,6 @@ def analyse_mini_map(origin: MatLike, im: ImageMatcher) -> MiniMapInfo:
     预处理 从小地图中提取出所有需要的信息
     :param origin: 小地图 左上角的一个正方形区域
     :param im: 图片匹配器
-    :param sp_types: 特殊点种类
     :return:
     """
     info = MiniMapInfo()
@@ -608,13 +606,32 @@ def find_one_enemy_pos(im: ImageMatcher,
     return Point(center_x, center_y)
 
 
-def get_enemy_pos(mm_del_origin: MatLike) -> List[Point]:
+def get_enemy_pos(mm_info: MiniMapInfo) -> List[Point]:
     """
     获取敌人的位置 以小地图中心为 (0,0)
-    :param mm_del_origin: 去除雷达的小地图
+    :param mm_info: 小地图信息
     :return:
     """
-    return []
+    enemy_mask = get_enemy_mask(mm_info)
+    cx, cy = mm_info.origin.shape[:2]
+
+    # 膨胀一下找连通块
+    to_check = cv2_utils.dilate(enemy_mask, 5)
+    num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(to_check, connectivity=8)
+
+    pos_list: List[Point] = []
+
+    if num_labels <= 1:  # 没有连通块 走到敌人附近了
+        return pos_list
+
+    # 找到最大的连通区域
+    for label in range(2, num_labels):
+        # 找到各个连通区域的中心点
+        center_x = int(centroids[label, 0])
+        center_y = int(centroids[label, 1])
+        pos_list.append(Point(center_x - cx, center_y - cy))
+
+    return pos_list
 
 
 def with_enemy_nearby(mm_del_radio: MatLike):
@@ -640,3 +657,43 @@ def with_enemy_nearby(mm_del_radio: MatLike):
     # cv2_utils.show_image(red_part, win_name='red_part', wait=0)
 
     return np.max(red_part) > 0
+
+
+def get_enemy_mask(mm_info: MiniMapInfo, with_radio: bool = False) -> MatLike:
+    """
+    获取敌人红点的掩码
+    :param mm_info: 小地图信息
+    :param with_radio: 是否包含雷达部分
+    :return: 敌人红点的掩码
+    """
+    mm_del_radio = mm_info.origin_del_radio
+    b, g, r = cv2.split(mm_del_radio)
+    b_g = b - g
+    lower_color = np.array([45, 45, 80], dtype=np.uint8)
+    if not with_radio:  # 不包含雷达的话 只取最红色的部分
+        lower_color[2] = 200
+    upper_color = np.array([70, 70, 255], dtype=np.uint8)
+    enemy_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的敌人图
+    enemy_mask_2 = np.zeros(mm_del_radio.shape[:2], dtype=np.uint8)
+    enemy_mask_2[(b_g <= 2) | (b_g >= -2)] = 255  # 敌人的雷达图 g 约等于 b
+    enemy_mask = cv2.bitwise_and(enemy_mask_1, enemy_mask_2)
+
+    return cv2.bitwise_and(enemy_mask, mm_info.circle_mask)
+
+
+def is_under_attack_new(mm_info: MiniMapInfo, strict: bool = False) -> bool:
+    """
+    新的被怪锁定判断
+    :param mm_info: 小地图信息
+    :param strict: 严格判断 = 小地图有红框 & 小地图有红点
+    :return:
+    """
+    under = is_under_attack(mm_info.origin_del_radio, strict=strict)
+
+    if not under:
+        return False
+
+    if strict and with_enemy_nearby(mm_info.origin_del_radio):
+        return True
+
+    return False

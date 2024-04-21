@@ -6,6 +6,7 @@ from typing import Optional, List
 import keyboard
 import pyautogui
 
+from basic import os_utils
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -45,6 +46,7 @@ from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig, SimUniChallengeConfig
 from sr.win import Window
+from sryolo.detector import StarRailYOLO
 
 _context_callback_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_context_callback', max_workers=1)
 
@@ -114,7 +116,6 @@ class SimUniInfo:
         self.world_num: int = 0  # 当前第几世界
 
 
-
 class Context:
 
     def __init__(self):
@@ -126,6 +127,7 @@ class Context:
         self.im: Optional[ImageMatcher] = None
         self.ocr: Optional[OcrMatcher] = None
         self.controller: Optional[GameController] = None
+        self.yolo: Optional[StarRailYOLO] = None
         self.running: int = 0  # 0-停止 1-运行 2-暂停
         self.press_event: dict = {}
         self.start_callback: dict = {}
@@ -477,6 +479,12 @@ class Context:
         if self.ocr is None:
             self.ocr = get_ocr_matcher(self.game_config.lang)
         log.info('加载OCR识别器完毕')
+        return True
+
+    def init_yolo(self) -> bool:
+        if self.yolo is None:
+            self.yolo = StarRailYOLO(model_parent_dir_path=os_utils.get_path_under_work_dir('model', 'yolo'))
+        log.info('加载YOLO识别器完毕')
         return True
 
     def init_all(self, renew: bool = False) -> bool:

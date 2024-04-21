@@ -122,6 +122,11 @@ class GameController:
         pass
 
     def turn_by_angle(self, angle: float):
+        """
+        按角度旋转
+        :param angle: 正数往右转 人物角度增加；负数往左转 人物角度减少
+        :return:
+        """
         self.turn_by_distance(self.turn_dx * angle)
 
     def turn_by_pos(self, current_pos: Point, target_pos: Point, current_angle: float):
