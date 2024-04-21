@@ -594,7 +594,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
                 return Operation.round_fail('%s 未进行截图' % self.route.display_name)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        red_pos = mini_map.find_one_enemy_pos(self.ctx.im, mm=mm)
+        red_pos = mini_map.find_one_enemy_pos(mm=mm)
         if red_pos is None:
             self.no_icon = True
             if len(self.route.op_list) == 0:  # 未配置路线时 需要识别到才能往下走

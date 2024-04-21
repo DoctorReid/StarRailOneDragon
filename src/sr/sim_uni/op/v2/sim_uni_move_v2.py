@@ -23,12 +23,14 @@ class SimUniMoveToEnemyByMiniMap(Operation):
     REC_POS_INTERVAL: ClassVar[float] = 0.1
     DIS_MAX_LEN: ClassVar[int] = 2 // REC_POS_INTERVAL  # 2秒没移动
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, no_attack: bool = False):
         """
         从小地图上判断 向其中一个红点移动
         停下来的条件有
         - 距离红点过近
         - 被怪物锁定
+        :param ctx: 上下文
+        :param no_attack: 不主动发起攻击
         """
         super().__init__(ctx,
                          op_name=gt('向红点移动', 'ui'),
@@ -47,6 +49,9 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         self.stuck_times: int = 0
         """被困次数"""
 
+        self.no_attack: bool = no_attack
+        """不发起主动攻击 适用于精英怪场合"""
+
     def _execute_one_round(self) -> OperationOneRoundResult:
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
         if stuck is not None:  # 只有脱困失败的时候会有返回结果
@@ -61,7 +66,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
 
-        if mini_map.is_under_attack_new(mm_info, enemy=True):
+        if not self.no_attack and mini_map.is_under_attack_new(mm_info, enemy=True):
             return self._enter_battle()
 
         enemy_pos_list = mini_map.get_enemy_pos(mm_info)

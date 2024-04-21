@@ -281,7 +281,7 @@ class SimUniFightElite(StateOperation):
                          ),
                          edges=edges
                          )
-        self.config: Optional[SimUniChallengeConfig] = config  # 优先级
+        self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config
 
     def _check_enemy(self) -> OperationOneRoundResult:
         """

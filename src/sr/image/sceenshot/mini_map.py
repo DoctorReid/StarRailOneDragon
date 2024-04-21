@@ -558,8 +558,7 @@ def get_edge_mask(origin: MatLike, road_mask: MatLike, another_floor: bool = Fal
     return final_edge_mask
 
 
-def find_one_enemy_pos(im: ImageMatcher,
-                       mm: Optional[MatLike] = None,
+def find_one_enemy_pos(mm: Optional[MatLike] = None,
                        mm_del_radio: Optional[MatLike] = None) -> Optional[Point]:
     """
     在小地图上找到敌人红点的位置

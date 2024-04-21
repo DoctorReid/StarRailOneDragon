@@ -12,7 +12,7 @@ from sr.operation.unit.team import CheckTeamMembersInWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
-from sr.sim_uni.op.v2.sim_uni_run_route_v2 import SimUniRunCombatRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_route_v2 import SimUniRunCombatRouteV2, SimUniRunEliteRouteV2
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
@@ -167,6 +167,9 @@ class SimUniRunLevel(StateOperation):
         """
         if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
             return SimUniRunCombatRouteV2(self.ctx)
+        elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
+                self.level_type == SimUniLevelTypeEnum.BOSS.value:
+            return SimUniRunEliteRouteV2(self.ctx)
         else:
             return None
 
