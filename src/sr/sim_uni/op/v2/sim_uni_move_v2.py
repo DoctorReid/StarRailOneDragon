@@ -70,7 +70,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
 
-        if not self.no_attack and mini_map.is_under_attack_new(mm_info, enemy=True):
+        if not self.no_attack and mini_map.is_under_attack_new(mm_info, danger=True, enemy=True):
             return self._enter_battle()
 
         enemy_pos_list = mini_map.get_enemy_pos(mm_info)
@@ -211,7 +211,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         # 被怪锁定了
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info = mini_map.analyse_mini_map(mm)
-        if mini_map.is_under_attack_new(mm_info):
+        if mini_map.is_under_attack_new(mm_info, danger=True):
             return self.enter_battle()
 
         # 移动2秒后 如果丢失了目标 停下来
@@ -334,7 +334,7 @@ class SimUniMoveToEventByDetect(Operation):
             self.ctx.controller.stop_moving_forward()
             return Operation.round_wait()
 
-        if self.can_interact():
+        if self.can_interact(screen):
             self.ctx.controller.stop_moving_forward()
             return Operation.round_success(status=SimUniMoveToEventByDetect.STATUS_ARRIVAL)
 
@@ -407,12 +407,11 @@ class SimUniMoveToEventByDetect(Operation):
         img = draw_detections(screen, enemy_pos_list)
         cv2_utils.show_image(img, win_name='SimUniMoveToEnemyByDetect')
 
-    def can_interact(self) -> bool:
+    def can_interact(self, screen) -> bool:
         """
         当前可交互
         :return:
         """
-        screen = self.screenshot()
         interact_pos = check_move_interact(self.ctx, screen, '事件', single_line=True)
         return interact_pos is not None
 
@@ -450,7 +449,7 @@ class SimUniMoveToHertaByDetect(Operation):
             self.ctx.controller.stop_moving_forward()
             return Operation.round_wait()
 
-        if self.can_interact():
+        if self.can_interact(screen):
             self.ctx.controller.stop_moving_forward()
             return Operation.round_success(status=SimUniMoveToHertaByDetect.STATUS_ARRIVAL)
 
@@ -477,13 +476,15 @@ class SimUniMoveToHertaByDetect(Operation):
         :return:
         """
         self.ctx.init_yolo()
-        detect_result = self.ctx.yolo.detect(screen)
-        normal_enemy_result = []
-        for result in detect_result:
+        detect_results = self.ctx.yolo.detect(screen)
+        filter_result = []
+        for result in detect_results:
             if not result.detect_class.class_cate == '模拟宇宙黑塔':
                 continue
-            normal_enemy_result.append(result)
-        return normal_enemy_result
+            filter_result.append(result)
+        if self.ctx.one_dragon_config.is_debug:
+            cv2_utils.show_image(draw_detections(screen, detect_results), win_name='_detect_event_in_screen')
+        return filter_result
 
     def handle_no_detect(self) -> OperationOneRoundResult:
         """
@@ -523,12 +524,11 @@ class SimUniMoveToHertaByDetect(Operation):
         img = draw_detections(screen, enemy_pos_list)
         cv2_utils.show_image(img, win_name='SimUniMoveToHertaByDetect')
 
-    def can_interact(self) -> bool:
+    def can_interact(self, screen: MatLike) -> bool:
         """
         当前可交互
         :return:
         """
-        screen = self.screenshot()
         interact_pos = check_move_interact(self.ctx, screen, '黑塔', single_line=True)
         return interact_pos is not None
 

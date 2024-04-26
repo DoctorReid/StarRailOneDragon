@@ -3,9 +3,8 @@ from basic.img import cv2_utils
 from basic.img.os import get_debug_image
 from sr.const import character_const
 from sr.context import get_context
-from sr.image.sceenshot import screen_state
-from sr.sim_uni.op.sim_uni_reward import SimUniReward
-from sr.sim_uni.op.v2.sim_uni_run_route_v2 import SimUniRunCombatRouteV2, SimUniRunEliteRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_route_v2 import SimUniRunCombatRouteV2, SimUniRunEliteRouteV2, \
+    SimUniRunRespiteRouteV2, SimUniRunEventRouteV2
 from sryolo.detector import draw_detections
 
 
@@ -32,6 +31,26 @@ class DebugSimUniRunRouteV2(test.SrTestBase):
         ctx.team_info.character_list = [character_const.ACHERON]
 
         op = SimUniRunEliteRouteV2(ctx)
+        op.execute()
+
+    def test_respite_route(self):
+        ctx = get_context()
+        ctx.init_all()
+        ctx.start_running()
+        ctx.sim_uni_info.world_num = 9
+        ctx.team_info.character_list = [character_const.ACHERON]
+
+        op = SimUniRunRespiteRouteV2(ctx)
+        op.execute()
+
+    def test_event_route(self):
+        ctx = get_context()
+        ctx.init_all()
+        ctx.start_running()
+        ctx.sim_uni_info.world_num = 9
+        ctx.team_info.character_list = [character_const.ACHERON]
+
+        op = SimUniRunEventRouteV2(ctx)
         op.execute()
 
     def test_yolo(self):

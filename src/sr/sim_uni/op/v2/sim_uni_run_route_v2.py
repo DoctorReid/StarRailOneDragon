@@ -16,9 +16,9 @@ from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, \
-    SimUniMoveToEventByDetect, delta_angle_to_detected_object
-from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
-from sryolo.detector import DetectResult
+    SimUniMoveToEventByDetect, delta_angle_to_detected_object, SimUniMoveToHertaByDetect
+from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType
+from sryolo.detector import DetectResult, draw_detections
 
 
 class SimUniRunRouteBase(StateOperation):
@@ -36,7 +36,8 @@ class SimUniRunRouteBase(StateOperation):
     STATUS_NO_ENTRY: ClassVar[str] = '识别不到下层入口'
     STATUS_NOTHING: ClassVar[str] = '识别不到任何内容'
 
-    def __init__(self, ctx: Context, op_name: str, try_times: int = 2,
+    def __init__(self, ctx: Context, level_type: SimUniLevelType,
+                 op_name: str, try_times: int = 2,
                  nodes: Optional[List[StateOperationNode]] = None,
                  edges: Optional[List[StateOperationEdge]] = None,
                  specified_start_node: Optional[StateOperationNode] = None,
@@ -47,6 +48,7 @@ class SimUniRunRouteBase(StateOperation):
                                 nodes=nodes, edges=edges, specified_start_node=specified_start_node,
                                 timeout_seconds=timeout_seconds, op_callback=op_callback)
 
+        self.level_type: SimUniLevelType = level_type  # 楼层类型
         self.moved_to_target: bool = False  # 是否已经产生了朝向目标的移动
         self.nothing_times: int = 0  # 识别不到任何内容的次数
         self.previous_angle: float = 0  # 之前的朝向 识别到目标时应该记录下来 后续可以在这个方向附近找下一个目标
@@ -95,7 +97,7 @@ class SimUniRunRouteBase(StateOperation):
         """
         self.nothing_times = 0
         self.moved_to_target = True
-        op = MoveToNextLevel(self.ctx, level_type=SimUniLevelTypeEnum.COMBAT.value)
+        op = MoveToNextLevel(self.ctx, level_type=self.level_type)
         return Operation.round_by_op(op.execute())
 
     def _turn_when_nothing(self) -> OperationOneRoundResult:
@@ -190,7 +192,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         # 转动完重新开始目标识别
         edges.append(StateOperationEdge(turn, check))
 
-        super().__init__(ctx,
+        super().__init__(ctx, level_type=SimUniLevelTypeEnum.COMBAT.value,
                          op_name=gt('区域-战斗', 'ui'),
                          edges=edges,
                          specified_start_node=first_angle)
@@ -220,7 +222,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
 
-        if mini_map.is_under_attack_new(mm_info):
+        if mini_map.is_under_attack_new(mm_info, danger=True):
             op = SimUniEnterFight(self.ctx)
             op_result = op.execute()
             if op_result.success:
@@ -352,7 +354,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
         edges.append(StateOperationEdge(turn, check_red))
 
-        super().__init__(ctx,
+        super().__init__(ctx, level_type=SimUniLevelTypeEnum.ELITE.value,
                          op_name=gt('区域-精英', 'ui'),
                          edges=edges,
                          specified_start_node=check_red
@@ -438,7 +440,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
         edges.append(StateOperationEdge(turn, check_mm))
 
-        super().__init__(ctx,
+        super().__init__(ctx, level_type=SimUniLevelTypeEnum.EVENT.value,
                          op_name=gt('区域-事件', 'ui'),
                          edges=edges,
                          specified_start_node=check_mm
@@ -453,7 +455,8 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         """
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mrl = self.ctx.im.match_template(mm, template_id='mm_sp_event')
+        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
+        mrl = self.ctx.im.match_template(mm_info.origin_del_radio, template_id='mm_sp_event', template_sub_dir='sim_uni')
         if mrl.max is not None:
             self.mm_icon_pos = mrl.max.center
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT)
@@ -479,18 +482,21 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         self._view_down()
         screen = self.screenshot()
 
+        self.ctx.init_yolo()
         detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
 
         with_event: bool = False
         for result in detect_results:
-            if result.detect_class.class_name == '模拟宇宙事件':
+            if result.detect_class.class_cate == '模拟宇宙事件':
                 with_event = True
                 break
 
         if with_event:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT)
         else:
-            cv2_utils.show_image(screen, win_name='_detect_event_in_screen')
+            if self.ctx.one_dragon_config.is_debug:
+                self.save_screenshot()
+            cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunEventRouteV2')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -560,8 +566,8 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
         edges.append(StateOperationEdge(turn, check_mm))
 
-        super().__init__(ctx,
-                         op_name=gt('区域-事件', 'ui'),
+        super().__init__(ctx, level_type=SimUniLevelTypeEnum.RESPITE.value,
+                         op_name=gt('区域-休整', 'ui'),
                          edges=edges,
                          specified_start_node=check_mm
                          )
@@ -575,7 +581,8 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         """
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mrl = self.ctx.im.match_template(mm, template_id='mm_sp_herta')
+        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
+        mrl = self.ctx.im.match_template(mm_info.origin_del_radio, template_id='mm_sp_herta', template_sub_dir='sim_uni')
         if mrl.max is not None:
             self.mm_icon_pos = mrl.max.center
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT)
@@ -601,18 +608,21 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         self._view_down()
         screen = self.screenshot()
 
+        self.ctx.init_yolo()
         detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
 
         with_event: bool = False
         for result in detect_results:
-            if result.detect_class.class_name == '模拟宇宙黑塔':
+            if result.detect_class.class_cate == '模拟宇宙黑塔':
                 with_event = True
                 break
 
         if with_event:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT)
         else:
-            cv2_utils.show_image(screen, win_name='_detect_event_in_screen')
+            if self.ctx.one_dragon_config.is_debug:
+                self.save_screenshot()
+            cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunRespiteRouteV2')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -622,7 +632,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         """
         self.nothing_times = 0
         self.moved_to_target = True
-        op = SimUniMoveToEventByDetect(self.ctx)
+        op = SimUniMoveToHertaByDetect(self.ctx)
         return Operation.round_by_op(op.execute())
 
     def _interact(self) -> OperationOneRoundResult:

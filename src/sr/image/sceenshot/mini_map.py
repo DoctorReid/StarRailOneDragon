@@ -720,16 +720,20 @@ def with_enemy_nearby_new(mm_info: MiniMapInfo):
     return closest_dis < mm_info.origin.shape[0] // 4  # 半个小地图内
 
 
-def is_under_attack_new(mm_info: MiniMapInfo, enemy: bool = False) -> bool:
+def is_under_attack_new(mm_info: MiniMapInfo, danger: bool = False, enemy: bool = False) -> bool:
     """
     新的被怪锁定判断
     :param mm_info: 小地图信息
+    :param danger: 红色告警 被锁定了
     :param enemy: 小地图上是否有红点在旁边
     :return:
     """
-    _, _, r = cv2.split(mm_info.origin_del_radio)
+    _, g, r = cv2.split(mm_info.origin_del_radio)
     red_mask = np.zeros_like(r, dtype=np.uint8)
-    red_mask[r > 200] = 255
+    if not danger:
+        red_mask[r > 200] = 255
+    else:
+        red_mask[(r > 200) & (g < 100)] = 255
     # cv2_utils.show_image(red_mask, win_name='red_mask', wait=0)
 
     cx = r.shape[1] // 2

@@ -90,7 +90,7 @@ class DetectResult:
 class StarRailYOLO:
 
     def __init__(self,
-                 model_name: str = 'full-test-v0',
+                 model_name: str = 'yolov8n-1088-full-v1',
                  model_parent_dir_path: Optional[str] = None,
                  cuda: bool = False):
         """
@@ -151,7 +151,7 @@ class StarRailYOLO:
             self.idx_2_class[row['idx']] = DetectClass(row['idx'], row['label'], row['cate'])
 
     def detect(self, image: MatLike,
-               conf: float = 0.7,
+               conf: float = 0.5,
                iou: float = 0.5) -> List[DetectResult]:
         """
 
