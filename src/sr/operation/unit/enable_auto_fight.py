@@ -5,7 +5,7 @@ from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.context import Context
-from sr.image.sceenshot import battle, fill_uid_black
+from sr.image.sceenshot import battle, fill_uid_black, screen_state
 from sr.operation import Operation
 
 
@@ -19,8 +19,7 @@ class EnableAutoFight(Operation):
 
     def _execute_one_round(self) -> int:
         screen = self.screenshot()
-        bs = battle.get_battle_status(screen, self.ctx.im)
-        if battle.BATTLING != bs:  # 非战斗状态
+        if screen_state.is_normal_in_world(screen, self.ctx.im):  # 非战斗状态
             return Operation.SUCCESS
 
         if not battle.is_auto_battle_on(screen, self.ctx.im):

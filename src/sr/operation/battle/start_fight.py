@@ -5,7 +5,7 @@ from basic.i18_utils import gt
 from sr.const.character_const import Character, get_character_by_id, TECHNIQUE_BUFF, is_attack_character, \
     TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK, SILVERWOLF, TECHNIQUE_AREA
 from sr.context import Context
-from sr.image.sceenshot import battle
+from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.team import GetTeamMemberInWorld, SwitchMember
 from sr.operation.unit.technique import UseTechnique, CheckTechniquePoint
@@ -38,8 +38,7 @@ class StartFight(Operation):
     def _execute_one_round(self) -> int:
         screen = self.screenshot()
 
-        screen_status = battle.get_battle_status(screen, self.ctx.im)
-        if screen_status != battle.IN_WORLD:  # 在战斗界面
+        if not screen_state.is_normal_in_world(screen, self.ctx.im):  # 在战斗界面
             return Operation.SUCCESS
 
         self.ctx.controller.initiate_attack()  # 主动攻击

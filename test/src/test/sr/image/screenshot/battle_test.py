@@ -7,11 +7,6 @@ from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.sceenshot import battle
 
 
-def _test_get_battle_status():
-    screen = get_test_image('all_off', sub_dir='battle')
-    assert battle.BATTLING == battle.get_battle_status(screen, im)  # 2
-
-
 def _test_match_battle_ctrl():
     screen = get_test_image('all_off', sub_dir='battle')
     r = battle.match_battle_ctrl(screen, im, 'battle_ctrl_02', False)

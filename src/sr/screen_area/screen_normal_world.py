@@ -6,7 +6,8 @@ from sr.screen_area import ScreenArea
 
 class ScreenNormalWorld(Enum):
 
-    CHARACTER_ICON = ScreenArea(pc_rect=Rect(1800, 0, 1900, 90), template_id='ui_icon_01', status='大世界', pc_alt=True)  # 右上角的角色图标
+    CHARACTER_ICON = ScreenArea(pc_rect=Rect(1800, 0, 1900, 90), status='大世界', pc_alt=True,
+                                template_id='ui_icon_01', template_match_threshold=0.4)  # 右上角的角色图标
     UID = ScreenArea(pc_rect=Rect(26, 1040, 160, 1063))
 
     TEAM_MEMBER_AVATAR_1 = ScreenArea(pc_rect=Rect(1770, 275, 1873, 355))

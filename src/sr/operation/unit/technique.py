@@ -8,10 +8,11 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.ocr_matcher import OcrMatcher
-from sr.image.sceenshot import screen_state, battle
+from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationEdge, StateOperationNode
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
+
 
 def pc_can_use_technique(screen: MatLike, ocr: OcrMatcher, key: str) -> bool:
     """
@@ -227,7 +228,7 @@ class CheckTechniquePoint(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        if battle.IN_WORLD != battle.get_battle_status(screen, self.ctx.im):
+        if not screen_state.is_normal_in_world(screen, self.ctx.im):
             time.sleep(1)
             return Operation.round_retry('未在大世界界面')
 

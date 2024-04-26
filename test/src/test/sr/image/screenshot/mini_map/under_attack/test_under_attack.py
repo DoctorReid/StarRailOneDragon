@@ -34,25 +34,25 @@ class TestMiniMapUnderAttack(test.SrTestBase):
         ctx = get_context()
         ctx.init_image_matcher()
 
-        # mm = self.get_test_image_new('under_1.png')
-        # mm_info = mini_map.analyse_mini_map(mm)
-        # self.assertTrue(mini_map.is_under_attack_new(mm_info, enemy=True))
-        #
-        # mm = self.get_test_image_new('under_2.png')
-        # mm_info = mini_map.analyse_mini_map(mm)
-        # self.assertTrue(mini_map.is_under_attack_new(mm_info, enemy=True))
-        #
-        # mm = self.get_test_image_new('under_3.png')
-        # mm_info = mini_map.analyse_mini_map(mm)
-        # self.assertFalse(mini_map.is_under_attack_new(mm_info, enemy=True))
-        #
-        # mm = self.get_test_image_new('under_4.png')
-        # mm_info = mini_map.analyse_mini_map(mm)
-        # self.assertFalse(mini_map.is_under_attack_new(mm_info, enemy=True))
-        #
-        # mm = self.get_test_image_new('under_5.png')
-        # mm_info = mini_map.analyse_mini_map(mm)
-        # self.assertFalse(mini_map.is_under_attack_new(mm_info, enemy=True))
+        mm = self.get_test_image_new('under_1.png')
+        mm_info = mini_map.analyse_mini_map(mm)
+        self.assertFalse(mini_map.is_under_attack_new(mm_info, danger=True, enemy=True))
+
+        mm = self.get_test_image_new('under_2.png')
+        mm_info = mini_map.analyse_mini_map(mm)
+        self.assertTrue(mini_map.is_under_attack_new(mm_info, danger=True, enemy=True))
+
+        mm = self.get_test_image_new('under_3.png')
+        mm_info = mini_map.analyse_mini_map(mm)
+        self.assertFalse(mini_map.is_under_attack_new(mm_info, enemy=True))
+
+        mm = self.get_test_image_new('under_4.png')
+        mm_info = mini_map.analyse_mini_map(mm)
+        self.assertFalse(mini_map.is_under_attack_new(mm_info, enemy=True))
+
+        mm = self.get_test_image_new('under_5.png')
+        mm_info = mini_map.analyse_mini_map(mm)
+        self.assertFalse(mini_map.is_under_attack_new(mm_info, enemy=True))
 
         mm = self.get_test_image_new('under_6.png')
         mm_info = mini_map.analyse_mini_map(mm)

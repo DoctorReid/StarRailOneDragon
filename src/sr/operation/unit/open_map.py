@@ -1,13 +1,10 @@
-import time
-
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.context import Context
 from sr.control import GameController
 from sr.image.ocr_matcher import OcrMatcher
-from sr.image.sceenshot import large_map, battle
+from sr.image.sceenshot import large_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.enter_auto_fight import WorldPatrolEnterFight
 from sr.screen_area.screen_large_map import ScreenLargeMap
 
 
@@ -25,16 +22,10 @@ class OpenMap(Operation):
 
         screen = self.screenshot()
 
-        battle_status = battle.get_battle_status(screen, self.ctx.im)
-        if battle_status == battle.IN_WORLD:  # 主界面
+        if screen_state.is_normal_in_world(screen, self.ctx.im):  # 主界面
             log.info('尝试打开地图')
             ctrl.open_map()
             return Operation.round_wait(wait=2)
-
-        if battle_status == battle.BATTLING:  # 可能是路线末尾被袭击了 等待最后一次战斗结束
-            fight = WorldPatrolEnterFight(self.ctx)
-            fight.execute()
-            return Operation.round_wait()
 
         # 二级地图中 需要返回
         area = ScreenLargeMap.SUB_MAP_BACK.value

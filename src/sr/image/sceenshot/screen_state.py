@@ -160,7 +160,7 @@ def is_normal_in_world(screen: MatLike, im: ImageMatcher) -> bool:
     """
     area = ScreenNormalWorld.CHARACTER_ICON.value
     part = cv2_utils.crop_image_only(screen, area.rect)
-    result = im.match_template(part, area.template_id)
+    result = im.match_template(part, area.template_id, threshold=area.template_match_threshold)
     return result.max is not None
 
 

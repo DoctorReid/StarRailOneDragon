@@ -10,13 +10,6 @@ from basic.img import MatchResult, cv2_utils
 from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
 
-UNKNOWN = 0
-IN_WORLD = 1
-ENTERING_BATTLE = 2
-BATTLING = 3
-ENDING_BATTLE_SUCCESS = 4
-ENDING_BATTLE_FAIL = 5
-
 CTRL_RECT = Rect(1620, 30, 1900, 70)
 FAST_BATTLE_RECT = Rect(1620, 30, 1700, 70)  # 二倍速
 AUTO_BATTLE_RECT = Rect(1700, 30, 1800, 70)  # 自动战斗
@@ -30,21 +23,6 @@ AFTER_BATTLE_RESULT_RECT_2 = Rect(820, 320, 1100, 380)  # 战斗结束后领奖�
 
 AFTER_BATTLE_CHALLENGE_AGAIN_BTN_RECT = Rect(1180, 930, 1330, 960)  # 战斗结束后领奖励页面 【再来一次】按钮
 AFTER_BATTLE_EXIT_BTN_RECT = Rect(640, 930, 780, 960)  # 战斗结束后领奖励页面 【退出关卡】按钮
-
-
-def get_battle_status(screen: MatLike, im: ImageMatcher):
-    """
-    判断当天屏幕的战斗状态
-    :param screen: 屏幕截图
-    :param im: 图片匹配器
-    :return: 状态
-    """
-    if is_character_icon_at_right_top(screen, im):
-        return IN_WORLD
-    if in_battle(screen, im):
-        return BATTLING
-
-    return UNKNOWN
 
 
 def in_battle(screen: MatLike, im: ImageMatcher) -> bool:
