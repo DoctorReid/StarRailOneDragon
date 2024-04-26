@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional, List
 
 from basic.log_utils import log
@@ -9,6 +10,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 _app_preheat_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_app_preheat', max_workers=1)
+
+
+class ApplicationEventId(Enum):
+
+    APPLICATION_START: str = '应用开始运行'
 
 
 class Application(StateOperation):
@@ -64,6 +70,7 @@ class Application(StateOperation):
             self._after_operation_done(op_result)
             return op_result
         self.ctx.init_before_app_start()
+        self.ctx.event_bus.dispatch_event(ApplicationEventId.APPLICATION_START.value)
         result: OperationResult = super().execute()
         return result
 

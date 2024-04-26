@@ -12,10 +12,10 @@ from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
-from sr.app.application_base import Application
+from sr.app.application_base import Application, ApplicationEventId
 from sr.app.one_stop_service.one_stop_service_app import OneStopServiceApp
 from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
-from sr.context import Context
+from sr.context import Context, ContextEventId
 from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
@@ -331,21 +331,19 @@ class OneStopView(ft.Row, SrBasicView):
         self.running_app: Optional[Application] = None
 
     def handle_after_show(self):
+        self.app_list.refresh_app_order()
         self._update_app_list_status()
         self._update_character_status(True)
         self._update_schedule_dropdown()
-        self.app_list.refresh_app_order()
         self._set_schedule()
-        self.sr_ctx.register_status_changed_handler(self,
-                                                    self._after_start,
-                                                    self._after_pause,
-                                                    self._after_resume,
-                                                    self._after_stop
-                                                    )
+        self.sr_ctx.event_bus.listen(ContextEventId.CONTEXT_START.value, self._after_start)
+        self.sr_ctx.event_bus.listen(ContextEventId.CONTEXT_PAUSE.value, self._after_pause)
+        self.sr_ctx.event_bus.listen(ContextEventId.CONTEXT_RESUME.value, self._after_resume)
+        self.sr_ctx.event_bus.listen(ContextEventId.CONTEXT_STOP.value, self._after_stop)
+        self.sr_ctx.event_bus.listen(ApplicationEventId.APPLICATION_START.value, self._on_app_started)
 
     def handle_after_hide(self):
-        scheduler.cancel_with_tag('_update_running_app_name')
-        self.sr_ctx.unregister(self)
+        self.sr_ctx.event_bus.unlisten_all(self)
 
     def _check_ctx_stop(self) -> bool:
         """
@@ -419,24 +417,19 @@ class OneStopView(ft.Row, SrBasicView):
         self.running_status.update_label(self.sr_ctx.status_text)
         self.update()
 
-    def _after_start(self):
+    def _after_start(self, e=None):
         self._update_status_component()
         self.app_list.set_disabled(True)
-        scheduler.every_second(self._update_running_app_name, tag='_update_running_app_name', seconds=10)
 
-    def _after_pause(self):
+    def _after_pause(self, e=None):
         self._update_status_component()
 
-        self._update_app_list_status()
-        self._update_running_app_name()
-
-    def _after_resume(self):
+    def _after_resume(self, e=None):
         self._update_status_component()
 
-    def _after_stop(self):
+    def _after_stop(self, e=None):
         self._update_status_component()
         self.app_list.set_disabled(False)
-        scheduler.cancel_with_tag('_update_running_app_name')
         self.running_app = None
         self._update_app_list_status()
         self._update_running_app_name()
@@ -448,6 +441,10 @@ class OneStopView(ft.Row, SrBasicView):
             log.info('执行完毕 关闭游戏')
             if self.sr_ctx.controller is not None:
                 self.sr_ctx.controller.close_game()
+
+    def _on_app_started(self, e=None):
+        self._update_app_list_status()
+        self._update_running_app_name()
 
     def _on_after_done_changed(self, e):
         if self.after_done_dropdown.value != 'shutdown':

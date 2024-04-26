@@ -8,7 +8,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import snack_bar, components
 from gui.sr_basic_view import SrBasicView
-from sr.context import Context
+from sr.context import Context, ContextEventId
 
 _sr_app_view_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_sr_app_view', max_workers=1)
 
@@ -64,11 +64,12 @@ class SrAppView(components.Card, SrBasicView):
         self.stop_btn.disabled = False
         self.update()
 
-        self.sr_ctx.register_stop(self, self.after_stop)
-        self.sr_ctx.register_pause(self, self.on_pause, self.on_resume)
+        self.sr_ctx.event_bus.listen(ContextEventId.CONTEXT_PAUSE.value, self.on_pause)
+        self.sr_ctx.event_bus.listen(ContextEventId.CONTEXT_RESUME.value, self.on_resume)
+        self.sr_ctx.event_bus.listen(ContextEventId.CONTEXT_STOP.value, self.after_stop)
         _sr_app_view_executor.submit(self.run_app)
 
-    def on_pause(self):
+    def on_pause(self, e=None):
         self.running_status.value = gt('暂停', model='ui')
         self.running.visible = False
         self.start_btn.visible = False
@@ -80,7 +81,7 @@ class SrAppView(components.Card, SrBasicView):
     def pause(self, e):
         self.sr_ctx.switch()
 
-    def on_resume(self):
+    def on_resume(self, e=None):
         self.running_status.value = gt('运行中', model='ui')
         self.running.visible = True
         self.start_btn.visible = False
@@ -98,7 +99,7 @@ class SrAppView(components.Card, SrBasicView):
     def run_app(self):
         pass
 
-    def after_stop(self):
+    def after_stop(self, e=None):
         self.running_status.value = gt('未开始', model='ui')
         self.running.visible = False
         self.start_btn.visible = True
@@ -107,7 +108,7 @@ class SrAppView(components.Card, SrBasicView):
         self.stop_btn.disabled = True
         self.update()
 
-        self.sr_ctx.unregister(self)
+        self.sr_ctx.event_bus.unlisten_all(self)
 
         if self.after_done_dropdown.value == 'shutdown':
             log.info('执行完毕 准备关机')

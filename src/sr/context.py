@@ -1,6 +1,6 @@
 import subprocess
 import time
-from concurrent.futures import ThreadPoolExecutor
+from enum import Enum
 from typing import Optional, List
 
 import keyboard
@@ -34,6 +34,7 @@ from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_A
 from sr.const.map_const import Planet, Region
 from sr.control import GameController
 from sr.control.pc_controller import PcController
+from sr.event_bus import EventBus
 from sr.image import ImageMatcher
 from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
@@ -47,8 +48,6 @@ from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_p
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig, SimUniChallengeConfig
 from sr.win import Window
 from sryolo.detector import StarRailYOLO
-
-_context_callback_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_context_callback', max_workers=1)
 
 
 class PosInfo:
@@ -125,6 +124,14 @@ class DetectInfo:
         self.view_down: bool = False  # 当前视角是否已经下移 形成俯视角度
 
 
+class ContextEventId(Enum):
+
+    CONTEXT_START: str = '运行开始'
+    CONTEXT_PAUSE: str = '运行暂停'
+    CONTEXT_RESUME: str = '运行继续'
+    CONTEXT_STOP: str = '运行结束'
+
+
 class Context:
 
     def __init__(self):
@@ -139,10 +146,7 @@ class Context:
         self.yolo: Optional[StarRailYOLO] = None
         self.running: int = 0  # 0-停止 1-运行 2-暂停
         self.press_event: dict = {}
-        self.start_callback: dict = {}
-        self.pause_callback: dict = {}
-        self.resume_callback: dict = {}
-        self.stop_callback: dict = {}
+        self.event_bus: EventBus = EventBus()
 
         self.recorder: PerformanceRecorder = get_recorder()
 
@@ -369,8 +373,7 @@ class Context:
             return 'unknow'
 
     def _after_start(self):
-        for obj_id, callback in self.start_callback.items():
-            _context_callback_executor.submit(callback)
+        self.event_bus.dispatch_event(ContextEventId.CONTEXT_START.value)
 
     def stop_running(self):
         if self.running == 0:  # 初始化失败了 还没开始运行就要结束 依然触发一次停止的回调 方便使用方知道
@@ -383,9 +386,7 @@ class Context:
         self._after_stop()
 
     def _after_stop(self):
-        for obj_id, callback in self.stop_callback.items():
-            _context_callback_executor.submit(callback)
-
+        self.event_bus.dispatch_event(ContextEventId.CONTEXT_STOP.value)
         log_all_performance()
 
     def switch(self):
@@ -399,47 +400,10 @@ class Context:
             self._after_resume()
 
     def _after_pause(self):
-        callback_arr = self.pause_callback.copy()
-        for obj_id, callback in callback_arr.items():
-            _context_callback_executor.submit(callback)
+        self.event_bus.dispatch_event(ContextEventId.CONTEXT_PAUSE.value)
 
     def _after_resume(self):
-        callback_arr = self.resume_callback.copy()
-        for obj_id, callback in callback_arr.items():
-            _context_callback_executor.submit(callback)
-
-    def register_status_changed_handler(self, obj,
-                                        after_start_callback=None,
-                                        after_pause_callback=None,
-                                        after_resume_callback=None,
-                                        after_stop_callback=None):
-        if after_start_callback is not None:
-            self.start_callback[id(obj)] = after_start_callback
-        if after_pause_callback is not None:
-            self.pause_callback[id(obj)] = after_pause_callback
-        if after_resume_callback is not None:
-            self.resume_callback[id(obj)] = after_resume_callback
-        if after_stop_callback is not None:
-            self.stop_callback[id(obj)] = after_stop_callback
-
-    def register_pause(self, obj,
-                       pause_callback,
-                       resume_callback):
-        self.pause_callback[id(obj)] = pause_callback
-        self.resume_callback[id(obj)] = resume_callback
-
-    def register_stop(self, obj, stop_callback):
-        self.stop_callback[id(obj)] = stop_callback
-
-    def unregister(self, obj):
-        if id(obj) in self.start_callback:
-            del self.start_callback[id(obj)]
-        if id(obj) in self.pause_callback:
-            del self.pause_callback[id(obj)]
-        if id(obj) in self.resume_callback:
-            del self.resume_callback[id(obj)]
-        if id(obj) in self.stop_callback:
-            del self.stop_callback[id(obj)]
+        self.event_bus.dispatch_event(ContextEventId.CONTEXT_RESUME.value)
 
     def init_controller(self, renew: bool = False) -> bool:
         self.open_game_by_script = False

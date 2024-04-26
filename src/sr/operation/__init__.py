@@ -9,7 +9,7 @@ from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.config.game_config import GameConfig
-from sr.context import Context
+from sr.context import Context, ContextEventId
 from sr.image.sceenshot import fill_uid_black
 from sr.screen_area import ScreenArea
 
@@ -133,7 +133,8 @@ class Operation:
         self.pause_total_time = 0
         self.op_round = 0
         self.executing = True
-        self.ctx.register_pause(self, self.on_pause, self.on_resume)
+        self.ctx.event_bus.listen(ContextEventId.CONTEXT_PAUSE.value, self.on_pause)
+        self.ctx.event_bus.listen(ContextEventId.CONTEXT_RESUME.value, self.on_resume)
 
     def execute(self) -> OperationResult:
         """
@@ -205,7 +206,7 @@ class Operation:
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
         pass
 
-    def on_pause(self):
+    def on_pause(self, e=None):
         """
         暂停运行时触发的回调
         由于触发时，操作有机会仍在执行逻辑，因此_execute_one_round后会判断一次暂停状态触发on_pause
@@ -215,7 +216,7 @@ class Operation:
         self.current_pause_time = 0
         self.pause_start_time = time.time()
 
-    def on_resume(self):
+    def on_resume(self, e=None):
         self.current_pause_time = time.time() - self.pause_start_time
         self.pause_total_time += self.current_pause_time
 
@@ -258,7 +259,7 @@ class Operation:
         :param result:
         :return:
         """
-        self.ctx.unregister(self)
+        self.ctx.event_bus.unlisten_all(self)
         self.executing = False
         if result.success:
             log.info('%s 执行成功 返回状态 %s', self.display_name, coalesce_gt(result.status, '成功', model='ui'))
