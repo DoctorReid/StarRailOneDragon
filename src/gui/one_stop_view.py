@@ -336,7 +336,6 @@ class OneStopView(ft.Row, SrBasicView):
         self._update_schedule_dropdown()
         self.app_list.refresh_app_order()
         self._set_schedule()
-        scheduler.every_second(self._update_app_list_status, tag='_update_app_list_status', seconds=10)
         self.sr_ctx.register_status_changed_handler(self,
                                                     self._after_start,
                                                     self._after_pause,
@@ -345,9 +344,6 @@ class OneStopView(ft.Row, SrBasicView):
                                                     )
 
     def handle_after_hide(self):
-        scheduler.cancel_with_tag('_update_app_list_status')
-        scheduler.cancel_with_tag('_update_character_status')
-        scheduler.cancel_with_tag('refresh_app_order')
         scheduler.cancel_with_tag('_update_running_app_name')
         self.sr_ctx.unregister(self)
 
@@ -381,7 +377,7 @@ class OneStopView(ft.Row, SrBasicView):
         if not self._check_ctx_stop():
             return
         self.start_btn.disabled = True
-        self.update()
+        self.start_btn.update()
         self._start_one_stop_app(True)
 
     def _start_one_stop_app(self, asyn: bool = False):
@@ -413,7 +409,10 @@ class OneStopView(ft.Row, SrBasicView):
         """
         self.start_btn.visible = self.sr_ctx.is_stop
         self.start_btn.disabled = False
+        self.start_btn.update()
+
         self.pause_btn.visible = self.sr_ctx.is_running
+        self.pause_btn.update()
         self.resume_btn.visible = self.sr_ctx.is_pause
         self.stop_btn.disabled = self.sr_ctx.is_stop
         self.running_ring.visible = self.sr_ctx.is_running

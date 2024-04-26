@@ -209,6 +209,7 @@ class SimUniEnterFight(Operation):
         :param screen:
         :return:
         """
+        self.ctx.detect_info.view_down = False  # 进入了非大世界画面 就将视角重置
         state = screen_state.get_sim_uni_screen_state(
             screen, self.ctx.im, self.ctx.ocr,
             in_world=False,

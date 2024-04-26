@@ -6,11 +6,11 @@ from cv2.typing import MatLike
 from basic import Point, cal_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from basic.img.os import save_debug_image
 from sr.const import game_config_const
 from sr.context import Context
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
 from sr.operation import Operation, OperationOneRoundResult
+from sr.operation.unit.interact import check_move_interact
 from sr.operation.unit.move import GetRidOfStuck
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sryolo.detector import DetectResult, draw_detections
@@ -193,7 +193,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         super().__init__(ctx,
                          op_name=gt('向怪物移动', 'ui'))
 
-        self.no_enemy_times: int = 0  #  没有发现敌人的次数
+        self.no_enemy_times: int = 0  # 没有发现敌人的次数
         self.start_move_time: float = 0  # 开始移动的时间
 
     def _execute_one_round(self) -> OperationOneRoundResult:
@@ -219,7 +219,7 @@ class SimUniMoveToEnemyByDetect(Operation):
             self.ctx.controller.stop_moving_forward()
             return Operation.round_wait()
 
-        # 移动完一轮后再判断怪的位置
+        # 判断怪的位置
         enemy_pos_list = self.get_enemy_pos(screen)
         if len(enemy_pos_list) == 0:
             return self.handle_no_enemy()
@@ -301,15 +301,246 @@ class SimUniMoveToEnemyByDetect(Operation):
         cv2_utils.show_image(img, win_name='SimUniMoveToEnemyByDetect')
 
 
-def turn_to_detected_object(ctx: Context, obj: DetectResult):
+class SimUniMoveToEventByDetect(Operation):
+
+    STATUS_ARRIVAL: ClassVar[str] = '已到达'
+    STATUS_NO_EVENT: ClassVar[str] = '识别不到事件'
+
+    def __init__(self, ctx: Context):
+        """
+        根据画面识别事件的位置 朝事件移动。
+        进入之前 应该确保当前朝向能识别到事件，本操作不会旋转太多去找事件
+        停下来的条件有
+        - 找不到事件
+        - 可交互
+        :param ctx:
+        """
+        super().__init__(ctx,
+                         op_name=gt('向事件移动', 'ui'))
+
+        self.no_detect_times: int = 0  # 没有发现事件的次数
+        self.start_move_time: float = 0  # 开始移动的时间
+
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
+        if stuck is not None:  # 只有脱困失败的时候会有返回结果
+            return stuck
+
+        now = time.time()
+        screen = self.screenshot()
+
+        # 移动2秒后 如果丢失了目标 停下来
+        if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_detect_times > 0:
+            self.ctx.controller.stop_moving_forward()
+            return Operation.round_wait()
+
+        if self.can_interact():
+            self.ctx.controller.stop_moving_forward()
+            return Operation.round_success(status=SimUniMoveToEventByDetect.STATUS_ARRIVAL)
+
+        # 判断事件的位置
+        pos_list = self.get_event_pos(screen)
+        if len(pos_list) == 0:
+            return self.handle_no_detect()
+        else:
+            self.show_detect(screen, pos_list)
+            return self.handle_detect(pos_list)
+
+    def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
+        """
+        判断是否被困且进行移动
+        :return: 如果被困次数过多就返回失败
+        """
+        # 暂时未知道怎么判断
+        return None
+
+    def get_event_pos(self, screen: MatLike) -> List[DetectResult]:
+        """
+        检测屏幕中事件牌的位置
+        :param screen: 游戏截图
+        :return:
+        """
+        self.ctx.init_yolo()
+        detect_result = self.ctx.yolo.detect(screen)
+        normal_enemy_result = []
+        for result in detect_result:
+            if not result.detect_class.class_cate == '模拟宇宙事件':
+                continue
+            normal_enemy_result.append(result)
+        return normal_enemy_result
+
+    def handle_no_detect(self) -> OperationOneRoundResult:
+        """
+        处理当前画面没有中没有事件的情况
+        :return:
+        """
+        self.no_detect_times += 1
+        if self.no_detect_times >= 9:
+            return Operation.round_fail(SimUniMoveToEventByDetect.STATUS_NO_EVENT)
+
+        # 第一次向右转一点 后续就在固定范围内晃动
+        if self.no_detect_times == 1:
+            angle = 15
+        else:
+            angle = -30 if self.no_detect_times % 2 == 0 else 30
+
+        self.ctx.controller.turn_by_angle(angle)
+        return Operation.round_wait(SimUniMoveToEventByDetect.STATUS_NO_EVENT, wait=0.5)
+
+    def handle_detect(self, enemy_pos_list: List[DetectResult]) -> OperationOneRoundResult:
+        """
+        处理有敌人的情况
+        :param enemy_pos_list: 识别的敌人列表
+        :return:
+        """
+        self.no_detect_times = 0
+        enemy = enemy_pos_list[0]  # 先固定找第一个
+        turn_to_detected_object(self.ctx, enemy)
+        time.sleep(0.5)
+        self.ctx.controller.start_moving_forward()
+        self.start_move_time = time.time()
+        return Operation.round_wait()
+
+    def show_detect(self, screen: MatLike, enemy_pos_list: List[DetectResult]):
+        if not self.ctx.one_dragon_config.is_debug:
+            return
+        img = draw_detections(screen, enemy_pos_list)
+        cv2_utils.show_image(img, win_name='SimUniMoveToEnemyByDetect')
+
+    def can_interact(self) -> bool:
+        """
+        当前可交互
+        :return:
+        """
+        screen = self.screenshot()
+        interact_pos = check_move_interact(self.ctx, screen, '事件', single_line=True)
+        return interact_pos is not None
+
+
+class SimUniMoveToHertaByDetect(Operation):
+
+    STATUS_ARRIVAL: ClassVar[str] = '已到达'
+    STATUS_NO_HERTA: ClassVar[str] = '识别不到黑塔'
+
+    def __init__(self, ctx: Context):
+        """
+        根据画面识别黑塔的位置 朝黑塔怪移动。
+        进入之前 应该确保当前朝向能识别到黑塔，本操作不会旋转太多去找黑塔
+        停下来的条件有
+        - 找不到黑塔
+        - 可交互
+        :param ctx:
+        """
+        super().__init__(ctx,
+                         op_name=gt('向黑塔移动', 'ui'))
+
+        self.no_detect_times: int = 0  # 没有发现事件的次数
+        self.start_move_time: float = 0  # 开始移动的时间
+
+    def _execute_one_round(self) -> OperationOneRoundResult:
+        stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
+        if stuck is not None:  # 只有脱困失败的时候会有返回结果
+            return stuck
+
+        now = time.time()
+        screen = self.screenshot()
+
+        # 移动2秒后 如果丢失了目标 停下来
+        if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_detect_times > 0:
+            self.ctx.controller.stop_moving_forward()
+            return Operation.round_wait()
+
+        if self.can_interact():
+            self.ctx.controller.stop_moving_forward()
+            return Operation.round_success(status=SimUniMoveToHertaByDetect.STATUS_ARRIVAL)
+
+        # 判断事件的位置
+        pos_list = self.get_event_pos(screen)
+        if len(pos_list) == 0:
+            return self.handle_no_detect()
+        else:
+            self.show_detect(screen, pos_list)
+            return self.handle_detect(pos_list)
+
+    def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
+        """
+        判断是否被困且进行移动
+        :return: 如果被困次数过多就返回失败
+        """
+        # 暂时未知道怎么判断
+        return None
+
+    def get_event_pos(self, screen: MatLike) -> List[DetectResult]:
+        """
+        检测屏幕中事件牌的位置
+        :param screen: 游戏截图
+        :return:
+        """
+        self.ctx.init_yolo()
+        detect_result = self.ctx.yolo.detect(screen)
+        normal_enemy_result = []
+        for result in detect_result:
+            if not result.detect_class.class_cate == '模拟宇宙黑塔':
+                continue
+            normal_enemy_result.append(result)
+        return normal_enemy_result
+
+    def handle_no_detect(self) -> OperationOneRoundResult:
+        """
+        处理当前画面没有中没有黑塔的情况
+        :return:
+        """
+        self.no_detect_times += 1
+        if self.no_detect_times >= 9:
+            return Operation.round_fail(SimUniMoveToHertaByDetect.STATUS_NO_HERTA)
+
+        # 第一次向右转一点 后续就在固定范围内晃动
+        if self.no_detect_times == 1:
+            angle = 15
+        else:
+            angle = -30 if self.no_detect_times % 2 == 0 else 30
+
+        self.ctx.controller.turn_by_angle(angle)
+        return Operation.round_wait(SimUniMoveToHertaByDetect.STATUS_NO_HERTA, wait=0.5)
+
+    def handle_detect(self, pos_list: List[DetectResult]) -> OperationOneRoundResult:
+        """
+        处理有黑塔的情况
+        :param pos_list: 识别的列表
+        :return:
+        """
+        self.no_detect_times = 0
+        pos = pos_list[0]  # 先固定找第一个
+        turn_to_detected_object(self.ctx, pos)
+        time.sleep(0.5)
+        self.ctx.controller.start_moving_forward()
+        self.start_move_time = time.time()
+        return Operation.round_wait()
+
+    def show_detect(self, screen: MatLike, enemy_pos_list: List[DetectResult]):
+        if not self.ctx.one_dragon_config.is_debug:
+            return
+        img = draw_detections(screen, enemy_pos_list)
+        cv2_utils.show_image(img, win_name='SimUniMoveToHertaByDetect')
+
+    def can_interact(self) -> bool:
+        """
+        当前可交互
+        :return:
+        """
+        screen = self.screenshot()
+        interact_pos = check_move_interact(self.ctx, screen, '黑塔', single_line=True)
+        return interact_pos is not None
+
+
+def delta_angle_to_detected_object(obj: DetectResult) -> float:
     """
-    转向一个识别到的物体
-    :param ctx: 上下文
-    :param obj: 检测物体
-    :return:
+    转向识别物体需要的偏移角度
+    :param obj:
+    :return: 偏移角度 正数往右转 负数往左转
     """
     character_pos = Point(960, 920)  # 人物脚底
-    obj_pos = Point((obj.x1 + obj.x2) / 2, (obj.y1 + obj.y2) / 2)
+    obj_pos = Point((obj.x1 + obj.x2) / 2, obj.y2)  # 识别框底部
 
     # 小地图用的角度 正右方为0 顺时针为正
     mm_angle = cal_utils.get_angle_by_pts(character_pos, obj_pos)
@@ -324,4 +555,15 @@ def turn_to_detected_object(ctx: Context, obj: DetectResult):
     if turn_angle < -max_turn_angle:
         turn_angle = -max_turn_angle
 
+    return turn_angle
+
+
+def turn_to_detected_object(ctx: Context, obj: DetectResult):
+    """
+    转向一个识别到的物体
+    :param ctx: 上下文
+    :param obj: 检测物体
+    :return:
+    """
+    turn_angle = delta_angle_to_detected_object(obj)
     ctx.controller.turn_by_angle(turn_angle)

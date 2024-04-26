@@ -62,6 +62,21 @@ def angle_delta(from_angle: float, to_angle: float) -> float:
     return delta_angle
 
 
+def angle_add(current_angle: float, delta_angle: float) -> float:
+    """
+    一个角度加上一个偏移角度
+    :param current_angle: 当前角度 正右方为0 顺时针为正
+    :param delta_angle: 偏移角度 正数往右转 负数往左转
+    :return: 偏移后的角度 正右方为0 顺时针为正
+    """
+    result_angle = current_angle + delta_angle
+    while result_angle >= 360:
+        result_angle -= 360
+    while result_angle < 0:
+        result_angle += 360
+    return result_angle
+
+
 def in_rect(point: Point, rect: Rect) -> bool:
     """
     点是否在矩阵内

@@ -129,6 +129,17 @@ class GameController:
         """
         self.turn_by_distance(self.turn_dx * angle)
 
+    def turn_from_angle(self, from_angle: float, to_angle: float):
+        """
+        从一个角度转向到另一个角度
+        :param from_angle: 原来的角度
+        :param to_angle: 新的角度
+        :return:
+        """
+        delta_angle = cal_utils.angle_delta(from_angle, to_angle)
+        log.info('当前角度: %.2f度 目标角度: %.2f度 转动朝向: %.2f度', from_angle, to_angle, delta_angle)
+        self.turn_by_angle(delta_angle)
+
     def turn_down(self, distance: float):
         """
         视角上下移动
@@ -146,9 +157,7 @@ class GameController:
         :return:
         """
         target_angle = cal_utils.get_angle_by_pts(current_pos, target_pos)
-        delta_angle = cal_utils.angle_delta(current_angle, target_angle)
-        log.info('当前角度: %.2f度 目标角度: %.2f度 转动朝向: %.2f度', current_angle, target_angle, delta_angle)
-        self.turn_by_angle(delta_angle)
+        self.turn_from_angle(current_angle, target_angle)
 
     def start_moving_forward(self, run: bool = False):
         """

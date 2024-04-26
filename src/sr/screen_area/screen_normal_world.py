@@ -30,3 +30,6 @@ class ScreenNormalWorld(Enum):
     EXPRESS_SUPPLY_GET = ScreenArea(pc_rect=Rect(855, 892, 1078, 932), text='点击领取今日补贴')
 
     EMPTY_TO_CLOSE = ScreenArea(pc_rect=Rect(866, 925, 1062, 965), text='点击空白处关闭')
+
+    MOVE_INTERACT = ScreenArea(pc_rect=Rect(900, 400, 1450, 870))  # 可移动时的交互框位置
+    MOVE_INTERACT_SINGLE_LINE = ScreenArea(pc_rect=Rect(1174, 598, 1558, 647))  # 可移动时的交互框位置 - 单行文本

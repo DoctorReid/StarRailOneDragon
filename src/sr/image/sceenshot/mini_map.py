@@ -2,7 +2,7 @@ import math
 import os
 import time
 from functools import lru_cache
-from typing import Set, Optional, List
+from typing import Set, Optional, List, Tuple
 
 import cv2
 import numpy as np
@@ -631,6 +631,28 @@ def get_enemy_pos(mm_info: MiniMapInfo) -> List[Point]:
         pos_list.append(Point(center_x - cx, center_y - cy))
 
     return pos_list
+
+
+def get_closest_enemy_pos(mm_info: MiniMapInfo) -> Tuple[Point, float]:
+    """
+    获取最近的敌人的位置 以小地图中心为 (0,0)
+    :param mm_info: 小地图信息
+    :return: 无敌人时为空
+    """
+    pos_list = get_enemy_pos(mm_info)
+    if len(pos_list) == 0:
+        return None, None
+    center = Point(0, 0)
+    closest_dis: float = 999
+    closest_pos: Optional[Point] = None
+
+    for pos in pos_list:
+        dis = cal_utils.distance_between(center, pos)
+        if dis < closest_dis:
+            closest_dis = dis
+            closest_pos = pos
+
+    return closest_pos, closest_dis
 
 
 def with_enemy_nearby(mm_del_radio: MatLike):

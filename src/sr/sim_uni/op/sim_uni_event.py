@@ -89,7 +89,7 @@ class SimUniEvent(StateOperation):
                          )
 
         self.opt_list: List[SimUniEventOption] = []
-        self.config: Optional[SimUniChallengeConfig] = config
+        self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config
         self.skip_first_screen_check: bool = skip_first_screen_check
         self.chosen_opt_set: set[str] = set()
 
@@ -102,6 +102,7 @@ class SimUniEvent(StateOperation):
         self.chosen_opt_set: set[str] = set()
 
     def _wait(self) -> OperationOneRoundResult:
+        self.ctx.detect_info.view_down = False  # 进入事件后 重置视角
         if self.skip_first_screen_check:
             return Operation.round_success()
         screen = self.screenshot()

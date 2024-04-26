@@ -116,6 +116,15 @@ class SimUniInfo:
         self.world_num: int = 0  # 当前第几世界
 
 
+class DetectInfo:
+
+    def __init__(self):
+        """
+        用于目标检测的一些信息
+        """
+        self.view_down: bool = False  # 当前视角是否已经下移 形成俯视角度
+
+
 class Context:
 
     def __init__(self):
@@ -181,6 +190,7 @@ class Context:
         self.pos_info: PosInfo = PosInfo()
         self.team_info: TeamInfo = TeamInfo()
         self.sim_uni_info: SimUniInfo = SimUniInfo()
+        self.detect_info: DetectInfo = DetectInfo()
 
         self.record_coordinate: bool = False  # 需要记录坐标用于训练
 
