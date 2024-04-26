@@ -168,8 +168,7 @@ class Operation:
             except Exception as e:
                 round_result = self.round_retry('异常')
                 if self.last_screenshot is not None:
-                    fill_uid_black(self.last_screenshot)
-                    file_name = save_debug_image(self.last_screenshot, prefix=self.__class__.__name__)
+                    file_name = self.save_screenshot()
                     log.error('%s 执行出错 相关截图保存至 %s', self.display_name, file_name, exc_info=True)
                 else:
                     log.error('%s 执行出错', self.display_name, exc_info=True)
@@ -235,6 +234,16 @@ class Operation:
         """
         self.last_screenshot = self.ctx.controller.screenshot()
         return self.last_screenshot
+
+    def save_screenshot(self) -> str:
+        """
+        保存上一次的截图 并对UID打码
+        :return: 文件路径
+        """
+        if self.last_screenshot is None:
+            return ''
+        fill_uid_black(self.last_screenshot)
+        return save_debug_image(self.last_screenshot, prefix=self.__class__.__name__)
 
     @property
     def display_name(self) -> str:
@@ -750,7 +759,7 @@ class StateOperation(Operation):
         self._current_node_start_time = time.time()  # 每个节点单独计算耗时
         return Operation.round_wait()
 
-    def on_resume(self):
-        super().on_resume()
+    def on_resume(self, e=None):
+        super().on_resume(e)
         if self._current_node_start_time is not None:
             self._current_node_start_time += self.current_pause_time

@@ -248,7 +248,7 @@ class SimUniEnterFight(Operation):
 
         return Operation.round_wait()
 
-    def on_resume(self):
+    def on_resume(self, e=None):
         super().on_resume()
         self._update_not_in_world_time()
 

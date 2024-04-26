@@ -17,7 +17,7 @@ from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, large_map, mini_map, screen_state
 from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode, \
     StateOperationEdge
-from sr.operation.unit.interact import Interact
+from sr.operation.unit.interact import Interact, check_move_interact
 from sr.operation.unit.move import MoveDirectly
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
@@ -230,7 +230,7 @@ class MoveWithoutPosInSimUni(StateOperation):
 
         return Operation.round_wait(wait=0.02)
 
-    def on_pause(self):
+    def on_pause(self, e=None):
         super().on_pause()
         self.ever_pause = True
 
@@ -466,11 +466,8 @@ class MoveToNextLevel(StateOperation):
         :param screen: 屏幕截图
         :return:
         """
-        part, _ = cv2_utils.crop_image(screen, Interact.SINGLE_LINE_INTERACT_RECT)
-        # ocr_result = self.ctx.ocr.match_one_best_word(part, '区域', lcs_percent=0.1)
-        # return ocr_result is not None
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
-        return str_utils.find_by_lcs(gt('区域', 'ocr'), ocr_result)
+        pos = check_move_interact(self.ctx, screen, '区域', single_line=True)
+        return pos is not None
 
     def _confirm(self) -> OperationOneRoundResult:
         """
@@ -571,19 +568,15 @@ class MoveToMiniMapInteractIcon(Operation):
         :param screen: 屏幕截图
         :return:
         """
-        part, _ = cv2_utils.crop_image(screen, Interact.SINGLE_LINE_INTERACT_RECT)
-        # ocr_result = self.ctx.ocr.match_one_best_word(part, self.interact_word, lcs_percent=0.1)
-        # return ocr_result is not None
-
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
-        return str_utils.find_by_lcs(gt(self.interact_word, 'ocr'), ocr_result)
+        pos = check_move_interact(self.ctx, screen, self.interact_word, single_line=True)
+        return pos is not None
 
     def _after_operation_done(self, result: OperationResult):
         super()._after_operation_done(result)
         self.ctx.controller.stop_moving_forward()
 
-    def on_pause(self):
-        super().on_pause()
+    def on_pause(self, e=None):
+        super().on_pause(e)
         self.ctx.controller.stop_moving_forward()
 
 

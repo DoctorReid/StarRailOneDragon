@@ -74,7 +74,7 @@ class Application(StateOperation):
         result: OperationResult = super().execute()
         return result
 
-    def on_resume(self):
+    def on_resume(self, e=None):
         super().on_resume()
         self.ctx.controller.init()
 

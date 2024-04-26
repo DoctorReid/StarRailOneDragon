@@ -151,7 +151,7 @@ class WorldPatrolEnterFight(Operation):
         self.last_not_in_world_time = now
         self.last_alert_time = now
 
-    def on_resume(self):
+    def on_resume(self, e=None):
         super().on_resume()
         self._update_not_in_world_time()
 

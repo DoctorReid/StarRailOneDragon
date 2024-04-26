@@ -484,11 +484,11 @@ class MoveDirectly(Operation):
                                          run=self.run_mode == game_config_const.RUN_MODE_BTN)
         self.stop_move_time = None
 
-    def on_pause(self):
+    def on_pause(self, e=None):
         super().on_pause()
         self.ctx.controller.stop_moving_forward()
 
-    def on_resume(self):
+    def on_resume(self, e=None):
         super().on_resume()
         self.last_rec_time += self.current_pause_time
         self.last_battle_time += self.current_pause_time
