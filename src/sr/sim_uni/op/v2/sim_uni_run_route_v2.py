@@ -16,8 +16,7 @@ from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
-from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, \
-    SimUniMoveToEventByDetect, delta_angle_to_detected_object, SimUniMoveToHertaByDetect
+from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, delta_angle_to_detected_object, SimUniMoveToInteractByDetect
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType
 from sryolo.detector import DetectResult, draw_detections
 
@@ -471,12 +470,12 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         # 走到了就进行交互 进入这里代码已经识别到事件了 则必须要交互才能进入下一层
         interact = StateOperationNode('交互', self._interact)
         edges.append(StateOperationEdge(move_by_mm, interact))
-        edges.append(StateOperationEdge(move_by_detect, interact, status=SimUniMoveToEventByDetect.STATUS_ARRIVAL))
+        edges.append(StateOperationEdge(move_by_detect, interact, status=SimUniMoveToInteractByDetect.STATUS_ARRIVAL))
 
         # 交互了之后开始事件判断
         event = StateOperationNode('事件', self._handle_event)
         edges.append(StateOperationEdge(interact, event))
-        edges.append(StateOperationEdge(move_by_detect, event, status=SimUniMoveToEventByDetect.STATUS_INTERACT))
+        edges.append(StateOperationEdge(move_by_detect, event, status=SimUniMoveToInteractByDetect.STATUS_INTERACT))
 
         # 事件之后 识别下层入口
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
@@ -564,7 +563,10 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         """
         self.nothing_times = 0
         self.moved_to_target = True
-        op = SimUniMoveToEventByDetect(self.ctx)
+        op = SimUniMoveToInteractByDetect(self.ctx,
+                                          interact_class='模拟宇宙事件',
+                                          interact_word='事件',
+                                          interact_during_move=True)
         return Operation.round_by_op(op.execute())
 
     def _interact(self) -> OperationOneRoundResult:
@@ -608,7 +610,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         # 走到了就进行交互
         interact = StateOperationNode('交互', self._interact)
         edges.append(StateOperationEdge(move_by_mm, interact))
-        edges.append(StateOperationEdge(move_by_detect, interact, status=SimUniMoveToEventByDetect.STATUS_ARRIVAL))
+        edges.append(StateOperationEdge(move_by_detect, interact, status=SimUniMoveToInteractByDetect.STATUS_ARRIVAL))
 
         # 交互了之后开始事件判断
         event = StateOperationNode('黑塔', self._handle_event)
@@ -700,7 +702,10 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         """
         self.nothing_times = 0
         self.moved_to_target = True
-        op = SimUniMoveToHertaByDetect(self.ctx)
+        op = SimUniMoveToInteractByDetect(self.ctx,
+                                          interact_class='模拟宇宙黑塔',
+                                          interact_word='黑塔',
+                                          interact_during_move=False)
         return Operation.round_by_op(op.execute())
 
     def _interact(self) -> OperationOneRoundResult:
