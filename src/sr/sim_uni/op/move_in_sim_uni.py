@@ -326,7 +326,7 @@ class MoveToNextLevel(StateOperation):
                 # 兜底 - 如果已经不在大世界画面且又交互过了 就认为成功了
                 return Operation.round_success()
             else:
-                log.error('找下层入口时进入战斗 请反馈给作者 %s', '第九宇宙' if self.route.display_name is None else self.route.display_name)
+                log.error('找下层入口时进入战斗 请反馈给作者 %s', '第九宇宙' if self.route is None else self.route.display_name)
                 if self.ctx.one_dragon_config.is_debug:
                     return Operation.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
                 op = SimUniEnterFight(self.ctx, self.config)

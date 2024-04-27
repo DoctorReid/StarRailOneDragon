@@ -1,3 +1,4 @@
+import time
 from typing import List, ClassVar, Optional, Callable
 
 from cv2.typing import MatLike
@@ -142,13 +143,14 @@ class SimUniRunRouteBase(StateOperation):
         # 不要被360整除 否则转一圈之后还是被人物覆盖了看不到
         angle = 35
         self.ctx.controller.turn_by_angle(angle)
+        time.sleep(0.5)
 
         if self.nothing_times % 11 == 0:
             # 大概转了一圈之后还没有找到东西 就往之前的方向走一点
             self.moved_to_target = False
             return self._turn_to_previous_angle()
 
-        return Operation.round_success(wait=0.5)
+        return Operation.round_success()
 
     def _view_down(self):
         """
@@ -159,6 +161,7 @@ class SimUniRunRouteBase(StateOperation):
             return
         self.ctx.controller.turn_down(25)
         self.ctx.detect_info.view_down = True
+        time.sleep(0.2)
 
     def _view_up(self):
         """
@@ -169,6 +172,7 @@ class SimUniRunRouteBase(StateOperation):
             return
         self.ctx.controller.turn_down(-25)
         self.ctx.detect_info.view_down = False
+        time.sleep(0.2)
 
 
 class SimUniRunCombatRouteV2(SimUniRunRouteBase):
@@ -214,6 +218,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         # 画面上也找不到敌人 就找下层入口
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
         edges.append(StateOperationEdge(detect_enemy, check_entry, status=SimUniRunRouteBase.STATUS_NO_ENEMY))
+        edges.append(StateOperationEdge(move_by_detect, check_entry, success=False, status=SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
@@ -335,7 +340,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='_detect_enemy_in_screen')
+                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='combat_detect_screen')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_ENEMY)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -596,6 +601,8 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         mrl = self.ctx.im.match_template(mm_info.origin_del_radio, template_id='mm_sp_event', template_sub_dir='sim_uni')
         if mrl.max is not None:
             self.mm_icon_pos = mrl.max.center
+            if self.ctx.one_dragon_config.is_debug:  # 按小地图图标已经成熟 调试时强制使用yolo
+                return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT)
         else:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
@@ -634,7 +641,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunEventRouteV2')
+                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='event_detect_screen')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -773,7 +780,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunRespiteRouteV2')
+                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='respite_detect_screen')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
