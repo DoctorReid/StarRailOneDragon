@@ -236,3 +236,11 @@ class OneDragonConfig(ConfigHolder):
         old_list = self.screen_sim_uni_route
         old_list.append(route_id)
         self.update('screen_sim_uni_route', old_list)
+
+    @property
+    def yolo_model(self) -> str:
+        return self.get('yolo_model', 'yolov8n-1088-full-0427')
+
+    @yolo_model.setter
+    def yolo_model(self, new_value: str):
+        self.update('yolo_model', new_value)

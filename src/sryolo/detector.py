@@ -280,9 +280,26 @@ _MODEL_DOWNLOAD_PATH = 'https://github.com/DoctorReid/StarRail-YOLO/releases/dow
 _COLORS = np.random.default_rng(3).uniform(0, 255, size=(100, 3))
 
 
+def check_model_exists(model_parent_dir_path: str, model_name: str) -> bool:
+    """
+    检查模型是否已经下载好了
+    :param model_parent_dir_path: 存放所有模型的根目录
+    :param model_name: 使用的模型名称
+    :return:
+    """
+    model_dir_path = os.path.join(model_parent_dir_path, model_name)
+    onnx_path = os.path.join(model_dir_path, 'model.onnx')
+    labels_path = os.path.join(model_dir_path, 'labels.csv')
+
+    return (os.path.exists(model_dir_path)
+            and os.path.exists(onnx_path)
+            and os.path.exists(labels_path)
+            )
+
+
 def get_model_dir_path(model_parent_dir_path: str, model_name: str) -> str:
     """
-    获取模型所在的目录 如果目录不存在 获取缺少文件 则进行下载
+    获取模型所在的目录 如果目录不存在 或者缺少文件 则进行下载
     :param model_parent_dir_path: 存放所有模型的根目录
     :param model_name: 使用的模型名称
     :return: 返回模型的目录
@@ -290,19 +307,12 @@ def get_model_dir_path(model_parent_dir_path: str, model_name: str) -> str:
     if model_parent_dir_path is None:  # 默认使用本文件的目录
         model_parent_dir_path = os.path.abspath(__file__)
 
-    model_dir_path = os.path.join(model_parent_dir_path, model_name)
-    onnx_path = os.path.join(model_dir_path, 'model.onnx')
-    labels_path = os.path.join(model_dir_path, 'labels.csv')
-
-    if (not os.path.exists(model_dir_path)
-            or not os.path.exists(onnx_path)
-            or not os.path.exists(labels_path)
-    ):
+    if not check_model_exists(model_parent_dir_path, model_name):
         download = download_model(model_parent_dir_path, model_name)
         if not download:
             raise Exception('模型下载失败 可手动下载模型')
 
-    return model_dir_path
+    return os.path.join(model_parent_dir_path, model_name)
 
 
 def download_model(model_dir_path: str, model_name: str) -> bool:

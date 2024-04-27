@@ -28,6 +28,7 @@ from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLight
 from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
+from sr.config import yolo_config
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, TECHNIQUE_ATTACK
@@ -457,7 +458,11 @@ class Context:
 
     def init_yolo(self) -> bool:
         if self.yolo is None:
-            self.yolo = StarRailYOLO(model_parent_dir_path=os_utils.get_path_under_work_dir('model', 'yolo'))
+            model_name = self.one_dragon_config.yolo_model
+            self.yolo = StarRailYOLO(
+                model_parent_dir_path=yolo_config.get_yolo_model_parent_dir(),
+                model_name=model_name
+            )
         log.info('加载YOLO识别器完毕')
         return True
 

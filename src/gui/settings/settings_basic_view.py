@@ -1,16 +1,22 @@
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 
 import flet as ft
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from gui import components
+from gui import components, snack_bar
 from gui.settings import gui_config
 from gui.settings.gui_config import GuiConfig
 from gui.sr_basic_view import SrBasicView
 from sr.app.switch_account.switch_account_app import SwitchAccountApp
+from sr.config import yolo_config
 from sr.context import Context
 from sr.one_dragon_config import OneDragonAccount
+from sryolo.detector import check_model_exists, get_model_dir_path
+
+_AVAILABLE_YOLO_LIST: List[str] = [
+    'yolov8n-1088-full-0427'
+]
 
 
 class AccountListItem(ft.Container):
@@ -146,6 +152,12 @@ class SettingsBasicView(components.Card, SrBasicView):
         )
 
         self.debug_mode_check = ft.Checkbox(label=gt('调试模式', 'ui'), on_change=self._on_debug_mode_changed)
+        self.yolo_dropdown = ft.Dropdown(
+            options=[ft.dropdown.Option(key=i, text=i) for i in _AVAILABLE_YOLO_LIST],
+            on_change=self._on_yolo_changed,
+            width=250
+        )
+        self.yolo_download_btn = components.RectOutlinedButton(text='下载', on_click=self._download_yolo_model)
 
         self.width: int = 450
         self.add_btn = components.RectOutlinedButton(text='+', on_click=self.on_account_added)
@@ -153,6 +165,7 @@ class SettingsBasicView(components.Card, SrBasicView):
         self.settings_item_list = ft.ListView(controls=[
             components.SettingsListGroupTitle('基础'),
             components.SettingsListItem('界面主题', self.gui_theme_dropdown),
+            components.SettingsListItem('YOLO模型', ft.Row(controls=[self.yolo_dropdown, self.yolo_download_btn])),
             components.SettingsListItem('调试模式', self.debug_mode_check),
             components.SettingsListGroupTitle('脚本账号列表'),
             components.SettingsListItem('', self.add_btn),
@@ -169,6 +182,11 @@ class SettingsBasicView(components.Card, SrBasicView):
         :return:
         """
         self.debug_mode_check.value = self.sr_ctx.one_dragon_config.is_debug
+        self.yolo_dropdown.value = self.sr_ctx.one_dragon_config.yolo_model
+        if self.yolo_dropdown.value == '' or self.yolo_dropdown.value is None:
+            self.yolo_download_btn.disabled = True
+        else:
+            self.yolo_download_btn.disabled = check_model_exists(yolo_config.get_yolo_model_parent_dir(), self.yolo_dropdown.value)
 
         self._init_account_list()
 
@@ -270,6 +288,44 @@ class SettingsBasicView(components.Card, SrBasicView):
 
     def _on_debug_mode_changed(self, e):
         self.sr_ctx.one_dragon_config.is_debug = self.debug_mode_check.value
+
+    def _on_yolo_changed(self, e):
+        """
+        选择的yolo模型改变时
+        :param e:
+        :return:
+        """
+        model_name = self.yolo_dropdown.value
+        self.sr_ctx.one_dragon_config.yolo_model = model_name
+        existed = check_model_exists(yolo_config.get_yolo_model_parent_dir(), model_name)
+        self.yolo_download_btn.disabled = existed
+        self.yolo_download_btn.update()
+        if not existed:
+            msg = 'YOLO模型未存在 请先下载'
+            snack_bar.show_message(msg, self.flet_page)
+            log.warn(msg)
+
+    def _download_yolo_model(self, e):
+        """
+        下载YOLO模型
+        :param e:
+        :return:
+        """
+        msg = '准备下载YOLO模型 下载慢可以手动到QQ群里下载'
+        snack_bar.show_message(msg, self.flet_page)
+        log.info(msg)
+        model_name = self.yolo_dropdown.value
+        log.info(f'下载后 模型存放在 model/yolo/{model_name}/ 文件夹中，里面包含2个文件 model.onnx 和 labels.csv')
+        get_model_dir_path(yolo_config.get_yolo_model_parent_dir(), model_name)
+        existed = check_model_exists(yolo_config.get_yolo_model_parent_dir(), model_name)
+        self.yolo_download_btn.disabled = existed
+        self.yolo_download_btn.update()
+        if existed:
+            msg = 'YOLO模型下载成功'
+        else:
+            msg = 'YOLO模型下载失败 请重试'
+        snack_bar.show_message(msg, self.flet_page)
+        log.info(msg)
 
     def on_account_switch(self, account_idx: int):
         app = SwitchAccountApp(self.sr_ctx, account_idx)
