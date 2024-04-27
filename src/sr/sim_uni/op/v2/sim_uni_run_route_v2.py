@@ -16,6 +16,7 @@ from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
+from sr.sim_uni.op.sim_uni_reward import SimUniReward
 from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, delta_angle_to_detected_object, SimUniMoveToInteractByDetect
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType
 from sryolo.detector import DetectResult, draw_detections
@@ -36,7 +37,11 @@ class SimUniRunRouteBase(StateOperation):
     STATUS_NO_ENTRY: ClassVar[str] = '识别不到下层入口'
     STATUS_NOTHING: ClassVar[str] = '识别不到任何内容'
     STATUS_BOSS_EXIT: ClassVar[str] = '首领后退出'
-    STATUS_EVENT_HANDLED: ClassVar[str] = '事件已处理'
+    STATUS_HAD_EVENT: ClassVar[str] = '已处理事件'
+    STATUS_HAD_FIGHT: ClassVar[str] = '已进行战斗'
+    STATUS_NO_NEED_REWARD: ClassVar[str] = '无需沉浸奖励'
+    STATUS_WITH_DETECT_REWARD: ClassVar[str] = '识别到沉浸奖励'
+    STATUS_NO_DETECT_REWARD: ClassVar[str] = '识别不到沉浸奖励'
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  try_times: int = 2,
@@ -346,14 +351,19 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
 
 class SimUniRunEliteRouteV2(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.ELITE.value):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.ELITE.value,
+                 max_reward_to_get: int = 0,
+                 get_reward_callback: Optional[Callable[[int, int], None]] = None,):
         """
         区域-精英
         1. 检查小地图是否有红点 有就向红点移动
         2. 开怪
         3. 领取奖励
         4. 朝下层移动
-        :param ctx:
+        :param ctx: 上下文
+        :param level_type: 楼层类型
+        :param max_reward_to_get: 最多获取多少次奖励
+        :param get_reward_callback: 获取奖励后的回调
         """
         edges: List[StateOperationEdge] = []
 
@@ -374,20 +384,34 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         after_fight = StateOperationNode('战斗后处理', self._turn_to_previous_angle)
         edges.append(StateOperationEdge(start_fight, after_fight))
 
-        # TODO 暂时没有领取奖励处理
+        # 战斗后识别沉浸奖励装置
+        detect_reward = StateOperationNode('识别沉浸奖励', self._detect_reward)
+        edges.append(StateOperationEdge(after_fight, detect_reward))
+        edges.append(StateOperationEdge(check_red, detect_reward, status=SimUniRunRouteBase.STATUS_HAD_FIGHT))
+        # 没红点时 识别沉浸奖励装置
+        edges.append(StateOperationEdge(check_red, detect_reward, status=SimUniRunRouteBase.STATUS_NO_RED))
 
-        # 战斗后 识别下层入口
+        # 朝沉浸奖励装置移动
+        move_to_reward = StateOperationNode('朝沉浸奖励移动', self._move_to_reward)
+        edges.append(StateOperationEdge(detect_reward, move_to_reward, status=SimUniRunRouteBase.STATUS_WITH_DETECT_REWARD))
+
+        # 领取奖励
+        get_reward = StateOperationNode('领取沉浸奖励', self._get_reward)
+        edges.append(StateOperationEdge(move_to_reward, get_reward, status=SimUniMoveToInteractByDetect.STATUS_INTERACT))
+
+        # 无需领奖励 或者 领取奖励后 识别下层入口
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
-        edges.append(StateOperationEdge(after_fight, check_entry))
-        # 没红点时 识别下层入口
-        edges.append(StateOperationEdge(check_red, check_entry, status=SimUniRunRouteBase.STATUS_NO_RED))
+        edges.append(StateOperationEdge(detect_reward, check_entry, status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD))
+        edges.append(StateOperationEdge(get_reward, check_entry))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
-        # 找不到下层入口就转向找目标 重新开始
+        # 找不到下层入口 就转向重新开始
         turn = StateOperationNode('转动找目标', self._turn_when_nothing)
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
         edges.append(StateOperationEdge(turn, check_red))
+        # 需要领取沉浸奖励 而又找不到沉浸奖励时 也转向重新开始
+        edges.append(StateOperationEdge(detect_reward, turn, status=SimUniRunRouteBase.STATUS_NO_DETECT_REWARD))
 
         # 首领后退出
         boss_exit = StateOperationNode('首领后退出', self._boss_exit)
@@ -398,11 +422,18 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
                          specified_start_node=before_route
                          )
 
+        self.had_fight: bool = False  # 已经进行过战斗了
+        self.had_reward: bool = False  # 已经拿过沉浸奖励了
+        self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
+        self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
+
     def _check_red(self) -> OperationOneRoundResult:
         """
         检查小地图是否有红点
         :return:
         """
+        if self.had_fight:
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_FIGHT)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info = mini_map.analyse_mini_map(mm)
@@ -429,7 +460,57 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         """
         op = SimUniFightElite(self.ctx)
         return Operation.round_by_op(op.execute())
-    
+
+    def _detect_reward(self) -> OperationOneRoundResult:
+        if self.max_reward_to_get == 0 or self.had_reward:
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
+
+        self._view_down()
+        screen = self.screenshot()
+
+        self.ctx.init_yolo()
+        detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
+
+        detected: bool = False
+        for result in detect_results:
+            if result.detect_class.class_cate == '模拟宇宙沉浸奖励':
+                detected = True
+                break
+
+        if detected:
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_REWARD)
+        else:
+            if self.ctx.one_dragon_config.is_debug:
+                self.save_screenshot()
+                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunEliteRouteV2')
+
+            if self.had_fight and self.nothing_times <= 11:  # 战斗后 一定要找到沉浸奖励
+                return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_REWARD)
+            else:  # 重进的情况(没有战斗) 或者 找不到沉浸奖励太多次了 就不找了
+                return Operation.round_success(SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
+
+    def _move_to_reward(self) -> OperationOneRoundResult:
+        """
+        朝沉浸装置移动
+        :return:
+        """
+        self.nothing_times = 0
+        self.moved_to_target = True
+        op = SimUniMoveToInteractByDetect(self.ctx,
+                                          interact_class='模拟宇宙沉浸奖励',
+                                          interact_word='沉浸奖励',
+                                          interact_during_move=True)
+        return Operation.round_by_op(op.execute())
+
+    def _get_reward(self) -> OperationOneRoundResult:
+        """
+        领取沉浸奖励
+        :return:
+        """
+        self.had_reward = True
+        op = SimUniReward(self.ctx, self.max_reward_to_get, self.get_reward_callback)
+        return Operation.round_by_op(op.execute())
+
     def _boss_exit(self) -> OperationOneRoundResult:
         """
         战胜首领后退出
@@ -483,8 +564,8 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         # 识别不到事件 也识别下层入口
         edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_NO_DETECT_EVENT))
         # 之前已经处理过事件了 识别下层人口
-        edges.append(StateOperationEdge(check_mm, check_entry, status=SimUniRunRouteBase.STATUS_EVENT_HANDLED))
-        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_EVENT_HANDLED))
+        edges.append(StateOperationEdge(check_mm, check_entry, status=SimUniRunRouteBase.STATUS_HAD_EVENT))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_HAD_EVENT))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
@@ -507,7 +588,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_EVENT_HANDLED)
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
 
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
@@ -535,7 +616,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_EVENT_HANDLED)
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
         self._view_down()
         screen = self.screenshot()
 
@@ -623,8 +704,8 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_NO_DETECT_EVENT))
         edges.append(StateOperationEdge(interact, check_entry, success=False))
         # 之前已经处理过事件了 识别下层人口
-        edges.append(StateOperationEdge(check_mm, check_entry, status=SimUniRunRouteBase.STATUS_EVENT_HANDLED))
-        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_EVENT_HANDLED))
+        edges.append(StateOperationEdge(check_mm, check_entry, status=SimUniRunRouteBase.STATUS_HAD_EVENT))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_HAD_EVENT))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
@@ -647,7 +728,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_EVENT_HANDLED)
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
@@ -674,7 +755,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_EVENT_HANDLED)
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
         self._view_down()
         screen = self.screenshot()
 

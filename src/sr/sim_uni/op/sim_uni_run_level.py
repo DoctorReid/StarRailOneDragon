@@ -171,7 +171,9 @@ class SimUniRunLevel(StateOperation):
             return SimUniRunCombatRouteV2(self.ctx, self.level_type)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            return SimUniRunEliteRouteV2(self.ctx, self.level_type)
+            return SimUniRunEliteRouteV2(self.ctx, self.level_type,
+                                         max_reward_to_get=self.max_reward_to_get,
+                                         get_reward_callback=self.get_reward_callback)
         elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
                 self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
                 self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
