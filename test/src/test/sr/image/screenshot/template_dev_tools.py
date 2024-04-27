@@ -497,7 +497,7 @@ def init_store_icon(template_id: str, sub_dir: Optional[str] = None):
 
 
 if __name__ == '__main__':
-    init_tp_with_background('mm_tp_13', noise_threshold=30)
+    # init_tp_with_background('mm_tp_13', noise_threshold=30)
     # init_sp_with_background('mm_sp_17')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
@@ -512,7 +512,7 @@ if __name__ == '__main__':
     # init_store_buy_num_ctrl('store_buy_max')
     # init_battle_times_control('battle_times_plus')
     # init_mission_star_active()
-    # init_character_avatar_from_alas()
+    init_character_avatar_from_alas()
     # init_character_combat_type('lightning')
     # init_inventory_category('valuables')
     # init_sim_uni_move_target('level_type_encounter')

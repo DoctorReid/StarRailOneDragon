@@ -195,6 +195,7 @@ BLACKSWAN = Character(id='blackswan', cn='黑天鹅', path=CHARACTER_PATH_NIHILI
 SPARKLE = Character(id='sparkle', cn='花火', path=CHARACTER_PATH_HARMONY, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF)
 GALLAGHER = Character(id='gallagher', cn='拉加赫', path=CHARACTER_PATH_ABUNDANCE, combat_type=FIRE, level=4, technique_type=TECHNIQUE_ATTACK)
 ACHERON = Character(id='acheron', cn='黄泉', path=CHARACTER_PATH_NIHILITY, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
+AVENTURINE = Character(id='aventurine', cn='砂金', path=CHARACTER_PATH_PRESERVATION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -247,6 +248,7 @@ CHARACTER_LIST: List[Character] = [
     SPARKLE,
     GALLAGHER,
     ACHERON,
+    AVENTURINE,
 ]
 
 
