@@ -74,7 +74,8 @@ class SimUniRunRouteBase(StateOperation):
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         angle = mini_map.analyse_angle(mm)
         self.ctx.controller.turn_from_angle(angle, self.previous_angle)
-        return Operation.round_success()
+        self.moved_to_target = False
+        return Operation.round_success(wait=0.2)
 
     def _check_next_entry(self) -> OperationOneRoundResult:
         """
@@ -105,11 +106,15 @@ class SimUniRunRouteBase(StateOperation):
         当前画面识别不到任何内容时候 转动一下
         :return:
         """
+        self.nothing_times += 1
+
         if not self.moved_to_target:
             # 还没有产生任何移动的情况下 又识别不到任何内容 则可能是距离较远导致。先尝试往前走1秒
             self.ctx.controller.move('w', 1)
-        self.nothing_times += 1
-        if self.nothing_times >= 12:
+            self.moved_to_target = True
+            return Operation.round_success()
+
+        if self.nothing_times >= 23:
             return Operation.round_fail(SimUniRunRouteBase.STATUS_NOTHING)
 
         # angle = (25 + 10 * self.nothing_times) * (1 if self.nothing_times % 2 == 0 else -1)  # 来回转动视角
@@ -117,6 +122,12 @@ class SimUniRunRouteBase(StateOperation):
         # 不要被360整除 否则转一圈之后还是被人物覆盖了看不到
         angle = 35
         self.ctx.controller.turn_by_angle(angle)
+
+        if self.nothing_times % 11 == 0:
+            # 大概转了一圈之后还没有找到东西 就往之前的方向走一点
+            self.moved_to_target = False
+            return self._turn_to_previous_angle()
+
         return Operation.round_success(wait=0.5)
 
     def _view_down(self):
@@ -162,7 +173,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(check, move_by_red, status=SimUniRunRouteBase.STATUS_WITH_RED))
 
         # 小地图没有红点 就在画面上找敌人
-        detect_enemy = StateOperationNode('识别敌人', self._detect_enemy_in_screen)
+        detect_enemy = StateOperationNode('识别敌人', self._detect_screen)
         edges.append(StateOperationEdge(check, detect_enemy, status=SimUniRunRouteBase.STATUS_NO_RED))
         # 找到了敌人就开始移动
         move_by_detect = StateOperationNode('向敌人移动', self._move_by_detect)
@@ -269,7 +280,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         else:
             return Operation.round_by_op(op_result)
 
-    def _detect_enemy_in_screen(self) -> OperationOneRoundResult:
+    def _detect_screen(self) -> OperationOneRoundResult:
         """
         没有红点时 判断当前画面是否有怪
         TODO 之后可以把入口识别也放到这里
@@ -282,11 +293,19 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
 
         with_enemy: bool = False
+        with_entry: bool = False
         delta_angle: float = 0
         cnt: int = 0
         for result in detect_results:
+            valid = False
             if result.detect_class.class_cate == '普通怪':
                 with_enemy = True
+                valid = True
+            if result.detect_class.class_cate in ['模拟宇宙下层入口', '模拟宇宙下层入口未激活']:
+                with_entry = True
+                valid = True
+
+            if valid:
                 delta_angle += delta_angle_to_detected_object(result)
                 cnt += 1
 
