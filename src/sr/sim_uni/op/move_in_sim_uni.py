@@ -4,7 +4,7 @@ from typing import Tuple, Optional, Callable, List, ClassVar
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Point, cal_utils, str_utils, Rect
+from basic import Point, cal_utils, Rect
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.img.os import save_debug_image
@@ -17,7 +17,7 @@ from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, large_map, mini_map, screen_state
 from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode, \
     StateOperationEdge
-from sr.operation.unit.interact import Interact, check_move_interact
+from sr.operation.unit.interact import check_move_interact
 from sr.operation.unit.move import MoveDirectly
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
@@ -51,7 +51,6 @@ class MoveDirectlyInSimUni(MoveDirectly):
             op_callback=op_callback)
         self.op_name = '%s %s' % (gt('模拟宇宙', 'ui'), gt('移动 %s -> %s') % (start, target))
         self.config: SimUniChallengeConfig = config
-        self.save_yolo_image = True
 
     def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
         """

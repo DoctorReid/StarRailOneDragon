@@ -176,10 +176,6 @@ class MoveDirectly(Operation):
         self.technique_fight: bool = technique_fight  # 是否使用秘技进入战斗
         self.technique_only: bool = technique_only  # 是否只使用秘技进入战斗
 
-        # 开发调试参数
-        self.last_debug_image_time: float = 0  # 上一次保存截图的时间
-        self.save_yolo_image: bool = False  # 是否保存yolo截图
-
     def _init_before_execute(self):
         super()._init_before_execute()
         now = time.time()
@@ -206,10 +202,6 @@ class MoveDirectly(Operation):
         #     time.sleep(0.5)  # 等待人物转过来再截图
 
         screen = self.screenshot()
-
-        if self.ctx.one_dragon_config.is_debug and self.save_yolo_image and now_time - self.last_debug_image_time >= 0.5:
-            debug_utils.get_executor().submit(self.save_screenshot)
-            self.last_debug_image_time = now_time
 
         be_attacked = self.be_attacked(screen)  # 查看是否被攻击
         if be_attacked is not None:
@@ -238,16 +230,6 @@ class MoveDirectly(Operation):
         self.move(next_pos, now_time, mm_info)
 
         return Operation.round_wait()
-
-    def save_screenshot(self):
-        """
-        保存截图 用于训练
-        :return:
-        """
-        base = os_utils.get_path_under_work_dir('.debug', 'yolo_world_patrol', self.region.prl_id)
-        now = os_utils.now_timestamp_str()
-        fill_uid_black(self.last_screenshot)
-        cv2.imwrite(os.path.join(base, '%s.png' % now), self.last_screenshot)
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
         """
