@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Union, Optional, ClassVar
 
 from cv2.typing import MatLike
 
@@ -11,8 +11,8 @@ from sr.image.ocr_matcher import OcrMatcher
 
 class GameController:
 
-    MOVE_INTERACT_TYPE = 0
-    TALK_INTERACT_TYPE = 1
+    MOVE_INTERACT_TYPE: ClassVar[int] = 0
+    TALK_INTERACT_TYPE: ClassVar[int] = 1
 
     def __init__(self, ocr: OcrMatcher):
         self.ocr: OcrMatcher = ocr

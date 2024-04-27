@@ -8,10 +8,12 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.const import game_config_const
 from sr.context import Context
+from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.interact import check_move_interact
 from sr.operation.unit.move import GetRidOfStuck
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sryolo.detector import DetectResult, draw_detections
 
@@ -289,7 +291,6 @@ class SimUniMoveToEnemyByDetect(Operation):
         self.no_enemy_times = 0
         enemy = enemy_pos_list[0]  # 先固定找第一个
         turn_to_detected_object(self.ctx, enemy)
-        time.sleep(0.5)
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()
         return Operation.round_wait()
@@ -304,6 +305,7 @@ class SimUniMoveToEnemyByDetect(Operation):
 class SimUniMoveToEventByDetect(Operation):
 
     STATUS_ARRIVAL: ClassVar[str] = '已到达'
+    STATUS_INTERACT: ClassVar[str] = '已交互'
     STATUS_NO_EVENT: ClassVar[str] = '识别不到事件'
 
     def __init__(self, ctx: Context):
@@ -322,21 +324,40 @@ class SimUniMoveToEventByDetect(Operation):
         self.start_move_time: float = 0  # 开始移动的时间
 
     def _execute_one_round(self) -> OperationOneRoundResult:
+        now = time.time()
+        screen = self.screenshot()
+
+        if screen_state.is_normal_in_world(screen, self.ctx.im):
+            return self.handle_in_world(screen, now)
+        else:
+            return self.handle_not_in_world(screen, now)
+
+    def handle_in_world(self, screen: MatLike, now: float) -> Optional[OperationOneRoundResult]:
+        """
+        处理在大世界的情况
+        :param screen: 游戏画面
+        :param now: 当前时间
+        :return:
+        """
+        # 目前事件里都是只有一个可以交互的 因此一边走一边尝试交互 替代缓慢的OCR
+        self.ctx.controller.interact(
+            pos=ScreenNormalWorld.MOVE_INTERACT_SINGLE_LINE.value.center,
+            interact_type=GameController.MOVE_INTERACT_TYPE
+        )
+
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
         if stuck is not None:  # 只有脱困失败的时候会有返回结果
             return stuck
-
-        now = time.time()
-        screen = self.screenshot()
 
         # 移动2秒后 如果丢失了目标 停下来
         if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_detect_times > 0:
             self.ctx.controller.stop_moving_forward()
             return Operation.round_wait()
 
-        if self.can_interact(screen):
-            self.ctx.controller.stop_moving_forward()
-            return Operation.round_success(status=SimUniMoveToEventByDetect.STATUS_ARRIVAL)
+        # 使用直接交互来替代OCR
+        # if self.can_interact(screen):
+        #     self.ctx.controller.stop_moving_forward()
+        #     return Operation.round_success(status=SimUniMoveToEventByDetect.STATUS_ARRIVAL)
 
         # 判断事件的位置
         pos_list = self.get_event_pos(screen)
@@ -396,7 +417,6 @@ class SimUniMoveToEventByDetect(Operation):
         self.no_detect_times = 0
         enemy = enemy_pos_list[0]  # 先固定找第一个
         turn_to_detected_object(self.ctx, enemy)
-        time.sleep(0.5)
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()
         return Operation.round_wait()
@@ -414,6 +434,15 @@ class SimUniMoveToEventByDetect(Operation):
         """
         interact_pos = check_move_interact(self.ctx, screen, '事件', single_line=True)
         return interact_pos is not None
+
+    def handle_not_in_world(self, screen: MatLike, now: float) -> Optional[OperationOneRoundResult]:
+        """
+        处理不在大世界的情况 暂时只有交互成功会进入
+        :param screen: 游戏画面
+        :param now: 当前时间
+        :return:
+        """
+        return Operation.round_success(status=SimUniMoveToEventByDetect.STATUS_INTERACT)
 
 
 class SimUniMoveToHertaByDetect(Operation):
@@ -513,7 +542,6 @@ class SimUniMoveToHertaByDetect(Operation):
         self.no_detect_times = 0
         pos = pos_list[0]  # 先固定找第一个
         turn_to_detected_object(self.ctx, pos)
-        time.sleep(0.5)
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()
         return Operation.round_wait()

@@ -476,6 +476,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         # 交互了之后开始事件判断
         event = StateOperationNode('事件', self._handle_event)
         edges.append(StateOperationEdge(interact, event))
+        edges.append(StateOperationEdge(move_by_detect, event, status=SimUniMoveToEventByDetect.STATUS_INTERACT))
 
         # 事件之后 识别下层入口
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
