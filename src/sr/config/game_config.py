@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 import gui.version
+from basic import Point
 from basic.config import ConfigHolder
 from sr.const import game_config_const, ocr_const
 from sr.const.game_config_const import SERVER_REGION_CN
@@ -22,6 +23,14 @@ class MiniMapPos:
 
     def __repr__(self):
         return "(%d, %d) %.2f" % (self.x, self.y, self.r)
+
+    @property
+    def mm_center(self) -> Point:
+        """
+        小地图截图上 中心点的坐标
+        :return:
+        """
+        return Point((self.rx - self.lx) // 2, (self.ry - self.ly) // 2)
 
 
 class GameConfig(ConfigHolder):

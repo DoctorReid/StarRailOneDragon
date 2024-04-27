@@ -106,16 +106,17 @@ class SimUniRunLevel(StateOperation):
             self.level_type = target_level_type
             another_route = True
 
-        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        target_route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
+        if self.world_num < 9:
+            mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
+            target_route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
 
-        if target_route is None:
-            self.level_type = None
-            self.route = None
-            return Operation.round_retry('匹配路线失败', wait=1)
-        elif self.route is None or self.route.uid != target_route.uid:
-            self.route = target_route
-            another_route = True
+            if target_route is None:
+                self.level_type = None
+                self.route = None
+                return Operation.round_retry('匹配路线失败', wait=1)
+            elif self.route is None or self.route.uid != target_route.uid:
+                self.route = target_route
+                another_route = True
 
         if another_route:
             return Operation.round_wait(wait=0.5)  # 两次匹配成功才认为是正确的路线 牺牲一点时间换取稳定性
@@ -167,16 +168,16 @@ class SimUniRunLevel(StateOperation):
         :return:
         """
         if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
-            return SimUniRunCombatRouteV2(self.ctx)
+            return SimUniRunCombatRouteV2(self.ctx, self.level_type)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            return SimUniRunEliteRouteV2(self.ctx)
+            return SimUniRunEliteRouteV2(self.ctx, self.level_type)
         elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
                 self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
                 self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
-            return SimUniRunEventRouteV2(self.ctx)
+            return SimUniRunEventRouteV2(self.ctx, self.level_type)
         elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            return SimUniRunRespiteRouteV2(self.ctx)
+            return SimUniRunRespiteRouteV2(self.ctx, self.level_type)
         else:
             return None
 

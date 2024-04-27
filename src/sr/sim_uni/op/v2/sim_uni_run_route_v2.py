@@ -15,6 +15,7 @@ from sr.operation.unit.move import MoveWithoutPos
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
+from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, \
     SimUniMoveToEventByDetect, delta_angle_to_detected_object, SimUniMoveToHertaByDetect
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType
@@ -35,16 +36,19 @@ class SimUniRunRouteBase(StateOperation):
     STATUS_WITH_ENTRY: ClassVar[str] = '识别到下层入口'
     STATUS_NO_ENTRY: ClassVar[str] = '识别不到下层入口'
     STATUS_NOTHING: ClassVar[str] = '识别不到任何内容'
+    STATUS_BOSS_EXIT: ClassVar[str] = '首领后退出'
+    STATUS_EVENT_HANDLED: ClassVar[str] = '事件已处理'
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
-                 op_name: str, try_times: int = 2,
+                 try_times: int = 2,
                  nodes: Optional[List[StateOperationNode]] = None,
                  edges: Optional[List[StateOperationEdge]] = None,
                  specified_start_node: Optional[StateOperationNode] = None,
                  timeout_seconds: float = -1,
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         StateOperation.__init__(self,
-                                ctx=ctx, op_name=op_name, try_times=try_times,
+                                ctx=ctx, try_times=try_times,
+                                op_name=gt('区域-%s' % level_type.type_name, 'ui'),
                                 nodes=nodes, edges=edges, specified_start_node=specified_start_node,
                                 timeout_seconds=timeout_seconds, op_callback=op_callback)
 
@@ -53,7 +57,18 @@ class SimUniRunRouteBase(StateOperation):
         self.nothing_times: int = 0  # 识别不到任何内容的次数
         self.previous_angle: float = 0  # 之前的朝向 识别到目标时应该记录下来 后续可以在这个方向附近找下一个目标
 
-    def _check_angle(self, screen: Optional[MatLike] = None) -> OperationOneRoundResult:
+    def _before_route(self) -> OperationOneRoundResult:
+        """
+        路线开始前
+        1. 按照小地图识别初始的朝向
+        2. 等待头顶的区域文本消失？
+        :return:
+        """
+        screen = self.screenshot()
+        self._check_angle(screen)
+        return Operation.round_success()
+
+    def _check_angle(self, screen: Optional[MatLike] = None):
         """
         检测并更新角度
         :return:
@@ -62,7 +77,6 @@ class SimUniRunRouteBase(StateOperation):
             screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         self.previous_angle = mini_map.analyse_angle(mm)
-        return Operation.round_success()
 
     def _turn_to_previous_angle(self, screen: Optional[MatLike] = None) -> OperationOneRoundResult:
         """
@@ -82,6 +96,8 @@ class SimUniRunRouteBase(StateOperation):
         找下层入口 主要判断能不能找到
         :return:
         """
+        if self.level_type == SimUniLevelTypeEnum.BOSS.value:
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_BOSS_EXIT)
         self._view_up()
         screen: MatLike = self.screenshot()
         entry_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
@@ -153,7 +169,7 @@ class SimUniRunRouteBase(StateOperation):
 
 class SimUniRunCombatRouteV2(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.COMBAT.value):
         """
         区域-战斗
         1. 检测地图是否有红点
@@ -163,10 +179,10 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         """
         edges: List[StateOperationEdge] = []
 
-        first_angle = StateOperationNode('第一次记录角度', self._check_angle)
+        before_route = StateOperationNode('区域开始前', self._before_route)
 
         check = StateOperationNode('画面检测', self._check_screen)
-        edges.append(StateOperationEdge(first_angle, check))
+        edges.append(StateOperationEdge(before_route, check))
 
         # 小地图有红点 就按红点移动
         move_by_red = StateOperationNode('向红点移动', self._move_by_red)
@@ -203,10 +219,9 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         # 转动完重新开始目标识别
         edges.append(StateOperationEdge(turn, check))
 
-        super().__init__(ctx, level_type=SimUniLevelTypeEnum.COMBAT.value,
-                         op_name=gt('区域-战斗', 'ui'),
+        super().__init__(ctx, level_type=level_type,
                          edges=edges,
-                         specified_start_node=first_angle)
+                         specified_start_node=before_route)
 
         self.last_state: str = ''  # 上一次的画面状态
         self.current_state: str = ''  # 这一次的画面状态
@@ -314,7 +329,9 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
             self.previous_angle = cal_utils.angle_add(self.previous_angle, avg_delta_angle)
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENEMY)
         else:
-            cv2_utils.show_image(screen, win_name='_detect_enemy_in_screen')
+            if self.ctx.one_dragon_config.is_debug:
+                self.save_screenshot()
+                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='_detect_enemy_in_screen')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_ENEMY)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -330,7 +347,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
 
 class SimUniRunEliteRouteV2(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.ELITE.value):
         """
         区域-精英
         1. 检查小地图是否有红点 有就向红点移动
@@ -341,10 +358,10 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         """
         edges: List[StateOperationEdge] = []
 
-        first_angle = StateOperationNode('第一次记录角度', self._check_angle)
+        before_route = StateOperationNode('区域开始前', self._before_route)
 
         check_red = StateOperationNode('识别小地图红点', self._check_red)
-        edges.append(StateOperationEdge(first_angle, check_red))
+        edges.append(StateOperationEdge(before_route, check_red))
 
         # 有红点就靠红点移动
         move_by_red = StateOperationNode('向红点移动', self._move_by_red)
@@ -373,10 +390,13 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
         edges.append(StateOperationEdge(turn, check_red))
 
-        super().__init__(ctx, level_type=SimUniLevelTypeEnum.ELITE.value,
-                         op_name=gt('区域-精英', 'ui'),
+        # 首领后退出
+        boss_exit = StateOperationNode('首领后退出', self._boss_exit)
+        edges.append(StateOperationEdge(check_entry, boss_exit, status=SimUniRunRouteBase.STATUS_BOSS_EXIT))
+
+        super().__init__(ctx, level_type=level_type,
                          edges=edges,
-                         specified_start_node=check_red
+                         specified_start_node=before_route
                          )
 
     def _check_red(self) -> OperationOneRoundResult:
@@ -410,11 +430,19 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         """
         op = SimUniFightElite(self.ctx)
         return Operation.round_by_op(op.execute())
+    
+    def _boss_exit(self) -> OperationOneRoundResult:
+        """
+        战胜首领后退出
+        :return: 
+        """
+        op = SimUniExit(self.ctx)
+        return Operation.round_by_op(op.execute())
 
 
 class SimUniRunEventRouteV2(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.ELITE.value):
         """
         区域-事件
         1. 识别小地图上是否有事件图标 有的话就移动
@@ -425,17 +453,20 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         """
         edges: List[StateOperationEdge] = []
 
+        before_route = StateOperationNode('区域开始前', self._before_route)
+
         # 小地图有事件的话就走小地图
         check_mm = StateOperationNode('识别小地图事件', self._check_mm_icon)
+        edges.append(StateOperationEdge(before_route, check_mm))
         move_by_mm = StateOperationNode('按小地图朝事件移动', self._move_by_mm)
         edges.append(StateOperationEdge(check_mm, move_by_mm, status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT))
 
         # 小地图没有事件的话就靠识别
-        detect_event = StateOperationNode('识别画面事件', self._detect_event_in_screen)
-        edges.append(StateOperationEdge(check_mm, detect_event, status=SimUniRunRouteBase.STATUS_NO_MM_EVENT))
+        detect_screen = StateOperationNode('识别画面事件', self._detect_screen)
+        edges.append(StateOperationEdge(check_mm, detect_screen, status=SimUniRunRouteBase.STATUS_NO_MM_EVENT))
         # 识别到就移动
         move_by_detect = StateOperationNode('按画面朝事件移动', self._move_by_detect)
-        edges.append(StateOperationEdge(detect_event, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT))
+        edges.append(StateOperationEdge(detect_screen, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT))
 
         # 走到了就进行交互 进入这里代码已经识别到事件了 则必须要交互才能进入下一层
         interact = StateOperationNode('交互', self._interact)
@@ -450,7 +481,10 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
         edges.append(StateOperationEdge(event, check_entry))
         # 识别不到事件 也识别下层入口
-        edges.append(StateOperationEdge(detect_event, check_entry, status=SimUniRunRouteBase.STATUS_NO_DETECT_EVENT))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_NO_DETECT_EVENT))
+        # 之前已经处理过事件了 识别下层人口
+        edges.append(StateOperationEdge(check_mm, check_entry, status=SimUniRunRouteBase.STATUS_EVENT_HANDLED))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_EVENT_HANDLED))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
@@ -459,19 +493,22 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
         edges.append(StateOperationEdge(turn, check_mm))
 
-        super().__init__(ctx, level_type=SimUniLevelTypeEnum.EVENT.value,
-                         op_name=gt('区域-事件', 'ui'),
+        super().__init__(ctx, level_type=level_type,
                          edges=edges,
-                         specified_start_node=check_mm
+                         specified_start_node=before_route
                          )
 
         self.mm_icon_pos: Optional[Point] = None  # 小地图上事件的坐标
+        self.event_handled: bool = False  # 已经处理过事件了
 
     def _check_mm_icon(self) -> OperationOneRoundResult:
         """
         识别小地图上的事件图标
         :return:
         """
+        if self.event_handled:  # 已经交互过事件了
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_EVENT_HANDLED)
+
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
@@ -489,15 +526,16 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         """
         self.nothing_times = 0
         self.moved_to_target = True
-        r = self.ctx.game_config.mini_map_pos.r
-        op = MoveWithoutPos(self.ctx, start=Point(r, r), target=self.mm_icon_pos)
+        op = MoveWithoutPos(self.ctx, start=self.ctx.game_config.mini_map_pos.mm_center, target=self.mm_icon_pos)
         return Operation.round_by_op(op.execute())
 
-    def _detect_event_in_screen(self) -> OperationOneRoundResult:
+    def _detect_screen(self) -> OperationOneRoundResult:
         """
         识别游戏画面上是否有事件牌
         :return:
         """
+        if self.event_handled:  # 已经交互过事件了
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_EVENT_HANDLED)
         self._view_down()
         screen = self.screenshot()
 
@@ -515,7 +553,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-            cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunEventRouteV2')
+                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunEventRouteV2')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -541,26 +579,30 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         事件处理
         :return:
         """
+        self.event_handled = True
         op = SimUniEvent(self.ctx, skip_first_screen_check=False)
         return Operation.round_by_op(op.execute())
 
 
 class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
 
-    def __init__(self, ctx: Context):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.ELITE.value):
         edges: List[StateOperationEdge] = []
+
+        before_route = StateOperationNode('区域开始前', self._before_route)
 
         # 小地图有事件的话就走小地图
         check_mm = StateOperationNode('识别小地图黑塔', self._check_mm_icon)
+        edges.append(StateOperationEdge(before_route, check_mm))
         move_by_mm = StateOperationNode('按小地图朝黑塔移动', self._move_by_mm)
         edges.append(StateOperationEdge(check_mm, move_by_mm, status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT))
 
         # 小地图没有事件的话就靠识别
-        detect_event = StateOperationNode('识别画面黑塔', self._detect_screen)
-        edges.append(StateOperationEdge(check_mm, detect_event, status=SimUniRunRouteBase.STATUS_NO_MM_EVENT))
+        detect_screen = StateOperationNode('识别画面黑塔', self._detect_screen)
+        edges.append(StateOperationEdge(check_mm, detect_screen, status=SimUniRunRouteBase.STATUS_NO_MM_EVENT))
         # 识别到就移动
         move_by_detect = StateOperationNode('按画面朝黑塔移动', self._move_by_detect)
-        edges.append(StateOperationEdge(detect_event, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT))
+        edges.append(StateOperationEdge(detect_screen, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT))
 
         # 走到了就进行交互
         interact = StateOperationNode('交互', self._interact)
@@ -575,8 +617,11 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
         edges.append(StateOperationEdge(event, check_entry))
         # 识别不到事件、交互失败 也识别下层入口
-        edges.append(StateOperationEdge(detect_event, check_entry, status=SimUniRunRouteBase.STATUS_NO_DETECT_EVENT))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_NO_DETECT_EVENT))
         edges.append(StateOperationEdge(interact, check_entry, success=False))
+        # 之前已经处理过事件了 识别下层人口
+        edges.append(StateOperationEdge(check_mm, check_entry, status=SimUniRunRouteBase.STATUS_EVENT_HANDLED))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_EVENT_HANDLED))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
@@ -585,19 +630,21 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
         edges.append(StateOperationEdge(turn, check_mm))
 
-        super().__init__(ctx, level_type=SimUniLevelTypeEnum.RESPITE.value,
-                         op_name=gt('区域-休整', 'ui'),
+        super().__init__(ctx, level_type=level_type,
                          edges=edges,
-                         specified_start_node=check_mm
+                         specified_start_node=before_route
                          )
 
         self.mm_icon_pos: Optional[Point] = None  # 小地图上黑塔的坐标
+        self.event_handled: bool = False  # 已经处理过事件了
 
     def _check_mm_icon(self) -> OperationOneRoundResult:
         """
         识别小地图上的黑塔图标
         :return:
         """
+        if self.event_handled:  # 已经交互过事件了
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_EVENT_HANDLED)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
@@ -615,8 +662,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         """
         self.nothing_times = 0
         self.moved_to_target = True
-        r = self.ctx.game_config.mini_map_pos.r
-        op = MoveWithoutPos(self.ctx, start=Point(r, r), target=self.mm_icon_pos)
+        op = MoveWithoutPos(self.ctx, start=self.ctx.game_config.mini_map_pos.mm_center, target=self.mm_icon_pos)
         return Operation.round_by_op(op.execute())
 
     def _detect_screen(self) -> OperationOneRoundResult:
@@ -624,6 +670,8 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         识别游戏画面上是否有事件牌
         :return:
         """
+        if self.event_handled:  # 已经交互过事件了
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_EVENT_HANDLED)
         self._view_down()
         screen = self.screenshot()
 
@@ -641,7 +689,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-            cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunRespiteRouteV2')
+                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunRespiteRouteV2')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -667,5 +715,6 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         事件处理
         :return:
         """
+        self.event_handled = True
         op = SimUniEvent(self.ctx, skip_first_screen_check=False)
         return Operation.round_by_op(op.execute())
