@@ -15,7 +15,7 @@ from sr.one_dragon_config import OneDragonAccount
 from sryolo.detector import check_model_exists, get_model_dir_path
 
 _AVAILABLE_YOLO_LIST: List[str] = [
-    'yolov8n-1088-full-0427'
+    'yolov8n-1088-full-0428'
 ]
 
 

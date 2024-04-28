@@ -239,7 +239,7 @@ class OneDragonConfig(ConfigHolder):
 
     @property
     def yolo_model(self) -> str:
-        return self.get('yolo_model', 'yolov8n-1088-full-0427')
+        return self.get('yolo_model', 'yolov8n-1088-full-0428')
 
     @yolo_model.setter
     def yolo_model(self, new_value: str):

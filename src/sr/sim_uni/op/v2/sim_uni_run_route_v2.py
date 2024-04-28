@@ -467,7 +467,11 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         return Operation.round_by_op(op.execute())
 
     def _detect_reward(self) -> OperationOneRoundResult:
-        if self.max_reward_to_get == 0 or self.had_reward:
+        if self.had_reward:
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
+
+        # 调试时候强制走到沉浸奖励
+        if not self.ctx.one_dragon_config.is_debug and self.max_reward_to_get == 0:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
 
         self._view_down()
