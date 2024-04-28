@@ -17,3 +17,4 @@ class ScreenBattle(Enum):
 
     AFTER_BATTLE_CHALLENGE_AGAIN_BTN = ScreenArea(pc_rect=Rect(1180, 930, 1330, 960), text='再来一次')
     AFTER_BATTLE_EXIT_BTN = ScreenArea(pc_rect=Rect(640, 930, 780, 960), text='退出关卡')
+    AFTER_BATTLE_CONFIRM_AGAIN_BTN = ScreenArea(pc_rect=Rect(1020, 660, 1330, 690), text='确认')

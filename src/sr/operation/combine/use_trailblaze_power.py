@@ -64,7 +64,9 @@ class UseTrailblazePower(StateOperation):
         after_battle_result = StateOperationNode('战斗结果处理', self._after_battle_result)
         edges.append(StateOperationEdge(wait_battle_result, after_battle_result, ignore_status=True))
 
-        edges.append(StateOperationEdge(after_battle_result, wait_battle_result, status=ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value.status))
+        confirm_again = StateOperationNode('确认再来一次', self._confirm_again)
+        edges.append(StateOperationEdge(after_battle_result, confirm_again, status=ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value.status))
+        edges.append(StateOperationEdge(confirm_again, wait_battle_result))
         edges.append(StateOperationEdge(after_battle_result, interact, status=UseTrailblazePower.STATUS_CHALLENGE_EXIT_AGAIN))
 
         wait_esc = StateOperationNode('等待退出', op=WaitInWorld(ctx))
@@ -229,5 +231,18 @@ class UseTrailblazePower(StateOperation):
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
             return Operation.round_success(status, wait=2)
+        else:
+            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+
+    def _confirm_again(self) -> OperationOneRoundResult:
+        """
+        再来一次的确认 在有角色阵亡时候会弹出来
+        :return:
+        """
+        screen = self.screenshot()
+        area = ScreenBattle.AFTER_BATTLE_CONFIRM_AGAIN_BTN.value
+        click = self.find_and_click_area(area, screen)
+        if click in [Operation.OCR_CLICK_SUCCESS, Operation.OCR_CLICK_NOT_FOUND]:
+            return Operation.round_success(wait=2)
         else:
             return Operation.round_retry('点击%s失败' % area.status, wait=1)
