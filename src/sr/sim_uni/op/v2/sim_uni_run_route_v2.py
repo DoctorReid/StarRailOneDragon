@@ -711,9 +711,12 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
 
         before_route = StateOperationNode('区域开始前', self._before_route)
 
+        destroy = StateOperationNode('攻击罐子', self._destroy_objects)
+        edges.append(StateOperationEdge(before_route, destroy))
+
         # 小地图有事件的话就走小地图
         check_mm = StateOperationNode('识别小地图黑塔', self._check_mm_icon)
-        edges.append(StateOperationEdge(before_route, check_mm))
+        edges.append(StateOperationEdge(destroy, check_mm))
         move_by_mm = StateOperationNode('按小地图朝黑塔移动', self._move_by_mm)
         edges.append(StateOperationEdge(check_mm, move_by_mm, status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT))
 
@@ -757,6 +760,16 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
 
         self.mm_icon_pos: Optional[Point] = None  # 小地图上黑塔的坐标
         self.event_handled: bool = False  # 已经处理过事件了
+
+    def _destroy_objects(self) -> OperationOneRoundResult:
+        """
+        攻击罐子
+        :return:
+        """
+        # 兼容近战角色 稍微往前走一点再进行攻击
+        self.ctx.controller.move('w', 0.1)
+        self.ctx.controller.initiate_attack()
+        return Operation.round_success(wait=0.1)
 
     def _check_mm_icon(self) -> OperationOneRoundResult:
         """
