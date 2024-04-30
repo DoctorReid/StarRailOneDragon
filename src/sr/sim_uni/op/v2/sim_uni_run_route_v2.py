@@ -62,6 +62,7 @@ class SimUniRunRouteBase(StateOperation):
         self.moved_to_target: bool = False  # 是否已经产生了朝向目标的移动
         self.nothing_times: int = 0  # 识别不到任何内容的次数
         self.previous_angle: float = 0  # 之前的朝向 识别到目标时应该记录下来 后续可以在这个方向附近找下一个目标
+        self.turn_direction_when_nothing: int = 1  # 没有目标时候的转动方向 正数向右 负数向左
 
     def _before_route(self) -> OperationOneRoundResult:
         """
@@ -143,7 +144,7 @@ class SimUniRunRouteBase(StateOperation):
         # angle = (25 + 10 * self.nothing_times) * (1 if self.nothing_times % 2 == 0 else -1)  # 来回转动视角
         # 由于攻击之后 人物可能朝反方向了 因此要转动多一点
         # 不要被360整除 否则转一圈之后还是被人物覆盖了看不到
-        angle = 35
+        angle = 35 * self.turn_direction_when_nothing
         self.ctx.controller.turn_by_angle(angle)
         time.sleep(0.5)
 
@@ -524,6 +525,9 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         朝沉浸装置移动
         :return:
         """
+        # 按照目前的固定布局 从精英怪走向沉浸奖励后 下层入口必定往左转更快发现
+        self.turn_direction_when_nothing = -1
+
         self.nothing_times = 0
         self.moved_to_target = True
         op = SimUniMoveToInteractByDetect(self.ctx,
@@ -813,6 +817,9 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         根据画面识别结果走向事件
         :return:
         """
+        # 按照目前的固定布局 走向黑塔后 下层入口必定往左转更快发现
+        self.turn_direction_when_nothing = -1
+
         self.nothing_times = 0
         self.moved_to_target = True
         op = SimUniMoveToInteractByDetect(self.ctx,
