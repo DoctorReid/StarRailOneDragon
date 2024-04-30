@@ -223,6 +223,7 @@ class SurvivalIndexMissionEnum(Enum):
     SIM_UNI_06 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_06.value, power=40)
     SIM_UNI_07 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_07.value, power=40)
     SIM_UNI_08 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_08.value, power=40)
+    SIM_UNI_09 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_09.value, power=40)
 
     @staticmethod
     def get_by_unique_id(unique_id: str) -> Optional[SurvivalIndexMission]:
