@@ -43,6 +43,7 @@ class SimUniRunRouteBase(StateOperation):
     STATUS_NO_NEED_REWARD: ClassVar[str] = '无需沉浸奖励'
     STATUS_WITH_DETECT_REWARD: ClassVar[str] = '识别到沉浸奖励'
     STATUS_NO_DETECT_REWARD: ClassVar[str] = '识别不到沉浸奖励'
+    STATUS_WITH_DANGER: ClassVar[str] = '被敌人锁定'
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  try_times: int = 2,
@@ -117,6 +118,7 @@ class SimUniRunRouteBase(StateOperation):
         朝下层移动
         :return:
         """
+        self._view_up()
         self.nothing_times = 0
         self.moved_to_target = True
         op = MoveToNextLevel(self.ctx, level_type=self.level_type)
@@ -197,15 +199,16 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(check, move_by_red, status=SimUniRunRouteBase.STATUS_WITH_RED))
 
         # 小地图没有红点 就在画面上找敌人
-        detect_enemy = StateOperationNode('识别敌人', self._detect_screen)
-        edges.append(StateOperationEdge(check, detect_enemy, status=SimUniRunRouteBase.STATUS_NO_RED))
+        detect_screen = StateOperationNode('识别敌人', self._detect_screen)
+        edges.append(StateOperationEdge(check, detect_screen, status=SimUniRunRouteBase.STATUS_NO_RED))
         # 找到了敌人就开始移动
         move_by_detect = StateOperationNode('向敌人移动', self._move_by_detect)
-        edges.append(StateOperationEdge(detect_enemy, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_ENEMY))
-
+        edges.append(StateOperationEdge(detect_screen, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_ENEMY))
         # 到达后开始战斗
         fight = StateOperationNode('进入战斗', self._enter_fight)
         edges.append(StateOperationEdge(move_by_red, fight, status=SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL))
+        # 识别到被锁定也进入战斗
+        edges.append(StateOperationEdge(detect_screen, fight, status=SimUniRunRouteBase.STATUS_WITH_DANGER))
         # 进行了战斗 就重新开始
         after_fight = StateOperationNode('战斗后处理', self._turn_to_previous_angle)
         edges.append(StateOperationEdge(fight, after_fight))
@@ -215,16 +218,22 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(move_by_red, after_fight, status=SimUniMoveToEnemyByMiniMap.STATUS_FIGHT))
         edges.append(StateOperationEdge(move_by_detect, after_fight, status=SimUniMoveToEnemyByDetect.STATUS_FIGHT))
 
-        # 画面上也找不到敌人 就找下层入口
+        # 画面上识别不到任何内容时 使用旧的方法进行识别下层入口兜底
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
-        edges.append(StateOperationEdge(detect_enemy, check_entry, status=SimUniRunRouteBase.STATUS_NO_ENEMY))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_NO_ENEMY))
         edges.append(StateOperationEdge(move_by_detect, check_entry, success=False, status=SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
+        edges.append(StateOperationEdge(detect_screen, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
+
         # 找不到下层入口就转向找目标
         turn = StateOperationNode('转动找目标', self._turn_when_nothing)
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
+        # 移动到下层入口失败时 也转动找目标
+        # 可能1 走过了 没交互成功
+        # 可能2 识别错了未激活的入口 移动过程中被攻击了
+        edges.append(StateOperationEdge(move_to_next, turn, success=False))
         # 转动完重新开始目标识别
         edges.append(StateOperationEdge(turn, check))
 
@@ -306,8 +315,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
 
     def _detect_screen(self) -> OperationOneRoundResult:
         """
-        没有红点时 判断当前画面是否有怪
-        TODO 之后可以把入口识别也放到这里
+        没有红点时 对画面进行目标识别
         :return:
         """
         self._view_down()
@@ -318,6 +326,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
 
         with_enemy: bool = False
         with_entry: bool = False
+        with_danger: bool = False
         delta_angle: float = 0
         cnt: int = 0
         for result in detect_results:
@@ -325,23 +334,35 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
             if result.detect_class.class_cate == '普通怪':
                 with_enemy = True
                 valid = True
-            if result.detect_class.class_cate in ['模拟宇宙下层入口', '模拟宇宙下层入口未激活']:
+            elif result.detect_class.class_cate == '模拟宇宙下层入口':
                 with_entry = True
                 valid = True
+            elif result.detect_class.class_cate == '模拟宇宙下层入口未激活':
+                valid = True
+            elif result.detect_class.class_cate == '界面提示被锁定':
+                with_danger = True
 
             if valid:
                 delta_angle += delta_angle_to_detected_object(result)
                 cnt += 1
 
-        if with_enemy:
+        if cnt > 0:
             avg_delta_angle = delta_angle / cnt
-            self.previous_angle = cal_utils.angle_add(self.previous_angle, avg_delta_angle)
+            mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
+            angle = mini_map.analyse_angle(mm)
+            self.previous_angle = cal_utils.angle_add(angle, avg_delta_angle)
+
+        if with_danger:
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DANGER)
+        elif with_enemy:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENEMY)
+        elif with_entry:
+            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENTRY)
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
                 cv2_utils.show_image(draw_detections(screen, detect_results), win_name='combat_detect_screen')
-            return Operation.round_success(SimUniRunRouteBase.STATUS_NO_ENEMY)
+            return Operation.round_success(SimUniRunRouteBase.STATUS_NOTHING)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
         """

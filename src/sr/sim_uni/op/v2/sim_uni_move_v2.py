@@ -221,13 +221,8 @@ class SimUniMoveToEnemyByDetect(Operation):
             self.ctx.controller.stop_moving_forward()
             return Operation.round_wait()
 
-        # 判断怪的位置
-        enemy_pos_list = self.get_enemy_pos(screen)
-        if len(enemy_pos_list) == 0:
-            return self.handle_no_enemy()
-        else:
-            self.show_enemy(screen, enemy_pos_list)
-            return self.handle_enemy(enemy_pos_list)
+        # 进行目标识别判断后续动作
+        return self.detect_screen(screen)
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
         """
@@ -249,20 +244,28 @@ class SimUniMoveToEnemyByDetect(Operation):
         else:
             return Operation.round_by_op(op_result)
 
-    def get_enemy_pos(self, screen: MatLike) -> List[DetectResult]:
+    def detect_screen(self, screen: MatLike) -> OperationOneRoundResult:
         """
-        检测屏幕中普通怪的位置
-        :param screen: 游戏截图
+        对画面进行识别 根据结果进行后续判断
+        :param screen:
         :return:
         """
         self.ctx.init_yolo()
         detect_result = self.ctx.yolo.detect(screen)
         normal_enemy_result = []
+        can_attack: bool = False
         for result in detect_result:
-            if not result.detect_class.class_cate == '普通怪':
-                continue
-            normal_enemy_result.append(result)
-        return normal_enemy_result
+            if result.detect_class.class_cate == '普通怪':
+                normal_enemy_result.append(result)
+            elif result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
+                can_attack = True
+
+        if can_attack:
+            return self.enter_battle()
+        elif len(normal_enemy_result) > 0:
+            return self.handle_enemy(normal_enemy_result)
+        else:
+            return self.handle_no_enemy()
 
     def handle_no_enemy(self) -> OperationOneRoundResult:
         """
