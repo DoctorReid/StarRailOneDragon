@@ -119,9 +119,10 @@ class SimUniRunRouteBase(StateOperation):
         朝下层移动
         :return:
         """
-        self._view_up()
         self.nothing_times = 0
         self.moved_to_target = True
+
+        self._view_up()
         op = MoveToNextLevel(self.ctx, level_type=self.level_type)
         return Operation.round_by_op(op.execute())
 

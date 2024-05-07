@@ -269,7 +269,7 @@ class MoveToNextLevel(StateOperation):
         self.route: SimUniRoute = route
         self.current_pos: Optional[Point] = current_pos
         self.next_pos: Optional[Point] = None
-        self.config: Optional[SimUniChallengeConfig] = config
+        self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config
         self.is_moving: bool = False  # 是否正在移动
         self.start_move_time: float = 0  # 开始移动的时间
         self.interacted: bool = False  # 是否已经交互了
