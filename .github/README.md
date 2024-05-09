@@ -32,6 +32,8 @@ cd StarRailOneDragon
 conda create --prefix="./.env" python=3.11
 conda activate ./.env
 pip install -r requirements.txt
+# 此处以下需要管理员方式允许
+conda activate ./.env    #若未激活./.env
 $env:PYTHONPATH="src"
 python src/gui/app.py
 ```
