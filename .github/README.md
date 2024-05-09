@@ -3,7 +3,7 @@ __崩坏：星穹铁道 - 一条龙__ - 基于图像识别的自动游戏脚本�
 
 本脚本的终极目标是可以让你在日常```忘掉```这个游戏，做到完全的托管。
 
-目前支持`锄大地`、`体力刷本`、`逐光捡金`、`模拟宇宙`等日常功能。下载、运行及使用方式，见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)。
+目前支持`锄大地`、`体力刷本`、`逐光捡金`、`模拟宇宙`等日常功能。下载、运行及使用方式，见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)，或conda+powershell方式见[install](#install)。
 
 如果喜欢本项目，可右上角送作者一个```Star```
 
@@ -19,6 +19,22 @@ __崩坏：星穹铁道 - 一条龙__ - 基于图像识别的自动游戏脚本�
 ![APP主页](https://github.com/DoctorReid/StarRailOneDragon/blob/main/.github/wiki/app.png)
 
 [当前进度](https://github.com/DoctorReid/StarRailOneDragon/milestone/8)
+
+## 源码相关
+
+### 安装
+
+#### conda+powershell
+
+```powershell
+git clone git@github.com:DoctorReid/StarRailOneDragon.git
+cd StarRailOneDragon
+conda create --prefix="./.env" python=3.11
+conda activate ./.env
+pip install -r requirements.txt
+$env:PYTHONPATH="src"
+python src/gui/app.py
+```
 
 ## 免责声明
 本软件是一个外部工具旨在自动化崩坏星轨的游戏玩法。它被设计成仅通过现有用户界面与游戏交互,并遵守相关法律法规。该软件包旨在提供简化和用户通过功能与游戏交互,并且它不打算以任何方式破坏游戏平衡或提供任何不公平的优势。该软件包不会以任何方式修改任何游戏文件或游戏代码。
