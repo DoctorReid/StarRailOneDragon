@@ -26,6 +26,8 @@ cd StarRailOneDragon
 conda create --prefix="./.env" python=3.11
 conda activate ./.env
 pip install -r requirements.txt
+# dministrator permissions required
+conda activate ./.env    #if ./.env not activate
 $env:PYTHONPATH="src"
 python src/gui/app.py
 ```
