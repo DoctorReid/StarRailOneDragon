@@ -28,7 +28,6 @@ from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLight
 from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
-from sr.config import yolo_config
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, TECHNIQUE_ATTACK

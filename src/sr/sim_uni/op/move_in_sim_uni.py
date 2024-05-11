@@ -353,7 +353,7 @@ class MoveToNextLevel(StateOperation):
                 self.ctx.controller.turn_by_angle(angle)
                 return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
-            target = self._get_target_entry(type_list)
+            target = self.get_target_entry(type_list, self.config)
 
             self._move_towards(target)
             return Operation.round_wait(wait=0.1)
@@ -388,13 +388,15 @@ class MoveToNextLevel(StateOperation):
 
         return result_list
 
-    def _get_target_entry(self, type_list: List[MatchResult]) -> MatchResult:
+    @staticmethod
+    def get_target_entry(type_list: List[MatchResult], config: Optional[SimUniChallengeConfig]) -> MatchResult:
         """
         获取需要前往的入口
         :param type_list: 入口类型
+        :param config: 模拟宇宙挑战配置
         :return:
         """
-        idx = MoveToNextLevel.match_best_level_type(type_list, self.config)
+        idx = MoveToNextLevel.match_best_level_type(type_list, config)
         return type_list[idx]
 
     @staticmethod

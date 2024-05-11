@@ -1,6 +1,7 @@
 import time
 from typing import List, Optional, ClassVar
 
+import numpy as np
 from cv2.typing import MatLike
 
 from basic import Point, cal_utils
@@ -10,11 +11,14 @@ from sr.const import game_config_const
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
-from sr.operation import Operation, OperationOneRoundResult
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode
 from sr.operation.unit.interact import check_move_interact
 from sr.operation.unit.move import GetRidOfStuck
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
+from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
+from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sryolo.detector import DetectObjectResult, draw_detections
 
 
@@ -36,12 +40,6 @@ def delta_angle_to_detected_object(obj: DetectObjectResult) -> float:
     # 与画面正前方的偏移角度 就是需要转的角度
     turn_angle = mm_angle - 270
 
-    # 由于目前没有距离的推测 不要一次性转太多角度
-    if turn_angle > _MAX_TURN_ANGLE:
-        turn_angle = _MAX_TURN_ANGLE
-    if turn_angle < -_MAX_TURN_ANGLE:
-        turn_angle = -_MAX_TURN_ANGLE
-
     return turn_angle
 
 
@@ -53,6 +51,22 @@ def turn_to_detected_object(ctx: Context, obj: DetectObjectResult) -> float:
     :return: 转向角度 正数往右转 负数往左转
     """
     turn_angle = delta_angle_to_detected_object(obj)
+    return turn_by_angle_slowly(ctx, turn_angle)
+
+
+def turn_by_angle_slowly(ctx: Context, turn_angle: float) -> float:
+    """
+    缓慢转向 有一个最大的转向角度
+    :param ctx: 上下文
+    :param turn_angle: 转向角度
+    :return:
+    """
+    # 由于目前没有距离的推测 不要一次性转太多角度
+    if turn_angle > _MAX_TURN_ANGLE:
+        turn_angle = _MAX_TURN_ANGLE
+    if turn_angle < -_MAX_TURN_ANGLE:
+        turn_angle = -_MAX_TURN_ANGLE
+
     ctx.controller.turn_by_angle(turn_angle)
     return turn_angle
 
@@ -481,3 +495,86 @@ class SimUniMoveToInteractByDetect(Operation):
         """
         self.ctx.controller.stop_moving_forward()
         return Operation.round_success(status=SimUniMoveToInteractByDetect.STATUS_INTERACT)
+
+
+class MoveToNextLevelV2(MoveToNextLevel):
+
+    def __init__(self, ctx: Context,
+                 level_type: SimUniLevelType):
+        """
+        朝下一层入口走去 并且交互
+        需确保不会被其它内容打断
+        :param ctx:
+        :param level_type: 当前楼层的类型 精英层的话 有可能需要确定
+        """
+        super().__init__(ctx,
+                         level_type=level_type,
+                         )
+
+    def _turn_to_next(self) -> OperationOneRoundResult:
+        """
+        寻找下层入口 并转向
+        :return:
+        """
+        screen = self.screenshot()
+        frame_result = self.ctx.sim_uni_yolo.detect(screen)
+
+        entry_angles: List[float] = []
+        for result in frame_result.results:
+            delta_angle = delta_angle_to_detected_object(result)
+            if result.detect_class.class_cate == '模拟宇宙下层入口':
+                entry_angles.append(delta_angle)
+
+        if len(entry_angles) > 0:
+            avg_delta_angle = np.mean(entry_angles)
+            turn_angle = turn_by_angle_slowly(self.ctx, avg_delta_angle)
+            if abs(turn_angle) <= _MAX_TURN_ANGLE * 2:
+                return Operation.round_success(wait=0.1)
+            else:
+                return Operation.round_wait(wait=0.1)
+        else:
+            self.ctx.controller.turn_by_angle(35)
+            return Operation.round_retry(status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=0.5)
+
+    def _move_and_interact(self) -> OperationOneRoundResult:
+        now = time.time()
+
+        # 只有休整楼层 在开始移动1秒内 可能还在黑塔范围 需要进行OCR判断后再交互 其他都是无脑交互
+        need_ocr: bool = (self.is_moving
+                          and self.level_type == SimUniLevelTypeEnum.RESPITE
+                          and now - self.start_move_time <= 1)
+        if not need_ocr:
+            self.ctx.controller.interact(
+                pos=ScreenNormalWorld.MOVE_INTERACT_SINGLE_LINE.value.center,
+                interact_type=GameController.MOVE_INTERACT_TYPE
+            )
+
+        screen = self.screenshot()
+
+        in_world = screen_state.is_normal_in_world(screen, self.ctx.im)
+
+        if not in_world:
+            # 如果已经不在大世界画了 就认为成功了
+            return Operation.round_success()
+
+        if self.is_moving:
+            if now - self.start_move_time > MoveToNextLevel.MOVE_TIME:
+                self.ctx.controller.stop_moving_forward()
+                self.is_moving = False
+            elif need_ocr:
+                interact = self._try_interact(screen)
+                if interact is not None:
+                    return interact
+            return Operation.round_wait()
+        else:
+            type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
+            if len(type_list) == 0:  # 当前没有入口 随便旋转看看
+                # 因为前面已经转向了入口 所以就算被遮挡 只要稍微转一点应该就能看到了
+                angle = (25 + 10 * self.op_round) * (1 if self.op_round % 2 == 0 else -1)  # 来回转动视角
+                self.ctx.controller.turn_by_angle(angle)
+                return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
+
+            target = MoveToNextLevel.get_target_entry(type_list, self.config)
+
+            self._move_towards(target)
+            return Operation.round_wait(wait=0.1)
