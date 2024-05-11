@@ -14,8 +14,9 @@ from sr.context import Context
 from sr.one_dragon_config import OneDragonAccount
 from sryolo.detector import check_model_exists, get_model_dir_path
 
-_AVAILABLE_YOLO_LIST: List[str] = [
-    'yolov8n-1088-full-0428'
+_SIM_UNI_YOLO_LIST: List[str] = [
+    'yolov8n-640-simuni-0512',
+    'yolov8n-960-simuni-0512'
 ]
 
 
@@ -152,12 +153,12 @@ class SettingsBasicView(components.Card, SrBasicView):
         )
 
         self.debug_mode_check = ft.Checkbox(label=gt('调试模式', 'ui'), on_change=self._on_debug_mode_changed)
-        self.yolo_dropdown = ft.Dropdown(
-            options=[ft.dropdown.Option(key=i, text=i) for i in _AVAILABLE_YOLO_LIST],
+        self.sim_uni_yolo_dropdown = ft.Dropdown(
+            options=[ft.dropdown.Option(key=i, text=i) for i in _SIM_UNI_YOLO_LIST],
             on_change=self._on_yolo_changed,
-            width=250
+            width=200
         )
-        self.yolo_download_btn = components.RectOutlinedButton(text='下载', on_click=self._download_yolo_model)
+        self.sim_uni_yolo_download_btn = components.RectOutlinedButton(text='下载', on_click=self._download_sim_uni_yolo_model)
 
         self.width: int = 450
         self.add_btn = components.RectOutlinedButton(text='+', on_click=self.on_account_added)
@@ -165,8 +166,9 @@ class SettingsBasicView(components.Card, SrBasicView):
         self.settings_item_list = ft.ListView(controls=[
             components.SettingsListGroupTitle('基础'),
             components.SettingsListItem('界面主题', self.gui_theme_dropdown),
-            components.SettingsListItem('YOLO模型', ft.Row(controls=[self.yolo_dropdown, self.yolo_download_btn])),
             components.SettingsListItem('调试模式', self.debug_mode_check),
+            components.SettingsListGroupTitle('YOLO模型'),
+            components.SettingsListItem('模拟宇宙', ft.Row(controls=[self.sim_uni_yolo_dropdown, self.sim_uni_yolo_download_btn])),
             components.SettingsListGroupTitle('脚本账号列表'),
             components.SettingsListItem('', self.add_btn),
         ], width=self.width)
@@ -182,12 +184,19 @@ class SettingsBasicView(components.Card, SrBasicView):
         :return:
         """
         self.debug_mode_check.value = self.sr_ctx.one_dragon_config.is_debug
-        self.yolo_dropdown.value = self.sr_ctx.one_dragon_config.yolo_model
-        if self.yolo_dropdown.value == '' or self.yolo_dropdown.value is None:
-            self.yolo_download_btn.disabled = True
+
+        with_new_yolo = False
+        with_new_yolo = with_new_yolo | self.init_sim_uni_yolo_dropdown()
+        if self.sim_uni_yolo_dropdown.value == '' or self.sim_uni_yolo_dropdown.value is None:
+            self.sim_uni_yolo_download_btn.disabled = True
         else:
-            self.yolo_download_btn.disabled = check_model_exists(
-                sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), self.yolo_dropdown.value)
+            self.sim_uni_yolo_download_btn.disabled = check_model_exists(
+                sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), self.sim_uni_yolo_dropdown.value)
+
+        if with_new_yolo:
+            msg = '有新YOLO模型可下载使用'
+            snack_bar.show_message(msg, self.flet_page)
+            log.info(msg)
 
         self._init_account_list()
 
@@ -296,31 +305,33 @@ class SettingsBasicView(components.Card, SrBasicView):
         :param e:
         :return:
         """
-        model_name = self.yolo_dropdown.value
-        self.sr_ctx.one_dragon_config.yolo_model = model_name
+        model_name = self.sim_uni_yolo_dropdown.value
+        self.sr_ctx.one_dragon_config.sim_uni_yolo = model_name
         existed = check_model_exists(sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), model_name)
-        self.yolo_download_btn.disabled = existed
-        self.yolo_download_btn.update()
+        self.sim_uni_yolo_download_btn.disabled = existed
+        self.sim_uni_yolo_download_btn.update()
         if not existed:
             msg = 'YOLO模型未存在 请先下载'
             snack_bar.show_message(msg, self.flet_page)
             log.warn(msg)
 
-    def _download_yolo_model(self, e):
+    def _download_sim_uni_yolo_model(self, e):
+        model_name = self.sim_uni_yolo_dropdown.value
+        self._download_yolo_model(model_name)
+
+    def _download_yolo_model(self, model_name: str):
         """
         下载YOLO模型
-        :param e:
         :return:
         """
         msg = '准备下载YOLO模型 下载慢可以手动到QQ群里下载'
         snack_bar.show_message(msg, self.flet_page)
         log.info(msg)
-        model_name = self.yolo_dropdown.value
         log.info(f'下载后 模型存放在 model/yolo/{model_name}/ 文件夹中，里面包含2个文件 model.onnx 和 labels.csv')
         get_model_dir_path(sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), model_name)
         existed = check_model_exists(sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), model_name)
-        self.yolo_download_btn.disabled = existed
-        self.yolo_download_btn.update()
+        self.sim_uni_yolo_download_btn.disabled = existed
+        self.sim_uni_yolo_download_btn.update()
         if existed:
             msg = 'YOLO模型下载成功'
         else:
@@ -333,6 +344,28 @@ class SettingsBasicView(components.Card, SrBasicView):
         op_result = app.execute()
         log.info('切换账号登录完成 %s', ('成功' if op_result.success else '失败'))
         self.handle_after_show()  # 运行后重新加载本页面
+
+    def init_sim_uni_yolo_dropdown(self) -> bool:
+        """
+        初始化模拟宇宙YOLO下拉框
+        1. 判断当前使用的模型是否最新 不是则提示
+        2. 将当前使用的模式和当前可用的模型合并成一个list 作为dropdown的选项
+        3. 赋值
+        :return: 是否有新模型
+        """
+        with_new = False
+        yolo = self.sr_ctx.one_dragon_config.sim_uni_yolo
+        if yolo not in _SIM_UNI_YOLO_LIST:
+            all_list = _SIM_UNI_YOLO_LIST + [yolo]
+            with_new = True
+        else:
+            all_list = _SIM_UNI_YOLO_LIST
+
+        self.sim_uni_yolo_dropdown.options = [ft.dropdown.Option(key=i, text=i) for i in all_list]
+        self.sim_uni_yolo_dropdown.value = yolo
+        self.sim_uni_yolo_dropdown.update()
+
+        return with_new
 
 
 _settings_basic_view: Optional[SettingsBasicView] = None

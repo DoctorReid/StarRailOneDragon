@@ -21,7 +21,6 @@ class ProxyType:
         """
         代理类型
         """
-
         self.id = id
         """唯一标识"""
         self.cn = cn
@@ -218,7 +217,6 @@ class OneDragonConfig(ConfigHolder):
             return None if proxy == '' else proxy
         return None
 
-
     @property
     def screen_sim_uni_route(self) -> List[str]:
         """
@@ -238,9 +236,9 @@ class OneDragonConfig(ConfigHolder):
         self.update('screen_sim_uni_route', old_list)
 
     @property
-    def yolo_model(self) -> str:
-        return self.get('yolo_model', 'yolov8n-1088-full-0428')
+    def sim_uni_yolo(self) -> str:
+        return self.get('sim_uni_yolo', 'yolov8n-640-simuni')
 
-    @yolo_model.setter
-    def yolo_model(self, new_value: str):
-        self.update('yolo_model', new_value)
+    @sim_uni_yolo.setter
+    def sim_uni_yolo(self, new_value: str):
+        self.update('sim_uni_yolo', new_value)

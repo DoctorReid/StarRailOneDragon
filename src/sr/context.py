@@ -526,7 +526,7 @@ class Context:
     @property
     def sim_uni_yolo(self) -> StarRailYOLO:
         if self._sim_uni_yolo is None:
-            model_name = self.one_dragon_config.yolo_model
+            model_name = self.one_dragon_config.sim_uni_yolo
             self._sim_uni_yolo = StarRailYOLO(
                 model_parent_dir_path=get_yolo_model_parent_dir(),
                 model_name=model_name
