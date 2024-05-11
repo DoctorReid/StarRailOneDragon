@@ -11,7 +11,7 @@ from sr.const import game_config_const
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
-from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, OperationResult
 from sr.operation.unit.interact import check_move_interact
 from sr.operation.unit.move import GetRidOfStuck
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
@@ -346,6 +346,15 @@ class SimUniMoveToEnemyByDetect(Operation):
         img = draw_detections(screen, enemy_pos_list)
         cv2_utils.show_image(img, win_name='SimUniMoveToEnemyByDetect')
 
+    def _after_operation_done(self, result: OperationResult):
+        """
+        无论以哪种方式结束 都停止移动
+        :param result:
+        :return:
+        """
+        super()._after_operation_done(result)
+        self.ctx.controller.stop_moving_forward()
+
 
 class SimUniMoveToInteractByDetect(Operation):
 
@@ -496,6 +505,14 @@ class SimUniMoveToInteractByDetect(Operation):
         self.ctx.controller.stop_moving_forward()
         return Operation.round_success(status=SimUniMoveToInteractByDetect.STATUS_INTERACT)
 
+    def _after_operation_done(self, result: OperationResult):
+        """
+        无论以哪种方式结束 都停止移动
+        :param result:
+        :return:
+        """
+        super()._after_operation_done(result)
+        self.ctx.controller.stop_moving_forward()
 
 class MoveToNextLevelV2(MoveToNextLevel):
 
