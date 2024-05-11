@@ -43,6 +43,7 @@ from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import fill_uid_black
+from sr.image.yolo_screen_detector import get_yolo_model_parent_dir
 from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
@@ -144,7 +145,7 @@ class Context:
         self.im: Optional[ImageMatcher] = None
         self.ocr: Optional[OcrMatcher] = None
         self.controller: Optional[GameController] = None
-        self.yolo: Optional[StarRailYOLO] = None
+        self._sim_uni_yolo: Optional[StarRailYOLO] = None
         self.running: int = 0  # 0-停止 1-运行 2-暂停
         self.press_event: dict = {}
         self.event_bus: EventBus = EventBus()
@@ -456,16 +457,6 @@ class Context:
         log.info('加载OCR识别器完毕')
         return True
 
-    def init_yolo(self) -> bool:
-        if self.yolo is None:
-            model_name = self.one_dragon_config.yolo_model
-            self.yolo = StarRailYOLO(
-                model_parent_dir_path=yolo_config.get_yolo_model_parent_dir(),
-                model_name=model_name
-            )
-        log.info('加载YOLO识别器完毕')
-        return True
-
     def init_all(self, renew: bool = False) -> bool:
         log.info('加载工具中')
         result: bool = True
@@ -532,6 +523,18 @@ class Context:
             return None
         else:
             return self.sim_uni_config.get_challenge_config(self.sim_uni_info.world_num)
+
+    @property
+    def sim_uni_yolo(self) -> StarRailYOLO:
+        if self._sim_uni_yolo is None:
+            model_name = self.one_dragon_config.yolo_model
+            self._sim_uni_yolo = StarRailYOLO(
+                model_parent_dir_path=get_yolo_model_parent_dir(),
+                model_name=model_name
+            )
+            log.info('加载YOLO识别器完毕')
+
+        return self._sim_uni_yolo
 
 
 def get_game_win() -> Window:

@@ -2,6 +2,7 @@ from typing import Optional, Callable, List
 
 import flet as ft
 
+import sr.image.yolo_screen_detector
 from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import components, snack_bar
@@ -186,7 +187,8 @@ class SettingsBasicView(components.Card, SrBasicView):
         if self.yolo_dropdown.value == '' or self.yolo_dropdown.value is None:
             self.yolo_download_btn.disabled = True
         else:
-            self.yolo_download_btn.disabled = check_model_exists(yolo_config.get_yolo_model_parent_dir(), self.yolo_dropdown.value)
+            self.yolo_download_btn.disabled = check_model_exists(
+                sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), self.yolo_dropdown.value)
 
         self._init_account_list()
 
@@ -297,7 +299,7 @@ class SettingsBasicView(components.Card, SrBasicView):
         """
         model_name = self.yolo_dropdown.value
         self.sr_ctx.one_dragon_config.yolo_model = model_name
-        existed = check_model_exists(yolo_config.get_yolo_model_parent_dir(), model_name)
+        existed = check_model_exists(sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), model_name)
         self.yolo_download_btn.disabled = existed
         self.yolo_download_btn.update()
         if not existed:
@@ -316,8 +318,8 @@ class SettingsBasicView(components.Card, SrBasicView):
         log.info(msg)
         model_name = self.yolo_dropdown.value
         log.info(f'下载后 模型存放在 model/yolo/{model_name}/ 文件夹中，里面包含2个文件 model.onnx 和 labels.csv')
-        get_model_dir_path(yolo_config.get_yolo_model_parent_dir(), model_name)
-        existed = check_model_exists(yolo_config.get_yolo_model_parent_dir(), model_name)
+        get_model_dir_path(sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), model_name)
+        existed = check_model_exists(sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), model_name)
         self.yolo_download_btn.disabled = existed
         self.yolo_download_btn.update()
         if existed:

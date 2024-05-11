@@ -15,13 +15,13 @@ from sr.operation.unit.interact import check_move_interact
 from sr.operation.unit.move import GetRidOfStuck
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sryolo.detector import DetectResult, draw_detections
+from sryolo.detector import DetectObjectResult, draw_detections
 
 
 _MAX_TURN_ANGLE = 15  # 由于目标识别没有纵深 判断的距离方向不准 限定转向角度慢慢转过去
 
 
-def delta_angle_to_detected_object(obj: DetectResult) -> float:
+def delta_angle_to_detected_object(obj: DetectObjectResult) -> float:
     """
     转向识别物体需要的偏移角度
     :param obj:
@@ -45,7 +45,7 @@ def delta_angle_to_detected_object(obj: DetectResult) -> float:
     return turn_angle
 
 
-def turn_to_detected_object(ctx: Context, obj: DetectResult) -> float:
+def turn_to_detected_object(ctx: Context, obj: DetectObjectResult) -> float:
     """
     转向一个识别到的物体
     :param ctx: 上下文
@@ -232,16 +232,14 @@ class SimUniMoveToEnemyByDetect(Operation):
         :param ctx:
         """
         super().__init__(ctx,
-                         op_name=gt('向怪物移动', 'ui'))
+                         op_name=gt('向怪物移动', 'ui'),
+                         timeout_seconds=20,  # 理论上移动目标都比较近 不可能20秒还没有到达
+                         )
 
         self.no_enemy_times: int = 0  # 没有发现敌人的次数
         self.start_move_time: float = 0  # 开始移动的时间
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-        stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
-        if stuck is not None:  # 只有脱困失败的时候会有返回结果
-            return stuck
-
         now = time.time()
         screen = self.screenshot()
 
@@ -263,14 +261,6 @@ class SimUniMoveToEnemyByDetect(Operation):
         # 进行目标识别判断后续动作
         return self.detect_screen(screen)
 
-    def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
-        """
-        判断是否被困且进行移动
-        :return: 如果被困次数过多就返回失败
-        """
-        # 暂时未知道怎么判断
-        return None
-
     def enter_battle(self) -> OperationOneRoundResult:
         """
         进入战斗
@@ -289,11 +279,10 @@ class SimUniMoveToEnemyByDetect(Operation):
         :param screen:
         :return:
         """
-        self.ctx.init_yolo()
-        detect_result = self.ctx.yolo.detect(screen)
+        frame_result = self.ctx.sim_uni_yolo.detect(screen)
         normal_enemy_result = []
         can_attack: bool = False
-        for result in detect_result:
+        for result in frame_result.results:
             if result.detect_class.class_cate == '普通怪':
                 normal_enemy_result.append(result)
             elif result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
@@ -324,7 +313,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         self.ctx.controller.turn_by_angle(angle)
         return Operation.round_wait(SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY, wait=0.5)
 
-    def handle_enemy(self, enemy_pos_list: List[DetectResult]) -> OperationOneRoundResult:
+    def handle_enemy(self, enemy_pos_list: List[DetectObjectResult]) -> OperationOneRoundResult:
         """
         处理有敌人的情况
         :param enemy_pos_list: 识别的敌人列表
@@ -337,7 +326,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         self.start_move_time = time.time()
         return Operation.round_wait()
 
-    def show_enemy(self, screen: MatLike, enemy_pos_list: List[DetectResult]):
+    def show_enemy(self, screen: MatLike, enemy_pos_list: List[DetectObjectResult]):
         if not self.ctx.one_dragon_config.is_debug:
             return
         img = draw_detections(screen, enemy_pos_list)
@@ -367,7 +356,9 @@ class SimUniMoveToInteractByDetect(Operation):
         :param interact_during_move: 移动过程中不断尝试交互 开启后不会再使用OCR判断是否有可交互的文本。使用前需满足 1.移动时任何交互都能接受 2.交互后不在大世界
         """
         super().__init__(ctx,
-                         op_name=gt(f'向 {interact_class} 移动', 'ui'))
+                         op_name=gt(f'向 {interact_class} 移动', 'ui'),
+                         timeout_seconds=20,  # 理论上移动目标都比较近 不可能20秒还没有到达
+                         )
 
         self.no_detect_times: int = 0  # 没有识别的次数
         self.start_move_time: float = 0  # 开始移动的时间
@@ -402,10 +393,6 @@ class SimUniMoveToInteractByDetect(Operation):
                 interact_type=GameController.MOVE_INTERACT_TYPE
             )
 
-        stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
-        if stuck is not None:  # 只有脱困失败的时候会有返回结果
-            return stuck
-
         # 移动2秒后 如果丢失了目标 停下来
         if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_detect_times > 0:
             self.ctx.controller.stop_moving_forward()
@@ -424,24 +411,15 @@ class SimUniMoveToInteractByDetect(Operation):
             self.show_detect(screen, pos_list)
             return self.handle_detect(pos_list)
 
-    def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
-        """
-        判断是否被困且进行移动
-        :return: 如果被困次数过多就返回失败
-        """
-        # 暂时未知道怎么判断
-        return None
-
-    def get_interact_pos(self, screen: MatLike) -> List[DetectResult]:
+    def get_interact_pos(self, screen: MatLike) -> List[DetectObjectResult]:
         """
         识别画面中交互物体的位置
         :param screen: 游戏截图
         :return:
         """
-        self.ctx.init_yolo()
-        detect_results = self.ctx.yolo.detect(screen)
+        frame_result = self.ctx.sim_uni_yolo.detect(screen)
         filter_results = []
-        for result in detect_results:
+        for result in frame_result.results:
             if not result.detect_class.class_cate == self.interact_class:
                 continue
             filter_results.append(result)
@@ -465,7 +443,7 @@ class SimUniMoveToInteractByDetect(Operation):
         self.ctx.controller.turn_by_angle(angle)
         return Operation.round_wait(SimUniMoveToInteractByDetect.STATUS_NO_DETECT, wait=0.5)
 
-    def handle_detect(self, pos_list: List[DetectResult]) -> OperationOneRoundResult:
+    def handle_detect(self, pos_list: List[DetectObjectResult]) -> OperationOneRoundResult:
         """
         处理有交互物体的情况
         :param pos_list: 识别的列表
@@ -474,13 +452,13 @@ class SimUniMoveToInteractByDetect(Operation):
         self.no_detect_times = 0
         target = pos_list[0]  # 先固定找第一个
         turn_angle = turn_to_detected_object(self.ctx, target)
-        if abs(turn_angle) >= _MAX_TURN_ANGLE:  # 转向较大时 先完成转向再开始移动
+        if abs(turn_angle) >= _MAX_TURN_ANGLE * 2:  # 转向较大时 先完成转向再开始移动
             return Operation.round_wait()
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()
         return Operation.round_wait()
 
-    def show_detect(self, screen: MatLike, enemy_pos_list: List[DetectResult]):
+    def show_detect(self, screen: MatLike, enemy_pos_list: List[DetectObjectResult]):
         if not self.ctx.one_dragon_config.is_debug:
             return
         img = draw_detections(screen, enemy_pos_list)

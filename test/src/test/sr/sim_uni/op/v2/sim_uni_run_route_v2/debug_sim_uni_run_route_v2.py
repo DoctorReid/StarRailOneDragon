@@ -55,8 +55,7 @@ class DebugSimUniRunRouteV2(test.SrTestBase):
 
     def test_yolo(self):
         ctx = get_context()
-        ctx.init_yolo()
         screen = get_debug_image('_1713682416487')
-        result = ctx.yolo.detect(screen, conf=0.1)
+        result = ctx._sim_uni_yolo.detect(screen, conf=0.1)
         img = draw_detections(screen, result)
         cv2_utils.show_image(img, win_name='test_yolo', wait=0)

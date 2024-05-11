@@ -14,25 +14,28 @@ from basic.log_utils import log
 
 class DetectContext:
 
-    def __init__(self):
+    def __init__(self, raw_image: MatLike, detect_time: Optional[float] = None):
         """
         推理过程的上下文
         用于保存临时变量
         """
+        self.detect_time: float = time.time() if detect_time is None else detect_time
+        """识别时间"""
+
+        self.img: MatLike = raw_image
+        """预测用的图片"""
+
+        self.img_height: int = raw_image.shape[0]
+        """原图的高度"""
+
+        self.img_width: int = raw_image.shape[1]
+        """原图的宽度"""
+
         self.conf: float = 0.7
         """检测时用的置信度阈值"""
 
         self.iou: float = 0.5
         """检测时用的IOU阈值"""
-
-        self.img: MatLike = None
-        """预测用的图片"""
-
-        self.img_height: int = 0
-        """原图的高度"""
-
-        self.img_width: int = 0
-        """原图的宽度"""
 
         self.scale_height: int = 0
         """缩放后的高度"""
@@ -52,13 +55,14 @@ class DetectClass:
         self.class_cate: str = class_cate
 
 
-class DetectResult:
+class DetectObjectResult:
 
     def __init__(self, rect: List,
                  score: float,
-                 detect_class: DetectClass):
+                 detect_class: DetectClass
+                 ):
         """
-        图片检测的结果
+        识别到的一个结果
         :param rect: 目标的位置 xyxy
         :param score: 得分（置信度）
         :param detect_class: 检测到的类别
@@ -87,17 +91,40 @@ class DetectResult:
         return (self.x1 + self.x2) // 2, (self.y1 + self.y2) // 2
 
 
+class DetectFrameResult:
+
+    def __init__(self,
+                 raw_image: MatLike,
+                 results: List[DetectObjectResult],
+                 detect_time: Optional[float] = None,
+                 ):
+        """
+        一帧画面的识别结果
+        """
+        self.detect_time: float = time.time() if detect_time is None else detect_time
+        """识别时间"""
+
+        self.raw_image: MatLike = raw_image
+        """识别的原始图片"""
+
+        self.results: List[DetectObjectResult] = results
+        """识别的结果"""
+
+
 class StarRailYOLO:
 
     def __init__(self,
                  model_name: str = 'yolov8n-1088-full-v1',
                  model_parent_dir_path: Optional[str] = None,
-                 cuda: bool = False):
+                 cuda: bool = False,
+                 keep_result_seconds: float = 2
+                 ):
         """
         崩铁用的YOLO模型 参考自 https://github.com/ibaiGorordo/ONNX-YOLOv8-Object-Detection
         :param model_name: 模型名称 在根目录下会有一个以模型名称创建的子文件夹
         :param model_parent_dir_path: 放置所有模型的根目录
         :param cuda: 是否启用CUDA
+        :param keep_result_seconds: 保留多长时间的识别结果
         """
         self.session: Optional[ort.InferenceSession] = None
 
@@ -116,7 +143,14 @@ class StarRailYOLO:
         self.load_model(model_dir_path, cuda)
         self.load_detect_classes(model_dir_path)
 
-    def load_model(self, model_dir_path: str, cuda: bool):
+        self.keep_result_seconds: float = keep_result_seconds
+        """保留识别结果的秒数"""
+        self.detect_result_history: List[DetectFrameResult] = []
+        """历史识别结果"""
+        self.last_detect_result: DetectFrameResult = None
+        """最后一次识别结果"""
+
+    def load_model(self, model_dir_path: str, cuda: bool) -> None:
         """
         加载模型
         :param model_dir_path: 存放模型的子目录
@@ -152,20 +186,22 @@ class StarRailYOLO:
 
     def detect(self, image: MatLike,
                conf: float = 0.5,
-               iou: float = 0.5) -> List[DetectResult]:
+               iou: float = 0.5,
+               detect_time: Optional[float] = None) -> DetectFrameResult:
         """
 
         :param image: 使用 opencv 读取的图片 BGR通道
         :param conf: 置信度阈值
         :param iou: IOU阈值
+        :param detect_time: 识别时间 应该是画面记录的时间 不传入时使用系统当前时间
         :return: 检测得到的目标
         """
         t1 = time.time()
-        context = DetectContext()
+        context = DetectContext(image, detect_time)
         context.conf = conf
         context.iou = iou
 
-        input_tensor = self.prepare_input(image, context)
+        input_tensor = self.prepare_input(context)
         t2 = time.time()
 
         outputs = self.inference(input_tensor)
@@ -174,20 +210,19 @@ class StarRailYOLO:
         results = self.process_output(outputs, context)
         t4 = time.time()
 
-        log.info(f'检测完毕 得到结果 {len(results)}个。预处理耗时 {t2 - t1:.3f}s, 推理耗时 {t3 - t2:.3f}s, 后处理耗时 {t4 - t3:.3f}s')
-        return results
+        log.info(f'识别完毕 得到结果 {len(results)}个。预处理耗时 {t2 - t1:.3f}s, 推理耗时 {t3 - t2:.3f}s, 后处理耗时 {t4 - t3:.3f}s')
 
-    def prepare_input(self, image: MatLike, context: DetectContext) -> np.ndarray:
+        self.record_frame_result(context, results)
+        return self.last_detect_result
+
+    def prepare_input(self, context: DetectContext) -> np.ndarray:
         """
         对检测图片进行处理 处理结果再用于输入模型
         参考 https://github.com/orgs/ultralytics/discussions/6994?sort=new#discussioncomment-8382661
-        :param image: 原图 BGR通道
         :param context: 上下文
         :return: 输入模型的图片 RGB通道
         """
-        context.img = image
-        context.img_height, context.img_width = image.shape[:2]
-
+        image = context.img
         rgb_img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # 将图像缩放到模型的输入尺寸中较短的一边
@@ -222,7 +257,7 @@ class StarRailYOLO:
         outputs = self.session.run(self.output_names, {self.input_names[0]: input_tensor})
         return outputs
 
-    def process_output(self, output, context: DetectContext) -> List[DetectResult]:
+    def process_output(self, output, context: DetectContext) -> List[DetectObjectResult]:
         """
         :param output: 推理结果
         :param context: 上下文
@@ -235,7 +270,7 @@ class StarRailYOLO:
         predictions = predictions[scores > context.conf, :]
         scores = scores[scores > context.conf]
 
-        results: List[DetectResult] = []
+        results: List[DetectObjectResult] = []
         if len(scores) == 0:
             return results
 
@@ -253,10 +288,10 @@ class StarRailYOLO:
         indices = multiclass_nms(boxes, scores, class_ids, context.iou)
 
         for idx in indices:
-            result = DetectResult(rect=boxes[idx].tolist(),
-                                  score=float(scores[idx]),
-                                  detect_class=self.idx_2_class[int(class_ids[idx])]
-                                  )
+            result = DetectObjectResult(rect=boxes[idx].tolist(),
+                                        score=float(scores[idx]),
+                                        detect_class=self.idx_2_class[int(class_ids[idx])]
+                                        )
             results.append(result)
 
         return results
@@ -272,6 +307,23 @@ class StarRailYOLO:
     def get_output_details(self):
         model_outputs = self.session.get_outputs()
         self.output_names = [model_outputs[i].name for i in range(len(model_outputs))]
+
+    def record_frame_result(self, context: DetectContext, results: List[DetectObjectResult]) -> None:
+        """
+        记录本帧识别结果
+        :param context: 识别上下文
+        :param results: 识别结果
+        :return: 组合结果
+        """
+        new_frame = DetectFrameResult(
+                raw_image=context.img,
+                results=results,
+                detect_time=context.detect_time
+            )
+        self.last_detect_result = new_frame
+        self.detect_result_history.append(new_frame)
+        self.detect_result_history = [i for i in self.detect_result_history
+                                      if context.detect_time - i.detect_time > self.keep_result_seconds]
 
 
 _GH_PROXY_URL = 'https://mirror.ghproxy.com'
@@ -436,7 +488,15 @@ def xywh2xyxy(x):
     return y
 
 
-def draw_detections(image: MatLike, results: List[DetectResult], mask_alpha=0.3):
+def draw_detections(detect_result: DetectFrameResult, mask_alpha=0.3) -> MatLike:
+    """
+    在原图上绘制识别结果 返回一张新的图片
+    :param detect_result:
+    :param mask_alpha:
+    :return:
+    """
+    image: MatLike = detect_result.raw_image
+    results: List[DetectObjectResult] = detect_result.results
     det_img = image.copy()
 
     img_height, img_width = image.shape[:2]
@@ -458,7 +518,7 @@ def draw_detections(image: MatLike, results: List[DetectResult], mask_alpha=0.3)
     return det_img
 
 
-def draw_text(image: np.ndarray, text: str, result: DetectResult,
+def draw_text(image: np.ndarray, text: str, result: DetectObjectResult,
               font_size: float = 0.001, text_thickness: int = 2) -> np.ndarray:
     x1, y1, x2, y2 = result.x1, result.y1, result.x2, result.y2
     color = _COLORS[result.detect_class.class_id]
@@ -472,7 +532,7 @@ def draw_text(image: np.ndarray, text: str, result: DetectResult,
     return cv2.putText(image, text, (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, font_size, (255, 255, 255), text_thickness, cv2.LINE_AA)
 
 
-def draw_masks(image: np.ndarray, results: List[DetectResult], mask_alpha: float = 0.3) -> np.ndarray:
+def draw_masks(image: np.ndarray, results: List[DetectObjectResult], mask_alpha: float = 0.3) -> np.ndarray:
     mask_img = image.copy()
 
     # Draw bounding boxes and labels of detections

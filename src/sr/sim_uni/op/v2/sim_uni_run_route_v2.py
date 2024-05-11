@@ -1,18 +1,21 @@
 import time
 from typing import List, ClassVar, Optional, Callable
 
+import numpy as np
 from cv2.typing import MatLike
 
 from basic import Point, cal_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
+from sr.const import STANDARD_RESOLUTION_W
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state, MiniMapInfo
 from sr.operation import StateOperation, StateOperationEdge, StateOperationNode, OperationOneRoundResult, Operation, \
     OperationResult
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveWithoutPos
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
@@ -20,7 +23,7 @@ from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_reward import SimUniReward
 from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, delta_angle_to_detected_object, SimUniMoveToInteractByDetect
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType
-from sryolo.detector import DetectResult, draw_detections
+from sryolo.detector import DetectObjectResult, draw_detections
 
 
 class SimUniRunRouteBase(StateOperation):
@@ -63,6 +66,7 @@ class SimUniRunRouteBase(StateOperation):
         self.nothing_times: int = 0  # 识别不到任何内容的次数
         self.previous_angle: float = 0  # 之前的朝向 识别到目标时应该记录下来 后续可以在这个方向附近找下一个目标
         self.turn_direction_when_nothing: int = 1  # 没有目标时候的转动方向 正数向右 负数向左
+        self.detect_move_timeout_times: int = 0  # 识别移动的超时失败次数
 
     def _before_route(self) -> OperationOneRoundResult:
         """
@@ -178,6 +182,50 @@ class SimUniRunRouteBase(StateOperation):
         self.ctx.detect_info.view_down = False
         time.sleep(0.2)
 
+    def _after_detect_timeout(self) -> OperationOneRoundResult:
+        """
+        识别移动超时后的处理
+        1. 可能被可破坏物卡住了
+        2. 被路挡住了
+        :return:
+        """
+        self.detect_move_timeout_times += 1
+        if self.detect_move_timeout_times >= 4:
+            return Operation.round_fail(status=Operation.STATUS_TIMEOUT)
+
+        # 先尝试攻击破坏物
+        op = SimUniEnterFight(self.ctx, disposable=True, first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
+        op_result = op.execute()
+        if not op_result.success:
+            return Operation.round_by_op(op_result)
+
+        # 看上一帧识别结果
+        frame_result = self.ctx.sim_uni_yolo.last_detect_result
+        min_x = STANDARD_RESOLUTION_W
+        max_x = 0
+        for r in frame_result.results:
+            if r.x1 < min_x:
+                min_x = r.x1
+            if r.x2 > max_x:
+                max_x = r.x2
+
+        mid_x = STANDARD_RESOLUTION_W // 2
+        if min_x >= mid_x:  # 都在右边
+            to_right = True
+        elif max_x <= mid_x:  # 都在左边
+            to_right = False
+        elif mid_x - min_x >= max_x - mid_x:  # 左边偏移更多
+            to_right = False
+        else:  # 右边偏移更多
+            to_right = True
+
+        if to_right:
+            self.ctx.controller.move('d', 1)
+        else:
+            self.ctx.controller.move('a', 1)
+
+        return Operation.round_success()
+
 
 class SimUniRunCombatRouteV2(SimUniRunRouteBase):
 
@@ -206,6 +254,10 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         # 找到了敌人就开始移动
         move_by_detect = StateOperationNode('向敌人移动', self._move_by_detect)
         edges.append(StateOperationEdge(detect_screen, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_ENEMY))
+        # 识别移动超时的话 尝试脱困
+        detect_timeout = StateOperationNode('移动超时脱困', self._after_detect_timeout)
+        edges.append(StateOperationEdge(move_by_detect, detect_timeout, success=False, status=Operation.STATUS_TIMEOUT))
+        edges.append(StateOperationEdge(detect_timeout, check))
         # 到达后开始战斗
         fight = StateOperationNode('进入战斗', self._enter_fight)
         edges.append(StateOperationEdge(move_by_red, fight, status=SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL))
@@ -323,47 +375,37 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         self._view_down()
         screen: MatLike = self.screenshot()
 
-        self.ctx.init_yolo()
-        detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
+        frame_result = self.ctx.sim_uni_yolo.detect(screen)
 
-        with_enemy: bool = False
-        with_entry: bool = False
+        enemy_angles: List[float] = []
+        entry_angles: List[float] = []
+        inactive_entry_angles: List[float] = []
         with_danger: bool = False
-        delta_angle: float = 0
-        cnt: int = 0
-        for result in detect_results:
-            valid = False
+        for result in frame_result.results:
+            delta_angle = delta_angle_to_detected_object(result)
             if result.detect_class.class_cate == '普通怪':
-                with_enemy = True
-                valid = True
+                enemy_angles.append(delta_angle)
             elif result.detect_class.class_cate == '模拟宇宙下层入口':
-                with_entry = True
-                valid = True
+                entry_angles.append(delta_angle)
             elif result.detect_class.class_cate == '模拟宇宙下层入口未激活':
-                valid = True
+                inactive_entry_angles.append(delta_angle)
             elif result.detect_class.class_cate == '界面提示被锁定':
                 with_danger = True
 
-            if valid:
-                delta_angle += delta_angle_to_detected_object(result)
-                cnt += 1
-
-        if cnt > 0:
-            avg_delta_angle = delta_angle / cnt
-            mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-            angle = mini_map.analyse_angle(mm)
-            self.previous_angle = cal_utils.angle_add(angle, avg_delta_angle)
-
         if with_danger:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DANGER)
-        elif with_enemy:
+        elif len(enemy_angles) > 0:
+            mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
+            angle = mini_map.analyse_angle(mm)
+            avg_delta_angle = np.mean(enemy_angles)
+            self.previous_angle = cal_utils.angle_add(angle, avg_delta_angle)
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENEMY)
-        elif with_entry:
+        elif len(entry_angles) > 0 and len(inactive_entry_angles) == 0:
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENTRY)
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='combat_detect_screen')
+                cv2_utils.show_image(draw_detections(frame_result), win_name='combat_detect_screen')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NOTHING)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -374,7 +416,10 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         self.nothing_times = 0
         self.moved_to_target = True
         op = SimUniMoveToEnemyByDetect(self.ctx)
-        return Operation.round_by_op(op.execute())
+        op_result = op.execute()
+        if op_result.success:
+            self.detect_move_timeout_times = 0
+        return Operation.round_by_op(op_result)
 
 
 class SimUniRunEliteRouteV2(SimUniRunRouteBase):
@@ -500,11 +545,10 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         self._view_down()
         screen = self.screenshot()
 
-        self.ctx.init_yolo()
-        detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
+        frame_result = self.ctx.sim_uni_yolo.detect(screen)
 
         detected: bool = False
-        for result in detect_results:
+        for result in frame_result.results:
             if result.detect_class.class_cate == '模拟宇宙沉浸奖励':
                 detected = True
                 break
@@ -514,7 +558,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='SimUniRunEliteRouteV2')
+                cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniRunEliteRouteV2')
 
             if self.had_fight and self.nothing_times <= 11:  # 战斗后 一定要找到沉浸奖励
                 return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_REWARD)
@@ -582,6 +626,10 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         # 识别到就移动
         move_by_detect = StateOperationNode('按画面朝事件移动', self._move_by_detect)
         edges.append(StateOperationEdge(detect_screen, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT))
+        # 识别移动超时 尝试脱困
+        detect_timeout = StateOperationNode('移动超时脱困', self._after_detect_timeout)
+        edges.append(StateOperationEdge(move_by_detect, detect_timeout, success=False, status=Operation.STATUS_TIMEOUT))
+        edges.append(StateOperationEdge(detect_timeout, check_mm))
 
         # 走到了就进行交互 进入这里代码已经识别到事件了 则必须要交互才能进入下一层
         interact = StateOperationNode('交互', self._interact)
@@ -657,11 +705,10 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         self._view_down()
         screen = self.screenshot()
 
-        self.ctx.init_yolo()
-        detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
+        frame_result = self.ctx.sim_uni_yolo.detect(screen)
 
         with_event: bool = False
-        for result in detect_results:
+        for result in frame_result.results:
             if result.detect_class.class_cate == '模拟宇宙事件':
                 with_event = True
                 break
@@ -671,7 +718,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='event_detect_screen')
+                cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniRunEventRouteV2')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
@@ -685,7 +732,10 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
                                           interact_class='模拟宇宙事件',
                                           interact_word='事件',
                                           interact_during_move=True)
-        return Operation.round_by_op(op.execute())
+        op_result = op.execute()
+        if op_result.success:
+            self.detect_move_timeout_times = 0
+        return Operation.round_by_op(op_result)
 
     def _interact(self) -> OperationOneRoundResult:
         """
@@ -809,11 +859,10 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         self._view_down()
         screen = self.screenshot()
 
-        self.ctx.init_yolo()
-        detect_results: List[DetectResult] = self.ctx.yolo.detect(screen)
+        frame_result = self.ctx.sim_uni_yolo.detect(screen)
 
         with_event: bool = False
-        for result in detect_results:
+        for result in frame_result.results:
             if result.detect_class.class_cate == '模拟宇宙黑塔':
                 with_event = True
                 break
@@ -823,7 +872,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-                cv2_utils.show_image(draw_detections(screen, detect_results), win_name='respite_detect_screen')
+                cv2_utils.show_image(draw_detections(frame_result), win_name='respite_detect_screen')
             return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
