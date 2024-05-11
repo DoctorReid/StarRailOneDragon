@@ -819,8 +819,9 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         """
         # 兼容近战角色 稍微往前走一点再进行攻击
         self.ctx.controller.move('w', 0.1)
-        self.ctx.controller.initiate_attack()
-        return Operation.round_success(wait=0.1)
+        # 注意要使用这个op 防止弹出祝福之类卡死
+        op = SimUniEnterFight(self.ctx, disposable=True, first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
+        return Operation.round_by_op(op.execute())
 
     def _check_mm_icon(self) -> OperationOneRoundResult:
         """
