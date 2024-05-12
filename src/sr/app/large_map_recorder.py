@@ -262,9 +262,13 @@ class LargeMapRecorder(Application):
 
         if self.skip_height is not None:
             drag_from = Point(1350, 800)  # 大地图有方的空白区域 防止点击到地图的点 导致拖拽有问题
-            drag_to = drag_from + Point(0, -self.skip_height)
-            self.ctx.controller.drag_to(end=drag_to, start=drag_from, duration=1)
-            time.sleep(1.5)
+            skip_height = 0
+            while skip_height < self.skip_height:
+                to_skip = self.skip_height if self.skip_height <= 700 else 700
+                skip_height += to_skip
+                drag_to = drag_from + Point(0, -to_skip)
+                self.ctx.controller.drag_to(end=drag_to, start=drag_from, duration=1)
+                time.sleep(1.5)
 
     def back_to_top(self):
         """
@@ -442,7 +446,7 @@ class LargeMapRecorder(Application):
         for row in range(max_row + 1):
             for col in range(1, max_col + 1):
                 if abs(overlap_width_list[col][row] - overlap_width_median[col]) > 5:
-                    log.info('%02d行 %02d列 重叠宽度偏离较大 %d', row, col, overlap_width_list[row][col])
+                    log.info('%02d行 %02d列 重叠宽度偏离较大 %d', row, col, overlap_width_list[col][row])
 
         # overlap_width_median = [0, 890, 890, 890, 890, 890, 1055, 1100]
         log.info('重叠宽度中位数 %s', overlap_width_median)
@@ -602,8 +606,8 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 
 
 if __name__ == '__main__':
-    r = map_const.P04_R09_SUB_06
-    # _row, _col = 7, 4
+    r = map_const.P04_R10
+    # _row, _col = 4, 4
     # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
     # LargeMapRecorder.do_merge_1(r, _row, _col, show=True)
     # exit(0)
@@ -612,11 +616,14 @@ if __name__ == '__main__':
     # 执行后 如果是重新录制地图 需要确保更新 map_const 中的坐标点 以及对应的 锄大地/模拟宇宙 路线
     ctx = get_context()
     app = LargeMapRecorder(ctx, r,
-                           #skip_height=200,
+                           skip_height=500,
                            # floor_list=[2]
                            )
 
     ctx.init_all(renew=True)
-    app.execute()
-    # app.do_save()
+    # app.execute()
+    app.do_save()
     # fix_all_after_map_record(r, 1, 10)
+
+    # 特殊情况记录
+    # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存

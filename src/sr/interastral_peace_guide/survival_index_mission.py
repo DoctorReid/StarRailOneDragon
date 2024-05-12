@@ -218,6 +218,7 @@ class SurvivalIndexMissionEnum(Enum):
     ECHO_02 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P02_R06_SP05, power=30)
     ECHO_03 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P03_R09_SP06, power=30)
     ECHO_04 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P01_R05_SP07, power=30)
+    ECHO_05 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P04_R10_SP08, power=30)
 
     SIM_UNI_03 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_03.value, power=40)
     SIM_UNI_04 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_04.value, power=40)

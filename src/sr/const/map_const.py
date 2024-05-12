@@ -244,6 +244,7 @@ P04_R09_SUB_05 = Region(9, "YJPTZ", "演技派挑战", P04,
 P04_R09_SUB_06 = Region(9, "DZPTZ", "动作派挑战", P04,
                         parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(403, 1404),
                         large_map_scale=0)
+P04_R10 = Region(10, " PNKNDJY", "匹诺康尼大剧院", P04)
 
 
 # 这里的顺序需要保持和界面上的区域顺序一致
@@ -255,7 +256,8 @@ PLANET_2_REGION: Dict[str, List[Region]] = {
                 P03_R07, P03_R08_F1, P03_R08_F2, P03_R09, P03_R10],
     P04.np_id: [P04_R01_F1, P04_R01_F2, P04_R01_F3, P04_R02_F1, P04_R02_F2, P04_R02_F3, P04_R03, P04_R04, P04_R05_F1, P04_R05_F2, P04_R05_F3,
                 P04_R06_F1, P04_R06_F2, P04_R06_SUB_01, P04_R07_F1, P04_R07_F2, P04_R08_F1, P04_R08_F2,
-                P04_R09, P04_R09_SUB_01, P04_R09_SUB_02, P04_R09_SUB_03_B2, P04_R09_SUB_03_B1, P04_R09_SUB_03_F1, P04_R09_SUB_03_F2, P04_R09_SUB_04, P04_R09_SUB_05, P04_R09_SUB_06]
+                P04_R09, P04_R09_SUB_01, P04_R09_SUB_02, P04_R09_SUB_03_B2, P04_R09_SUB_03_B1, P04_R09_SUB_03_F1, P04_R09_SUB_03_F2, P04_R09_SUB_04, P04_R09_SUB_05, P04_R09_SUB_06,
+                P04_R10]
 }
 
 
@@ -767,7 +769,14 @@ P04_R09_SUB_06_SP01 = TransportPoint('XMQZDZPTZ', '戏梦奇战·动作派挑战
 P04_R09_SUB_06_SP02 = TransportPoint('HXTK', '海选特快', P04_R09_SUB_06, 'mm_sp_18', (716, 89))
 P04_R09_SUB_06_SP03 = TransportPoint('FCTK', '返程特快', P04_R09_SUB_06, 'mm_sp_18', (718, 686))
 
-P04_R09_SUB_07_SP02 = TransportPoint('', '', P04_R09_SUB_05, '', (0,0))
+P04_R10_SP01 = TransportPoint('TXDT', '调弦大厅', P04_R10, 'mm_tp_03', (796, 770), tp_pos=(796, 756))
+P04_R10_SP02 = TransportPoint('JYT', '交谊厅', P04_R10, 'mm_tp_03', (1306, 790), tp_pos=(1282, 767))
+P04_R10_SP03 = TransportPoint('FYSL', '福音沙龙', P04_R10, 'mm_tp_03', (283, 792), tp_pos=(319, 782))
+P04_R10_SP04 = TransportPoint('SXCL', '上行长廊', P04_R10, 'mm_tp_03', (813, 1306), tp_pos=(796, 1308))
+P04_R10_SP05 = TransportPoint('', '', P04_R10, 'mm_sp_05', (385, 749))
+P04_R10_SP06 = TransportPoint('XXHNXD', '小小哈努行动', P04_R10, 'mm_sp_11', (1267, 882))
+P04_R10_SP07 = TransportPoint('FSFRDDS', '妃色夫人的「大树」', P04_R10, 'mm_sp_14', (322, 891))
+P04_R10_SP08 = TransportPoint('CMDZLLZYX', '尘梦的赞礼·历战余响', P04_R10, 'mm_boss_05', (793, 298), tp_pos=(796, 309))
 
 
 REGION_2_SP = {
@@ -824,7 +833,8 @@ REGION_2_SP = {
     P04_R09_SUB_03_B2.pr_id: [P04_R09_SUB_03_SP01, P04_R09_SUB_03_SP02, P04_R09_SUB_03_SP03, P04_R09_SUB_03_SP04, P04_R09_SUB_03_SP05, P04_R09_SUB_03_SP06],
     P04_R09_SUB_04.pr_id: [P04_R09_SUB_04_SP01, P04_R09_SUB_04_SP02, P04_R09_SUB_04_SP03, P04_R09_SUB_04_SP04],
     P04_R09_SUB_05.pr_id: [P04_R09_SUB_05_SP01, P04_R09_SUB_05_SP02, P04_R09_SUB_05_SP03],
-    P04_R09_SUB_06.pr_id: [P04_R09_SUB_06_SP01, P04_R09_SUB_06_SP02, P04_R09_SUB_06_SP03]
+    P04_R09_SUB_06.pr_id: [P04_R09_SUB_06_SP01, P04_R09_SUB_06_SP02, P04_R09_SUB_06_SP03],
+    P04_R10.pr_id: [P04_R10_SP01, P04_R10_SP02, P04_R10_SP03, P04_R10_SP04, P04_R10_SP05, P04_R10_SP06, P04_R10_SP07, P04_R10_SP08],
 }
 
 
