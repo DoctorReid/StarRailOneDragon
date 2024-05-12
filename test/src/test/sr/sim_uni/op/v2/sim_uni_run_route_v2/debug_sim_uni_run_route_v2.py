@@ -57,5 +57,5 @@ class DebugSimUniRunRouteV2(test.SrTestBase):
         ctx = get_context()
         screen = get_debug_image('_1713682416487')
         result = ctx._sim_uni_yolo.detect(screen, conf=0.1)
-        img = draw_detections(screen, result)
+        img = draw_detections(result)
         cv2_utils.show_image(img, win_name='test_yolo', wait=0)

@@ -4,23 +4,22 @@ from typing import List, Optional, ClassVar
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Point, cal_utils
+from basic import Point, cal_utils, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
+from basic.log_utils import log
 from sr.const import game_config_const
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
-from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, OperationResult
-from sr.operation.unit.interact import check_move_interact
+from sr.operation import Operation, OperationOneRoundResult, OperationResult
+from sr.operation.unit.interact import check_move_interact, get_move_interact_words
 from sr.operation.unit.move import GetRidOfStuck
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sryolo.detector import DetectObjectResult, draw_detections
-
 
 _MAX_TURN_ANGLE = 15  # 由于目标识别没有纵深 判断的距离方向不准 限定转向角度慢慢转过去
 
@@ -253,6 +252,8 @@ class SimUniMoveToEnemyByDetect(Operation):
         self.no_enemy_times: int = 0  # 没有发现敌人的次数
         self.start_move_time: float = 0  # 开始移动的时间
 
+        self.last_debug_time: float = 0
+
     def _execute_one_round(self) -> OperationOneRoundResult:
         now = time.time()
         screen = self.screenshot()
@@ -271,6 +272,10 @@ class SimUniMoveToEnemyByDetect(Operation):
         if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_enemy_times > 0:
             self.ctx.controller.stop_moving_forward()
             return Operation.round_wait()
+
+        if now - self.last_debug_time > 0.5 and self.ctx.one_dragon_config.is_debug:
+            self.save_screenshot()
+            self.last_debug_time = now
 
         # 进行目标识别判断后续动作
         return self.detect_screen(screen)
@@ -301,6 +306,9 @@ class SimUniMoveToEnemyByDetect(Operation):
                 normal_enemy_result.append(result)
             elif result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
                 can_attack = True
+
+        if self.ctx.one_dragon_config.is_debug:
+            cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniMoveToEnemyByDetect')
 
         if can_attack:
             return self.enter_battle()
@@ -340,12 +348,6 @@ class SimUniMoveToEnemyByDetect(Operation):
         self.start_move_time = time.time()
         return Operation.round_wait()
 
-    def show_enemy(self, screen: MatLike, enemy_pos_list: List[DetectObjectResult]):
-        if not self.ctx.one_dragon_config.is_debug:
-            return
-        img = draw_detections(screen, enemy_pos_list)
-        cv2_utils.show_image(img, win_name='SimUniMoveToEnemyByDetect')
-
     def _after_operation_done(self, result: OperationResult):
         """
         无论以哪种方式结束 都停止移动
@@ -383,15 +385,30 @@ class SimUniMoveToInteractByDetect(Operation):
                          timeout_seconds=20,  # 理论上移动目标都比较近 不可能20秒还没有到达
                          )
 
-        self.no_detect_times: int = 0  # 没有识别的次数
-        self.start_move_time: float = 0  # 开始移动的时间
-        self.interact_class: str = interact_class  # 需要交互的类型
-        self.interact_word: str = interact_word  # 交互文本
-        self.interact_during_move: bool = interact_during_move  # 移动过程中不断尝试交互
+        self.no_detect_times: int = 0
+        """没有识别的次数"""
+
+        self.start_move_time: float = 0
+        """开始移动的时间"""
+
+        self.interact_class: str = interact_class
+        """需要交互的类型"""
+
+        self.interact_word: str = interact_word
+        """交互文本"""
+
+        self.interact_during_move: bool = interact_during_move
+        """移动过程中不断尝试交互"""
+
+        self.existed_interact_word: Optional[str] = None
+        """还没开始移动就已经存在的交互词"""
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         now = time.time()
         screen = self.screenshot()
+
+        if self.existed_interact_word is None:
+            self._check_interact_word(screen)
 
         if self.interact_during_move:  # 只有不断交互的情况 可能会进入不在大世界的页面
             in_world = screen_state.is_normal_in_world(screen, self.ctx.im)
@@ -410,7 +427,9 @@ class SimUniMoveToInteractByDetect(Operation):
         :param now: 当前时间
         :return:
         """
-        if self.interact_during_move:
+        need_ocr = len(self.existed_interact_word) > 0 or not self.interact_during_move
+
+        if not need_ocr:
             self.ctx.controller.interact(
                 pos=ScreenNormalWorld.MOVE_INTERACT_SINGLE_LINE.value.center,
                 interact_type=GameController.MOVE_INTERACT_TYPE
@@ -422,7 +441,7 @@ class SimUniMoveToInteractByDetect(Operation):
             return Operation.round_wait()
 
         # 只有不直接交互的情况下 使用OCR判断是否已经到达
-        if not self.interact_during_move and self.can_interact(screen):
+        if need_ocr and self._check_interact_word(screen):
             self.ctx.controller.stop_moving_forward()
             return Operation.round_success(status=SimUniMoveToInteractByDetect.STATUS_ARRIVAL)
 
@@ -431,7 +450,6 @@ class SimUniMoveToInteractByDetect(Operation):
         if len(pos_list) == 0:
             return self.handle_no_detect()
         else:
-            self.show_detect(screen, pos_list)
             return self.handle_detect(pos_list)
 
     def get_interact_pos(self, screen: MatLike) -> List[DetectObjectResult]:
@@ -446,6 +464,8 @@ class SimUniMoveToInteractByDetect(Operation):
             if not result.detect_class.class_cate == self.interact_class:
                 continue
             filter_results.append(result)
+        if self.ctx.one_dragon_config.is_debug:
+            cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniMoveToInteractByDetect')
         return filter_results
 
     def handle_no_detect(self) -> OperationOneRoundResult:
@@ -481,20 +501,6 @@ class SimUniMoveToInteractByDetect(Operation):
         self.start_move_time = time.time()
         return Operation.round_wait()
 
-    def show_detect(self, screen: MatLike, enemy_pos_list: List[DetectObjectResult]):
-        if not self.ctx.one_dragon_config.is_debug:
-            return
-        img = draw_detections(screen, enemy_pos_list)
-        cv2_utils.show_image(img, win_name='SimUniMoveToInteractByDetect')
-
-    def can_interact(self, screen) -> bool:
-        """
-        当前可交互
-        :return:
-        """
-        interact_pos = check_move_interact(self.ctx, screen, self.interact_word, single_line=True)
-        return interact_pos is not None
-
     def handle_not_in_world(self, screen: MatLike, now: float) -> Optional[OperationOneRoundResult]:
         """
         处理不在大世界的情况 暂时只有交互成功会进入
@@ -514,6 +520,28 @@ class SimUniMoveToInteractByDetect(Operation):
         super()._after_operation_done(result)
         self.ctx.controller.stop_moving_forward()
 
+    def _check_interact_word(self, screen: MatLike) -> bool:
+        """
+        识别当前画面的交互文本
+        :param screen:
+        :return: 是否符合目标 可以交互
+        """
+        words = get_move_interact_words(self.ctx, screen, single_line=True)
+        self.existed_interact_word = words[0].data if len(words) > 0 else ''
+        log.debug('移动前已有交互 %s', self.existed_interact_word)
+        is_target = self._is_target_interact()
+        if is_target:  # 符合目标交互 就不需要OCR了
+            self.existed_interact_word = ''
+
+        return is_target
+
+    def _is_target_interact(self) -> bool:
+        return (
+                len(self.existed_interact_word) > 0
+                and str_utils.find_by_lcs(self.existed_interact_word, gt(self.interact_word, 'ocr'), percent=0.1)
+        )
+
+
 class MoveToNextLevelV2(MoveToNextLevel):
 
     def __init__(self, ctx: Context,
@@ -528,12 +556,22 @@ class MoveToNextLevelV2(MoveToNextLevel):
                          level_type=level_type,
                          )
 
+        self.existed_interact_word: str = ''
+        """还没开始移动就已经存在的交互词"""
+
     def _turn_to_next(self) -> OperationOneRoundResult:
         """
         寻找下层入口 并转向
         :return:
         """
         screen = self.screenshot()
+
+        words = get_move_interact_words(self.ctx, screen, single_line=True)
+        self.existed_interact_word = words[0].data if len(words) > 0 else ''
+        log.debug('开始朝下层入口移动前已有交互 %s', self.existed_interact_word)
+        if self._is_target_interact():  # 符合目标交互 就不需要OCR了
+            self.existed_interact_word = ''
+
         frame_result = self.ctx.sim_uni_yolo.detect(screen)
 
         entry_angles: List[float] = []
@@ -556,10 +594,13 @@ class MoveToNextLevelV2(MoveToNextLevel):
     def _move_and_interact(self) -> OperationOneRoundResult:
         now = time.time()
 
-        # 只有休整楼层 在开始移动1秒内 可能还在黑塔范围 需要进行OCR判断后再交互 其他都是无脑交互
-        need_ocr: bool = (self.is_moving
-                          and self.level_type == SimUniLevelTypeEnum.RESPITE
-                          and now - self.start_move_time <= 1)
+        # 在开始移动1秒内 可能还在有其它交互 例如黑塔和沉浸奖励 需要进行OCR判断后再交互
+        # 等待最开始的交互词消失了 就可以无脑交互了
+        need_ocr: bool = (
+                len(self.existed_interact_word) > 0
+                or (self.is_moving and now - self.start_move_time <= 1)
+        )
+        log.debug('是否需要OCR %s', need_ocr)
         if not need_ocr:
             self.ctx.controller.interact(
                 pos=ScreenNormalWorld.MOVE_INTERACT_SINGLE_LINE.value.center,
@@ -595,3 +636,19 @@ class MoveToNextLevelV2(MoveToNextLevel):
 
             self._move_towards(target)
             return Operation.round_wait(wait=0.1)
+
+    def _can_interact(self, screen: MatLike) -> bool:
+        """
+        当前是否可以交互
+        :param screen: 屏幕截图
+        :return:
+        """
+        words = get_move_interact_words(self.ctx, screen, single_line=True)
+        self.existed_interact_word = words[0].data if len(words) > 0 else ''
+        return self._is_target_interact()
+
+    def _is_target_interact(self) -> bool:
+        return (
+                len(self.existed_interact_word) > 0
+                and str_utils.find_by_lcs(self.existed_interact_word, gt('区域', 'ocr'), percent=0.1)
+        )

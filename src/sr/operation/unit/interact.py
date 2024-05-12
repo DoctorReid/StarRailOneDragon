@@ -1,11 +1,11 @@
 import time
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, List
 
 import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Point, Rect
+from basic import Point, Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
@@ -13,6 +13,7 @@ from sr import const
 from sr.context import Context
 from sr.control import GameController
 from sr.operation import Operation, OperationOneRoundResult
+from sr.screen_area import ScreenArea
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
@@ -27,21 +28,39 @@ def check_move_interact(ctx: Context, screen: MatLike, cn: str,
     :param lcs_percent: 文本匹配阈值
     :return: 返回文本位置
     """
+    words = get_move_interact_words(ctx, screen, single_line=single_line)
+    for word in words:
+        if str_utils.find_by_lcs(word.data, gt(cn, 'ocr'), percent=lcs_percent):
+            return word
+    return None
+
+
+def get_move_interact_words(ctx: Context, screen: MatLike, single_line: bool = False) -> List[MatchResult]:
+    """
+    获取交互文本
+    :param ctx:
+    :param screen:
+    :param single_line:
+    :return:
+    """
     l = 200
     u = 255
     lower_color = np.array([l, l, l], dtype=np.uint8)
     upper_color = np.array([u, u, u], dtype=np.uint8)
-    area: ScreenNormalWorld = ScreenNormalWorld.MOVE_INTERACT_SINGLE_LINE if single_line else ScreenNormalWorld.MOVE_INTERACT
-    part, _ = cv2_utils.crop_image(screen, area.value.rect)
+    area: ScreenArea = ScreenNormalWorld.MOVE_INTERACT_SINGLE_LINE.value if single_line else ScreenNormalWorld.MOVE_INTERACT.value
+    part, _ = cv2_utils.crop_image(screen, area.rect)
     white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
     # cv2_utils.show_image(white_part, wait=0)
 
-    ocr_result = ctx.ocr.match_words(white_part, words=[cn], lcs_percent=lcs_percent)
-    if len(ocr_result) > 0:
-        for mrl in ocr_result.values():
-            return mrl.max
+    if single_line:
+        word = ctx.ocr.ocr_for_single_line(part)
+        if word is not None:
+            return [MatchResult(1, area.rect.x1, area.rect.y1, area.rect.width, area.rect.height, data=word)]
+        else:
+            return []
     else:
-        return None
+        ocr_result = ctx.ocr.run_ocr(white_part)
+        return [i.max for i in ocr_result.values()]
 
 
 class Interact(Operation):

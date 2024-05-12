@@ -21,9 +21,10 @@ from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight, SimUniFightElite
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_reward import SimUniReward
-from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, delta_angle_to_detected_object, SimUniMoveToInteractByDetect
+from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, \
+    delta_angle_to_detected_object, SimUniMoveToInteractByDetect, MoveToNextLevelV2
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType
-from sryolo.detector import DetectObjectResult, draw_detections
+from sryolo.detector import draw_detections
 
 
 class SimUniRunRouteBase(StateOperation):
@@ -128,6 +129,7 @@ class SimUniRunRouteBase(StateOperation):
 
         self._view_up()
         op = MoveToNextLevel(self.ctx, level_type=self.level_type)
+        op = MoveToNextLevelV2(self.ctx, level_type=self.level_type)
         return Operation.round_by_op(op.execute())
 
     def _turn_when_nothing(self) -> OperationOneRoundResult:
@@ -284,6 +286,8 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         # 找不到下层入口就转向找目标
         turn = StateOperationNode('转动找目标', self._turn_when_nothing)
         edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
+        # 画面识别不到内容时 也转动找目标
+        edges.append(StateOperationEdge(detect_screen, turn, status=SimUniRunRouteBase.STATUS_NOTHING))
         # 移动到下层入口失败时 也转动找目标
         # 可能1 走过了 没交互成功
         # 可能2 识别错了未激活的入口 移动过程中被攻击了
@@ -454,7 +458,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(move_by_red, start_fight, status=SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL))
 
         # 战斗后处理
-        after_fight = StateOperationNode('战斗后处理', self._turn_to_previous_angle)
+        after_fight = StateOperationNode('战斗后处理', self._after_fight)
         edges.append(StateOperationEdge(start_fight, after_fight))
 
         # 战斗后识别沉浸奖励装置
@@ -467,6 +471,11 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         # 朝沉浸奖励装置移动
         move_to_reward = StateOperationNode('朝沉浸奖励移动', self._move_to_reward)
         edges.append(StateOperationEdge(detect_reward, move_to_reward, status=SimUniRunRouteBase.STATUS_WITH_DETECT_REWARD))
+
+        # 移动超时 卡住了
+        detect_timeout = StateOperationNode('移动超时', self._after_detect_timeout)
+        edges.append(StateOperationEdge(move_to_reward, detect_timeout, success=False, status=Operation.STATUS_TIMEOUT))
+        edges.append(StateOperationEdge(detect_timeout, move_to_reward))
 
         # 领取奖励
         get_reward = StateOperationNode('领取沉浸奖励', self._get_reward)
@@ -534,12 +543,22 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         op = SimUniFightElite(self.ctx)
         return Operation.round_by_op(op.execute())
 
+    def _after_fight(self) -> OperationOneRoundResult:
+        """
+        精英怪战斗后
+        :return:
+        """
+        self.had_fight = True
+        return self._turn_to_previous_angle()
+
     def _detect_reward(self) -> OperationOneRoundResult:
         if self.had_reward:
+            log.debug('领取过沉浸奖励')
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
 
         # 调试时候强制走到沉浸奖励
         if not self.ctx.one_dragon_config.is_debug and self.max_reward_to_get == 0:
+            log.debug('不需要领取沉浸奖励')
             return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
 
         self._view_down()
@@ -563,6 +582,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
             if self.had_fight and self.nothing_times <= 11:  # 战斗后 一定要找到沉浸奖励
                 return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_REWARD)
             else:  # 重进的情况(没有战斗) 或者 找不到沉浸奖励太多次了 就不找了
+                log.debug('没有战斗 或者 找不到沉浸奖励太多次了')
                 return Operation.round_success(SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
 
     def _move_to_reward(self) -> OperationOneRoundResult:
@@ -579,7 +599,8 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
                                           interact_class='模拟宇宙沉浸奖励',
                                           interact_word='沉浸奖励',
                                           interact_during_move=True)
-        return Operation.round_by_op(op.execute())
+        op_result = op.execute()
+        return Operation.round_by_op(op_result, wait=1 if op_result.success else 0)  # 稍微等待画面加载
 
     def _get_reward(self) -> OperationOneRoundResult:
         """
@@ -587,6 +608,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         :return:
         """
         self.had_reward = True
+        self.detect_move_timeout_times = 0
         op = SimUniReward(self.ctx, self.max_reward_to_get, self.get_reward_callback)
         return Operation.round_by_op(op.execute())
 

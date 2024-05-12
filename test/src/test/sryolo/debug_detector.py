@@ -17,5 +17,5 @@ class DebugDetector(test.SrTestBase):
 
         img = get_debug_image('2')
         results = ctx._sim_uni_yolo.detect(img, conf=0.5)
-        cv2_utils.show_image(draw_detections(img, results), wait=0)
+        cv2_utils.show_image(draw_detections(results), wait=0)
         cv2.destroyAllWindows()
