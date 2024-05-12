@@ -24,7 +24,7 @@ SUB_CUT_MAP_RECT = Rect(200, 190, 1600, 955)  # 子区域 在屏幕上截取大�
 EMPTY_MAP_POS = Point(1350, 800)  # 地图空白区域 用于取消选择传送点 和 拖动地图
 TP_BTN_RECT = Rect(1500, 950, 1800, 1000)  # 右侧显示传送按钮的区域
 REGION_LIST_RECT = Rect(1480, 200, 1820, 1000)
-FLOOR_LIST_PART = Rect(30, 730, 100, 1000)
+FLOOR_LIST_PART = Rect(30, 650, 110, 1000)  # 外层地图和子地图的x轴不太一样 取一个并集
 
 LARGE_MAP_POWER_RECT = Rect(1635, 54, 1678, 72)  # 大地图上显示体力的位置
 EMPTY_COLOR: int = 210  # 大地图空白地方的颜色

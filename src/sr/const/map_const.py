@@ -75,7 +75,8 @@ class Region:
     def __init__(self, num: int, i: str, cn: str, planet: Planet, floor: int = 0,
                  parent: Optional = None,
                  enter_template_id: Optional[str] = None,
-                 enter_lm_pos: Optional[Point] = None):
+                 enter_lm_pos: Optional[Point] = None,
+                 large_map_scale: Optional[int] = None):
         self.num: int = num  # 编号 方便列表排序
         self.id: str = i  # id 用在找文件夹之类的
         self.cn: str = cn  # 中文 用在OCR
@@ -84,7 +85,10 @@ class Region:
         self.parent: Region = parent  # 子区域才会有 属于哪个具体区域
         self.enter_template_id: str = enter_template_id  # 子区域才会有 入口对应的模板ID
         self.enter_lm_pos: Point = enter_lm_pos  # 子区域才会有 在具体区域的哪个位置进入
-        self.large_map_scale: int = 0 if parent is None else 5
+        if large_map_scale is None:
+            self.large_map_scale: int = 0 if parent is None else 5
+        else:
+            self.large_map_scale: int = large_map_scale
 
     def __repr__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -207,11 +211,39 @@ P04_R05_F3 = Region(5, "BRMJDMJ", "「白日梦」酒店-梦境", P04, floor=3)
 P04_R06_F1 = Region(6, "ZLGG", "朝露公馆", P04, floor=1)
 P04_R06_F2 = Region(6, "ZLGG", "朝露公馆", P04, floor=2)
 P04_R06_SUB_01 = Region(6, "CSSH", "城市沙盒", P04,
-                        parent=P04_R06_F1, enter_template_id='mm_sub_01', enter_lm_pos=Point(667, 692))
+                        parent=P04_R06_F1, enter_template_id='mm_sub_01', enter_lm_pos=Point(666, 693))
 P04_R07_F1 = Region(7, "KLKYSLY", "克劳克影视乐园", P04, floor=1)
 P04_R07_F2 = Region(7, "KLKYSLY", "克劳克影视乐园", P04, floor=2)
 P04_R08_F1 = Region(8, "LMJ", "流梦礁", P04, floor=1)
 P04_R08_F2 = Region(8, "LMJ", "流梦礁", P04, floor=2)
+P04_R09 = Region(9, "SLDRSHXHC", "苏乐达TM热砂海选会场", P04)
+P04_R09_SUB_01 = Region(9, "YHLT", "一号擂台", P04,
+                        parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(337, 1025),
+                        large_map_scale=0)
+P04_R09_SUB_02 = Region(9, "EHLT", "二号擂台", P04,
+                        parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(447, 1025),
+                        large_map_scale=0)
+P04_R09_SUB_03_B2 = Region(9, "QHDSL", "枪火的试炼", P04, floor=-2,
+                           parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(746, 1192),
+                           large_map_scale=0)
+P04_R09_SUB_03_B1 = Region(9, "QHDSL", "枪火的试炼", P04, floor=-1,
+                           parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(746, 1192),
+                           large_map_scale=0)
+P04_R09_SUB_03_F1 = Region(9, "QHDSL", "枪火的试炼", P04, floor=1,
+                           parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(746, 1192),
+                           large_map_scale=0)
+P04_R09_SUB_03_F2 = Region(9, "QHDSL", "枪火的试炼", P04, floor=2,
+                           parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(746, 1192),
+                           large_map_scale=0)
+P04_R09_SUB_04 = Region(9, "SJDSL", "时间的试炼入口", P04,
+                        parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(857, 1192),
+                        large_map_scale=0)
+P04_R09_SUB_05 = Region(9, "YJPTZ", "演技派挑战", P04,
+                        parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(294, 1404),
+                        large_map_scale=0)
+P04_R09_SUB_06 = Region(9, "DZPTZ", "动作派挑战", P04,
+                        parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(403, 1404),
+                        large_map_scale=0)
 
 
 # 这里的顺序需要保持和界面上的区域顺序一致
@@ -222,7 +254,8 @@ PLANET_2_REGION: Dict[str, List[Region]] = {
     P03.np_id: [P03_R01, P03_R02_F1, P03_R02_F2, P03_R03_F1, P03_R03_F2, P03_R04, P03_R05, P03_R06_F1, P03_R06_F2,
                 P03_R07, P03_R08_F1, P03_R08_F2, P03_R09, P03_R10],
     P04.np_id: [P04_R01_F1, P04_R01_F2, P04_R01_F3, P04_R02_F1, P04_R02_F2, P04_R02_F3, P04_R03, P04_R04, P04_R05_F1, P04_R05_F2, P04_R05_F3,
-                P04_R06_F1, P04_R06_F2, P04_R06_SUB_01, P04_R07_F1, P04_R07_F2, P04_R08_F1, P04_R08_F2]
+                P04_R06_F1, P04_R06_F2, P04_R06_SUB_01, P04_R07_F1, P04_R07_F2, P04_R08_F1, P04_R08_F2,
+                P04_R09, P04_R09_SUB_01, P04_R09_SUB_02, P04_R09_SUB_03_B2, P04_R09_SUB_03_B1, P04_R09_SUB_03_F1, P04_R09_SUB_03_F2, P04_R09_SUB_04, P04_R09_SUB_05, P04_R09_SUB_06]
 }
 
 
@@ -695,7 +728,46 @@ P04_R08_SP08 = TransportPoint('ZDYF', '自动乐坊', P04_R08_F2, 'mm_sp_03', (3
 P04_R08_SP09 = TransportPoint('JEK', '基尔克', P04_R08_F2, 'mm_sp_03', (357, 1188))
 P04_R08_SP10 = TransportPoint('ZLJSDDS', '湛蓝爵士的「大树」', P04_R08_F2, 'mm_sp_14', (549, 1107))
 
-P04_R08_SP11 = TransportPoint('', '', P04_R08_F2, '', (0, 0))
+P04_R09_SP01 = TransportPoint('JXZL', '巨星之路', P04_R09, 'mm_tp_03', (585, 635), tp_pos=(572, 638))
+P04_R09_SP02 = TransportPoint('HXGC', '海选广场', P04_R09, 'mm_tp_03', (558, 2155), tp_pos=(570, 2118))
+P04_R09_SP03 = TransportPoint('XLZLNZHEC', '巡猎之蕾·拟造花萼（赤）', P04_R09, 'mm_tp_07', (517, 1691), tp_pos=(522, 1693))
+P04_R09_SP04 = TransportPoint('CHDGDDS', '赤红大哥的「大树」', P04_R09, 'mm_sp_14', (627, 1694))
+P04_R09_SP05 = TransportPoint('FCTK', '返程特快', P04_R09, 'mm_sp_18', (570, 801))
+P04_R09_SP06 = TransportPoint('HXTK', '海选特快', P04_R09, 'mm_sp_18', (569, 1581))
+P04_R09_SP07 = TransportPoint('YHLTRK', '一号擂台入口', P04_R09, 'mm_sub_02', (337, 1025))
+P04_R09_SP08 = TransportPoint('EHLTRK', '二号擂台入口', P04_R09, 'mm_sub_02', (447, 1025))
+P04_R09_SP09 = TransportPoint('QHDSLRK', '枪火的试炼入口', P04_R09, 'mm_sub_02', (746, 1192))
+P04_R09_SP10 = TransportPoint('SJDSLRK', '时间的试炼入口', P04_R09, 'mm_sub_02', (857, 1192))
+P04_R09_SP11 = TransportPoint('YJPTZRK', '演技派挑战入口', P04_R09, 'mm_sub_02', (294, 1404))
+P04_R09_SP12 = TransportPoint('DZPTZRK', '动作派挑战入口', P04_R09, 'mm_sub_02', (403, 1404))
+
+P04_R09_SUB_01_SP01 = TransportPoint('JXDFZYHLT', '巨星巅峰战·一号擂台', P04_R09_SUB_01, 'mm_tp_03', (736, 510), tp_pos=(763, 525))
+P04_R09_SUB_01_SP02 = TransportPoint('FCTK', '返程特快', P04_R09_SUB_01, 'mm_sp_18', (763, 764))
+
+P04_R09_SUB_02_SP01 = TransportPoint('JXDFZEHLT', '巨星巅峰战·二号擂台', P04_R09_SUB_02, 'mm_tp_03', (792, 525), tp_pos=(766, 539))
+P04_R09_SUB_02_SP02 = TransportPoint('FCTK', '返程特快', P04_R09_SUB_02, 'mm_sp_18', (765, 779))
+
+P04_R09_SUB_03_SP01 = TransportPoint('HNZX', '哈努战线', P04_R09_SUB_03_B2, 'mm_sp_17', (763, 452))
+P04_R09_SUB_03_SP02 = TransportPoint('XXHNXD', '小小哈努行动', P04_R09_SUB_03_B1, 'mm_sp_11', (733, 461))
+P04_R09_SUB_03_SP03 = TransportPoint('QHSJQHDSL', '枪火时间·枪火的试炼', P04_R09_SUB_03_F1, 'mm_tp_03', (743, 525), tp_pos=(731, 537))
+P04_R09_SUB_03_SP04 = TransportPoint('XXHNXD', '小小哈努行动', P04_R09_SUB_03_F1, 'mm_sp_11', (732, 438))
+P04_R09_SUB_03_SP05 = TransportPoint('FCTK', '返程特快', P04_R09_SUB_03_F1, 'mm_sp_18', (724, 630))
+P04_R09_SUB_03_SP06 = TransportPoint('HXTK', '海选特快', P04_R09_SUB_03_B2, 'mm_sp_18', (810, 132))
+
+P04_R09_SUB_04_SP01 = TransportPoint('QHSJSJDSLHF', '枪火时间·时间的试炼（后方）', P04_R09_SUB_04, 'mm_tp_03', (918, 185), tp_pos=(934, 195))
+P04_R09_SUB_04_SP02 = TransportPoint('QHSJSJDSL', '枪火时间·时间的试炼', P04_R09_SUB_04, 'mm_tp_03', (403, 545), tp_pos=(419, 554))
+P04_R09_SUB_04_SP03 = TransportPoint('HXTK', '海选特快', P04_R09_SUB_04, 'mm_sp_18', (404, 173))
+P04_R09_SUB_04_SP04 = TransportPoint('FCTK', '返程特快', P04_R09_SUB_04, 'mm_sp_18', (418, 622))
+
+P04_R09_SUB_05_SP01 = TransportPoint('XMQZYJPTZ', '戏梦奇战·演技派挑战', P04_R09_SUB_05, 'mm_tp_03', (736, 527), tp_pos=(718, 531))
+P04_R09_SUB_05_SP02 = TransportPoint('HXTK', '海选特快', P04_R09_SUB_05, 'mm_sp_18', (719, 90))
+P04_R09_SUB_05_SP03 = TransportPoint('FCTK', '返程特快', P04_R09_SUB_05, 'mm_sp_18', (717, 687))
+
+P04_R09_SUB_06_SP01 = TransportPoint('XMQZDZPTZ', '戏梦奇战·动作派挑战', P04_R09_SUB_06, 'mm_tp_03', (701, 524), tp_pos=(718, 531))
+P04_R09_SUB_06_SP02 = TransportPoint('HXTK', '海选特快', P04_R09_SUB_06, 'mm_sp_18', (716, 89))
+P04_R09_SUB_06_SP03 = TransportPoint('FCTK', '返程特快', P04_R09_SUB_06, 'mm_sp_18', (718, 686))
+
+P04_R09_SUB_07_SP02 = TransportPoint('', '', P04_R09_SUB_05, '', (0,0))
 
 
 REGION_2_SP = {
@@ -744,7 +816,15 @@ REGION_2_SP = {
     P04_R06_SUB_01.pr_id: [P04_R06_SUB_01_SP01, P04_R06_SUB_01_SP02],
     P04_R07_F1.pr_id: [P04_R07_SP01, P04_R07_SP02, P04_R07_SP03, P04_R07_SP04, P04_R07_SP05, P04_R07_SP06, P04_R07_SP07, P04_R07_SP08, P04_R07_SP09, P04_R07_SP10,
                        P04_R07_SP11, P04_R07_SP12, P04_R07_SP13, P04_R07_SP14, P04_R07_SP15, P04_R07_SP16, P04_R07_SP17],
-    P04_R08_F1.pr_id: [P04_R08_SP01, P04_R08_SP02, P04_R08_SP03, P04_R08_SP04, P04_R08_SP05, P04_R08_SP06, P04_R08_SP07, P04_R08_SP08, P04_R08_SP09, P04_R08_SP10]
+    P04_R08_F1.pr_id: [P04_R08_SP01, P04_R08_SP02, P04_R08_SP03, P04_R08_SP04, P04_R08_SP05, P04_R08_SP06, P04_R08_SP07, P04_R08_SP08, P04_R08_SP09, P04_R08_SP10],
+    P04_R09.pr_id: [P04_R09_SP01, P04_R09_SP02, P04_R09_SP03, P04_R09_SP04, P04_R09_SP05, P04_R09_SP06, P04_R09_SP07, P04_R09_SP08, P04_R09_SP09, P04_R09_SP10,
+                    P04_R09_SP11, P04_R09_SP12],
+    P04_R09_SUB_01.pr_id: [P04_R09_SUB_01_SP01, P04_R09_SUB_01_SP02],
+    P04_R09_SUB_02.pr_id: [P04_R09_SUB_02_SP01, P04_R09_SUB_02_SP02],
+    P04_R09_SUB_03_B2.pr_id: [P04_R09_SUB_03_SP01, P04_R09_SUB_03_SP02, P04_R09_SUB_03_SP03, P04_R09_SUB_03_SP04, P04_R09_SUB_03_SP05, P04_R09_SUB_03_SP06],
+    P04_R09_SUB_04.pr_id: [P04_R09_SUB_04_SP01, P04_R09_SUB_04_SP02, P04_R09_SUB_04_SP03, P04_R09_SUB_04_SP04],
+    P04_R09_SUB_05.pr_id: [P04_R09_SUB_05_SP01, P04_R09_SUB_05_SP02, P04_R09_SUB_05_SP03],
+    P04_R09_SUB_06.pr_id: [P04_R09_SUB_06_SP01, P04_R09_SUB_06_SP02, P04_R09_SUB_06_SP03]
 }
 
 

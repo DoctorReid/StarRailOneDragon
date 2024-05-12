@@ -19,3 +19,5 @@ class ScreenLargeMap(Enum):
     REGION_LIST = ScreenArea(pc_rect=Rect(1480, 200, 1820, 1000))  # 右侧区域列表
 
     TP_BTN = ScreenArea(pc_rect=Rect(1500, 950, 1800, 1000), text='传送')  # 右侧 传送按钮
+
+    FLOOR_LIST = ScreenArea(pc_rect=Rect(30, 650, 110, 1000))  # 楼层

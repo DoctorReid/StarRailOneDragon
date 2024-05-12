@@ -23,6 +23,9 @@ from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 from sr.win import Window, WinRect
 
 
+_FLOOR_LIST = [-2, -1, 0, 1, 2, 3]
+
+
 class LargeMapRecorder(Application):
     """
     开发用的截图工具 只支持PC版 需要自己缩放大地图到最小比例
@@ -45,20 +48,13 @@ class LargeMapRecorder(Application):
                          nodes=nodes)
 
         self.region: Region = region
-        self.current_floor: int = -1
+        self.current_floor: int = _FLOOR_LIST[0]
         self.current_region: Optional[Region] = None
         self.row: int = 0
         self.col: int = 0
         self.skip_height: Optional[int] = skip_height  # 部分地图上方较空 可以跳过部分高度不录制
         self.row_list: Optional[List[int]] = row_list  # 需要重新录制的行数
         self.floor_list: Optional[List[int]] = floor_list  # 需要重新录制的楼层
-
-    def _init_before_execute(self):
-        super()._init_before_execute()
-        self.current_floor = -1
-        self.current_region = None
-        self.row = 0
-        self.col = 0
 
     def _do_screenshot(self) -> OperationOneRoundResult:
         if self.current_floor > 3:
@@ -213,7 +209,7 @@ class LargeMapRecorder(Application):
         # 检测几个楼层是否大小一致
         shape = None
         lp, rp, tp, bp = None, None, None, None
-        for l in [-1, 0, 1, 2, 3]:
+        for l in _FLOOR_LIST:
             target_region = region_with_another_floor(self.region, l)
             if target_region is None:
                 continue
@@ -240,7 +236,7 @@ class LargeMapRecorder(Application):
 
         # cv2.waitKey(0)
 
-        for l in [-1, 0, 1, 2, 3]:
+        for l in _FLOOR_LIST:
             target_region = region_with_another_floor(self.region, l)
             if target_region is None:
                 continue
@@ -540,7 +536,7 @@ def fix_world_patrol_route_after_map_record(region: Region, dx: int, dy: int):
         operation_const.OP_UPDATE_POS
     ]
 
-    for floor in [-1, 0, 1, 2, 3]:
+    for floor in _FLOOR_LIST:
         floor_region = map_const.region_with_another_floor(region, floor)
         if floor_region is None:
             continue
@@ -574,7 +570,7 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
         operation_const.OP_UPDATE_POS
     ]
 
-    for floor in [-1, 0, 1, 2, 3]:
+    for floor in _FLOOR_LIST:
         floor_region = map_const.region_with_another_floor(region, floor)
         if floor_region is None:
             continue
@@ -606,7 +602,7 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 
 
 if __name__ == '__main__':
-    r = map_const.P04_R08_F1
+    r = map_const.P04_R09_SUB_06
     # _row, _col = 7, 4
     # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
     # LargeMapRecorder.do_merge_1(r, _row, _col, show=True)

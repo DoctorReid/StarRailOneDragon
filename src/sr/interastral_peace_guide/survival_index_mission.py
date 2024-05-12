@@ -172,6 +172,7 @@ class SurvivalIndexMissionEnum(Enum):
     BUD_2_CH_2 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P04_R07_SP07, power=10)
 
     BUD_2_XL_1 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P02_R02_SP03, power=10)
+    BUD_2_XL_2 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P04_R09_SP03, power=10)
 
     BUD_2_FR_1 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P02_R03_SP05, power=10)
     BUD_2_FR_2 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.BUD_2.value, tp=map_const.P03_R10_SP17, power=10)
