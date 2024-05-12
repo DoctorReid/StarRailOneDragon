@@ -606,9 +606,10 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 
 
 if __name__ == '__main__':
-    r = map_const.P03_R10
-    # print(LargeMapRecorder.same_as_last_row(r, 6, 2))
-    # LargeMapRecorder.do_merge_1(r, 6, 2, show=True)
+    r = map_const.P04_R07_F1
+    # _row, _col = 7, 4
+    # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
+    # LargeMapRecorder.do_merge_1(r, _row, _col, show=True)
     # exit(0)
 
     # 执行前先传送到别的地图 确保当前地图上没有无关的任务标记
@@ -620,6 +621,6 @@ if __name__ == '__main__':
                            )
 
     ctx.init_all(renew=True)
-    # app.execute()
-    app.do_save()
+    app.execute()
+    # app.do_save()
     # fix_all_after_map_record(r, 1, 10)

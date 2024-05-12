@@ -220,7 +220,7 @@ PLANET_2_REGION: Dict[str, List[Region]] = {
     P03.np_id: [P03_R01, P03_R02_F1, P03_R02_F2, P03_R03_F1, P03_R03_F2, P03_R04, P03_R05, P03_R06_F1, P03_R06_F2,
                 P03_R07, P03_R08_F1, P03_R08_F2, P03_R09, P03_R10],
     P04.np_id: [P04_R01_F1, P04_R01_F2, P04_R01_F3, P04_R02_F1, P04_R02_F2, P04_R02_F3, P04_R03, P04_R04, P04_R05_F1, P04_R05_F2, P04_R05_F3,
-                P04_R06_F1, P04_R06_F2, P04_R06_SUB_01, P04_R07_F1, P04_R07_F2]
+                P04_R06_F1, P04_R06_F2, P04_R06_SUB_01, P04_R07_F1, P04_R07_F2, P04_R08_F1, P04_R08_F2]
 }
 
 
@@ -676,7 +676,11 @@ P04_R07_SP09 = TransportPoint('XXHNXD', '小小哈努行动', P04_R07_F2, 'mm_sp
 P04_R07_SP10 = TransportPoint('XXHNXD', '小小哈努行动', P04_R07_F2, 'mm_sp_11', (816, 1405))
 P04_R07_SP11 = TransportPoint('HJGZDDS', '黄金公子的「大树」', P04_R07_F2, 'mm_sp_14', (819, 493))
 P04_R07_SP12 = TransportPoint('CSQQSSDYJG', '《仓鼠球骑士：速度与坚果》', P04_R07_F2, 'mm_sp_17', (756, 333))
-P04_R07_SP13 = TransportPoint('HNXDLZD', '《哈努兄弟：狼之道》', P04_R07_F2, 'mm_sp_17', (634, 1465))
+P04_R07_SP13 = TransportPoint('ZSZXNZXY', '职司之形·凝滞虚影', P04_R07_F1, 'mm_tp_06', (855, 1040), tp_pos=(873, 1028))  # 2.2新增
+P04_R07_SP14 = TransportPoint('MMWSPSDD', '《美梦往事》拍摄地点', P04_R07_F2, 'mm_tp_16', (332, 909), tp_pos=(332, 909))
+P04_R07_SP15 = TransportPoint('HNXDLZD', '《哈努兄弟：狼之道》', P04_R07_F2, 'mm_sp_17', (634, 1465))
+P04_R07_SP16 = TransportPoint('HNXDDJA', '哈努兄弟大劫案', P04_R07_F2, 'mm_sp_01', (659, 1420))
+P04_R07_SP17 = TransportPoint('MMXZ', '美梦仙踪', P04_R07_F2, 'mm_sp_01', (674, 403))
 
 
 REGION_2_SP = {

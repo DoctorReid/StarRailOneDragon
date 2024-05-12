@@ -109,7 +109,7 @@ class SurvivalIndexMission:
                 prefix = '雷'
             elif self.tp in [map_const.P02_R04_SP04, map_const.P02_R10_SP06, map_const.P04_R06_SUB_01_SP02]:
                 prefix = '火'
-            elif self.tp in [map_const.P02_R10_SP05, map_const.P03_R10_SP05]:
+            elif self.tp in [map_const.P02_R10_SP05, map_const.P03_R10_SP05, map_const.P04_R07_SP13]:
                 prefix = '物理'
             elif self.tp in [map_const.P02_R05_SP06, map_const.P03_R02_SP05, map_const.P04_R05_SP08]:
                 prefix = '冰'
@@ -201,6 +201,7 @@ class SurvivalIndexMissionEnum(Enum):
     SHAPE_15 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P04_R05_SP08, power=30)
     SHAPE_16 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P04_R03_SP05, power=30)
     SHAPE_17 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P04_R06_SUB_01_SP02, power=30)
+    SHAPE_18 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SHAPE.value, tp=map_const.P04_R07_SP13, power=30)
 
     PATH_01 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.PATH.value, tp=map_const.P02_R04_SP05, power=40)
     PATH_02 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.PATH.value, tp=map_const.P02_R05_SP07, power=40)
