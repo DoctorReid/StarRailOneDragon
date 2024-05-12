@@ -261,6 +261,10 @@ class WorldPatrolRoute:
             elif route_item.op == operation_const.OP_WAIT:
                 cfg += "    op: '%s'\n" % route_item.op
                 cfg += "    data: ['%s', '%s']\n" % (route_item.data[0], route_item.data[1])
+            elif route_item.op == operation_const.OP_ENTER_SUB:
+                cfg += "    op: '%s'\n" % route_item.op
+                cfg += "    data: ['%s', '%s']\n" % (route_item.data[0], route_item.data[1])
+
         return cfg
 
     @property
@@ -274,11 +278,13 @@ class WorldPatrolRoute:
         if self.route_list is None or len(self.route_list) == 0:
             return region, pos
         for op in self.route_list:
-            if op.op not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
-                continue
-            pos = Point(op.data[0], op.data[1])
-            if len(op.data) > 2:
-                region = map_const.region_with_another_floor(region, op.data[2])
+            if op.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
+                pos = Point(op.data[0], op.data[1])
+                if len(op.data) > 2:
+                    region = map_const.region_with_another_floor(region, op.data[2])
+            elif op.op == operation_const.OP_ENTER_SUB:
+                region = map_const.get_sub_region_by_cn(op.data[0], region, int(op.data[1]))
+                pos = None
 
         return region, pos
 
@@ -401,6 +407,9 @@ class WorldPatrolRoute:
             new_floor
         )
 
+    def enter_sub_region(self, sub_region_cn: str, floor: int):
+        self.route_list.append(WorldPatrolRouteOperation(op=operation_const.OP_ENTER_SUB, data=[sub_region_cn, str(floor)]))
+
     @property
     def empty_op(self) -> bool:
         """
@@ -408,6 +417,20 @@ class WorldPatrolRoute:
         :return:
         """
         return self.route_list is None or len(self.route_list) == 0
+
+    @property
+    def last_sub_region_op(self) -> Optional[WorldPatrolRouteOperation]:
+        """
+        最后一个子区域的中文
+        :return:
+        """
+        if self.empty_op:
+            return None
+        op = None
+        for o in self.route_list:
+            if o.op == operation_const.OP_ENTER_SUB:
+                op = o
+        return op
 
 
 def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str] = None) -> List[WorldPatrolRouteId]:

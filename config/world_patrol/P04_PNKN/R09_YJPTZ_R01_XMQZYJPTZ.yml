@@ -1,0 +1,42 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '演技派挑战'
+floor: 0
+tp: '戏梦奇战·演技派挑战'
+route:
+  - idx: 1
+    op: 'move'
+    data: [732, 497]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [709, 471]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [694, 459]
+  - idx: 6
+    op: 'move'
+    data: [715, 436]
+  - idx: 7
+    op: 'move'
+    data: [760, 401]
+  - idx: 8
+    op: 'move'
+    data: [748, 357]
+  - idx: 9
+    op: 'move'
+    data: [703, 345]
+  - idx: 10
+    op: 'move'
+    data: [658, 307]
+  - idx: 11
+    op: 'move'
+    data: [644, 288]
+  - idx: 12
+    op: 'move'
+    data: [649, 250]
+  - idx: 13
+    op: 'patrol'

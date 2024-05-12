@@ -133,6 +133,7 @@ class ChooseRegion(StateOperation):
         self.planet: Planet = region.planet
         self.region: Region = region  # 目标区域
         self.region_to_choose_1: Region = region if region.parent is None else region.parent  # 第一步需要选择的区域
+        self.sub_region_clicked: bool = False  # 是否已经点击了子区域
 
         edges: List[StateOperationEdge] = []
 
@@ -300,7 +301,7 @@ class ChooseRegion(StateOperation):
 
         screen = self.screenshot()
 
-        if self._in_sub_region(screen):
+        if self.sub_region_clicked and self._in_sub_region(screen):
             return Operation.round_success(wait=1)
 
         screen_part, offset = match_screen_in_large_map(self.ctx, screen, self.region_to_choose_1)
@@ -320,6 +321,7 @@ class ChooseRegion(StateOperation):
                 else:
                     to_click = target.center + screen_map_rect.left_top
                     self.ctx.controller.click(to_click)
+                self.sub_region_clicked = True
             else:
                 drag_in_large_map(self.ctx, dx, dy)
 

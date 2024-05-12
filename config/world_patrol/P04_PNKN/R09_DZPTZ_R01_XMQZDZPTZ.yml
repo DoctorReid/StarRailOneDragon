@@ -1,0 +1,56 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '动作派挑战'
+floor: 0
+tp: '戏梦奇战·动作派挑战'
+route:
+  - idx: 1
+    op: 'move'
+    data: [741, 522]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [758, 484]
+  - idx: 4
+    op: 'patrol'
+  - idx: 5
+    op: 'move'
+    data: [741, 451]
+  - idx: 6
+    op: 'move'
+    data: [720, 437]
+  - idx: 7
+    op: 'move'
+    data: [684, 432]
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
+    data: [674, 395]
+  - idx: 10
+    op: 'move'
+    data: [687, 355]
+  - idx: 11
+    op: 'move'
+    data: [716, 290]
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'patrol'
+  - idx: 14
+    op: 'move'
+    data: [738, 320]
+  - idx: 15
+    op: 'disposable'
+  - idx: 16
+    op: 'move'
+    data: [781, 307]
+  - idx: 17
+    op: 'move'
+    data: [788, 286]
+  - idx: 18
+    op: 'move'
+    data: [787, 257]
+  - idx: 19
+    op: 'patrol'

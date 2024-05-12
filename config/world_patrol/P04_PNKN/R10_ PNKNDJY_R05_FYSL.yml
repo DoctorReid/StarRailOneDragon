@@ -1,0 +1,60 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '匹诺康尼大剧院'
+floor: 0
+tp: '福音沙龙'
+route:
+  - idx: 1
+    op: 'move'
+    data: [364, 796]
+  - idx: 2
+    op: 'move'
+    data: [399, 770]
+  - idx: 3
+    op: 'slow_move'
+    data: [387, 755]
+  - idx: 4
+    op: 'interact'
+    data: '进入梦境空间'
+  - idx: 5
+    op: 'wait'
+    data: ['seconds', '2']
+  - idx: 6
+    op: 'wait'
+    data: ['in_world', '20']
+  - idx: 7
+    op: 'wait'
+    data: ['seconds', '2']
+  - idx: 8
+    op: 'enter_sub'
+    data: ['梦境空间1', '3']
+  - idx: 9
+    op: 'update_pos'
+    data: [987, 299]
+  - idx: 10
+    op: 'move'
+    data: [884, 299]
+  - idx: 11
+    op: 'move'
+    data: [844, 294]
+  - idx: 12
+    op: 'move'
+    data: [835, 244]
+  - idx: 13
+    op: 'patrol'
+  - idx: 14
+    op: 'move'
+    data: [835, 352]
+  - idx: 15
+    op: 'move'
+    data: [835, 428]
+  - idx: 16
+    op: 'move'
+    data: [830, 501]
+  - idx: 17
+    op: 'disposable'
+  - idx: 18
+    op: 'move'
+    data: [907, 507]
+  - idx: 19
+    op: 'patrol'

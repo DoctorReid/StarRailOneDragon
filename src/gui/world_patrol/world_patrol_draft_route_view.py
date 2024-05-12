@@ -24,7 +24,7 @@ from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhiteli
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.const import map_const, operation_const
 from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
-    REGION_2_SP, TransportPoint, region_with_another_floor
+    REGION_2_SP, TransportPoint, region_with_another_floor, get_sub_region_by_cn
 from sr.context import Context
 from sr.image.sceenshot import mini_map, large_map
 
@@ -78,13 +78,16 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.region_dropdown = ft.Dropdown(label='区域', width=200, on_change=self.on_region_change)
         self.floor_dropdown = ft.Dropdown(label='层数', width=50, on_change=self.on_floor_changed)
         self.tp_dropdown = ft.Dropdown(label='传送点', width=200, on_change=self.on_sp_change)
-        self.switch_floor_dropdown = ft.Dropdown(label='中途切换层数', width=150, on_change=self.on_switch_floor)
+        self.switch_floor_dropdown = ft.Dropdown(label='切换层数', width=50, on_change=self.on_switch_floor)
+        self.sub_region_dropdown = ft.Dropdown(label='进入子区域', width=100, on_change=self.on_sub_region_changed)
+        self.sub_region_floor_dropdown = ft.Dropdown(label='子区域楼层', width=50, on_change=self.on_sub_region_floor_changed)
         self.scale_up_btn = components.RectOutlinedButton(text='放大', on_click=self._on_scale_up)
         self.scale_down_btn = components.RectOutlinedButton(text='缩小', on_click=self._on_scale_down)
 
         choose_row = ft.Row(
             spacing=10,
-            controls=[self.planet_dropdown, self.region_dropdown, self.floor_dropdown, self.tp_dropdown, self.switch_floor_dropdown,
+            controls=[self.planet_dropdown, self.region_dropdown, self.floor_dropdown, self.tp_dropdown,
+                      self.switch_floor_dropdown, self.sub_region_dropdown, self.sub_region_floor_dropdown,
                       self.scale_up_btn, self.scale_down_btn]
         )
 
@@ -177,6 +180,9 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
             keyboard.unhook(self.keyboard_hook)
 
     def _on_key_press(self, event):
+        if self.sr_ctx.is_running:
+            log.info('脚本正在运行 忽略按键监听')
+            return
         k = event.name
         if k == 'f8' and self.chosen_route is not None:
             self._do_screenshot()
@@ -236,7 +242,10 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         max_distance = 40
 
         while True:
-            possible_pos = (last_pos.x, last_pos.y, max_distance)
+            if last_pos is None:
+                possible_pos = None
+            else:
+                possible_pos = (last_pos.x, last_pos.y, max_distance)
             lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, self.mini_map_image.shape[:2], possible_pos)
             pos: MatchResult = cal_pos.cal_character_pos(self.sr_ctx.im, lm_info, mm_info,
                                                          lm_rect=lm_rect,
@@ -253,7 +262,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
             return False
 
         target_pos: Point = pos.center
-        self._add_move_op(target_pos.x, target_pos.y, int(self.switch_floor_dropdown.value))
+        self._add_move_op(target_pos.x, target_pos.y)
         self.draw_route_and_display()
         return True
 
@@ -323,6 +332,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.chosen_region = None
 
         self.update_floor_list_by_region()
+        self.update_sub_region_floor_dropdown()
         self.tp_dropdown.options = []
         self.chosen_sp = None
 
@@ -336,6 +346,40 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         region_name = self.region_dropdown.value
         self.floor_dropdown.options = [ft.dropdown.Option(text=str(r.floor), key=str(r.floor)) for r in r_arr if r.cn == region_name]
         self.switch_floor_dropdown.options = [ft.dropdown.Option(text=str(r.floor), key=str(r.floor)) for r in r_arr if r.cn == region_name]
+
+    def update_sub_region_dropdown(self):
+        """
+        更新子区域列表
+        :return:
+        """
+        if self.chosen_planet is None or self.chosen_region is None:
+            return
+        r_arr = PLANET_2_REGION[self.chosen_planet.np_id]
+        sub_region_cn_arr: List[str] = []
+        for r in r_arr:
+            if r.parent == self.chosen_region and r.cn not in sub_region_cn_arr:
+                sub_region_cn_arr.append(r.cn)
+        self.sub_region_dropdown.options = [
+            ft.dropdown.Option(text=r, key=r) for r in sub_region_cn_arr
+        ]
+        self.sub_region_dropdown.value = None
+        self.sub_region_dropdown.update()
+
+    def update_sub_region_floor_dropdown(self):
+        """
+        更新子区域的楼层列表
+        :return:
+        """
+        if self.chosen_planet is None or self.chosen_region is None:
+            return
+        if self.sub_region_dropdown.value is None:
+            return
+        r_arr = PLANET_2_REGION[self.chosen_planet.np_id]
+        self.sub_region_floor_dropdown.options = [
+            ft.dropdown.Option(text=str(r.floor), key=str(r.floor)) for r in r_arr if r.cn == self.sub_region_dropdown.value
+        ]
+        self.sub_region_floor_dropdown.value = None
+        self.sub_region_floor_dropdown.update()
 
     def on_floor_changed(self, e):
         region_name = self.region_dropdown.value
@@ -402,10 +446,10 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         if x > original_width or y > original_height:
             return
 
-        self._add_move_op(x, y, int(self.switch_floor_dropdown.value))
+        self._add_move_op(x, y)
         self.draw_route_and_display()
 
-    def _add_move_op(self, x:int , y: int, floor: int):
+    def _add_move_op(self, x: int, y: int):
         """
         在最后添加一个移动的指令
         :return:
@@ -413,10 +457,15 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         if self.chosen_route is None:
             log.error('未选择路线')
             return
+
+        if self.sub_region_floor_dropdown.value is None:
+            floor = int(self.switch_floor_dropdown.value)
+        else:
+            floor = int(self.sub_region_floor_dropdown.value)
         self.chosen_route.add_move(x, y, floor)
 
     def get_original_map_image(self) -> MatLike:
-        region = get_region_by_cn(self.chosen_region.cn, self.chosen_planet, floor=int(self.switch_floor_dropdown.value))
+        region, _ = self.chosen_route.last_pos
         return self.sr_ctx.ih.get_large_map(region).origin
 
     def on_switch_floor(self, e):
@@ -424,6 +473,29 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
             log.error('未选择路线')
             return
         self.chosen_route.switch_floor(int(self.switch_floor_dropdown.value))
+        self.draw_route_and_display()
+
+    def on_sub_region_changed(self, e):
+        """
+        进入子区域
+        :param e:
+        :return:
+        """
+        if self.chosen_route is None:
+            log.error('未选择路线')
+            return
+        self.update_sub_region_floor_dropdown()
+
+    def on_sub_region_floor_changed(self, e):
+        """
+        选择子区域楼层
+        :param e:
+        :return:
+        """
+        if self.chosen_route is None:
+            log.error('未选择路线')
+            return
+        self.chosen_route.enter_sub_region(self.sub_region_dropdown.value, int(self.sub_region_floor_dropdown.value))
         self.draw_route_and_display()
 
     def _on_scale_up(self, e):
@@ -537,6 +609,14 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.update_sp_list_by_floor()
         self.tp_dropdown.value = self.chosen_route.tp.cn
         self.chosen_sp = self.chosen_route.tp
+
+        sub_region = self.chosen_route.last_sub_region_op
+        self.update_sub_region_dropdown()
+        if sub_region is not None:
+            self.sub_region_dropdown.value = sub_region.data[0]
+        self.update_sub_region_floor_dropdown()
+        if sub_region is not None:
+            self.sub_region_floor_dropdown.value = sub_region.data[1]
 
         self.draw_route_and_display()
 
@@ -757,5 +837,8 @@ def draw_route_in_image(ctx: Context, region: Region, route: WorldPatrolRoute):
             cv2.putText(display_image, str(route_item.idx), (pos[0] - 5, pos[1] - 13),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA)
             last_point = pos
+        elif route_item.op == operation_const.OP_ENTER_SUB:
+            last_region = get_sub_region_by_cn(cn=route_item.data[0], region=region, floor=int(route_item.data[1]))
+            display_image = ctx.ih.get_large_map(last_region).origin.copy()
 
     return display_image

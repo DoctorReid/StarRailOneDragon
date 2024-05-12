@@ -1,0 +1,31 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '时间的试炼入口'
+floor: 0
+tp: '枪火时间·时间的试炼（后方）'
+route:
+  - idx: 1
+    op: 'move'
+    data: [912, 205]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [942, 171]
+  - idx: 4
+    op: 'move'
+    data: [987, 170]
+  - idx: 5
+    op: 'move'
+    data: [1039, 196]
+  - idx: 6
+    op: 'move'
+    data: [1073, 213]
+  - idx: 7
+    op: 'move'
+    data: [1077, 258]
+  - idx: 8
+    op: 'move'
+    data: [1078, 301]
+  - idx: 9
+    op: 'patrol'

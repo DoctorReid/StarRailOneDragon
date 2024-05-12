@@ -6,7 +6,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolRoute
 from sr.const import operation_const, map_const
-from sr.const.map_const import Region
+from sr.const.map_const import Region, get_sub_region_by_cn
 from sr.context import Context
 from sr.operation import Operation, OperationResult, OperationFail, StateOperation, \
     StateOperationNode, OperationOneRoundResult, StateOperationEdge
@@ -127,6 +127,9 @@ class WorldPatrolRunRoute(StateOperation):
         elif route_item.op == operation_const.OP_UPDATE_POS:
             next_pos = Point(route_item.data[0], route_item.data[1])
             self._update_pos_after_op(OperationResult(True, data=next_pos))
+            return Operation.round_success()
+        elif route_item.op == operation_const.OP_ENTER_SUB:
+            self.current_region = get_sub_region_by_cn(route_item.data[0], self.current_region, int(route_item.data[1]))
             return Operation.round_success()
         else:
             return Operation.round_fail(status='错误的锄大地指令 %s' % route_item.op)

@@ -606,7 +606,7 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 
 
 if __name__ == '__main__':
-    r = map_const.P04_R10
+    r = map_const.P04_R10_SUB_01_F2
     # _row, _col = 4, 4
     # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
     # LargeMapRecorder.do_merge_1(r, _row, _col, show=True)
@@ -616,13 +616,13 @@ if __name__ == '__main__':
     # 执行后 如果是重新录制地图 需要确保更新 map_const 中的坐标点 以及对应的 锄大地/模拟宇宙 路线
     ctx = get_context()
     app = LargeMapRecorder(ctx, r,
-                           skip_height=500,
+                           # skip_height=500,
                            # floor_list=[2]
                            )
 
     ctx.init_all(renew=True)
-    # app.execute()
-    app.do_save()
+    app.execute()
+    # app.do_save()
     # fix_all_after_map_record(r, 1, 10)
 
     # 特殊情况记录

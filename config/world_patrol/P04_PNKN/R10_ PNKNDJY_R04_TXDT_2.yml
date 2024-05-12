@@ -1,0 +1,58 @@
+author: ['DoctorReid']
+planet: '匹诺康尼'
+region: '匹诺康尼大剧院'
+floor: 0
+tp: '调弦大厅'
+route:
+  - idx: 1
+    op: 'move'
+    data: [733, 723]
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
+    data: [688, 709]
+  - idx: 4
+    op: 'move'
+    data: [655, 687]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [620, 678]
+  - idx: 7
+    op: 'move'
+    data: [593, 653]
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
+    data: [591, 626]
+  - idx: 10
+    op: 'disposable'
+  - idx: 11
+    op: 'move'
+    data: [507, 600]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [531, 503]
+  - idx: 14
+    op: 'move'
+    data: [564, 488]
+  - idx: 15
+    op: 'patrol'
+  - idx: 16
+    op: 'move'
+    data: [499, 456]
+  - idx: 17
+    op: 'patrol'
+  - idx: 18
+    op: 'move'
+    data: [456, 434]
+  - idx: 19
+    op: 'move'
+    data: [427, 435]
+  - idx: 20
+    op: 'patrol'

@@ -245,6 +245,12 @@ P04_R09_SUB_06 = Region(9, "DZPTZ", "动作派挑战", P04,
                         parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(403, 1404),
                         large_map_scale=0)
 P04_R10 = Region(10, " PNKNDJY", "匹诺康尼大剧院", P04)
+P04_R10_SUB_01_F2 = Region(10, " MJKJ1", "梦境空间1", P04, floor=2,
+                           parent=P04_R10, enter_template_id='mm_sp_05', enter_lm_pos=Point(387, 755),
+                           large_map_scale=0)
+P04_R10_SUB_01_F3 = Region(10, " MJKJ1", "梦境空间1", P04, floor=3,
+                           parent=P04_R10, enter_template_id='mm_sp_05', enter_lm_pos=Point(387, 755),
+                           large_map_scale=0)
 
 
 # 这里的顺序需要保持和界面上的区域顺序一致
@@ -257,7 +263,7 @@ PLANET_2_REGION: Dict[str, List[Region]] = {
     P04.np_id: [P04_R01_F1, P04_R01_F2, P04_R01_F3, P04_R02_F1, P04_R02_F2, P04_R02_F3, P04_R03, P04_R04, P04_R05_F1, P04_R05_F2, P04_R05_F3,
                 P04_R06_F1, P04_R06_F2, P04_R06_SUB_01, P04_R07_F1, P04_R07_F2, P04_R08_F1, P04_R08_F2,
                 P04_R09, P04_R09_SUB_01, P04_R09_SUB_02, P04_R09_SUB_03_B2, P04_R09_SUB_03_B1, P04_R09_SUB_03_F1, P04_R09_SUB_03_F2, P04_R09_SUB_04, P04_R09_SUB_05, P04_R09_SUB_06,
-                P04_R10]
+                P04_R10, P04_R10_SUB_01_F2, P04_R10_SUB_01_F3]
 }
 
 
@@ -275,6 +281,21 @@ def get_region_by_cn(cn: str, planet: Planet, floor: int = 0) -> Optional[Region
         if floor is not None and i.floor != floor:
             continue
         return i
+    return None
+
+
+def get_sub_region_by_cn(cn: str, region: Region, floor: int = 0) -> Optional[Region]:
+    """
+    根据区域的中文 获取对应常量
+    :param cn: 区域的中文
+    :param region: 所属区域
+    :param floor: 子区域的层数
+    :return: 常量
+    """
+    for regions in PLANET_2_REGION.values():
+        for r in regions:
+            if r.parent is not None and r.parent == region and r.cn == cn and r.floor == floor:
+                return r
     return None
 
 
