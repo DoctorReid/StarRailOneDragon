@@ -210,6 +210,8 @@ P04_R06_SUB_01 = Region(6, "CSSH", "城市沙盒", P04,
                         parent=P04_R06_F1, enter_template_id='mm_sub_01', enter_lm_pos=Point(667, 692))
 P04_R07_F1 = Region(7, "KLKYSLY", "克劳克影视乐园", P04, floor=1)
 P04_R07_F2 = Region(7, "KLKYSLY", "克劳克影视乐园", P04, floor=2)
+P04_R08_F1 = Region(8, "LMJ", "流梦礁", P04, floor=1)
+P04_R08_F2 = Region(8, "LMJ", "流梦礁", P04, floor=2)
 
 
 # 这里的顺序需要保持和界面上的区域顺序一致
@@ -682,6 +684,19 @@ P04_R07_SP15 = TransportPoint('HNXDLZD', '《哈努兄弟：狼之道》', P04_R
 P04_R07_SP16 = TransportPoint('HNXDDJA', '哈努兄弟大劫案', P04_R07_F2, 'mm_sp_01', (659, 1420))
 P04_R07_SP17 = TransportPoint('MMXZ', '美梦仙踪', P04_R07_F2, 'mm_sp_01', (674, 403))
 
+P04_R08_SP01 = TransportPoint('ZX', '窄巷', P04_R08_F1, 'mm_tp_03', (603, 1382), tp_pos=(596, 1370))
+P04_R08_SP02 = TransportPoint('ZZDYG', '稚子的月光', P04_R08_F2, 'mm_tp_03', (576, 270), tp_pos=(593, 306))
+P04_R08_SP03 = TransportPoint('SC', '睡城', P04_R08_F2, 'mm_tp_03', (894, 868), (879, 880))
+P04_R08_SP04 = TransportPoint('SXGC', '时隙广场', P04_R08_F2, 'mm_tp_03', (614, 930), tp_pos=(592, 940))
+P04_R08_SP05 = TransportPoint('JMJZ', '旧梦集镇', P04_R08_F2, 'mm_tp_03', (496, 1073), tp_pos=(495, 1093))
+P04_R08_SP06 = TransportPoint('ZZDM', '稚子的梦', P04_R08_F2, 'mm_sp_02', (591, 184))
+P04_R08_SP07 = TransportPoint('CSKC', '翠丝快餐', P04_R08_F2, 'mm_sp_03', (355, 854))
+P04_R08_SP08 = TransportPoint('ZDYF', '自动乐坊', P04_R08_F2, 'mm_sp_03', (369, 978))
+P04_R08_SP09 = TransportPoint('JEK', '基尔克', P04_R08_F2, 'mm_sp_03', (357, 1188))
+P04_R08_SP10 = TransportPoint('ZLJSDDS', '湛蓝爵士的「大树」', P04_R08_F2, 'mm_sp_14', (549, 1107))
+
+P04_R08_SP11 = TransportPoint('', '', P04_R08_F2, '', (0, 0))
+
 
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
@@ -728,7 +743,8 @@ REGION_2_SP = {
     P04_R06_F1.pr_id: [P04_R06_SP01, P04_R06_SP02, P04_R06_SP03, P04_R06_SP04],
     P04_R06_SUB_01.pr_id: [P04_R06_SUB_01_SP01, P04_R06_SUB_01_SP02],
     P04_R07_F1.pr_id: [P04_R07_SP01, P04_R07_SP02, P04_R07_SP03, P04_R07_SP04, P04_R07_SP05, P04_R07_SP06, P04_R07_SP07, P04_R07_SP08, P04_R07_SP09, P04_R07_SP10,
-                       P04_R07_SP11, P04_R07_SP12, P04_R07_SP13,]
+                       P04_R07_SP11, P04_R07_SP12, P04_R07_SP13, P04_R07_SP14, P04_R07_SP15, P04_R07_SP16, P04_R07_SP17],
+    P04_R08_F1.pr_id: [P04_R08_SP01, P04_R08_SP02, P04_R08_SP03, P04_R08_SP04, P04_R08_SP05, P04_R08_SP06, P04_R08_SP07, P04_R08_SP08, P04_R08_SP09, P04_R08_SP10]
 }
 
 
