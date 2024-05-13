@@ -6,37 +6,25 @@ tp: '梦主大厅'
 route:
   - idx: 1
     op: 'move'
-    data: [707, 698]
+    data: [607, 429]
   - idx: 2
     op: 'move'
-    data: [706, 561]
+    data: [604, 352]
   - idx: 3
-    op: 'slow_move'
-    data: [737, 554]
-  - idx: 4
     op: 'move'
-    data: [870, 556]
+    data: [760, 351]
+  - idx: 4
+    op: 'disposable'
   - idx: 5
-    op: 'slow_move'
-    data: [893, 556]
+    op: 'move'
+    data: [752, 416]
   - idx: 6
     op: 'move'
-    data: [929, 556]
+    data: [768, 441]
   - idx: 7
-    op: 'disposable'
+    op: 'patrol'
   - idx: 8
     op: 'move'
-    data: [925, 667]
+    data: [733, 441]
   - idx: 9
-    op: 'slow_move'
-    data: [923, 690]
-  - idx: 10
-    op: 'move'
-    data: [946, 690]
-  - idx: 11
-    op: 'patrol'
-  - idx: 12
-    op: 'move'
-    data: [900, 690]
-  - idx: 13
     op: 'patrol'

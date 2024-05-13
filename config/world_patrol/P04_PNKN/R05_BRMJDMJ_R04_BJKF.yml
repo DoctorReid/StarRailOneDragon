@@ -6,58 +6,49 @@ tp: '铂金客房'
 route:
   - idx: 1
     op: 'move'
-    data: [1769, 917]
+    data: [1426, 684]
   - idx: 2
     op: 'move'
-    data: [1753, 950]
+    data: [1409, 707]
   - idx: 3
     op: 'disposable'
   - idx: 4
     op: 'move'
-    data: [1775, 1058]
+    data: [1428, 788]
   - idx: 5
     op: 'disposable'
   - idx: 6
     op: 'move'
-    data: [1769, 1125]
+    data: [1421, 814]
   - idx: 7
-    op: 'slow_move'
-    data: [1769, 1225]
-  - idx: 8
     op: 'move'
-    data: [1655, 1263]
+    data: [1419, 859]
+  - idx: 8
+    op: 'slow_move'
+    data: [1419, 919]
   - idx: 9
-    op: 'patrol'
+    op: 'move'
+    data: [1383, 915]
   - idx: 10
     op: 'move'
-    data: [1620, 1313]
+    data: [1347, 916]
   - idx: 11
     op: 'patrol'
   - idx: 12
     op: 'move'
-    data: [1655, 1263]
+    data: [1291, 981]
   - idx: 13
-    op: 'move'
-    data: [1659, 1197]
+    op: 'patrol'
   - idx: 14
-    op: 'patrol'
-  - idx: 15
     op: 'move'
-    data: [1535, 1231]
-  - idx: 16
+    data: [1230, 916]
+  - idx: 15
     op: 'patrol'
+  - idx: 16
+    op: 'move'
+    data: [1173, 916]
   - idx: 17
     op: 'move'
-    data: [1464, 1230]
+    data: [1162, 968]
   - idx: 18
-    op: 'patrol'
-  - idx: 19
-    op: 'move'
-    data: [1450, 1295]
-  - idx: 20
-    op: 'patrol'
-  - idx: 21
-    op: 'move'
-    data: [1457, 1396]
-  - idx: 22
     op: 'patrol'

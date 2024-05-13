@@ -46,18 +46,28 @@ if __name__ == '__main__':
     ctx.init_image_matcher()
 
     sp_list = [
-        map_const.P04_R10_SP01,
-        map_const.P04_R10_SP02,
-        map_const.P04_R10_SP03,
-        map_const.P04_R10_SP04,
-        map_const.P04_R10_SP08,
+        map_const.P04_R05_SP01,
+        map_const.P04_R05_SP02,
+        map_const.P04_R05_SP05,
+        map_const.P04_R05_SP06,
+        map_const.P04_R05_SP07,
+        map_const.P04_R05_SP08,
+        map_const.P04_R05_SP09,
+        map_const.P04_R05_SP10,
+        map_const.P04_R05_SP11,
+        map_const.P04_R05_SP13,
     ]
     img_list = [
-        '_1715508142338',
-        '_1715508147203',
-        '_1715508152886',
-        '_1715508158286',
-        '_1715508165487'
+        '_1715533642707',
+        '_1715533651065',
+        '_1715533663305',
+        '_1715533671588',
+        '_1715533677739',
+        '_1715533695356',
+        '_1715533703659',
+        '_1715533713007',
+        '_1715533717726',
+        '_1715533724561',
     ]
     for i in range(len(sp_list)):
         cal_one(sp_list[i], debug_image=img_list[i], show=True)

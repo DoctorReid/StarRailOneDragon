@@ -6,27 +6,19 @@ tp: '监控室'
 route:
   - idx: 1
     op: 'move'
-    data: [571, 750]
+    data: [431, 555]
   - idx: 2
     op: 'disposable'
   - idx: 3
     op: 'move'
-    data: [582, 776]
+    data: [456, 587]
   - idx: 4
     op: 'move'
-    data: [570, 913]
+    data: [443, 682]
   - idx: 5
     op: 'disposable'
   - idx: 6
     op: 'move'
-    data: [422, 921]
+    data: [313, 681]
   - idx: 7
-    op: 'move'
-    data: [394, 919]
-  - idx: 8
-    op: 'patrol'
-  - idx: 9
-    op: 'move'
-    data: [394, 895]
-  - idx: 10
     op: 'patrol'

@@ -17,6 +17,11 @@ route:
     data: [830, 1336]
   - idx: 5
     op: 'move'
-    data: [773, 1348]
+    data: [761, 1331]
   - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
+    data: [773, 1348]
+  - idx: 8
     op: 'patrol'

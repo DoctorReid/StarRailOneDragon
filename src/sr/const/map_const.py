@@ -85,10 +85,7 @@ class Region:
         self.parent: Region = parent  # 子区域才会有 属于哪个具体区域
         self.enter_template_id: str = enter_template_id  # 子区域才会有 入口对应的模板ID
         self.enter_lm_pos: Point = enter_lm_pos  # 子区域才会有 在具体区域的哪个位置进入
-        if large_map_scale is None:
-            self.large_map_scale: int = 0 if parent is None else 5
-        else:
-            self.large_map_scale: int = large_map_scale
+        self.large_map_scale: int = 0 if large_map_scale is None else large_map_scale
 
     def __repr__(self):
         return '%s - %s' % (self.cn, self.id)
@@ -211,7 +208,7 @@ P04_R05_F3 = Region(5, "BRMJDMJ", "「白日梦」酒店-梦境", P04, floor=3)
 P04_R06_F1 = Region(6, "ZLGG", "朝露公馆", P04, floor=1)
 P04_R06_F2 = Region(6, "ZLGG", "朝露公馆", P04, floor=2)
 P04_R06_SUB_01 = Region(6, "CSSH", "城市沙盒", P04,
-                        parent=P04_R06_F1, enter_template_id='mm_sub_01', enter_lm_pos=Point(666, 693))
+                        parent=P04_R06_F1, enter_template_id='mm_sub_01', enter_lm_pos=Point(572, 455))
 P04_R07_F1 = Region(7, "KLKYSLY", "克劳克影视乐园", P04, floor=1)
 P04_R07_F2 = Region(7, "KLKYSLY", "克劳克影视乐园", P04, floor=2)
 P04_R08_F1 = Region(8, "LMJ", "流梦礁", P04, floor=1)
@@ -701,26 +698,26 @@ P04_R04_SP04 = TransportPoint('YTZLNZHEJ', '以太之蕾·拟造花萼（金）'
 P04_R04_SP05 = TransportPoint('CHDGDDS', '赤红大哥的「大树」', P04_R04, 'mm_sp_14', (572, 516))
 
 # 匹诺康尼 - 「白日梦」酒店-梦境
-P04_R05_SP01 = TransportPoint('JKS', '监控室', P04_R05_F1, 'mm_tp_03', (443, 713), (476, 675))
-P04_R05_SP02 = TransportPoint('MJDT', '梦境大堂', P04_R05_F1, 'mm_tp_03', (1469, 1482), (1439, 1527))
-P04_R05_SP03 = TransportPoint('FSFRDDS', '妃色夫人的「大树」', P04_R05_F1, 'mm_sp_14', (1382, 1457))
-P04_R05_SP04 = TransportPoint('XXHNXD', '小小哈努行动', P04_R05_F2, 'mm_sp_11', (526, 1018))
-P04_R05_SP05 = TransportPoint('JMJB', '惊梦酒吧', P04_R05_F3, 'mm_tp_03', (559, 284), (544, 315))
-P04_R05_SP06 = TransportPoint('BJKF', '铂金客房', P04_R05_F3, 'mm_tp_03', (1854, 944), (1828, 920))
-P04_R05_SP07 = TransportPoint('GBXXSZL', '贵宾休息室走廊', P04_R05_F3, 'mm_tp_03', (626, 995), (584, 1006))
-P04_R05_SP08 = TransportPoint('BNZXNZXY', '冰酿之形·凝滞虚影', P04_R05_F3, 'mm_tp_06', (274, 1007), (303, 1010))
-P04_R05_SP09 = TransportPoint('TXZLNZHEC', '同谐之蕾·拟造花萼（赤）', P04_R05_F3, 'mm_tp_07', (820, 1414), (820, 1422))
-P04_R05_SP10 = TransportPoint('CZZLNZHEJ', '藏珍之蕾·拟造花萼（金）', P04_R05_F3, 'mm_tp_08', (1636, 1865), (1641, 1867))
-P04_R05_SP11 = TransportPoint('MQZJQSSD', '梦潜之径·侵蚀隧洞', P04_R05_F3, 'mm_tp_09', (1874, 1809), (1871, 1806))
-P04_R05_SP12 = TransportPoint('RMC', '入梦池', P04_R05_F3, 'mm_sp_10', (1857, 920))
+P04_R05_SP01 = TransportPoint('JKS', '监控室', P04_R05_F1, 'mm_tp_03', (344, 524), tp_pos=(370, 496))
+P04_R05_SP02 = TransportPoint('MJDT', '梦境大堂', P04_R05_F1, 'mm_tp_03', (1178, 1107), tp_pos=(1155, 1140))
+P04_R05_SP03 = TransportPoint('FSFRDDS', '妃色夫人的「大树」', P04_R05_F1, 'mm_sp_14', (1107, 1088))
+P04_R05_SP04 = TransportPoint('XXHNXD', '小小哈努行动', P04_R05_F2, 'mm_sp_11', (411, 750))
+P04_R05_SP05 = TransportPoint('JMJB', '惊梦酒吧', P04_R05_F3, 'mm_tp_03', (437, 198), tp_pos=(425, 221))
+P04_R05_SP06 = TransportPoint('BJKF', '铂金客房', P04_R05_F3, 'mm_tp_03', (1491, 699), tp_pos=(1471, 681))
+P04_R05_SP07 = TransportPoint('GBXXSZL', '贵宾休息室走廊', P04_R05_F3, 'mm_tp_03', (493, 737), tp_pos=(459, 745))
+P04_R05_SP08 = TransportPoint('BNZXNZXY', '冰酿之形·凝滞虚影', P04_R05_F3, 'mm_tp_06', (206, 745), tp_pos=(230, 747))
+P04_R05_SP09 = TransportPoint('TXZLNZHEC', '同谐之蕾·拟造花萼（赤）', P04_R05_F3, 'mm_tp_07', (649, 1054), tp_pos=(651, 1059))
+P04_R05_SP10 = TransportPoint('CZZLNZHEJ', '藏珍之蕾·拟造花萼（金）', P04_R05_F3, 'mm_tp_08', (1314, 1397), tp_pos=(1318, 1398))
+P04_R05_SP11 = TransportPoint('MQZJQSSD', '梦潜之径·侵蚀隧洞', P04_R05_F3, 'mm_tp_09', (1507, 1354), tp_pos=(1504, 1352))
+P04_R05_SP12 = TransportPoint('RMC', '入梦池', P04_R05_F3, 'mm_sp_10', (1493, 680))
+P04_R05_SP13 = TransportPoint('TYBT', '调饮吧台', P04_R05_F3, 'mm_tp_17', (410, 273), tp_pos=(417, 273))
 
-P04_R06_SP01 = TransportPoint('MZDT', '梦主大厅', P04_R06_F1, 'mm_tp_03', (611, 681), tp_pos=(666, 722))
-P04_R06_SP02 = TransportPoint('CLJLDDS', '草绿经理的「大树」', P04_R06_F1, 'mm_sp_14', (677, 657))
-P04_R06_SP03 = TransportPoint('CSSPRK', '城市沙盘入口', P04_R06_F1, 'mm_sub_01', (666, 693))
-P04_R06_SP04 = TransportPoint('YBC', '迎宾处', P04_R06_F2, 'mm_tp_03', (690, 1354), tp_pos=(671, 1329))
+P04_R06_SP01 = TransportPoint('MZDT', '梦主大厅', P04_R06_F1, 'mm_tp_03', (535, 430), tp_pos=(576, 458))
+P04_R06_SP02 = TransportPoint('CLJLDDS', '草绿经理的「大树」', P04_R06_F1, 'mm_sp_14', (580, 415))
+P04_R06_SP03 = TransportPoint('YBC', '迎宾处', P04_R06_F2, 'mm_tp_03', (589, 856), tp_pos=(574, 846))
 
-P04_R06_SUB_01_SP01 = TransportPoint('CSSH', '城市沙盒', P04_R06_SUB_01, 'mm_tp_03', (946, 923), tp_pos=(975, 905))
-P04_R06_SUB_01_SP02 = TransportPoint('CNZXNZXY', '嗔怒之形·凝滞虚影', P04_R06_SUB_01, 'mm_tp_06', (659, 1074), tp_pos=(635, 1075))
+P04_R06_SUB_01_SP01 = TransportPoint('CSSH', '城市沙盒', P04_R06_SUB_01, 'mm_tp_03', (871, 607), tp_pos=(890, 596))
+P04_R06_SUB_01_SP02 = TransportPoint('CNZXNZXY', '嗔怒之形·凝滞虚影', P04_R06_SUB_01, 'mm_tp_06', (678, 708), tp_pos=(663, 710))
 
 P04_R07_SP01 = TransportPoint('YCDM', '影城大门', P04_R07_F1, 'mm_tp_03', (1244, 884), tp_pos=(1262, 910))
 P04_R07_SP02 = TransportPoint('HJDSK', '黄金的时刻', P04_R07_F1, 'mm_sp_02', (1272, 910))
@@ -842,7 +839,7 @@ REGION_2_SP = {
     P04_R04.pr_id: [P04_R04_SP01, P04_R04_SP02, P04_R04_SP03, P04_R04_SP04, P04_R04_SP05],
     P04_R05_F1.pr_id: [P04_R05_SP01, P04_R05_SP02, P04_R05_SP03, P04_R05_SP04, P04_R05_SP05, P04_R05_SP06, P04_R05_SP07, P04_R05_SP08, P04_R05_SP09, P04_R05_SP10,
                        P04_R05_SP11, P04_R05_SP12],
-    P04_R06_F1.pr_id: [P04_R06_SP01, P04_R06_SP02, P04_R06_SP03, P04_R06_SP04],
+    P04_R06_F1.pr_id: [P04_R06_SP01, P04_R06_SP02, P04_R06_SP03],
     P04_R06_SUB_01.pr_id: [P04_R06_SUB_01_SP01, P04_R06_SUB_01_SP02],
     P04_R07_F1.pr_id: [P04_R07_SP01, P04_R07_SP02, P04_R07_SP03, P04_R07_SP04, P04_R07_SP05, P04_R07_SP06, P04_R07_SP07, P04_R07_SP08, P04_R07_SP09, P04_R07_SP10,
                        P04_R07_SP11, P04_R07_SP12, P04_R07_SP13, P04_R07_SP14, P04_R07_SP15, P04_R07_SP16, P04_R07_SP17],

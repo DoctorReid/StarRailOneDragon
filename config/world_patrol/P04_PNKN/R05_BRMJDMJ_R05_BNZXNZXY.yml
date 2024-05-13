@@ -6,68 +6,72 @@ tp: '冰酿之形·凝滞虚影'
 route:
   - idx: 1
     op: 'move'
-    data: [357, 1006]
+    data: [289, 737]
   - idx: 2
-    op: 'disposable'
-  - idx: 3
     op: 'move'
-    data: [446, 1005]
+    data: [276, 748]
+  - idx: 3
+    op: 'disposable'
   - idx: 4
     op: 'move'
-    data: [446, 978]
+    data: [319, 745]
   - idx: 5
-    op: 'patrol'
+    op: 'move'
+    data: [347, 745]
   - idx: 6
     op: 'move'
-    data: [444, 1058]
+    data: [346, 714]
   - idx: 7
-    op: 'move'
-    data: [503, 1064]
-  - idx: 8
     op: 'patrol'
+  - idx: 8
+    op: 'move'
+    data: [346, 789]
   - idx: 9
     op: 'move'
-    data: [550, 1064]
+    data: [384, 791]
   - idx: 10
-    op: 'move'
-    data: [550, 1006]
+    op: 'patrol'
   - idx: 11
     op: 'move'
-    data: [604, 1007]
+    data: [433, 790]
   - idx: 12
     op: 'move'
-    data: [606, 1122]
+    data: [434, 745]
   - idx: 13
     op: 'move'
-    data: [606, 1158]
+    data: [476, 745]
   - idx: 14
     op: 'move'
-    data: [505, 1228]
+    data: [476, 831]
   - idx: 15
-    op: 'patrol'
+    op: 'move'
+    data: [472, 862]
   - idx: 16
     op: 'move'
-    data: [540, 1254]
+    data: [393, 906]
   - idx: 17
     op: 'patrol'
   - idx: 18
     op: 'move'
-    data: [601, 1247]
+    data: [449, 942]
   - idx: 19
     op: 'patrol'
   - idx: 20
     op: 'move'
-    data: [691, 1231]
+    data: [470, 912]
   - idx: 21
     op: 'move'
-    data: [769, 1231]
+    data: [545, 919]
   - idx: 22
     op: 'move'
-    data: [770, 1260]
+    data: [610, 917]
   - idx: 23
-    op: 'patrol'
-  - idx: 24
     op: 'move'
-    data: [773, 1303]
+    data: [622, 952]
+  - idx: 24
+    op: 'patrol'
   - idx: 25
+    op: 'move'
+    data: [620, 996]
+  - idx: 26
     op: 'patrol'

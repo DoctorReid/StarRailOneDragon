@@ -11,7 +11,7 @@ route:
     op: 'disposable'
   - idx: 3
     op: 'move'
-    data: [941, 473]
+    data: [940, 462]
   - idx: 4
     op: 'move'
     data: [964, 498]
@@ -46,4 +46,9 @@ route:
     op: 'move'
     data: [999, 389]
   - idx: 16
+    op: 'patrol'
+  - idx: 17
+    op: 'move'
+    data: [1028, 391]
+  - idx: 18
     op: 'patrol'

@@ -129,6 +129,7 @@ def get_sp_mask_by_template_match(lm_info: LargeMapInfo, im: ImageMatcher,
             template = ti.get(template_type)
             template_mask = ti.mask
 
+            # print(template_id)
             match_result = im.match_image(
                 source, template, mask=template_mask,
                 threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP,

@@ -4,25 +4,32 @@ region: '城市沙盒'
 floor: 0
 tp: '城市沙盒'
 route:
-  - op: 'move'
-    data: [968, 865]
-  - op: 'move'
-    data: [991, 840]
-  - op: 'move'
-    data: [1150, 839]
-  - op: 'move'
-    data: [1158, 813]
-  - op: 'patrol'
-  - op: 'move'
-    data: [1215, 800]
-  - op: 'patrol'
-  - op: 'move'
-    data: [1193, 756]
-  - op: 'move'
-    data: [1190, 646]
-  - op: 'move'
-    data: [1132, 551]
-  - op: 'patrol'
-  - op: 'move'
-    data: [1177, 548]
-  - op: 'patrol'
+  - idx: 1
+    op: 'move'
+    data: [900, 551]
+  - idx: 2
+    op: 'move'
+    data: [1002, 550]
+  - idx: 3
+    op: 'move'
+    data: [1010, 537]
+  - idx: 4
+    op: 'patrol'
+  - idx: 5
+    op: 'move'
+    data: [1059, 535]
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
+    data: [1034, 421]
+  - idx: 8
+    op: 'move'
+    data: [1035, 362]
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
+    data: [990, 344]
+  - idx: 11
+    op: 'patrol'

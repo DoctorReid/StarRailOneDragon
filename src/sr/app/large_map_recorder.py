@@ -606,8 +606,8 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 
 
 if __name__ == '__main__':
-    r = map_const.P04_R10_SUB_01_F2
-    # _row, _col = 4, 4
+    r = map_const.P04_R05_F1
+    # _row, _col = 7, 5
     # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
     # LargeMapRecorder.do_merge_1(r, _row, _col, show=True)
     # exit(0)

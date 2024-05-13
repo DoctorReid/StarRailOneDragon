@@ -6,68 +6,56 @@ tp: '梦主大厅'
 route:
   - idx: 1
     op: 'move'
-    data: [639, 733]
+    data: [555, 462]
   - idx: 2
     op: 'disposable'
   - idx: 3
     op: 'move'
-    data: [624, 632]
+    data: [543, 357]
   - idx: 4
     op: 'move'
-    data: [624, 556]
+    data: [520, 339]
   - idx: 5
-    op: 'slow_move'
-    data: [596, 553]
+    op: 'move'
+    data: [521, 294]
   - idx: 6
     op: 'move'
-    data: [595, 455]
+    data: [495, 289]
   - idx: 7
     op: 'move'
-    data: [562, 453]
+    data: [499, 323]
   - idx: 8
-    op: 'move'
-    data: [561, 504]
+    op: 'slow_move'
+    data: [502, 348, 2]
   - idx: 9
-    op: 'slow_move'
-    data: [563, 550, 2]
+    op: 'move'
+    data: [504, 433]
   - idx: 10
-    op: 'slow_move'
-    data: [563, 577]
+    op: 'patrol'
   - idx: 11
     op: 'move'
-    data: [560, 631]
+    data: [509, 462]
   - idx: 12
-    op: 'move'
-    data: [559, 682]
-  - idx: 13
     op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [506, 479]
   - idx: 14
     op: 'move'
-    data: [566, 736]
+    data: [553, 502]
   - idx: 15
     op: 'move'
-    data: [578, 733]
+    data: [598, 503]
   - idx: 16
-    op: 'patrol'
-  - idx: 17
     op: 'move'
-    data: [583, 760]
+    data: [641, 476]
+  - idx: 17
+    op: 'disposable'
   - idx: 18
     op: 'move'
-    data: [638, 799]
+    data: [647, 400]
   - idx: 19
     op: 'move'
-    data: [694, 798]
+    data: [626, 399]
   - idx: 20
-    op: 'move'
-    data: [767, 744]
-  - idx: 21
-    op: 'disposable'
-  - idx: 22
-    op: 'move'
-    data: [772, 625]
-  - idx: 23
-    op: 'move'
-    data: [753, 625]
-  - idx: 24
     op: 'patrol'

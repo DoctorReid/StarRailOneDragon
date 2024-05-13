@@ -20,11 +20,16 @@ route:
     data: [1132, 949]
   - idx: 6
     op: 'move'
-    data: [1089, 962]
+    data: [1117, 983]
   - idx: 7
     op: 'patrol'
   - idx: 8
     op: 'move'
-    data: [1076, 940]
+    data: [1087, 962]
   - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
+    data: [1074, 935]
+  - idx: 11
     op: 'patrol'
