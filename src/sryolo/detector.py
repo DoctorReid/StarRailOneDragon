@@ -327,7 +327,7 @@ class StarRailYOLO:
 
 
 _GH_PROXY_URL = 'https://mirror.ghproxy.com'
-_MODEL_DOWNLOAD_PATH = 'https://github.com/DoctorReid/StarRail-YOLO/releases/download/model_list'
+_MODEL_DOWNLOAD_PATH = 'https://github.com/DoctorReid/StarRail-YOLO/releases/download/model_download'
 
 _COLORS = np.random.default_rng(3).uniform(0, 255, size=(100, 3))
 
