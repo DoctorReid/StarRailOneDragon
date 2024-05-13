@@ -652,3 +652,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
                 len(self.existed_interact_word) > 0
                 and str_utils.find_by_lcs(self.existed_interact_word, gt('区域', 'ocr'), percent=0.1)
         )
+
+    def _after_operation_done(self, result: OperationResult):
+        super()._after_operation_done(result)
+        self.ctx.controller.stop_moving_forward()
