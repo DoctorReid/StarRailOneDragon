@@ -31,7 +31,7 @@ def find_by_lcs(source: str, target: str, percent: float = 0.3,
     :param ignore_case: 是否忽略大小写
     :return: 是否包含
     """
-    if source is None or target is None:
+    if source is None or target is None or len(source) == 0 or len(target) == 0:
         return False
     source_usage = source.lower() if ignore_case else source
     target_usage = target.lower() if ignore_case else target
