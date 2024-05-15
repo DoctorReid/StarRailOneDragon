@@ -11,6 +11,7 @@ from sr.operation.battle.click_challenge import ClickChallenge
 from sr.operation.battle.click_challenge_confirm import ClickChallengeConfirm
 from sr.operation.battle.click_start_challenge import ClickStartChallenge
 from sr.operation.combine.transport import Transport
+from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.wait import WaitInWorld
 from sr.screen_area.screen_battle import ScreenBattle
@@ -60,7 +61,8 @@ class ChallengeEchoOfWar(StateOperation):
         edges.append(StateOperationEdge(after_battle_result, confirm_again, status=ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value.status))
         edges.append(StateOperationEdge(confirm_again, wait_battle_result))
 
-        wait_esc = StateOperationNode('等待退出', op=WaitInWorld(ctx))
+        # 退出时 有可能弹出光锥 因此使用加强版返回
+        wait_esc = StateOperationNode('等待退出', op=BackToNormalWorldPlus(ctx))
         edges.append(StateOperationEdge(after_battle_result, wait_esc, status=ScreenBattle.AFTER_BATTLE_EXIT_BTN.value.status))
 
         self.ctx: Context = ctx
