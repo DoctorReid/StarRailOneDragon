@@ -17,6 +17,7 @@ from sr.one_dragon_config import GH_PROXY_URL
 
 SPECIFIED_VERSION_FILE_URL = 'https://github.com/DoctorReid/StarRailOneDragon/releases/download/%s/%s'
 
+
 @lru_cache
 def get_current_version() -> str:
     """
@@ -147,8 +148,11 @@ def do_update(version: Optional[str] = None, proxy: Optional[str] = None):
                         and new_version[key] == old_version[key]:
                     to_update.remove(key)
 
-    download_and_unzip(version, to_update, proxy=proxy)
-    move_temp_and_restart()
+    all_ok = download_and_unzip(version, to_update, proxy=proxy)
+    if all_ok:
+        move_temp_and_restart()
+    else:
+        log.error('部分文件下载解压失败 请重试')
 
 
 def download_file(filename, url,
@@ -217,26 +221,33 @@ def delete_old_files():
 
 
 def download_and_unzip(version: str, to_update: set[str] = None,
-                       proxy: Optional[str] = None):
+                       proxy: Optional[str] = None) -> bool:
     """
     下载所需的文件到 .temp 并解压
     :param version: 版本号
     :param to_update: 需要更新的模块
     :param proxy: 下载使用的代理地址
-    :return:
+    :return: 是否全部都下载解压成功
     """
     delete_old_files()
+    all_ok = True
     if to_update is None or 'requirements' in to_update:
         filename = 'StarRailOneDragon-%s.zip' % version
         url = SPECIFIED_VERSION_FILE_URL % (version, filename)
-        download_file(filename, url, proxy)
-        unzip(filename)
+        if download_file(filename, url, proxy):
+            unzip(filename)
+        else:
+            all_ok = False
+
     else:
         for module in to_update:
             filename = module + '.zip'
             url = SPECIFIED_VERSION_FILE_URL % (version, filename)
-            download_file(filename, url, proxy)
-            unzip(filename)
+            if download_file(filename, url, proxy):
+                unzip(filename)
+            else:
+                all_ok = False
+    return all_ok
 
 
 def move_temp_and_restart():
