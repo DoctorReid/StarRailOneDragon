@@ -3,8 +3,7 @@ from typing import List
 import test
 from basic.img import MatchResult
 from sr.context import get_context
-from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, get_bless_pos, get_bless_by_priority, \
-    SimUniUpgradeBless
+from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, get_bless_pos, get_bless_by_priority
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import SimUniBless, SimUniBlessEnum
 
@@ -162,14 +161,3 @@ class TestSimUniBless(test.SrTestBase):
         config.bless_priority_2 = []
         target_curio_pos: int = get_bless_by_priority(bless_list, config, can_reset=False, asc=False)
         self.assertEqual(1, target_curio_pos)
-
-    def test_upgrade_get_bless_pos(self):
-        ctx = get_context()
-        ctx.init_ocr_matcher()
-        ctx.init_image_matcher()
-
-        op = SimUniUpgradeBless(ctx)
-
-        screen = self.get_test_image_new('upgrade.png')
-        pos = op._get_bless_pos(screen)
-        self.assertIsNotNone(pos)

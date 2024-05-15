@@ -332,6 +332,7 @@ class SimUniUpgradeBless(StateOperation):
     UPGRADE_BTN: ClassVar[Rect] = Rect(1566, 960, 1862, 1011)  # 强化
     EXIT_BTN: ClassVar[Rect] = Rect(1829, 40, 1898, 95)  # 退出
     BLESS_RECT: ClassVar[Rect] = Rect(60, 216, 1368, 955)  # 所有祝福的框
+    LEFT_RECT: ClassVar[Rect] = Rect(1680, 50, 1770, 80)  # 剩余碎片的数字
 
     STATUS_UPGRADE: ClassVar[str] = '强化成功'
     STATUS_NO_UPGRADE: ClassVar[str] = '无法强化'
@@ -342,6 +343,10 @@ class SimUniUpgradeBless(StateOperation):
         :param ctx:
         """
         edges = []
+
+        check_left = StateOperationNode('识别剩余碎片', self._check_left)
+        check_upgrade = StateOperationNode('识别可升级祝福', self._check_can_upgrade)
+        edges.append(StateOperationEdge(check_left, check_upgrade))
 
         choose = StateOperationNode('选择祝福', self._choose_bless)
         upgrade = StateOperationNode('升级', self._upgrade)
@@ -362,9 +367,13 @@ class SimUniUpgradeBless(StateOperation):
                          specified_start_node=choose
                          )
 
-    def _choose_bless(self) -> OperationOneRoundResult:
+        self.left_num: int = 0  # 剩余碎片数量
+        self.upgrade_list: List[MatchResult] = []  # 可升级的祝福的点击位置
+        self.upgrade_idx: int = 0  # 当前需要升级的祝福下标
+
+    def _check_left(self) -> OperationOneRoundResult:
         """
-        选择一个祝福
+        识别剩余的碎片数量
         :return:
         """
         screen = self.screenshot()
@@ -372,26 +381,46 @@ class SimUniUpgradeBless(StateOperation):
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       upgrade_bless=True)
 
-        if state == screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
-            pos = self._get_bless_pos(screen)
-
-            if pos is None:
-                return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
-            else:
-                self.ctx.controller.click(pos)
-                return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE)
-        else:
+        if state != screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
             return Operation.round_retry('未在祝福强化页面', wait=1)
 
-    def _get_bless_pos(self, screen: MatLike) -> Optional[Point]:
+        num = self._get_left_num(screen)
+        if num is None:
+            return Operation.round_retry('识别剩余碎片失败', wait=1)
+        else:
+            self.left_num = num
+            return Operation.round_success()
+
+    def _get_left_num(self, screen: MatLike) -> Optional[int]:
+        """
+        识别剩余的碎片数量
+        :return:
+        """
+        part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.LEFT_RECT)
+        digit_str = self.ctx.ocr.ocr_for_single_line(part)
+        return str_utils.get_positive_digits(digit_str, err=None)
+
+    def _check_can_upgrade(self) -> OperationOneRoundResult:
+        """
+        识别可升级的祝福 按剩余碎片数量保留
+        :return:
+        """
+        screen = self.screenshot()
+        self._get_bless_pos_list(screen)
+
+        return Operation.round_success()
+
+    def _get_bless_pos_list(self, screen: MatLike) -> None:
         """
         获取一个可以强化的祝福位置
         :param screen: 屏幕截图
-        :return:
+        :return: 可强化的祝福列表 每个元素对应碎片数量的识别结果 MatchResult.data=升级祝福需要的碎片
         """
         part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.BLESS_RECT)
         money_icon_mrl = self.ctx.im.match_template(part, 'store_money', template_sub_dir='sim_uni',
                                                     ignore_template_mask=True,   threshold=0.65, only_best=False)
+
+        total_num: int = 0  # 当前累计使用的碎片数量
         # cv2_utils.show_image(part, money_icon_mrl, win_name='all')
         for mr in money_icon_mrl:
             lt = SimUniUpgradeBless.BLESS_RECT.left_top + mr.center + Point(15, -15)
@@ -402,10 +431,33 @@ class SimUniUpgradeBless(StateOperation):
             # cv2_utils.show_image(white_part, win_name='digit_part', wait=0)
             ocr_result = self.ctx.ocr.ocr_for_single_line(white_part)
             digit = str_utils.get_positive_digits(ocr_result, 0)
-            if digit != 0:
-                return digit_rect.center
+            if digit == 0:
+                continue
+            if total_num + digit > self.left_num:
+                break
+            total_num += digit
+            self.upgrade_list.append(MatchResult(1, digit_rect.x1, digit_rect.x2, digit_rect.width, digit_rect.height,
+                                                 data=digit))
 
-        return None
+    def _choose_bless(self) -> OperationOneRoundResult:
+        """
+        选择一个祝福
+        :return:
+        """
+        if self.upgrade_idx >= len(self.upgrade_list):
+            return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
+
+        screen = self.screenshot()
+
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      upgrade_bless=True)
+
+        if state != screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
+            return Operation.round_retry('未在祝福强化页面', wait=1)
+
+        self.ctx.controller.click(self.upgrade_list[self.upgrade_idx].center)
+        self.upgrade_idx += 1
+        return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=0.2)
 
     def _upgrade(self) -> OperationOneRoundResult:
         """
