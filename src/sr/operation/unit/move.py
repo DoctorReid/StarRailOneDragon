@@ -30,8 +30,8 @@ class GetRidOfStuck(Operation):
         以下方式各尝试2遍
         1. 往左 然后往前走
         2. 往右 然后往前走
-        3. 往后再往左 然后往前走
-        4. 往后再往右 然后往前走
+        3. 往后再往右 然后往前走  # 注意这里左右顺序要跟上面相反 可以防止一左一右还卡在原处
+        4. 往后再往左 然后往前走
         5. 往左再往后再往右 然后往前走
         6. 往右再往后再往左 然后往前走
         :param ctx:
@@ -61,7 +61,7 @@ class GetRidOfStuck(Operation):
             ctrl.start_moving_forward()
             time.sleep(1)
             total_time = walk_sec + 1
-        elif try_method == 3:  # 后左 前
+        elif try_method == 4:  # 后左 前  # 注意这里左右顺序要跟1, 2相反 可以防止一左一右还卡在原处
             walk_sec = try_move_unit * move_unit_sec
             ctrl.move('s', walk_sec)
             ctrl.move('a', walk_sec)
@@ -69,7 +69,7 @@ class GetRidOfStuck(Operation):
             ctrl.start_moving_forward()
             time.sleep(1)
             total_time = walk_sec * 3 + 1
-        elif try_method == 4:  # 后右 前
+        elif try_method == 3:  # 后右 前
             walk_sec = try_move_unit * move_unit_sec
             ctrl.move('s', walk_sec)
             ctrl.move('d', walk_sec)
@@ -363,9 +363,14 @@ class MoveDirectly(Operation):
         if len(self.pos) == 0:  # 第一个可以直接使用开始点 不进行计算
             return self.start_pos, mm_info
 
+        # 正确移动时 人物不应该偏离直线太远
+        # 攻击后 可能因为攻击产生了位移 允许远一点
+        # 脱困移动时 会向左右移动 允许远一点
+        max_line_distance = 40 if self.ctx.pos_info.first_cal_pos_after_fight or self.stuck_times > 0 else 20
         verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
                                line_p1=self.start_pos, line_p2=self.target,
-                               max_line_distance=40 if self.ctx.pos_info.first_cal_pos_after_fight else 20)
+                               max_line_distance=max_line_distance
+                               )
         try:
             real_move_time = self.ctx.controller.get_move_time()
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
