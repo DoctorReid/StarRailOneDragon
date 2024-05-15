@@ -64,6 +64,7 @@ class UseTrailblazePower(StateOperation):
         after_battle_result = StateOperationNode('战斗结果处理', self._after_battle_result)
         edges.append(StateOperationEdge(wait_battle_result, after_battle_result, ignore_status=True))
 
+        # 再来一次的确认 在有角色阵亡时候会弹出来
         confirm_again = StateOperationNode('确认再来一次', self._confirm_again)
         edges.append(StateOperationEdge(after_battle_result, confirm_again, status=ScreenBattle.AFTER_BATTLE_CHALLENGE_AGAIN_BTN.value.status))
         edges.append(StateOperationEdge(confirm_again, wait_battle_result))
