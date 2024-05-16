@@ -58,7 +58,7 @@ def turn_by_angle_slowly(ctx: Context, turn_angle: float) -> float:
     缓慢转向 有一个最大的转向角度
     :param ctx: 上下文
     :param turn_angle: 转向角度
-    :return:
+    :return: 真实转向角度
     """
     # 由于目前没有距离的推测 不要一次性转太多角度
     if turn_angle > _MAX_TURN_ANGLE:
@@ -495,7 +495,7 @@ class SimUniMoveToInteractByDetect(Operation):
         self.no_detect_times = 0
         target = pos_list[0]  # 先固定找第一个
         turn_angle = turn_to_detected_object(self.ctx, target)
-        if abs(turn_angle) >= _MAX_TURN_ANGLE * 2:  # 转向较大时 先完成转向再开始移动
+        if abs(turn_angle) >= _MAX_TURN_ANGLE:  # 转向较大时 先完成转向再开始移动
             return Operation.round_wait()
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()

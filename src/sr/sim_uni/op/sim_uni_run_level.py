@@ -154,13 +154,18 @@ class SimUniRunLevel(StateOperation):
                 self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value or \
                 self.level_type == SimUniLevelTypeEnum.RESPITE.value:
             if self.ctx.one_dragon_config.is_debug:  # 调试切换到新方法
-                return SimUniRunEventRouteV2(self.ctx, self.level_type)
+                if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+                    return SimUniRunRespiteRouteV2(self.ctx, self.level_type)
+                else:
+                    return SimUniRunEventRouteV2(self.ctx, self.level_type)
             else:
                 return SimUniRunInteractRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
             if self.ctx.one_dragon_config.is_debug:  # 调试切换到新方法
-                return SimUniRunRespiteRouteV2(self.ctx, self.level_type)
+                return SimUniRunEliteRouteV2(self.ctx, self.level_type,
+                                             max_reward_to_get=self.max_reward_to_get,
+                                             get_reward_callback=self.get_reward_callback)
             else:
                 return SimUniRunEliteRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config,
                                            max_reward_to_get=self.max_reward_to_get,
