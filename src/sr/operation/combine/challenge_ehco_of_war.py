@@ -70,11 +70,9 @@ class ChallengeEchoOfWar(StateOperation):
         self.team_num: int = team_num
         self.on_battle_success = on_battle_success
 
-        ops: List[Operation] = [
-            WaitInWorld(self.ctx),  # 等待主界面
-        ]
-
-        super().__init__(ctx, ops, op_name='%s %s %d' % (gt(tp.cn, 'ui'), gt('次数', 'ui'), plan_times))
+        super().__init__(ctx,
+                         op_name='%s %s %d' % (gt(tp.cn, 'ui'), gt('次数', 'ui'), plan_times),
+                         edges=edges)
 
         self.plan_times: int = plan_times  # 计划挑战次数
         self.battle_fail_times: int = 0  # 战斗失败次数
