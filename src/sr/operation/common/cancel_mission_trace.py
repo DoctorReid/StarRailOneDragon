@@ -28,7 +28,7 @@ class CancelMissionTrace(StateOperation):
         edges.append(StateOperationEdge(open_mission, cancel_trace, status=CancelMissionTrace.STATUS_TO_CANCEL))
 
         # 点击取消之后 返回大世界
-        back = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(self.ctx))
+        back = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx))
         edges.append(StateOperationEdge(cancel_trace, back, status=CancelMissionTrace.STATUS_CANCELLED))
 
         # 点击失败的情况 也兜底返回大世界 不卡死后续操作

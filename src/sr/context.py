@@ -508,6 +508,7 @@ class Context:
         :return:
         """
         self.pos_info.large_map_scale = 5
+        self.pos_info.cancel_mission_trace = False
         self.no_technique_recover_consumables = False
 
     def init_before_app_start(self):
