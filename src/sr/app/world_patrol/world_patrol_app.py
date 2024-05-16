@@ -12,6 +12,7 @@ from sr.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
+from sr.operation.common.cancel_mission_trace import CancelMissionTrace
 from sr.operation.unit.team import SwitchMember, ChooseTeamInWorld
 
 
@@ -25,9 +26,12 @@ class WorldPatrol(Application):
                  team_num: Optional[int] = None):
         edges: List[StateOperationEdge] = []
 
-        world = StateOperationNode('返回大世界', self._back_to_world)
+        world = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx))
+        cancel_trace = StateOperationNode('取消任务追踪', op=CancelMissionTrace(ctx))
+        edges.append(StateOperationEdge(world, cancel_trace))
+
         team = StateOperationNode('选择配队', self._choose_team)
-        edges.append(StateOperationEdge(world, team))
+        edges.append(StateOperationEdge(cancel_trace, team))
 
         switch = StateOperationNode('切换1号位', op=SwitchMember(ctx, 1))
         edges.append(StateOperationEdge(team, switch))
@@ -72,14 +76,6 @@ class WorldPatrol(Application):
         """
         self.ctx.ih.preheat_for_world_patrol()
         mini_map.preheat()
-
-    def _back_to_world(self) -> OperationOneRoundResult:
-        """
-        确保在大世界中再启动
-        :return:
-        """
-        op = BackToNormalWorldPlus(self.ctx)
-        return Operation.round_by_op(op.execute())
 
     def _choose_team(self) -> OperationOneRoundResult:
         """

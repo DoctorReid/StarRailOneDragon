@@ -34,3 +34,5 @@ class ScreenNormalWorld(Enum):
 
     MOVE_INTERACT = ScreenArea(pc_rect=Rect(900, 400, 1450, 870))  # 可移动时的交互框位置
     MOVE_INTERACT_SINGLE_LINE = ScreenArea(pc_rect=Rect(1174, 598, 1558, 647))  # 可移动时的交互框位置 - 单行文本
+
+    TRACE_MISSION_ICON = ScreenArea(pc_rect=Rect(25, 285, 55, 310))  # 左边 任务追踪时出现的图标

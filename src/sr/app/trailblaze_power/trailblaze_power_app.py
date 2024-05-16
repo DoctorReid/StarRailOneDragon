@@ -15,6 +15,7 @@ from sr.image.sceenshot import large_map
 from sr.operation import StateOperationNode, StateOperationEdge, OperationOneRoundResult, Operation
 from sr.operation.combine.use_trailblaze_power import UseTrailblazePower
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
+from sr.operation.common.cancel_mission_trace import CancelMissionTrace
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
 from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission, \
@@ -38,8 +39,12 @@ class TrailblazePower(Application):
         edges = []
 
         world = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx))
+
+        cancel_trace = StateOperationNode('取消任务追踪', op=CancelMissionTrace(ctx))
+        edges.append(StateOperationEdge(world, cancel_trace))
+
         check_task = StateOperationNode('检查当前需要挑战的关卡', self._check_task)
-        edges.append(StateOperationEdge(world, check_task))
+        edges.append(StateOperationEdge(cancel_trace, check_task))
 
         check_normal_power = StateOperationNode('检查剩余开拓力', self._check_power_for_normal)
         edges.append(StateOperationEdge(check_task, check_normal_power, status=TrailblazePower.STATUS_NORMAL_TASK))

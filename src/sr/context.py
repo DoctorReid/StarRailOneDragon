@@ -61,6 +61,9 @@ class PosInfo:
         self.planet: Planet = planet
         self.region: Region = region
 
+        self.cancel_mission_trace: bool = False
+        """是否已经取消了任务追踪"""
+
         self.first_cal_pos_after_fight: bool = False
 
 

@@ -16,6 +16,7 @@ from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexMissi
 from sr.operation import Operation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.combine.challenge_ehco_of_war import ChallengeEchoOfWar
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
+from sr.operation.common.cancel_mission_trace import CancelMissionTrace
 from sr.operation.unit.open_map import OpenMap
 
 
@@ -26,8 +27,11 @@ class EchoOfWarApp(Application):
 
         world = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx))
 
+        cancel_trace = StateOperationNode('取消任务追踪', op=CancelMissionTrace(ctx))
+        edges.append(StateOperationEdge(world, cancel_trace))
+
         open_map = StateOperationNode('打开地图', op=OpenMap(ctx))
-        edges.append(StateOperationEdge(world, open_map))
+        edges.append(StateOperationEdge(cancel_trace, open_map))
 
         check_power = StateOperationNode('检查体力', self._check_power)
         edges.append(StateOperationEdge(open_map, check_power))
