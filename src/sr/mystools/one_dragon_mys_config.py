@@ -4,11 +4,13 @@ from typing import Optional, List
 
 from basic.config import ConfigHolder
 from basic.log_utils import log
-from sr.mystools import PluginDataManager, get_validate, CreateMobileCaptchaStatus, UserData, UserAccount, \
-    BaseGameSign, StarRailSign, plugin_config, get_missions_state, BaseMission, StarRailMission
-from sr.mystools.api.common import create_mmt, create_mobile_captcha, get_login_ticket_by_captcha, get_device_fp, \
-    get_multi_token_by_login_ticket, get_stoken_v2_by_v1, get_ltoken_by_stoken, get_cookie_token_by_stoken, \
-    starrail_note, get_game_record
+from sr.mystools import PluginDataManager, get_validate, UserData, UserAccount, \
+    BaseGameSign, StarRailSign, plugin_config, get_missions_state, BaseMission, generate_device_id, \
+    generate_qr_img, BBSCookies
+from sr.mystools.api.common import get_device_fp, \
+    get_ltoken_by_stoken, get_cookie_token_by_stoken, \
+    starrail_note, get_game_record, fetch_game_token_qrcode, query_game_token_qrcode, get_token_by_game_token, \
+    get_cookie_token_by_game_token
 from sr.mystools.model.common import StarRailNoteExpedition, MissionStatus
 
 
@@ -17,105 +19,121 @@ class MysConfig(ConfigHolder):
     def __init__(self, account_idx: Optional[int] = None):
         super().__init__('mys', account_idx=account_idx, sample=False)
         self._user_id: str = '%02d' % account_idx if account_idx is not None else '00'
-        self._mys_conf = PluginDataManager.plugin_data
         self._login_expired: bool = False
 
-    def try_captcha(self, phone_number: str) -> bool:
-        _tmp_device_id, captcha_result = asyncio.run(self.get_device_id_and_try_captcha(phone_number))
-        self.device_id = _tmp_device_id
-        return captcha_result
+    def get_device_id_and_qrcode(self) -> Optional[str]:
+        """
+        获取二维码
+        :return:
+        """
+        # 获取用户数据对象
+        user_id = self._user_id
+        PluginDataManager.plugin_data.users.setdefault(user_id, UserData())
 
-    def login(self, phone_number: str, captcha: str) -> bool:
-        if asyncio.run(self.do_login(phone_number, self.device_id, captcha)):
-            self.phone_number = phone_number
-            return True
+        # 1. 获取 GameToken 登录二维码
+        self.device_id = generate_device_id()
+        login_status, fetch_qrcode_ret = asyncio.run(
+            fetch_game_token_qrcode(self.device_id, plugin_config.preference.game_token_app_id)
+        )
+        if fetch_qrcode_ret:
+            qrcode_url, self.qrcode_ticket = fetch_qrcode_ret
+            return generate_qr_img(qrcode_url)
         else:
-            return False
+            return None
 
     def logout(self):
-        self.phone_number = ''
         self._login_expired = True
 
-    async def get_device_id_and_try_captcha(self, phone: str):
-        user = self._mys_conf.users.get(self._user_id)
-        if user:
-            account_filter = filter(lambda x: x.phone_number == phone, user.accounts.values())
-            account = next(account_filter, None)
-            device_id = account.phone_number if account else None
-        else:
-            device_id = None
-        mmt_status, mmt_data, device_id, _ = await create_mmt(device_id=device_id, retry=False)
-        if mmt_status:
-            if not mmt_data.gt:
-                captcha_status, _ = await create_mobile_captcha(phone_number=phone, mmt_data=mmt_data,
-                                                                device_id=device_id)
-                if captcha_status:
-                    log.info("检测到无需进行人机验证，已发送短信验证码，请查收")
-                    return device_id, True
-            else:
-                captcha_status = CreateMobileCaptchaStatus()
-            if captcha_status.invalid_phone_number:
-                log.info("⚠️手机号无效，请重新发送手机号")
-            elif captcha_status.not_registered:
-                log.info("⚠️手机号未注册，请注册后重新发送手机号")
+    def wait_qrcode_login(self) -> bool:
+        """
+        等待二维码登录
+        :return:
+        """
+        user_id = self._user_id
+        device_id = self.device_id
+        qrcode_ticket = self.qrcode_ticket
+        PluginDataManager.plugin_data.users.setdefault(user_id, UserData())
+        user = PluginDataManager.plugin_data.users[user_id]
 
-        log.info('2.前往米哈游官方登录页，获取验证码（不要登录！）')
-        return device_id, False
+        # 2. 从二维码登录获取 GameToken
+        qrcode_query_times = round(
+            plugin_config.preference.qrcode_wait_time / plugin_config.preference.qrcode_query_interval
+        )
+        bbs_uid, game_token = None, None
+        for _ in range(qrcode_query_times):
+            log.info('等待二维码登录中')
+            login_status, query_qrcode_ret = asyncio.run(
+                query_game_token_qrcode(qrcode_ticket, device_id, plugin_config.preference.game_token_app_id)
+            )
+            if query_qrcode_ret:
+                bbs_uid, game_token = query_qrcode_ret
+                log.info(f"用户 {bbs_uid} 成功获取 game_token: {game_token}")
+                break
+            elif login_status.qrcode_expired:
+                log.error('二维码已过期，登录失败')
+            elif not login_status:
+                time.sleep(plugin_config.preference.qrcode_query_interval)
 
-    async def do_login(self, phone_number: str, device_id: str, captcha: str) -> bool:
-        self._mys_conf.users.setdefault(self._user_id, UserData())
-        user = self._mys_conf.users[self._user_id]
-        # 1. 通过短信验证码获取 login_ticket / 使用已有 login_ticket
-        login_status, cookies = await get_login_ticket_by_captcha(phone_number, int(captcha), device_id)
-        if login_status:
-            log.info(f"用户 {cookies.bbs_uid} 成功获取 login_ticket: {cookies.login_ticket}")
-            account = self._mys_conf.users[self._user_id].accounts.get(cookies.bbs_uid)
+        if bbs_uid and game_token:
+            cookies = BBSCookies()
+            cookies.bbs_uid = bbs_uid
+            account = PluginDataManager.plugin_data.users[user_id].accounts.get(bbs_uid)
             """当前的账户数据对象"""
             if not account or not account.cookies:
                 user.accounts.update({
-                    cookies.bbs_uid: UserAccount(phone_number=phone_number, cookies=cookies, device_id_ios=device_id,
-                                                 mission_games=[StarRailMission.__name__])
+                    bbs_uid: UserAccount(
+                        phone_number=None,
+                        cookies=cookies,
+                        device_id_ios=device_id,
+                        device_id_android=generate_device_id())
                 })
-                account = user.accounts[cookies.bbs_uid]
+                account = user.accounts[bbs_uid]
             else:
                 account.cookies.update(cookies)
-            fp_status, account.device_fp = await get_device_fp(device_id)
+
+            fp_status, account.device_fp = asyncio.run(get_device_fp(device_id))
             if fp_status:
-                log.info(f"用户 {cookies.bbs_uid} 成功获取 device_fp: {account.device_fp}")
+                log.info(f"用户 {bbs_uid} 成功获取 device_fp: {account.device_fp}")
             PluginDataManager.write_plugin_data()
 
-            # 2. 通过 login_ticket 获取 stoken 和 ltoken
-            if login_status or account:
-                login_status, cookies = await get_multi_token_by_login_ticket(account.cookies)
+            if login_status:
+                # 3. 通过 GameToken 获取 stoken_v2
+                login_status, cookies = asyncio.run(get_token_by_game_token(bbs_uid, game_token))
                 if login_status:
-                    log.info(f"用户 {phone_number} 成功获取 stoken: {cookies.stoken}")
+                    log.info(f"用户 {bbs_uid} 成功获取 stoken_v2: {cookies.stoken_v2}")
                     account.cookies.update(cookies)
                     PluginDataManager.write_plugin_data()
 
-                    # 3. 通过 stoken_v1 获取 stoken_v2 和 mid
-                    login_status, cookies = await get_stoken_v2_by_v1(account.cookies, device_id)
-                    if login_status:
-                        log.info(f"用户 {phone_number} 成功获取 stoken_v2: {cookies.stoken_v2}")
-                        account.cookies.update(cookies)
-                        PluginDataManager.write_plugin_data()
-
-                        # 4. 通过 stoken_v2 获取 ltoken
-                        login_status, cookies = await get_ltoken_by_stoken(account.cookies, device_id)
+                    if account.cookies.stoken_v2:
+                        # 5. 通过 stoken_v2 获取 ltoken
+                        login_status, cookies = asyncio.run(get_ltoken_by_stoken(account.cookies, device_id))
                         if login_status:
-                            log.info(f"用户 {phone_number} 成功获取 ltoken: {cookies.ltoken}")
+                            log.info(f"用户 {bbs_uid} 成功获取 ltoken: {cookies.ltoken}")
                             account.cookies.update(cookies)
                             PluginDataManager.write_plugin_data()
 
-                            # 5. 通过 stoken_v2 获取 cookie_token
-                            login_status, cookies = await get_cookie_token_by_stoken(account.cookies, device_id)
-                            if login_status:
-                                log.info(f"用户 {phone_number} 成功获取 cookie_token: {cookies.cookie_token}")
-                                account.cookies.update(cookies)
-                                PluginDataManager.write_plugin_data()
+                        # 6.1. 通过 stoken_v2 获取 cookie_token
+                        login_status, cookies = asyncio.run(get_cookie_token_by_stoken(account.cookies, device_id))
+                        if login_status:
+                            log.info(f"用户 {bbs_uid} 成功获取 cookie_token: {cookies.cookie_token}")
+                            account.cookies.update(cookies)
+                            PluginDataManager.write_plugin_data()
 
-                                log.info(f"米游社账户 {phone_number} 绑定成功")
-                                return True
-        return False
+                            log.info(f"{plugin_config.preference.log_head}米游社账户 {bbs_uid} 绑定成功")
+                    else:
+                        # 6.2. 通过 GameToken 获取 cookie_token
+                        login_status, cookies = asyncio.run(get_cookie_token_by_game_token(bbs_uid, game_token))
+                        if login_status:
+                            log.info(f"用户 {bbs_uid} 成功获取 cookie_token: {cookies.cookie_token}")
+                            account.cookies.update(cookies)
+                            PluginDataManager.write_plugin_data()
+        else:
+            log.error("️获取二维码扫描状态超时，请尝试重新登录")
+
+        success = login_status is not None
+        if success:
+            self.phone_number = account.phone_number
+        return success
 
     def update_note(self) -> bool:
         """
@@ -157,7 +175,7 @@ class MysConfig(ConfigHolder):
 
             expeditions = []
             for e in note.expeditions:
-                expeditions.append(e.model_dump())
+                expeditions.append(e.dict())
             self.update('expeditions', expeditions, False)
 
             self.save()
@@ -167,15 +185,23 @@ class MysConfig(ConfigHolder):
 
     @property
     def user_account(self) -> Optional[UserAccount]:
-        if self._user_id not in self._mys_conf.users:
+        if self._user_id not in PluginDataManager.plugin_data.users:
             return None
 
-        user = self._mys_conf.users[self._user_id]
+        user = PluginDataManager.plugin_data.users[self._user_id]
         for account in user.accounts.values():
             if account.phone_number == self.phone_number:
                 return account
 
         return None
+
+    @property
+    def phone_number(self) -> str:
+        return self.get('phone_number', '')
+
+    @phone_number.setter
+    def phone_number(self, new_value: str):
+        self.update('phone_number', new_value)
 
     @property
     def device_id(self) -> str:
@@ -186,17 +212,12 @@ class MysConfig(ConfigHolder):
         self.update('device_id', new_value)
 
     @property
-    def phone_number(self) -> str:
-        return self.get('phone_num', '')
+    def qrcode_ticket(self) -> str:
+        return self.get('qrcode_ticket', '')
 
-    @phone_number.setter
-    def phone_number(self, new_value):
-        """
-        当前使用的手机号
-        :param new_value:
-        :return:
-        """
-        self.update('phone_num', new_value)
+    @qrcode_ticket.setter
+    def qrcode_ticket(self, new_value: str):
+        self.update('qrcode_ticket', new_value)
 
     @property
     def is_login(self) -> bool:
@@ -289,7 +310,7 @@ class MysConfig(ConfigHolder):
         e_arr = self.get('expeditions', [])
         expeditions: List[StarRailNoteExpedition] = []
         for e in e_arr:
-            expeditions.append(StarRailNoteExpedition.model_validate(e))
+            expeditions.append(StarRailNoteExpedition.parse_obj(e))
 
         return expeditions
 

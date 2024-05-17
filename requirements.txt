@@ -8,7 +8,7 @@ pyinstaller==6.1.0
 schedule==1.2.1
 tenacity==8.2.3
 pydantic-settings==2.1.0
-pydantic==2.5.2
+pydantic==1.10.14
 paddlepaddle==2.5.2
 scipy==1.13.0
 whl//Shapely-1.8.2-cp311-cp311-win_amd64.whl  # https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely

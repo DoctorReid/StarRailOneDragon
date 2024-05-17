@@ -3,10 +3,8 @@ from datetime import time, timedelta, datetime
 from pathlib import Path
 from typing import Union, Optional, Tuple, Any, Dict, TYPE_CHECKING
 
-from pydantic import BaseModel, validator
-from pydantic_settings import BaseSettings
+from pydantic import BaseModel, BaseSettings, validator
 
-from basic.log_utils import log
 from ..model.common import data_path
 
 if TYPE_CHECKING:
@@ -69,7 +67,9 @@ class Preference(BaseModel):
     '''每日自动签到和米游社任务的定时任务执行时间，格式为HH:MM'''
     resin_interval: int = 60
     '''每次检查原神便笺间隔，单位为分钟'''
-    geetest_url: Optional[str] = ''
+    global_geetest: bool = True
+    '''是否开启使用全局极验Geetest，默认开启'''
+    geetest_url: Optional[str]
     '''极验Geetest人机验证打码接口URL'''
     geetest_params: Optional[Dict[str, Any]] = None
     '''极验Geetest人机验证打码API发送的参数（除gt，challenge外）'''
@@ -92,6 +92,12 @@ class Preference(BaseModel):
     """是否启用管理员名单"""
     admin_list_path: Optional[Path] = data_path / "admin_list.txt"
     """管理员名单文件路径"""
+    game_token_app_id: str = "1"
+    """米游社二维码登录的应用标识符（可用的任何值都没有区别，但是必须传递此参数）"""
+    qrcode_query_interval: float = 1
+    """检查米游社登录二维码扫描情况的请求间隔（单位：秒）"""
+    qrcode_wait_time: float = 120
+    """等待米游社登录二维码扫描的最长时间（单位：秒）"""
 
     @validator("log_path", allow_reuse=True)
     def _(cls, v: Optional[Path]):
@@ -101,9 +107,9 @@ class Preference(BaseModel):
             try:
                 os.makedirs(absolute_parent, exist_ok=True)
             except PermissionError:
-                log.warning(f"程序没有创建日志目录 {absolute_parent} 的权限")
+                logger.warning(f"程序没有创建日志目录 {absolute_parent} 的权限")
         elif not os.access(absolute_path, os.W_OK):
-            log.warning(f"程序没有写入日志文件 {absolute_path} 的权限")
+            logger.warning(f"程序没有写入日志文件 {absolute_path} 的权限")
         return v
 
     @property
@@ -161,6 +167,9 @@ class SaltConfig(BaseModel):
     SALT_PROD: str = "JwYDpKvLj6MrMqqYU6jTKF17KNO2PXoS"
     '''PROD - 账号相关'''
 
+    class Config(Preference.Config):
+        pass
+
 
 class DeviceConfig(BaseModel):
     """
@@ -217,15 +226,22 @@ class DeviceConfig(BaseModel):
     UA_PLATFORM: str = "\"macOS\""
     '''Headers所用的 sec-ch-ua-platform'''
 
+    class Config(Preference.Config):
+        pass
+
 
 class PluginConfig(BaseSettings):
-    preference: Preference = Preference()
-    good_list_image_config: GoodListImageConfig = GoodListImageConfig()
+    preference = Preference()
+    good_list_image_config = GoodListImageConfig()
 
 
 class PluginEnv(BaseSettings):
-    salt_config: SaltConfig = SaltConfig()
-    device_config: DeviceConfig = DeviceConfig()
+    salt_config = SaltConfig()
+    device_config = DeviceConfig()
+
+    class Config(BaseSettings.Config):
+        env_prefix = "mystool_"
+        env_file = '.env'
 
 
 if plugin_config_path.exists() and plugin_config_path.is_file():
@@ -233,15 +249,22 @@ if plugin_config_path.exists() and plugin_config_path.is_file():
 else:
     plugin_config = PluginConfig()
     try:
-        str_data = plugin_config.model_dump_json(indent=4)
+        str_data = plugin_config.json(indent=4)
         plugin_config_path.parent.mkdir(parents=True, exist_ok=True)
         with open(plugin_config_path, "w", encoding="utf-8") as f:
             f.write(str_data)
     except (AttributeError, TypeError, ValueError, PermissionError):
-        log.exception(f"创建插件配置文件失败，请检查是否有权限读取和写入 {plugin_config_path}")
+        logger.exception(f"创建插件配置文件失败，请检查是否有权限读取和写入 {plugin_config_path}")
         raise
     else:
-        log.info(f"插件配置文件 {plugin_config_path} 不存在，已创建默认插件配置文件。")
+        logger.info(f"插件配置文件 {plugin_config_path} 不存在，已创建默认插件配置文件。")
+
+# TODO: 可能产生 #271 的问题 https://github.com/Ljzd-PRO/nonebot-plugin-mystool/issues/271
+# @_driver.on_startup
+# def _():
+#     """将 ``PluginMetadata.config`` 设为定义的插件配置对象 ``plugin_config``"""
+#     plugin = nonebot.plugin.get_plugin(plugin_config.preference.plugin_name)
+#     plugin.metadata.config = plugin_config
 
 
 plugin_env = PluginEnv()

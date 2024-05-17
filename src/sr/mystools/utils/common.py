@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import io
 import json
@@ -14,16 +15,28 @@ from urllib.parse import urlencode
 
 import httpx
 import tenacity
+
+from basic import log_utils
+
+try:
+    from loguru import Logger
+except ImportError:
+    Logger = None
+    pass
+
 from qrcode import QRCode
 
-from basic.log_utils import log
 from ..model import GeetestResult, PluginDataManager, Preference, plugin_config, plugin_env, UserData
 
-__all__ = ["custom_attempt_times",
+__all__ = ["logger", "custom_attempt_times",
            "get_async_retry", "generate_device_id", "cookie_str_to_dict", "cookie_dict_to_str", "generate_ds",
            "get_validate", "generate_seed_id", "generate_fp_locally", "get_file", "blur_phone", "generate_qr_img",
            "get_unique_users", "get_all_bind", "read_blacklist", "read_whitelist",
            "read_admin_list"]
+
+
+logger = log_utils.log
+"""本插件所用日志记录器对象（包含输出到文件）"""
 
 
 def custom_attempt_times(retry: bool):
@@ -136,7 +149,7 @@ def generate_ds(data: Union[str, dict, list, None] = None, params: Union[str, di
         return f"{t},{r},{c}"
 
 
-async def get_validate(gt: str = None, challenge: str = None, retry: bool = True):
+async def get_validate(user: UserData, gt: str = None, challenge: str = None, retry: bool = True):
     """
     使用打码平台获取人机验证validate
 
@@ -145,10 +158,18 @@ async def get_validate(gt: str = None, challenge: str = None, retry: bool = True
     :param retry: 是否允许重试
     :return: 如果配置了平台URL，且 gt, challenge 不为空，返回 GeetestResult
     """
-    if not (gt and challenge) or not plugin_config.preference.geetest_url:
-        return GeetestResult("", "")
-    params = {"gt": gt, "challenge": challenge}
-    params.update(plugin_config.preference.geetest_params)
+    if not plugin_config.preference.global_geetest:
+        if not (gt and challenge) or not user.geetest_url:
+            return GeetestResult("", "")
+        geetest_url = user.geetest_url
+        params = {"gt": gt, "challenge": challenge}
+        params.update(user.geetest_params)
+    else:
+        if not (gt and challenge) or not plugin_config.preference.geetest_url:
+            return GeetestResult("", "")
+        geetest_url = plugin_config.preference.geetest_url
+        params = {"gt": gt, "challenge": challenge}
+        params.update(plugin_config.preference.geetest_params)
     content = deepcopy(plugin_config.preference.geetest_json or Preference().geetest_json)
     for key, value in content.items():
         if isinstance(value, str):
@@ -158,7 +179,7 @@ async def get_validate(gt: str = None, challenge: str = None, retry: bool = True
             with attempt:
                 async with httpx.AsyncClient() as client:
                     res = await client.post(
-                        plugin_config.preference.geetest_url,
+                        geetest_url,
                         params=params,
                         json=content,
                         timeout=60
@@ -166,10 +187,10 @@ async def get_validate(gt: str = None, challenge: str = None, retry: bool = True
                 geetest_data = res.json()
                 validate = geetest_data['data']['validate']
                 seccode = geetest_data['data'].get('seccode') or f"{validate}|jordan"
-                log.debug(f"{plugin_config.preference.log_head}人机验证结果：{geetest_data}")
+                logger.debug(f"{plugin_config.preference.log_head}人机验证结果：{geetest_data}")
                 return GeetestResult(validate=validate, seccode=seccode)
-    except tenacity.RetryError:
-        log.exception(f"{plugin_config.preference.log_head}获取人机验证validate失败")
+    except tenacity.RetryError as e:
+        logger.exception(f"{plugin_config.preference.log_head}获取人机验证validate失败")
 
 
 def generate_seed_id(length: int = 8) -> str:
@@ -207,7 +228,7 @@ async def get_file(url: str, retry: bool = True):
                     res = await client.get(url, timeout=plugin_config.preference.timeout, follow_redirects=True)
                 return res.content
     except tenacity.RetryError:
-        log.exception(f"{plugin_config.preference.log_head}下载文件 - {url} 失败")
+        logger.exception(f"{plugin_config.preference.log_head}下载文件 - {url} 失败")
 
 
 def blur_phone(phone: Union[str, int]) -> str:
@@ -219,10 +240,10 @@ def blur_phone(phone: Union[str, int]) -> str:
     """
     if isinstance(phone, int):
         phone = str(phone)
-    return f"{phone[-4:]}"
+    return f"☎️{phone[-4:]}"
 
 
-def generate_qr_img(data: str):
+def generate_qr_img(data: str) -> str:
     """
     生成二维码图片
 
@@ -237,7 +258,8 @@ def generate_qr_img(data: str):
     image = qr_code.make_image()
     image_bytes = io.BytesIO()
     image.save(image_bytes)
-    return image_bytes.getvalue()
+    image_str = base64.b64encode(image_bytes.getvalue())
+    return image_str.decode('utf-8')
 
 
 def get_unique_users() -> Iterable[Tuple[str, UserData]]:
@@ -276,7 +298,7 @@ def _read_user_list(path: Path) -> List[str]:
         line_filter = filter(lambda x: x and x != "\n", lines)
         return list(line_filter)
     else:
-        log.error(f"{plugin_config.preference.log_head}黑/白名单文件 {path} 不存在")
+        logger.error(f"{plugin_config.preference.log_head}黑/白名单文件 {path} 不存在")
         return []
 
 

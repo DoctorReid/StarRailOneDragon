@@ -1,19 +1,19 @@
+import json
 import time
 from typing import List, Optional, Tuple, Dict, Any, Union, Type
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse, parse_qs
 
 import httpx
 import tenacity
 from pydantic import ValidationError, BaseModel
 from requests.utils import dict_from_cookiejar
 
-from basic.log_utils import log
 from ..model import GameRecord, GameInfo, Good, Address, BaseApiStatus, MmtData, GeetestResult, \
     GetCookieStatus, \
     CreateMobileCaptchaStatus, GetGoodDetailStatus, ExchangeStatus, GeetestResultV4, GenshinNote, GenshinNoteStatus, \
     GetFpStatus, StarRailNoteStatus, StarRailNote, UserAccount, BBSCookies, ExchangePlan, ExchangeResult, plugin_env, \
-    plugin_config
-from ..utils import generate_device_id, generate_ds, \
+    plugin_config, QueryGameTokenQrCodeStatus
+from ..utils import generate_device_id, logger, generate_ds, \
     get_async_retry, generate_seed_id, generate_fp_locally
 
 URL_LOGIN_TICKET_BY_CAPTCHA = "https://webapi.account.mihoyo.com/Api/login_by_mobilecaptcha"
@@ -48,6 +48,10 @@ URL_STARRAIL_NOTE_BBS = "https://api-takumi-record.mihoyo.com/game_record/app/hk
 URL_STARRAIL_NOTE_WIDGET = "https://api-takumi-record.mihoyo.com/game_record/app/hkrpg/aapi/widget"
 URL_CREATE_VERIFICATION = "https://bbs-api.miyoushe.com/misc/api/createVerification?is_high=true"
 URL_VERIFY_VERIFICATION = "https://bbs-api.miyoushe.com/misc/api/verifyVerification"
+URL_FETCH_GAME_TOKEN_QRCODE = "https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/fetch"
+URL_QUERY_GAME_TOKEN_QRCODE = "https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/query"
+URL_GET_TOKEN_BY_GAME_TOKEN = "https://api-takumi.mihoyo.com/account/ma-cn-session/app/getTokenByGameToken"
+URL_GET_COOKIE_TOKEN_BY_GAME_TOKEN = "https://api-takumi.mihoyo.com/auth/api/getCookieAccountInfoByGameToken"
 
 HEADERS_WEBAPI = {
     "Host": "webapi.account.mihoyo.com",
@@ -323,13 +327,13 @@ class ApiResultHandler(BaseModel):
     """
     API返回的数据处理器
     """
-    content: Dict[str, Any] = None
+    content: Dict[str, Any]
     """API返回的JSON对象序列化以后的Dict对象"""
-    data: Optional[Dict[str, Any]] = None
+    data: Optional[Dict[str, Any]]
     """API返回的数据体"""
-    message: Optional[str] = None
+    message: Optional[str]
     """API返回的消息内容"""
-    retcode: Optional[int] = None
+    retcode: Optional[int]
     """API返回的状态码"""
 
     def __init__(self, content: Dict[str, Any]):
@@ -338,9 +342,9 @@ class ApiResultHandler(BaseModel):
         self.data = self.content.get("data")
 
         for key in ["retcode", "status"]:
-            if not self.retcode:
+            if self.retcode is None:
                 self.retcode = self.content.get(key)
-                if not self.retcode:
+                if self.retcode is None:
                     self.retcode = self.data.get(key) if self.data else None
 
         self.message: Optional[str] = None
@@ -397,19 +401,19 @@ async def get_game_record(account: UserAccount, retry: bool = True) -> Tuple[Bas
                                            timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
-                    log.info(
+                    logger.info(
                         f"获取用户游戏数据(GameRecord) - 用户 {account.display_name} 登录失效")
-                    log.debug(f"网络请求返回: {res.text}")
+                    logger.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True), None
                 return BaseApiStatus(success=True), list(
                     map(GameRecord.parse_obj, api_result.data["list"]))
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("获取用户游戏数据(GameRecord) - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("获取用户游戏数据(GameRecord) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception("获取用户游戏数据(GameRecord) - 请求失败")
+            logger.exception("获取用户游戏数据(GameRecord) - 请求失败")
             return BaseApiStatus(network_error=True), None
 
 
@@ -431,11 +435,11 @@ async def get_game_list(retry: bool = True) -> Tuple[BaseApiStatus, Optional[Lis
                     map(GameInfo.parse_obj, api_result.data["list"]))
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("获取游戏信息(GameInfo) - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("获取游戏信息(GameInfo) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception(f"获取游戏信息(GameInfo) - 请求失败")
+            logger.exception(f"获取游戏信息(GameInfo) - 请求失败")
             return BaseApiStatus(network_error=True), None
 
 
@@ -455,18 +459,18 @@ async def get_user_myb(account: UserAccount, retry: bool = True) -> Tuple[BaseAp
                                            timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
-                    log.info(
+                    logger.info(
                         f"获取用户米游币 - 用户 {account.display_name} 登录失效")
-                    log.debug(f"网络请求返回: {res.text}")
+                    logger.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True), None
                 return BaseApiStatus(success=True), int(api_result.data["points"])
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"获取用户米游币 - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"获取用户米游币 - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception(f"获取用户米游币 - 请求失败")
+            logger.exception(f"获取用户米游币 - 请求失败")
             return BaseApiStatus(network_error=True), None
 
 
@@ -497,9 +501,9 @@ async def device_login(account: UserAccount, retry: bool = True):
                                             timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
-                    log.info(
+                    logger.info(
                         f"设备登录(device_login) - 用户 {account.display_name} 登录失效")
-                    log.debug(f"网络请求返回: {res.text}")
+                    logger.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True)
                 if res.json()["message"] != "OK":
                     raise ValueError
@@ -507,11 +511,11 @@ async def device_login(account: UserAccount, retry: bool = True):
                     return BaseApiStatus(success=True)
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"设备登录(device_login) - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"设备登录(device_login) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True)
         else:
-            log.exception(f"设备登录(device_login) - 请求失败")
+            logger.exception(f"设备登录(device_login) - 请求失败")
             return BaseApiStatus(network_error=True)
 
 
@@ -542,9 +546,9 @@ async def device_save(account: UserAccount, retry: bool = True):
                                             timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
-                    log.info(
+                    logger.info(
                         f"设备保存(device_save) - 用户 {account.display_name} 登录失效")
-                    log.debug(f"网络请求返回: {res.text}")
+                    logger.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True)
                 if res.json()["message"] != "OK":
                     raise ValueError
@@ -552,11 +556,11 @@ async def device_save(account: UserAccount, retry: bool = True):
                     return BaseApiStatus(success=True)
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"设备保存(device_save) - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"设备保存(device_save) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True)
         else:
-            log.exception(f"设备保存(device_save) - 请求失败")
+            logger.exception(f"设备保存(device_save) - 请求失败")
             return BaseApiStatus(network_error=True)
 
 
@@ -584,11 +588,11 @@ async def get_good_detail(good: Union[Good, str], retry: bool = True) -> Tuple[G
                     return GetGoodDetailStatus(success=True), Good.parse_obj(api_result.data)
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"米游币商品兑换 - 获取商品详细信息: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"米游币商品兑换 - 获取商品详细信息: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetGoodDetailStatus(incorrect_return=True), None
         else:
-            log.exception(f"米游币商品兑换 - 获取商品详细信息: 网络请求失败")
+            logger.exception(f"米游币商品兑换 - 获取商品详细信息: 网络请求失败")
             return GetGoodDetailStatus(network_error=True), None
 
 
@@ -611,11 +615,11 @@ async def get_good_games(retry: bool = True) -> Tuple[BaseApiStatus, Optional[Li
                 return BaseApiStatus(success=True), list(map(lambda x: (x["name"], x["key"]), api_result.data["games"]))
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"米游币商品兑换 - 获取商品列表: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"米游币商品兑换 - 获取商品列表: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception("米游币商品兑换 - 获取商品列表: 网络请求失败")
+            logger.exception("米游币商品兑换 - 获取商品列表: 网络请求失败")
             return BaseApiStatus(network_error=True), None
 
 
@@ -650,11 +654,11 @@ async def get_good_list(game: str = "", retry: bool = True) -> Tuple[
                 page += 1
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("获取商品信息列表 - 获取商品列表: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("获取商品信息列表 - 获取商品列表: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception("获取商品信息列表 - 获取商品列表: 网络请求失败")
+            logger.exception("获取商品信息列表 - 获取商品列表: 网络请求失败")
             return BaseApiStatus(network_error=True), None
 
     return BaseApiStatus(success=True), good_list
@@ -679,18 +683,18 @@ async def get_address(account: UserAccount, retry: bool = True) -> Tuple[BaseApi
                         timeout=plugin_config.preference.timeout)
                     api_result = ApiResultHandler(res.json())
                     if api_result.login_expired:
-                        log.info(
+                        logger.info(
                             f"获取地址数据 - 用户 {account.display_name} 登录失效")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(login_expired=True), None
                 address_list = list(map(Address.parse_obj, api_result.data["list"]))
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("获取地址数据 - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("获取地址数据 - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception("获取地址数据 - 请求失败")
+            logger.exception("获取地址数据 - 请求失败")
             return BaseApiStatus(network_error=True), None
     return BaseApiStatus(success=True), address_list
 
@@ -738,11 +742,11 @@ async def check_registrable(phone_number: int, keep_client: bool = False, retry:
         if keep_client:
             await client.aclose()
         if is_incorrect_return(e):
-            log.exception(f"检查用户 {phone_number} 是否可以注册 - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"检查用户 {phone_number} 是否可以注册 - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None, device_id, client
         else:
-            log.exception(f"检查用户 {phone_number} 是否可以注册 - 请求失败")
+            logger.exception(f"检查用户 {phone_number} 是否可以注册 - 请求失败")
             return BaseApiStatus(network_error=True), None, device_id, None
 
 
@@ -794,11 +798,11 @@ async def create_mmt(client: Optional[httpx.AsyncClient] = None,
         if client:
             await client.aclose()
         if is_incorrect_return(e):
-            log.exception("获取短信验证-人机验证任务(create_mmt) - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("获取短信验证-人机验证任务(create_mmt) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None, device_id, client
         else:
-            log.exception("获取短信验证-人机验证任务(create_mmt) - 请求失败")
+            logger.exception("获取短信验证-人机验证任务(create_mmt) - 请求失败")
             return BaseApiStatus(network_error=True), None, device_id, None
 
 
@@ -827,7 +831,7 @@ async def create_mobile_captcha(phone_number: str,
         content = {
             "action_type": "login",
             "mmt_key": mmt_data.mmt_key,
-            "geetest_v4_data": geetest_result.model_dump(),
+            "geetest_v4_data": geetest_result.dict(skip_defaults=True),
             "mobile": phone_number,
             "t": str(round(time.time() * 1000))
         }
@@ -883,11 +887,11 @@ async def create_mobile_captcha(phone_number: str,
         if client:
             await client.aclose()
         if is_incorrect_return(e):
-            log.exception("发送短信验证码 - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("发送短信验证码 - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return CreateMobileCaptchaStatus(incorrect_return=True), client
         else:
-            log.exception("发送短信验证码 - 请求失败")
+            logger.exception("发送短信验证码 - 请求失败")
             return CreateMobileCaptchaStatus(network_error=True), None
 
 
@@ -952,18 +956,18 @@ async def get_login_ticket_by_captcha(phone_number: str,
                             await client.aclose()
                         return GetCookieStatus(success=True), cookies
                 elif api_result.wrong_captcha:
-                    log.info(
+                    logger.info(
                         "通过短信验证码获取 login_ticket - 验证码错误，但你可以再次尝试登录")
                     return GetCookieStatus(incorrect_captcha=True), None
                 else:
                     raise IncorrectReturn
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"通过短信验证码获取 login_ticket: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"通过短信验证码获取 login_ticket: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetCookieStatus(incorrect_return=True), None
         else:
-            log.exception(f"通过短信验证码获取 login_ticket: 网络请求失败")
+            logger.exception(f"通过短信验证码获取 login_ticket: 网络请求失败")
             return GetCookieStatus(network_error=True), None
 
 
@@ -991,7 +995,7 @@ async def get_multi_token_by_login_ticket(cookies: BBSCookies, retry: bool = Tru
                         timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
-                    log.warning(f"通过 login_ticket 获取 stoken: 登录失效")
+                    logger.warning(f"通过 login_ticket 获取 stoken: 登录失效")
                     return GetCookieStatus(login_expired=True), None
                 else:
                     cookies.stoken = list(filter(
@@ -1001,11 +1005,11 @@ async def get_multi_token_by_login_ticket(cookies: BBSCookies, retry: bool = Tru
                     return GetCookieStatus(success=True), cookies
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"通过 login_ticket 获取 stoken: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"通过 login_ticket 获取 stoken: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetCookieStatus(incorrect_return=True), None
         else:
-            log.exception(f"通过 login_ticket 获取 stoken: 网络请求失败")
+            logger.exception(f"通过 login_ticket 获取 stoken: 网络请求失败")
             return GetCookieStatus(network_error=True), None
 
 
@@ -1041,7 +1045,7 @@ async def get_cookie_token_by_captcha(phone_number: str, captcha: int, retry: bo
                                             )
                 api_result = ApiResultHandler(res.json())
                 if api_result.wrong_captcha:
-                    log.info(f"登录米哈游账号 - 验证码错误")
+                    logger.info(f"登录米哈游账号 - 验证码错误")
                     return GetCookieStatus(incorrect_captcha=True), None
                 else:
                     cookies = BBSCookies.parse_obj(dict_from_cookiejar(res.cookies.jar))
@@ -1053,11 +1057,11 @@ async def get_cookie_token_by_captcha(phone_number: str, captcha: int, retry: bo
                         return GetCookieStatus(success=True), cookies
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"通过短信验证码获取 cookie_token: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"通过短信验证码获取 cookie_token: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetCookieStatus(incorrect_return=True), None
         else:
-            log.exception(f"通过短信验证码获取 cookie_token: 网络请求失败")
+            logger.exception(f"通过短信验证码获取 cookie_token: 网络请求失败")
             return GetCookieStatus(network_error=True), None
 
 
@@ -1101,15 +1105,15 @@ async def get_login_ticket_by_password(account: str, password: str, mmt_data: Mm
                 if api_result.success:
                     return GetCookieStatus(success=True), cookies
                 elif api_result.wrong_captcha:
-                    log.warning(f"使用密码登录获取login_ticket - 图片验证码失败")
+                    logger.warning(f"使用密码登录获取login_ticket - 图片验证码失败")
                     return GetCookieStatus(incorrect_captcha=True), None
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"使用密码登录获取login_ticket - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"使用密码登录获取login_ticket - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetCookieStatus(incorrect_return=True), None
         else:
-            log.exception("使用密码登录获取login_ticket - 请求失败")
+            logger.exception("使用密码登录获取login_ticket - 请求失败")
             return GetCookieStatus(network_error=True), None
 
 
@@ -1149,18 +1153,18 @@ async def get_cookie_token_by_stoken(cookies: BBSCookies, device_id: str = None,
                         cookies.bbs_uid = api_result.data["uid"]
                     return GetCookieStatus(success=True), cookies
                 elif api_result.login_expired:
-                    log.warning("通过 stoken 获取 cookie_token: 登录失效")
+                    logger.warning("通过 stoken 获取 cookie_token: 登录失效")
                     return GetCookieStatus(login_expired=True), None
                 else:
                     raise IncorrectReturn
 
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("通过 stoken 获取 cookie_token: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("通过 stoken 获取 cookie_token: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetCookieStatus(incorrect_return=True), None
         else:
-            log.exception("通过 stoken 获取 cookie_token: 网络请求失败")
+            logger.exception("通过 stoken 获取 cookie_token: 网络请求失败")
             return GetCookieStatus(network_error=True), None
 
 
@@ -1205,18 +1209,18 @@ async def get_stoken_v2_by_v1(cookies: BBSCookies, device_id: str = None, retry:
                         cookies.bbs_uid = api_result.data["user_info"]["aid"]
                     return GetCookieStatus(success=True), cookies
                 elif api_result.login_expired:
-                    log.warning(f"通过 stoken_v1 获取 stoken_v2: 登录失效")
+                    logger.warning(f"通过 stoken_v1 获取 stoken_v2: 登录失效")
                     return GetCookieStatus(login_expired=True), None
                 else:
                     raise IncorrectReturn
 
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("通过 stoken_v1 获取 stoken_v2: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("通过 stoken_v1 获取 stoken_v2: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetCookieStatus(incorrect_return=True), None
         else:
-            log.exception("通过 stoken_v1 获取 stoken_v2: 网络请求失败")
+            logger.exception("通过 stoken_v1 获取 stoken_v2: 网络请求失败")
             return GetCookieStatus(network_error=True), None
 
 
@@ -1256,18 +1260,18 @@ async def get_ltoken_by_stoken(cookies: BBSCookies, device_id: str = None, retry
                     cookies.ltoken = api_result.data["ltoken"]
                     return GetCookieStatus(success=True), cookies
                 elif api_result.login_expired:
-                    log.warning("通过 stoken 获取 ltoken: 登录失效")
+                    logger.warning("通过 stoken 获取 ltoken: 登录失效")
                     return GetCookieStatus(login_expired=True), None
                 else:
                     raise IncorrectReturn
 
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("通过 stoken 获取 ltoken: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("通过 stoken 获取 ltoken: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetCookieStatus(incorrect_return=True), None
         else:
-            log.exception("通过 stoken 获取 ltoken: 网络请求失败")
+            logger.exception("通过 stoken 获取 ltoken: 网络请求失败")
             return GetCookieStatus(network_error=True), None
 
 
@@ -1310,22 +1314,22 @@ async def get_device_fp(device_id: str, retry: bool = True) -> Tuple[GetFpStatus
                     )
                 api_result = ApiResultHandler(res.json())
                 if api_result.data["code"] == 403 or api_result.data["msg"] == "传入的参数有误":
-                    log.error("传入的参数有误")
+                    logger.error("传入的参数有误")
                     return GetFpStatus(invalid_arguments=True), None
                 elif api_result.success:
                     device_fp = api_result.data["device_fp"]
                     if not device_fp:
-                        log.error("获取 x-rpc-device_fp: 服务器返回的 device_fp 为空")
+                        logger.error("获取 x-rpc-device_fp: 服务器返回的 device_fp 为空")
                         return GetFpStatus(incorrect_return=True), None
                     return GetFpStatus(success=True), device_fp
 
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("获取 x-rpc-device_fp: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("获取 x-rpc-device_fp: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return GetFpStatus(incorrect_return=True), None
         else:
-            log.exception("获取 x-rpc-device_fp: 网络请求失败")
+            logger.exception("获取 x-rpc-device_fp: 网络请求失败")
             return GetFpStatus(network_error=True), None
 
 
@@ -1362,28 +1366,28 @@ async def good_exchange(plan: ExchangePlan) -> Tuple[ExchangeStatus, Optional[Ex
                 timeout=plugin_config.preference.timeout)
         api_result = ApiResultHandler(res.json())
         if api_result.login_expired:
-            log.info(
+            logger.info(
                 f"米游币商品兑换 - 执行兑换: 用户 {plan.account.display_name} 登录失效 - 请求发送时间: {start_time}")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(login_expired=True), None
         if api_result.success:
-            log.info(
+            logger.info(
                 f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 兑换成功！可以自行确认 - 请求发送时间: {start_time}")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(success=True), ExchangeResult(result=True, return_data=res.json(), plan=plan)
         else:
-            log.info(
+            logger.info(
                 f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 兑换失败，可以自行确认 - 请求发送时间: {start_time}")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(success=True), ExchangeResult(result=False, return_data=res.json(), plan=plan)
     except Exception as e:
         if is_incorrect_return(e):
-            log.error(
+            logger.error(
                 f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 服务器没有正确返回 - 请求发送时间: {start_time}")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(incorrect_return=True), None
         else:
-            log.exception(
+            logger.exception(
                 f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 请求失败 - 请求发送时间: {start_time}")
             return ExchangeStatus(network_error=True), None
 
@@ -1421,28 +1425,28 @@ def good_exchange_sync(plan: ExchangePlan) -> Tuple[ExchangeStatus, Optional[Exc
                 timeout=plugin_config.preference.timeout)
         api_result = ApiResultHandler(res.json())
         if api_result.login_expired:
-            log.info(
+            logger.info(
                 f"米游币商品兑换 - 执行兑换: 用户 {plan.account.display_name} 登录失效 - 请求发送时间: {start_time}")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(login_expired=True), None
         if api_result.success:
-            log.info(
+            logger.info(
                 f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 兑换成功！可以自行确认 - 请求发送时间: {start_time}")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(success=True), ExchangeResult(result=True, return_data=res.json(), plan=plan)
         else:
-            log.info(
+            logger.info(
                 f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 兑换失败，可以自行确认 - 请求发送时间: {start_time}")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(success=True), ExchangeResult(result=False, return_data=res.json(), plan=plan)
     except Exception as e:
         if is_incorrect_return(e):
-            log.error(
+            logger.error(
                 f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 服务器没有正确返回 - 请求发送时间: {start_time}")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.debug(f"网络请求返回: {res.text}")
             return ExchangeStatus(incorrect_return=True), None
         else:
-            log.exception(
+            logger.exception(
                 f"米游币商品兑换: 用户 {plan.account.display_name} 商品 {plan.good.goods_id} 请求失败 - 请求发送时间: {start_time}")
             return ExchangeStatus(network_error=True), None
 
@@ -1491,19 +1495,19 @@ async def genshin_note(account: UserAccount) -> Tuple[
                             )
                         api_result = ApiResultHandler(res.json())
                         if api_result.login_expired:
-                            log.info(
+                            logger.info(
                                 f"原神实时便笺: 用户 {account.display_name} 登录失效")
-                            log.debug(f"网络请求返回: {res.text}")
+                            logger.debug(f"网络请求返回: {res.text}")
                             return GenshinNoteStatus(login_expired=True), None
 
                         if api_result.invalid_ds:
-                            log.info(
+                            logger.info(
                                 f"原神实时便笺: 用户 {account.display_name} DS 校验失败")
-                            log.debug(f"网络请求返回: {res.text}")
+                            logger.debug(f"网络请求返回: {res.text}")
                         if api_result.retcode == 1034:
-                            log.info(
+                            logger.info(
                                 f"原神实时便笺: 用户 {account.display_name} 可能被验证码阻拦")
-                            log.debug(f"网络请求返回: {res.text}")
+                            logger.debug(f"网络请求返回: {res.text}")
                         if not api_result.success:
                             headers["DS"] = generate_ds()
                             headers["x-rpc-device_id"] = account.device_id_ios
@@ -1520,11 +1524,11 @@ async def genshin_note(account: UserAccount) -> Tuple[
                         return GenshinNoteStatus(success=True), GenshinNote.parse_obj(api_result.data)
             except tenacity.RetryError as e:
                 if is_incorrect_return(e):
-                    log.exception(f"原神实时便笺: 服务器没有正确返回")
-                    log.debug(f"网络请求返回: {res.text}")
+                    logger.exception(f"原神实时便笺: 服务器没有正确返回")
+                    logger.debug(f"网络请求返回: {res.text}")
                     return GenshinNoteStatus(incorrect_return=True), None
                 else:
-                    log.exception(f"原神实时便笺: 请求失败")
+                    logger.exception(f"原神实时便笺: 请求失败")
                     return GenshinNoteStatus(network_error=True), None
     if flag:
         return GenshinNoteStatus(no_genshin_account=True), None
@@ -1568,27 +1572,27 @@ async def starrail_note(account: UserAccount) -> Tuple[
                                                    timeout=plugin_config.preference.timeout)
                         api_result = ApiResultHandler(res.json())
                         if api_result.login_expired:
-                            log.info(
+                            logger.info(
                                 f"崩铁实时便笺: 用户 {account.display_name} 登录失效")
-                            log.debug(f"网络请求返回: {res.text}")
+                            logger.debug(f"网络请求返回: {res.text}")
                             return StarRailNoteStatus(login_expired=True), None
 
                         if api_result.invalid_ds:
-                            log.info(
+                            logger.info(
                                 f"崩铁实时便笺: 用户 {account.display_name} DS 校验失败")
-                            log.debug(f"网络请求返回: {res.text}")
+                            logger.debug(f"网络请求返回: {res.text}")
                         if api_result.retcode == 1034:
-                            log.info(
+                            logger.info(
                                 f"崩铁实时便笺: 用户 {account.display_name} 可能被验证码阻拦")
-                            log.debug(f"网络请求返回: {res.text}")
+                            logger.debug(f"网络请求返回: {res.text}")
                         return StarRailNoteStatus(success=True), StarRailNote.parse_obj(api_result.data)
             except tenacity.RetryError as e:
                 if is_incorrect_return(e):
-                    log.exception("崩铁实时便笺: 服务器没有正确返回")
-                    log.debug(f"网络请求返回: {res.text}")
+                    logger.exception("崩铁实时便笺: 服务器没有正确返回")
+                    logger.debug(f"网络请求返回: {res.text}")
                     return StarRailNoteStatus(incorrect_return=True), None
                 else:
-                    log.exception("崩铁实时便笺: 请求失败")
+                    logger.exception("崩铁实时便笺: 请求失败")
                     return StarRailNoteStatus(network_error=True), None
     if flag:
         return StarRailNoteStatus(no_starrail_account=True), None
@@ -1624,11 +1628,11 @@ async def create_verification(
                 return BaseApiStatus(success=True), MmtData.parse_obj(api_result.data)
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("创建人机验证任务(create_verification) - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("创建人机验证任务(create_verification) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception("创建人机验证任务(create_verification) - 请求失败")
+            logger.exception("创建人机验证任务(create_verification) - 请求失败")
             return BaseApiStatus(network_error=True), None
 
 
@@ -1674,9 +1678,196 @@ async def verify_verification(
                     return BaseApiStatus()
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("验证人机验证结果(verify_verification) - 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("验证人机验证结果(verify_verification) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True)
         else:
-            log.exception("验证人机验证结果(verify_verification) - 请求失败")
+            logger.exception("验证人机验证结果(verify_verification) - 请求失败")
             return BaseApiStatus(network_error=True)
+
+
+async def fetch_game_token_qrcode(
+        device_id: str,
+        app_id: str = "1",
+        retry: bool = True
+) -> Tuple[BaseApiStatus, Optional[Tuple[str, str]]]:
+    """
+    获取米游社扫码登录（GameToken）二维码
+
+    :param device_id: 设备ID
+    :param app_id: 登录的应用标识符
+    :param retry: 是否允许重试
+    :return 其中 ``Tuple[str, str]`` 为二维码URL和用于查询二维码扫描状态的 ``token``
+    """
+    try:
+        async for attempt in get_async_retry(retry):
+            with attempt:
+                content = {
+                    "app_id": app_id,
+                    "device": device_id,
+                }
+                async with httpx.AsyncClient() as client:
+                    res = await client.post(
+                        URL_FETCH_GAME_TOKEN_QRCODE,
+                        json=content,
+                        timeout=plugin_config.preference.timeout
+                    )
+                api_result = ApiResultHandler(res.json())
+                if api_result.retcode == 0:
+                    qrcode_url = api_result.data["url"]
+                    url = urlparse(qrcode_url)
+                    return BaseApiStatus(success=True), (qrcode_url, parse_qs(url.query)["ticket"][0])
+                else:
+                    logger.debug(f"网络请求返回: {res.text}")
+                    return BaseApiStatus(), None
+    except tenacity.RetryError as e:
+        if is_incorrect_return(e):
+            logger.exception("获取米游社扫码登录(fetch_game_token_qrcode) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
+            return BaseApiStatus(incorrect_return=True), None
+        else:
+            logger.exception("获取米游社扫码登录(fetch_game_token_qrcode) - 请求失败")
+            return BaseApiStatus(network_error=True), None
+
+
+async def query_game_token_qrcode(
+        ticket: str,
+        device_id: str,
+        app_id: str = "1",
+        retry: bool = True
+) -> Tuple[QueryGameTokenQrCodeStatus, Optional[Tuple[str, str]]]:
+    """
+    查询米游社扫码登录（GameToken）二维码扫描状态
+
+    :param ticket: 生成二维码时返回的 URL 参数中 ``ticket`` 字段的值
+    :param device_id: 设备ID
+    :param app_id: 登录的应用标识符
+    :param retry: 是否允许重试
+    :return 其中 ``Tuple[str, str]`` 为米游社账号ID和 GameToken
+    """
+    try:
+        async for attempt in get_async_retry(retry):
+            with attempt:
+                content = {
+                    "app_id": app_id,
+                    "device": device_id,
+                    "ticket": ticket
+                }
+                async with httpx.AsyncClient() as client:
+                    res = await client.post(
+                        URL_QUERY_GAME_TOKEN_QRCODE,
+                        json=content,
+                        timeout=plugin_config.preference.timeout
+                    )
+                api_result = ApiResultHandler(res.json())
+                if api_result.retcode == 0:
+                    if api_result.data["stat"] == "Init":
+                        return QueryGameTokenQrCodeStatus(qrcode_init=True), None
+                    elif api_result.data["stat"] == "Scanned":
+                        return QueryGameTokenQrCodeStatus(qrcode_scanned=True), None
+                    else:
+                        payload_raw = api_result.data["payload"]["raw"]
+                        parsed_payload: Dict[str, str] = json.loads(payload_raw)
+                        return QueryGameTokenQrCodeStatus(success=True), (
+                            parsed_payload["uid"],
+                            parsed_payload["token"]
+                        )
+                elif api_result.retcode == -106:
+                    return QueryGameTokenQrCodeStatus(qrcode_expired=True), None
+                else:
+                    return QueryGameTokenQrCodeStatus(), None
+    except tenacity.RetryError as e:
+        if is_incorrect_return(e):
+            logger.exception("查询米游社扫码登录(query_game_token_qrcode) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
+            return QueryGameTokenQrCodeStatus(incorrect_return=True), None
+        else:
+            logger.exception("查询米游社扫码登录(query_game_token_qrcode) - 请求失败")
+            return QueryGameTokenQrCodeStatus(network_error=True), None
+
+
+async def get_token_by_game_token(
+        bbs_uid: str,
+        game_token: str,
+        retry: bool = True
+) -> Tuple[BaseApiStatus, Optional[BBSCookies]]:
+    """
+    通过 GameToken 获取 STokenV2 和 mid
+
+    :param bbs_uid: 米游社账号 UID
+    :param game_token: 有效的 GameToken
+    :param retry: 是否允许重试
+    """
+    try:
+        async for attempt in get_async_retry(retry):
+            with attempt:
+                content = {
+                    "account_id": int(bbs_uid),
+                    "game_token": game_token
+                }
+                async with httpx.AsyncClient() as client:
+                    res = await client.post(
+                        URL_GET_TOKEN_BY_GAME_TOKEN,
+                        headers={"x-rpc-app_id": "bll8iq97cem8"},
+                        json=content,
+                        timeout=plugin_config.preference.timeout
+                    )
+                api_result = ApiResultHandler(res.json())
+                if api_result.retcode == 0:
+                    stoken_v2 = api_result.data["token"]["token"]
+                    mid = api_result.data["user_info"]["mid"]
+                    return BaseApiStatus(success=True), BBSCookies(stoken_v2=stoken_v2, mid=mid)
+                else:
+                    logger.debug(f"网络请求返回: {res.text}")
+                    return BaseApiStatus(), None
+    except tenacity.RetryError as e:
+        if is_incorrect_return(e):
+            logger.exception("通过 GameToken 获取 SToken(get_token_by_game_token) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
+            return BaseApiStatus(incorrect_return=True), None
+        else:
+            logger.exception("通过 GameToken 获取 SToken(get_token_by_game_token) - 请求失败")
+            return BaseApiStatus(network_error=True), None
+
+
+async def get_cookie_token_by_game_token(
+        bbs_uid: str,
+        game_token: str,
+        retry: bool = True
+) -> Tuple[BaseApiStatus, Optional[BBSCookies]]:
+    """
+    通过 GameToken 获取 CookieToken
+
+    :param bbs_uid: 米游社账号 UID
+    :param game_token: 有效的 GameToken
+    :param retry: 是否允许重试
+    """
+    try:
+        async for attempt in get_async_retry(retry):
+            with attempt:
+                content = {
+                    "account_id": int(bbs_uid),
+                    "game_token": game_token
+                }
+                async with httpx.AsyncClient() as client:
+                    res = await client.post(
+                        URL_GET_COOKIE_TOKEN_BY_GAME_TOKEN,
+                        headers={"x-rpc-app_id": "bll8iq97cem8"},
+                        json=content,
+                        timeout=plugin_config.preference.timeout
+                    )
+                api_result = ApiResultHandler(res.json())
+                if api_result.retcode == 0:
+                    cookie_token = api_result.data["token"]["token"]
+                    return BaseApiStatus(success=True), BBSCookies(cookie_token=cookie_token)
+                else:
+                    logger.debug(f"网络请求返回: {res.text}")
+                    return BaseApiStatus(), None
+    except tenacity.RetryError as e:
+        if is_incorrect_return(e):
+            logger.exception("通过 GameToken 获取 CookieToken(get_cookie_token_by_game_token) - 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
+            return BaseApiStatus(incorrect_return=True), None
+        else:
+            logger.exception("通过 GameToken 获取 CookieToken(get_cookie_token_by_game_token) - 请求失败")
+            return BaseApiStatus(network_error=True), None

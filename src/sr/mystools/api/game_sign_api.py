@@ -4,12 +4,11 @@ from urllib.parse import urlencode
 import httpx
 import tenacity
 
-from basic.log_utils import log
 from ..api.common import ApiResultHandler, HEADERS_API_TAKUMI_MOBILE, is_incorrect_return, \
     device_login, device_save
 from ..model import GameRecord, BaseApiStatus, Award, GameSignInfo, GeetestResult, MmtData, plugin_config, plugin_env, \
     UserAccount
-from ..utils import generate_ds, \
+from ..utils import logger, generate_ds, \
     get_async_retry
 
 __all__ = ["BaseGameSign", "GenshinImpactSign", "HonkaiImpact3Sign", "HoukaiGakuen2Sign", "TearsOfThemisSign",
@@ -84,11 +83,11 @@ class BaseGameSign:
                     return BaseApiStatus(success=True), award_list
         except tenacity.RetryError as e:
             if is_incorrect_return(e):
-                log.exception(f"获取签到奖励信息 - 服务器没有正确返回")
-                log.debug(f"网络请求返回: {res.text}")
+                logger.exception(f"获取签到奖励信息 - 服务器没有正确返回")
+                logger.debug(f"网络请求返回: {res.text}")
                 return BaseApiStatus(incorrect_return=True), None
             else:
-                log.exception(f"获取签到奖励信息 - 请求失败")
+                logger.exception(f"获取签到奖励信息 - 请求失败")
                 return BaseApiStatus(network_error=True), None
 
     async def get_info(
@@ -115,23 +114,23 @@ class BaseGameSign:
                                                timeout=plugin_config.preference.timeout)
                     api_result = ApiResultHandler(res.json())
                     if api_result.login_expired:
-                        log.info(
+                        logger.info(
                             f"获取签到数据 - 用户 {self.account.display_name} 登录失效")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(login_expired=True), None
                     if api_result.invalid_ds:
-                        log.info(
+                        logger.info(
                             f"获取签到数据 - 用户 {self.account.display_name} DS 校验失败")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(invalid_ds=True), None
                     return BaseApiStatus(success=True), GameSignInfo.parse_obj(api_result.data)
         except tenacity.RetryError as e:
             if is_incorrect_return(e):
-                log.exception(f"获取签到数据 - 服务器没有正确返回")
-                log.debug(f"网络请求返回: {res.text}")
+                logger.exception(f"获取签到数据 - 服务器没有正确返回")
+                logger.debug(f"网络请求返回: {res.text}")
                 return BaseApiStatus(incorrect_return=True), None
             else:
-                log.exception(f"获取签到数据 - 请求失败")
+                logger.exception(f"获取签到数据 - 请求失败")
                 return BaseApiStatus(network_error=True), None
 
     async def sign(self,
@@ -180,7 +179,7 @@ class BaseGameSign:
                         headers["x-rpc-validate"] = geetest_result.validate
                         headers["x-rpc-challenge"] = mmt_data.challenge
                         headers["x-rpc-seccode"] = geetest_result.seccode
-                        log.info("游戏签到 - 尝试使用人机验证结果进行签到")
+                        logger.info("游戏签到 - 尝试使用人机验证结果进行签到")
 
                     async with httpx.AsyncClient() as client:
                         res = await client.post(
@@ -193,32 +192,32 @@ class BaseGameSign:
 
                     api_result = ApiResultHandler(res.json())
                     if api_result.login_expired:
-                        log.info(
+                        logger.info(
                             f"游戏签到 - 用户 {self.account.display_name} 登录失效")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(login_expired=True), None
                     elif api_result.invalid_ds:
-                        log.info(
+                        logger.info(
                             f"游戏签到 - 用户 {self.account.display_name} DS 校验失败")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(invalid_ds=True), None
-                    elif api_result.data is not None and api_result.data.get("risk_code") != 0:
-                        log.warning(
+                    elif api_result.data.get("risk_code") != 0:
+                        logger.warning(
                             f"{plugin_config.preference.log_head}游戏签到 - 用户 {self.account.display_name} 可能被人机验证阻拦")
-                        log.debug(f"{plugin_config.preference.log_head}网络请求返回: {res.text}")
+                        logger.debug(f"{plugin_config.preference.log_head}网络请求返回: {res.text}")
                         return BaseApiStatus(need_verify=True), MmtData.parse_obj(api_result.data)
                     else:
-                        log.info(f"游戏签到 - 用户 {self.account.display_name} 签到成功")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.success(f"游戏签到 - 用户 {self.account.display_name} 签到成功")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return BaseApiStatus(success=True), None
 
         except tenacity.RetryError as e:
             if is_incorrect_return(e):
-                log.exception(f"游戏签到 - 服务器没有正确返回")
-                log.debug(f"网络请求返回: {res.text}")
+                logger.exception(f"游戏签到 - 服务器没有正确返回")
+                logger.debug(f"网络请求返回: {res.text}")
                 return BaseApiStatus(incorrect_return=True), None
             else:
-                log.exception(f"游戏签到 - 请求失败")
+                logger.exception(f"游戏签到 - 请求失败")
                 return BaseApiStatus(network_error=True), None
 
 

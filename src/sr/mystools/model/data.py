@@ -5,10 +5,9 @@ from typing import Union, Optional, Any, Dict, TYPE_CHECKING, AbstractSet, \
 from uuid import UUID, uuid4
 
 from httpx import Cookies
-from basic.log_utils import log
 from pydantic import BaseModel, ValidationError, validator, Field
 
-from basic.log_utils import log
+from basic.log_utils import log as logger
 from .._version import __version__
 from ..model.common import data_path, BaseModelWithSetter, Address, BaseModelWithUpdate, Good, GameRecord
 
@@ -89,24 +88,24 @@ class BBSCookies(BaseModelWithSetter, BaseModelWithUpdate):
     >>> assert bbs_cookies.stuid == "456"
     >>> assert bbs_cookies.stoken == "abc"
     """
-    stuid: Optional[str] = None
+    stuid: Optional[str]
     """米游社UID"""
-    ltuid: Optional[str] = None
+    ltuid: Optional[str]
     """米游社UID"""
-    account_id: Optional[str] = None
+    account_id: Optional[str]
     """米游社UID"""
-    login_uid: Optional[str] = None
+    login_uid: Optional[str]
     """米游社UID"""
 
-    stoken_v1: Optional[str] = None
+    stoken_v1: Optional[str]
     """保存stoken_v1，方便后续使用"""
-    stoken_v2: Optional[str] = None
+    stoken_v2: Optional[str]
     """保存stoken_v2，方便后续使用"""
 
-    cookie_token: Optional[str] = None
-    login_ticket: Optional[str] = None
-    ltoken: Optional[str] = None
-    mid: Optional[str] = None
+    cookie_token: Optional[str]
+    login_ticket: Optional[str]
+    ltoken: Optional[str]
+    mid: Optional[str]
 
     def __init__(self, **data: Any):
         super().__init__(**data)
@@ -186,9 +185,9 @@ class BBSCookies(BaseModelWithSetter, BaseModelWithUpdate):
         """
         # 保证 stuid, ltuid 等字段存在
         self.bbs_uid = self.bbs_uid
-        cookies_dict = super().model_dump(include=include, exclude=exclude, by_alias=by_alias,
-                                          exclude_unset=exclude_unset, exclude_defaults=exclude_defaults,
-                                          exclude_none=exclude_none)
+        cookies_dict = super().dict(include=include, exclude=exclude, by_alias=by_alias, skip_defaults=skip_defaults,
+                                    exclude_unset=exclude_unset, exclude_defaults=exclude_defaults,
+                                    exclude_none=exclude_none)
         if v2_stoken and self.stoken_v2:
             cookies_dict["stoken"] = self.stoken_v2
         else:
@@ -222,20 +221,19 @@ class UserAccount(BaseModelWithSetter):
     >>> user_account.bbs_uid = "123"
     >>> assert user_account.bbs_uid == "123"
     """
-    phone_number: Optional[str] = None
+    phone_number: Optional[str]
     """手机号"""
     cookies: BBSCookies
     """Cookies"""
-    address: Optional[Address] = None
+    address: Optional[Address]
     """收货地址"""
 
     device_id_ios: str
     """iOS设备用 deviceID"""
     device_id_android: str
     """安卓设备用 deviceID"""
-    device_fp: Optional[str] = None
+    device_fp: Optional[str]
     """iOS设备用 deviceFp"""
-
     enable_mission: bool = True
     '''是否开启米游币任务计划'''
     enable_game_sign: bool = True
@@ -244,7 +242,7 @@ class UserAccount(BaseModelWithSetter):
     '''是否开启便笺提醒'''
     platform: Literal["ios", "android"] = "ios"
     '''设备平台'''
-    mission_games: List[str] = []
+    mission_games: List[str] = ["BBSMission"]
     '''在哪些板块执行米游币任务计划 为 BaseMission 子类名称'''
     user_stamina_threshold: int = 240
     '''崩铁便笺体力提醒阈值，0为一直提醒'''
@@ -278,7 +276,7 @@ class UserAccount(BaseModelWithSetter):
         显示名称
         """
         from ..utils.common import blur_phone
-        return f"{self.bbs_uid}({blur_phone(self.phone_number)})"
+        return f"{self.bbs_uid}({blur_phone(self.phone_number)})" if self.phone_number else self.bbs_uid
 
 
 class ExchangePlan(BaseModel):
@@ -288,11 +286,11 @@ class ExchangePlan(BaseModel):
 
     good: Good
     """商品"""
-    address: Optional[Address] = None
+    address: Optional[Address]
     """地址ID"""
     account: UserAccount
     """米游社账号"""
-    game_record: Optional[GameRecord] = None
+    game_record: Optional[GameRecord]
     """商品对应的游戏的玩家账号"""
 
     def __hash__(self):
@@ -326,9 +324,9 @@ class ExchangePlan(BaseModel):
         """
         重写 dict 方法，使其返回的 dict 可以被 hash
         """
-        normal_dict = super().model_dump(include=include, exclude=exclude, by_alias=by_alias,
-                                         exclude_unset=exclude_unset, exclude_defaults=exclude_defaults,
-                                         exclude_none=exclude_none)
+        normal_dict = super().dict(include=include, exclude=exclude, by_alias=by_alias, skip_defaults=skip_defaults,
+                                   exclude_unset=exclude_unset, exclude_defaults=exclude_defaults,
+                                   exclude_none=exclude_none)
         hashable_dict = ExchangePlan.CustomDict(normal_dict)
         hashable_dict._hash = hash(self)
         return hashable_dict
@@ -369,6 +367,16 @@ class UserData(BaseModelWithSetter):
     """
     enable_notice: bool = True
     """是否开启通知"""
+    enable_weibo: bool = False
+    '''是否开启微博兑换码功能'''
+    weibo_cookie: str = ""
+    '''微博查询活动签到用的 cookie'''
+    weibo_params: str = ""
+    '''微博查询活动签到用的 params'''
+    geetest_url: Optional[str]
+    '''极验Geetest人机验证打码接口URL'''
+    geetest_params: Optional[Dict[str, Any]] = None
+    '''极验Geetest人机验证打码API发送的参数（除gt，challenge外）'''
     uuid: Optional[str] = None
     """用户UUID密钥，用于不同NoneBot适配器平台之间的数据同步，因此不可泄露"""
     qq_guild: Optional[Dict[str, int]] = {}
@@ -437,13 +445,13 @@ class PluginData(BaseModel):
                 try:
                     self.users[x] = self.users[y]
                 except KeyError:
-                    log.error(f"用户数据绑定失败，目标用户 {y} 不存在")
+                    logger.error(f"用户数据绑定失败，目标用户 {y} 不存在")
         else:
             try:
                 self.user_bind[src] = dst
                 self.users[src] = self.users[dst]
             except KeyError:
-                log.error(f"用户数据绑定失败，目标用户 {dst} 不存在")
+                logger.error(f"用户数据绑定失败，目标用户 {dst} 不存在")
             else:
                 if write:
                     PluginDataManager.write_plugin_data()
@@ -451,6 +459,9 @@ class PluginData(BaseModel):
     def __init__(self, **data: Any):
         super().__init__(**data)
         self.do_user_bind(write=True)
+
+    class Config:
+        json_encoders = UserAccount.Config.json_encoders
 
 
 class PluginDataManager:
@@ -469,24 +480,24 @@ class PluginDataManager:
                 # 读取完整的插件数据
                 cls.plugin_data = PluginData.parse_obj(plugin_data_dict)
             except (ValidationError, JSONDecodeError):
-                log.exception(f"读取插件数据文件失败，请检查插件数据文件 {plugin_data_path} 格式是否正确")
+                logger.exception(f"读取插件数据文件失败，请检查插件数据文件 {plugin_data_path} 格式是否正确")
                 raise
             except Exception:
-                log.exception(
+                logger.exception(
                     f"读取插件数据文件失败，请检查插件数据文件 {plugin_data_path} 是否存在且有权限读取和写入")
                 raise
         else:
             cls.plugin_data = PluginData()
             try:
-                str_data = cls.plugin_data.model_dump_json(indent=4)
+                str_data = cls.plugin_data.json(indent=4)
                 plugin_data_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(plugin_data_path, "w", encoding="utf-8") as f:
                     f.write(str_data)
             except (AttributeError, TypeError, ValueError, PermissionError):
-                log.exception(f"创建插件数据文件失败，请检查是否有权限读取和写入 {plugin_data_path}")
+                logger.exception(f"创建插件数据文件失败，请检查是否有权限读取和写入 {plugin_data_path}")
                 raise
             else:
-                log.info(f"插件数据文件 {plugin_data_path} 不存在，已创建默认插件数据文件。")
+                logger.info(f"插件数据文件 {plugin_data_path} 不存在，已创建默认插件数据文件。")
 
     @classmethod
     def write_plugin_data(cls):
@@ -496,9 +507,9 @@ class PluginDataManager:
         :return: 是否成功
         """
         try:
-            str_data = cls.plugin_data.model_dump_json(indent=4)
+            str_data = cls.plugin_data.json(indent=4)
         except (AttributeError, TypeError, ValueError):
-            log.exception("数据对象序列化失败，可能是数据类型错误")
+            logger.exception("数据对象序列化失败，可能是数据类型错误")
             return False
         else:
             with open(plugin_data_path, "w", encoding="utf-8") as f:

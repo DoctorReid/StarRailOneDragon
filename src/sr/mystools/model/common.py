@@ -13,7 +13,7 @@ __all__ = ["root_path", "data_path", "BaseModelWithSetter", "BaseModelWithUpdate
            "Award", "GameSignInfo", "MissionData", "MissionState", "GenshinNote", "StarRailNote", "GenshinNoteNotice",
            "StarRailNoteNotice", "BaseApiStatus", "CreateMobileCaptchaStatus", "GetCookieStatus", "GetGoodDetailStatus",
            "ExchangeStatus", "MissionStatus", "GetFpStatus", "BoardStatus", "GenshinNoteStatus", "StarRailNoteStatus",
-           "GeetestResult", "GeetestResultV4", "CommandUsage"]
+           "QueryGameTokenQrCodeStatus", "GeetestResult", "GeetestResultV4", "CommandUsage"]
 
 from basic import os_utils
 
@@ -77,30 +77,30 @@ class Good(BaseModelWithUpdate):
     """
     type: int
     """为 1 时商品只有在指定时间开放兑换；为 0 时商品任何时间均可兑换"""
-    next_time: Optional[int] = None
+    next_time: Optional[int]
     """为 0 表示任何时间均可兑换或兑换已结束"""
     status: Optional[Literal["online", "not_in_sell"]]
-    sale_start_time: Optional[int] = None
-    time_by_detail: Optional[int] = None
-    next_num: Optional[int] = None
+    sale_start_time: Optional[int]
+    time_by_detail: Optional[int]
+    next_num: Optional[int]
     account_exchange_num: int
     """已经兑换次数"""
     account_cycle_limit: int
     """最多可兑换次数"""
     account_cycle_type: str
     """限购类型 Literal["forever", "month", "not_limit"]"""
-    game_biz: Optional[str] = None
+    game_biz: Optional[str]
     """商品对应的游戏区服（如 hk4e_cn）（单独查询一个商品时）"""
-    game: Optional[str] = None
+    game: Optional[str]
     """商品对应的游戏"""
-    unlimit: Optional[bool] = None
+    unlimit: Optional[bool]
     """是否为不限量商品"""
 
     # 以下为实际会用到的属性
 
-    name: Optional[str] = None
+    name: Optional[str]
     """商品名称（单独查询一个商品时）"""
-    goods_name: Optional[str] = None
+    goods_name: Optional[str]
     """商品名称（查询商品列表时）"""
 
     goods_id: str
@@ -311,17 +311,17 @@ class MmtData(BaseModel):
     """
     短信验证码-人机验证任务申请-返回数据
     """
-    challenge: Optional[str] = None
-    gt: Optional[str] = None
+    challenge: Optional[str]
+    gt: Optional[str]
     """验证ID，即 极验文档 中的captchaId，极验后台申请得到"""
-    mmt_key: Optional[str] = None
+    mmt_key: Optional[str]
     """验证任务"""
-    new_captcha: Optional[bool] = None
+    new_captcha: Optional[bool]
     """宕机情况下使用"""
-    risk_type: Optional[str] = None
+    risk_type: Optional[str]
     """结合风控融合，指定验证形式"""
-    success: Optional[int] = None
-    use_v4: Optional[bool] = None
+    success: Optional[int]
+    use_v4: Optional[bool]
     """是否使用极验第四代 GT4"""
 
 
@@ -368,21 +368,21 @@ class GenshinNote(BaseModel):
     """
     原神实时便笺数据 (从米游社内相关页面API的返回数据初始化)
     """
-    current_resin: Optional[int] = None
+    current_resin: Optional[int]
     """当前树脂数量"""
-    finished_task_num: Optional[int] = None
+    finished_task_num: Optional[int]
     """每日委托完成数"""
-    current_expedition_num: Optional[int] = None
+    current_expedition_num: Optional[int]
     """探索派遣 进行中的数量"""
-    max_expedition_num: Optional[int] = None
+    max_expedition_num: Optional[int]
     """探索派遣 最多派遣数"""
-    current_home_coin: Optional[int] = None
+    current_home_coin: Optional[int]
     """洞天财瓮 未收取的宝钱数"""
-    max_home_coin: Optional[int] = None
+    max_home_coin: Optional[int]
     """洞天财瓮 最多可容纳宝钱数"""
-    transformer: Optional[Dict[str, Any]] = None
+    transformer: Optional[Dict[str, Any]]
     """参量质变仪相关数据"""
-    resin_recovery_time: Optional[int] = None
+    resin_recovery_time: Optional[int]
     """剩余树脂恢复时间"""
 
     @property
@@ -438,27 +438,27 @@ class StarRailNote(BaseModel):
     """
     崩铁实时便笺数据 (从米游社内相关页面API的返回数据初始化)
     """
-    current_stamina: Optional[int] = None
+    current_stamina: Optional[int]
     """当前开拓力"""
-    max_stamina: Optional[int] = None
+    max_stamina: Optional[int]
     """最大开拓力"""
-    stamina_recover_time: Optional[int] = None
+    stamina_recover_time: Optional[int]
     """剩余体力恢复时间"""
-    current_train_score: Optional[int] = None
+    current_train_score: Optional[int]
     """当前每日实训值"""
-    max_train_score: Optional[int] = None
+    max_train_score: Optional[int]
     """最大每日实训值"""
-    current_rogue_score: Optional[int] = None
+    current_rogue_score: Optional[int]
     """当前模拟宇宙积分"""
-    max_rogue_score: Optional[int] = None
+    max_rogue_score: Optional[int]
     """最大模拟宇宙积分"""
-    accepted_expedition_num: Optional[int] = None
+    accepted_expedition_num: Optional[int]
     """已接受委托数量"""
-    total_expedition_num: Optional[int] = None
+    total_expedition_num: Optional[int]
     """最大委托数量"""
-    has_signed: Optional[bool] = None
+    has_signed: Optional[bool]
     """当天是否签到"""
-    expeditions: Optional[List[StarRailNoteExpedition]] = None
+    expeditions: Optional[List[StarRailNoteExpedition]]
     """委托"""
 
     @property
@@ -507,17 +507,17 @@ class BaseApiStatus(BaseModel):
     """
     API返回结果基类
     """
-    success: bool = False
+    success = False
     """成功"""
-    network_error: bool = False
+    network_error = False
     """连接失败"""
-    incorrect_return: bool = False
+    incorrect_return = False
     """服务器返回数据不正确"""
-    login_expired: bool = False
+    login_expired = False
     """登录失效"""
-    need_verify: bool = False
+    need_verify = False
     """需要进行人机验证"""
-    invalid_ds: bool = False
+    invalid_ds = False
     """Headers DS无效"""
 
     def __bool__(self):
@@ -538,13 +538,13 @@ class CreateMobileCaptchaStatus(BaseApiStatus):
     """
     发送短信验证码 返回结果
     """
-    incorrect_geetest: bool = False
+    incorrect_geetest = False
     """人机验证结果数据无效"""
-    not_registered: bool = False
+    not_registered = False
     """手机号码未注册"""
-    invalid_phone_number: bool = False
+    invalid_phone_number = False
     """手机号码无效"""
-    too_many_requests: bool = False
+    too_many_requests = False
     """发送过于频繁"""
 
 
@@ -552,21 +552,21 @@ class GetCookieStatus(BaseApiStatus):
     """
     获取Cookie 返回结果
     """
-    incorrect_captcha: bool = False
+    incorrect_captcha = False
     """验证码错误"""
-    missing_login_ticket: bool = False
+    missing_login_ticket = False
     """Cookies 缺少 login_ticket"""
-    missing_bbs_uid: bool = False
+    missing_bbs_uid = False
     """Cookies 缺少 bbs_uid (stuid, ltuid, ...)"""
-    missing_cookie_token: bool = False
+    missing_cookie_token = False
     """Cookies 缺少 cookie_token"""
-    missing_stoken: bool = False
+    missing_stoken = False
     """Cookies 缺少 stoken"""
-    missing_stoken_v1: bool = False
+    missing_stoken_v1 = False
     """Cookies 缺少 stoken_v1"""
-    missing_stoken_v2: bool = False
+    missing_stoken_v2 = False
     """Cookies 缺少 stoken_v2"""
-    missing_mid: bool = False
+    missing_mid = False
     """Cookies 缺少 mid"""
 
 
@@ -574,28 +574,28 @@ class GetGoodDetailStatus(BaseApiStatus):
     """
     获取商品详细信息 返回结果
     """
-    good_not_existed: bool = False
+    good_not_existed = False
 
 
 class ExchangeStatus(BaseApiStatus):
     """
     兑换操作 返回结果
     """
-    missing_stoken: bool = False
+    missing_stoken = False
     """商品为游戏内物品，但 Cookies 缺少 stoken"""
-    missing_mid: bool = False
+    missing_mid = False
     """商品为游戏内物品，但 stoken 为 'v2' 类型同时 Cookies 缺少 mid"""
-    missing_address: bool = False
+    missing_address = False
     """商品为实体物品，但未配置收货地址"""
-    missing_game_uid: bool = False
+    missing_game_uid = False
     """商品为游戏内物品，但未配置对应游戏的账号UID"""
-    unsupported_game: bool = False
+    unsupported_game = False
     """暂不支持兑换对应分区/游戏的商品"""
-    failed_getting_game_record: bool = False
+    failed_getting_game_record = False
     """获取用户 GameRecord 失败"""
-    init_required: bool = False
+    init_required = False
     """未进行兑换任务初始化"""
-    account_not_found: bool = False
+    account_not_found = False
     """账号不存在"""
 
 
@@ -603,9 +603,9 @@ class MissionStatus(BaseApiStatus):
     """
     米游币任务 返回结果
     """
-    failed_getting_post: bool = False
+    failed_getting_post = False
     """获取文章失败"""
-    already_signed: bool = False
+    already_signed = False
     """已经完成过签到"""
 
 
@@ -613,7 +613,7 @@ class GetFpStatus(BaseApiStatus):
     """
     兑换操作 返回结果
     """
-    invalid_arguments: bool = False
+    invalid_arguments = False
     """参数错误"""
 
 
@@ -621,9 +621,9 @@ class BoardStatus(BaseApiStatus):
     """
     实时便笺 返回结果
     """
-    game_record_failed: bool = False
+    game_record_failed = False
     """获取用户游戏数据失败"""
-    game_list_failed: bool = False
+    game_list_failed = False
     """获取游戏列表失败"""
 
 
@@ -631,7 +631,7 @@ class GenshinNoteStatus(BoardStatus):
     """
     原神实时便笺 返回结果
     """
-    no_genshin_account: bool = False
+    no_genshin_account = False
     """用户没有任何原神账户"""
 
 
@@ -639,8 +639,20 @@ class StarRailNoteStatus(BoardStatus):
     """
     星铁实时便笺 返回结果
     """
-    no_starrail_account: bool = False
+    no_starrail_account = False
     """用户没有任何星铁账户"""
+
+
+class QueryGameTokenQrCodeStatus(BaseApiStatus):
+    """
+    星铁实时便笺 返回结果
+    """
+    qrcode_expired = False
+    """二维码已过期"""
+    qrcode_init = False
+    """二维码未扫描"""
+    qrcode_scanned = False
+    """二维码已扫描但未确认"""
 
 
 GeetestResult = NamedTuple("GeetestResult", validate=str, seccode=str)

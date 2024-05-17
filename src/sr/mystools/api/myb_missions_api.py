@@ -4,12 +4,11 @@ from typing import List, Optional, Tuple, Type, Dict
 import httpx
 import tenacity
 
-from basic.log_utils import log
 from ..api.common import ApiResultHandler, is_incorrect_return, create_verification, \
     verify_verification
 from ..model import BaseApiStatus, MissionStatus, MissionData, \
-    MissionState, UserAccount, plugin_config, plugin_env
-from ..utils import generate_ds, \
+    MissionState, UserAccount, plugin_config, plugin_env, UserData
+from ..utils import logger, generate_ds, \
     get_async_retry, get_validate
 
 URL_SIGN = "https://bbs-api.mihoyo.com/apihub/app/api/signIn"
@@ -110,7 +109,7 @@ class BaseMission:
         self.headers = HEADERS_BASE.copy()
         self.headers["x-rpc-device_id"] = account.device_id_android
 
-    async def sign(self, retry: bool = True) -> Tuple[MissionStatus, Optional[int]]:
+    async def sign(self, user: UserData, retry: bool = True) -> Tuple[MissionStatus, Optional[int]]:
         """
         签到
 
@@ -134,44 +133,44 @@ class BaseMission:
                         )
                     api_result = ApiResultHandler(res.json())
                     if api_result.login_expired:
-                        log.error(
+                        logger.error(
                             f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 登录失效")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(login_expired=True), None
                     elif api_result.invalid_ds:
-                        log.error(
+                        logger.error(
                             f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} DS 校验失败")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(invalid_ds=True), None
                     elif api_result.retcode == 1034:
-                        log.error(
+                        logger.error(
                             f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 需要完成人机验证")
-                        log.debug(f"网络请求返回: {res.text}")
-                        if plugin_config.preference.geetest_url:
+                        logger.debug(f"网络请求返回: {res.text}")
+                        if plugin_config.preference.geetest_url or user.geetest_url:
                             create_status, mmt_data = await create_verification(self.account)
                             if create_status:
-                                if geetest_result := await get_validate(mmt_data.gt, mmt_data.challenge):
+                                if geetest_result := await get_validate(user, mmt_data.gt, mmt_data.challenge):
                                     if await verify_verification(mmt_data, geetest_result, self.account):
-                                        log.info(
+                                        logger.success(
                                             f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 人机验证通过")
                                         continue
                         else:
-                            log.info(
+                            logger.info(
                                 f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 未配置极验人机验证打码平台")
                         return MissionStatus(need_verify=True), None
                     elif api_result.retcode == 1008:
-                        log.warning(
+                        logger.warning(
                             f"米游币任务 - 讨论区签到: 用户 {self.account.display_name} 今日已经签到过了")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(success=True, already_signed=True), 0
                     return MissionStatus(success=True), api_result.data["points"]
         except tenacity.RetryError as e:
             if is_incorrect_return(e):
-                log.exception(f"米游币任务 - 讨论区签到: 服务器没有正确返回")
-                log.debug(f"网络请求返回: {res.text}")
+                logger.exception(f"米游币任务 - 讨论区签到: 服务器没有正确返回")
+                logger.debug(f"网络请求返回: {res.text}")
                 return MissionStatus(incorrect_return=True), None
             else:
-                log.exception("米游币任务 - 讨论区签到: 请求失败")
+                logger.exception("米游币任务 - 讨论区签到: 请求失败")
                 return MissionStatus(network_error=True), None
 
     async def get_posts(self, retry: bool = True) -> Tuple[BaseApiStatus, Optional[List[str]]]:
@@ -201,11 +200,11 @@ class BaseMission:
             return BaseApiStatus(success=True), post_id_list
         except tenacity.RetryError as e:
             if is_incorrect_return(e):
-                log.exception(f"米游币任务 - 获取文章列表: 服务器没有正确返回")
-                log.debug(f"网络请求返回: {res.text}")
+                logger.exception(f"米游币任务 - 获取文章列表: 服务器没有正确返回")
+                logger.debug(f"网络请求返回: {res.text}")
                 return BaseApiStatus(incorrect_return=True), None
             else:
-                log.exception(f"米游币任务 - 获取文章列表: 请求失败")
+                logger.exception(f"米游币任务 - 获取文章列表: 请求失败")
                 return BaseApiStatus(network_error=True), None
 
     async def read(self, read_times: int = 5, retry: bool = True) -> MissionStatus:
@@ -236,14 +235,14 @@ class BaseMission:
                                 )
                             api_result = ApiResultHandler(res.json())
                             if api_result.login_expired:
-                                log.info(
+                                logger.info(
                                     f"米游币任务 - 阅读: 用户 {self.account.display_name} 登录失效")
-                                log.debug(f"网络请求返回: {res.text}")
+                                logger.debug(f"网络请求返回: {res.text}")
                                 return MissionStatus(login_expired=True)
                             if api_result.invalid_ds:
-                                log.info(
+                                logger.info(
                                     f"米游币任务 - 阅读: 用户 {self.account.display_name} DS 校验失败")
-                                log.debug(f"网络请求返回: {res.text}")
+                                logger.debug(f"网络请求返回: {res.text}")
                                 return MissionStatus(invalid_ds=True)
                             if api_result.message == "帖子不存在":
                                 continue
@@ -253,11 +252,11 @@ class BaseMission:
                             count += 1
                 except tenacity.RetryError as e:
                     if is_incorrect_return(e, ValueError):
-                        log.exception(f"米游币任务 - 阅读: 服务器没有正确返回")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.exception(f"米游币任务 - 阅读: 服务器没有正确返回")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(incorrect_return=True)
                     else:
-                        log.exception(f"米游币任务 - 阅读: 请求失败")
+                        logger.exception(f"米游币任务 - 阅读: 请求失败")
                         return MissionStatus(network_error=True)
                 if count != read_times:
                     await asyncio.sleep(plugin_config.preference.sleep_time)
@@ -297,14 +296,14 @@ class BaseMission:
                                 )
                             api_result = ApiResultHandler(res.json())
                             if api_result.login_expired:
-                                log.info(
+                                logger.info(
                                     f"米游币任务 - 点赞: 用户 {self.account.display_name} 登录失效")
-                                log.debug(f"网络请求返回: {res.text}")
+                                logger.debug(f"网络请求返回: {res.text}")
                                 return MissionStatus(login_expired=True)
                             if api_result.invalid_ds:
-                                log.info(
+                                logger.info(
                                     f"米游币任务 - 点赞: 用户 {self.account.display_name} DS 校验失败")
-                                log.debug(f"网络请求返回: {res.text}")
+                                logger.debug(f"网络请求返回: {res.text}")
                                 return MissionStatus(invalid_ds=True)
                             if api_result.message == "帖子不存在":
                                 continue
@@ -313,11 +312,11 @@ class BaseMission:
                             count += 1
                 except tenacity.RetryError as e:
                     if is_incorrect_return(e, ValueError):
-                        log.exception(f"米游币任务 - 点赞: 服务器没有正确返回")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.exception(f"米游币任务 - 点赞: 服务器没有正确返回")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(incorrect_return=True)
                     else:
-                        log.exception(f"米游币任务 - 点赞: 请求失败")
+                        logger.exception(f"米游币任务 - 点赞: 请求失败")
                         return MissionStatus(network_error=True)
                 if count != like_times:
                     await asyncio.sleep(plugin_config.preference.sleep_time)
@@ -351,14 +350,14 @@ class BaseMission:
                         )
                     api_result = ApiResultHandler(res.json())
                     if api_result.login_expired:
-                        log.info(
+                        logger.info(
                             f"米游币任务 - 分享: 用户 {self.account.display_name} 登录失效")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(login_expired=True)
                     if api_result.invalid_ds:
-                        log.info(
+                        logger.info(
                             f"米游币任务 - 分享: 用户 {self.account.display_name} DS 校验失败")
-                        log.debug(f"网络请求返回: {res.text}")
+                        logger.debug(f"网络请求返回: {res.text}")
                         return MissionStatus(invalid_ds=True)
                     if api_result.message == "帖子不存在":
                         continue
@@ -366,11 +365,11 @@ class BaseMission:
                         raise ValueError
         except tenacity.RetryError as e:
             if is_incorrect_return(e, ValueError):
-                log.exception(f"米游币任务 - 分享: 服务器没有正确返回")
-                log.debug(f"网络请求返回: {res.text}")
+                logger.exception(f"米游币任务 - 分享: 服务器没有正确返回")
+                logger.debug(f"网络请求返回: {res.text}")
                 return MissionStatus(incorrect_return=True)
             else:
-                log.exception(f"米游币任务 - 分享: 请求失败")
+                logger.exception(f"米游币任务 - 分享: 请求失败")
                 return MissionStatus(network_error=True)
         return MissionStatus(success=True)
 
@@ -466,9 +465,9 @@ async def get_missions(account: UserAccount, retry: bool = True) -> Tuple[BaseAp
                                            timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
-                    log.info(
+                    logger.info(
                         f"获取米游币任务列表: 用户 {account.display_name} 登录失效")
-                    log.debug(f"网络请求返回: {res.text}")
+                    logger.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True), None
                 mission_list: List[MissionData] = []
                 for mission in api_result.data["missions"]:
@@ -476,11 +475,11 @@ async def get_missions(account: UserAccount, retry: bool = True) -> Tuple[BaseAp
                 return BaseApiStatus(success=True), mission_list
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception(f"获取米游币任务列表: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception(f"获取米游币任务列表: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception("获取米游币任务列表: 请求失败")
+            logger.exception("获取米游币任务列表: 请求失败")
             return BaseApiStatus(network_error=True), None
 
 
@@ -503,9 +502,9 @@ async def get_missions_state(account: UserAccount, retry: bool = True) -> Tuple[
                                            timeout=plugin_config.preference.timeout)
                 api_result = ApiResultHandler(res.json())
                 if api_result.login_expired:
-                    log.info(
+                    logger.info(
                         f"获取米游币任务完成情况: 用户 {account.display_name} 登录失效")
-                    log.debug(f"网络请求返回: {res.text}")
+                    logger.debug(f"网络请求返回: {res.text}")
                     return BaseApiStatus(login_expired=True), None
                 state_dict = {}
                 for mission in missions:
@@ -519,9 +518,9 @@ async def get_missions_state(account: UserAccount, retry: bool = True) -> Tuple[
                                                                  current_myb=api_result.data["total_points"])
     except tenacity.RetryError as e:
         if is_incorrect_return(e):
-            log.exception("获取米游币任务完成情况: 服务器没有正确返回")
-            log.debug(f"网络请求返回: {res.text}")
+            logger.exception("获取米游币任务完成情况: 服务器没有正确返回")
+            logger.debug(f"网络请求返回: {res.text}")
             return BaseApiStatus(incorrect_return=True), None
         else:
-            log.exception("获取米游币任务完成情况: 请求失败")
+            logger.exception("获取米游币任务完成情况: 请求失败")
             return BaseApiStatus(network_error=True), None
