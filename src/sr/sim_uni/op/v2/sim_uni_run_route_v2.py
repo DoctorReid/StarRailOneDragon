@@ -549,7 +549,10 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         :return:
         """
         self.had_fight = True
-        return self._turn_to_previous_angle()
+        self._turn_to_previous_angle()
+        self.moved_to_target = True  # 与精英战斗后 该识别的目标都在附近了 就算识别不到也不需要往前走了
+
+        return Operation.round_success()
 
     def _detect_reward(self) -> OperationOneRoundResult:
         if self.had_reward:
