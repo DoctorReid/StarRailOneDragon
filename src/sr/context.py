@@ -338,17 +338,17 @@ class Context:
             for callback in self.press_event[k]:
                 callback()
 
-    def start_running(self) -> bool:
+    def start_running(self, init: bool = True) -> bool:
         if self.running != 0:
             log.error('请先结束其他运行中的功能 再启动')
             return False
 
-        if not self.init_all(renew=True):
+        if init and not self.init_all(renew=True):
             self.stop_running()
             return False
 
         self.running = 1
-        if self.controller is not None:
+        if init and self.controller is not None:
             self.controller.init()
         self._after_start()
         return True

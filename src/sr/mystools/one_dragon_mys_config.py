@@ -196,6 +196,14 @@ class MysConfig(ConfigHolder):
         return None
 
     @property
+    def user_data(self) -> Optional[UserData]:
+        if self._user_id not in PluginDataManager.plugin_data.users:
+            return None
+
+        return PluginDataManager.plugin_data.users[self._user_id]
+
+
+    @property
     def phone_number(self) -> str:
         return self.get('phone_number', '')
 
@@ -445,7 +453,7 @@ class MysConfig(ConfigHolder):
                 sign_points: Optional[int] = None
                 for key_name in missions_state.state_dict:
                     if key_name == BaseMission.SIGN:
-                        sign_status, sign_points = await mission_obj.sign()
+                        sign_status, sign_points = await mission_obj.sign(self.user_data)
                         log.info(f"签到：{'✓' if sign_status else '✕'} +{sign_points or '0'} 米游币")
                     elif key_name == BaseMission.VIEW:
                         read_status = await mission_obj.read()

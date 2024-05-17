@@ -22,7 +22,15 @@ class MysApp(Application):
                          )
         self.game_sign_success: bool = False
         self.bbs_sign_success: bool = False
-        self.init_context_before_start = True  # 不需要任何context
+        self.init_context_before_start = False  # 不需要任何context
+
+    def _init_context(self) -> bool:
+        """
+        上下文的初始化
+        :return: 是否初始化成功
+        """
+        self.ctx.start_running(init=False)
+        return True
 
     def _game_sign(self) -> OperationOneRoundResult:
         if not self.ctx.mys_config.is_login:
