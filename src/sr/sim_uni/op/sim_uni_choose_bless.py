@@ -349,6 +349,8 @@ class SimUniUpgradeBless(StateOperation):
         edges.append(StateOperationEdge(check_left, check_upgrade))
 
         choose = StateOperationNode('选择祝福', self._choose_bless)
+        edges.append(StateOperationEdge(check_upgrade, choose))
+
         upgrade = StateOperationNode('升级', self._upgrade)
         edges.append(StateOperationEdge(choose, upgrade, status=SimUniUpgradeBless.STATUS_UPGRADE))
 
@@ -364,7 +366,7 @@ class SimUniUpgradeBless(StateOperation):
         super().__init__(ctx, try_times=10,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('强化祝福', 'ui')),
                          edges=edges,
-                         specified_start_node=choose
+                         specified_start_node=check_left
                          )
 
         self.left_num: int = 0  # 剩余碎片数量
@@ -434,10 +436,12 @@ class SimUniUpgradeBless(StateOperation):
             if digit == 0:
                 continue
             if total_num + digit > self.left_num:
-                break
+                continue
             total_num += digit
             self.upgrade_list.append(MatchResult(1, digit_rect.x1, digit_rect.x2, digit_rect.width, digit_rect.height,
                                                  data=digit))
+            if total_num + 100 > self.left_num:  # 比较粗糙认为最少要100才能强化
+                break
 
     def _choose_bless(self) -> OperationOneRoundResult:
         """
