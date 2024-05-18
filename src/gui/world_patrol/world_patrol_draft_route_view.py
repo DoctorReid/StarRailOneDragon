@@ -132,7 +132,8 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.large_map_width = 1000
         self.map_img = ft.Image(src="a.png", fit=ft.ImageFit.CONTAIN, error_content=ft.Text('等待选择区域'), visible=False)
         self.map_container = ft.Container(content=self.map_img, width=self.large_map_width, height=self.large_map_width,
-                                          on_click=self.on_map_click, alignment=ft.alignment.top_left)
+                                          on_click=self.fake_event,
+                                          on_tap_down=self.on_map_click, alignment=ft.alignment.top_left)
 
         display_part = ft.Column(
             controls=[
@@ -431,6 +432,15 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
 
         self.route_text.value = '' if self.chosen_route is None else self.chosen_route.route_config_str
         self.update_all_component_status()
+
+    def fake_event(self, e):
+        """
+        flet有bug 必须有一个click事件才会触发
+        https://github.com/flet-dev/flet/issues/3064
+        :param e:
+        :return:
+        """
+        pass
 
     def on_map_click(self, e):
         map_image: MatLike = self.get_original_map_image()

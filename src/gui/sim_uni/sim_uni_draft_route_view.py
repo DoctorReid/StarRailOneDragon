@@ -117,7 +117,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                 screenshot_row,
                 op_btn_row,
                 ft.Container(content=self.large_map_display, width=self.large_map_width, height=self.large_map_width,
-                             on_click=self._on_large_map_click,
+                             on_click=self.fake_event, on_tap_down=self._on_large_map_click,
                              alignment=ft.alignment.top_left)
             ],
             scroll=ft.ScrollMode.AUTO
@@ -360,6 +360,15 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.start_pos_list.clear()
         self._update_screenshot_row()
         self._on_op_list_changed()
+
+    def fake_event(self, e):
+        """
+        flet有bug 必须有一个click事件才会触发
+        https://github.com/flet-dev/flet/issues/3064
+        :param e:
+        :return:
+        """
+        pass
 
     def _on_large_map_click(self, e):
         if self.chosen_route is None or self.chosen_route.region is None:
@@ -615,9 +624,9 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             ]
             if route_chosen:
                 self.existed_route_dropdown.value = self.chosen_route.uid
+                self.algo_dropdown.value = str(self.chosen_route.algo)
 
         self.algo_dropdown.disabled = not route_chosen
-        self.algo_dropdown.value = str(self.chosen_route.algo)
         self.cancel_edit_existed_btn.disabled = not route_chosen
 
         self.num_dropdown.disabled = route_chosen
