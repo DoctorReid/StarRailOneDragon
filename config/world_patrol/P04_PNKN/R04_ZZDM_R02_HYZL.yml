@@ -12,7 +12,7 @@ route:
     data: [657, 524]
   - idx: 3
     op: 'move'
-    data: [670, 493]
+    data: [684, 489]
   - idx: 4
     op: 'patrol'
   - idx: 5

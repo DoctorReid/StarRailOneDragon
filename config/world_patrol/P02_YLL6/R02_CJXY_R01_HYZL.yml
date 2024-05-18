@@ -4,41 +4,68 @@ region: '城郊雪原'
 floor: 0
 tp: '回忆之蕾·拟造花萼（金）'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [1106, 444]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
     data: [1064, 489]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 4
+    op: 'patrol'
+  - idx: 5
+    op: 'move'
     data: [981, 584]
-  - op: 'move'
+  - idx: 6
+    op: 'move'
     data: [937, 474]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 7
+    op: 'patrol'
+  - idx: 8
+    op: 'move'
     data: [1012, 407]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 9
+    op: 'disposable'
+  - idx: 10
+    op: 'move'
     data: [1019, 278]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 11
+    op: 'disposable'
+  - idx: 12
+    op: 'move'
     data: [974, 313]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 13
+    op: 'disposable'
+  - idx: 14
+    op: 'move'
     data: [890, 254]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 15
+    op: 'disposable'
+  - idx: 16
+    op: 'move'
     data: [704, 326]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 17
+    op: 'patrol'
+  - idx: 18
+    op: 'patrol'
+  - idx: 19
+    op: 'move'
     data: [715, 226]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 20
+    op: 'disposable'
+  - idx: 21
+    op: 'move'
     data: [689, 227]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 22
+    op: 'patrol'
+  - idx: 23
+    op: 'move'
     data: [624, 292]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 24
+    op: 'disposable'
+  - idx: 25
+    op: 'move'
     data: [570, 235]
-  - op: 'disposable'
+  - idx: 26
+    op: 'disposable'

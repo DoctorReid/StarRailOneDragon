@@ -120,8 +120,12 @@ class WorldPatrolEnterFight(Operation):
             op_result = op.execute()
             current_use_tech = op_result.data
             self.first_tech_after_battle = False
-            if current_use_tech and self.ctx.team_info.is_buff_technique:
-                self._update_not_in_world_time()  # 使用BUFF类秘技的时间不应该在计算内
+            if current_use_tech and (
+                    self.ctx.team_info.is_buff_technique
+                    or op_result.status == UseTechnique.STATUS_USE_CONSUMABLE
+            ):
+                # 使用BUFF类秘技 或者 使用消耗品的时间不应该在计算内
+                self._update_not_in_world_time()
 
         if self.technique_fight and self.technique_only and current_use_tech:
             # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击

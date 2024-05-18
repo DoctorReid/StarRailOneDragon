@@ -4,17 +4,19 @@ region: '筑梦边境'
 floor: 0
 tp: '回忆之蕾·拟造花萼（金）'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
+    data: [301, 1364]
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
     data: [315, 1396]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [315, 1455]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
     data: [335, 1460]
-  - op: 'patrol'
-  - op: 'move'
-    data: [315, 1455]
-  - op: 'move'
-    data: [315, 1396]
-  - op: 'move'
-    data: [308, 1378]
-  - op: 'patrol'
+  - idx: 6
+    op: 'patrol'
