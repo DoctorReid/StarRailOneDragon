@@ -78,12 +78,12 @@ def match_best_sim_uni_route(uni_num: int, level_type: SimUniLevelType, mm: MatL
                 continue
             source = route.mm
             template, _ = cv2_utils.crop_image(mm, Rect(30, 30, 160, 160))
-            mr = cv2_utils.match_template(source, template, threshold=0.9, only_best=True)
+            mr = cv2_utils.match_template(source, template, threshold=0.6, only_best=True)
 
             if mr.max is None and route.mm2 is not None:
                 source = route.mm2
                 template, _ = cv2_utils.crop_image(mm, Rect(30, 30, 160, 160))
-                mr = cv2_utils.match_template(source, template, threshold=0.9, only_best=True)
+                mr = cv2_utils.match_template(source, template, threshold=0.6, only_best=True)
 
             if mr.max is None:
                 continue
@@ -97,7 +97,7 @@ def match_best_sim_uni_route(uni_num: int, level_type: SimUniLevelType, mm: MatL
         target_route.save()
 
     if target_mr is not None:
-        log.debug(f'当前匹配路线置信度 {target_mr:.2f}')
+        log.debug(f'当前匹配路线置信度 {target_mr.confidence:.2f}')
 
     return target_route
 

@@ -58,7 +58,7 @@ class SimUniRunRouteBase(StateOperation):
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         StateOperation.__init__(self,
                                 ctx=ctx, try_times=try_times,
-                                op_name=gt('区域-%s' % level_type.type_name, 'ui'),
+                                op_name=gt(f'区域-{level_type.type_name}-v2', 'ui'),
                                 nodes=nodes, edges=edges, specified_start_node=specified_start_node,
                                 timeout_seconds=timeout_seconds, op_callback=op_callback)
 
@@ -128,7 +128,6 @@ class SimUniRunRouteBase(StateOperation):
         self.moved_to_target = True
 
         self._view_up()
-        op = MoveToNextLevel(self.ctx, level_type=self.level_type)
         op = MoveToNextLevelV2(self.ctx, level_type=self.level_type)
         return Operation.round_by_op(op.execute())
 
@@ -843,7 +842,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         :return:
         """
         # 兼容近战角色 稍微往前走一点再进行攻击
-        self.ctx.controller.move('w', 0.1)
+        self.ctx.controller.move('w', 0.5)
         # 注意要使用这个op 防止弹出祝福之类卡死
         op = SimUniEnterFight(self.ctx, disposable=True, first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         return Operation.round_by_op(op.execute())
@@ -872,6 +871,8 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         """
         self.nothing_times = 0
         self.moved_to_target = True
+        # 按照目前的固定布局 走向黑塔后 下层入口必定往左转更快发现
+        self.turn_direction_when_nothing = -1
         op = MoveWithoutPos(self.ctx, start=self.ctx.game_config.mini_map_pos.mm_center, target=self.mm_icon_pos)
         return Operation.round_by_op(op.execute())
 
@@ -906,11 +907,10 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         根据画面识别结果走向事件
         :return:
         """
-        # 按照目前的固定布局 走向黑塔后 下层入口必定往左转更快发现
-        self.turn_direction_when_nothing = -1
-
         self.nothing_times = 0
         self.moved_to_target = True
+        # 按照目前的固定布局 走向黑塔后 下层入口必定往左转更快发现
+        self.turn_direction_when_nothing = -1
         op = SimUniMoveToInteractByDetect(self.ctx,
                                           interact_class='模拟宇宙黑塔',
                                           interact_word='黑塔',

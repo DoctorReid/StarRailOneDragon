@@ -49,12 +49,15 @@ class SimUniRunLevel(StateOperation):
         check_members = StateOperationNode('识别组队成员', self._check_members)
         edges.append(StateOperationEdge(wait_start, check_members))
 
+        check_level_type = StateOperationNode('识别楼层类型', self._check_level_type)
+        edges.append(StateOperationEdge(check_members, check_level_type))
+
         check_route = StateOperationNode('匹配路线', self._check_route)
-        edges.append(StateOperationEdge(check_members, check_route))
+        edges.append(StateOperationEdge(check_level_type, check_route))
 
         route = StateOperationNode('区域', self._route_op)
         edges.append(StateOperationEdge(check_route, route, ignore_status=True))
-        edges.append(StateOperationEdge(check_route, route, success=False))  # 没有设置路线也尝试使用v2算法
+        edges.append(StateOperationEdge(check_route, route, success=False, ignore_status=True))  # 没有设置路线也尝试使用v2算法
 
         # 部分v1的失败情况 可以使用v2兜底
         route_v2 = StateOperationNode('区域v2', self._route_op_v2)
@@ -92,7 +95,12 @@ class SimUniRunLevel(StateOperation):
         op = CheckTeamMembersInWorld(self.ctx)
         return Operation.round_by_op(op.execute())
 
-    def _check_route(self) -> OperationOneRoundResult:
+    def _check_level_type(self) -> OperationOneRoundResult:
+        """
+        识别楼层类型
+        防止识别错误 两次识别一样时才认为是正确 牺牲一点时间换取稳定性
+        :return:
+        """
         screen = self.screenshot()
 
         region_name = screen_state.get_region_name(screen, self.ctx.ocr)
@@ -102,21 +110,33 @@ class SimUniRunLevel(StateOperation):
 
         if target_idx is None:
             self.level_type = None
-            self.route = None
             return Operation.round_retry('匹配楼层类型失败', wait=1)
 
-        another_route = False  # 是否匹配到另一条路线
+        another_type = False  # 是否匹配到另一钟类型
         target_level_type = level_type_list[target_idx]
         if self.level_type is None or self.level_type != target_level_type:
             self.level_type = target_level_type
-            another_route = True
+            another_type = True
 
-        if self.world_num < 9:
+        if another_type:
+            return Operation.round_wait(wait=0.5)
+        else:
+            return Operation.round_success()
+
+    def _check_route(self) -> OperationOneRoundResult:
+        """
+        根据小地图匹配路线
+        防止匹配错误 两次匹配一样时才认为是正确 牺牲一点时间换取稳定性
+        :return:
+        """
+        screen = self.screenshot()
+
+        another_route = False  # 是否匹配到另一条路线
+        if self.world_num < 9:  # 目前只有3~8宇宙需要匹配路线
             mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
             target_route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
 
             if target_route is None:
-                self.level_type = None
                 self.route = None
                 return Operation.round_retry('匹配路线失败', wait=1)
             elif self.route is None or self.route.uid != target_route.uid:
@@ -124,7 +144,7 @@ class SimUniRunLevel(StateOperation):
                 another_route = True
 
         if another_route:
-            return Operation.round_wait(wait=0.5)  # 两次匹配成功才认为是正确的路线 牺牲一点时间换取稳定性
+            return Operation.round_wait(wait=0.5)
         else:
             return Operation.round_success()
 

@@ -583,7 +583,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
         if len(entry_angles) > 0:
             avg_delta_angle = np.mean(entry_angles)
             turn_angle = turn_by_angle_slowly(self.ctx, avg_delta_angle)
-            if abs(turn_angle) <= _MAX_TURN_ANGLE * 2:
+            if abs(turn_angle) <= _MAX_TURN_ANGLE:
                 return Operation.round_success(wait=0.1)
             else:
                 return Operation.round_wait(wait=0.1)
