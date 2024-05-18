@@ -2,8 +2,10 @@ support_world: [8]
 planet: '仙舟「罗浮」'
 region: '廻星港'
 floor: 2
+algo: 2
 start_pos: [790, 385]
 next_pos_list: []
 op_list:
   - op: 'move'
     data: [735, 400]
+  - op: 'patrol'

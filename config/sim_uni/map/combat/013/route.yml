@@ -2,6 +2,7 @@ support_world: [8]
 planet: '仙舟「罗浮」'
 region: '太卜司'
 floor: 1
+algo: 2
 start_pos: [249, 646]
 next_pos_list:
   - [293, 725]

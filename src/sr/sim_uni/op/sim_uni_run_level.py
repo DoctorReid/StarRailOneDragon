@@ -54,9 +54,14 @@ class SimUniRunLevel(StateOperation):
 
         route = StateOperationNode('区域', self._route_op)
         edges.append(StateOperationEdge(check_route, route, ignore_status=True))
+        edges.append(StateOperationEdge(check_route, route, success=False))  # 没有设置路线也尝试使用v2算法
 
+        # 部分v1的失败情况 可以使用v2兜底
+        route_v2 = StateOperationNode('区域v2', self._route_op_v2)
+        edges.append(StateOperationEdge(route, route_v2, success=False, status=MoveDirectly.STATUS_NO_POS))
+
+        # 最终还是失败时 部分场景可以尝试重置
         reset = StateOperationNode('重置', self._reset)
-        edges.append(StateOperationEdge(route, reset, success=False, status=MoveDirectly.STATUS_NO_POS))
         edges.append(StateOperationEdge(route, reset, success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND))
         edges.append(StateOperationEdge(reset, route))
 
@@ -123,15 +128,12 @@ class SimUniRunLevel(StateOperation):
         else:
             return Operation.round_success()
 
-    def _route_op(self) -> OperationOneRoundResult:
+    def _route_op(self, only_v2: bool = False) -> OperationOneRoundResult:
         """
         获取路线指令
         :return:
         """
-        if self.world_num < 9:
-            op: Operation = self._old_route_op()
-        else:
-            op: Operation = self._new_route_op()
+        op: Operation = self._get_route_op(only_v2=only_v2)
 
         if op is None:
             return Operation.round_fail(status='未支持的楼层类型 %s' % self.level_type)
@@ -142,18 +144,29 @@ class SimUniRunLevel(StateOperation):
         else:
             return Operation.round_by_op(op_result)
 
-    def _old_route_op(self) -> Optional[Operation]:
+    def _route_op_v2(self) -> OperationOneRoundResult:
         """
-        第九世界之前的 使用旧方法
+        获取路线指令
+        :return:
+        """
+        return self._route_op(only_v2=True)
+
+    def _get_route_op(self, only_v2: bool = False) -> Optional[Operation]:
+        """
+        1. 匹配路线失败时 使用v2算法
+        2. 根据匹配路线中的配置 选择使用的算法
         :return:
         """
         if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
-            return SimUniRunCombatRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
+            if self.route is None or self.route.algo == 2 or only_v2:
+                return SimUniRunCombatRouteV2(self.ctx, self.level_type)
+            else:
+                return SimUniRunCombatRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
                 self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
                 self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value or \
                 self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            if self.ctx.one_dragon_config.is_debug:  # 调试切换到新方法
+            if self.route is None or self.route.algo == 2 or only_v2:
                 if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
                     return SimUniRunRespiteRouteV2(self.ctx, self.level_type)
                 else:
@@ -162,7 +175,7 @@ class SimUniRunLevel(StateOperation):
                 return SimUniRunInteractRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            if self.ctx.one_dragon_config.is_debug:  # 调试切换到新方法
+            if self.route is None or self.route.algo == 2 or only_v2:
                 return SimUniRunEliteRouteV2(self.ctx, self.level_type,
                                              max_reward_to_get=self.max_reward_to_get,
                                              get_reward_callback=self.get_reward_callback)
@@ -170,27 +183,6 @@ class SimUniRunLevel(StateOperation):
                 return SimUniRunEliteRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config,
                                            max_reward_to_get=self.max_reward_to_get,
                                            get_reward_callback=self.get_reward_callback)
-        else:
-            return None
-
-    def _new_route_op(self) -> Optional[Operation]:
-        """
-        第九宇宙开始使用
-        :return:
-        """
-        if self.level_type == SimUniLevelTypeEnum.COMBAT.value:
-            return SimUniRunCombatRouteV2(self.ctx, self.level_type)
-        elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
-                self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            return SimUniRunEliteRouteV2(self.ctx, self.level_type,
-                                         max_reward_to_get=self.max_reward_to_get,
-                                         get_reward_callback=self.get_reward_callback)
-        elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
-                self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
-                self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
-            return SimUniRunEventRouteV2(self.ctx, self.level_type)
-        elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            return SimUniRunRespiteRouteV2(self.ctx, self.level_type)
         else:
             return None
 

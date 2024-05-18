@@ -2,6 +2,7 @@ support_world: [3]
 planet: '雅利洛-VI'
 region: '边缘通路'
 floor: 0
+algo: 2
 start_pos: [740, 849]
 next_pos_list:
   - [677, 838]

@@ -2,6 +2,7 @@ support_world: [4, 8]
 planet: '雅利洛-VI'
 region: '铆钉镇'
 floor: 1
+algo: 2
 start_pos: [601, 550]
 next_pos_list:
   - [593, 475]

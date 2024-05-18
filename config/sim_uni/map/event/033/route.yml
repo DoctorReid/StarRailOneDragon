@@ -2,6 +2,7 @@ support_world: [3, 4, 6]
 planet: '空间站黑塔'
 region: '支援舱段'
 floor: 2
+algo: 2
 start_pos: [351, 230]
 next_pos_list:
   - [420, 232]

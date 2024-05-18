@@ -5,7 +5,8 @@ from cv2.typing import MatLike
 
 from basic import Rect
 from basic.img import MatchResult, cv2_utils
-from sr.sim_uni.sim_uni_const import SimUniLevelType
+from basic.log_utils import log
+from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_route import SimUniRoute
 
 
@@ -76,13 +77,13 @@ def match_best_sim_uni_route(uni_num: int, level_type: SimUniLevelType, mm: MatL
             if (uni_num in route.support_world) != same_world:
                 continue
             source = route.mm
-            template, _ = cv2_utils.crop_image(mm, Rect(50, 50, 150, 150))
-            mr = cv2_utils.match_template(source, template, threshold=0.6, only_best=True)
+            template, _ = cv2_utils.crop_image(mm, Rect(30, 30, 160, 160))
+            mr = cv2_utils.match_template(source, template, threshold=0.9, only_best=True)
 
             if mr.max is None and route.mm2 is not None:
                 source = route.mm2
-                template, _ = cv2_utils.crop_image(mm, Rect(50, 50, 150, 150))
-                mr = cv2_utils.match_template(source, template, threshold=0.6, only_best=True)
+                template, _ = cv2_utils.crop_image(mm, Rect(30, 30, 160, 160))
+                mr = cv2_utils.match_template(source, template, threshold=0.9, only_best=True)
 
             if mr.max is None:
                 continue
@@ -95,4 +96,14 @@ def match_best_sim_uni_route(uni_num: int, level_type: SimUniLevelType, mm: MatL
         target_route.add_support_world(uni_num)
         target_route.save()
 
+    if target_mr is not None:
+        log.debug(f'当前匹配路线置信度 {target_mr:.2f}')
+
     return target_route
+
+
+if __name__ == '__main__':
+    route_list = get_sim_uni_route_list(SimUniLevelTypeEnum.ELITE.value)
+    for route in route_list:
+        route.algo = 2
+        route.save()

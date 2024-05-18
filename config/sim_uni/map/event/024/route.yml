@@ -2,6 +2,7 @@ support_world: [7, 8]
 planet: '仙舟「罗浮」'
 region: '鳞渊境'
 floor: 0
+algo: 2
 start_pos: [1036, 390]
 next_pos_list:
   - [980, 397]

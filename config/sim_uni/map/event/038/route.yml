@@ -2,6 +2,7 @@ support_world: [6]
 planet: '雅利洛-VI'
 region: '残响回廊'
 floor: 0
+algo: 2
 start_pos: [423, 1185]
 next_pos_list:
   - [332, 1182]

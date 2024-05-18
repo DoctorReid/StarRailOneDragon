@@ -2,6 +2,7 @@ support_world: [5, 6]
 planet: '仙舟「罗浮」'
 region: '廻星港'
 floor: 1
+algo: 2
 start_pos: [403, 652]
 next_pos_list:
   - [388, 722]

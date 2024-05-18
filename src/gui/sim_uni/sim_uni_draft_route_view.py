@@ -38,6 +38,9 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             label='编辑已有路线', disabled=True, width=200,
             on_change=self._on_chosen_route_changed
         )
+        self.algo_dropdown = ft.Dropdown(label='使用算法', width=100, disabled=True,
+                                         options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 3)],
+                                         value='1', on_change=self._on_algo_changed)
         self.cancel_edit_existed_btn = components.RectOutlinedButton(
             text='取消编辑', disabled=True,on_click=self._cancel_edit_existed)
         self.num_dropdown = ft.Dropdown(
@@ -58,7 +61,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.save_btn = components.RectOutlinedButton(text='新建', disabled=True, on_click=self._do_save)
         self.delete_btn = components.RectOutlinedButton(text='删除', disabled=True, on_click=self._do_delete)
         self.test_btn = components.RectOutlinedButton(text='测试', disabled=True, on_click=self._do_test)
-        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_type_dropdown,self.existed_route_dropdown])
+        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_type_dropdown,self.existed_route_dropdown, self.algo_dropdown])
         route_op_btn_row = ft.Row(controls=[self.cancel_edit_existed_btn, self.save_btn, self.delete_btn, self.test_btn])
 
         self.screenshot_btn = components.RectOutlinedButton(text=gt('F8 截图', 'ui'), on_click=self._do_screenshot, disabled=True)
@@ -535,28 +538,22 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                    self.level_type_dropdown.value == SimUniLevelTypeEnum.BOSS.value.type_id
 
         self.back_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
-        self.back_btn.update()
 
         self.reset_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
-        self.reset_btn.update()
 
         self.patrol_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
-        self.patrol_btn.update()
 
         self.disposable_btn.disabled = not start_chosen or len(self.chosen_route.op_list) == 0
-        self.disposable_btn.update()
 
         self.slow_move_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
-        self.slow_move_btn.update()
 
         self.no_pos_move_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
-        self.no_pos_move_btn.update()
 
         self.add_next_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move
-        self.add_next_btn.update()
 
         self.add_reward_btn.disabled = not start_chosen or not self.chosen_route.is_last_op_move or not is_elite
-        self.add_reward_btn.update()
+
+        self.update()
 
     def _cancel_edit_existed(self, e=None):
         """
@@ -618,26 +615,23 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             ]
             if route_chosen:
                 self.existed_route_dropdown.value = self.chosen_route.uid
-        self.existed_route_dropdown.update()
 
+        self.algo_dropdown.disabled = not route_chosen
+        self.algo_dropdown.value = str(self.chosen_route.algo)
         self.cancel_edit_existed_btn.disabled = not route_chosen
-        self.cancel_edit_existed_btn.update()
 
         self.num_dropdown.disabled = route_chosen
-        self.num_dropdown.update()
 
         self.level_type_dropdown.disabled = route_chosen
-        self.level_type_dropdown.update()
 
         self.save_btn.disabled = not uni_chosen
         self.save_btn.text = '新建' if not route_chosen else '保存'
-        self.save_btn.update()
 
         self.delete_btn.disabled = not route_chosen
-        self.delete_btn.update()
 
         self.test_btn.disabled = not route_chosen
-        self.test_btn.update()
+
+        self.update()
 
     def _on_uni_changed(self, e=None):
         """
@@ -680,6 +674,13 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
                                  self.chosen_route
                                  )
         app.execute()
+
+    def _on_algo_changed(self, e):
+        if self.chosen_route is None:
+            log.error('未选择路线')
+            return
+        self.chosen_route.algo = int(self.algo_dropdown.value)
+        self._update_route_text_display()
 
 
 _sim_uni_draft_route_view: Optional[SimUniDraftRouteView] = None
