@@ -17,6 +17,7 @@ from sr.operation import Operation, OperationOneRoundResult
 class TlChooseCharacter(Operation):
 
     CHARACTER_LIST_RECT: ClassVar[Rect] = Rect(40, 140, 560, 930)
+    DRAG_FROM: ClassVar[Point] = Point(296, 725)  # 这是角色列表中间的缝隙 点击这里可以让列表停止滚动
 
     def __init__(self, ctx: Context, character_id: str):
         """
@@ -26,21 +27,21 @@ class TlChooseCharacter(Operation):
         :param character_id: 角色ID
         """
         self.character: Character = character_const.get_character_by_id(character_id)
-        super().__init__(ctx, try_times=5,
+        super().__init__(ctx, try_times=6,
                          op_name='%s %s' % (gt('选择角色', 'ui'), gt(self.character.cn, 'ui')))
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         pos = self._get_character_pos()
         if pos is not None:
             if self.ctx.controller.click(pos.center):
-                return Operation.round_success()
+                return Operation.round_success(wait=0.1)
             else:
                 return Operation.round_retry('点击头像失败', wait=1)
         else:
-            drag_from = TlChooseCharacter.CHARACTER_LIST_RECT.center
-            drag_to = drag_from + (Point(0, -300) if self.op_round % 2 == 0 else Point(0, 300))
+            drag_from = TlChooseCharacter.DRAG_FROM
+            drag_to = drag_from + (Point(0, -300) if self.op_round < 3 else Point(0, 300))  # 前3次向下滑 后3次向上滑
             self.ctx.controller.drag_to(drag_to, drag_from)
-            return Operation.round_retry('找不到对应头像', wait=1)
+            return Operation.round_retry('找不到对应头像', wait=2)
 
     def _get_character_pos(self, screen: Optional[MatLike] = None) -> Optional[MatchResult]:
         """

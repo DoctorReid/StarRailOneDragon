@@ -2,6 +2,7 @@ import time
 from typing import Optional, List, ClassVar
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.const.character_const import Character, get_character_by_id, TECHNIQUE_BUFF, is_attack_character, \
     TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK, SILVERWOLF, TECHNIQUE_AREA
 from sr.context import Context
@@ -125,6 +126,7 @@ class StartFightForElite(StateOperation):
         if self.technique_point < len(self.technique_order):
             self.technique_order = self.technique_order[:self.technique_point]
 
+        log.info(f'最后秘技顺序 {self.technique_order}')
         return Operation.round_success()
 
     def _get_character_list(self) -> OperationOneRoundResult:
@@ -222,7 +224,11 @@ class StartFightForElite(StateOperation):
         发起攻击
         :return:
         """
-        if self.need_attack_finally:
+        screen = self.screenshot()
+        # 仍在大世界的话 就尝试攻击
+        if screen_state.is_normal_in_world(screen, self.ctx.im) \
+                or screen_state.is_mission_in_world(screen, self.ctx.im):
             self.ctx.controller.initiate_attack()
-            time.sleep(0.5)
-        return Operation.round_success()
+            return Operation.round_retry('未进入战斗 尝试攻击', wait=1)
+        else:
+            return Operation.round_success()

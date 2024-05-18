@@ -37,9 +37,9 @@ class ChooseTeamInForgottenHall(Operation):
     SESSION_1: ClassVar[SessionInfo] = SessionInfo(
         num=1,
         combat_type_rect_list=[
-            Rect(1150, 760, 1185, 790),
-            Rect(1185, 760, 1220, 790),
-            Rect(1220, 760, 1255, 790),
+            Rect(1112, 760, 1142, 790),
+            Rect(1142, 760, 1172, 790),
+            Rect(1172, 760, 1202, 790),
         ],
         character_rect_list=[
             Rect(1380, 695, 1455, 765),
@@ -52,9 +52,9 @@ class ChooseTeamInForgottenHall(Operation):
     SESSION_2: ClassVar[SessionInfo] = SessionInfo(
         num=2,
         combat_type_rect_list=[
-            Rect(1150, 870, 1185, 900),
-            Rect(1185, 870, 1220, 900),
-            Rect(1220, 870, 1255, 900),
+            Rect(1112, 870, 1142, 900),
+            Rect(1142, 870, 1172, 900),
+            Rect(1172, 870, 1202, 900),
         ],
         character_rect_list=[
             Rect(1380, 795, 1455, 865),
@@ -141,6 +141,7 @@ class ChooseTeamInForgottenHall(Operation):
                 if t is not None:
                     combat_types.append(t)
             node_combat_types.append(combat_types)
+        log.info('识别所需属性为 %s', [i.cn for combat_types in node_combat_types for i in combat_types])
         return node_combat_types
 
     def _get_boss_combat_type(self, screen: MatLike, rect: Rect) -> Optional[CharacterCombatType]:
@@ -152,10 +153,15 @@ class ChooseTeamInForgottenHall(Operation):
         """
         part, _ = cv2_utils.crop_image(screen, rect)
 
+        # b, g, r = cv2.split(part)
+        # print(np.mean(b), np.mean(g), np.mean(r))
+        # cv2_utils.show_image(part, win_name='part', wait=0)
+
         gray = cv2.cvtColor(part, cv2.COLOR_BGR2GRAY)
         _, bw = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
-        bw = cv2_utils.connection_erase(bw)
+        bw = cv2_utils.connection_erase(bw, threshold=30)
         origin, mask = cv2_utils.convert_to_standard(part, bw, width=55, height=55, bg_color=(0, 0, 0))  # 扣出属性图标
+
         source_kps, source_desc = cv2_utils.feature_detect_and_compute(origin, mask)
         # cv2_utils.show_image(origin, win_name='_get_boss_combat_type_source')
 

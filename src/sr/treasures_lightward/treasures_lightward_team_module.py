@@ -320,19 +320,19 @@ class TreasuresLightwardNodeTeamScore:
         :return:
         """
         for c in character_list:
-            if c.path in ATTACK_PATH_LIST:
+            if is_attack_character(c.id):
                 self.attack_cnt += 1
                 if c.combat_type in origin_combat_type_list:
                     self.combat_type_attack_cnt += 1
                 elif c.combat_type in cal_combat_type_list:
                     self.combat_type_attack_cnt_under_silver += 1
-            elif c.path in SURVIVAL_PATH_LIST:
+            elif is_survival_character(c.id):
                 self.survival_cnt += 1
                 if c.combat_type in origin_combat_type_list:
                     self.combat_type_other_cnt += 1
                 elif c.combat_type in cal_combat_type_list:
                     self.combat_type_other_cnt_under_silver += 1
-            elif c.path in SUPPORT_PATH_LIST:
+            elif is_support_character(c.id):
                 self.support_cnt += 1
                 if c.combat_type in origin_combat_type_list:
                     self.combat_type_other_cnt += 1
@@ -511,6 +511,12 @@ class TreasuresLightwardMissionTeam:
             self.support_score += node.support_score
             self.combat_type_score += node.combat_type_score
             self.total_score += node.total_score
+
+            log.debug('配队 %d: %s 得分: %d',
+                      i,
+                      [i.cn for i in self.node_team_list[i].character_list],
+                      node.total_score
+                      )
 
 
 

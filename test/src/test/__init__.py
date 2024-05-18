@@ -1,14 +1,16 @@
+import logging
 import os
+import sys
 import unittest
-from typing import List, Optional
+from typing import Optional
 
 import cv2
-import sys
 from cv2.typing import MatLike
 
 from basic import os_utils, Rect
 from basic.img import cv2_utils
 from basic.img.os import get_debug_image
+from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import mini_map
 
@@ -18,6 +20,9 @@ class SrTestBase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         os.environ['DEBUG'] = '1'
+        log.setLevel(logging.DEBUG)
+        for h in log.handlers:
+            h.setLevel(logging.DEBUG)
         # 获取子类的模块
         subclass_module = self.__class__.__module__
         subclass_file = sys.modules[subclass_module].__file__

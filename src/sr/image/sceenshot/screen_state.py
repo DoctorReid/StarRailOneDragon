@@ -13,6 +13,7 @@ from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_battle import ScreenBattle
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_phone_menu import ScreenPhoneMenu
+from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 
 
@@ -316,6 +317,19 @@ def in_screen_by_area_text(screen: MatLike, ocr: OcrMatcher, area: ScreenArea) -
     return str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent)
 
 
+def in_screen_by_area_template(screen: MatLike, im: ImageMatcher, area: ScreenArea) -> bool:
+    """
+    是否在一个目标画面 通过一个区域模板判断
+    :param screen:
+    :param im:
+    :param area:
+    :return:
+    """
+    part = cv2_utils.crop_image_only(screen, area.rect)
+    mrl = im.match_template(part, area.template_id, template_sub_dir=area.template_sub_dir, threshold=area.template_match_threshold)
+    return mrl.max is not None
+
+
 def get_sim_uni_screen_state(
         screen: MatLike, im: ImageMatcher, ocr: OcrMatcher,
         in_world: bool = False,
@@ -519,3 +533,14 @@ def get_tp_battle_screen_state(
             return fail_area.status
 
     return ScreenState.BATTLE.value
+
+
+def is_mission_in_world(screen: MatLike, im: ImageMatcher) -> bool:
+    """
+    是否在副本的大世界画面 看左上角是否退出按钮
+    可以用于
+    - 逐光捡金
+    - 模拟宇宙
+    :return:
+    """
+    return in_screen_by_area_template(screen, im, ScreenSimUni.EXIT_BTN.value)

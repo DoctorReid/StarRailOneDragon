@@ -98,12 +98,7 @@ class TreasuresLightwardApp(Application):
         self.current_mission_num: int = 1  # 当前挑战的关卡
         self.max_unlock_num: int = 1  # 最大解锁的关卡
         self.challenged_set: set[str] = set()  # 本次运行已经挑战的
-
-    def _init_before_execute(self):
-        super()._init_before_execute()
-        self.current_mission_num = 1
-        self.max_unlock_num = 1
-        self.challenged_set = set()
+        self.from_last_schedule = False  # 本次挑战是否从上期继续的 如果是的话 3星之后可以将前面的关卡都设为3星
 
     def _choose_forgotten_hall(self):
         """
@@ -225,7 +220,11 @@ class TreasuresLightwardApp(Application):
         log.info('%s 关卡 %d 当前星数 %d', self.challenge_schedule['schedule_name'], mission_num, star)
         self.run_record.update_mission_star(self.challenge_schedule, mission_num, star)
 
-        if star == 3:  # 进入下一关
+        if star == 3:
+            if self.from_last_schedule:  # 从上期挑战继续的 那前面关卡都可以设置成3星
+                for i in range(1, mission_num):
+                    self.run_record.update_mission_star(self.challenge_schedule, i, star)
+            # 进入下一关
             self.current_mission_num += 1
 
     def _cal_team_member(self, node_combat_types: List[List[CharacterCombatType]]) -> Optional[List[List[Character]]]:
@@ -236,8 +235,12 @@ class TreasuresLightwardApp(Application):
         """
         module_list = self.config.team_module_list
         filter_module_list = [module for module in module_list if module.fit_schedule_type(self.schedule_type)]
-        log.info('开始计算配队 所需属性为 %s', [i.cn for combat_types in node_combat_types for i in combat_types])
-        return search_best_mission_team(node_combat_types, filter_module_list)
+        result = search_best_mission_team(node_combat_types, filter_module_list)
+        if result is not None:
+            log.info('得到配队')
+            for team in result:
+                log.info([i.cn for i in team])
+        return result
 
     def _update_record_after_stop(self, result: OperationResult):
         """
@@ -256,10 +259,12 @@ class TreasuresLightwardApp(Application):
         if op_result.success:
             max_unlock_num: int = op_result.data
             log.info('最大已解锁关卡 %02d', max_unlock_num)
+            self.from_last_schedule = False  # 是否从上期继续的
             if max_unlock_num <= last_num:
                 for i in range(max_unlock_num, 0, -1):  # 可以从上期继续的 优先挑战高的
                     if self.run_record.get_mission_star(self.challenge_schedule, i) < 3:
                         self.current_mission_num = i
+                        self.from_last_schedule = True
                         break
             else:  # 已经解锁可继续之后的 哪关没满就打哪
                 for i in range(1, max_unlock_num + 1):
