@@ -1,6 +1,7 @@
-from typing import Optional, Callable
+from typing import Optional, Callable, ClassVar
 
 from basic.i18_utils import gt
+from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_run_level import SimUniRunLevel
 from sr.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, OperationOneRoundResult, \
@@ -11,6 +12,8 @@ from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 
 class SimUniRunWorld(StateOperation):
 
+    STATUS_SUCCESS: ClassVar[str] = '通关'
+
     def __init__(self, ctx: Context, world_num: int,
                  config: Optional[SimUniChallengeConfig] = None,
                  max_reward_to_get: int = 0,
@@ -18,6 +21,7 @@ class SimUniRunWorld(StateOperation):
                  op_callback: Optional[Callable[[OperationResult], None]] = None):
         """
         模拟宇宙 完成整个宇宙
+        最后退出
         """
         op_name = '%s %s' % (
             gt('模拟宇宙', 'ui'),
@@ -26,11 +30,17 @@ class SimUniRunWorld(StateOperation):
 
         edges = []
 
+        # 逐层挑战
         run_level = StateOperationNode('挑战楼层', self._run_level)
-        finished = StateOperationNode('结束', self._finish)
-
-        edges.append(StateOperationEdge(run_level, finished, status=SimUniRunLevel.STATUS_BOSS_CLEARED))
         edges.append(StateOperationEdge(run_level, run_level, ignore_status=True))
+
+        # 通关后退出
+        finished = StateOperationNode('结束', self._finish)
+        edges.append(StateOperationEdge(run_level, finished, status=SimUniRunLevel.STATUS_BOSS_CLEARED))
+
+        # 失败后退出宇宙 继续下一次
+        exit_world = StateOperationNode('退出宇宙', op=SimUniExit(ctx))
+        edges.append(StateOperationEdge(run_level, exit_world, success=False))
 
         super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=run_level,
                          op_callback=op_callback)
@@ -53,7 +63,7 @@ class SimUniRunWorld(StateOperation):
         return Operation.round_by_op(op.execute())
 
     def _finish(self) -> OperationOneRoundResult:
-        return Operation.round_success()
+        return Operation.round_success(status=SimUniRunWorld.STATUS_SUCCESS)
 
     def _on_get_reward(self, use_power: int, user_qty: int):
         """
