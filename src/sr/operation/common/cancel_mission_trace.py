@@ -12,7 +12,7 @@ from sr.screen_area.screen_normal_world import ScreenNormalWorld
 class CancelMissionTrace(StateOperation):
 
     STATUS_CANCELLED: ClassVar[str] = '已取消'
-    STATUS_TO_CANCEL: ClassVar[str] = '需要取消'
+    STATUS_CLICK_TRACE: ClassVar[str] = '尝试点击追踪任务'
 
     def __init__(self, ctx: Context):
         """
@@ -21,11 +21,11 @@ class CancelMissionTrace(StateOperation):
         """
         edges: List[StateOperationEdge] = []
 
-        open_mission = StateOperationNode('点击当前追踪', self._try_open_mission)
+        open_mission = StateOperationNode('点击追踪任务', self._try_open_mission)
 
         # 之前还没有取消过 进行尝试
         cancel_trace = StateOperationNode('取消追踪', self._cancel_trace)
-        edges.append(StateOperationEdge(open_mission, cancel_trace, status=CancelMissionTrace.STATUS_TO_CANCEL))
+        edges.append(StateOperationEdge(open_mission, cancel_trace, status=CancelMissionTrace.STATUS_CLICK_TRACE))
 
         # 点击取消之后 返回大世界
         back = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(ctx))
@@ -50,7 +50,7 @@ class CancelMissionTrace(StateOperation):
 
         area = ScreenNormalWorld.TRACE_MISSION_ICON.value
         if self.ctx.controller.click(area.center, pc_alt=True):
-            return Operation.round_success(CancelMissionTrace.STATUS_TO_CANCEL, wait=1)
+            return Operation.round_success(CancelMissionTrace.STATUS_CLICK_TRACE, wait=1)
         else:
             return Operation.round_retry('点击任务图标失败', wait=1)
 
