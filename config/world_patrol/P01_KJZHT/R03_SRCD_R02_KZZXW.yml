@@ -4,41 +4,70 @@ region: '收容舱段'
 floor: 1
 tp: '控制中心外'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [386, 328]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
+    data: [393, 320]
+  - idx: 4
+    op: 'move'
     data: [397, 287]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
     data: [385, 355]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
     data: [385, 413]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 9
+    op: 'disposable'
+  - idx: 10
+    op: 'move'
+    data: [395, 424]
+  - idx: 11
+    op: 'move'
     data: [402, 447]
-  - op: 'move'
+  - idx: 12
+    op: 'move'
     data: [442, 455]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 13
+    op: 'patrol'
+  - idx: 14
+    op: 'move'
     data: [427, 469]
-  - op: 'move'
+  - idx: 15
+    op: 'move'
     data: [425, 489]
-  - op: 'move'
+  - idx: 16
+    op: 'move'
     data: [443, 518]
-  - op: 'move'
+  - idx: 17
+    op: 'move'
     data: [481, 537]
-  - op: 'move'
+  - idx: 18
+    op: 'move'
     data: [557, 548]
-  - op: 'move'
+  - idx: 19
+    op: 'move'
     data: [573, 550, 2]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 20
+    op: 'disposable'
+  - idx: 21
+    op: 'move'
     data: [570, 515]
-  - op: 'move'
+  - idx: 22
+    op: 'move'
     data: [610, 514]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 23
+    op: 'patrol'
+  - idx: 24
+    op: 'move'
     data: [611, 543]
-  - op: 'patrol'
+  - idx: 25
+    op: 'patrol'
