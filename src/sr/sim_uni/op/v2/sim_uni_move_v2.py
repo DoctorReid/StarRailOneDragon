@@ -554,6 +554,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
         """
         super().__init__(ctx,
                          level_type=level_type,
+                         random_turn=False
                          )
 
         self.existed_interact_word: str = ''
@@ -567,7 +568,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
         screen = self.screenshot()
 
         words = get_move_interact_words(self.ctx, screen, single_line=True)
-        self.existed_interact_word = words[0].data if len(words) > 0 else ''
+        self.existed_interact_word = words[0].data if len(words) > 0 and len(words[0].data) > 0 else ''
         log.debug('开始朝下层入口移动前已有交互 %s', self.existed_interact_word)
         if self._is_target_interact():  # 符合目标交互 就不需要OCR了
             self.existed_interact_word = ''

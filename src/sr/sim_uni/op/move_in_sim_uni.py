@@ -248,7 +248,8 @@ class MoveToNextLevel(StateOperation):
                  level_type: SimUniLevelType,
                  route: Optional[SimUniRoute] = None,
                  current_pos: Optional[Point] = None,
-                 config: Optional[SimUniChallengeConfig] = None):
+                 config: Optional[SimUniChallengeConfig] = None,
+                 random_turn: bool = True):
         """
         朝下一层入口走去 并且交互
         :param ctx:
@@ -273,6 +274,7 @@ class MoveToNextLevel(StateOperation):
         self.is_moving: bool = False  # 是否正在移动
         self.start_move_time: float = 0  # 开始移动的时间
         self.interacted: bool = False  # 是否已经交互了
+        self.random_turn: bool = random_turn  # 随机转动找入口
 
     def _init_before_execute(self):
         super()._init_before_execute()
@@ -348,8 +350,11 @@ class MoveToNextLevel(StateOperation):
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
-                # 因为前面已经转向了入口 所以就算被遮挡 只要稍微转一点应该就能看到了
-                angle = (25 + 10 * self.op_round) * (1 if self.op_round % 2 == 0 else -1)  # 来回转动视角
+                if self.random_turn:
+                    # 因为前面已经转向了入口 所以就算被遮挡 只要稍微转一点应该就能看到了
+                    angle = (25 + 10 * self.op_round) * (1 if self.op_round % 2 == 0 else -1)  # 来回转动视角
+                else:
+                    angle = 35
                 self.ctx.controller.turn_by_angle(angle)
                 return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 

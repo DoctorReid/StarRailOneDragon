@@ -9,7 +9,6 @@ from cv2.typing import MatLike
 from basic import win_utils, Point
 from basic.log_utils import log
 from sr import const
-from sr.config import game_config
 from sr.config.game_config import GameConfig
 from sr.const import STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H
 from sr.control import GameController
@@ -172,6 +171,8 @@ class PcController(GameController):
         self.enter_running(run)
 
     def stop_moving_forward(self):
+        if not self.is_moving:
+            return
         pyautogui.keyUp('w')
         self.is_moving = False
         self.is_running = False

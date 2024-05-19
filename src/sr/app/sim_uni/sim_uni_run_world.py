@@ -39,7 +39,7 @@ class SimUniRunWorld(StateOperation):
         edges.append(StateOperationEdge(run_level, finished, status=SimUniRunLevel.STATUS_BOSS_CLEARED))
 
         # 失败后退出宇宙 继续下一次
-        exit_world = StateOperationNode('退出宇宙', op=SimUniExit(ctx))
+        exit_world = StateOperationNode('退出宇宙', self._exit)
         edges.append(StateOperationEdge(run_level, exit_world, success=False))
 
         super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=run_level,
@@ -64,6 +64,13 @@ class SimUniRunWorld(StateOperation):
 
     def _finish(self) -> OperationOneRoundResult:
         return Operation.round_success(status=SimUniRunWorld.STATUS_SUCCESS)
+
+    def _exit(self) -> OperationOneRoundResult:
+        if self.ctx.one_dragon_config.is_debug:  # 调试情况下 原地失败即可
+            return Operation.round_fail()
+        else:
+            op = SimUniExit(self.ctx)
+            return Operation.round_by_op(op.execute())
 
     def _on_get_reward(self, use_power: int, user_qty: int):
         """

@@ -9,7 +9,7 @@ from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.team import GetTeamMemberInWorld, SwitchMember
-from sr.operation.unit.technique import UseTechnique, CheckTechniquePoint
+from sr.operation.unit.technique import UseTechnique, CheckTechniquePoint, UseTechniqueResult
 
 
 class Attack(Operation):
@@ -86,7 +86,9 @@ class StartFightForElite(StateOperation):
         attack = StateOperationNode('攻击', self._attack)
         edges.append(StateOperationEdge(switch, attack, status=StartFightForElite.STATUS_DONE))
 
-        super().__init__(ctx, op_name=gt('使用秘技 进入战斗', 'ui'),
+        super().__init__(ctx,
+                         try_times=5,
+                         op_name=gt('使用秘技 进入战斗', 'ui'),
                          edges=edges)
         self.character_list_from_param: Optional[List[Character]] = character_list
         self.character_list: List[Character] = []
@@ -213,11 +215,20 @@ class StartFightForElite(StateOperation):
         """
         op = UseTechnique(self.ctx)
         op_result = op.execute()
-        if op_result.success and op_result.data:
+        use_tech = False
+        if op_result.success:
+            op_result_data: UseTechniqueResult = op_result.data
+            use_tech = op_result_data.use_tech
             idx = self.technique_order[self.technique_idx]
             self.need_attack_finally = self.character_list[idx].technique_type != TECHNIQUE_ATTACK
         self.technique_idx += 1
-        return Operation.round_by_op(op_result)
+
+        wait_time = 0
+        if self.technique_idx < len(self.technique_order) and use_tech:
+            # 还需要切换人物使用秘技的情况
+            # 如果这次使用了秘技 要等待一下后摇消失后 再进行下一步操作
+            wait_time = 1.5
+        return Operation.round_by_op(op_result, wait=wait_time)
 
     def _attack(self) -> OperationOneRoundResult:
         """
@@ -229,6 +240,7 @@ class StartFightForElite(StateOperation):
         if screen_state.is_normal_in_world(screen, self.ctx.im) \
                 or screen_state.is_mission_in_world(screen, self.ctx.im):
             self.ctx.controller.initiate_attack()
+            self.save_screenshot()
             return Operation.round_retry('未进入战斗 尝试攻击', wait=1)
         else:
             return Operation.round_success()

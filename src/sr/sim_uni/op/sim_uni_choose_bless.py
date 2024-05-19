@@ -191,9 +191,12 @@ class SimUniChooseBless(StateOperation):
         """
         edges: List[StateOperationEdge] = []
 
-        wait = StateOperationNode('等待画面', self._wait)
+        first_wait = StateOperationNode('等待画面', self._first_wait)
         choose = StateOperationNode('选择祝福', self._choose)
-        edges.append(StateOperationEdge(wait, choose))
+        edges.append(StateOperationEdge(first_wait, choose))
+
+        after_wait = StateOperationNode('选择后等待结束', self._wait_not_in_bless)
+        edges.append(StateOperationEdge(choose, after_wait))
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('选择祝福', 'ui')),
@@ -202,13 +205,13 @@ class SimUniChooseBless(StateOperation):
         self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config  # 祝福优先级
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.before_level_start: bool = before_level_start  # 在真正楼层开始前 即选择开拓祝福时
-        self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _init_before_execute(self):
         super()._init_before_execute()
         self.first_screen_check = True
+        self.choose_bless_time: Optional[float] = None  # 选择祝福的时间
 
-    def _wait(self):
+    def _first_wait(self):
         screen = self.screenshot()
 
         if not self.first_screen_check or not self.skip_first_screen_check:
@@ -238,7 +241,8 @@ class SimUniChooseBless(StateOperation):
             else:
                 confirm_point = SimUniChooseBless.CONFIRM_BTN.center
             self.ctx.controller.click(confirm_point)
-            return Operation.round_success(wait=0.1)
+            self.choose_bless_time = time.time()
+            return Operation.round_success()
 
     def _can_reset(self, screen: MatLike) -> bool:
         """
@@ -268,6 +272,23 @@ class SimUniChooseBless(StateOperation):
             return None
         else:
             return bless_pos_list[target_idx]
+
+    def _wait_not_in_bless(self) -> OperationOneRoundResult:
+        """
+        选择祝福后 等待画面不是【选择祝福】再退出
+        这样方便后续指令在选择祝福后立刻做其它事情
+        一段时间后还在选择祝福的话 可能是连续祝福 仍然返回
+        :return:
+        """
+        now = time.time()
+        if now - self.choose_bless_time >= 2:
+            return Operation.round_success()
+        screen = self.screenshot()
+        if screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
+            # OCR需要时间 这里就不等待了
+            return Operation.round_wait()
+        else:
+            return Operation.round_success()
 
 
 class SimUniDropBless(StateOperation):
