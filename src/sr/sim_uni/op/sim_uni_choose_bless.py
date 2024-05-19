@@ -177,6 +177,8 @@ class SimUniChooseBless(StateOperation):
     CONFIRM_BTN: ClassVar[Rect] = Rect(1530, 960, 1865, 1000)  # 确认
     CONFIRM_BEFORE_LEVEL_BTN: ClassVar[Rect] = Rect(783, 953, 1133, 997)  # 确认 - 楼层开始前
 
+    STATUS_STILL_BLESS: ClassVar[str] = '仍在选择祝福'
+
     def __init__(self, ctx: Context,
                  config: Optional[SimUniChallengeConfig] = None,
                  skip_first_screen_check: bool = True,
@@ -282,11 +284,11 @@ class SimUniChooseBless(StateOperation):
         """
         now = time.time()
         if now - self.choose_bless_time >= 2:
-            return Operation.round_success()
+            return Operation.round_success(status=SimUniChooseBless.STATUS_STILL_BLESS)
         screen = self.screenshot()
         if screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
             # OCR需要时间 这里就不等待了
-            return Operation.round_wait()
+            return Operation.round_wait(status=SimUniChooseBless.STATUS_STILL_BLESS)
         else:
             return Operation.round_success()
 

@@ -628,8 +628,11 @@ class MoveToNextLevelV2(MoveToNextLevel):
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
-                # 因为前面已经转向了入口 所以就算被遮挡 只要稍微转一点应该就能看到了
-                angle = (25 + 10 * self.op_round) * (1 if self.op_round % 2 == 0 else -1)  # 来回转动视角
+                if self.random_turn:
+                    # 因为前面已经转向了入口 所以就算被遮挡 只要稍微转一点应该就能看到了
+                    angle = (25 + 10 * self.op_round) * (1 if self.op_round % 2 == 0 else -1)  # 来回转动视角
+                else:
+                    angle = 35
                 self.ctx.controller.turn_by_angle(angle)
                 return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 

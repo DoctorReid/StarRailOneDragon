@@ -189,9 +189,14 @@ class SettingsBasicView(components.Card, SrBasicView):
         with_new_yolo = with_new_yolo | self.init_sim_uni_yolo_dropdown()
         if self.sim_uni_yolo_dropdown.value == '' or self.sim_uni_yolo_dropdown.value is None:
             self.sim_uni_yolo_download_btn.disabled = True
+            self.sim_uni_yolo_download_btn.text = '下载'
         else:
             self.sim_uni_yolo_download_btn.disabled = check_model_exists(
                 sr.image.yolo_screen_detector.get_yolo_model_parent_dir(), self.sim_uni_yolo_dropdown.value)
+            if self.sim_uni_yolo_download_btn.disabled:
+                self.sim_uni_yolo_download_btn.text = '已下载'
+            else:
+                self.sim_uni_yolo_download_btn.text = '下载'
 
         if with_new_yolo:
             msg = '有新YOLO模型可下载使用'
