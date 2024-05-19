@@ -171,7 +171,7 @@ def get_bless_by_priority(bless_list: List[SimUniBless], config: Optional[SimUni
     return target_idx
 
 
-class SimUniChooseBless(Operation):
+class SimUniChooseBless(StateOperation):
 
     RESET_BTN: ClassVar[Rect] = Rect(1160, 960, 1460, 1000)  # 重置祝福
     CONFIRM_BTN: ClassVar[Rect] = Rect(1530, 960, 1865, 1000)  # 确认
@@ -183,30 +183,43 @@ class SimUniChooseBless(Operation):
                  before_level_start: bool = False):
         """
         按照优先级选择祝福
+        选择祝福后较快返回 由具体使用情况判断使用后等待多久
         :param ctx:
         :param config: 挑战配置
         :param skip_first_screen_check: 是否跳过第一次的画面状态检查
         :param before_level_start: 是否在楼层开始的选择
         """
-        super().__init__(ctx, try_times=5,
-                         op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('选择祝福', 'ui')))
+        edges: List[StateOperationEdge] = []
 
-        self.config: Optional[SimUniChallengeConfig] = config  # 祝福优先级
+        wait = StateOperationNode('等待画面', self._wait)
+        choose = StateOperationNode('选择祝福', self._choose)
+        edges.append(StateOperationEdge(wait, choose))
+
+        super().__init__(ctx, try_times=5,
+                         op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('选择祝福', 'ui')),
+                         edges=edges)
+
+        self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config  # 祝福优先级
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
+        self.before_level_start: bool = before_level_start  # 在真正楼层开始前 即选择开拓祝福时
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
-        self.before_level_start: bool = before_level_start
 
     def _init_before_execute(self):
         super()._init_before_execute()
         self.first_screen_check = True
 
-    def _execute_one_round(self) -> OperationOneRoundResult:
+    def _wait(self):
         screen = self.screenshot()
 
         if not self.first_screen_check or not self.skip_first_screen_check:
             self.first_screen_check = False
             if not screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
                 return Operation.round_retry('未在模拟宇宙-选择祝福页面', wait=1)
+
+        return Operation.round_success()
+
+    def _choose(self) -> OperationOneRoundResult:
+        screen = self.screenshot()
 
         bless_pos_list: List[MatchResult] = get_bless_pos(screen, self.ctx.ocr, self.before_level_start)
 
@@ -216,7 +229,7 @@ class SimUniChooseBless(Operation):
         target_bless_pos: Optional[MatchResult] = self._get_bless_to_choose(screen, bless_pos_list)
         if target_bless_pos is None:
             self.ctx.controller.click(SimUniChooseBless.RESET_BTN.center)
-            return Operation.round_retry('重置祝福', wait=1)
+            return Operation.round_wait('重置祝福', wait=1)
         else:
             self.ctx.controller.click(target_bless_pos.center)
             time.sleep(0.25)
@@ -225,7 +238,7 @@ class SimUniChooseBless(Operation):
             else:
                 confirm_point = SimUniChooseBless.CONFIRM_BTN.center
             self.ctx.controller.click(confirm_point)
-            return Operation.round_success(wait=1.5)
+            return Operation.round_success(wait=0.1)
 
     def _can_reset(self, screen: MatLike) -> bool:
         """

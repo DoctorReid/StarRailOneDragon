@@ -291,7 +291,7 @@ class SimUniEvent(StateOperation):
         op_result = op.execute()
 
         if op_result.success:
-            return Operation.round_success()
+            return Operation.round_success(wait=1)
         else:
             return Operation.round_retry(status=op_result.status)
 

@@ -51,7 +51,7 @@ class SimUniWaitLevelStart(Operation):
             op_result = op.execute()
             if op_result.success:
                 self.first_bless_chosen = True
-                return Operation.round_wait()
+                return Operation.round_wait(wait=1)
             else:
                 return Operation.round_fail(status=op_result.status, data=op_result.data)
         elif state == screen_state.ScreenState.SIM_CURIOS.value:
