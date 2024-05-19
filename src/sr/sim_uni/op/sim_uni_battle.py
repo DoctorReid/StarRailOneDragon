@@ -208,8 +208,6 @@ class SimUniEnterFight(Operation):
             else:
                 self._attack(now_time)
 
-            # 取消持续按键
-            # self.ctx.controller.stop_moving_forward(direction=SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
             # 每次攻击后 换一个方向再尝试
             self.attack_times += 1
 
