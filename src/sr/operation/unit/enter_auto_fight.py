@@ -7,7 +7,7 @@ from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.technique import UseTechnique
+from sr.operation.unit.technique import UseTechnique, UseTechniqueResult
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
@@ -118,14 +118,15 @@ class WorldPatrolEnterFight(Operation):
                               quirky_snacks=self.ctx.game_config.use_quirky_snacks
                               )
             op_result = op.execute()
-            current_use_tech = op_result.data
-            self.first_tech_after_battle = False
-            if current_use_tech and (
-                    self.ctx.team_info.is_buff_technique
-                    or op_result.status == UseTechnique.STATUS_USE_CONSUMABLE
-            ):
-                # 使用BUFF类秘技 或者 使用消耗品的时间不应该在计算内
-                self._update_not_in_world_time()
+            if op_result.success:
+                op_result_data: UseTechniqueResult = op_result.data
+                current_use_tech = op_result_data.use_tech
+                self.first_tech_after_battle = False
+                if (
+                        (current_use_tech and self.ctx.team_info.is_buff_technique)  # 使用BUFF类秘技的时间不应该在计算内
+                        or op_result_data.with_dialog  # 使用消耗品的时间不应该在计算内
+                ):
+                    self._update_not_in_world_time()
 
         if self.technique_fight and self.technique_only and current_use_tech:
             # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击
