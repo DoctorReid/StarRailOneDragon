@@ -54,6 +54,7 @@ class WorldPatrolEnterFight(Operation):
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
         self.first_tech_after_battle: bool = False  # 是否战斗画面后第一次使用秘技
         self.ctx.pos_info.first_cal_pos_after_fight = True
+        self.had_last_move: bool = False  # 退出这个指令前 是否已经进行过最后的移动了
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -231,9 +232,8 @@ class WorldPatrolEnterFight(Operation):
             # 已经进行过最后的移动了
             return Operation.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:
-            for i in range(2):  # 多按几次 防止被后摇吞了
-                self.ctx.controller.move(direction=WorldPatrolEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
-                self.attack_times += 1
-                time.sleep(0.25)
+            self.ctx.controller.move(direction=WorldPatrolEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
+            self.attack_times += 1
+            time.sleep(0.25)
             self.had_last_move = True
             return Operation.round_wait()
