@@ -7,7 +7,6 @@ flet==0.22.1
 pyinstaller==6.1.0
 schedule==1.2.1
 tenacity==8.2.3
-pydantic-settings==2.1.0
 pydantic==1.10.14
 paddlepaddle==2.5.2
 scipy==1.13.0
