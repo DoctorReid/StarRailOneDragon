@@ -10,7 +10,7 @@ from sr.image.sceenshot import mini_map, screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.team import SwitchMember
-from sr.operation.unit.technique import UseTechnique
+from sr.operation.unit.technique import UseTechnique, UseTechniqueResult
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless
@@ -132,7 +132,8 @@ class SimUniEnterFight(Operation):
         self._update_not_in_world_time()
 
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            # 成功后 应该尽快返回 继续指令 避免被怪袭击
+            return Operation.round_wait()
         else:
             return Operation.round_retry(op_result.status, wait=1)
 
@@ -146,7 +147,8 @@ class SimUniEnterFight(Operation):
         self._update_not_in_world_time()
 
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            # 成功后 应该尽快返回 继续指令 避免被怪袭击
+            return Operation.round_wait()
         else:
             return Operation.round_retry(op_result.status, wait=1)
 
@@ -181,9 +183,13 @@ class SimUniEnterFight(Operation):
                                   quirky_snacks=self.ctx.game_config.use_quirky_snacks
                                   )
                 op_result = op.execute()
-                current_use_tech = op_result.data
-                if current_use_tech and self.ctx.team_info.is_buff_technique:
-                    self._update_not_in_world_time()  # 使用BUFF类秘技的时间不应该在计算内
+                result_data: UseTechniqueResult = op_result.data
+                current_use_tech = result_data.use_tech
+                if (
+                        (current_use_tech and self.ctx.team_info.is_buff_technique)  # 使用BUFF类秘技的时间不应该在计算内
+                        or result_data.with_dialog  # 使用消耗品的时间不应该在计算内
+                ):
+                    self._update_not_in_world_time()
 
             if self.technique_fight and self.technique_only and current_use_tech:
                 # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击

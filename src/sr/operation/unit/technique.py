@@ -50,6 +50,20 @@ def get_technique_point(screen: MatLike,
     return None
 
 
+class UseTechniqueResult:
+
+    def __init__(self, use_tech: bool = False, with_dialog: bool = False, use_consumable_times: int = 0):
+
+        self.use_tech: bool = use_tech
+        """是否使用了秘技"""
+
+        self.with_dialog: bool = with_dialog
+        """是否出现了消耗品对话框"""
+
+        self.use_consumable_times: int = use_consumable_times
+        """使用消耗品的数量"""
+
+
 class UseTechnique(StateOperation):
 
     STATUS_CAN_USE: ClassVar[str] = '可使用秘技'
@@ -66,7 +80,8 @@ class UseTechnique(StateOperation):
         """
         需在大世界页面中使用
         用当前角色使用秘技
-        返回 data=是否使用了秘技
+        返回 data=UseTechniqueResult
+        这个方法有用在了开怪上 因此判断需要快点 防止被袭
         :param ctx:
         :param max_consumable_cnt: 秘技点不足时最多使用的消耗品个数
         :param need_check_available: 是否需要检查秘技是否可用 普通大世界战斗后 会有一段时间才能使用秘技
@@ -82,25 +97,37 @@ class UseTechnique(StateOperation):
 
         confirm = StateOperationNode('确认', self._confirm)
         edges.append(StateOperationEdge(use, confirm))
-        edges.append(StateOperationEdge(confirm, use, status=UseTechnique.STATUS_USE_CONSUMABLE))
 
-        super().__init__(ctx, try_times=10,
+        # 有使用消耗品 关闭对话框后判断是否在大世界
+        wait_for_use = StateOperationNode('等待大世界使用秘技', self._wait_in_world)
+        edges.append(StateOperationEdge(confirm, wait_for_use, status=UseTechnique.STATUS_USE_CONSUMABLE))
+        edges.append(StateOperationEdge(wait_for_use, use))
+
+        # 没有使用消耗品 关闭对话框后判断是否在大世界
+        wait_for_other = StateOperationNode('等待大世界继续其它指令', self._wait_in_world)
+        edges.append(StateOperationEdge(confirm, wait_for_other, status=UseTechnique.STATUS_NO_USE_CONSUMABLE))
+
+        super().__init__(ctx, try_times=20,
                          op_name=gt('施放秘技', 'ui'),
                          edges=edges,
                          specified_start_node=check)
 
         self.max_consumable_cnt: int = max_consumable_cnt  # 最多使用的消耗品个数
-        self.use_consumable_times: int = 0  # 使用消耗品的次数
-        self.use_technique: bool = False  # 是否使用了秘技
         self.need_check_available: bool = need_check_available  # 是否需要检查秘技是否可用
         self.need_check_point: bool = need_check_point  # 是否检测剩余秘技点再使用
         self.quirky_snacks: bool = quirky_snacks  # 只使用奇巧零食
+
+        self.use_consumable_times: int = 0  # 使用消耗品的次数
+        self.op_result: UseTechniqueResult = UseTechniqueResult()  # 最后返回的结果
         self.consumable_chosen: bool = False  # 是否已经选择了消耗品
 
     def _init_before_execute(self):
+        """
+        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        """
         super()._init_before_execute()
         self.use_consumable_times: int = 0  # 使用消耗品的次数
-        self.use_technique: bool = False  # 是否使用了秘技
+        self.op_result: UseTechniqueResult = UseTechniqueResult()  # 最后返回的结果
         self.consumable_chosen: bool = False  # 是否已经选择了消耗品
 
     def _check_technique_point(self) -> OperationOneRoundResult:
@@ -117,16 +144,17 @@ class UseTechnique(StateOperation):
             return Operation.round_success(UseTechnique.STATUS_CAN_USE)
 
     def _use(self) -> OperationOneRoundResult:
-        if self.need_check_available:
+        if self.need_check_available and not self.op_result.with_dialog:
+            # 之前出现过消耗品对话框的话 这里就不需要判断了
             screen = self.screenshot()
             if not pc_can_use_technique(screen, self.ctx.ocr, self.ctx.game_config.key_technique):
-                return Operation.round_retry(wait=0.25)
+                return Operation.round_retry(wait=0.1)
 
         self.ctx.controller.use_technique()
         self.ctx.controller.stop_moving_forward()  # 在使用秘技中停止移动 可以取消停止移动的后摇
-        self.use_technique = True  # 与context的状态分开 ctx的只负责记录开怪位 后续考虑变量改名
+        self.op_result.use_tech = True # 与context的状态分开 ctx的只负责记录开怪位 后续考虑变量改名
         self.ctx.technique_used = True
-        return Operation.round_success(wait=0.5)
+        return Operation.round_success(wait=0.1)
 
     def _confirm(self) -> OperationOneRoundResult:
         """
@@ -136,22 +164,28 @@ class UseTechnique(StateOperation):
         if self.ctx.team_info.is_attack_technique:  # 攻击类的 使用完就取消标记
             self.ctx.technique_used = False
 
+        if self.op_result.with_dialog and self.op_result.use_consumable_times > 0:
+            # 之前出现过对话框 且已经用过消耗品了 那这次就不需要判断了
+            return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
+
         screen = self.screenshot()
-        if screen_state.is_normal_in_world(screen, self.ctx.im):  # 无需使用
-            return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.use_technique)
+        if screen_state.is_normal_in_world(screen, self.ctx.im):
+            # 没有出现消耗品的情况 要尽快返回继续原来的指令 因此不等待
+            return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
 
         area = ScreenDialog.FAST_RECOVER_TITLE.value
         if not self.find_area(area, screen):  # 没有出现对话框的话 认为进入了战斗
-            return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.use_technique)
+            return Operation.round_success(UseTechnique.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
 
-        self.use_technique = False
+        self.op_result.use_tech = False  # 出现了对话框 那么之前使用秘技没有成功
         self.ctx.technique_used = False
 
-        if self.max_consumable_cnt == 0:  # 不可以使用消耗品
+        if self.max_consumable_cnt == 0:  # 不可以使用消耗品 点击退出
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
+                # 没有使用消耗品的情况 退出对话框后 要尽快识别到在大世界了 方便后续指令 因此不等待
+                return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, data=self.op_result)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         elif self.find_area(ScreenDialog.FAST_RECOVER_NO_CONSUMABLE.value, screen):  # 没有消耗品可以使用
@@ -159,17 +193,20 @@ class UseTechnique(StateOperation):
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
                 if self.use_consumable_times > 0:
-                    return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
+                    # 有使用消耗品的情况 退出对话框后
+                    return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.op_result)
                 else:
+                    # 没有使用消耗品的情况 退出对话框后 要尽快识别到在大世界了 方便后续指令 因此不等待
                     self.ctx.no_technique_recover_consumables = True  # 设置没有药可以用了
-                    return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
+                    return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.op_result)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         elif self.max_consumable_cnt > 0 and self.use_consumable_times >= self.max_consumable_cnt:  # 已经用了足够的消耗品了
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
+                # 使用了消耗品的情况 退出对话框后 需要尽快识别到在大世界了 方便再使用秘技 因此不等的
+                return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, data=self.op_result)
             else:
                 return Operation.round_retry('点击%s失败' % area.status, wait=1)
         else:  # 还需要使用消耗品
@@ -180,8 +217,8 @@ class UseTechnique(StateOperation):
                     area = ScreenDialog.FAST_RECOVER_CANCEL.value
                     click = self.find_and_click_area(area, screen)
                     if click == Operation.OCR_CLICK_SUCCESS:
-                        return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5,
-                                                       data=self.use_technique)
+                        # 没有选择到目标消耗品 因此是没有使用消耗品的情况 退出对话框后 需要尽快识别到在大世界了 方便后续指令 因此不等的
+                        return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, data=self.op_result)
                     else:
                         return Operation.round_retry('点击%s失败' % area.status, wait=1)
                 else:
@@ -191,15 +228,17 @@ class UseTechnique(StateOperation):
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
                 self.use_consumable_times += 1
-                return Operation.round_wait(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
+                return Operation.round_wait(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.op_result)
             elif click == Operation.OCR_CLICK_NOT_FOUND:  # 使用满了
                 area = ScreenDialog.FAST_RECOVER_CANCEL.value
                 click = self.find_and_click_area(area, screen)
                 if click == Operation.OCR_CLICK_SUCCESS:
                     if self.use_consumable_times > 0:
-                        return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
+                        # 使用了消耗品的情况 退出对话框后 需要尽快识别到在大世界了 方便再使用秘技 因此不等的
+                        return Operation.round_success(UseTechnique.STATUS_USE_CONSUMABLE, data=self.op_result)
                     else:
-                        return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, wait=0.5, data=self.use_technique)
+                        # 没有使用消耗品的情况 退出对话框后 要尽快识别到在大世界了 方便后续指令 因此不等待
+                        return Operation.round_success(UseTechnique.STATUS_NO_USE_CONSUMABLE, data=self.op_result)
                 else:
                     return Operation.round_retry('点击%s失败' % area.status, wait=1)
             else:
@@ -214,6 +253,21 @@ class UseTechnique(StateOperation):
         click = self.find_and_click_area(ScreenDialog.QUIRKY_SNACKS.value, screen)
         return True if click else False
 
+    def _wait_in_world(self):
+        """
+        使用后判断是否在大世界
+        这里需要足够快的判断 方便后续的指令进行 因此尽量等待少的时间
+        :return:
+        """
+        # 没有出现过对话框 那么直接返回即可
+        if not self.op_result.with_dialog:
+            return Operation.round_success(data=self.op_result)
+
+        screen = self.screenshot()
+        if screen_state.is_normal_in_world(screen, self.ctx.im):
+            return Operation.round_success(data=self.op_result)
+        else:
+            return Operation.round_retry(status='未在大世界画面', wait=0.1)
 
 class CheckTechniquePoint(Operation):
 
