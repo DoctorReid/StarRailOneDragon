@@ -3,8 +3,10 @@ from basic.img import cv2_utils
 from basic.img.os import get_debug_image
 from sr.const import character_const
 from sr.context import get_context
-from sr.sim_uni.op.v2.sim_uni_run_route_v2 import SimUniRunCombatRouteV2, SimUniRunEliteRouteV2, \
-    SimUniRunRespiteRouteV2, SimUniRunEventRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_respite_route_v2 import SimUniRunRespiteRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_event_route_v2 import SimUniRunEventRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_elite_route_v2 import SimUniRunEliteRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_combat_route_v2 import SimUniRunCombatRouteV2
 from sryolo.detector import draw_detections
 
 
