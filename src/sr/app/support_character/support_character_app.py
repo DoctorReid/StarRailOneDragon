@@ -2,6 +2,7 @@ from typing import List, ClassVar
 
 from cv2.typing import MatLike
 
+from basic import Point
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from sr.app.application_base import Application
@@ -67,10 +68,5 @@ class SupportCharacterApp(Application):
             return Operation.round_success(SupportCharacterApp.STATUS_WITH_ALERT, wait=1)
 
     def _click_character(self) -> OperationOneRoundResult:
-        screen: MatLike = self.screenshot()
-        result: MatchResult = phone_menu.get_alert_pos(screen, self.ctx.im, phone_menu.SUPPORT_CHARACTER_PART).max
-        if result is None:
-            return Operation.round_success(SupportCharacterApp.STATUS_NO_ALERT)
-        else:
-            self.ctx.controller.click(result.center + phone_menu.SUPPORT_CHARACTER_PART.left_top)
-            return Operation.round_success(SupportCharacterApp.STATUS_WITH_ALERT, wait=1)
+        self.ctx.controller.click(Point(1659, 286))
+        return Operation.round_success(wait=1)
