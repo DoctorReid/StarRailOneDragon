@@ -120,8 +120,9 @@ class SimUniRunLevel(StateOperation):
             self.level_type = target_level_type
             another_type = True
 
+        # OCR运行需要时间 下面这些就不等待了
         if another_type:
-            return Operation.round_wait(wait=0.5)
+            return Operation.round_wait()
         else:
             return Operation.round_success()
 
@@ -146,7 +147,7 @@ class SimUniRunLevel(StateOperation):
                 another_route = True
 
         if another_route:
-            return Operation.round_wait(wait=0.5)
+            return Operation.round_wait(wait=0.2)
         else:
             return Operation.round_success()
 
