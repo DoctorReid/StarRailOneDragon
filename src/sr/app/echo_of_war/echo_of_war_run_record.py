@@ -37,8 +37,10 @@ class EchoOfWarRunRecord(AppRunRecord):
         sunday_dt = os_utils.get_sunday_dt(self.dt)
         if current_dt > sunday_dt:
             return AppRunRecord.STATUS_WAIT
-        else:
+        elif self.left_times == 3:
             return self.run_status
+        else:
+            return AppRunRecord.STATUS_WAIT
 
     @property
     def left_times(self) -> int:
