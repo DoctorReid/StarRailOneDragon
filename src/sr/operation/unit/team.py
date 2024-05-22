@@ -83,6 +83,7 @@ class CheckTeamMembersInWorld(Operation):
         self.character_list: List[Character] = []
 
     def _init_before_execute(self):
+        super()._init_before_execute()
         self.character_list = [None, None, None, None]
 
     def _execute_one_round(self) -> OperationOneRoundResult:

@@ -469,7 +469,7 @@ def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str
             route_id_arr.append(route_id)
 
     # 按白名单的顺序排列
-    if whitelist.type == 'white':
+    if whitelist is not None and whitelist.type == 'white':
         uid_2_route: dict[str, WorldPatrolRouteId] = {}
         for route_id in route_id_arr:
             uid_2_route[route_id.unique_id] = route_id
