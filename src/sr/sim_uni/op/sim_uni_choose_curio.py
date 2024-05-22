@@ -227,6 +227,7 @@ class SimUniChooseCurio(StateOperation):
 class SimUniDropCurio(StateOperation):
 
     DROP_BTN: ClassVar[Rect] = Rect(1024, 647, 1329, 698)  # 确认丢弃
+    STATUS_RETRY: ClassVar[str] = '重试其他奇物位置'
 
     def __init__(self, ctx: Context, config: Optional[SimUniChallengeConfig] = None,
                  skip_first_screen_check: bool = True):
@@ -236,22 +237,30 @@ class SimUniDropCurio(StateOperation):
         :param config: 挑战配置
         :param skip_first_screen_check: 是否跳过第一次画面状态检查
         """
+        edges: List[StateOperationEdge] = []
+
         state = StateOperationNode('画面检测', self._check_screen_state)
         choose_curio = StateOperationNode('选择奇物', self._choose_curio)
+        edges.append(StateOperationEdge(state, choose_curio))
+
         confirm = StateOperationNode('确认', self._confirm)
+        edges.append(StateOperationEdge(choose_curio, confirm))
+        # 只有2个奇物的使用，使用3个奇物的第1个位置 可能会识别到奇物 这时候点击第1个位置是会失败的
+        # 所以每次重试 curio_cnt_type-=1 即重试的时候 需要排除调3个奇物的位置 尝试2个奇物的位置
+        edges.append(StateOperationEdge(confirm, choose_curio, status=SimUniDropCurio.STATUS_RETRY))
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('丢弃奇物', 'ui')),
-                         nodes=[state, choose_curio, confirm]
+                         edges=edges
                          )
 
         self.config: Optional[SimUniChallengeConfig] = config
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
-        self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.first_screen_check = True
+        self.first_screen_check = True  # 是否第一次检查画面状态
+        self.curio_cnt_type: int = 3  # 奇物数量类型 3 2 1
 
     def _check_screen_state(self):
         screen = self.screenshot()
@@ -288,15 +297,15 @@ class SimUniDropCurio(StateOperation):
         :return: MatchResult.data 中是对应的奇物 SimUniCurio
         """
         curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_3_LIST)
-        if len(curio_list) > 0:
+        if len(curio_list) > 0 and self.curio_cnt_type >= 3:
             return curio_list
 
         curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_2_LIST)
-        if len(curio_list) > 0:
+        if len(curio_list) > 0 and self.curio_cnt_type >= 2:
             return curio_list
 
         curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_1_LIST)
-        if len(curio_list) > 0:
+        if len(curio_list) > 0 and self.curio_cnt_type >= 1:
             return curio_list
 
         return []
@@ -399,5 +408,8 @@ class SimUniDropCurio(StateOperation):
         if op_result.success:
             return Operation.round_success()
         else:
-            return Operation.round_fail_by_op(op_result)
-
+            self.curio_cnt_type -= 1
+            if self.curio_cnt_type > 0:
+                return Operation.round_success(status=SimUniDropCurio.STATUS_RETRY)
+            else:
+                return Operation.round_fail_by_op(op_result)
