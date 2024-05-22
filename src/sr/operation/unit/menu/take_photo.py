@@ -28,8 +28,8 @@ class TakePhoto(Operation):
         ocr_str = self.ctx.ocr.ocr_for_single_line(part)
 
         if str_utils.find_by_lcs(gt('保存', 'ocr'), ocr_str, percent=0.1):
-            return Operation.round_success()
+            return self.round_success()
 
         # 还没有保存按钮 尝试点击拍照
         self.ctx.controller.click(TakePhoto.TAKE_BTN)
-        return Operation.round_retry(wait=1)
+        return self.round_retry(wait=1)

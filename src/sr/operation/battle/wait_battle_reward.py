@@ -26,6 +26,6 @@ class WaitBattleReward(Operation):
                                                         battle_success=True,
                                                         battle_fail=True)
         if state == screen_state.ScreenState.BATTLE.value:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_success(state)
+            return self.round_success(state)

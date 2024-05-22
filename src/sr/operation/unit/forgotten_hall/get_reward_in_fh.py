@@ -28,20 +28,20 @@ class GetRewardInForgottenHall(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 判断右下角是否有红点
             if not self._check_reward():
-                return Operation.round_success('无奖励')
+                return self.round_success('无奖励')
             elif self.ctx.controller.click(GetRewardInForgottenHall.REWARD_ICON_RECT.center):
                 self.phase += 1
-                return Operation.round_wait()
+                return self.round_wait()
         elif self.phase == 1:  # 点击领取奖励
             click = self.ocr_and_click_one_line('领取', GetRewardInForgottenHall.CLAIM_REWARD_BTN_RECT, wait_after_success=1)
             if click == Operation.OCR_CLICK_SUCCESS:  # 有领取按钮并点击成功
                 self.ctx.controller.click(GetRewardInForgottenHall.EMPTY_POS_AFTER_CLAIM)
                 time.sleep(1)
-                return Operation.round_wait()
+                return self.round_wait()
             elif click == Operation.OCR_CLICK_NOT_FOUND:
-                return Operation.round_retry('领取完毕')
+                return self.round_retry('领取完毕')
             else:
-                return Operation.round_retry('领取奖励失败')
+                return self.round_retry('领取奖励失败')
 
     def _check_reward(self, screen: Optional[MatLike] = None) -> bool:
         """

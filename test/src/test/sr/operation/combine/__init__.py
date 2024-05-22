@@ -13,7 +13,7 @@ class SimpleOp1(Operation):
         super().__init__(ctx, op_name='测试指令1', op_callback=op_callback)
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-        return Operation.round_success('1')
+        return self.round_success('1')
 
 
 class SimpleOp2(Operation):
@@ -25,7 +25,7 @@ class SimpleOp2(Operation):
         self.last_value = last_value
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-        return Operation.round_success(str(self.last_value + 1))
+        return self.round_success(str(self.last_value + 1))
 
 
 class CombineOp(StatusCombineOperation2):

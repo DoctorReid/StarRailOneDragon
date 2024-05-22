@@ -33,7 +33,7 @@ class RecordCoordinate(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         self.current_times += 1
         if self.current_times > self.record_times:
-            return Operation.round_success()
+            return self.round_success()
 
         screen = self.screenshot()
 
@@ -57,10 +57,10 @@ class RecordCoordinate(Operation):
             log.error('识别坐标失败', exc_info=True)
 
         if next_pos is None:
-            return Operation.round_wait(wait=0.5)
+            return self.round_wait(wait=0.5)
 
         self.save(self.region, mm, next_pos)
-        return Operation.round_wait(wait=0.5)
+        return self.round_wait(wait=0.5)
 
     @staticmethod
     def save(region: Region, mm: MatLike, pos: MatchResult):

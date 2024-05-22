@@ -22,9 +22,9 @@ class OpenPhoneMenu(Operation):
         area = ScreenPhoneMenu.TRAILBLAZE_LEVEL_PART.value
 
         if self.find_area(area, screen):
-            return Operation.round_success()
+            return self.round_success()
 
         self.ctx.controller.esc()
         log.info('尝试打开菜单')
 
-        return Operation.round_retry(status='未在菜单画面', wait=1)
+        return self.round_retry(status='未在菜单画面', wait=1)

@@ -91,11 +91,11 @@ class SimUniRunLevel(StateOperation):
 
     def _wait(self) -> OperationOneRoundResult:
         op = SimUniWaitLevelStart(self.ctx, config=self.config)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _check_members(self) -> OperationOneRoundResult:
         op = CheckTeamMembersInWorld(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _check_level_type(self) -> OperationOneRoundResult:
         """
@@ -112,7 +112,7 @@ class SimUniRunLevel(StateOperation):
 
         if target_idx is None:
             self.level_type = None
-            return Operation.round_retry('匹配楼层类型失败', wait=1)
+            return self.round_retry('匹配楼层类型失败', wait=1)
 
         another_type = False  # 是否匹配到另一钟类型
         target_level_type = level_type_list[target_idx]
@@ -122,9 +122,9 @@ class SimUniRunLevel(StateOperation):
 
         # OCR运行需要时间 下面这些就不等待了
         if another_type:
-            return Operation.round_wait()
+            return self.round_wait()
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def _check_route(self) -> OperationOneRoundResult:
         """
@@ -141,15 +141,15 @@ class SimUniRunLevel(StateOperation):
 
             if target_route is None:
                 self.route = None
-                return Operation.round_retry('匹配路线失败', wait=1)
+                return self.round_retry('匹配路线失败', wait=1)
             elif self.route is None or self.route.uid != target_route.uid:
                 self.route = target_route
                 another_route = True
 
         if another_route:
-            return Operation.round_wait(wait=0.2)
+            return self.round_wait(wait=0.2)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def _route_op(self, only_v2: bool = False) -> OperationOneRoundResult:
         """
@@ -159,13 +159,13 @@ class SimUniRunLevel(StateOperation):
         op: Operation = self._get_route_op(only_v2=only_v2)
 
         if op is None:
-            return Operation.round_fail(status='未支持的楼层类型 %s' % self.level_type)
+            return self.round_fail(status='未支持的楼层类型 %s' % self.level_type)
 
         op_result = op.execute()
         if op_result.success and self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            return Operation.round_success(status=SimUniRunLevel.STATUS_BOSS_CLEARED)
+            return self.round_success(status=SimUniRunLevel.STATUS_BOSS_CLEARED)
         else:
-            return Operation.round_by_op(op_result)
+            return self.round_by_op(op_result)
 
     def _route_op_v2(self) -> OperationOneRoundResult:
         """
@@ -215,8 +215,8 @@ class SimUniRunLevel(StateOperation):
         :return:
         """
         if self.reset_times >= 1:  # 最多重置1次
-            return Operation.round_fail(SimUniRunLevel.STATUS_NO_RESET)
+            return self.round_fail(SimUniRunLevel.STATUS_NO_RESET)
 
         self.reset_times += 1
         op = ResetSimUniLevel(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())

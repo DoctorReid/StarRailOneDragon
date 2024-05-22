@@ -43,21 +43,21 @@ class BackToNormalWorldPlus(Operation):
             # 判断是否在逐光捡金内
             click = self.find_and_click_area(exit_icon, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_wait(wait=1)
+                return self.round_wait(wait=1)
 
             # 都不在的话 暂时不支持返回大世界
-            return Operation.round_fail('未支持的副本画面')
+            return self.round_fail('未支持的副本画面')
 
         # 在可以移动的画面 - 普通大世界
         character_icon = ScreenNormalWorld.CHARACTER_ICON.value
         if self.find_area(character_icon, screen):  # 右上角有角色图标
-            return Operation.round_success()
+            return self.round_success()
 
         # 手机菜单
         phone_menu = ScreenPhoneMenu.TRAILBLAZE_LEVEL_PART.value
         if self.find_area(phone_menu, screen):
             self.ctx.controller.click(ScreenPhoneMenu.EXIT_BTN.value.center)
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
 
         # 模拟宇宙内的画面
         sim_uni_state = screen_state.get_sim_uni_screen_state(
@@ -87,7 +87,7 @@ class BackToNormalWorldPlus(Operation):
         # 对话框 - 逐光捡金 退出确认
         dialog_confirm = ScreenTreasuresLightWard.EXIT_DIALOG_CONFIRM.value
         if self.find_and_click_area(dialog_confirm, screen) == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_wait(wait=5)
+            return self.round_wait(wait=5)
 
         # 列车补给 - 点击空白处继续
         if self.find_area(ScreenNormalWorld.EXPRESS_SUPPLY.value, screen) \
@@ -97,7 +97,7 @@ class BackToNormalWorldPlus(Operation):
             time.sleep(3)  # 暂停一段时间再操作
             self.ctx.controller.click(express_supply_get.center)  # 领取需要分两个阶段 点击两次
             time.sleep(1)  # 暂停一段时间再操作
-            return Operation.round_wait(wait=2)
+            return self.round_wait(wait=2)
 
         # 战斗中 点击右上角后出现的画面 需要需要退出
         battle_exit_area_list = [
@@ -105,56 +105,56 @@ class BackToNormalWorldPlus(Operation):
         ]
         for area in battle_exit_area_list:
             if self.find_and_click_area(area, screen) == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_wait(wait=1)
+                return self.round_wait(wait=1)
 
         # 其他情况 - 均点击右上角触发返回上一级
         self.ctx.controller.click(ScreenPhoneMenu.EXIT_BTN.value.center)
-        return Operation.round_wait(wait=1)
+        return self.round_wait(wait=1)
 
     def sim_uni_exit(self) -> OperationOneRoundResult:
         op = SimUniExit(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
 
     def sim_uni_event(self) -> OperationOneRoundResult:
         op = SimUniEvent(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
 
     def sim_uni_choose_bless(self) -> OperationOneRoundResult:
         op = SimUniChooseBless(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
 
     def sim_uni_drop_bless(self) -> OperationOneRoundResult:
         op = SimUniDropBless(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
 
     def sim_uni_choose_curio(self) -> OperationOneRoundResult:
         op = SimUniChooseCurio(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
 
     def sim_uni_drop_curio(self) -> OperationOneRoundResult:
         op = SimUniDropCurio(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)

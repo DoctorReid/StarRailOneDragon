@@ -30,12 +30,12 @@ class ChooseGuideTab(Operation):
 
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.GUIDE.value):
             log.info('等待指南加载')
-            return Operation.round_retry()
+            return self.round_retry()
 
         if not in_secondary_ui(screen, self.ctx.ocr, self.target.cn):
             log.info('指南中点击 %s', self.target.cn)
             self.ctx.controller.click(self.target.area.rect.center)
             time.sleep(1)
-            return Operation.round_retry()
+            return self.round_retry()
 
-        return Operation.round_success()
+        return self.round_success()

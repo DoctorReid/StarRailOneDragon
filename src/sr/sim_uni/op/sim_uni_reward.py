@@ -63,12 +63,12 @@ class SimUniReward(StateOperation):
                                                       reward=True)
 
         if state != screen_state.ScreenState.SIM_REWARD.value:
-            return Operation.round_retry('未在沉浸奖励画面', wait=1)
+            return self.round_retry('未在沉浸奖励画面', wait=1)
 
         if self.get_reward_cnt >= self.max_to_get:
             log.info('领取奖励完毕')
             self.ctx.controller.click(SimUniReward.CLOSE_REWARD_BTN.center)
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
 
         rect = self._get_reward_pos(screen)
         if rect is not None:
@@ -78,10 +78,10 @@ class SimUniReward(StateOperation):
                     40 if rect == SimUniReward.POWER_NUM_RECT else 0,
                     1 if rect == SimUniReward.QTY_RECT else 0
                 )
-            return Operation.round_success(SimUniReward.STATUS_GET_REWARD)
+            return self.round_success(SimUniReward.STATUS_GET_REWARD)
         else:
             self.ctx.controller.click(SimUniReward.CLOSE_REWARD_BTN.center)
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
 
     def _get_reward_pos(self, screen: MatLike) -> Optional[Rect]:
         """
@@ -110,13 +110,13 @@ class SimUniReward(StateOperation):
                                                       empty_to_close=True)
 
         if state != screen_state.ScreenState.EMPTY_TO_CLOSE.value:
-            return Operation.round_retry('未在点击空白处关闭画面', wait=1)
+            return self.round_retry('未在点击空白处关闭画面', wait=1)
 
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
         if click:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击空白处关闭失败', wait=1)
+            return self.round_retry('点击空白处关闭失败', wait=1)
 
     def _check_state(self) -> OperationOneRoundResult:
         """
@@ -126,9 +126,9 @@ class SimUniReward(StateOperation):
         screen = self.screenshot()
         state = self._get_screen_state(screen)
         if state is None:
-            return Operation.round_retry('判断画面状态失败', wait=1)
+            return self.round_retry('判断画面状态失败', wait=1)
         else:
-            return Operation.round_success(state)
+            return self.round_success(state)
 
     def _get_screen_state(self, screen: MatLike):
         return screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
@@ -140,4 +140,4 @@ class SimUniReward(StateOperation):
         领取够了就退出
         :return:
         """
-        return Operation.round_success()
+        return self.round_success()

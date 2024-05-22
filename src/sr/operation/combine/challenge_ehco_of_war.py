@@ -92,14 +92,14 @@ class ChallengeEchoOfWar(StateOperation):
 
         if state == ScreenBattle.AFTER_BATTLE_FAIL_1.value.status:
             self.battle_fail_times += 1
-            return Operation.round_success(state)
+            return self.round_success(state)
         elif state == ScreenBattle.AFTER_BATTLE_SUCCESS_1.value.status:
             self.battle_success_times += 1
             if self.on_battle_success is not None:
                 self.on_battle_success()
-            return Operation.round_success(state)
+            return self.round_success(state)
         else:
-            return Operation.round_wait('等待战斗结束', wait=1)
+            return self.round_wait('等待战斗结束', wait=1)
 
     def _after_battle_result(self) -> OperationOneRoundResult:
         """
@@ -116,9 +116,9 @@ class ChallengeEchoOfWar(StateOperation):
 
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status, wait=2)
+            return self.round_success(status, wait=2)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)
 
     def _confirm_again(self) -> OperationOneRoundResult:
         """
@@ -129,6 +129,6 @@ class ChallengeEchoOfWar(StateOperation):
         area = ScreenBattle.AFTER_BATTLE_CONFIRM_AGAIN_BTN.value
         click = self.find_and_click_area(area, screen)
         if click in [Operation.OCR_CLICK_SUCCESS, Operation.OCR_CLICK_NOT_FOUND]:
-            return Operation.round_success(wait=2)
+            return self.round_success(wait=2)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)

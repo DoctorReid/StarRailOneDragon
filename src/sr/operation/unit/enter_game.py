@@ -50,19 +50,19 @@ class EnterGame(StateOperation):
         area2 = ScreenLogin.SWITCH_PASSWORD.value
         if self.find_area(area1, screen) and self.find_area(area2, screen):
             self.login_status = area2.status
-            return Operation.round_success()
+            return self.round_success()
 
         area = ScreenLogin.SERVER_START_GAME.value
         if self.find_area(area, screen):
             self.login_status = area.status
-            return Operation.round_success()
+            return self.round_success()
 
         area = ScreenLogin.CONFIRM_START_GAME.value
         if self.find_area(area, screen):
             self.login_status = area.status
-            return Operation.round_success()
+            return self.round_success()
 
-        return Operation.round_wait(wait=1)
+        return self.round_wait(wait=1)
 
     def _login(self) -> OperationOneRoundResult:
         """
@@ -70,7 +70,7 @@ class EnterGame(StateOperation):
         :return:
         """
         op = LoginWithPassword(self.ctx, self.login_status)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
 
 class LoginWithAnotherAccount(StateOperation):
@@ -124,7 +124,7 @@ class Logout(StateOperation):
         click = self.ctx.controller.click(ScreenPhoneMenu.POWER_BTN.value.rect.center)
 
         if not click:
-            return Operation.round_retry('点击返回登陆按钮失败', wait=1)
+            return self.round_retry('点击返回登陆按钮失败', wait=1)
 
         time.sleep(2)
 
@@ -134,9 +134,9 @@ class Logout(StateOperation):
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=15)
+            return self.round_success(wait=15)
         else:
-            return Operation.round_retry('点击%s失败', area.text, wait=1)
+            return self.round_retry('点击%s失败', area.text, wait=1)
 
     def _logout(self) -> OperationOneRoundResult:
         """
@@ -147,16 +147,16 @@ class Logout(StateOperation):
         click = self.find_and_click_area(area)
 
         if not click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_retry('点击%s失败' % area.text, wait=1)
+            return self.round_retry('点击%s失败' % area.text, wait=1)
 
         time.sleep(1)
 
         area = ScreenLogin.LOGOUT_CONFIRM.value
         click = self.find_and_click_area(area)
         if not click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击%s失败' % area.text, wait=1)
+            return self.round_retry('点击%s失败' % area.text, wait=1)
 
 
 class LoginWithPassword(StateOperation):
@@ -204,9 +204,9 @@ class LoginWithPassword(StateOperation):
         area = ScreenLogin.LOGIN_BTN.value
 
         if self.find_area(area, screen):
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在%s画面' % area.status, wait=1)
+            return self.round_retry('未在%s画面' % area.status, wait=1)
 
     def _switch_to_password(self) -> OperationOneRoundResult:
         """
@@ -217,15 +217,15 @@ class LoginWithPassword(StateOperation):
         area = ScreenLogin.PASSWORD_INPUT.value
 
         if self.find_area(area, screen):
-            return Operation.round_success()
+            return self.round_success()
 
         area = ScreenLogin.SWITCH_PASSWORD.value
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry('点击%s失败' % area.text, wait=1)
+            return self.round_retry('点击%s失败' % area.text, wait=1)
 
     def _enter_password(self) -> OperationOneRoundResult:
         """
@@ -234,7 +234,7 @@ class LoginWithPassword(StateOperation):
         """
         gc = self.ctx.game_config
         if len(gc.game_account) == 0 or len(gc.game_account_password) == 0:
-            return Operation.round_fail('未配置账号密码')
+            return self.round_fail('未配置账号密码')
 
         # 输入账号
         self.ctx.controller.click(ScreenLogin.ACCOUNT_INPUT.value.rect.center)
@@ -258,9 +258,9 @@ class LoginWithPassword(StateOperation):
         area = ScreenLogin.LOGIN_BTN.value
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=3)
+            return self.round_success(wait=3)
         else:
-            return Operation.round_retry('点击%s失败' % area.text, wait=1)
+            return self.round_retry('点击%s失败' % area.text, wait=1)
 
     def _server_enter_game(self) -> OperationOneRoundResult:
         """
@@ -271,13 +271,13 @@ class LoginWithPassword(StateOperation):
         area1 = ScreenLogin.SERVER_START_GAME.value
         click = self.find_and_click_area(area1, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=5)
+            return self.round_success(wait=5)
 
         area2 = ScreenLogin.CONFIRM_START_GAME.value
         if self.find_area(area2, screen):  # 有可能不需要选择服务器
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在 %s 或 %s 画面' % (area1.status, area2.status), wait=1)
+            return self.round_retry('未在 %s 或 %s 画面' % (area1.status, area2.status), wait=1)
 
     def _confirm_enter_game(self) -> OperationOneRoundResult:
         """
@@ -288,9 +288,9 @@ class LoginWithPassword(StateOperation):
         area = ScreenLogin.CONFIRM_START_GAME.value
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=5)
+            return self.round_success(wait=5)
         else:
-            return Operation.round_retry('未在%s画面' % area.status, wait=2)
+            return self.round_retry('未在%s画面' % area.status, wait=2)
 
 
 class WaitEnterGame(Operation):
@@ -322,13 +322,13 @@ class WaitEnterGame(Operation):
 
             if self.claim_express_supply:  # 已经领取过列车补给
                 self.ctx.init_after_enter_game()
-                return Operation.round_success()
+                return self.round_success()
             else:  # 没领列车补给的话 等2秒看看有没有
                 if now - self.first_in_world_time > 2:
                     self.ctx.init_after_enter_game()
-                    return Operation.round_success()
+                    return self.round_success()
                 else:
-                    return Operation.round_wait(wait=1)
+                    return self.round_wait(wait=1)
 
         if self.find_area(ScreenNormalWorld.EXPRESS_SUPPLY.value, screen) \
                 or self.find_area(ScreenNormalWorld.EXPRESS_SUPPLY_2.value, screen):  # 列车补给(小月卡) - 会先出现主界面
@@ -338,6 +338,6 @@ class WaitEnterGame(Operation):
             self.ctx.controller.click(get_area.center)  # 领取需要分两个阶段 点击两次
             time.sleep(1)  # 暂停一段时间再操作
             self.claim_express_supply = True
-            return Operation.round_wait()
+            return self.round_wait()
 
-        return Operation.round_wait(wait=1)
+        return self.round_wait(wait=1)

@@ -109,9 +109,9 @@ class TreasuresLightwardApp(Application):
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
             self.schedule_type = TreasuresLightwardTypeEnum.FORGOTTEN_HALL
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('点击%s失败', area.text)
+            return self.round_retry('点击%s失败', area.text)
 
     def _choose_pure_fiction(self):
         """
@@ -122,9 +122,9 @@ class TreasuresLightwardApp(Application):
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
             self.schedule_type = TreasuresLightwardTypeEnum.PURE_FICTION
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击%s失败', area.text)
+            return self.round_retry('点击%s失败', area.text)
 
     def _check_record_and_tp(self):
         """
@@ -153,32 +153,32 @@ class TreasuresLightwardApp(Application):
                     to_challenge_idx = i
 
         if not find_schedule:
-            return Operation.round_retry('未检测到相关挑战', wait=1)
+            return self.round_retry('未检测到相关挑战', wait=1)
 
         if to_challenge_idx == -1:  # 没有需要挑战的
-            return Operation.round_success()
+            return self.round_success()
 
         self.challenged_set.add(self.challenge_schedule['schedule_name'])
 
         click_tp = self.ctx.controller.click(tp_area_list[to_challenge_idx].rect.center)
         if click_tp:
-            return Operation.round_success(TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE, wait=3)
+            return self.round_success(TreasuresLightwardApp.STATUS_SHOULD_CHALLENGE, wait=3)
         else:
-            return Operation.round_retry('点击传送失败', wait=1)
+            return self.round_retry('点击传送失败', wait=1)
 
     def _check_pf_new_start(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
         title = ScreenTreasuresLightWard.PF_TITLE.value
         if self.find_area(title, screen):
-            return Operation.round_success()
+            return self.round_success()
 
         start = ScreenTreasuresLightWard.PF_NEW_START.value
         click = self.find_and_click_area(start, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
 
-        return Operation.round_retry('未进入虚构叙事画面', wait=1)
+        return self.round_retry('未进入虚构叙事画面', wait=1)
 
     def _check_total_star(self) -> OperationOneRoundResult:
         """
@@ -189,7 +189,7 @@ class TreasuresLightwardApp(Application):
         op_result = op.execute()
         if op_result.success:
             self.run_record.update_total_star(self.challenge_schedule, op_result.data)
-        return Operation.round_by_op(op_result)
+        return self.round_by_op(op_result)
 
     def _check_schedule_finished(self) -> OperationOneRoundResult:
         """
@@ -204,7 +204,7 @@ class TreasuresLightwardApp(Application):
         if self.challenge_schedule['total_star'] >= self.get_max_num() * 3:
             self.challenge_schedule['finished'] = True
             self.run_record.save()
-        return Operation.round_success()
+        return self.round_success()
 
     def _on_mission_finished(self, op_result: OperationResult):
         """
@@ -298,7 +298,7 @@ class TreasuresLightwardApp(Application):
 
     def _check_unlock(self) -> OperationOneRoundResult:
         op = CheckMaxUnlockMission(self.ctx, self.schedule_type, self._on_max_unlock_done)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _challenge_next_mission(self) -> OperationOneRoundResult:
         """
@@ -307,11 +307,11 @@ class TreasuresLightwardApp(Application):
         """
         if self.current_mission_num > self.get_max_num() or \
                 self.run_record.get_total_star(self.challenge_schedule) >= self.get_max_num() * 3:
-            return Operation.round_success()
+            return self.round_success()
 
         op = ChallengeTreasuresLightwardMission(self.ctx,
                                                 self.schedule_type,
                                                 self.current_mission_num, 2,
                                                 cal_team_func=self._cal_team_member,
                                                 op_callback=self._on_mission_finished)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())

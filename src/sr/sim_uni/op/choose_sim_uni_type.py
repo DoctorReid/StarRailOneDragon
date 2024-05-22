@@ -31,11 +31,11 @@ class ChooseSimUniType(Operation):
         state = screen_state.get_sim_uni_initial_screen_state(screen, self.ctx.im, self.ctx.ocr)
 
         if state == screen_state.ScreenState.SIM_TYPE_NORMAL.value:
-            return Operation.round_success()
+            return self.round_success()
         elif state == screen_state.ScreenState.SIM_TYPE_EXTEND.value:
             self.ctx.controller.click(ChooseSimUniType.SWITCH_TYPE_BTN)
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
             # 有可能出现了每周第一次打开的积分奖励进度画面 随便点击一个地方关闭
             self.ctx.controller.click(screen_state.TargetRect.UI_TITLE.value.center)
-            return Operation.round_retry('未选择对应模拟宇宙类型', wait=1)
+            return self.round_retry('未选择对应模拟宇宙类型', wait=1)

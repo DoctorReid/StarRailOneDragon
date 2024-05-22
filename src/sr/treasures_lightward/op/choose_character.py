@@ -34,14 +34,14 @@ class TlChooseCharacter(Operation):
         pos = self._get_character_pos()
         if pos is not None:
             if self.ctx.controller.click(pos.center):
-                return Operation.round_success(wait=0.1)
+                return self.round_success(wait=0.1)
             else:
-                return Operation.round_retry('点击头像失败', wait=1)
+                return self.round_retry('点击头像失败', wait=1)
         else:
             drag_from = TlChooseCharacter.DRAG_FROM
             drag_to = drag_from + (Point(0, -300) if self.op_round < 3 else Point(0, 300))  # 前3次向下滑 后3次向上滑
             self.ctx.controller.drag_to(drag_to, drag_from)
-            return Operation.round_retry('找不到对应头像', wait=2)
+            return self.round_retry('找不到对应头像', wait=2)
 
     def _get_character_pos(self, screen: Optional[MatLike] = None) -> Optional[MatchResult]:
         """

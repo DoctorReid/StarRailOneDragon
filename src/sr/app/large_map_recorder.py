@@ -58,22 +58,22 @@ class LargeMapRecorder(Application):
 
     def _do_screenshot(self) -> OperationOneRoundResult:
         if self.current_floor > 3:
-            return Operation.round_success()
+            return self.round_success()
 
         if self.floor_list is not None and self.current_floor not in self.floor_list:
             self.current_floor += 1
-            return Operation.round_wait()
+            return self.round_wait()
 
         self.current_region = region_with_another_floor(self.region, self.current_floor)
         self.current_floor += 1
 
         if self.current_region is None:
-            return Operation.round_wait()
+            return self.round_wait()
 
         op = ChooseFloor(self.ctx, self.current_region.floor)
         op_result = op.execute()
         if not op_result.success:
-            return Operation.round_fail('选择区域失败')
+            return self.round_fail('选择区域失败')
 
         self._do_screenshot_1()
         if self.row_list is not None:
@@ -91,7 +91,7 @@ class LargeMapRecorder(Application):
                     self.col += 1
         LargeMapRecorder.do_merge_1(self.current_region, self.row, self.col, skip_height=self.skip_height)
 
-        return Operation.round_wait()
+        return self.round_wait()
 
     def _do_screenshot_1(self):
         """
@@ -244,7 +244,7 @@ class LargeMapRecorder(Application):
             large_map.init_large_map(target_region, raw, self.ctx.im, self.ctx.game_config.mini_map_pos,
                                      expand_arr=[lp, rp, tp, bp], save=True)
 
-        return Operation.round_success()
+        return self.round_success()
 
     def back_to_left_top(self):
         """

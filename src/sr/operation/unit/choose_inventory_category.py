@@ -46,14 +46,14 @@ class ChooseInventoryCategory(Operation):
         screen = self.screenshot()
         if not in_secondary_ui(screen, self.ctx.ocr, title_cn=ScreenState.INVENTORY.value):
             time.sleep(1)
-            return Operation.round_retry('未在背包页面')
+            return self.round_retry('未在背包页面')
 
         if not in_secondary_ui(screen, self.ctx.ocr, title_cn=self.category.cn):
             click = self.ctx.controller.click(self.category.pos)
             time.sleep(1)
             if click:
-                return Operation.round_wait()
+                return self.round_wait()
             else:
-                return Operation.round_retry('%s %s' % ('点击分类失败', self.category.cn))
+                return self.round_retry('%s %s' % ('点击分类失败', self.category.cn))
 
-        return Operation.round_success()
+        return self.round_success()

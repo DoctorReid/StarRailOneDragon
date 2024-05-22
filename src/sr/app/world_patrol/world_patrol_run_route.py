@@ -73,7 +73,7 @@ class WorldPatrolRunRoute(StateOperation):
         check_members = CheckTeamMembersInWorld(self.ctx)
         check_members_result = check_members.execute()
 
-        return Operation.round_by_op(check_members_result)
+        return self.round_by_op(check_members_result)
 
     def _use_tech(self) -> OperationOneRoundResult:
         """
@@ -83,7 +83,7 @@ class WorldPatrolRunRoute(StateOperation):
         if (not self.ctx.world_patrol_config.technique_fight
                 or not self.ctx.team_info.is_buff_technique
                 or self.ctx.technique_used):
-            return Operation.round_success()
+            return self.round_success()
 
         op = UseTechnique(self.ctx,
                           max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
@@ -91,7 +91,7 @@ class WorldPatrolRunRoute(StateOperation):
                           quirky_snacks=self.ctx.game_config.use_quirky_snacks
                           )
 
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _next_op(self) -> OperationOneRoundResult:
         """
@@ -101,10 +101,10 @@ class WorldPatrolRunRoute(StateOperation):
         self.op_idx += 1
 
         # if self.op_idx == 0:  # 测试传送点用
-        #     return Operation.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
+        #     return self.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
 
         if self.op_idx >= len(self.route.route_list):
-            return Operation.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
+            return self.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
 
         route_item = self.route.route_list[self.op_idx]
         next_route_item = self.route.route_list[self.op_idx + 1] if self.op_idx + 1 < len(self.route.route_list) else None
@@ -127,12 +127,12 @@ class WorldPatrolRunRoute(StateOperation):
         elif route_item.op == operation_const.OP_UPDATE_POS:
             next_pos = Point(route_item.data[0], route_item.data[1])
             self._update_pos_after_op(OperationResult(True, data=next_pos))
-            return Operation.round_success()
+            return self.round_success()
         elif route_item.op == operation_const.OP_ENTER_SUB:
             self.current_region = get_sub_region_by_cn(route_item.data[0], self.current_region, int(route_item.data[1]))
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_fail(status='错误的锄大地指令 %s' % route_item.op)
+            return self.round_fail(status='错误的锄大地指令 %s' % route_item.op)
 
         op_result = op.execute()
 
@@ -154,7 +154,7 @@ class WorldPatrolRunRoute(StateOperation):
             op2 = RecordCoordinate(self.ctx, self.current_region, self.current_pos, record_times=record_times)
             op2.execute()
 
-        return Operation.round_by_op(op_result)
+        return self.round_by_op(op_result)
 
     def move(self, route_item, next_route_item) -> Operation:
         """
@@ -225,4 +225,4 @@ class WorldPatrolRunRoute(StateOperation):
         路线执行完毕
         :return:
         """
-        return Operation.round_success()
+        return self.round_success()

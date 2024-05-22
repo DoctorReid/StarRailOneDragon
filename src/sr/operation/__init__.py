@@ -89,9 +89,6 @@ class Operation:
         self.try_times: int = try_times
         """尝试次数"""
 
-        self.op_round: int = 0
-        """当前执行轮次"""
-
         self.ctx: Context = ctx
         """上下文"""
 
@@ -104,21 +101,6 @@ class Operation:
         self.timeout_seconds: float = timeout_seconds
         """指令超时时间"""
 
-        self.operation_start_time: float = 0
-        """指令开始执行的时间"""
-
-        self.pause_start_time: float = 0
-        """本次暂停开始的时间 on_pause时填入"""
-
-        self.current_pause_time: float = 0
-        """本次暂停的总时间 on_resume时填入"""
-
-        self.pause_total_time: float = 0
-        """暂停的总时间"""
-
-        self.executing: bool = False
-        """是否正在执行 用于判断能否进行初始化 暂停时也算是在执行"""
-
         self.op_callback: Optional[Callable[[OperationResult], None]] = op_callback
         """该节点结束后的回调"""
 
@@ -127,12 +109,26 @@ class Operation:
         执行前的初始化 注意初始化要全面 方便一个指令重复使用
         """
         now = time.time()
-        self.operation_start_time = now
-        self.pause_start_time = now
-        self.current_pause_time = 0
-        self.pause_total_time = 0
-        self.op_round = 0
-        self.executing = True
+
+        self.op_round: int = 0
+        """当前执行轮次"""
+
+        self.operation_start_time: float = now
+        """指令开始执行的时间"""
+
+        self.pause_start_time: float = now
+        """本次暂停开始的时间 on_pause时填入"""
+
+        self.current_pause_time: float = 0
+        """本次暂停的总时间 on_resume时填入"""
+
+        self.pause_total_time: float = 0
+        """暂停的总时间"""
+        
+        self.round_start_time: float = 0
+        """本轮指令的开始时间"""
+
+        self.ctx.event_bus.unlisten_all(self)
         self.ctx.event_bus.listen(ContextEventId.CONTEXT_PAUSE.value, self.on_pause)
         self.ctx.event_bus.listen(ContextEventId.CONTEXT_RESUME.value, self.on_resume)
 
@@ -144,6 +140,7 @@ class Operation:
         op_result: Optional[OperationResult] = None
         retry_status: Optional[str] = None
         while self.op_round < self.try_times:
+            self.round_start_time = time.time()
             if self.timeout_seconds != -1 and self._operation_usage_time >= self.timeout_seconds:
                 op_result = self.op_fail(Operation.STATUS_TIMEOUT)
                 break
@@ -269,7 +266,6 @@ class Operation:
         :return:
         """
         self.ctx.event_bus.unlisten_all(self)
-        self.executing = False
         if result.success:
             log.info('%s 执行成功 返回状态 %s', self.display_name, coalesce_gt(result.status, '成功', model='ui'))
         else:
@@ -278,57 +274,71 @@ class Operation:
         if self.op_callback is not None:
             self.op_callback(result)
 
-    @staticmethod
-    def round_success(status: str = None, data: Any = None, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_success(self, status: str = None, data: Any = None,
+                      wait: Optional[float] = None, wait_round_time: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
         :param data: 返回数据
         :param wait: 等待秒数
+        :param wait_round_time: 等待当前轮的运行时间到达这个时间时再结束 有wait时不生效
         :return:
         """
-        if wait is not None and wait > 0:
-            time.sleep(wait)
+        self._after_round_wait(wait=wait, wait_round_time=wait_round_time)
         return OperationOneRoundResult(result=Operation.SUCCESS, status=status, data=data)
 
-    @staticmethod
-    def round_wait(status: str = None, data: Any = None, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_wait(self, status: str = None, data: Any = None,
+                   wait: Optional[float] = None, wait_round_time: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
         :param data: 返回数据
         :param wait: 等待秒数
+        :param wait_round_time: 等待当前轮的运行时间到达这个时间时再结束 有wait时不生效
         :return:
         """
-        if wait is not None and wait > 0:
-            time.sleep(wait)
+        self._after_round_wait(wait=wait, wait_round_time=wait_round_time)
         return OperationOneRoundResult(result=Operation.WAIT, status=status, data=data)
 
-    @staticmethod
-    def round_retry(status: str = None, data: Any = None, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_retry(self, status: str = None, data: Any = None,
+                    wait: Optional[float] = None, wait_round_time: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
         :param data: 返回数据
         :param wait: 等待秒数
+        :param wait_round_time: 等待当前轮的运行时间到达这个时间时再结束 有wait时不生效
         :return:
         """
-        if wait is not None and wait > 0:
-            time.sleep(wait)
+        self._after_round_wait(wait=wait, wait_round_time=wait_round_time)
         return OperationOneRoundResult(result=Operation.RETRY, status=status, data=data)
 
-    @staticmethod
-    def round_fail(status: str = None, data: Any = None, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_fail(self, status: str = None, data: Any = None,
+                   wait: Optional[float] = None, wait_round_time: Optional[float] = None) -> OperationOneRoundResult:
         """
         单轮成功 - 即整个指令成功
         :param status: 附带状态
         :param data: 返回数据
         :param wait: 等待秒数
+        :param wait_round_time: 等待当前轮的运行时间到达这个时间时再结束 有wait时不生效
+        :return:
+        """
+        self._after_round_wait(wait=wait, wait_round_time=wait_round_time)
+        return OperationOneRoundResult(result=Operation.FAIL, status=status, data=data)
+
+    def _after_round_wait(self, wait: Optional[float] = None, wait_round_time: Optional[float] = None):
+        """
+        每轮指令后进行的等待
+        :param wait: 等待秒数
+        :param wait_round_time: 等待当前轮的运行时间到达这个时间时再结束 有wait时不生效
         :return:
         """
         if wait is not None and wait > 0:
             time.sleep(wait)
-        return OperationOneRoundResult(result=Operation.FAIL, status=status, data=data)
+        elif wait_round_time is not None and wait_round_time > 0:
+            to_wait = wait_round_time - (time.time() - self.round_start_time)
+            if to_wait > 0:
+                time.sleep(to_wait)
 
     @staticmethod
     def op_success(status: str = None, data: Any = None) -> OperationResult:
@@ -350,32 +360,25 @@ class Operation:
         """
         return OperationResult(success=False, status=status, data=data)
 
-    @staticmethod
-    def round_by_op(op_result: OperationResult, retry_on_fail: bool = False, wait: Optional[float] = None) -> OperationOneRoundResult:
+    def round_by_op(self, op_result: OperationResult, retry_on_fail: bool = False,
+                    wait: Optional[float] = None, wait_round_time: Optional[float] = None) -> OperationOneRoundResult:
         """
         根据一个指令的结果获取当前轮的结果
         :param op_result: 指令结果
         :param retry_on_fail: 失败的时候是否重试
         :param wait: 等待时间
+        :param wait_round_time: 等待当前轮的运行时间到达这个时间时再结束 有wait时不生效
         :return:
         """
         if op_result.success:
-            return Operation.round_success(status=op_result.status, data=op_result.data, wait=wait)
+            return self.round_success(status=op_result.status, data=op_result.data, wait=wait, wait_round_time=wait_round_time)
         elif retry_on_fail:
-            return Operation.round_retry(status=op_result.status, data=op_result.data, wait=wait)
+            return self.round_retry(status=op_result.status, data=op_result.data, wait=wait, wait_round_time=wait_round_time)
         else:
-            return Operation.round_fail(status=op_result.status, data=op_result.data, wait=wait)
+            return self.round_fail(status=op_result.status, data=op_result.data, wait=wait, wait_round_time=wait_round_time)
 
-    @staticmethod
-    def round_wait_by_op(op_result: OperationResult) -> OperationOneRoundResult:
-        if op_result.success:
-            return Operation.round_wait(op_result.status)
-        else:
-            return Operation.round_fail_by_op(op_result)
-
-    @staticmethod
-    def round_fail_by_op(op_result: OperationResult) -> OperationOneRoundResult:
-        return Operation.round_fail(status=op_result.status, data=op_result.data)
+    def round_fail_by_op(self, op_result: OperationResult) -> OperationOneRoundResult:
+        return self.round_fail(status=op_result.status, data=op_result.data)
 
     def ocr_and_click_one_line(
             self, target_cn: str,
@@ -482,7 +485,7 @@ class OperationSuccess(Operation):
         self.data: Any = data
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
-        return Operation.round_success(status=self.status, data=self.data)
+        return self.round_success(status=self.status, data=self.data)
 
 
 class OperationFail(Operation):
@@ -494,7 +497,7 @@ class OperationFail(Operation):
         self.status: Optional[str] = status
 
     def _execute_one_round(self) -> Union[int, OperationOneRoundResult]:
-        return Operation.round_fail(status=self.status)
+        return self.round_fail(status=self.status)
 
 
 class StateOperationNode:
@@ -616,7 +619,7 @@ class StateOperation(Operation):
 
         if edges is not None:
             for edge in edges:
-                self.register_edge(edge)
+                self.edge_list.append(edge)
         elif nodes is not None:
             if len(nodes) == 1:
                 self._specified_start_node = nodes[0]
@@ -624,19 +627,8 @@ class StateOperation(Operation):
                 last_node = None
                 for node in nodes:
                     if last_node is not None:
-                        self.register_edge(StateOperationEdge(last_node, node))
+                        self.edge_list.append(StateOperationEdge(last_node, node))
                     last_node = node
-
-    def register_edge(self, edge: StateOperationEdge):
-        """
-        注册一条边
-        :param edge:
-        :return:
-        """
-        if self.executing:
-            log.error('%s 正在执行 无法进行节点注册', self.display_name)
-            return
-        self.edge_list.append(edge)
 
     def set_specified_start_node(self, start_node: StateOperationNode):
         """
@@ -644,9 +636,6 @@ class StateOperation(Operation):
         :param start_node: 开始节点
         :return:
         """
-        if self.executing:
-            log.error('%s 正在执行 无法设置开始节点', self.display_name)
-            return
         self._specified_start_node = start_node
 
     def _init_network(self):
@@ -698,23 +687,23 @@ class StateOperation(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self._current_node is None:
-            return Operation.round_fail('无开始节点')
+            return self.round_fail('无开始节点')
 
         if self._current_node.timeout_seconds is not None \
                 and self._current_node_start_time is not None \
                 and time.time() - self._current_node_start_time > self._current_node.timeout_seconds:
-            return Operation.round_fail(Operation.STATUS_TIMEOUT)
+            return self.round_fail(Operation.STATUS_TIMEOUT)
 
         if self._current_node.func is not None:
             current_op = self._current_node.func
             current_round_result: OperationOneRoundResult = current_op()
         elif self._current_node.op is not None:
             op_result = self._current_node.op.execute()
-            current_round_result = Operation.round_by_op(op_result,
+            current_round_result = self.round_by_op(op_result,
                                                          retry_on_fail=self._current_node.retry_on_op_fail,
                                                          wait=self._current_node.wait_after_op)
         else:
-            return Operation.round_fail('节点处理函数和指令都没有设置')
+            return self.round_fail('节点处理函数和指令都没有设置')
 
         # 重试到足够次数了 这里设置成失败
         # 因为有可能失败还有下一个节点 如果返回重试 则会返回整个op的失败
@@ -762,7 +751,7 @@ class StateOperation(Operation):
         self._current_node = next_node
         self.op_round = 0  # 重置 每个节点都可以重试
         self._current_node_start_time = time.time()  # 每个节点单独计算耗时
-        return Operation.round_wait()
+        return self.round_wait()
 
     def on_resume(self, e=None):
         super().on_resume(e)

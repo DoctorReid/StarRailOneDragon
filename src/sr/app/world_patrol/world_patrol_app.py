@@ -84,13 +84,13 @@ class WorldPatrol(Application):
         """
         team_num = self.ctx.world_patrol_config.team_num if self.team_num is None else self.team_num
         if team_num == 0:
-            return Operation.round_success('无配队配置')
+            return self.round_success('无配队配置')
         op = ChooseTeamInWorld(self.ctx, team_num)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _run_route(self):
         if self.current_route_idx >= len(self.route_id_list):
-            return Operation.round_success(WorldPatrol.STATUS_ALL_ROUTE_FINISHED)
+            return self.round_success(WorldPatrol.STATUS_ALL_ROUTE_FINISHED)
         route_id = self.route_id_list[self.current_route_idx]
 
         self.current_route_start_time = time.time()
@@ -101,7 +101,7 @@ class WorldPatrol(Application):
                 self.save_record(route_id, time.time() - self.current_route_start_time)
 
         self.current_route_idx += 1
-        return Operation.round_success()
+        return self.round_success()
 
     def save_record(self, route_id: WorldPatrolRouteId, time_cost: float):
         """

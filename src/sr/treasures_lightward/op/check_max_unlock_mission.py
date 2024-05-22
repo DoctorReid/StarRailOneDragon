@@ -44,9 +44,9 @@ class CheckMaxUnlockMission(StateOperation):
             area = ScreenTreasuresLightWard.PF_TITLE.value
 
         if self.find_area(area):
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在%s画面' % area.status, wait=1)
+            return self.round_retry('未在%s画面' % area.status, wait=1)
 
     def _get_max_unlock_num(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -54,9 +54,9 @@ class CheckMaxUnlockMission(StateOperation):
         max_unlock_num = self.get_max_unlock_num(screen)
 
         if max_unlock_num is None:
-            return Operation.round_retry('未找到已解锁关卡')
+            return self.round_retry('未找到已解锁关卡')
         else:
-            return Operation.round_success(data=max_unlock_num)
+            return self.round_success(data=max_unlock_num)
 
     def get_max_unlock_num(self, screen: Optional[MatLike]) -> Optional[int]:
         """

@@ -40,13 +40,13 @@ class ChooseSimUniDiff(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.num == 0:  # 默认难度
-            return Operation.round_success()
+            return self.round_success()
         screen: MatLike = self.screenshot()
 
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.SIM_TYPE_NORMAL.value):
-            return Operation.round_retry('未在模拟宇宙页面', wait=1)
+            return self.round_retry('未在模拟宇宙页面', wait=1)
 
         if not self.ctx.controller.click(ChooseSimUniDiff.DIFF_POINT_MAP[self.num]):
-            return Operation.round_retry('点击难度失败', wait=1)
+            return self.round_retry('点击难度失败', wait=1)
 
-        return Operation.round_success(wait=1)
+        return self.round_success(wait=1)

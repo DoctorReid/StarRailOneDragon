@@ -42,9 +42,9 @@ class SimUniClaimWeeklyReward(StateOperation):
         state = screen_state.get_sim_uni_initial_screen_state(screen, self.ctx.im, self.ctx.ocr)
 
         if state in [screen_state.ScreenState.SIM_TYPE_EXTEND.value, screen_state.ScreenState.SIM_TYPE_NORMAL.value]:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在模拟宇宙画面', wait=1)
+            return self.round_retry('未在模拟宇宙画面', wait=1)
 
     def _check_reward(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -60,11 +60,11 @@ class SimUniClaimWeeklyReward(StateOperation):
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(SimUniClaimWeeklyReward.STATUS_WITH_REWARD, wait=1)
+            return self.round_success(SimUniClaimWeeklyReward.STATUS_WITH_REWARD, wait=1)
         elif click == Operation.OCR_CLICK_NOT_FOUND:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('点击奖励图标失败', wait=1)
+            return self.round_retry('点击奖励图标失败', wait=1)
 
     def _claim_reward(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -80,7 +80,7 @@ class SimUniClaimWeeklyReward(StateOperation):
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击%s失败' % area.text, wait=1)
+            return self.round_retry('点击%s失败' % area.text, wait=1)
 

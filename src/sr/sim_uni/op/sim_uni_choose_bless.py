@@ -219,9 +219,9 @@ class SimUniChooseBless(StateOperation):
         if not self.first_screen_check or not self.skip_first_screen_check:
             self.first_screen_check = False
             if not screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
-                return Operation.round_retry('未在模拟宇宙-选择祝福页面', wait=1)
+                return self.round_retry('未在模拟宇宙-选择祝福页面', wait=1)
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _choose(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -229,12 +229,12 @@ class SimUniChooseBless(StateOperation):
         bless_pos_list: List[MatchResult] = get_bless_pos(screen, self.ctx.ocr, self.before_level_start)
 
         if len(bless_pos_list) == 0:
-            return Operation.round_retry('未识别到祝福', wait=1)
+            return self.round_retry('未识别到祝福', wait=1)
 
         target_bless_pos: Optional[MatchResult] = self._get_bless_to_choose(screen, bless_pos_list)
         if target_bless_pos is None:
             self.ctx.controller.click(SimUniChooseBless.RESET_BTN.center)
-            return Operation.round_wait('重置祝福', wait=1)
+            return self.round_wait('重置祝福', wait=1)
         else:
             self.ctx.controller.click(target_bless_pos.center)
             time.sleep(0.25)
@@ -244,7 +244,7 @@ class SimUniChooseBless(StateOperation):
                 confirm_point = SimUniChooseBless.CONFIRM_BTN.center
             self.ctx.controller.click(confirm_point)
             self.choose_bless_time = time.time()
-            return Operation.round_success()
+            return self.round_success()
 
     def _can_reset(self, screen: MatLike) -> bool:
         """
@@ -284,13 +284,13 @@ class SimUniChooseBless(StateOperation):
         """
         now = time.time()
         if now - self.choose_bless_time >= 2:
-            return Operation.round_success(status=SimUniChooseBless.STATUS_STILL_BLESS)
+            return self.round_success(status=SimUniChooseBless.STATUS_STILL_BLESS)
         screen = self.screenshot()
         if screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
             # OCR需要时间 这里就不等待了
-            return Operation.round_wait(status=SimUniChooseBless.STATUS_STILL_BLESS)
+            return self.round_wait(status=SimUniChooseBless.STATUS_STILL_BLESS)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
 
 class SimUniDropBless(StateOperation):
@@ -326,29 +326,29 @@ class SimUniDropBless(StateOperation):
 
         if self.first_screen_check and self.skip_first_screen_check:
             self.first_screen_check = False
-            return Operation.round_success(screen_state.ScreenState.SIM_DROP_CURIOS.value)
+            return self.round_success(screen_state.ScreenState.SIM_DROP_CURIOS.value)
 
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       drop_bless=True)
 
         if state is not None:
-            return Operation.round_success(state)
+            return self.round_success(state)
         else:
-            return Operation.round_retry('未在丢弃祝福页面', wait=1)
+            return self.round_retry('未在丢弃祝福页面', wait=1)
 
     def _choose_bless(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
         bless_pos_list: List[MatchResult] = get_bless_pos(screen, self.ctx.ocr, False)
         if len(bless_pos_list) == 0:
-            return Operation.round_retry('未识别到祝福', wait=1)
+            return self.round_retry('未识别到祝福', wait=1)
 
         bless_list = [bless.data for bless in bless_pos_list]
         target_idx: int = get_bless_by_priority(bless_list, self.config, can_reset=False, asc=False)
         self.ctx.controller.click(bless_pos_list[target_idx].center)
         time.sleep(0.25)
         self.ctx.controller.click(SimUniChooseBless.CONFIRM_BTN.center)
-        return Operation.round_success(wait=1)
+        return self.round_success(wait=1)
 
     def _confirm(self) -> OperationOneRoundResult:
         """
@@ -358,9 +358,9 @@ class SimUniDropBless(StateOperation):
         op = ClickDialogConfirm(self.ctx, wait_after_success=1)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_fail_by_op(op_result)
+            return self.round_fail_by_op(op_result)
 
 
 class SimUniUpgradeBless(StateOperation):
@@ -420,14 +420,14 @@ class SimUniUpgradeBless(StateOperation):
                                                       upgrade_bless=True)
 
         if state != screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
-            return Operation.round_retry('未在祝福强化页面', wait=1)
+            return self.round_retry('未在祝福强化页面', wait=1)
 
         num = self._get_left_num(screen)
         if num is None:
-            return Operation.round_retry('识别剩余碎片失败', wait=1)
+            return self.round_retry('识别剩余碎片失败', wait=1)
         else:
             self.left_num = num
-            return Operation.round_success()
+            return self.round_success()
 
     def _get_left_num(self, screen: MatLike) -> Optional[int]:
         """
@@ -446,7 +446,7 @@ class SimUniUpgradeBless(StateOperation):
         screen = self.screenshot()
         self._get_bless_pos_list(screen)
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _get_bless_pos_list(self, screen: MatLike) -> None:
         """
@@ -485,7 +485,7 @@ class SimUniUpgradeBless(StateOperation):
         :return:
         """
         if self.upgrade_idx >= len(self.upgrade_list):
-            return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
+            return self.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
 
         screen = self.screenshot()
 
@@ -493,11 +493,11 @@ class SimUniUpgradeBless(StateOperation):
                                                       upgrade_bless=True)
 
         if state != screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
-            return Operation.round_retry('未在祝福强化页面', wait=1)
+            return self.round_retry('未在祝福强化页面', wait=1)
 
         self.ctx.controller.click(self.upgrade_list[self.upgrade_idx].center)
         self.upgrade_idx += 1
-        return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=0.2)
+        return self.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=0.2)
 
     def _upgrade(self) -> OperationOneRoundResult:
         """
@@ -509,11 +509,11 @@ class SimUniUpgradeBless(StateOperation):
         if self._can_upgrade(screen):
             click = self.ctx.controller.click(SimUniUpgradeBless.UPGRADE_BTN.center)
             if click:
-                return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=2)
+                return self.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=2)
             else:
-                return Operation.round_retry('点击强化失败')
+                return self.round_retry('点击强化失败')
         else:
-            return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
+            return self.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
 
     def _can_upgrade(self, screen: MatLike) -> bool:
         part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.UPGRADE_BTN)
@@ -533,10 +533,10 @@ class SimUniUpgradeBless(StateOperation):
                                                       empty_to_close=True)
 
         if state == screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
-            return Operation.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
+            return self.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
         else:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=1)
+            return self.round_success(SimUniUpgradeBless.STATUS_UPGRADE, wait=1)
 
     def _exit(self) -> OperationOneRoundResult:
         """
@@ -545,6 +545,6 @@ class SimUniUpgradeBless(StateOperation):
         """
         click = self.ctx.controller.click(SimUniUpgradeBless.EXIT_BTN.center)
         if click:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('退出失败')
+            return self.round_retry('退出失败')

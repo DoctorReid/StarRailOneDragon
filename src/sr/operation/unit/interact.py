@@ -104,13 +104,13 @@ class Interact(Operation):
         if word_pos is None:  # 目前没有交互按钮 尝试挪动触发交互
             if not self.no_move:
                 self.ctx.controller.move(Interact.TRY_INTERACT_MOVE[self.op_round - 1])
-            return Operation.round_retry(wait=0.25)
+            return self.round_retry(wait=0.25)
         else:
             if self.ctx.controller.interact(word_pos.center,
                                             GameController.MOVE_INTERACT_TYPE):
-                return Operation.round_success()
+                return self.round_success()
 
-        return Operation.round_retry()
+        return self.round_retry()
 
 
 class TalkInteract(Operation):
@@ -143,11 +143,11 @@ class TalkInteract(Operation):
 
         if len(ocr_result) == 0:  # 目前没有交互按钮 说明当前在对话 点击继续
             self.ctx.controller.click(const.CLICK_TO_CONTINUE_POS)
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
         else:
             for r in ocr_result.values():
                 to_click: Point = r.max.center + TalkInteract.INTERACT_RECT.left_top
                 if self.ctx.controller.interact(to_click, GameController.TALK_INTERACT_TYPE):
-                    return Operation.round_success()
+                    return self.round_success()
 
-        return Operation.round_retry(wait=1)
+        return self.round_retry(wait=1)

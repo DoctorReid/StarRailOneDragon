@@ -97,9 +97,9 @@ class ChallengeTreasuresLightwardMission(StateOperation):
             area = ScreenTreasuresLightWard.PF_TITLE.value
 
         if self.find_area(area):
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在%s画面' % area.status, wait=1)
+            return self.round_retry('未在%s画面' % area.status, wait=1)
 
     def _choose_team_members(self) -> OperationOneRoundResult:
         """
@@ -109,9 +109,9 @@ class ChallengeTreasuresLightwardMission(StateOperation):
         op = ChooseTeamInForgottenHall(self.ctx, self.cal_team_func, self._on_team_calculated)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success(self.schedule_type.value)
+            return self.round_success(self.schedule_type.value)
         else:
-            return Operation.round_retry('选择配队失败', wait=1)
+            return self.round_retry('选择配队失败', wait=1)
 
     def _on_team_calculated(self, teams: List[List[Character]]):
         """
@@ -149,11 +149,11 @@ class ChallengeTreasuresLightwardMission(StateOperation):
             self.current_node_idx += 1
             if self.current_node_idx >= self.node_cnt:
                 self.current_node_idx = 0
-                return Operation.round_success(ChallengeTreasuresLightwardMission.STATUS_ALL_NODE_DONE, wait=1)
+                return self.round_success(ChallengeTreasuresLightwardMission.STATUS_ALL_NODE_DONE, wait=1)
             else:
-                return Operation.round_success(wait=1)
+                return self.round_success(wait=1)
         else:
-            return Operation.round_retry('选择增益效果失败')
+            return self.round_retry('选择增益效果失败')
 
     def _start_challenge(self) -> OperationOneRoundResult:
         """
@@ -167,9 +167,9 @@ class ChallengeTreasuresLightwardMission(StateOperation):
 
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=5)
+            return self.round_success(wait=5)
         else:
-            return Operation.round_retry('点击%s失败', area.status, wait=1)
+            return self.round_retry('点击%s失败', area.status, wait=1)
 
     def _node_fight(self) -> OperationOneRoundResult:
         """
@@ -180,7 +180,7 @@ class ChallengeTreasuresLightwardMission(StateOperation):
         team = None if self.teams is None or idx >= len(self.teams) else self.teams[idx]
         op = TlNodeFight(self.ctx, idx == 0, schedule_type=self.schedule_type,
                          team=team, op_callback=self._after_node)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _after_node(self, op_result: OperationResult):
         """

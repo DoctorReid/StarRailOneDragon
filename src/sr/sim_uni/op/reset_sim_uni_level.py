@@ -41,10 +41,10 @@ class ResetSimUniLevel(StateOperation):
         click = self.ocr_and_click_one_line('暂离', ResetSimUniLevel.TEMP_LEAVE, wait_after_success=5)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success()
+            return self.round_success()
         else:
             self.ctx.controller.esc()  # 打开菜单
-            return Operation.round_retry(status='点击暂离失败', wait=1)
+            return self.round_retry(status='点击暂离失败', wait=1)
 
     def _choose_uni(self) -> OperationOneRoundResult:
         """
@@ -54,9 +54,9 @@ class ResetSimUniLevel(StateOperation):
         op = ChooseSimUniNum(self.ctx, num=1)  # 继续之前的 哪个宇宙没所谓
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_fail('选择宇宙失败')
+            return self.round_fail('选择宇宙失败')
 
     def _wait_exit(self) -> OperationOneRoundResult:
         """
@@ -66,9 +66,9 @@ class ResetSimUniLevel(StateOperation):
         op = WaitInWorld(self.ctx, wait_after_success=1)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_fail('加载失败')
+            return self.round_fail('加载失败')
 
     def _interact(self) -> OperationOneRoundResult:
         """
@@ -78,9 +78,9 @@ class ResetSimUniLevel(StateOperation):
         op = Interact(self.ctx, '模拟宇宙', lcs_percent=0.1, single_line=True)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success(wait=2)
+            return self.round_success(wait=2)
         else:
-            return Operation.round_fail('加载失败')
+            return self.round_fail('加载失败')
 
     def _continue(self) -> OperationOneRoundResult:
         """
@@ -90,9 +90,9 @@ class ResetSimUniLevel(StateOperation):
         op = SimUniStart(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_fail('继续进度失败')
+            return self.round_fail('继续进度失败')
 
     def _wait(self) -> OperationOneRoundResult:
         """
@@ -102,6 +102,6 @@ class ResetSimUniLevel(StateOperation):
         op = WaitInWorld(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_fail('加载失败')
+            return self.round_fail('加载失败')

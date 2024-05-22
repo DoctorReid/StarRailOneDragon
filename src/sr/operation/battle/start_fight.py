@@ -22,7 +22,7 @@ class Attack(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         self.ctx.controller.initiate_attack()  # 主动攻击
-        return Operation.round_success(wait=0.25)
+        return self.round_success(wait=0.25)
 
 
 class StartFight(Operation):
@@ -129,7 +129,7 @@ class StartFightForElite(StateOperation):
             self.technique_order = self.technique_order[:self.technique_point]
 
         log.info(f'最后秘技顺序 {self.technique_order}')
-        return Operation.round_success()
+        return self.round_success()
 
     def _get_character_list(self) -> OperationOneRoundResult:
         """
@@ -148,7 +148,7 @@ class StartFightForElite(StateOperation):
             for c in self.character_list_from_param:
                 self.character_list.append(c)
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _get_technique_order(self) -> OperationOneRoundResult:
         """
@@ -176,7 +176,7 @@ class StartFightForElite(StateOperation):
                 continue
             if self.character_list[i].technique_type in (TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK):
                 self.technique_order.append(i)
-                return Operation.round_success()
+                return self.round_success()
 
         for i in range(4):  # 银狼攻击
             if self.character_list[i] is None:
@@ -184,17 +184,17 @@ class StartFightForElite(StateOperation):
             if self.character_list[i] == SILVERWOLF:
                 self.technique_order.append(i)
                 self.finish_tech_type = TECHNIQUE_ATTACK
-                return Operation.round_success()
+                return self.round_success()
 
         for i in range(4):  # 普通攻击
             if self.character_list[i] is None:
                 continue
             if self.character_list[i].technique_type in (TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK):
                 self.technique_order.append(i)
-                return Operation.round_success()
+                return self.round_success()
 
         # 可能存在没有攻击类的角色 此时也需要兜底返回
-        return Operation.round_success()
+        return self.round_success()
 
     def _switch_member(self) -> OperationOneRoundResult:
         """
@@ -202,11 +202,11 @@ class StartFightForElite(StateOperation):
         :return:
         """
         if self.technique_idx >= len(self.technique_order):
-            return Operation.round_success(StartFightForElite.STATUS_DONE)
+            return self.round_success(StartFightForElite.STATUS_DONE)
         idx = self.technique_order[self.technique_idx]  # 从0开始
         op = SwitchMember(self.ctx, idx + 1, skip_first_screen_check=True,
                           skip_resurrection_check=self.skip_resurrection_check)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _use_technique(self) -> OperationOneRoundResult:
         """
@@ -228,7 +228,7 @@ class StartFightForElite(StateOperation):
             # 还需要切换人物使用秘技的情况
             # 如果这次使用了秘技 要等待一下后摇消失后 再进行下一步操作
             wait_time = 1.5
-        return Operation.round_by_op(op_result, wait=wait_time)
+        return self.round_by_op(op_result, wait=wait_time)
 
     def _attack(self) -> OperationOneRoundResult:
         """
@@ -241,6 +241,6 @@ class StartFightForElite(StateOperation):
                 or screen_state.is_mission_in_world(screen, self.ctx.im):
             self.ctx.controller.initiate_attack()
             self.save_screenshot()
-            return Operation.round_retry('未进入战斗 尝试攻击', wait=1)
+            return self.round_retry('未进入战斗 尝试攻击', wait=1)
         else:
-            return Operation.round_success()
+            return self.round_success()

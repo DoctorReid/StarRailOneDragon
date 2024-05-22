@@ -36,19 +36,19 @@ class TlCheckTotalStar(Operation):
         if not screen_state.in_secondary_ui(screen, self.ctx.ocr, self.schedule_type.value):
             self.ctx.controller.click(TlCheckTotalStar.EMPTY_POINT)  # 有可能时在显示说明 点击空白地方跳过
             log.info('等待%s加载', self.schedule_type.value)
-            return Operation.round_retry('未在%s画面' % self.schedule_type.value, wait=1)
+            return self.round_retry('未在%s画面' % self.schedule_type.value, wait=1)
 
         star = self._get_star_cnt(screen)
 
         if star == -1:
-            return Operation.round_retry('获取不到星数', wait=1)
+            return self.round_retry('获取不到星数', wait=1)
         elif (self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL and star > 36) or \
                 (self.schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION and star > 12):
-            return Operation.round_retry('星数值异常 %d' % star, wait=1)
+            return self.round_retry('星数值异常 %d' % star, wait=1)
         else:
             full_star = (self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL and star == 36) or \
                 (self.schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION and star == 12)
-            return Operation.round_success(status=TlCheckTotalStar.STATUS_FULL_STAR if full_star else None, data=star)
+            return self.round_success(status=TlCheckTotalStar.STATUS_FULL_STAR if full_star else None, data=star)
 
     def _get_star_cnt(self, screen: MatLike) -> int:
         """

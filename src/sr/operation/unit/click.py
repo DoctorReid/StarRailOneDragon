@@ -33,16 +33,16 @@ class ClickPoint(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         before_error = self.before_click_check_err()
         if before_error is not None:
-            return Operation.round_retry(before_error)
+            return self.round_retry(before_error)
 
         if not self.ctx.controller.click(self.point):
-            return Operation.round_retry('点击失败')
+            return self.round_retry('点击失败')
 
         after_error = self.after_click_check_err()
         if after_error is not None:
-            return Operation.round_retry(after_error)
+            return self.round_retry(after_error)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def before_click_check_err(self) -> Optional[str]:
         """
@@ -81,6 +81,6 @@ class ClickDialogConfirm(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         click = self.ocr_and_click_one_line('确认', ClickDialogConfirm.CONFIRM_BTN)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=self.wait_after_success)
+            return self.round_success(wait=self.wait_after_success)
         else:
-            return Operation.round_retry('点击确认失败', wait=1)
+            return self.round_retry('点击确认失败', wait=1)

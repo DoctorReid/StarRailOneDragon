@@ -49,7 +49,7 @@ class SimUniExit(StateOperation):
         :return:
         """
         self.ctx.controller.esc()
-        return Operation.round_success(wait=1)
+        return self.round_success(wait=1)
 
     def _click_exit(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -58,9 +58,9 @@ class SimUniExit(StateOperation):
         for area in area_list:
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(SimUniExit.STATUS_EXIT_CLICKED, wait=1)
+                return self.round_success(SimUniExit.STATUS_EXIT_CLICKED, wait=1)
 
-        return Operation.round_success(SimUniExit.STATUS_BACK_MENU, wait=1)
+        return self.round_success(SimUniExit.STATUS_BACK_MENU, wait=1)
 
     def _click_confirm(self) -> OperationOneRoundResult:
         """
@@ -72,9 +72,9 @@ class SimUniExit(StateOperation):
 
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=6)
+            return self.round_success(wait=6)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)
 
     def _click_empty(self) -> OperationOneRoundResult:
         """
@@ -86,6 +86,6 @@ class SimUniExit(StateOperation):
 
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=2)
+            return self.round_success(wait=2)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)

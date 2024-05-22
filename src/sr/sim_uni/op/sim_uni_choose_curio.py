@@ -78,17 +78,17 @@ class SimUniChooseCurio(StateOperation):
         if not self.first_screen_check or not self.skip_first_screen_check:
             self.first_screen_check = False
             if not screen_state.in_sim_uni_choose_curio(screen, self.ctx.ocr):
-                return Operation.round_retry('未在模拟宇宙-选择奇物页面')
+                return self.round_retry('未在模拟宇宙-选择奇物页面')
 
         curio_pos_list: List[MatchResult] = self._get_curio_pos(screen)
         if len(curio_pos_list) == 0:
-            return Operation.round_retry('未识别到奇物', wait=1)
+            return self.round_retry('未识别到奇物', wait=1)
 
         target_curio_pos: Optional[MatchResult] = self._get_curio_to_choose(curio_pos_list)
         self.ctx.controller.click(target_curio_pos.center)
         time.sleep(0.25)
         self.ctx.controller.click(SimUniChooseCurio.CONFIRM_BTN.center)
-        return Operation.round_success(wait=2)
+        return self.round_success(wait=2)
 
     def _get_curio_pos(self, screen: MatLike) -> List[MatchResult]:
         """
@@ -202,9 +202,9 @@ class SimUniChooseCurio(StateOperation):
         if state is None:
             # 未知情况都先点击一下
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_retry('未能判断当前页面', wait=1)
+            return self.round_retry('未能判断当前页面', wait=1)
         else:
-            return Operation.round_success(state)
+            return self.round_success(state)
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
@@ -219,9 +219,9 @@ class SimUniChooseCurio(StateOperation):
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
 
         if click:
-            return Operation.round_success(wait=2)
+            return self.round_success(wait=2)
         else:
-            return Operation.round_retry('点击空白处关闭失败')
+            return self.round_retry('点击空白处关闭失败')
 
 
 class SimUniDropCurio(StateOperation):
@@ -267,28 +267,28 @@ class SimUniDropCurio(StateOperation):
 
         if self.first_screen_check and self.skip_first_screen_check:
             self.first_screen_check = False
-            return Operation.round_success(screen_state.ScreenState.SIM_DROP_CURIOS.value)
+            return self.round_success(screen_state.ScreenState.SIM_DROP_CURIOS.value)
 
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       drop_curio=True)
 
         if state is not None:
-            return Operation.round_success(state)
+            return self.round_success(state)
         else:
-            return Operation.round_retry('未在丢弃奇物页面', wait=1)
+            return self.round_retry('未在丢弃奇物页面', wait=1)
 
     def _choose_curio(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
         curio_pos_list: List[MatchResult] = self._get_curio_pos(screen)
         if len(curio_pos_list) == 0:
-            return Operation.round_retry('未识别到奇物', wait=1)
+            return self.round_retry('未识别到奇物', wait=1)
 
         target_curio_pos: Optional[MatchResult] = self._get_curio_to_choose(curio_pos_list)
         self.ctx.controller.click(target_curio_pos.center)
         time.sleep(0.25)
         self.ctx.controller.click(SimUniChooseCurio.CONFIRM_BTN.center)
-        return Operation.round_success(wait=1)
+        return self.round_success(wait=1)
 
     def _get_curio_pos(self, screen: MatLike) -> List[MatchResult]:
         """
@@ -406,10 +406,10 @@ class SimUniDropCurio(StateOperation):
         op = ClickDialogConfirm(self.ctx, wait_after_success=2)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
             self.curio_cnt_type -= 1
             if self.curio_cnt_type > 0:
-                return Operation.round_success(status=SimUniDropCurio.STATUS_RETRY)
+                return self.round_success(status=SimUniDropCurio.STATUS_RETRY)
             else:
-                return Operation.round_fail_by_op(op_result)
+                return self.round_fail_by_op(op_result)

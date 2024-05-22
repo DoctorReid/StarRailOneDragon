@@ -31,11 +31,11 @@ class ChooseGuideMissionCategory(Operation):
 
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.GUIDE.value):
             time.sleep(1)
-            return Operation.round_retry('未在' + ScreenState.GUIDE.value)
+            return self.round_retry('未在' + ScreenState.GUIDE.value)
 
         if not in_secondary_ui(screen, self.ctx.ocr, self.category.tab.value):
             time.sleep(1)
-            return Operation.round_retry('未在' + self.category.tab.value)
+            return self.round_retry('未在' + self.category.tab.value)
 
         part, _ = cv2_utils.crop_image(screen, CATEGORY_LIST_RECT)
         ocr_result_map = self.ctx.ocr.run_ocr(part)
@@ -46,7 +46,7 @@ class ChooseGuideMissionCategory(Operation):
                 to_click = v.max.center + CATEGORY_LIST_RECT.left_top
                 log.info('生存索引中找到 %s 尝试点击', self.category.cn)
                 if self.ctx.controller.click(to_click):
-                    return Operation.round_success()
+                    return self.round_success()
 
         log.info('生存索引中未找到 %s 尝试滑动', self.category.cn)
         # 没有目标时候看要往哪个方向滚动
@@ -63,7 +63,7 @@ class ChooseGuideMissionCategory(Operation):
         point_to = point_from + (Point(0, -200) if other_before_target else Point(0, 200))
         self.ctx.controller.drag_to(point_to, point_from)
         time.sleep(0.5)
-        return Operation.round_retry('未找到目标')
+        return self.round_retry('未找到目标')
 
 
 class GuideMission:
@@ -100,12 +100,12 @@ class ChooseGuideMission(Operation):
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.GUIDE.value):
             log.info('等待生存索引加载')
             time.sleep(1)
-            return Operation.round_retry('未在' + ScreenState.GUIDE.value)
+            return self.round_retry('未在' + ScreenState.GUIDE.value)
 
         if not in_secondary_ui(screen, self.ctx.ocr, self.mission.category.tab.value):
             log.info('等待生存索引加载')
             time.sleep(1)
-            return Operation.round_retry('未在' + self.mission.category.tab.value)
+            return self.round_retry('未在' + self.mission.category.tab.value)
 
         tp_point = self._find_transport_btn(screen)
 
@@ -115,13 +115,13 @@ class ChooseGuideMission(Operation):
             point_to = point_from + Point(0, -200)
             self.ctx.controller.drag_to(point_to, point_from)
             time.sleep(0.5)
-            return Operation.round_retry('未找到 ' + self.mission.cn)
+            return self.round_retry('未找到 ' + self.mission.cn)
         else:
             log.info('生存索引中找到 %s 尝试传送', self.mission.cn)
             if self.ctx.controller.click(tp_point):
-                return Operation.round_success()
+                return self.round_success()
             else:
-                return Operation.round_fail('点击失败')
+                return self.round_fail('点击失败')
 
     def _find_transport_btn(self, screen: MatLike) -> Optional[Point]:
         """

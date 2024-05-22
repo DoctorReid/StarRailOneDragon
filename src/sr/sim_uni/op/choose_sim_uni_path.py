@@ -43,7 +43,7 @@ class ChooseSimUniPath(StateOperation):
         screen = self.screenshot()
 
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.SIM_PATH.value):
-            return Operation.round_retry('未在模拟宇宙命途页面', wait=1)
+            return self.round_retry('未在模拟宇宙命途页面', wait=1)
 
         target_pos = self._get_target_path_pos(screen)
 
@@ -51,10 +51,10 @@ class ChooseSimUniPath(StateOperation):
             drag_from = STANDARD_CENTER_POS
             drag_to = drag_from + Point(-200, 0)
             self.ctx.controller.drag_to(end=drag_to, start=drag_from)
-            return Operation.round_retry('未找到目标命途', wait=1)
+            return self.round_retry('未找到目标命途', wait=1)
 
         self.ctx.controller.click(target_pos)
-        return Operation.round_success(wait=1)
+        return self.round_success(wait=1)
 
     def _get_target_path_pos(self, screen: Optional[MatLike] = None) -> Optional[Point]:
         """
@@ -82,6 +82,6 @@ class ChooseSimUniPath(StateOperation):
         click = self.ocr_and_click_one_line('确认命途', ChooseSimUniPath.CONFIRM_BTN,
                                             lcs_percent=0.1)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('点击确认命途失败')
+            return self.round_retry('点击确认命途失败')

@@ -60,17 +60,17 @@ class SimUniRunWorld(StateOperation):
         op = SimUniRunLevel(self.ctx, self.world_num, config=self.config,
                             max_reward_to_get=self.max_reward_to_get - self.get_reward_cnt,
                             get_reward_callback=self._on_get_reward)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _finish(self) -> OperationOneRoundResult:
-        return Operation.round_success(status=SimUniRunWorld.STATUS_SUCCESS)
+        return self.round_success(status=SimUniRunWorld.STATUS_SUCCESS)
 
     def _exit(self) -> OperationOneRoundResult:
         if self.ctx.one_dragon_config.is_debug:  # 调试情况下 原地失败即可
-            return Operation.round_fail()
+            return self.round_fail()
         else:
             op = SimUniExit(self.ctx)
-            return Operation.round_by_op(op.execute())
+            return self.round_by_op(op.execute())
 
     def _on_get_reward(self, use_power: int, user_qty: int):
         """

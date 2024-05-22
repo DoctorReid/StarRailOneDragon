@@ -30,11 +30,11 @@ class ClaimTrainingScore(Operation):
         screen: MatLike = self.screenshot()
         result: MatchResult = phone_menu.get_training_activity_claim_btn_pos(screen, self.ctx.ocr)
         if result is None:
-            return Operation.round_retry()
+            return self.round_retry()
         else:
             self.ctx.controller.click(result.center)
             self.claim = True
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
 
     def _retry_fail_to_success(self, retry_status: str) -> Optional[str]:
         """

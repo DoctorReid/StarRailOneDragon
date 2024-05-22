@@ -88,13 +88,13 @@ class TrailblazePower(Application):
         plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
 
         if plan is None:
-            return Operation.round_success()
+            return self.round_success()
 
         point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
         if point.cate == SurvivalIndexCategoryEnum.SIM_UNI.value:
-            return Operation.round_success(TrailblazePower.STATUS_SIM_UNI_TASK)
+            return self.round_success(TrailblazePower.STATUS_SIM_UNI_TASK)
         else:
-            return Operation.round_success(TrailblazePower.STATUS_NORMAL_TASK)
+            return self.round_success(TrailblazePower.STATUS_NORMAL_TASK)
 
     def _check_power_for_normal(self) -> OperationOneRoundResult:
         """
@@ -102,22 +102,22 @@ class TrailblazePower(Application):
         :return:
         """
         if self.power is not None:  # 之前已经检测过了
-            return Operation.round_success()
+            return self.round_success()
 
         op = OpenMap(self.ctx)
         op_result = op.execute()
         if not op_result.success:
-            return Operation.round_retry('打开大地图失败')
+            return self.round_retry('打开大地图失败')
 
         screen: MatLike = self.screenshot()
         part = cv2_utils.crop_image_only(screen, large_map.LARGE_MAP_POWER_RECT)
         ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
         self.power = str_utils.get_positive_digits(ocr_result, err=None)
         if self.power is None:
-            return Operation.round_retry('检测剩余开拓力失败', wait=1)
+            return self.round_retry('检测剩余开拓力失败', wait=1)
         else:
             log.info('识别当前开拓力 %d', self.power)
-            return Operation.round_success()
+            return self.round_success()
 
     def _challenge_normal_task(self) -> OperationOneRoundResult:
         """
@@ -128,11 +128,11 @@ class TrailblazePower(Application):
         point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
         run_times: int = self.power // point.power
         if run_times == 0:
-            return Operation.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
+            return self.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
         if run_times + plan['run_times'] > plan['plan_times']:
             run_times = plan['plan_times'] - plan['run_times']
         if run_times == 0:
-            return Operation.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
+            return self.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
 
         op = UseTrailblazePower(self.ctx, point, plan['team_num'], run_times,
                                 support=plan['support'] if plan['support'] != 'none' else None,
@@ -142,7 +142,7 @@ class TrailblazePower(Application):
         op_result = op.execute()
         if op_result.success:
             self.last_challenge_point = point
-        return Operation.round_by_op(op_result)
+        return self.round_by_op(op_result)
 
     def _on_normal_task_success(self, finished_times: int, use_power: int):
         """
@@ -159,7 +159,7 @@ class TrailblazePower(Application):
 
     def _check_power_for_sim_uni(self) -> OperationOneRoundResult:
         if self.qty is not None:
-            return Operation.round_success()
+            return self.round_success()
 
         ops = [
             OpenPhoneMenu(self.ctx),
@@ -170,18 +170,18 @@ class TrailblazePower(Application):
         for op in ops:
             op_result = op.execute()
             if not op_result.success:
-                return Operation.round_by_op(op_result)
+                return self.round_by_op(op_result)
 
         screen = self.screenshot()
         x, y = self._get_sim_uni_power_and_qty(screen)
 
         if x is None or y is None:
-            return Operation.round_retry('检测开拓力和沉浸器数量失败', wait=1)
+            return self.round_retry('检测开拓力和沉浸器数量失败', wait=1)
 
         log.info('检测当前体力 %d 沉浸器数量 %d', x, y)
         self.power = x
         self.qty = y
-        return Operation.round_success()
+        return self.round_success()
 
     def _get_sim_uni_power_and_qty(self, screen: MatLike) -> Tuple[int, int]:
         """
@@ -204,11 +204,11 @@ class TrailblazePower(Application):
         point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
         run_times: int = self.power // point.power + self.qty
         if run_times == 0:
-            return Operation.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
+            return self.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
         if run_times + plan['run_times'] > plan['plan_times']:
             run_times = plan['plan_times'] - plan['run_times']
         if run_times == 0:
-            return Operation.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
+            return self.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
 
         self.ctx.sim_uni_run_record.check_and_update_status()
         op = SimUniApp(self.ctx,
@@ -218,7 +218,7 @@ class TrailblazePower(Application):
                        )
         op.init_context_before_start = False
         op.stop_context_after_stop = False
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _on_sim_uni_get_reward(self, use_power: int, user_qty: int):
         """

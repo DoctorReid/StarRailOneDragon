@@ -69,19 +69,19 @@ class NamelessHonorApp(Application):
         screen: MatLike = self.screenshot()
         result: MatchResult = phone_menu.get_phone_menu_item_pos(screen, self.ctx.im, phone_menu_const.NAMELESS_HONOR, alert=True)
         if result is None:
-            return Operation.round_success(NamelessHonorApp.STATUS_NO_ALERT)
+            return self.round_success(NamelessHonorApp.STATUS_NO_ALERT)
         else:
             self.ctx.controller.click(result.center)
-            return Operation.round_success(NamelessHonorApp.STATUS_WITH_ALERT, wait=1)
+            return self.round_success(NamelessHonorApp.STATUS_WITH_ALERT, wait=1)
 
     def _click_tab_2(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
         result: MatchResult = phone_menu.get_nameless_honor_tab_pos(screen, self.ctx.im, 2, alert=True)
         if result is None:
-            return Operation.round_success(NamelessHonorApp.STATUS_NO_ALERT)
+            return self.round_success(NamelessHonorApp.STATUS_NO_ALERT)
         else:
             self.ctx.controller.click(result.center)
-            return Operation.round_success(NamelessHonorApp.STATUS_WITH_ALERT, wait=1)
+            return self.round_success(NamelessHonorApp.STATUS_WITH_ALERT, wait=1)
 
     def _claim_task(self) -> OperationOneRoundResult:
         area = ScreenNamelessHonor.TAB_2_CLAIM_PART.value
@@ -92,18 +92,18 @@ class NamelessHonorApp(Application):
             time.sleep(2)
             self.ctx.controller.click(area.center)  # 可能会出现一个升级的画面 多点击一次
             time.sleep(1)
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
 
     def _click_tab_1(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
         result: MatchResult = phone_menu.get_nameless_honor_tab_pos(screen, self.ctx.im, 1, alert=True)
         if result is None:
-            return Operation.round_success(NamelessHonorApp.STATUS_NO_ALERT)
+            return self.round_success(NamelessHonorApp.STATUS_NO_ALERT)
         else:
             self.ctx.controller.click(result.center)
-            return Operation.round_success(NamelessHonorApp.STATUS_WITH_ALERT, wait=1)
+            return self.round_success(NamelessHonorApp.STATUS_WITH_ALERT, wait=1)
 
     def _claim_reward(self) -> OperationOneRoundResult:
         area = ScreenNamelessHonor.TAB_1_CLAIM_PART.value
@@ -111,11 +111,11 @@ class NamelessHonorApp(Application):
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=2)
+            return self.round_success(wait=2)
         elif click == Operation.OCR_CLICK_FAIL:
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
         else:  # 没有奖励领取时也返回成功
-            return Operation.round_success()
+            return self.round_success()
 
     def _check_screen_after_reward(self) -> OperationOneRoundResult:
         """
@@ -124,7 +124,7 @@ class NamelessHonorApp(Application):
         """
         screen = self.screenshot()
         if in_secondary_ui(screen, self.ctx.ocr, ScreenState.NAMELESS_HONOR.value):
-            return Operation.round_success(wait=0.2)
+            return self.round_success(wait=0.2)
 
         area_list = [
             ScreenNamelessHonor.TAB_1_DIALOG_CANCEL_BTN.value,
@@ -133,6 +133,6 @@ class NamelessHonorApp(Application):
         for area in area_list:
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_wait(wait=1)
+                return self.round_wait(wait=1)
 
-        return Operation.round_retry('未知画面状态', wait=1)
+        return self.round_retry('未知画面状态', wait=1)

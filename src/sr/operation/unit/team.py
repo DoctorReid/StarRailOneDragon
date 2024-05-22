@@ -43,9 +43,9 @@ class GetTeamMemberInWorld(Operation):
         screen = self.screenshot()
         character_id = self._get_character_id(screen)
         if character_id is not None:
-            return Operation.round_success(character_id)
+            return self.round_success(character_id)
 
-        return Operation.round_retry('无法匹配角色名称')
+        return self.round_retry('无法匹配角色名称')
 
     def _get_character_id(self, screen: MatLike) -> Optional[str]:
         """
@@ -89,14 +89,14 @@ class CheckTeamMembersInWorld(Operation):
         screen = self.screenshot()
 
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
-            return Operation.round_retry('未在大世界画面', wait=1)
+            return self.round_retry('未在大世界画面', wait=1)
 
         self._check_by_name(screen)
         self._check_by_avatar(screen)
 
         self.ctx.team_info.update_character_list(self.character_list)
         log.info('当前配队 %s', [i.cn if i is not None else None for i in self.character_list])
-        return Operation.round_success(data=self.character_list)
+        return self.round_success(data=self.character_list)
 
     def _check_by_name(self, screen: MatLike):
         """
@@ -213,10 +213,10 @@ class SwitchMember(StateOperation):
         else:
             screen = self.screenshot()
             if not screen_state.is_normal_in_world(screen, self.ctx.im):
-                return Operation.round_retry('未在大世界页面', wait=1)
+                return self.round_retry('未在大世界页面', wait=1)
 
         self.ctx.controller.switch_character(self.num)
-        return Operation.round_success(wait=1)
+        return self.round_success(wait=1)
 
     def _confirm(self) -> OperationOneRoundResult:
         """
@@ -224,11 +224,11 @@ class SwitchMember(StateOperation):
         :return:
         """
         if self.skip_resurrection_check:
-            return Operation.round_success()
+            return self.round_success()
 
         screen = self.screenshot()
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 无需复活
-            return Operation.round_success()
+            return self.round_success()
 
         if self.find_area(ScreenDialog.FAST_RECOVER_NO_CONSUMABLE.value, screen):
             area = ScreenDialog.FAST_RECOVER_CANCEL.value
@@ -238,9 +238,9 @@ class SwitchMember(StateOperation):
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(area.status, wait=1)
+            return self.round_success(area.status, wait=1)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)
 
     def _wait_after_confirm(self) -> OperationOneRoundResult:
         """
@@ -249,9 +249,9 @@ class SwitchMember(StateOperation):
         """
         screen = self.screenshot()
         if screen_state.is_normal_in_world(screen, self.ctx.im):
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在大世界画面', wait=1)
+            return self.round_retry('未在大世界画面', wait=1)
 
 
 class ChooseTeamInWorld(StateOperation):

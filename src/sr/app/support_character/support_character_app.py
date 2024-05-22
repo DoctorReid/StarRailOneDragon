@@ -53,20 +53,20 @@ class SupportCharacterApp(Application):
         screen: MatLike = self.screenshot()
         result: MatchResult = phone_menu.get_phone_menu_ellipsis_pos(screen, self.ctx.im, alert=True)
         if result is None:
-            return Operation.round_success(SupportCharacterApp.STATUS_NO_ALERT)
+            return self.round_success(SupportCharacterApp.STATUS_NO_ALERT)
         else:
             self.ctx.controller.click(result.center)
-            return Operation.round_success(SupportCharacterApp.STATUS_WITH_ALERT, wait=1)
+            return self.round_success(SupportCharacterApp.STATUS_WITH_ALERT, wait=1)
 
     def _click_profile(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
         result: MatchResult = phone_menu.get_phone_menu_ellipsis_item_pos(screen, self.ctx.im, self.ctx.ocr, '漫游签证', alert=True)
         if result is None:
-            return Operation.round_success(SupportCharacterApp.STATUS_NO_ALERT)
+            return self.round_success(SupportCharacterApp.STATUS_NO_ALERT)
         else:
             self.ctx.controller.click(result.center)
-            return Operation.round_success(SupportCharacterApp.STATUS_WITH_ALERT, wait=1)
+            return self.round_success(SupportCharacterApp.STATUS_WITH_ALERT, wait=1)
 
     def _click_character(self) -> OperationOneRoundResult:
         self.ctx.controller.click(Point(1659, 286))
-        return Operation.round_success(wait=1)
+        return self.round_success(wait=1)

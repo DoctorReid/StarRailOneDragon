@@ -80,7 +80,7 @@ class WorldPatrolEnterFight(Operation):
             self._update_not_in_world_time()
             return round_result
         else:
-            return Operation.round_retry('未知画面', wait=1)
+            return self.round_retry('未知画面', wait=1)
 
     def _update_in_world(self):
         """
@@ -145,17 +145,17 @@ class WorldPatrolEnterFight(Operation):
             # 每次攻击后 换一个方向再尝试
             self.attack_times += 1
 
-            return Operation.round_wait()
+            return self.round_wait()
 
     def _attack(self, now_time: float) -> OperationOneRoundResult:
         if now_time - self.last_attack_time < WorldPatrolEnterFight.ATTACK_INTERVAL:
-            return Operation.round_wait()
+            return self.round_wait()
         if self.disposable and self.attack_times > 0:  # 可破坏物只攻击一次
-            return Operation.round_success()
+            return self.round_success()
         self.last_attack_time = now_time
         self.ctx.controller.initiate_attack()
         self.ctx.controller.stop_moving_forward()  # 攻击之后再停止移动 避免停止移动的后摇
-        return Operation.round_wait(wait=0.5)
+        return self.round_wait(wait=0.5)
 
     def _update_not_in_world_time(self):
         """
@@ -184,13 +184,13 @@ class WorldPatrolEnterFight(Operation):
 
         if state == screen_state.ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_fail(WorldPatrolEnterFight.STATUS_BATTLE_FAIL, wait=5)
+            return self.round_fail(WorldPatrolEnterFight.STATUS_BATTLE_FAIL, wait=5)
         elif state == ScreenNormalWorld.EXPRESS_SUPPLY.value.status:
             return self._claim_express_supply()
         elif state == screen_state.ScreenState.BATTLE.value:
             return self._in_battle()
         else:
-            return Operation.round_retry('未知画面', wait=1)
+            return self.round_retry('未知画面', wait=1)
 
     def _in_battle(self) -> OperationOneRoundResult:
         """
@@ -200,7 +200,7 @@ class WorldPatrolEnterFight(Operation):
         self.with_battle = True
         self.ctx.technique_used = False
         self.first_tech_after_battle = True
-        return Operation.round_wait(wait=1)
+        return self.round_wait(wait=1)
 
     def _claim_express_supply(self) -> OperationOneRoundResult:
         """
@@ -213,7 +213,7 @@ class WorldPatrolEnterFight(Operation):
         self.ctx.controller.click(get_area.center)  # 领取需要分两个阶段 点击两次
         time.sleep(1)  # 暂停一段时间再操作
 
-        return Operation.round_wait()
+        return self.round_wait()
 
     def _can_attack(self, screen: MatLike) -> bool:
         frame_result = self.ctx.sim_uni_yolo.detect(screen)
@@ -230,10 +230,10 @@ class WorldPatrolEnterFight(Operation):
         log.debug('结束前移动')
         if self.had_last_move:
             # 已经进行过最后的移动了
-            return Operation.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
+            return self.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:
             self.ctx.controller.move(direction=WorldPatrolEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
             self.attack_times += 1
             time.sleep(0.25)
             self.had_last_move = True
-            return Operation.round_wait()
+            return self.round_wait()

@@ -28,9 +28,9 @@ class WaitInWorld(Operation):
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
         if screen_state.is_normal_in_world(screen, self.ctx.im):
-            return Operation.round_success(wait=self.wait_after_success)
+            return self.round_success(wait=self.wait_after_success)
 
-        return Operation.round_wait(wait=1)
+        return self.round_wait(wait=1)
 
 
 class WaitInSeconds(Operation):

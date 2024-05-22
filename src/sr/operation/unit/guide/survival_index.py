@@ -36,9 +36,9 @@ class SurvivalIndexChooseCategory(StateOperation):
 
         area = ScreenGuide.SURVIVAL_INDEX_TITLE.value
         if self.find_area(area, screen):
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在%s画面' % area.text)
+            return self.round_retry('未在%s画面' % area.text)
 
     def _choose(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -54,7 +54,7 @@ class SurvivalIndexChooseCategory(StateOperation):
                 to_click = v.max.center + area.rect.left_top
                 log.info('生存索引中找到 %s 尝试点击', self.target.cn)
                 if self.ctx.controller.click(to_click):
-                    return Operation.round_success(wait=0.5)
+                    return self.round_success(wait=0.5)
 
         log.info('生存索引中未找到 %s 尝试滑动', self.target.cn)
         # 没有目标时候看要往哪个方向滚动
@@ -63,4 +63,4 @@ class SurvivalIndexChooseCategory(StateOperation):
         point_from = area.rect.center
         point_to = point_from + (Point(0, -200) if other_before_target else Point(0, 200))
         self.ctx.controller.drag_to(point_to, point_from)
-        return Operation.round_retry('未找到%s' % self.target.cn, wait=0.5)
+        return self.round_retry('未找到%s' % self.target.cn, wait=0.5)

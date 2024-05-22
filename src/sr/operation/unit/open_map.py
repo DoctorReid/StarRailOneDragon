@@ -25,20 +25,20 @@ class OpenMap(Operation):
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 主界面
             log.info('尝试打开地图')
             ctrl.open_map()
-            return Operation.round_wait(wait=2)
+            return self.round_wait(wait=2)
 
         # 二级地图中 需要返回
         area = ScreenLargeMap.SUB_MAP_BACK.value
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
 
         planet = large_map.get_planet(screen, ocr)
         log.info('当前大地图所处星球 %s', planet)
         if planet is not None:  # 左上角找到星球名字的话 证明在在大地图页面了
-            return Operation.round_success()
+            return self.round_success()
 
         # 其他情况都需要通过返回上级菜单再尝试打开大地图
         log.info('尝试返回上级菜单')
         ctrl.esc()
-        return Operation.round_retry(wait=2)
+        return self.round_retry(wait=2)

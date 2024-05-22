@@ -71,12 +71,12 @@ class TlNodeFight(StateOperation):
         state = self._get_screen_state(screen)
         if state is not None:
             if self.last_state is not None and self.last_state == state:
-                return Operation.round_success(state)
+                return self.round_success(state)
             else:
                 self.last_state = state
-                return Operation.round_retry('画面在改变', wait=1)
+                return self.round_retry('画面在改变', wait=1)
         else:
-            return Operation.round_wait('战斗中', wait=1)
+            return self.round_wait('战斗中', wait=1)
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:
         """
@@ -150,9 +150,9 @@ class TlAfterNodeFight(StateOperation):
         for area in area_list:
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(wait=1)
+                return self.round_success(wait=1)
 
-        return Operation.round_retry('点击%s失败' % area_list[0].text, wait=1)
+        return self.round_retry('点击%s失败' % area_list[0].text, wait=1)
 
     def _check_screen(self):
         """
@@ -163,9 +163,9 @@ class TlAfterNodeFight(StateOperation):
         state = self._get_screen_state(screen)
 
         if state is None:
-            return Operation.round_retry('未知画面', wait=1)
+            return self.round_retry('未知画面', wait=1)
         else:
-            return Operation.round_success(state)
+            return self.round_success(state)
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:
         """
@@ -202,9 +202,9 @@ class TlAfterNodeFight(StateOperation):
         area = ScreenTreasuresLightWard.AFTER_BATTLE_QUICK_PASS_CONFIRM.value
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击%s失败' % area.text, wait=1)
+            return self.round_retry('点击%s失败' % area.text, wait=1)
 
     def _click_quick_empty(self):
         """
@@ -214,6 +214,6 @@ class TlAfterNodeFight(StateOperation):
         area = ScreenTreasuresLightWard.AFTER_BATTLE_QUICK_PASS_EMPTY.value
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击%s失败' % area.text, wait=1)
+            return self.round_retry('点击%s失败' % area.text, wait=1)

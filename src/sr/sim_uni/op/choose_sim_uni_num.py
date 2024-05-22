@@ -44,26 +44,26 @@ class ChooseSimUniNum(Operation):
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.SIM_TYPE_NORMAL.value):
             # 有可能出现了每周第一次打开的积分奖励进度画面 随便点击一个地方关闭
             self.ctx.controller.click(screen_state.TargetRect.UI_TITLE.value.center)
-            return Operation.round_retry('未在模拟宇宙页面', wait=1)
+            return self.round_retry('未在模拟宇宙页面', wait=1)
 
         current_num = self._get_current_num(screen)
 
         if current_num is None:
-            return Operation.round_retry('未识别到模拟宇宙数字', wait=1)
+            return self.round_retry('未识别到模拟宇宙数字', wait=1)
         elif current_num == self.num:
             self.ctx.controller.click(ChooseSimUniNum.CURRENT_BTN)
-            return Operation.round_success(status=ChooseSimUniNum.STATUS_RESTART, wait=2, data=self.num)
+            return self.round_success(status=ChooseSimUniNum.STATUS_RESTART, wait=2, data=self.num)
         else:
             if self._is_going(screen):
                 self.ctx.controller.click(ChooseSimUniNum.CURRENT_BTN)
-                return Operation.round_success(status=ChooseSimUniNum.STATUS_CONTINUE, wait=2, data=current_num)
+                return self.round_success(status=ChooseSimUniNum.STATUS_CONTINUE, wait=2, data=current_num)
 
             if current_num > self.num:
                 self.ctx.controller.click(ChooseSimUniNum.PREVIOUS_BTN)
-                return Operation.round_retry('未选择目标宇宙', wait=2)
+                return self.round_retry('未选择目标宇宙', wait=2)
             else:
                 self.ctx.controller.click(ChooseSimUniNum.NEXT_BTN)
-                return Operation.round_retry('未选择目标宇宙', wait=2)
+                return self.round_retry('未选择目标宇宙', wait=2)
 
     def _get_current_num(self, screen: Optional[MatLike]) -> Optional[int]:
         """

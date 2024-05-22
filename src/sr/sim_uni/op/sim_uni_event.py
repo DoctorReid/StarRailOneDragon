@@ -104,13 +104,13 @@ class SimUniEvent(StateOperation):
     def _wait(self) -> OperationOneRoundResult:
         self.ctx.detect_info.view_down = False  # 进入事件后 重置视角
         if self.skip_first_screen_check:
-            return Operation.round_success()
+            return self.round_success()
         screen = self.screenshot()
 
         if screen_state.in_sim_uni_event(screen, self.ctx.ocr):
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在事件页面')
+            return self.round_retry('未在事件页面')
 
     def _choose_opt_by_priority(self) -> OperationOneRoundResult:
         """
@@ -123,12 +123,12 @@ class SimUniEvent(StateOperation):
         if self.ctx.one_dragon_config.is_debug:
             title = self._get_event_title(screen)
             if str_utils.find_by_lcs(gt('孤独太空美虫'), title, percent=0.5):
-                return Operation.round_fail()
+                return self.round_fail()
 
         if len(self.opt_list) == 0:
             # 有可能在对话
             self.ctx.controller.click(SimUniEvent.EMPTY_POS)
-            return Operation.round_success(SimUniEvent.STATUS_NO_OPT, wait=0.5)
+            return self.round_success(SimUniEvent.STATUS_NO_OPT, wait=0.5)
         else:
             return self._do_choose_opt(0)
 
@@ -208,11 +208,11 @@ class SimUniEvent(StateOperation):
     def _confirm(self):
         click = self.ocr_and_click_one_line('确认', self.chosen_opt.confirm_rect)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(SimUniEvent.STATUS_CONFIRM_SUCCESS, wait=2)
+            return self.round_success(SimUniEvent.STATUS_CONFIRM_SUCCESS, wait=2)
         elif click == Operation.OCR_CLICK_NOT_FOUND:
-            return Operation.round_success('无效选项')
+            return self.round_success('无效选项')
         else:
-            return Operation.round_success('点击确认失败', wait=0.25)
+            return self.round_success('点击确认失败', wait=0.25)
 
     def _do_choose_opt(self, idx: int) -> OperationOneRoundResult:
         """
@@ -225,12 +225,12 @@ class SimUniEvent(StateOperation):
             self.chosen_opt = self.opt_list[idx]
             if self.chosen_opt.confirm_rect is None:
                 status = SimUniEvent.STATUS_CHOOSE_OPT_NO_CONFIRM
-                return Operation.round_success(status, wait=1.5)
+                return self.round_success(status, wait=1.5)
             else:
                 status = SimUniEvent.STATUS_CHOOSE_OPT_CONFIRM
-                return Operation.round_success(status, wait=1)
+                return self.round_success(status, wait=1)
         else:
-            return Operation.round_retry('点击选项失败', wait=0.5)
+            return self.round_retry('点击选项失败', wait=0.5)
 
     def _choose_leave(self):
         """
@@ -250,7 +250,7 @@ class SimUniEvent(StateOperation):
             if chosen:
                 idx -= 1
                 if idx < 0:  # 应该不存在这种情况
-                    return Operation.round_fail('所有选项都无效')
+                    return self.round_fail('所有选项都无效')
             else:
                 break
         return self._do_choose_opt(idx)
@@ -263,9 +263,9 @@ class SimUniEvent(StateOperation):
         screen = self.screenshot()
         state = self._get_screen_state(screen)
         if state is None:
-            return Operation.round_retry('未能判断当前页面', wait=1)
+            return self.round_retry('未能判断当前页面', wait=1)
         else:
-            return Operation.round_success(state)
+            return self.round_success(state)
 
     def _get_screen_state(self, screen: MatLike) -> Optional[str]:
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
@@ -291,44 +291,44 @@ class SimUniEvent(StateOperation):
         op_result = op.execute()
 
         if op_result.success:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry(status=op_result.status)
+            return self.round_retry(status=op_result.status)
 
     def _drop_bless(self) -> OperationOneRoundResult:
         op = SimUniDropBless(self.ctx, config=self.config)
         op_result = op.execute()
 
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry(status=op_result.status)
+            return self.round_retry(status=op_result.status)
 
     def _choose_curio(self) -> OperationOneRoundResult:
         op = SimUniChooseCurio(self.ctx, config=self.config)
         op_result = op.execute()
 
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry(status=op_result.status)
+            return self.round_retry(status=op_result.status)
 
     def _drop_curio(self) -> OperationOneRoundResult:
         op = SimUniDropCurio(self.ctx, config=self.config)
         op_result = op.execute()
 
         if op_result.success:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry(status=op_result.status)
+            return self.round_retry(status=op_result.status)
 
     def _click_empty_to_continue(self) -> OperationOneRoundResult:
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
 
         if click:
-            return Operation.round_success(wait=2)  # 通过是丢弃或者得到奇物祝福 有可能有二段确认 因此多等待久一点时间
+            return self.round_success(wait=2)  # 通过是丢弃或者得到奇物祝福 有可能有二段确认 因此多等待久一点时间
         else:
-            return Operation.round_retry('点击空白处关闭失败')
+            return self.round_retry('点击空白处关闭失败')
 
     def _battle(self) -> OperationOneRoundResult:
         # op = SimUniEnterFight(self.ctx,
@@ -337,11 +337,11 @@ class SimUniEvent(StateOperation):
         # op_result = op.execute()
         #
         # if op_result.success:
-        #     return Operation.round_success()
+        #     return self.round_success()
         # else:
-        #     return Operation.round_fail(status=op_result.status)
+        #     return self.round_fail(status=op_result.status)
         # 这里似乎不用进去战斗画面也可以
-        return Operation.round_success(wait=1)
+        return self.round_success(wait=1)
 
     def _get_event_title(self, screen: MatLike) -> str:
         """

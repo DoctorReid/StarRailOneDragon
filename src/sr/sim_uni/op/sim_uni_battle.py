@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.context import Context
-from sr.image.sceenshot import mini_map, screen_state
+from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge, \
     OperationResult
 from sr.operation.battle.start_fight import StartFightForElite
@@ -89,7 +89,7 @@ class SimUniEnterFight(Operation):
         if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             if self.no_attack:
                 # 适用于OP前就已经知道进入了战斗 这里只是等待战斗结束 因此只要是在大世界画面就认为完成了
-                return Operation.round_success()
+                return self.round_success()
 
             round_result = self._try_attack(screen)
             return round_result
@@ -98,7 +98,7 @@ class SimUniEnterFight(Operation):
             self._update_not_in_world_time()
             return round_result
         else:
-            return Operation.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
+            return self.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
 
     def _update_not_in_world_time(self):
         """
@@ -121,7 +121,7 @@ class SimUniEnterFight(Operation):
         """
         self.with_battle = True
         self.ctx.technique_used = False
-        return Operation.round_wait(wait=1)
+        return self.round_wait(wait=1)
 
     def _choose_bless(self) -> Optional[OperationOneRoundResult]:
         """
@@ -137,9 +137,9 @@ class SimUniEnterFight(Operation):
         if op_result.success:
             self.last_bless_time = time.time()
             # 成功后 必定不在选择祝福画面 应该尽快返回 继续指令 避免被怪袭击
-            return Operation.round_wait()
+            return self.round_wait()
         else:
-            return Operation.round_retry(op_result.status, wait=1)
+            return self.round_retry(op_result.status, wait=1)
 
     def _choose_curio(self) -> Optional[OperationOneRoundResult]:
         """
@@ -151,9 +151,9 @@ class SimUniEnterFight(Operation):
 
         if op_result.success:
             # 成功后 应该尽快返回 继续指令 避免被怪袭击
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry(op_result.status, wait=1)
+            return self.round_retry(op_result.status, wait=1)
 
     def _try_attack(self, screen: MatLike) -> OperationOneRoundResult:
         """
@@ -184,6 +184,9 @@ class SimUniEnterFight(Operation):
 
             self.ctx.controller.move(direction=SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
 
+            # 每次攻击后 换一个方向再尝试
+            self.attack_times += 1
+
             current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
             if (self.technique_fight and not self.ctx.technique_used
                     and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
@@ -204,14 +207,9 @@ class SimUniEnterFight(Operation):
 
             if self.technique_fight and self.technique_only and current_use_tech:
                 # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击
-                pass
+                return self.round_wait(wait_round_time=0.05)
             else:
-                self._attack(now_time)
-
-            # 每次攻击后 换一个方向再尝试
-            self.attack_times += 1
-
-            return Operation.round_wait()  # YOLO识别需要时间 这里就不做额外等待了
+                return self._attack(now_time)
 
     def _can_attack(self, screen: MatLike) -> bool:
         frame_result = self.ctx.sim_uni_yolo.detect(screen)
@@ -222,13 +220,13 @@ class SimUniEnterFight(Operation):
 
     def _attack(self, now_time: float) -> OperationOneRoundResult:
         if now_time - self.last_attack_time < SimUniEnterFight.ATTACK_INTERVAL:
-            return Operation.round_wait()
+            return self.round_wait()
         if self.disposable and self.attack_times > 0:  # 可破坏物只攻击一次
-            return Operation.round_success()
+            return self.round_success()
         self.last_attack_time = now_time
         self.ctx.controller.initiate_attack()
         self.ctx.controller.stop_moving_forward()  # 攻击之后再停止移动 避免停止移动的后摇
-        return Operation.round_wait(wait=0.5)
+        return self.round_wait(wait_round_time=0.5)
 
     def _handle_not_in_world(self, screen: MatLike) -> OperationOneRoundResult:
         """
@@ -253,10 +251,10 @@ class SimUniEnterFight(Operation):
             return self._choose_curio()
         elif state == screen_state.ScreenState.EMPTY_TO_CLOSE.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         elif state == screen_state.ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
-            return Operation.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
+            return self.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
         elif state == ScreenNormalWorld.EXPRESS_SUPPLY.value.status:
             return self._claim_express_supply()
         elif state == ScreenDialog.FAST_RECOVER_TITLE.value.status:
@@ -264,7 +262,7 @@ class SimUniEnterFight(Operation):
         elif state == screen_state.ScreenState.BATTLE.value:
             return self._in_battle()
         else:
-            return Operation.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
+            return self.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
 
     def _claim_express_supply(self) -> OperationOneRoundResult:
         """
@@ -276,7 +274,7 @@ class SimUniEnterFight(Operation):
         time.sleep(3)  # 暂停一段时间再操作
         self.ctx.controller.click(get_area.center)  # 领取需要分两个阶段 点击两次
         time.sleep(1)  # 暂停一段时间再操作
-        return Operation.round_wait()
+        return self.round_wait()
 
     def _fast_recover(self) -> OperationOneRoundResult:
         op = FastRecover(self.ctx,
@@ -284,9 +282,9 @@ class SimUniEnterFight(Operation):
                          quirky_snacks=self.ctx.game_config.use_quirky_snacks)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
         else:
-            return Operation.round_retry(op_result.status, wait=1)
+            return self.round_retry(op_result.status, wait=1)
 
     def _exit_with_last_move(self) -> OperationOneRoundResult:
         """
@@ -296,14 +294,14 @@ class SimUniEnterFight(Operation):
         log.debug('结束前移动')
         if self.had_last_move:
             # 已经进行过最后的移动了
-            return Operation.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
+            return self.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:
             for i in range(2):  # 多按几次 防止被后摇吞了
                 self.ctx.controller.move(direction=SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
                 self.attack_times += 1
                 time.sleep(0.25)
             self.had_last_move = True
-            return Operation.round_wait()
+            return self.round_wait()
 
     def on_resume(self, e=None):
         super().on_resume()
@@ -358,24 +356,24 @@ class SimUniFightElite(StateOperation):
         screen = self.screenshot()
 
         if self.find_area(area, screen):
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_success(SimUniFightElite.STATUS_ENEMY_NOT_FOUND)
+            return self.round_success(SimUniFightElite.STATUS_ENEMY_NOT_FOUND)
 
     def _technique_fight(self) -> OperationOneRoundResult:
         op = StartFightForElite(self.ctx)
-        return Operation.round_by_op(op.execute(), wait=1)
+        return self.round_by_op(op.execute(), wait=1)
 
     def _fight(self) -> OperationOneRoundResult:
         area = ScreenSimUni.ENEMY_LEVEL.value
         screen = self.screenshot()
         if self.find_area(area, screen):  # 还没有进入战斗 可能是使用近战角色没有攻击到
             self.ctx.controller.initiate_attack()
-            return Operation.round_retry('尝试攻击进入战斗画面')
+            return self.round_retry('尝试攻击进入战斗画面')
         else:
             op = SimUniEnterFight(self.ctx, config=self.config, no_attack=True)  # 前面已经进行攻击了 这里不需要 且不额外使用秘技
-            return Operation.round_by_op(op.execute())
+            return self.round_by_op(op.execute())
 
     def _switch_1(self) -> OperationOneRoundResult:
         op = SwitchMember(self.ctx, 1)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())

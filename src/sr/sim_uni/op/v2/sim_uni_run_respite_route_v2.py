@@ -82,7 +82,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         self.ctx.controller.move('w', 0.5)
         # 注意要使用这个op 防止弹出祝福之类卡死
         op = SimUniEnterFight(self.ctx, disposable=True, first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _check_mm_icon(self) -> OperationOneRoundResult:
         """
@@ -90,16 +90,16 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
         mrl = self.ctx.im.match_template(mm_info.origin_del_radio, template_id='mm_sp_herta', template_sub_dir='sim_uni')
         if mrl.max is not None:
             self.mm_icon_pos = mrl.max.center
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT)
         else:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
 
     def _move_by_mm(self) -> OperationOneRoundResult:
         """
@@ -111,7 +111,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         # 按照目前的固定布局 走向黑塔后 下层入口必定往左转更快发现
         self.turn_direction_when_nothing = -1
         op = MoveWithoutPos(self.ctx, start=self.ctx.game_config.mini_map_pos.mm_center, target=self.mm_icon_pos)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _detect_screen(self) -> OperationOneRoundResult:
         """
@@ -119,7 +119,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
         self._view_down()
         screen = self.screenshot()
 
@@ -132,12 +132,12 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
                 break
 
         if with_event:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT)
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
                 cv2_utils.show_image(draw_detections(frame_result), win_name='respite_detect_screen')
-            return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
+            return self.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
         """
@@ -152,7 +152,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
                                           interact_class='模拟宇宙黑塔',
                                           interact_word='黑塔',
                                           interact_during_move=False)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _interact(self) -> OperationOneRoundResult:
         """
@@ -160,7 +160,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         :return:
         """
         op = Interact(self.ctx, '黑塔', lcs_percent=0.1, single_line=True)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _handle_event(self) -> OperationOneRoundResult:
         """
@@ -169,4 +169,4 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         """
         self.event_handled = True
         op = SimUniEvent(self.ctx, skip_first_screen_check=False)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())

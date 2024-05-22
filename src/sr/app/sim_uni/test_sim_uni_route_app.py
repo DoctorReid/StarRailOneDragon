@@ -51,9 +51,9 @@ class TestSimUniRouteApp(Application):
         route = match_best_sim_uni_route(self.uni_num, self.level_type, mm)
 
         if route is not None and route.uid == self.route.uid:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_success(status=TestSimUniRouteApp.STATUS_NO_ROUTE_MATCHED)
+            return self.round_success(status=TestSimUniRouteApp.STATUS_NO_ROUTE_MATCHED)
 
     def _run_world(self) -> OperationOneRoundResult:
         uni_challenge_config = self.config.get_challenge_config(self.uni_num)
@@ -61,7 +61,7 @@ class TestSimUniRouteApp(Application):
                             config=uni_challenge_config,
                             op_callback=self._on_world_done
                             )
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _on_world_done(self, op_result: OperationResult):
         run_record = self.ctx.sim_uni_run_record

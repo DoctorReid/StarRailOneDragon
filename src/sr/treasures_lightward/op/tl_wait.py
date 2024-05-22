@@ -34,9 +34,9 @@ class TlWaitNodeStart(StateOperation):
         """
         click = self.find_and_click_area(ScreenTreasuresLightWard.NODE_FIRST_CLICK_EMPTY.value)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击空白处关闭失败', wait=1)
+            return self.round_retry('点击空白处关闭失败', wait=1)
 
     def _wait(self) -> OperationOneRoundResult:
         """
@@ -44,6 +44,6 @@ class TlWaitNodeStart(StateOperation):
         :return:
         """
         if self.find_area(ScreenTreasuresLightWard.EXIT_BTN.value):
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('未在可移动画面', wait=1)
+            return self.round_retry('未在可移动画面', wait=1)

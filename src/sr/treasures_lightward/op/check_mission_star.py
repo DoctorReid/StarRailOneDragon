@@ -24,8 +24,8 @@ class CheckMissionStar(Operation):
 
         num_result: MatchResult = get_mission_num_pos(self.ctx, self.mission_num, screen, drag_when_not_found=True)
         if num_result is None:
-            return Operation.round_retry('未找到关卡')
+            return self.round_retry('未找到关卡')
 
         star: int = get_mission_star_by_num_pos(self.ctx, screen, num_result)
 
-        return Operation.round_success(str(star), data=star)
+        return self.round_success(str(star), data=star)

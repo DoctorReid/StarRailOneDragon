@@ -75,7 +75,7 @@ class OneStopServiceApp(Application):
             if not account.active and account.active_in_od:
                 self.account_idx_list.append(account.idx)
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _next_account(self):
         """
@@ -85,10 +85,10 @@ class OneStopServiceApp(Application):
         next_account_idx = self._get_next_account_idx()
 
         if self.current_account_idx is None and next_account_idx is None:
-            return Operation.round_retry('未找到可运行账号')
+            return self.round_retry('未找到可运行账号')
 
         if next_account_idx is None:
-            return Operation.round_success(OneStopServiceApp.STATUS_ACCOUNT_FINISHED)
+            return self.round_success(OneStopServiceApp.STATUS_ACCOUNT_FINISHED)
 
         self.current_account_idx = next_account_idx
         self.current_app_id = None
@@ -96,9 +96,9 @@ class OneStopServiceApp(Application):
         if self.ctx.one_dragon_config.current_active_account.idx != next_account_idx:
             self.ctx.active_account(self.current_account_idx)
             op = LoginWithAnotherAccount(self.ctx)
-            return Operation.round_by_op(op.execute())
+            return self.round_by_op(op.execute())
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _get_next_account_idx(self) -> Optional[int]:
         """
@@ -128,26 +128,26 @@ class OneStopServiceApp(Application):
         next_app_id = self._get_next_app_id()
 
         if self.current_app_id is None and next_app_id is None:
-            return Operation.round_retry('未找到可运行的应用')
+            return self.round_retry('未找到可运行的应用')
 
         if next_app_id is None:
-            return Operation.round_success(OneStopServiceApp.STATUS_ACCOUNT_APP_FINISHED)
+            return self.round_success(OneStopServiceApp.STATUS_ACCOUNT_APP_FINISHED)
 
         self.current_app_id = next_app_id
         record = OneStopServiceApp.get_app_run_record_by_id(self.current_app_id, self.ctx)
         if record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
-            return Operation.round_success()
+            return self.round_success()
 
         OneStopServiceApp.update_app_run_record_before_start(self.current_app_id, self.ctx)
         app: Application = self.get_app_by_id(self.current_app_id, self.ctx)
 
         if app is None:
-            return Operation.round_retry('非法的app_id %s' % self.current_app_id)
+            return self.round_retry('非法的app_id %s' % self.current_app_id)
 
         app.init_context_before_start = False  # 一条龙开始时已经初始化了
         app.stop_context_after_stop = False
 
-        return Operation.round_by_op(app.execute())
+        return self.round_by_op(app.execute())
 
     def _get_next_app_id(self) -> Optional[str]:
         """
@@ -185,9 +185,9 @@ class OneStopServiceApp(Application):
 
             if self.original_account_idx != self.current_account_idx:
                 op = LoginWithAnotherAccount(self.ctx)
-                return Operation.round_by_op(op.execute())
+                return self.round_by_op(op.execute())
 
-        return Operation.round_success()
+        return self.round_success()
 
     @property
     def current_execution_desc(self) -> str:

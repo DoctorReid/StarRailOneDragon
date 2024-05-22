@@ -19,7 +19,7 @@ class BackToWorld(Operation):
         screen: MatLike = self.screenshot()
 
         if screen_state.is_normal_in_world(screen, self.ctx.im):
-            return Operation.round_success()
+            return self.round_success()
 
         self.ctx.controller.esc()
-        return Operation.round_retry(wait=1)
+        return self.round_retry(wait=1)

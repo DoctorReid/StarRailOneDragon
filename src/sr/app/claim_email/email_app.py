@@ -54,10 +54,10 @@ class EmailApp(Application):
                                                                           phone_menu_const.EMAILS,
                                                                           alert=True)
         if result is None:
-            return Operation.round_success(EmailApp.STATUS_NO_ALERT)
+            return self.round_success(EmailApp.STATUS_NO_ALERT)
         else:
             self.ctx.controller.click(result.center)
-            return Operation.round_success(EmailApp.STATUS_WITH_ALERT, wait=1)
+            return self.round_success(EmailApp.STATUS_WITH_ALERT, wait=1)
 
     def _claim(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
@@ -65,6 +65,6 @@ class EmailApp(Application):
         ocr_result = self.ctx.ocr.ocr_for_single_line(claim_all_part, strict_one_line=True)
         if str_utils.find_by_lcs(gt('全部领取', 'ocr'), ocr_result, percent=0.5):
             self.ctx.controller.click(EmailApp.CLAIM_ALL_RECT.center)
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_fail()
+            return self.round_fail()

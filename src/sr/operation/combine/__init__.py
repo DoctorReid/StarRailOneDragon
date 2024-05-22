@@ -132,11 +132,11 @@ class StatusCombineOperation(Operation):
         current_op_result: OperationResult = self._current_op.execute()
 
         if not current_op_result.success:  # 指令执行失败
-            return Operation.round_fail(current_op_result.status)
+            return self.round_fail(current_op_result.status)
 
         edges = self._op_edges_map.get(id(self._current_op))
         if edges is None:  # 没有下一个节点了 已经结束了
-            return Operation.round_success(current_op_result.status)
+            return self.round_success(current_op_result.status)
 
         next_op_id: Optional[int] = None
         final_next_op_id: Optional[int] = None  # 兜底指令
@@ -162,10 +162,10 @@ class StatusCombineOperation(Operation):
             next_op = self._op_map[final_next_op_id]
 
         if next_op is None:  # 没有下一个节点了 已经结束了
-            return Operation.round_success(current_op_result.status)
+            return self.round_success(current_op_result.status)
 
         self._current_op = next_op
-        return Operation.round_wait(current_op_result.status)
+        return self.round_wait(current_op_result.status)
 
 
 class StatusCombineOperationNode:
@@ -272,9 +272,6 @@ class StatusCombineOperation2(Operation):
         :param edge:
         :return:
         """
-        if self.executing:
-            log.error('%s 正在执行 无法进行节点注册', self.display_name)
-            return
         self.edge_list.append(edge)
 
     def set_specified_start_node(self, start_node: StatusCombineOperationNode):
@@ -283,9 +280,6 @@ class StatusCombineOperation2(Operation):
         :param start_node:
         :return:
         """
-        if self.executing:
-            log.error('%s 正在执行 无法设置开始节点', self.display_name)
-            return
         self._specified_start_node = start_node
 
     def _init_network(self):
@@ -336,7 +330,7 @@ class StatusCombineOperation2(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self._current_node is None:
-            return Operation.round_fail('无开始节点')
+            return self.round_fail('无开始节点')
         current_op = self._current_node.get_operation()
         current_op_result: OperationResult = current_op.execute()
 
@@ -371,7 +365,7 @@ class StatusCombineOperation2(Operation):
             return self.round_result_by_op(current_op_result)
 
         self._current_node = next_node
-        return Operation.round_wait(current_op_result.status)
+        return self.round_wait(current_op_result.status)
 
     def round_result_by_op(self, op_result: OperationResult) -> OperationOneRoundResult:
         if op_result.success:

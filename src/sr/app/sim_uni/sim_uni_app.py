@@ -160,18 +160,18 @@ class SimUniApp(Application):
     def _check_times(self) -> OperationOneRoundResult:
         if self.specified_uni_num is not None:
             if self.get_reward_cnt < self.max_reward_to_get:
-                return Operation.round_success()
+                return self.round_success()
             else:
-                return Operation.round_success(SimUniApp.STATUS_ALL_FINISHED)
+                return self.round_success(SimUniApp.STATUS_ALL_FINISHED)
 
         if self.exception_times >= 10:
-            return Operation.round_success(SimUniApp.STATUS_EXCEPTION)
+            return self.round_success(SimUniApp.STATUS_EXCEPTION)
 
         log.info('本日通关次数 %d 本周通关次数 %d', self.run_record.daily_times, self.run_record.weekly_times)
         if self.run_record.run_status_under_now == AppRunRecord.STATUS_SUCCESS:
-            return Operation.round_success(SimUniApp.STATUS_ALL_FINISHED)
+            return self.round_success(SimUniApp.STATUS_ALL_FINISHED)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def _fail_click_empty(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -180,26 +180,26 @@ class SimUniApp(Application):
         click = self.find_and_click_area(area, screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=2)
+            return self.round_success(wait=2)
         else:
-            return Operation.round_retry('未在结算画面', wait=1)
+            return self.round_retry('未在结算画面', wait=1)
 
     def _interact_in_herta(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
         if not self.find_area(ScreenNormalWorld.CHARACTER_ICON.value, screen):
-            return Operation.round_retry('等待大世界画面', wait=1)
+            return self.round_retry('等待大世界画面', wait=1)
 
         op = Interact(self.ctx, '模拟宇宙', lcs_percent=0.1, single_line=True, no_move=True)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success(wait=2)
+            return self.round_success(wait=2)
         else:
-            return Operation.round_fail('加载失败')
+            return self.round_fail('加载失败')
 
     def _check_initial_screen(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        return Operation.round_success(screen_state.get_sim_uni_initial_screen_state(screen, self.ctx.im, self.ctx.ocr))
+        return self.round_success(screen_state.get_sim_uni_initial_screen_state(screen, self.ctx.im, self.ctx.ocr))
 
     def _transport(self) -> OperationOneRoundResult:
         """
@@ -214,9 +214,9 @@ class SimUniApp(Application):
         for area in area_list:
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(wait=3)
+                return self.round_success(wait=3)
 
-        return Operation.round_retry('点击传送失败', wait=1)
+        return self.round_retry('点击传送失败', wait=1)
 
     def _choose_sim_uni_num(self) -> OperationOneRoundResult:
         if self.specified_uni_num is None:
@@ -230,11 +230,11 @@ class SimUniApp(Application):
             self.ctx.sim_uni_info.world_num = self.current_uni_num
         else:
             self.ctx.sim_uni_info.world_num = 0
-        return Operation.round_by_op(op_result)
+        return self.round_by_op(op_result)
 
     def _choose_sim_uni_diff(self) -> OperationOneRoundResult:
         op = ChooseSimUniDiff(self.ctx, self.ctx.sim_uni_config.weekly_uni_diff)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _choose_path(self) -> OperationOneRoundResult:
         """
@@ -243,7 +243,7 @@ class SimUniApp(Application):
         """
         cfg = self.ctx.sim_uni_config.get_challenge_config(self.current_uni_num)
         op = ChooseSimUniPath(self.ctx, SimUniPath[cfg.path])
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _run_world(self) -> OperationOneRoundResult:
         uni_challenge_config = self.ctx.sim_uni_config.get_challenge_config(self.current_uni_num)
@@ -255,7 +255,7 @@ class SimUniApp(Application):
                             max_reward_to_get=self.max_reward_to_get - self.get_reward_cnt if get_reward else 0,
                             get_reward_callback=self._on_sim_uni_get_reward if get_reward else None
                             )
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _on_sim_uni_get_reward(self, use_power: int, user_qty: int):
         self.get_reward_cnt += 1
@@ -269,4 +269,4 @@ class SimUniApp(Application):
     def _exception_exit(self) -> OperationOneRoundResult:
         self.exception_times += 1
         op = SimUniExit(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())

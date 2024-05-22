@@ -114,20 +114,20 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
             op = SimUniEnterFight(self.ctx)
             op_result = op.execute()
             if op_result.success:
-                return Operation.round_success(status=SimUniRunRouteBase.STATUS_FIGHT)
+                return self.round_success(status=SimUniRunRouteBase.STATUS_FIGHT)
             else:
-                return Operation.round_by_op(op_result)
+                return self.round_by_op(op_result)
 
         pos, _ = mini_map.get_closest_enemy_pos(mm_info)
 
         if pos is None:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
         else:
             if self.ctx.one_dragon_config.is_debug:  # 红点已经比较成熟 调试时强制使用yolo
-                return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
+                return self.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
             self.previous_angle = cal_utils.get_angle_by_pts(Point(0, 0), pos)  # 记录有目标的方向
             log.debug(f'根据红点记录角度 {self.previous_angle}')
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_RED)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_RED)
 
     def _move_by_red(self) -> OperationOneRoundResult:
         """
@@ -137,7 +137,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         self.nothing_times = 0
         self.moved_to_target = True
         op = SimUniMoveToEnemyByMiniMap(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _enter_fight(self) -> OperationOneRoundResult:
         op = SimUniEnterFight(self.ctx,
@@ -154,9 +154,9 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         op = SimUniEnterFight(self.ctx, config=self.ctx.sim_uni_challenge_config)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_FIGHT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_FIGHT)
         else:
-            return Operation.round_by_op(op_result)
+            return self.round_by_op(op_result)
 
     def _detect_screen(self) -> OperationOneRoundResult:
         """
@@ -184,20 +184,20 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
                 with_danger = True
 
         if with_danger:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DANGER)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_DANGER)
         elif len(enemy_angles) > 0:
             mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
             angle = mini_map.analyse_angle(mm)
             avg_delta_angle = np.mean(enemy_angles)
             self.previous_angle = cal_utils.angle_add(angle, avg_delta_angle)
             log.debug(f'根据YOLO记录角度 识别怪角度 {enemy_angles}, 当前角度 {angle} 最终记录角度 {self.previous_angle}')
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENEMY)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENEMY)
         elif len(entry_angles) > 0 and len(inactive_entry_angles) == 0:  # 只有激活了的下层入口
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENTRY)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENTRY)
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
-            return Operation.round_success(SimUniRunRouteBase.STATUS_NOTHING)
+            return self.round_success(SimUniRunRouteBase.STATUS_NOTHING)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
         """
@@ -210,4 +210,4 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         op_result = op.execute()
         if op_result.success:
             self.detect_move_timeout_times = 0
-        return Operation.round_by_op(op_result)
+        return self.round_by_op(op_result)

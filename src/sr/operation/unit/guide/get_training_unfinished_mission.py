@@ -46,7 +46,7 @@ class GetTrainingUnfinishedMission(Operation):
                 log.info('实训任务 %s 已失败跳过', mission.id_cn)
                 continue
 
-            return Operation.round_success(mission.id_cn)
+            return self.round_success(mission.id_cn)
 
         # 没找到目标 往右滑动
         drag_from = GetTrainingUnfinishedMission.GO_RECT.center
@@ -54,7 +54,7 @@ class GetTrainingUnfinishedMission(Operation):
         self.ctx.controller.drag_to(drag_to, drag_from)
         time.sleep(1)
 
-        return Operation.round_retry('未找到可执行任务')
+        return self.round_retry('未找到可执行任务')
 
     def _get_mission(self, screen: MatLike, go_pos: MatchResult) -> Optional[DailyTrainingMission]:
         """

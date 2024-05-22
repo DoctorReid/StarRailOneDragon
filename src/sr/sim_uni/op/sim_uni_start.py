@@ -46,19 +46,19 @@ class SimUniStart(StateOperation):
         screen: MatLike = self.screenshot()
 
         if not in_secondary_ui(screen, self.ctx.ocr, ScreenState.SIM_TYPE_NORMAL.value):
-            return Operation.round_retry('未在模拟宇宙页面', wait=1)
+            return self.round_retry('未在模拟宇宙页面', wait=1)
 
         click = self.ocr_and_click_one_line('重新开始', SimUniStart.RESTART_BTN, screen=screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
+            return self.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
 
         click = self.ocr_and_click_one_line('继续', SimUniStart.CONTINUE_BTN, screen=screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status=SimUniStart.STATUS_CONTINUE, wait=2)
+            return self.round_success(status=SimUniStart.STATUS_CONTINUE, wait=2)
 
-        return Operation.round_retry('点击开始失败', wait=1)
+        return self.round_retry('点击开始失败', wait=1)
 
     def _start(self) -> OperationOneRoundResult:
         """
@@ -70,9 +70,9 @@ class SimUniStart(StateOperation):
         click = self.ocr_and_click_one_line('启动模拟宇宙', SimUniStart.START_BTN, screen=screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
+            return self.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
         else:
-            return Operation.round_retry('点击启动模拟宇宙失败')
+            return self.round_retry('点击启动模拟宇宙失败')
 
     def _confirm(self) -> OperationOneRoundResult:
         """
@@ -82,11 +82,11 @@ class SimUniStart(StateOperation):
         screen: MatLike = self.screenshot()
 
         if screen_state.in_sim_uni_choose_path(screen, self.ctx.ocr):
-            return Operation.round_success(status=SimUniStart.STATUS_RESTART)
+            return self.round_success(status=SimUniStart.STATUS_RESTART)
 
         click = self.ocr_and_click_one_line('确认', SimUniStart.CONFIRM_BTN, screen=screen)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
+            return self.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
         else:
-            return Operation.round_retry('点击确认失败')
+            return self.round_retry('点击确认失败')

@@ -77,7 +77,7 @@ class SimUniRunRouteOp(StateOperation):
         self.op_idx += 1
 
         if self.op_idx >= len(self.route.op_list):
-            return Operation.round_success(SimUniRunRouteOp.STATUS_ALL_OP_DONE)
+            return self.round_success(SimUniRunRouteOp.STATUS_ALL_OP_DONE)
 
         current_op: SimUniRouteOperation = self.route.op_list[self.op_idx]
         next_op: Optional[SimUniRouteOperation] = None
@@ -93,9 +93,9 @@ class SimUniRunRouteOp(StateOperation):
         elif current_op['op'] == operation_const.OP_DISPOSABLE:
             op = SimUniEnterFight(self.ctx, config=self.config, disposable=True)
         else:
-            return Operation.round_fail('未知指令')
+            return self.round_fail('未知指令')
 
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def move(self, current_op: SimUniRouteOperation, next_op: Optional[SimUniRouteOperation]) -> Operation:
         """
@@ -142,7 +142,7 @@ class SimUniRunRouteOp(StateOperation):
         指令执行结束
         :return:
         """
-        return Operation.round_success(data=self.current_pos)
+        return self.round_success(data=self.current_pos)
 
 
 class SimUniRunRouteBase(StateOperation):
@@ -187,7 +187,7 @@ class SimUniRunRouteBase(StateOperation):
         执行路线前的初始化 由各类型楼层自行实现
         :return:
         """
-        return Operation.round_success()
+        return self.round_success()
 
     def _run_route(self) -> OperationOneRoundResult:
         """
@@ -195,7 +195,7 @@ class SimUniRunRouteBase(StateOperation):
         :return:
         """
         op = SimUniRunRouteOp(self.ctx, self.route, config=self.config, op_callback=self._update_pos)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _update_pos(self, op_result: OperationResult):
         """
@@ -211,7 +211,7 @@ class SimUniRunRouteBase(StateOperation):
         执行路线后的特殊操作 由各类型楼层自行实现
         :return:
         """
-        return Operation.round_success()
+        return self.round_success()
 
     def _go_next(self) -> OperationOneRoundResult:
         """
@@ -222,7 +222,7 @@ class SimUniRunRouteBase(StateOperation):
                              config=self.config,
                              current_pos=self.current_pos)
 
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
 
 class SimUniRunCombatRoute(SimUniRunRouteBase):
@@ -238,14 +238,14 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
         :return:
         """
         if not self.config.technique_fight or not self.ctx.team_info.is_buff_technique or self.ctx.technique_used:
-            return Operation.round_success()
+            return self.round_success()
         else:
             op = UseTechnique(self.ctx,
                               max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
                               need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
                               quirky_snacks=self.ctx.game_config.use_quirky_snacks
                               )
-            return Operation.round_by_op(op.execute())
+            return self.round_by_op(op.execute())
 
 
 class SimUniInteractAfterRoute(StateOperation):
@@ -284,15 +284,15 @@ class SimUniInteractAfterRoute(StateOperation):
         op = Interact(self.ctx, self.interact_word, lcs_percent=0.1, single_line=True, no_move=self.no_icon)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success(SimUniInteractAfterRoute.STATUS_INTERACT, wait=1.5)
+            return self.round_success(SimUniInteractAfterRoute.STATUS_INTERACT, wait=1.5)
         else:
             if self.no_icon:  # 识别不到图标 又交互不到 就默认为之前已经交互了
-                return Operation.round_success()
+                return self.round_success()
             if self.can_ignore_interact:
                 # 本次交互失败 但可以跳过
-                return Operation.round_success()
+                return self.round_success()
             else:
-                return Operation.round_fail_by_op(op_result)
+                return self.round_fail_by_op(op_result)
 
     def _event(self) -> OperationOneRoundResult:
         op = SimUniEvent(self.ctx, config=self.config,
@@ -300,13 +300,13 @@ class SimUniInteractAfterRoute(StateOperation):
         op_result = op.execute()
         # 事件结束会回到大世界 不需要等待时间
         if op_result.success:
-            return Operation.round_by_op(op_result)
+            return self.round_by_op(op_result)
         else:
             if self.can_ignore_interact:
                 # 本次交互失败 但可以跳过
-                return Operation.round_success()
+                return self.round_success()
             else:
-                return Operation.round_by_op(op_result)
+                return self.round_by_op(op_result)
 
 
 class SimUniRunInteractRoute(SimUniRunRouteBase):
@@ -345,17 +345,17 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
             if self.ctx.one_dragon_config.is_debug:
                 if self.route.display_name not in self.ctx.one_dragon_config.screen_sim_uni_route:
                     self.ctx.one_dragon_config.add_screen_sim_uni_route(self.route.display_name)
-                    return Operation.round_fail('%s 未进行截图' % self.route.display_name)
+                    return self.round_fail('%s 未进行截图' % self.route.display_name)
             op = SimUniEnterFight(self.ctx, config=self.config, disposable=True)  # 攻击可破坏物 统一用这个处理大乐透
             op_result = op.execute()
             if not op_result.success:
-                return Operation.round_fail('攻击可破坏物失败')
+                return self.round_fail('攻击可破坏物失败')
             self.ctx.no_technique_recover_consumables = False  # 休整层默认恢复秘技点
 
         if not interact_pos:
-            return Operation.round_retry('未配置交互点坐标且识别交互图标失败')
+            return self.round_retry('未配置交互点坐标且识别交互图标失败')
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def _cal_interact_pos(self) -> bool:
         """
@@ -394,7 +394,7 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         op = SimUniInteractAfterRoute(self.ctx, self.interact_word,
                                       self.no_icon, self.can_ignore_interact,
                                       self.config)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _get_icon_pos(self, mm: MatLike) -> Optional[Point]:
         """
@@ -473,7 +473,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
 
     def _fight(self) -> OperationOneRoundResult:
         op = SimUniFightElite(self.ctx, config=self.config)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _turn_to_original_angle(self):
         """
@@ -487,7 +487,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
         elite_pos = self.route.op_list[0]['data']
         elite_pos = Point(elite_pos[0], elite_pos[1])
         self.ctx.controller.turn_by_pos(start_pos, elite_pos, angle)
-        return Operation.round_success(wait=0.5)  # 等待转向
+        return self.round_success(wait=0.5)  # 等待转向
 
     def _cal_pos_after_fight(self):
         """
@@ -495,7 +495,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
         :return:
         """
         if self.route.last_op['op'] == operation_const.OP_NO_POS_MOVE:
-            return Operation.round_success()
+            return self.round_success()
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info = mini_map.analyse_mini_map(mm)
@@ -514,21 +514,21 @@ class SimUniRunEliteAfterRoute(StateOperation):
 
         if next_pos is not None:
             self.current_pos = next_pos
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry(MoveDirectly.STATUS_NO_POS, wait=1)
+            return self.round_retry(MoveDirectly.STATUS_NO_POS, wait=1)
 
     def _move_to_reward(self) -> OperationOneRoundResult:
         if self.max_reward_to_get <= 0 and not self.ctx.one_dragon_config.is_debug:
-            return Operation.round_success(SimUniRunEliteAfterRoute.STATUS_NO_NEED_REWARD)
+            return self.round_success(SimUniRunEliteAfterRoute.STATUS_NO_NEED_REWARD)
         elif self.route.reward_pos is None:
-            return Operation.round_fail(SimUniRunEliteAfterRoute.STATUS_NO_REWARD_POS)
+            return self.round_fail(SimUniRunEliteAfterRoute.STATUS_NO_REWARD_POS)
 
         op = MoveWithoutPos(self.ctx,
                             start=self.current_pos, target=self.route.reward_pos,
                             op_callback=self._update_pos,
                             )
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _update_pos(self, op_result: OperationResult):
         """
@@ -544,7 +544,7 @@ class SimUniRunEliteAfterRoute(StateOperation):
         :return:
         """
         op = Interact(self.ctx, '沉浸奖励', lcs_percent=0.1, single_line=True)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _get_reward(self) -> OperationOneRoundResult:
         """
@@ -552,14 +552,14 @@ class SimUniRunEliteAfterRoute(StateOperation):
         :return:
         """
         op = SimUniReward(self.ctx, self.max_reward_to_get, self.get_reward_callback)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _esc(self) -> OperationOneRoundResult:
         """
         所有操作完成后结束
         :return:
         """
-        return Operation.round_success(data=self.current_pos)
+        return self.round_success(data=self.current_pos)
 
 
 class SimUniRunEliteRoute(SimUniRunRouteBase):
@@ -591,16 +591,16 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
         if self.ctx.one_dragon_config.is_debug:
             if self.route.display_name not in self.ctx.one_dragon_config.screen_sim_uni_route:
                 self.ctx.one_dragon_config.add_screen_sim_uni_route(self.route.display_name)
-                return Operation.round_fail('%s 未进行截图' % self.route.display_name)
+                return self.round_fail('%s 未进行截图' % self.route.display_name)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         red_pos = mini_map.find_one_enemy_pos(mm=mm)
         if red_pos is None:
             self.no_icon = True
             if len(self.route.op_list) == 0:  # 未配置路线时 需要识别到才能往下走
-                return Operation.round_retry('未配置坐标且识别地图红点失败')
+                return self.round_retry('未配置坐标且识别地图红点失败')
             else:
-                return Operation.round_success()
+                return self.round_success()
         else:
             if len(self.route.op_list) == 0:  # 未配置路线时 自动加入坐标
                 mm_center_pos = Point(mm.shape[1] // 2, mm.shape[0] // 2)
@@ -608,7 +608,7 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
                 op = SimUniRouteOperation(op=operation_const.OP_MOVE, data=[target_pos.x, target_pos.y])
                 self.route.op_list.append(op)
                 self.route.save()
-            return Operation.round_success()
+            return self.round_success()
 
     def _after_route(self) -> OperationOneRoundResult:
         op = SimUniRunEliteAfterRoute(self.ctx, self.level_type,
@@ -618,11 +618,11 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
                                       get_reward_callback=self.get_reward_callback,
                                       op_callback=self._update_pos
                                       )
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _go_next(self) -> OperationOneRoundResult:
         if self.level_type == SimUniLevelTypeEnum.ELITE.value:
             return super()._go_next()
         else:
             op = SimUniExit(self.ctx)
-            return Operation.round_by_op(op.execute())
+            return self.round_by_op(op.execute())

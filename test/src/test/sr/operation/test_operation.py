@@ -11,7 +11,7 @@ class SimpleOperation(Operation):
         super().__init__(ctx, op_name='测试指令', op_callback=op_callback)
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-        return Operation.round_success()
+        return self.round_success()
 
 
 class TestOperation(test.SrTestBase):
@@ -61,23 +61,23 @@ class SimpleStateOperation(StateOperation):
 
     def add_one(self):
         self.num += 1
-        return Operation.round_success(status=str(self.num))
+        return self.round_success(status=str(self.num))
 
     def mul_two(self):
         self.num *= 2
-        return Operation.round_success(status=str(self.num))
+        return self.round_success(status=str(self.num))
 
     def mul_three(self):
         self.num *= 3
-        return Operation.round_success(status=str(self.num))
+        return self.round_success(status=str(self.num))
 
     def del_one(self):
         self.num -= 1
-        return Operation.round_success(status=str(self.num))
+        return self.round_success(status=str(self.num))
 
     def del_two(self):
         self.num -= 2
-        return Operation.round_success(status=str(self.num))
+        return self.round_success(status=str(self.num))
 
 
 class TestStateOperation(test.SrTestBase):

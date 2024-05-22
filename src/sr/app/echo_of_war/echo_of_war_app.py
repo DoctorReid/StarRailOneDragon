@@ -51,14 +51,14 @@ class EchoOfWarApp(Application):
         ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
         self.power = str_utils.get_positive_digits(ocr_result)
         log.info('当前体力 %d', self.power)
-        return Operation.round_success()
+        return self.round_success()
 
     def _use_power(self) -> OperationOneRoundResult:
         config = self.ctx.echo_config
         config.check_plan_finished()
         plan: Optional[EchoOfWarPlanItem] = config.next_plan_item
         if plan is None:
-            return Operation.round_success('无挑战计划')
+            return self.round_success('无挑战计划')
 
         point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
 
@@ -69,7 +69,7 @@ class EchoOfWarApp(Application):
             run_times = record.left_times
 
         if run_times == 0:
-            return Operation.round_success('无足够体力')
+            return self.round_success('无足够体力')
 
         if run_times + plan['run_times'] > plan['plan_times']:
             run_times = plan['plan_times'] - plan['run_times']
@@ -88,6 +88,6 @@ class EchoOfWarApp(Application):
                                 support=plan['support'] if plan['support'] != 'none' else None,
                                 on_battle_success=on_battle_success)
         if op.execute().success:
-            return Operation.round_wait()
+            return self.round_wait()
         else:  # 挑战
-            return Operation.round_retry('挑战失败')
+            return self.round_retry('挑战失败')

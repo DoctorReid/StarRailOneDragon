@@ -26,4 +26,4 @@ class SwitchAccountApp(Application):
     def _switch(self) -> OperationOneRoundResult:
         self.ctx.active_account(self.target_account_idx)
         op = LoginWithAnotherAccount(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())

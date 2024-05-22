@@ -165,7 +165,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         :return:
         """
         if now - self.last_rec_time <= SimUniMoveToEnemyByMiniMap.REC_POS_INTERVAL:
-            return Operation.round_wait()
+            return self.round_wait()
 
         # 新距离比旧距离大 大概率已经到了一个点了 捕捉到的是第二个点
         if len(self.dis) > 0 and dis - self.dis[-1] > 10:
@@ -179,7 +179,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
 
         self.ctx.controller.move_towards(self.current_pos, pos, angle,
                                          run=self.ctx.game_config.run_mode != game_config_const.RUN_MODE_OFF)
-        return Operation.round_wait()
+        return self.round_wait()
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
         """
@@ -197,7 +197,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
                 and last_dis >= first_dis):
             self.stuck_times += 1
             if self.stuck_times > 12:
-                return Operation.round_fail('脱困失败')
+                return self.round_fail('脱困失败')
             get_rid_of_stuck = GetRidOfStuck(self.ctx, self.stuck_times)
             stuck_op_result = get_rid_of_stuck.execute()
             if stuck_op_result.success:
@@ -215,9 +215,9 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         op = SimUniEnterFight(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_FIGHT)
+            return self.round_success(SimUniMoveToEnemyByMiniMap.STATUS_FIGHT)
         else:
-            return Operation.round_by_op(op_result)
+            return self.round_by_op(op_result)
 
     def _arrive(self) -> OperationOneRoundResult:
         """
@@ -226,7 +226,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         """
         if self.stop_after_arrival:
             self.ctx.controller.stop_moving_forward()
-        return Operation.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
+        return self.round_success(SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
 
 
 class SimUniMoveToEnemyByDetect(Operation):
@@ -271,7 +271,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         # 移动2秒后 如果丢失了目标 停下来
         if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_enemy_times > 0:
             self.ctx.controller.stop_moving_forward()
-            return Operation.round_wait()
+            return self.round_wait()
 
         if now - self.last_debug_time > 0.5 and self.ctx.one_dragon_config.is_debug:
             self.save_screenshot()
@@ -288,9 +288,9 @@ class SimUniMoveToEnemyByDetect(Operation):
         op = SimUniEnterFight(self.ctx)
         op_result = op.execute()
         if op_result.success:
-            return Operation.round_success(SimUniMoveToEnemyByDetect.STATUS_FIGHT)
+            return self.round_success(SimUniMoveToEnemyByDetect.STATUS_FIGHT)
         else:
-            return Operation.round_by_op(op_result)
+            return self.round_by_op(op_result)
 
     def detect_screen(self, screen: MatLike) -> OperationOneRoundResult:
         """
@@ -324,7 +324,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         """
         self.no_enemy_times += 1
         if self.no_enemy_times >= 9:
-            return Operation.round_fail(SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY)
+            return self.round_fail(SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY)
 
         # 第一次向右转一点 后续就在固定范围内晃动
         if self.no_enemy_times == 1:
@@ -333,7 +333,7 @@ class SimUniMoveToEnemyByDetect(Operation):
             angle = -30 if self.no_enemy_times % 2 == 0 else 30
 
         self.ctx.controller.turn_by_angle(angle)
-        return Operation.round_wait(SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY, wait=0.5)
+        return self.round_wait(SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY, wait=0.5)
 
     def handle_enemy(self, enemy_pos_list: List[DetectObjectResult]) -> OperationOneRoundResult:
         """
@@ -346,7 +346,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         turn_to_detected_object(self.ctx, enemy)
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()
-        return Operation.round_wait()
+        return self.round_wait()
 
     def _after_operation_done(self, result: OperationResult):
         """
@@ -438,12 +438,12 @@ class SimUniMoveToInteractByDetect(Operation):
         # 移动2秒后 如果丢失了目标 停下来
         if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_detect_times > 0:
             self.ctx.controller.stop_moving_forward()
-            return Operation.round_wait()
+            return self.round_wait()
 
         # 只有不直接交互的情况下 使用OCR判断是否已经到达
         if need_ocr and self._check_interact_word(screen):
             self.ctx.controller.stop_moving_forward()
-            return Operation.round_success(status=SimUniMoveToInteractByDetect.STATUS_ARRIVAL)
+            return self.round_success(status=SimUniMoveToInteractByDetect.STATUS_ARRIVAL)
 
         # 判断交互物体的位置
         pos_list = self.get_interact_pos(screen)
@@ -475,7 +475,7 @@ class SimUniMoveToInteractByDetect(Operation):
         """
         self.no_detect_times += 1
         if self.no_detect_times >= 9:
-            return Operation.round_fail(SimUniMoveToInteractByDetect.STATUS_NO_DETECT)
+            return self.round_fail(SimUniMoveToInteractByDetect.STATUS_NO_DETECT)
 
         # 第一次向右转一点 后续就在固定范围内晃动
         if self.no_detect_times == 1:
@@ -484,7 +484,7 @@ class SimUniMoveToInteractByDetect(Operation):
             angle = -30 if self.no_detect_times % 2 == 0 else 30
 
         self.ctx.controller.turn_by_angle(angle)
-        return Operation.round_wait(SimUniMoveToInteractByDetect.STATUS_NO_DETECT, wait=0.5)
+        return self.round_wait(SimUniMoveToInteractByDetect.STATUS_NO_DETECT, wait=0.5)
 
     def handle_detect(self, pos_list: List[DetectObjectResult]) -> OperationOneRoundResult:
         """
@@ -496,10 +496,10 @@ class SimUniMoveToInteractByDetect(Operation):
         target = pos_list[0]  # 先固定找第一个
         turn_angle = turn_to_detected_object(self.ctx, target)
         if abs(turn_angle) >= _MAX_TURN_ANGLE:  # 转向较大时 先完成转向再开始移动
-            return Operation.round_wait()
+            return self.round_wait()
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()
-        return Operation.round_wait()
+        return self.round_wait()
 
     def handle_not_in_world(self, screen: MatLike, now: float) -> Optional[OperationOneRoundResult]:
         """
@@ -509,7 +509,7 @@ class SimUniMoveToInteractByDetect(Operation):
         :return:
         """
         self.ctx.controller.stop_moving_forward()
-        return Operation.round_success(status=SimUniMoveToInteractByDetect.STATUS_INTERACT)
+        return self.round_success(status=SimUniMoveToInteractByDetect.STATUS_INTERACT)
 
     def _after_operation_done(self, result: OperationResult):
         """
@@ -585,12 +585,12 @@ class MoveToNextLevelV2(MoveToNextLevel):
             avg_delta_angle = np.mean(entry_angles)
             turn_angle = turn_by_angle_slowly(self.ctx, avg_delta_angle)
             if abs(turn_angle) <= _MAX_TURN_ANGLE:
-                return Operation.round_success(wait=0.1)
+                return self.round_success(wait=0.1)
             else:
-                return Operation.round_wait(wait=0.1)
+                return self.round_wait(wait=0.1)
         else:
             self.ctx.controller.turn_by_angle(35)
-            return Operation.round_retry(status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=0.5)
+            return self.round_retry(status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=0.5)
 
     def _move_and_interact(self) -> OperationOneRoundResult:
         now = time.time()
@@ -614,7 +614,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
 
         if not in_world:
             # 如果已经不在大世界画了 就认为成功了
-            return Operation.round_success()
+            return self.round_success()
 
         if self.is_moving:
             if now - self.start_move_time > MoveToNextLevel.MOVE_TIME:
@@ -624,7 +624,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
                 interact = self._try_interact(screen)
                 if interact is not None:
                     return interact
-            return Operation.round_wait()
+            return self.round_wait()
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
@@ -634,12 +634,12 @@ class MoveToNextLevelV2(MoveToNextLevel):
                 else:
                     angle = 35
                 self.ctx.controller.turn_by_angle(angle)
-                return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
+                return self.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
             target = MoveToNextLevel.get_target_entry(type_list, self.config)
 
             self._move_towards(target)
-            return Operation.round_wait(wait=0.1)
+            return self.round_wait(wait=0.1)
 
     def _can_interact(self, screen: MatLike) -> bool:
         """

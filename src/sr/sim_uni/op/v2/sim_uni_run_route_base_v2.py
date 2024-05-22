@@ -66,7 +66,7 @@ class SimUniRunRouteBase(StateOperation):
         """
         screen = self.screenshot()
         self._check_angle(screen)
-        return Operation.round_success()
+        return self.round_success()
 
     def _check_angle(self, screen: Optional[MatLike] = None):
         """
@@ -89,7 +89,7 @@ class SimUniRunRouteBase(StateOperation):
         angle = mini_map.analyse_angle(mm)
         self.ctx.controller.turn_from_angle(angle, self.previous_angle)
         self.moved_to_target = False
-        return Operation.round_success(wait=0.2)
+        return self.round_success(wait=0.2)
 
     def _check_next_entry(self) -> OperationOneRoundResult:
         """
@@ -97,15 +97,15 @@ class SimUniRunRouteBase(StateOperation):
         :return:
         """
         if self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_BOSS_EXIT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_BOSS_EXIT)
         self._view_up()
         screen: MatLike = self.screenshot()
         entry_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
         if len(entry_list) == 0:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_ENTRY)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_ENTRY)
         else:
             self.nothing_times = 0
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENTRY)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENTRY)
 
     def _move_to_next(self):
         """
@@ -117,7 +117,7 @@ class SimUniRunRouteBase(StateOperation):
 
         self._view_up()
         op = MoveToNextLevelV2(self.ctx, level_type=self.level_type)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _turn_when_nothing(self) -> OperationOneRoundResult:
         """
@@ -130,10 +130,10 @@ class SimUniRunRouteBase(StateOperation):
             # 还没有产生任何移动的情况下 又识别不到任何内容 则可能是距离较远导致。先尝试往前走1秒
             self.ctx.controller.move('w', 1)
             self.moved_to_target = True
-            return Operation.round_success()
+            return self.round_success()
 
         if self.nothing_times >= 23:
-            return Operation.round_fail(SimUniRunRouteBase.STATUS_NOTHING)
+            return self.round_fail(SimUniRunRouteBase.STATUS_NOTHING)
 
         # angle = (25 + 10 * self.nothing_times) * (1 if self.nothing_times % 2 == 0 else -1)  # 来回转动视角
         # 由于攻击之后 人物可能朝反方向了 因此要转动多一点
@@ -147,7 +147,7 @@ class SimUniRunRouteBase(StateOperation):
             self.moved_to_target = False
             return self._turn_to_previous_angle()
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _view_down(self):
         """
@@ -180,13 +180,13 @@ class SimUniRunRouteBase(StateOperation):
         """
         self.detect_move_timeout_times += 1
         if self.detect_move_timeout_times >= 4:
-            return Operation.round_fail(status=Operation.STATUS_TIMEOUT)
+            return self.round_fail(status=Operation.STATUS_TIMEOUT)
 
         # 先尝试攻击破坏物
         op = SimUniEnterFight(self.ctx, disposable=True, first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         op_result = op.execute()
         if not op_result.success:
-            return Operation.round_by_op(op_result)
+            return self.round_by_op(op_result)
 
         # 看上一帧识别结果
         frame_result = self.ctx.sim_uni_yolo.last_detect_result
@@ -213,4 +213,4 @@ class SimUniRunRouteBase(StateOperation):
         else:
             self.ctx.controller.move('a', 1)
 
-        return Operation.round_success()
+        return self.round_success()

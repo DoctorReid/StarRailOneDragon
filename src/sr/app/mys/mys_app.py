@@ -40,7 +40,7 @@ class MysApp(Application):
         else:
             self.game_sign_success = asyncio.run(self.ctx.mys_config.perform_game_sign())
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _bbs_sign(self) -> OperationOneRoundResult:
         if not self.ctx.mys_config.is_login:
@@ -50,7 +50,7 @@ class MysApp(Application):
         else:
             self.bbs_sign_success = asyncio.run(self.ctx.mys_config.perform_bbs_sign())
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _update_record_after_stop(self, result: OperationResult):
         """

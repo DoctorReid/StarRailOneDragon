@@ -46,13 +46,13 @@ class CancelMissionTrace(StateOperation):
         :return:
         """
         if self.ctx.pos_info.cancel_mission_trace:
-            return Operation.round_success()
+            return self.round_success()
 
         area = ScreenNormalWorld.TRACE_MISSION_ICON.value
         if self.ctx.controller.click(area.center, pc_alt=True):
-            return Operation.round_success(CancelMissionTrace.STATUS_CLICK_TRACE, wait=1)
+            return self.round_success(CancelMissionTrace.STATUS_CLICK_TRACE, wait=1)
         else:
-            return Operation.round_retry('点击任务图标失败', wait=1)
+            return self.round_retry('点击任务图标失败', wait=1)
 
     def _cancel_trace(self) -> OperationOneRoundResult:
         """
@@ -62,12 +62,12 @@ class CancelMissionTrace(StateOperation):
         screen = self.screenshot()
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 依旧在大地图 说明没有追踪任务
             self.ctx.pos_info.cancel_mission_trace = True
-            return Operation.round_success()
+            return self.round_success()
 
         area1 = ScreenMission.CANCEL_TRACE_BTN.value
         click = self.find_and_click_area(area1, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
             self.ctx.pos_info.cancel_mission_trace = True
-            return Operation.round_success(CancelMissionTrace.STATUS_CANCELLED)
+            return self.round_success(CancelMissionTrace.STATUS_CANCELLED)
         else:
-            return Operation.round_retry('点击%s失败' % area1.status, wait=1)
+            return self.round_retry('点击%s失败' % area1.status, wait=1)

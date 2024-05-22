@@ -103,15 +103,15 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.had_fight:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_FIGHT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_HAD_FIGHT)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info = mini_map.analyse_mini_map(mm)
         pos_list = mini_map.get_enemy_pos(mm_info)
         if len(pos_list) == 0:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_RED)
         else:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_RED)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_RED)
 
     def _move_by_red(self) -> OperationOneRoundResult:
         """
@@ -121,7 +121,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         self.nothing_times = 0
         self.moved_to_target = True
         op = SimUniMoveToEnemyByMiniMap(self.ctx, no_attack=True, stop_after_arrival=True)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _enter_fight(self) -> OperationOneRoundResult:
         """
@@ -129,7 +129,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         :return:
         """
         op = SimUniFightElite(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _after_fight(self) -> OperationOneRoundResult:
         """
@@ -140,17 +140,17 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         self._turn_to_previous_angle()
         self.moved_to_target = True  # 与精英战斗后 该识别的目标都在附近了 就算识别不到也不需要往前走了
 
-        return Operation.round_success()
+        return self.round_success()
 
     def _detect_reward(self) -> OperationOneRoundResult:
         if self.had_reward:
             log.debug('领取过沉浸奖励')
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
 
         # 调试时候强制走到沉浸奖励
         if not self.ctx.one_dragon_config.is_debug and self.max_reward_to_get == 0:
             log.debug('不需要领取沉浸奖励')
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
 
         self._view_down()
         screen = self.screenshot()
@@ -164,17 +164,17 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
                 break
 
         if detected:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_REWARD)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_REWARD)
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
                 cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniRunEliteRouteV2')
 
             if self.had_fight and self.nothing_times <= 11:  # 战斗后 一定要找到沉浸奖励
-                return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_REWARD)
+                return self.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_REWARD)
             else:  # 重进的情况(没有战斗) 或者 找不到沉浸奖励太多次了 就不找了
                 log.debug('没有战斗 或者 找不到沉浸奖励太多次了')
-                return Operation.round_success(SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
+                return self.round_success(SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
 
     def _move_to_reward(self) -> OperationOneRoundResult:
         """
@@ -191,7 +191,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
                                           interact_word='沉浸奖励',
                                           interact_during_move=True)
         op_result = op.execute()
-        return Operation.round_by_op(op_result, wait=1 if op_result.success else 0)  # 稍微等待画面加载
+        return self.round_by_op(op_result, wait=1 if op_result.success else 0)  # 稍微等待画面加载
 
     def _get_reward(self) -> OperationOneRoundResult:
         """
@@ -201,7 +201,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         self.had_reward = True
         self.detect_move_timeout_times = 0
         op = SimUniReward(self.ctx, self.max_reward_to_get, self.get_reward_callback)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _boss_exit(self) -> OperationOneRoundResult:
         """
@@ -209,4 +209,4 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         :return:
         """
         op = SimUniExit(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())

@@ -60,11 +60,11 @@ class ChooseSupport(StateOperation):
         area = ScreenTeam.TEAM_TITLE.value
         if self.find_area(area):
             if self.character_id is None:
-                return Operation.round_success()
+                return self.round_success()
             else:
-                return Operation.round_success(ChooseSupport.STATUS_SUPPORT_NEEDED)
+                return self.round_success(ChooseSupport.STATUS_SUPPORT_NEEDED)
         else:
-            return Operation.round_retry('未在%s画面' % area.status, wait=1)
+            return self.round_retry('未在%s画面' % area.status, wait=1)
 
     def _click_support(self) -> OperationOneRoundResult:
         """
@@ -74,9 +74,9 @@ class ChooseSupport(StateOperation):
         area = ScreenTeam.SUPPORT_BTN.value
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)
 
     def _click_avatar(self) -> OperationOneRoundResult:
         """
@@ -91,18 +91,18 @@ class ChooseSupport(StateOperation):
             if self.no_find_character_times >= 5:
                 # 找不到支援角色 点击右边返回 按特殊状态返回成功
                 self.ctx.controller.click(ScreenTeam.SUPPORT_CLOSE.value.rect.center)
-                return Operation.round_fail(ChooseSupport.STATUS_SUPPORT_NOT_FOUND, wait=1.5)
+                return self.round_fail(ChooseSupport.STATUS_SUPPORT_NOT_FOUND, wait=1.5)
 
             drag_from = ScreenTeam.SUPPORT_CHARACTER_LIST.value.rect.center
             drag_to = drag_from + Point(0, -400)
             self.ctx.controller.drag_to(drag_to, drag_from)
-            return Operation.round_retry(ChooseSupport.STATUS_SUPPORT_NOT_FOUND, wait=2)
+            return self.round_retry(ChooseSupport.STATUS_SUPPORT_NOT_FOUND, wait=2)
         else:
             click = self.ctx.controller.click(pos.center)
             if click:
-                return Operation.round_success(wait=0.5)
+                return self.round_success(wait=0.5)
             else:
-                return Operation.round_retry('点击头像失败', wait=0.5)
+                return self.round_retry('点击头像失败', wait=0.5)
 
     def _click_join(self) -> OperationOneRoundResult:
         """
@@ -112,9 +112,9 @@ class ChooseSupport(StateOperation):
         area = ScreenTeam.SUPPORT_JOIN.value
         click = self.find_and_click_area(area)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)
 
     def _get_character_pos(self, screen: Optional[MatLike] = None) -> Optional[MatchResult]:
         """

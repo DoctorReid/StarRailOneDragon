@@ -38,19 +38,19 @@ class ChoosePlanet(Operation):
         # 根据左上角判断当前星球是否正确
         planet = large_map.get_planet(screen, self.ctx.ocr)
         if planet is not None and planet.np_id == self.planet.np_id:
-            return Operation.round_success()
+            return self.round_success()
 
         if planet is not None:  # 在大地图
             log.info('当前在大地图 准备选择 星轨航图')
             area = ScreenLargeMap.STAR_RAIL_MAP.value
             click = self.find_and_click_area(area, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_wait(wait=1)
+                return self.round_wait(wait=1)
             elif click == Operation.OCR_CLICK_NOT_FOUND:  # 点了传送点 星轨航图 没出现
                 self.ctx.controller.click(large_map.EMPTY_MAP_POS)
-                return Operation.round_wait(wait=0.5)
+                return self.round_wait(wait=0.5)
             else:
-                return Operation.round_retry('点击星轨航图失败', wait=0.5)
+                return self.round_retry('点击星轨航图失败', wait=0.5)
         else:
             log.info('当前在星轨航图')
             planet_list = self.get_planet_pos(screen)
@@ -74,13 +74,13 @@ class ChoosePlanet(Operation):
 
             if target_pos is not None:
                 self.choose_planet_by_pos(target_pos)
-                return Operation.round_wait(wait=3)
+                return self.round_wait(wait=3)
             else:  # 当前屏幕没有目标星球的情况
                 drag_from = Point(STANDARD_RESOLUTION_W // 2, 100)
                 drag_to = drag_from + Point(-400 if with_planet_before_target else 400, 0)
                 self.ctx.controller.click(drag_from)  # 这里比较神奇 直接拖动第一次会失败
                 self.ctx.controller.drag_to(drag_to, drag_from)
-                return Operation.round_retry(wait=1)
+                return self.round_retry(wait=1)
 
     def get_planet_pos(self, screen: MatLike) -> List[MatchResult]:
         """
@@ -156,14 +156,14 @@ class ChooseRegion(StateOperation):
 
     def _check_planet(self) -> OperationOneRoundResult:
         if self.skip_planet_check:
-            return Operation.round_success()
+            return self.round_success()
         screen = self.screenshot()
 
         planet = large_map.get_planet(screen, self.ctx.ocr)
         if planet is None or planet != self.planet:
-            return Operation.round_wait('未在星球 %s' % self.planet.cn)
+            return self.round_wait('未在星球 %s' % self.planet.cn)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def _choose_region(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -172,7 +172,7 @@ class ChooseRegion(StateOperation):
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
             # 右侧出现的传送 先取消掉
-            return Operation.round_wait(wait=1)
+            return self.round_wait(wait=1)
 
         # 判断当前选择区域是否目标区域
         current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
@@ -189,7 +189,7 @@ class ChooseRegion(StateOperation):
                 pr_id_set.add(region_pos.data.pr_id)
                 if region_pos.data.pr_id == self.region_to_choose_1.pr_id:
                     self.ctx.controller.click(region_pos.center)
-                    return Operation.round_retry(wait=1)
+                    return self.round_retry(wait=1)
 
             # 没有发现目标区域 需要滚动
             with_before_region: bool = False  # 当前区域列表在目标区域之前
@@ -201,9 +201,9 @@ class ChooseRegion(StateOperation):
                     break
 
             self.scroll_region_area(1 if with_before_region else -1)
-            return Operation.round_retry(wait=1)
+            return self.round_retry(wait=1)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def get_region_pos_list(self, screen: MatLike, confidence:int = 0.3) -> List[MatchResult]:
         """
@@ -286,29 +286,29 @@ class ChooseRegion(StateOperation):
 
     def _choose_floor(self):
         op = ChooseFloor(self.ctx, self.region_to_choose_1.floor)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _scale_main_region(self) -> OperationOneRoundResult:
         if self.ctx.pos_info.large_map_scale != self.region_to_choose_1.large_map_scale:
             op = ScaleLargeMap(self.ctx, self.region_to_choose_1.large_map_scale, is_main_region=True)
-            return Operation.round_by_op(op.execute())
+            return self.round_by_op(op.execute())
         else:
-            return Operation.round_success('无需缩放')
+            return self.round_success('无需缩放')
 
     def _choose_sub_region(self) -> OperationOneRoundResult:
         if self.region.parent is None:
-            return Operation.round_success('非子区域无需操作')
+            return self.round_success('非子区域无需操作')
 
         screen = self.screenshot()
 
         if self.sub_region_clicked and self._in_sub_region(screen):
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
 
         screen_part, offset = match_screen_in_large_map(self.ctx, screen, self.region_to_choose_1)
         if offset is None:
             log.error('匹配大地图失败')
             drag_in_large_map(self.ctx)
-            return Operation.round_retry(wait=0.5)
+            return self.round_retry(wait=0.5)
         else:
             dx, dy = get_map_next_drag(self.region.enter_lm_pos, offset)
             screen_map_rect = large_map.get_screen_map_rect(self.region_to_choose_1)
@@ -325,7 +325,7 @@ class ChooseRegion(StateOperation):
             else:
                 drag_in_large_map(self.ctx, dx, dy)
 
-            return Operation.round_retry(wait=0.5)
+            return self.round_retry(wait=0.5)
 
     def _in_sub_region(self, screen: MatLike) -> bool:
         """
@@ -376,13 +376,13 @@ class ChooseRegion(StateOperation):
         :return:
         """
         if self.region.parent is None:
-            return Operation.round_success('非子区域无需操作')
+            return self.round_success('非子区域无需操作')
 
         if self.ctx.pos_info.large_map_scale != self.region.large_map_scale:
             op = ScaleLargeMap(self.ctx, self.region.large_map_scale, is_main_region=False)
-            return Operation.round_by_op(op.execute())
+            return self.round_by_op(op.execute())
         else:
-            return Operation.round_success('无需缩放')
+            return self.round_success('无需缩放')
 
 
 class ChooseFloor(Operation):
@@ -410,13 +410,13 @@ class ChooseFloor(Operation):
                 cl = self.click_target_floor(screen)
                 if not cl:
                     log.error('未成功点击层数')
-                    return Operation.round_retry(wait=0.5)
+                    return self.round_retry(wait=0.5)
                 else:
-                    return Operation.round_success(wait=0.5)
+                    return self.round_success(wait=0.5)
             else:  # 已经是目标楼层
-                return Operation.round_success(wait=0.5)
+                return self.round_success(wait=0.5)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def click_target_floor(self, screen) -> bool:
         """
@@ -691,7 +691,7 @@ class ScaleLargeMap(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.to_scale == self.ctx.pos_info.large_map_scale:
-            return Operation.round_success()
+            return self.round_success()
 
         # 没有使用模板匹配找加减号的位置 实际测试无法区分减价
         if self.is_main_region:
@@ -702,6 +702,6 @@ class ScaleLargeMap(Operation):
                  self.ctx.controller.click(area.center))
         self.ctx.pos_info.large_map_scale += self.scale_per_time
         if self.to_scale == self.ctx.pos_info.large_map_scale:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_wait(wait=0.5)
+            return self.round_wait(wait=0.5)

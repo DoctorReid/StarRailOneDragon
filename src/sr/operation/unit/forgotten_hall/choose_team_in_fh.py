@@ -86,24 +86,24 @@ class ChooseTeamInForgottenHall(Operation):
         if self.phase == 0:  # 按照BOSS属性计算配队
             if self._cal_team_member():
                 self.phase += 1
-                return Operation.round_wait()
+                return self.round_wait()
             else:
                 time.sleep(1)
-                return Operation.round_retry('自动配队失败')
+                return self.round_retry('自动配队失败')
         elif self.phase == 1:  # 取消原有的角色选择
             if self._cancel_all_chosen():
                 self.phase += 1
-                return Operation.round_wait()
+                return self.round_wait()
             else:
-                return Operation.round_retry('取消原有选择失败')
+                return self.round_retry('取消原有选择失败')
         elif self.phase == 2:  # 选择配队:
             if self._choose_character():
                 self.phase += 1
-                return Operation.round_success()
+                return self.round_success()
             else:
-                return Operation.round_retry('选择新角色失败')
+                return self.round_retry('选择新角色失败')
 
-        return Operation.round_retry('unknown')
+        return self.round_retry('unknown')
 
     def _cal_team_member(self) -> bool:
         """

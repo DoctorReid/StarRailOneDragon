@@ -134,12 +134,12 @@ class MoveDirectlyInSimUni(MoveDirectly):
             fight_result = fight.execute()
             fight_end_time = time.time()
             if not fight_result.success:
-                return Operation.round_fail(status=fight_result.status, data=fight_result.data)
+                return self.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = fight_end_time
             self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
             self.ctx.pos_info.first_cal_pos_after_fight = True
             # self.move_after_battle()
-            return Operation.round_wait()
+            return self.round_wait()
         return None
 
     def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
@@ -164,7 +164,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
         fight = SimUniEnterFight(self.ctx, self.config)
         op_result = fight.execute()
         if not op_result.success:
-            return Operation.round_fail(status=op_result.status, data=op_result.data)
+            return self.round_fail(status=op_result.status, data=op_result.data)
         fight_end_time = time.time()
 
         self.last_auto_fight_fail = (op_result.status == SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
@@ -173,7 +173,7 @@ class MoveDirectlyInSimUni(MoveDirectly):
         self.ctx.pos_info.first_cal_pos_after_fight = True
         # self.move_after_battle()
 
-        return Operation.round_wait()
+        return self.round_wait()
 
 
 class MoveWithoutPosInSimUni(StateOperation):
@@ -215,19 +215,19 @@ class MoveWithoutPosInSimUni(StateOperation):
 
         self.ctx.controller.turn_by_pos(self.start_point, self.end_point, angle)
 
-        return Operation.round_success(wait=0.5)  # 等待转向结束
+        return self.round_success(wait=0.5)  # 等待转向结束
 
     def _move(self) -> OperationOneRoundResult:
         self.ctx.controller.start_moving_forward()
-        return Operation.round_success()
+        return self.round_success()
 
     def _check_arrival(self) -> OperationOneRoundResult:
         if self.ever_pause:
-            return Operation.round_success(MoveWithoutPosInSimUni.STATUS_PAUSE)
+            return self.round_success(MoveWithoutPosInSimUni.STATUS_PAUSE)
         if self.ctx.controller.get_move_time() >= self.need_move_time:
-            return Operation.round_success(MoveWithoutPosInSimUni.STATUS_ARRIVE)
+            return self.round_success(MoveWithoutPosInSimUni.STATUS_ARRIVE)
 
-        return Operation.round_wait(wait=0.02)
+        return self.round_wait(wait=0.02)
 
     def on_pause(self, e=None):
         super().on_pause()
@@ -293,30 +293,30 @@ class MoveToNextLevel(StateOperation):
         :return:
         """
         if self.route is None:  # 不是使用配置路线时 不需要先转向
-            return Operation.round_success()
+            return self.round_success()
         if self.current_pos is None or self.next_pos is None:
             if self.ctx.one_dragon_config.is_debug:
-                return Operation.round_fail('未配置下层入口')
+                return self.round_fail('未配置下层入口')
             else:
-                return Operation.round_success()
+                return self.round_success()
         screen = self.screenshot()
 
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             log.error('找下层入口时进入战斗 请反馈给作者 %s', self.route.display_name)
             if self.ctx.one_dragon_config.is_debug:
-                return Operation.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
+                return self.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
             op = SimUniEnterFight(self.ctx, self.config)
             op_result = op.execute()
             if op_result.success:
-                return Operation.round_wait()
+                return self.round_wait()
             else:
-                return Operation.round_retry()
+                return self.round_retry()
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
         self.ctx.controller.turn_by_pos(self.current_pos, self.next_pos, mm_info.angle)
 
-        return Operation.round_success(wait=0.5)  # 等待转动完成
+        return self.round_success(wait=0.5)  # 等待转动完成
 
     def _move_and_interact(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -326,17 +326,17 @@ class MoveToNextLevel(StateOperation):
         if not in_world:
             if self.interacted:
                 # 兜底 - 如果已经不在大世界画面且又交互过了 就认为成功了
-                return Operation.round_success()
+                return self.round_success()
             else:
                 log.error('找下层入口时进入战斗 请反馈给作者 %s', '第九宇宙' if self.route is None else self.route.display_name)
                 if self.ctx.one_dragon_config.is_debug:
-                    return Operation.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
+                    return self.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
                 op = SimUniEnterFight(self.ctx, self.config)
                 op_result = op.execute()
                 if op_result.success:
-                    return Operation.round_wait()
+                    return self.round_wait()
                 else:
-                    return Operation.round_retry()
+                    return self.round_retry()
 
         interact = self._try_interact(screen)
         if interact is not None:
@@ -346,7 +346,7 @@ class MoveToNextLevel(StateOperation):
             if time.time() - self.start_move_time > MoveToNextLevel.MOVE_TIME:
                 self.ctx.controller.stop_moving_forward()
                 self.is_moving = False
-            return Operation.round_wait()
+            return self.round_wait()
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
@@ -356,12 +356,12 @@ class MoveToNextLevel(StateOperation):
                 else:
                     angle = 35
                 self.ctx.controller.turn_by_angle(angle)
-                return Operation.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
+                return self.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
             target = self.get_target_entry(type_list, self.config)
 
             self._move_towards(target)
-            return Operation.round_wait(wait=0.1)
+            return self.round_wait(wait=0.1)
 
     @staticmethod
     def get_next_level_type(screen: MatLike, ih: ImageHolder) -> List[MatchResult]:
@@ -462,7 +462,7 @@ class MoveToNextLevel(StateOperation):
             log.debug('尝试交互进入下一层')
             self.interacted = True
             self.ctx.controller.stop_moving_forward()
-            return Operation.round_wait(wait=0.1)
+            return self.round_wait(wait=0.1)
         else:
             return None
 
@@ -481,19 +481,19 @@ class MoveToNextLevel(StateOperation):
         :return:
         """
         if self.level_type != SimUniLevelTypeEnum.ELITE.value:
-            return Operation.round_success()
+            return self.round_success()
         screen = self.screenshot()
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             click_confirm = self.ocr_and_click_one_line('确认', MoveToNextLevel.NEXT_CONFIRM_BTN,
                                                         screen=screen)
             if click_confirm == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success(wait=1)
+                return self.round_success(wait=1)
             elif click_confirm == Operation.OCR_CLICK_NOT_FOUND:
-                return Operation.round_success()
+                return self.round_success()
             else:
-                return Operation.round_retry('点击确认失败', wait=0.25)
+                return self.round_retry('点击确认失败', wait=0.25)
         else:
-            return Operation.round_retry('在大世界页面')
+            return self.round_retry('在大世界页面')
 
 
 class MoveToMiniMapInteractIcon(Operation):
@@ -519,7 +519,7 @@ class MoveToMiniMapInteractIcon(Operation):
 
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
             log.info('未在大世界')
-            return Operation.round_success()
+            return self.round_success()
 
         interact = self._try_interact(screen)
         if interact is not None:
@@ -530,12 +530,12 @@ class MoveToMiniMapInteractIcon(Operation):
 
         if target_pos is None:
             log.info('无图标')
-            return Operation.round_retry(MoveToMiniMapInteractIcon.STATUS_ICON_NOT_FOUND, wait=0.5)
+            return self.round_retry(MoveToMiniMapInteractIcon.STATUS_ICON_NOT_FOUND, wait=0.5)
         else:
             start_pos = Point(mm.shape[1] // 2, mm.shape[0] // 2)
             angle = mini_map.analyse_angle(mm)
             self.ctx.controller.move_towards(start_pos, target_pos, angle)
-            return Operation.round_wait()
+            return self.round_wait()
 
     def _get_event_pos(self, mm: MatLike) -> Optional[Point]:
         """
@@ -564,7 +564,7 @@ class MoveToMiniMapInteractIcon(Operation):
             self.ctx.controller.interact(interact_type=GameController.MOVE_INTERACT_TYPE)
             self.ctx.controller.stop_moving_forward()
 
-            return Operation.round_wait(wait=0.25)
+            return self.round_wait(wait=0.25)
         else:
             return None
 

@@ -45,21 +45,21 @@ class SimUniWaitLevelStart(Operation):
                                                       )
         if state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
             # 移动进入下一层后 小地图会有缩放 稍微等一下方便小地图匹配
-            return Operation.round_success(wait=self.wait_after_success)
+            return self.round_success(wait=self.wait_after_success)
         elif state == screen_state.ScreenState.SIM_BLESS.value:
             op = SimUniChooseBless(self.ctx, self.config, before_level_start=not self.first_bless_chosen)
             op_result = op.execute()
             if op_result.success:
                 self.first_bless_chosen = True
-                return Operation.round_wait(wait=1)
+                return self.round_wait(wait=1)
             else:
-                return Operation.round_fail(status=op_result.status, data=op_result.data)
+                return self.round_fail(status=op_result.status, data=op_result.data)
         elif state == screen_state.ScreenState.SIM_CURIOS.value:
             op = SimUniChooseCurio(self.ctx, self.config)
             op_result = op.execute()
             if op_result.success:
-                return Operation.round_wait()
+                return self.round_wait()
             else:
-                return Operation.round_by_op(op_result)
+                return self.round_by_op(op_result)
         else:
-            return Operation.round_retry('无法判断当前画面状态', wait=1)
+            return self.round_retry('无法判断当前画面状态', wait=1)

@@ -31,7 +31,7 @@ class ChooseTeam(Operation):
         screen: MatLike = self.screenshot()
 
         if not self.in_secondary_ui(screen):
-            return Operation.round_retry('未在配队页面', wait=1)
+            return self.round_retry('未在配队页面', wait=1)
 
         num_pos = self.get_all_num_pos(screen)
 
@@ -46,18 +46,18 @@ class ChooseTeam(Operation):
             drag_to = drag_from + (Point(200, 0) if with_larger else Point(-200, 0))
             self.ctx.controller.drag_to(drag_to, drag_from)
 
-            return Operation.round_retry('未找到配队', wait=0.5)
+            return self.round_retry('未找到配队', wait=0.5)
         else:
             to_click: Point = num_pos[self.team_num]
             if self.ctx.controller.click(to_click):
                 time.sleep(0.5)
                 if not self.on:
-                    return Operation.round_success()
+                    return self.round_success()
                 if self.ctx.controller.click(ChooseTeam.TURN_ON_RECT.center):
                     # 因为有可能本次选择配队没有改变队伍 即有可能不需要点启用 这里就偷懒不判断启用按钮是否出现了
-                    return Operation.round_success()
+                    return self.round_success()
 
-            return Operation.round_retry('点击配队失败')
+            return self.round_retry('点击配队失败')
 
     def in_secondary_ui(self, screen: Optional[MatLike] = None) -> bool:
         """

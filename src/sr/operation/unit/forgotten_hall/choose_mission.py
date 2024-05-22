@@ -25,10 +25,10 @@ class ChooseMission(Operation):
 
         num_result: MatchResult = get_mission_num_pos(self.ctx, self.mission_num, screen, drag_when_not_found=True)
         if num_result is None:
-            return Operation.round_retry('未找到关卡')
+            return self.round_retry('未找到关卡')
 
         if self.ctx.controller.click(num_result.center):
             time.sleep(1.5)  # 等待加载页面
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry('点击关卡失败')
+            return self.round_retry('点击关卡失败')

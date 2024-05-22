@@ -71,49 +71,49 @@ class AssignmentsApp(Application):
                                                                  phone_menu_const.ASSIGNMENTS,
                                                                  alert=True)
         if result is None:
-            return Operation.round_success(AssignmentsApp.STATUS_NO_ALERT)
+            return self.round_success(AssignmentsApp.STATUS_NO_ALERT)
         else:
             self.ctx.controller.click(result.center)
-            return Operation.round_success(AssignmentsApp.STATUS_WITH_ALERT, wait=2)
+            return self.round_success(AssignmentsApp.STATUS_WITH_ALERT, wait=2)
 
     def _claim_all(self) -> OperationOneRoundResult:
         screen = self.screenshot()
         area = ScreenPhoneMenu.ASSIGNMENTS_CLAIM_ALL.value
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success()
+            return self.round_success()
         elif click == Operation.OCR_CLICK_NOT_FOUND:
-            return Operation.round_success(status=AssignmentsApp.STATUS_NO_ALL_CLAIM)
+            return self.round_success(status=AssignmentsApp.STATUS_NO_ALL_CLAIM)
         else:
-            return Operation.round_retry(status='点击%s失败' % area.status, wait=1)
+            return self.round_retry(status='点击%s失败' % area.status, wait=1)
 
     def _send(self) -> OperationOneRoundResult:
         screen = self.screenshot()
         area = ScreenPhoneMenu.ASSIGNMENTS_SEND_AGAIN.value
         if self.find_and_click_area(area, screen) == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success()
+            return self.round_success()
         else:
-            return Operation.round_retry(status='点击%s失败' % area.status, wait=1)
+            return self.round_retry(status='点击%s失败' % area.status, wait=1)
 
     def _claim(self) -> OperationOneRoundResult:
         screen = self.screenshot()
         area = ScreenPhoneMenu.ASSIGNMENTS_CLAIM.value
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         elif click == Operation.OCR_CLICK_NOT_FOUND:
-            return Operation.round_success(status=AssignmentsApp.STATUS_NO_CLAIM)
+            return self.round_success(status=AssignmentsApp.STATUS_NO_CLAIM)
         else:
-            return Operation.round_retry(status='点击%s失败' % area.status, wait=1)
+            return self.round_retry(status='点击%s失败' % area.status, wait=1)
 
     def _click_empty(self):
         screen = self.screenshot()
         area = ScreenPhoneMenu.ASSIGNMENTS_CLICK_EMPTY.value
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_retry(status='点击%s失败' % area.status, wait=1)
+            return self.round_retry(status='点击%s失败' % area.status, wait=1)
 
     def _click_alert_category(self):
         screen = self.screenshot()
@@ -123,9 +123,9 @@ class AssignmentsApp(Application):
 
         if len(result_list) > 0:  # 有红点
             self.ctx.controller.click(area.rect.left_top + result_list.max.center)
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
 
-        return Operation.round_retry('无红点')
+        return self.round_retry('无红点')
 
     @property
     def current_execution_desc(self) -> str:

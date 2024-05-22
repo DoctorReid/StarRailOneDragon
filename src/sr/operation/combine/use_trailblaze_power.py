@@ -99,9 +99,9 @@ class UseTrailblazePower(StateOperation):
         :return:
         """
         if not self.need_transport:
-            return Operation.round_success()
+            return self.round_success()
         op = Transport(self.ctx, self.mission.tp)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _interact(self) -> OperationOneRoundResult:
         """
@@ -110,7 +110,7 @@ class UseTrailblazePower(StateOperation):
         """
         op = Interact(self.ctx, self.mission.tp.cn, 0.5, single_line=True, no_move=True)  # 交互进入副本
         # 等待一定时间 副本加载
-        return Operation.round_by_op(op.execute(), wait=1.5)
+        return self.round_by_op(op.execute(), wait=1.5)
 
     def _get_current_challenge_times(self) -> int:
         """
@@ -136,9 +136,9 @@ class UseTrailblazePower(StateOperation):
                 self.mission.cate == SurvivalIndexCategoryEnum.BUD_2.value:
             op = ChooseChallengeTimes(self.ctx, self.current_challenge_times)
             op_result = op.execute()
-            return Operation.round_by_op(op_result)
+            return self.round_by_op(op_result)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def _click_challenge(self) -> OperationOneRoundResult:
         """
@@ -146,7 +146,7 @@ class UseTrailblazePower(StateOperation):
         :return:
         """
         op = ClickChallenge(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _choose_team(self) -> OperationOneRoundResult:
         """
@@ -154,7 +154,7 @@ class UseTrailblazePower(StateOperation):
         :return:
         """
         op = ChooseTeam(self.ctx, self.team_num)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _choose_support(self):
         """
@@ -162,9 +162,9 @@ class UseTrailblazePower(StateOperation):
         :return:
         """
         if self.support is None:
-            return Operation.round_success()
+            return self.round_success()
         op = ChooseSupport(self.ctx, self.support)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _start_challenge(self) -> OperationOneRoundResult:
         """
@@ -172,7 +172,7 @@ class UseTrailblazePower(StateOperation):
         :return:
         """
         op = ClickStartChallenge(self.ctx)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _after_start_challenge(self) -> OperationOneRoundResult:
         """
@@ -183,11 +183,11 @@ class UseTrailblazePower(StateOperation):
             op = WaitInWorld(self.ctx, wait_after_success=2)  # 等待怪物苏醒
             op_result = op.execute()
             if not op_result.success:
-                return Operation.round_fail('未在大世界画面')
+                return self.round_fail('未在大世界画面')
             self.ctx.controller.initiate_attack()
-            return Operation.round_success(wait=1)
+            return self.round_success(wait=1)
         else:
-            return Operation.round_success()
+            return self.round_success()
 
     def _wait_battle_result(self) -> OperationOneRoundResult:
         """
@@ -202,14 +202,14 @@ class UseTrailblazePower(StateOperation):
 
         if state == ScreenBattle.AFTER_BATTLE_FAIL_1.value.status:
             self.battle_fail_times += 1
-            return Operation.round_success(state)
+            return self.round_success(state)
         elif state == ScreenBattle.AFTER_BATTLE_SUCCESS_1.value.status:
             self.finish_times += self.current_challenge_times
             if self.on_battle_success is not None:
                 self.on_battle_success(self.current_challenge_times, self.mission.power * self.current_challenge_times)
-            return Operation.round_success(state)
+            return self.round_success(state)
         else:
-            return Operation.round_wait('等待战斗结束', wait=1)
+            return self.round_wait('等待战斗结束', wait=1)
 
     def _after_battle_result(self) -> OperationOneRoundResult:
         """
@@ -231,9 +231,9 @@ class UseTrailblazePower(StateOperation):
 
         click = self.find_and_click_area(area, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success(status, wait=2)
+            return self.round_success(status, wait=2)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)
 
     def _confirm_again(self) -> OperationOneRoundResult:
         """
@@ -244,6 +244,6 @@ class UseTrailblazePower(StateOperation):
         area = ScreenBattle.AFTER_BATTLE_CONFIRM_AGAIN_BTN.value
         click = self.find_and_click_area(area, screen)
         if click in [Operation.OCR_CLICK_SUCCESS, Operation.OCR_CLICK_NOT_FOUND]:
-            return Operation.round_success(wait=2)
+            return self.round_success(wait=2)
         else:
-            return Operation.round_retry('点击%s失败' % area.status, wait=1)
+            return self.round_retry('点击%s失败' % area.status, wait=1)

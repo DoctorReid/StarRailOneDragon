@@ -96,7 +96,7 @@ class GetRidOfStuck(Operation):
         else:
             total_time = 0
 
-        return Operation.round_success(data=total_time)
+        return self.round_success(data=total_time)
 
 
 class TurnToAngle(Operation):
@@ -119,10 +119,10 @@ class TurnToAngle(Operation):
         angle_delta = cal_utils.angle_delta(current_angle, self.target_angle)
 
         if abs(angle_delta) < 10:
-            return Operation.round_success()
+            return self.round_success()
 
         self.ctx.controller.turn_by_angle(angle_delta)
-        return Operation.round_wait(wait=0.5)
+        return self.round_wait(wait=0.5)
 
 
 class MoveDirectly(Operation):
@@ -190,7 +190,7 @@ class MoveDirectly(Operation):
         now_time = time.time()
 
         if not self.no_battle and now_time - self.last_battle_time > MoveDirectly.fail_after_no_battle:
-            return Operation.round_fail('移动超时')
+            return self.round_fail('移动超时')
 
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
         if stuck is not None:
@@ -229,7 +229,7 @@ class MoveDirectly(Operation):
 
         self.move(next_pos, now_time, mm_info)
 
-        return Operation.round_wait()
+        return self.round_wait()
 
     def move_in_stuck(self) -> Optional[OperationOneRoundResult]:
         """
@@ -247,7 +247,7 @@ class MoveDirectly(Operation):
                 cal_utils.distance_between(first_pos, last_pos) < MoveDirectly.stuck_distance:
             self.stuck_times += 1
             if self.stuck_times > 12:
-                return Operation.round_fail('脱困失败')
+                return self.round_fail('脱困失败')
             get_rid_of_stuck = GetRidOfStuck(self.ctx, self.stuck_times)
             stuck_op_result = get_rid_of_stuck.execute()
             if stuck_op_result.success:
@@ -280,12 +280,12 @@ class MoveDirectly(Operation):
             fight_result = fight.execute()
             fight_end_time = time.time()
             if not fight_result.success:
-                return Operation.round_fail(status=fight_result.status, data=fight_result.data)
+                return self.round_fail(status=fight_result.status, data=fight_result.data)
             self.last_battle_time = time.time()
             self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
             self.ctx.pos_info.first_cal_pos_after_fight = True
             # self.move_after_battle()
-            return Operation.round_wait()
+            return self.round_wait()
         return None
 
     def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
@@ -315,7 +315,7 @@ class MoveDirectly(Operation):
         fight_start_time = time.time()
         op_result = fight.execute()
         if not op_result.success:
-            return Operation.round_fail(status=op_result.status, data=op_result.data)
+            return self.round_fail(status=op_result.status, data=op_result.data)
         fight_end_time = time.time()
 
         self.last_auto_fight_fail = (op_result.status == WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
@@ -324,7 +324,7 @@ class MoveDirectly(Operation):
         self.ctx.pos_info.first_cal_pos_after_fight = True
         # self.move_after_battle()
 
-        return Operation.round_wait()
+        return self.round_wait()
 
     def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
         """
@@ -418,8 +418,8 @@ class MoveDirectly(Operation):
                     if self.stop_move_time is None:
                         self.stop_move_time = now_time + 1  # 加1秒代表惯性
                 if self.no_pos_times >= 10:
-                    return Operation.round_fail(MoveDirectly.STATUS_NO_POS)
-            return Operation.round_wait()
+                    return self.round_fail(MoveDirectly.STATUS_NO_POS)
+            return self.round_wait()
         else:
             self.no_pos_times = 0
             self.ctx.pos_info.first_cal_pos_after_fight = False
@@ -433,7 +433,7 @@ class MoveDirectly(Operation):
         if cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
-            return Operation.round_success(data=next_pos)
+            return self.round_success(data=next_pos)
         return None
 
     def move(self, next_pos: Point, now_time: float, mm_info: MiniMapInfo):
@@ -509,13 +509,13 @@ class MoveToEnemy(Operation):
         pos = mini_map.find_one_enemy_pos(mm=mm)
 
         if pos is None:
-            return Operation.round_retry(MoveToEnemy.STATUS_ENEMY_NOT_FOUND, wait=1)
+            return self.round_retry(MoveToEnemy.STATUS_ENEMY_NOT_FOUND, wait=1)
 
         center = Point(mm.shape[1] // 2, mm.shape[0] // 2)
 
         if pos is None or cal_utils.distance_between(pos, center) < 20:  # 已经到达
             self.ctx.controller.stop_moving_forward()
-            return Operation.round_success()
+            return self.round_success()
         elif pos is not None:  # 朝目标走去
             now = time.time()
             if now - self.last_move_time > 0.5:  # 隔一段时间再调整方向移动
@@ -523,9 +523,9 @@ class MoveToEnemy(Operation):
                 _, _, angle = mini_map.analyse_arrow_and_angle(mm)
                 self.ctx.controller.move_towards(center, pos, angle,
                                                  run=self.run_mode == game_config_const.RUN_MODE_BTN)
-            return Operation.round_wait()
+            return self.round_wait()
         else:  # 不应该有这种情况
-            return Operation.round_retry('unknown')
+            return self.round_retry('unknown')
 
 
 class MoveForward(Operation):
@@ -546,7 +546,7 @@ class MoveForward(Operation):
         self.ctx.controller.start_moving_forward()
         time.sleep(self.seconds)
         self.ctx.controller.stop_moving_forward()
-        return Operation.round_success()
+        return self.round_success()
 
 
 class MoveWithoutPos(StateOperation):
@@ -587,9 +587,9 @@ class MoveWithoutPos(StateOperation):
 
         self.ctx.controller.turn_by_pos(self.start, self.target, angle)
 
-        return Operation.round_success(wait=0.5)  # 等待转向结束
+        return self.round_success(wait=0.5)  # 等待转向结束
 
     def _move(self) -> OperationOneRoundResult:
         self.ctx.controller.move('w', self.move_time)
 
-        return Operation.round_success(data=self.target)
+        return self.round_success(data=self.target)

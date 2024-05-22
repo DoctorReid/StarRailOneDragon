@@ -35,10 +35,10 @@ class OcrClickOneLine(Operation):
                                             wait_after_success=self.wait_after_success)
 
         if click == Operation.OCR_CLICK_SUCCESS:
-            return Operation.round_success()
+            return self.round_success()
         elif click == Operation.OCR_CLICK_FAIL:
             time.sleep(1)
-            return Operation.round_retry('点击失败')
+            return self.round_retry('点击失败')
         elif click == Operation.OCR_CLICK_NOT_FOUND:
             time.sleep(1)
-            return Operation.round_retry('识别不到文本')
+            return self.round_retry('识别不到文本')

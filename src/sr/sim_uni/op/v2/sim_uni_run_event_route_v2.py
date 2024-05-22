@@ -86,7 +86,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
 
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
@@ -95,10 +95,10 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         if mrl.max is not None:
             self.mm_icon_pos = mrl.max.center
             if self.ctx.one_dragon_config.is_debug:  # 按小地图图标已经成熟 调试时强制使用yolo
-                return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT)
+                return self.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT)
         else:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
 
     def _move_by_mm(self) -> OperationOneRoundResult:
         """
@@ -108,7 +108,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         self.nothing_times = 0
         self.moved_to_target = True
         op = MoveWithoutPos(self.ctx, start=self.ctx.game_config.mini_map_pos.mm_center, target=self.mm_icon_pos)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _detect_screen(self) -> OperationOneRoundResult:
         """
@@ -116,7 +116,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
         self._view_down()
         screen = self.screenshot()
 
@@ -129,12 +129,12 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
                 break
 
         if with_event:
-            return Operation.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT)
+            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT)
         else:
             if self.ctx.one_dragon_config.is_debug:
                 self.save_screenshot()
                 cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniRunEventRouteV2')
-            return Operation.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
+            return self.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
         """
@@ -150,7 +150,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         op_result = op.execute()
         if op_result.success:
             self.detect_move_timeout_times = 0
-        return Operation.round_by_op(op_result)
+        return self.round_by_op(op_result)
 
     def _interact(self) -> OperationOneRoundResult:
         """
@@ -158,7 +158,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         :return:
         """
         op = Interact(self.ctx, '事件', lcs_percent=0.1, single_line=True)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())
 
     def _handle_event(self) -> OperationOneRoundResult:
         """
@@ -167,4 +167,4 @@ class SimUniRunEventRouteV2(SimUniRunRouteBase):
         """
         self.event_handled = True
         op = SimUniEvent(self.ctx, skip_first_screen_check=False)
-        return Operation.round_by_op(op.execute())
+        return self.round_by_op(op.execute())

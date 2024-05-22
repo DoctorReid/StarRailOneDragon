@@ -45,49 +45,49 @@ class DoSalvageRelic(Operation):
             time.sleep(2)
             if self._filter_shown():
                 self.phase += 1
-                return Operation.round_wait(wait=1)
+                return self.round_wait(wait=1)
             else:
-                return Operation.round_retry('点击筛选失败', wait=1)
+                return self.round_retry('点击筛选失败', wait=1)
         elif self.phase == 1:  # 选择3、4星
             if self._choose_filter():
                 self.phase += 1
-                return Operation.round_wait()
+                return self.round_wait()
             else:
-                return Operation.round_retry('点击筛选条件失败', wait=1)
+                return self.round_retry('点击筛选条件失败', wait=1)
         elif self.phase == 2:  # 点击空白 回到分解主页
             self.ctx.controller.click(DoSalvageRelic.ALL_RECT.center)
             if self._filter_shown():
-                return Operation.round_retry('未能退出筛选', wait=1)
+                return self.round_retry('未能退出筛选', wait=1)
             else:
                 self.phase += 1
-                return Operation.round_wait(wait=1)
+                return self.round_wait(wait=1)
         elif self.phase == 3:  # 全选并分解
             if not self._click_salvage():
-                return Operation.round_retry('点击分解失败', wait=1)
+                return self.round_retry('点击分解失败', wait=1)
             else:
                 if self._tip_shown():  # TODO 需要确定3星遗器会不会出现提示
                     self.phase += 1
-                    return Operation.round_wait(wait=1)
+                    return self.round_wait(wait=1)
                 else:
-                    return Operation.round_retry('未出现提示', wait=1)
+                    return self.round_retry('未出现提示', wait=1)
         elif self.phase == 4:  # 点击确认
             screen = self.screenshot()
             if not self._tip_shown(screen):
-                return Operation.round_retry('未出现提示', wait=1)
+                return self.round_retry('未出现提示', wait=1)
             else:
                 click = self.ocr_and_click_one_line('确认', DoSalvageRelic.CONFIRM_RECT, screen)
                 if click == Operation.OCR_CLICK_SUCCESS:
                     self.phase += 1
-                    return Operation.round_wait(wait=1)
+                    return self.round_wait(wait=1)
                 else:
-                    return Operation.round_retry('点击确认失败')
+                    return self.round_retry('点击确认失败')
         elif self.phase == 5:  # 点击空白继续
             screen = self.screenshot()
             click = self.ocr_and_click_one_line('点击空白处关闭', DoSalvageRelic.CONTINUE_RECT, screen)
             if click == Operation.OCR_CLICK_SUCCESS:
-                return Operation.round_success()
+                return self.round_success()
             else:
-                return Operation.round_retry('点击空白继续失败', wait=1)
+                return self.round_retry('点击空白继续失败', wait=1)
 
     def _filter_shown(self, screen: Optional[MatLike] = None):
         """

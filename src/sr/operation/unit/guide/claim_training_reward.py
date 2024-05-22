@@ -32,17 +32,17 @@ class ClaimTrainingReward(Operation):
         screen = self.screenshot()
 
         if not in_secondary_ui(screen, self.ctx.ocr, '指南', lcs_percent=0.1):
-            return Operation.round_retry('未在指南页面', wait=1)
+            return self.round_retry('未在指南页面', wait=1)
 
         if not in_secondary_ui(screen, self.ctx.ocr, '每日实训', lcs_percent=0.1):
-            return Operation.round_retry('未在每日实训页面', wait=1)
+            return self.round_retry('未在每日实训页面', wait=1)
 
         pos = phone_menu.get_training_reward_claim_btn_pos(screen, self.ctx.im)
         if pos is None:
-            return Operation.round_retry('未找到奖励按钮', wait=0.5)
+            return self.round_retry('未找到奖励按钮', wait=0.5)
         else:
             self.ctx.controller.click(pos.center)
-            return Operation.round_success()
+            return self.round_success()
 
     def _retry_fail_to_success(self, retry_status: str) -> Optional[str]:
         if retry_status == '未找到奖励按钮':
