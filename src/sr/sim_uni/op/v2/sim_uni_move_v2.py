@@ -595,12 +595,8 @@ class MoveToNextLevelV2(MoveToNextLevel):
     def _move_and_interact(self) -> OperationOneRoundResult:
         now = time.time()
 
-        # 在开始移动1秒内 可能还在有其它交互 例如黑塔和沉浸奖励 需要进行OCR判断后再交互
         # 等待最开始的交互词消失了 就可以无脑交互了
-        need_ocr: bool = (
-                len(self.existed_interact_word) > 0
-                or (self.is_moving and now - self.start_move_time <= 1)
-        )
+        need_ocr: bool = len(self.existed_interact_word) > 0
         log.debug('是否需要OCR %s', need_ocr)
         if not need_ocr:
             self.ctx.controller.interact(
@@ -648,7 +644,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
         :return:
         """
         words = get_move_interact_words(self.ctx, screen, single_line=True)
-        self.existed_interact_word = words[0].data if len(words) > 0 else ''
+        self.existed_interact_word = words[0].data if len(words) > 0 and len(words[0].data) > 0 else ''
         return self._is_target_interact()
 
     def _is_target_interact(self) -> bool:

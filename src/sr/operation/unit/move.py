@@ -480,6 +480,11 @@ class MoveDirectly(Operation):
         self.last_rec_time += self.current_pause_time
         self.last_battle_time += self.current_pause_time
 
+    def _after_operation_done(self, result: OperationResult):
+        super()._after_operation_done(result)
+        if not result.success:
+            self.ctx.controller.stop_moving_forward()
+
 
 class MoveToEnemy(Operation):
 
