@@ -62,7 +62,7 @@ class WorldPatrolRouteId:
         return '%s_%s_%s' % (gt(self.planet.cn, 'ui'), gt(self.region.cn, 'ui'), gt(self.tp.cn, 'ui')) + ('' if self.route_num == 0 else '_%02d' % self.route_num)
 
     @property
-    def unique_id(self):
+    def unique_id(self) -> str:
         """
         唯一标识 用于各种配置中保存
         :return:
@@ -467,6 +467,18 @@ def load_all_route_id(whitelist: WorldPatrolWhitelist = None, finished: List[str
                     continue
 
             route_id_arr.append(route_id)
+
+    # 按白名单的顺序排列
+    if whitelist.type == 'white':
+        uid_2_route: dict[str, WorldPatrolRouteId] = {}
+        for route_id in route_id_arr:
+            uid_2_route[route_id.unique_id] = route_id
+        route_id_arr = []
+
+        for uid in whitelist.list:
+            if uid in uid_2_route:
+                route_id_arr.append(uid_2_route[uid])
+
     log.info('最终加载 %d 条线路 过滤已完成 %d 条 使用名单 %s',
              len(route_id_arr), len(finished_unique_id), 'None' if whitelist is None else whitelist.name)
 
