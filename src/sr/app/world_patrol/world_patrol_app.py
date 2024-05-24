@@ -2,6 +2,7 @@ import time
 from typing import List, Optional, ClassVar
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
@@ -66,6 +67,7 @@ class WorldPatrol(Application):
         self.current_route_idx = 0
 
         Application.get_preheat_executor().submit(self.preheat)
+        self.current_fail_times: int = 0  # 当前路线的失败次数
 
     def preheat(self):
         """
@@ -96,12 +98,21 @@ class WorldPatrol(Application):
         self.current_route_start_time = time.time()
         op = WorldPatrolRunRoute(self.ctx, route_id)
         route_result = op.execute().success
+
         if route_result:
             if not self.ignore_record:
                 self.save_record(route_id, time.time() - self.current_route_start_time)
-
-        self.current_route_idx += 1
-        return self.round_success()
+            self.current_fail_times = 0
+            self.current_route_idx += 1
+            return self.round_success()
+        elif self.current_fail_times < 1:  # 失败时 进行一次重试
+            log.info('准备重试当前路线')
+            self.current_fail_times += 1
+            return self.round_success()
+        else:  # 失败次数到达阈值 进行下一条路线
+            self.current_fail_times = 0
+            self.current_route_idx += 1
+            return self.round_success()
 
     def save_record(self, route_id: WorldPatrolRouteId, time_cost: float):
         """
