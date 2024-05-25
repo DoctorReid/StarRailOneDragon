@@ -43,6 +43,7 @@ class MysConfig(ConfigHolder):
 
     def logout(self):
         self._login_expired = True
+        self.phone_number = ''
 
     def wait_qrcode_login(self) -> bool:
         """
@@ -151,8 +152,8 @@ class MysConfig(ConfigHolder):
         starrail_board_status, note = asyncio.run(starrail_note(account))
         if not starrail_board_status:
             if starrail_board_status.login_expired:
-                self._login_expired = True
                 log.info(f'账户 {account.bbs_uid} 登录失效，请重新登录')
+                self.logout()
             elif starrail_board_status.no_starrail_account:
                 log.info(f'账户 {account.bbs_uid} 没有绑定任何星铁账户，请绑定后再重试')
             elif starrail_board_status.need_verify:
@@ -398,6 +399,7 @@ class MysConfig(ConfigHolder):
                 if not sign_status:
                     if sign_status.login_expired:
                         message = f"账户 {account.display_name} 签到时服务器返回登录失效，请尝试重新登录绑定账户"
+                        self.logout()
                     elif sign_status.need_verify:
                         message = (f"账户 {account.display_name} 签到时可能遇到验证码拦截，"
                                    "请手动前往米游社签到")
@@ -431,6 +433,7 @@ class MysConfig(ConfigHolder):
         if not missions_state_status:
             if missions_state_status.login_expired:
                 log.error(f'账户 {account.display_name} 登录失效，请重新登录')
+                self.logout()
             log.error(f'账户 {account.display_name} 获取任务完成情况请求失败，你可以手动前往App查看')
             return False
 
