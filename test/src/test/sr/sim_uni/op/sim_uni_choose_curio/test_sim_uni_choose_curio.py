@@ -19,7 +19,7 @@ class TestChooseSimUniCurio(test.SrTestBase):
 
         op = SimUniChooseCurio(ctx)
 
-        curio_list = op._get_curio_pos_2(screen)
+        curio_list = op._get_curio_pos(screen)
 
         self.assertEqual(3, len(curio_list))
 

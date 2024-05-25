@@ -44,7 +44,7 @@ BLESS_BEFORE_LEVEL_RECT_LIST: List[List[Rect]] = [
 
 
 def get_bless_pos(screen: MatLike, ocr: OcrMatcher,
-                  before_level_start: bool) -> List[MatchResult]:
+                  before_level_start: bool, bless_cnt_type: int = 3) -> List[MatchResult]:
     """
     获取屏幕上的祝福的位置 整体运行大约1秒
     尝试过其他两种方法
@@ -53,21 +53,22 @@ def get_bless_pos(screen: MatLike, ocr: OcrMatcher,
     :param screen: 屏幕截图
     :param ocr: OCR
     :param before_level_start: 楼层开始前 开拓祝福
+    :param bless_cnt_type: 祝福数量类型
     :return: MatchResult.data 中是对应的祝福 Bless
     """
     if before_level_start:
         return get_bless_pos_by_rect_list(screen, ocr, BLESS_BEFORE_LEVEL_RECT_LIST)
     else:  # 这么按顺序写 可以保证最多只识别3次祝福
         bless_3 = get_bless_pos_by_rect_list(screen, ocr, BLESS_3_RECT_LIST)
-        if len(bless_3) > 0:
+        if len(bless_3) > 0 and bless_cnt_type >= 3:
             return bless_3
 
         bless_2 = get_bless_pos_by_rect_list(screen, ocr, BLESS_2_RECT_LIST)
-        if len(bless_2) > 0:
+        if len(bless_2) > 0 and bless_cnt_type >= 2:
             return bless_2
 
         bless_1 = get_bless_pos_by_rect_list(screen, ocr, BLESS_1_RECT_LIST)
-        if len(bless_1) > 0:
+        if len(bless_1) > 0 and bless_cnt_type >= 1:
             return bless_1
 
     return []
@@ -182,14 +183,19 @@ class SimUniChooseBless(StateOperation):
     def __init__(self, ctx: Context,
                  config: Optional[SimUniChallengeConfig] = None,
                  skip_first_screen_check: bool = True,
-                 before_level_start: bool = False):
+                 before_level_start: bool = False,
+                 fast_back_to_world: bool = False):
         """
-        按照优先级选择祝福
-        选择祝福后较快返回 由具体使用情况判断使用后等待多久
+        按照优先级选择祝福 如果选择后仍然在选择祝福画面 则继续选择。可能的情况有
+        - 连续祝福，例如第一场战斗有两次祝福
+        - 脚本并没有选择到祝福，游戏画面一直停流
+
+        选择祝福后 如果还有再次触发的内容，左上角title会较快消失。返回大世界的话，左上角title会较慢消失。
         :param ctx:
         :param config: 挑战配置
         :param skip_first_screen_check: 是否跳过第一次的画面状态检查
         :param before_level_start: 是否在楼层开始的选择
+        :param fast_back_to_world 需要快速判断返回世界
         """
         edges: List[StateOperationEdge] = []
 
@@ -207,11 +213,14 @@ class SimUniChooseBless(StateOperation):
         self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config  # 祝福优先级
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.before_level_start: bool = before_level_start  # 在真正楼层开始前 即选择开拓祝福时
+        self.fast_back_to_world: bool = fast_back_to_world  # 需要快速判断返回世界
 
     def _init_before_execute(self):
         super()._init_before_execute()
         self.first_screen_check = True
         self.choose_bless_time: Optional[float] = None  # 选择祝福的时间
+        self.last_bless_pos_list: List[MatchResult] = []  # 上一次识别到的祝福
+        self.bless_cnt_type: int = 3  # 祝福数量
 
     def _first_wait(self):
         screen = self.screenshot()
@@ -226,10 +235,18 @@ class SimUniChooseBless(StateOperation):
     def _choose(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        bless_pos_list: List[MatchResult] = get_bless_pos(screen, self.ctx.ocr, self.before_level_start)
+        bless_pos_list: List[MatchResult] = get_bless_pos(screen, self.ctx.ocr, self.before_level_start, self.bless_cnt_type)
 
         if len(bless_pos_list) == 0:
             return self.round_retry('未识别到祝福', wait=1)
+
+        if self._same_as_last(bless_pos_list):
+            if self.bless_cnt_type <= 0:
+                return self.round_fail('祝福与之前识别一致')
+            else:
+                return self.round_retry('祝福与之前识别一致', wait=1)
+
+        self.last_bless_pos_list = bless_pos_list
 
         target_bless_pos: Optional[MatchResult] = self._get_bless_to_choose(screen, bless_pos_list)
         if target_bless_pos is None:
@@ -244,7 +261,34 @@ class SimUniChooseBless(StateOperation):
                 confirm_point = SimUniChooseBless.CONFIRM_BTN.center
             self.ctx.controller.click(confirm_point)
             self.choose_bless_time = time.time()
-            return self.round_success()
+            return self.round_success(wait=0.1)
+
+    def _same_as_last(self, bless_pos_list: List[MatchResult]) -> bool:
+        """
+        识别的祝福内容是否跟上一次一致
+        正常情况下基本不可能，只可能是识别错了，一直没有选择到祝福
+        例如：
+        只有2个祝福的时候，使用3个祝福的第1个位置 可能会识别到祝福(名字位置重叠) 这时候点击第1个位置是会失败的
+        所以每次出现一致 bless_cnt_type-=1 即重试的时候 需要排除调3个祝福的位置 尝试2个祝福的位置
+        :param bless_pos_list:
+        :return: 是否一致
+        """
+        same: bool = True
+        if len(self.last_bless_pos_list) != len(bless_pos_list):
+            same = False
+        else:
+            for i in range(len(self.last_bless_pos_list)):
+                b1: SimUniBless = self.last_bless_pos_list[i].data
+                b2: SimUniBless = bless_pos_list[i].data
+                if b1 != b2:
+                    same = False
+
+        if same:
+            self.bless_cnt_type -= 1
+        else:
+            self.bless_cnt_type = 3
+
+        return same
 
     def _can_reset(self, screen: MatLike) -> bool:
         """
@@ -282,18 +326,25 @@ class SimUniChooseBless(StateOperation):
         一段时间后还在选择祝福的话 可能是连续祝福 仍然返回
         :return:
         """
-        now = time.time()
-        if now - self.choose_bless_time >= 2:
-            return self.round_success(status=SimUniChooseBless.STATUS_STILL_BLESS)
-        screen = self.screenshot()
-        if screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
-            # OCR需要时间 这里就不等待了
-            return self.round_wait(status=SimUniChooseBless.STATUS_STILL_BLESS)
+        if self.fast_back_to_world:
+            now = time.time()
+            screen = self.screenshot()
+            if screen_state.in_sim_uni_choose_bless(screen, self.ctx.ocr):
+
+                # OCR需要时间 这里就不等待了
+                if now - self.choose_bless_time >= 2:
+                    return self.round_success(status=SimUniChooseBless.STATUS_STILL_BLESS)
+                else:
+                    return self.round_wait(status=SimUniChooseBless.STATUS_STILL_BLESS)
+            else:
+                return self.round_success()
         else:
-            return self.round_success()
+            return self.round_success(wait=1)
 
 
 class SimUniDropBless(StateOperation):
+
+    STATUS_RETRY: ClassVar[str] = '重试其他祝福位置'
 
     def __init__(self, ctx: Context,
                  config: Optional[SimUniChallengeConfig] = None,
@@ -315,11 +366,11 @@ class SimUniDropBless(StateOperation):
 
         self.config: Optional[SimUniChallengeConfig] = config
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
-        self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.first_screen_check = True
+        self.first_screen_check = True  # 是否第一次检查画面状态
+        self.bless_cnt_type: int = 3  # 祝福数量类型
 
     def _check_screen_state(self):
         screen = self.screenshot()
@@ -339,7 +390,7 @@ class SimUniDropBless(StateOperation):
     def _choose_bless(self) -> OperationOneRoundResult:
         screen = self.screenshot()
 
-        bless_pos_list: List[MatchResult] = get_bless_pos(screen, self.ctx.ocr, False)
+        bless_pos_list: List[MatchResult] = get_bless_pos(screen, self.ctx.ocr, False, self.bless_cnt_type)
         if len(bless_pos_list) == 0:
             return self.round_retry('未识别到祝福', wait=1)
 
@@ -360,7 +411,11 @@ class SimUniDropBless(StateOperation):
         if op_result.success:
             return self.round_success()
         else:
-            return self.round_fail_by_op(op_result)
+            self.bless_cnt_type -= 1
+            if self.bless_cnt_type > 0:
+                return self.round_success(status=SimUniDropBless.STATUS_RETRY)
+            else:
+                return self.round_fail_by_op(op_result)
 
 
 class SimUniUpgradeBless(StateOperation):

@@ -9,6 +9,7 @@ from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.click import ClickDialogConfirm
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
@@ -42,26 +43,31 @@ class SimUniChooseCurio(StateOperation):
                  skip_first_screen_check: bool = True):
         """
         模拟宇宙中 选择奇物
-        :param ctx:
+        这里只处理一次选择奇物 再次触发的内容由外层调用处理
+        目前使用的有
+        - 战斗后/破坏物后 sim_uni_battle
+        - 事件 sim_uni_event
+        :param ctx: 上下文
         :param config: 挑战配置
         :param skip_first_screen_check: 是否跳过第一次画面状态检查
         """
         edges = []
 
         choose_curio = StateOperationNode('选择奇物', self._choose_curio)
-        check_screen_state = StateOperationNode('游戏画面', self._check_after_confirm)
+        check_screen_state = StateOperationNode('确认后画面判断', self._check_after_confirm)
         edges.append(StateOperationEdge(choose_curio, check_screen_state))
+        # 只有2个奇物的时候，使用3个奇物的第1个位置 可能会识别到奇物(名字位置重叠) 这时候点击第1个位置是会失败的
+        # 所以每次重试 curio_cnt_type-=1 即重试的时候 需要排除调3个奇物的位置 尝试2个奇物的位置
+        edges.append(StateOperationEdge(check_screen_state, choose_curio, status=ScreenState.SIM_CURIOS.value))
 
         empty_to_continue = StateOperationNode('点击空白处关闭', self._click_empty_to_continue)
-        edges.append(StateOperationEdge(check_screen_state, empty_to_continue,
-                                        status='点击空白处关闭'))
+        edges.append(StateOperationEdge(check_screen_state, empty_to_continue, status=ScreenState.EMPTY_TO_CLOSE.value))
         edges.append(StateOperationEdge(empty_to_continue, check_screen_state))
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('选择奇物', 'ui')),
                          edges=edges,
                          specified_start_node=choose_curio,
-                         # specified_start_node=check_screen_state,
                          )
 
         self.config: Optional[SimUniChallengeConfig] = config
@@ -71,6 +77,7 @@ class SimUniChooseCurio(StateOperation):
     def _init_before_execute(self):
         super()._init_before_execute()
         self.first_screen_check = True
+        self.curio_cnt_type: int = 3  # 奇物数量
 
     def _choose_curio(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -88,7 +95,7 @@ class SimUniChooseCurio(StateOperation):
         self.ctx.controller.click(target_curio_pos.center)
         time.sleep(0.25)
         self.ctx.controller.click(SimUniChooseCurio.CONFIRM_BTN.center)
-        return self.round_success(wait=2)
+        return self.round_success(wait=0.1)
 
     def _get_curio_pos(self, screen: MatLike) -> List[MatchResult]:
         """
@@ -97,41 +104,18 @@ class SimUniChooseCurio(StateOperation):
         :return: MatchResult.data 中是对应的奇物 SimUniCurio
         """
         curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_3_LIST)
-        if len(curio_list) > 0:
+        if len(curio_list) > 0 and self.curio_cnt_type >= 3:
             return curio_list
 
         curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_2_LIST)
-        if len(curio_list) > 0:
+        if len(curio_list) > 0 and self.curio_cnt_type >= 2:
             return curio_list
 
         curio_list = self._get_curio_pos_by_rect(screen, SimUniChooseCurio.CURIO_RECT_1_LIST)
-        if len(curio_list) > 0:
+        if len(curio_list) > 0 and self.curio_cnt_type >= 1:
             return curio_list
 
         return []
-
-    def _get_curio_pos_2(self, screen: MatLike) -> List[MatchResult]:
-        """
-        获取屏幕上的奇物的位置
-        :param screen: 屏幕截图
-        :return: MatchResult.data 中是对应的奇物 SimUniCurio
-        """
-        curio_list: List[MatchResult] = []
-        part = cv2_utils.crop_image_only(screen, SimUniChooseCurio.CURIO_NAME_RECT)
-        ocr_result_map = self.ctx.ocr.run_ocr(part)
-        for title_ocr, mrl in ocr_result_map.items():
-            curio = match_best_curio_by_ocr(title_ocr)
-
-            if curio is None:  # 有一个识别不到就返回 提速
-                continue
-
-            for mr in mrl:
-                mr.data = curio
-                mr.x += SimUniChooseCurio.CURIO_NAME_RECT.x1
-                mr.y += SimUniChooseCurio.CURIO_NAME_RECT.y1
-                curio_list.append(mr)
-
-        return curio_list
 
     def _get_curio_pos_by_rect(self, screen: MatLike, rect_list: List[Rect]) -> List[MatchResult]:
         """
@@ -194,26 +178,28 @@ class SimUniChooseCurio(StateOperation):
 
     def _check_after_confirm(self) -> OperationOneRoundResult:
         """
-        确认后判断下一步动作
+        确认后判断画面
         :return:
         """
         screen = self.screenshot()
-        state = self._get_screen_state(screen)
+        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
+                                                      in_world=True,
+                                                      curio=True,
+                                                      empty_to_close=True)
+        log.info(f'当前画面状态 {state}')
         if state is None:
             # 未知情况都先点击一下
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return self.round_retry('未能判断当前页面', wait=1)
+        elif state == ScreenState.SIM_CURIOS.value:
+            # 还在选奇物的画面 说明上一步没有选择到奇物
+            self.curio_cnt_type -= 1
+            if self.curio_cnt_type <= 0:
+                return self.round_fail("点击确认失败")
+            else:
+                return self.round_success(ScreenState.SIM_CURIOS.value)
         else:
             return self.round_success(state)
-
-    def _get_screen_state(self, screen: MatLike) -> Optional[str]:
-        state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
-                                                      in_world=True,
-                                                      empty_to_close=True,
-                                                      bless=True,
-                                                      curio=True)
-        log.info('当前画面状态 %s', state)
-        return state
 
     def _click_empty_to_continue(self) -> OperationOneRoundResult:
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
@@ -245,7 +231,7 @@ class SimUniDropCurio(StateOperation):
 
         confirm = StateOperationNode('确认', self._confirm)
         edges.append(StateOperationEdge(choose_curio, confirm))
-        # 只有2个奇物的使用，使用3个奇物的第1个位置 可能会识别到奇物 这时候点击第1个位置是会失败的
+        # 只有2个奇物的时候，使用3个奇物的第1个位置 可能会识别到奇物(名字位置重叠) 这时候点击第1个位置是会失败的
         # 所以每次重试 curio_cnt_type-=1 即重试的时候 需要排除调3个奇物的位置 尝试2个奇物的位置
         edges.append(StateOperationEdge(confirm, choose_curio, status=SimUniDropCurio.STATUS_RETRY))
 

@@ -74,8 +74,7 @@ class ClickDialogConfirm(Operation):
         :param ctx:
         :param wait_after_success: 点击成功后等待的秒数
         """
-        super().__init__(ctx, try_times=5,
-                         op_name=gt('点击确认', 'ui'))
+        super().__init__(ctx, op_name=gt('点击确认', 'ui'))
         self.wait_after_success: Optional[int] = wait_after_success
 
     def _execute_one_round(self) -> OperationOneRoundResult:
