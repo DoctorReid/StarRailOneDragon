@@ -37,6 +37,10 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         check_red = StateOperationNode('识别小地图红点', self._check_red)
         edges.append(StateOperationEdge(before_route, check_red))
 
+        # 没红点时 往前走一段距离
+        move_no_red = StateOperationNode('无红点处理', self._move_forward_if_no_red)
+        edges.append(StateOperationEdge(check_red, move_no_red, status=SimUniRunRouteBase.STATUS_NO_RED))
+
         # 有红点就靠红点移动
         move_by_red = StateOperationNode('向红点移动', self._move_by_red)
         edges.append(StateOperationEdge(check_red, move_by_red, status=SimUniRunRouteBase.STATUS_WITH_RED))
@@ -54,7 +58,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         edges.append(StateOperationEdge(after_fight, detect_reward))
         edges.append(StateOperationEdge(check_red, detect_reward, status=SimUniRunRouteBase.STATUS_HAD_FIGHT))
         # 没红点时 识别沉浸奖励装置
-        edges.append(StateOperationEdge(check_red, detect_reward, status=SimUniRunRouteBase.STATUS_NO_RED))
+        edges.append(StateOperationEdge(move_no_red, detect_reward))
 
         # 朝沉浸奖励装置移动
         move_to_reward = StateOperationNode('朝沉浸奖励移动', self._move_to_reward)
@@ -113,6 +117,19 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
         else:
             return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_RED)
 
+    def _move_forward_if_no_red(self) -> OperationOneRoundResult:
+        """
+        没红点时 又是没有战斗的情况
+        - 重试进来没有精英怪
+        - 精英怪太远了
+        先尝试往前走一段距离 再进行后续识别 否则YOLO识别到入口 但老方法识别不到
+        :return:
+        """
+        if not self.had_fight:
+            self.ctx.controller.move('w', 2)
+
+        return self.round_success()
+
     def _move_by_red(self) -> OperationOneRoundResult:
         """
         往小地图红点移动
@@ -152,7 +169,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
             log.debug('不需要领取沉浸奖励')
             return self.round_success(status=SimUniRunRouteBase.STATUS_NO_NEED_REWARD)
 
-        self._view_down()
+        # self._view_down()  # 入口和下层奖励 都比较大 应该不需要视角往下
         screen = self.screenshot()
 
         frame_result = self.ctx.sim_uni_yolo.detect(screen)
