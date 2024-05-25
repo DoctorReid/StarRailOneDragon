@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.log_utils import log
+from sr.const import STANDARD_CENTER_POS
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge, \
@@ -30,6 +31,7 @@ class SimUniEnterFight(Operation):
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
     STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
     STATUS_STATE_UNKNOWN: ClassVar[str] = '未知状态'
+    STATUS_ATTACK_FAIL: ClassVar[str] = '攻击失败'
 
     def __init__(self, ctx: Context,
                  config: Optional[SimUniChallengeConfig] = None,
@@ -42,32 +44,28 @@ class SimUniEnterFight(Operation):
         """
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('进入战斗', 'ui')))
-        self.last_attack_time: float = 0
-        self.last_alert_time: float = 0  # 上次警报时间
-        self.last_not_in_world_time: float = 0  # 上次不在移动画面的时间
-        self.last_state: str = ''  # 上一次的画面状态
-        self.current_state: str = ''  # 这一次的画面状态
-        self.with_battle: bool = False  # 是否有进入战斗
-        self.attack_times: int = 0  # 攻击次数
+
         self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config  # 挑战配置
         self.disposable: bool = disposable  # 攻击可破坏物
         self.no_attack: bool = no_attack  # 不主动攻击
         self.technique_fight: bool = False if self.config is None else self.config.technique_fight  # 是否使用秘技开怪
         self.technique_only: bool = False if self.config is None else self.config.technique_only  # 是否仅用秘技开怪
         self.first_state: Optional[str] = first_state  # 初始画面状态 传入后会跳过第一次画面状态判断
-        self.first_screen_check: bool = True  # 是否第一次检查画面状态
-        self.last_bless_time: Optional[float] = None  # 上一次选择祝福结束的时间
-        self.had_last_move: bool = False  # 退出这个指令前 是否已经进行过最后的移动了
 
     def _init_before_execute(self):
         super()._init_before_execute()
         now = time.time()
         self.last_attack_time: float = now - SimUniEnterFight.ATTACK_INTERVAL
         self.last_alert_time: float = now  # 上次警报时间
+        self.last_no_alert_time: float = now  # 上次没有警报时间
         self.last_not_in_world_time: float = now  # 上次在战斗的时间
         self.attack_times: int = 0  # 攻击次数
+        self.with_battle: bool = False  # 是否有进入战斗
+
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
-        self.last_bless_time: Optional[float] = None  # 上一次选择祝福结束的时间
+        self.last_state: str = ''  # 上一次的画面状态
+        self.current_state: str = ''  # 这一次的画面状态
+
         self.ctx.pos_info.first_cal_pos_after_fight = True
         self.had_last_move: bool = False  # 退出这个指令前 是否已经进行过最后的移动了
 
@@ -135,7 +133,6 @@ class SimUniEnterFight(Operation):
             self.with_battle = True
 
         if op_result.success:
-            self.last_bless_time = time.time()
             # 成功后 必定不在选择祝福画面 应该尽快返回 继续指令 避免被怪袭击
             return self.round_wait()
         else:
@@ -172,8 +169,15 @@ class SimUniEnterFight(Operation):
             if can_attack:
                 log.debug('可攻击')
                 self.last_alert_time = now_time
+                if now_time - self.last_no_alert_time > 20:
+                    # 已经在原地攻击了很久了 可能是被地形卡住了 不再尝试攻击 退出后尝试继续移动
+                    return self.round_fail(SimUniEnterFight.STATUS_ATTACK_FAIL)
+                if now_time - self.last_no_alert_time > 10:
+                    # 已经在原地攻击了很久了 可能是被地形卡住了 尝试往告警方向移动
+                    self._move_to_attack()
             else:
                 log.debug('不可攻击')
+                self.last_no_alert_time = now_time
                 if now_time - self.last_alert_time > SimUniEnterFight.EXIT_AFTER_NO_ALTER_TIME:
                     # 长时间没有告警 攻击可以结束了
                     return self._exit_with_last_move()
@@ -217,6 +221,26 @@ class SimUniEnterFight(Operation):
             if result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
                 return True
         return False
+
+    def _move_to_attack(self):
+        """
+        往之前识别的可攻击方向移动
+        :return:
+        """
+        frame_result = self.ctx.sim_uni_yolo.last_detect_result
+        direction_cnt: int = 0   # 负数往左 正数往右
+        if frame_result is not None:
+            for result in frame_result.results:
+                if result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
+                    if result.x1 < STANDARD_CENTER_POS.x:
+                        direction_cnt -= 1
+                    else:
+                        direction_cnt += 1
+
+        if direction_cnt < 0:
+            self.ctx.controller.move('a', 1)
+        else:
+            self.ctx.controller.move('d', 1)
 
     def _attack(self, now_time: float) -> OperationOneRoundResult:
         if now_time - self.last_attack_time < SimUniEnterFight.ATTACK_INTERVAL:

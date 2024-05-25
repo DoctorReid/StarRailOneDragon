@@ -110,14 +110,6 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
 
-        if mini_map.is_under_attack_new(mm_info, danger=True):
-            op = SimUniEnterFight(self.ctx)
-            op_result = op.execute()
-            if op_result.success:
-                return self.round_success(status=SimUniRunRouteBase.STATUS_FIGHT)
-            else:
-                return self.round_by_op(op_result)
-
         pos, _ = mini_map.get_closest_enemy_pos(mm_info)
 
         if pos is None:
@@ -137,13 +129,15 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
         self.nothing_times = 0
         self.moved_to_target = True
         op = SimUniMoveToEnemyByMiniMap(self.ctx)
-        return self.round_by_op(op.execute())
+        op_result = op.execute()
+        return self.round_by_op(op_result)
 
     def _enter_fight(self) -> OperationOneRoundResult:
         op = SimUniEnterFight(self.ctx,
                               first_state=screen_state.ScreenState.NORMAL_IN_WORLD.value,
                               )
-        return op.round_by_op(op.execute())
+        op_result = op.execute()
+        return self.round_by_op(op_result)
 
     def _handle_not_in_world(self, screen: MatLike) -> OperationOneRoundResult:
         """
