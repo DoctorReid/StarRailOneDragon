@@ -106,6 +106,9 @@ class ChallengeTreasuresLightwardMission(StateOperation):
         选择角色配队
         :return:
         """
+        self.ctx.tl_info.character_scroll = 0
+        self.ctx.tl_info.character_scroll_direction = 1
+
         op = ChooseTeamInForgottenHall(self.ctx, self.cal_team_func, self._on_team_calculated)
         op_result = op.execute()
         if op_result.success:

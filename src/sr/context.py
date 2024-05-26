@@ -128,6 +128,29 @@ class DetectInfo:
         self.view_down: bool = False  # 当前视角是否已经下移 形成俯视角度
 
 
+class TlInfo:
+
+    def __init__(self):
+        """
+        逐光捡金的信息
+        """
+        self.character_scroll: int = 0  # 角色列表的滚动
+        self.character_scroll_direction: int = 1  # 角色列表的滚动方向 正数向下 负数向上
+
+    @property
+    def next_character_scroll(self) -> int:
+        """
+        获取下一次的滚动方向
+        :return:
+        """
+        d = self.character_scroll_direction
+        self.character_scroll += self.character_scroll_direction
+        if abs(self.character_scroll) == 3:
+            self.character_scroll = 0
+            self.character_scroll_direction = -self.character_scroll_direction
+        return d
+
+
 class ContextEventId(Enum):
 
     CONTEXT_START: str = '运行开始'
@@ -199,6 +222,7 @@ class Context:
         self.team_info: TeamInfo = TeamInfo()
         self.sim_uni_info: SimUniInfo = SimUniInfo()
         self.detect_info: DetectInfo = DetectInfo()
+        self.tl_info: TlInfo = TlInfo()
 
         self.record_coordinate: bool = False  # 需要记录坐标用于训练
 

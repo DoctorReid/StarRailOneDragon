@@ -88,6 +88,18 @@ CHARACTER_COMBAT_TYPE_LIST = [
 ]
 
 
+def get_combat_type_by_id(combat_type_id: str) -> Optional[CharacterCombatType]:
+    """
+    根据ID获取属性
+    :param combat_type_id:
+    :return:
+    """
+    for ct in CHARACTER_COMBAT_TYPE_LIST:
+        if ct.id == combat_type_id:
+            return ct
+    return None
+
+
 class CharacterTechniqueType:
 
     def __init__(self, id: str, remark: str):

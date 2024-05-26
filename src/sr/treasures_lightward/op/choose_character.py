@@ -39,7 +39,8 @@ class TlChooseCharacter(Operation):
                 return self.round_retry('点击头像失败', wait=1)
         else:
             drag_from = TlChooseCharacter.DRAG_FROM
-            drag_to = drag_from + (Point(0, -300) if self.op_round < 3 else Point(0, 300))  # 前3次向下滑 后3次向上滑
+            drag_to = drag_from + (Point(0, -300) if self.ctx.tl_info.next_character_scroll > 0 else Point(0, 300))
+
             self.ctx.controller.drag_to(drag_to, drag_from)
             return self.round_retry('找不到对应头像', wait=2)
 

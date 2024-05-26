@@ -148,6 +148,8 @@ class CharacterInput(components.Card):
             component.update_chosen(False)
 
         for c_id in self.chosen_list:
+            if c_id == 'none':
+                continue
             self.character_image_map[c_id].update_chosen(True)
 
     def _on_avatar_click(self, e):

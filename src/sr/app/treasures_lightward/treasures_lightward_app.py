@@ -234,7 +234,13 @@ class TreasuresLightwardApp(Application):
         :return:
         """
         module_list = self.config.team_module_list
-        filter_module_list = [module for module in module_list if module.fit_schedule_type(self.schedule_type)]
+        filter_module_list = []
+        for module in module_list:
+            if not module.fit_schedule_type(self.schedule_type):
+                continue
+            if not module.fit_combat_type(node_combat_types):
+                continue
+            filter_module_list.append(module)
         result = search_best_mission_team(node_combat_types, filter_module_list)
         if result is not None:
             log.info('得到配队')

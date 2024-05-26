@@ -1,10 +1,13 @@
 import copy
 import time
-from typing import List, Set, Optional
+from enum import Enum
+from typing import List, Set, Optional, Any
 
+from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const.character_const import is_attack_character, SILVERWOLF, is_survival_character, is_support_character, \
-    Character, get_character_by_id, CharacterCombatType, ATTACK_PATH_LIST, SURVIVAL_PATH_LIST, SUPPORT_PATH_LIST
+    Character, get_character_by_id, CharacterCombatType, ATTACK_PATH_LIST, SURVIVAL_PATH_LIST, SUPPORT_PATH_LIST, \
+    get_combat_type_by_id, CHARACTER_COMBAT_TYPE_LIST
 from sr.performance_recorder import record_performance
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 
@@ -30,15 +33,143 @@ NODE_PHASE_SURVIVAL: int = 3  # 生存
 NODE_PHASE_SUPPORT: int = 4  # 辅助
 
 
+class TlModuleCombatTypeEnum(Enum):
+    """
+    组队配置模块适合的战斗属性
+    """
+    AUTO = '自动',
+    QUANTUM = '量子'
+    PHYSICAL = '物理'
+    IMAGINARY = '虚数'
+    FIRE = '火'
+    LIGHTNING = '雷'
+    ICE = '冰'
+    WIND = '风'
+
+
+class TlModuleItemCharacterTypeEnum(Enum):
+    """
+    组队配置角色指定的角色类型
+    """
+    AUTO = '自动'
+    ATTACK = '输出'
+    SURVIVAL = '生存'
+    SUPPORT = '辅助'
+
+
+class TlModuleItemPositionEnum(Enum):
+    """
+    组队配置角色指定的位置
+    """
+    AUTO = '自动'
+    FIRST = '1'
+    SECOND = '2'
+    THIRD = '3'
+    FOURTH = '4'
+
+
+class TreasuresLightwardTeamModuleItem:
+
+    def __init__(self, character_id: str, character_type: str = 'AUTO', pos: str = 'AUTO'):
+        """
+        组队配置的角色
+        :param character_id:
+        :param character_type:
+        :param pos:
+        """
+        self.character: Character = get_character_by_id(character_id)
+        self.character_type: TlModuleItemCharacterTypeEnum = TlModuleItemCharacterTypeEnum[character_type]
+        self.pos: TlModuleItemPositionEnum = TlModuleItemPositionEnum[pos]
+
+    @property
+    def character_id(self) -> str:
+        return self.character.id
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            'character_id': self.character_id,
+            'character_type': self.character_type.name,
+            'pos': self.pos.name
+        }
+
+    @property
+    def is_attack(self) -> bool:
+        """
+        是否输出角色
+        :return:
+        """
+        if self.character_type == TlModuleItemCharacterTypeEnum.AUTO:
+            if is_attack_character(self.character_id):
+                return True
+        elif self.character_type == TlModuleItemCharacterTypeEnum.ATTACK:
+            return True
+        return False
+
+    @property
+    def is_survival(self) -> bool:
+        """
+        是否生存角色
+        :return:
+        """
+        if self.character_type == TlModuleItemCharacterTypeEnum.AUTO:
+            if is_survival_character(self.character_id):
+                return True
+        elif self.character_type == TlModuleItemCharacterTypeEnum.SURVIVAL:
+            return True
+        return False
+
+    @property
+    def is_support(self) -> bool:
+        """
+        是否辅助角色
+        :return:
+        """
+        if self.character_type == TlModuleItemCharacterTypeEnum.AUTO:
+            if is_survival_character(self.character_id):
+                return True
+        elif self.character_type == TlModuleItemCharacterTypeEnum.SUPPORT:
+            return True
+        return False
+
+
 class TreasuresLightwardTeamModule:
 
-    def __init__(self, module_name: str, character_id_list: List[str], enable_fh: bool = True, enable_pf: bool = True):
-
+    def __init__(self, module_name: str = '未命名',
+                 character_id_list: List[str] = None,
+                 character_list: List[Any] = None,
+                 enable_fh: bool = True,
+                 enable_pf: bool = True,
+                 combat_type_list: List[str] = None):
+        """
+        组队配置的模块
+        :param module_name:
+        :param character_id_list:
+        :param enable_fh:
+        :param enable_pf:
+        :param combat_type_list:
+        """
         self.module_name: str = module_name
         """配队名称"""
 
         self.character_id_list: List[str] = character_id_list
         """配队角色列表"""
+
+        self.character_list: List[TreasuresLightwardTeamModuleItem] = []
+        """配队角色列表"""
+        if character_list is not None:
+            self.character_list = [
+                TreasuresLightwardTeamModuleItem(**i)
+                for i in character_list
+            ]
+
+        self.combat_type_list: List[CharacterCombatType] = []
+        """配队可以使用的属性关卡"""
+        if combat_type_list is not None:
+            for combat_type in combat_type_list:
+                self.combat_type_list.append(get_combat_type_by_id(combat_type))
+        else:
+            for combat_type in CHARACTER_COMBAT_TYPE_LIST:
+                self.combat_type_list.append(combat_type)
 
         self.enable_fh: bool = enable_fh
         """忘却之庭中启用"""
@@ -46,11 +177,37 @@ class TreasuresLightwardTeamModule:
         self.enable_pf: bool = enable_pf
         """虚构叙事中启用"""
 
-    def fit_schedule_type(self, schedule_type: TreasuresLightwardTypeEnum):
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            'module_name': self.module_name,
+            'character_list': [i.to_dict() for i in self.character_list],
+            'combat_type_list': [i.id for i in self.combat_type_list],
+            'enable_fh': self.enable_fh,
+            'enable_pf': self.enable_pf
+        }
+
+    def fit_schedule_type(self, schedule_type: TreasuresLightwardTypeEnum) -> bool:
+        """
+        符合当前的挑战类型
+        :param schedule_type:
+        :return:
+        """
         if schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL:
             return self.enable_fh
         elif schedule_type == TreasuresLightwardTypeEnum.PURE_FICTION:
             return self.enable_pf
+        return False
+
+    def fit_combat_type(self, node_combat_types: List[List[CharacterCombatType]]) -> bool:
+        """
+        符合属性
+        :param node_combat_types:
+        :return:
+        """
+        for combat_types in node_combat_types:
+            for ct in combat_types:
+                if ct in self.combat_type_list:
+                    return True
         return False
 
     @property
@@ -59,8 +216,8 @@ class TreasuresLightwardTeamModule:
         是否有输出位
         :return:
         """
-        for character_id in self.character_id_list:
-            if is_attack_character(character_id):
+        for character in self.character_list:
+            if character.is_attack:
                 return True
         return False
 
@@ -70,7 +227,10 @@ class TreasuresLightwardTeamModule:
         是否有银狼
         :return:
         """
-        return SILVERWOLF.id in self.character_id_list
+        for character in self.character_list:
+            if SILVERWOLF.id == character.character_id:
+                return True
+        return False
 
     @property
     def with_survival(self) -> bool:
@@ -78,8 +238,8 @@ class TreasuresLightwardTeamModule:
         是否有生存位
         :return:
         """
-        for character_id in self.character_id_list:
-            if is_survival_character(character_id):
+        for character in self.character_list:
+            if character.is_survival:
                 return True
         return False
 
@@ -89,8 +249,8 @@ class TreasuresLightwardTeamModule:
         是否有辅助位
         :return:
         """
-        for character_id in self.character_id_list:
-            if is_support_character(character_id):
+        for character in self.character_list:
+            if character.is_support:
                 return True
         return False
 
@@ -112,6 +272,19 @@ class TreasuresLightwardTeamModule:
             next_node_phase = NODE_PHASE_SUPPORT
         return next_node_phase
 
+    @property
+    def combat_type_str(self) -> str:
+        """
+        战斗属性文本
+        :return:
+        """
+        if len(self.combat_type_list) == len(CHARACTER_COMBAT_TYPE_LIST):
+            return gt('全部', 'ui')
+        elif len(self.combat_type_list) == 0:
+            return gt('无', 'ui')
+        else:
+            return ','.join([gt(ct.cn, 'ui') for ct in self.combat_type_list])
+
 
 class TreasuresLightwardNodeTeam:
 
@@ -127,71 +300,49 @@ class TreasuresLightwardNodeTeam:
         """搜索状态 模块需要按影响得分顺序添加 输出 -> 银狼 -> 生存 -> 辅助"""
 
     @property
-    def character_list(self) -> List[Character]:
+    def final_character_list(self) -> List[Character]:
         """
+        最后使用的角色列表 包含角色站位
         :return: 角色列表
         """
-        character_list: List[Character] = []
-        for character_id in self.character_id_set:
-            character_list.append(get_character_by_id(character_id))
+        character_list: List[Character] = [None, None, None, None]
+        auto_character_list: List[Character] = []
+
+        # 先按位置选
+        for character in self.merge_team_module.character_list:
+            if character.pos == TlModuleItemPositionEnum.AUTO:
+                continue
+            pos = int(character.pos.value) - 1
+            if character_list[pos] is None:
+                character_list[pos] = character.character
+            else:
+                auto_character_list.append(character.character)
+
+        for i in range(4):
+            if character_list[i] is not None:
+                continue
+            if len(auto_character_list) == 0:
+                continue
+            character_list[i] = auto_character_list.pop()
+
         return character_list
 
-    def existed_characters(self, character_id_list: List[str]) -> bool:
+    @property
+    def merge_team_module(self) -> TreasuresLightwardTeamModule:
+        merge = TreasuresLightwardTeamModule()
+        for module in self.module_list:
+            merge.character_list += module.character_list
+        return merge
+
+    def existed_characters(self, character_list: List[TreasuresLightwardTeamModuleItem]) -> bool:
         """
         判断角色列表是否已经在列表中存在了
-        :param character_id_list:
+        :param character_list:
         :return:
         """
-        for character_id in character_id_list:
-            if character_id in self.character_id_set:
+        for character in character_list:
+            if character.character_id in self.character_id_set:
                 return True
-        return False
-
-    @property
-    def with_attack(self) -> bool:
-        """
-        是否有输出位
-        :return:
-        """
-        for module in self.module_list:
-            for character_id in module.character_id_list:
-                if is_attack_character(character_id):
-                    return True
-        return False
-
-    @property
-    def with_silver(self) -> bool:
-        """
-        是否有银狼
-        :return:
-        """
-        for character_id in self.character_id_set:
-            if character_id == SILVERWOLF.id:
-                return True
-        return False
-
-    @property
-    def with_survival(self) -> bool:
-        """
-        是否有生存位
-        :return:
-        """
-        for module in self.module_list:
-            for character_id in module.character_id_list:
-                if is_survival_character(character_id):
-                    return True
-        return False
-
-    @property
-    def with_support(self) -> bool:
-        """
-        是否有辅助位
-        :return:
-        """
-        for module in self.module_list:
-            for character_id in module.character_id_list:
-                if is_support_character(character_id):
-                    return True
         return False
 
     @property
@@ -209,8 +360,8 @@ class TreasuresLightwardNodeTeam:
         :return:
         """
         self.module_list.append(module)
-        for character_id in module.character_id_list:
-            self.character_id_set.add(character_id)
+        for character in module.character_list:
+            self.character_id_set.add(character.character_id)
 
     def pop_module(self, module: TreasuresLightwardTeamModule) -> bool:
         """
@@ -220,12 +371,24 @@ class TreasuresLightwardNodeTeam:
         """
         try:
             self.module_list.remove(module)
-            for character_id in module.character_id_list:
-                self.character_id_set.remove(character_id)
+            for character in module.character_list:
+                self.character_id_set.remove(character.character_id)
             return True
         except Exception:
             log.error('弹出配队模块失败', exc_info=True)
             return False
+
+    @property
+    def with_silver(self) -> bool:
+        """
+        有银狼
+        :return:
+        """
+        for character in self.merge_team_module.character_list:
+            if character.character_id == SILVERWOLF.id:
+                return True
+
+        return False
 
 
 class TreasuresLightwardNodeTeamScore:
@@ -279,26 +442,24 @@ class TreasuresLightwardNodeTeamScore:
         self.total_score: float = 0
         """总得分"""
 
-        character_list = node_team.character_list
-        cal_combat_type_list = self._cal_need_combat_type(character_list, combat_type_list)
+        cal_combat_type_list = self._cal_need_combat_type(node_team, combat_type_list)
 
-        self._cal_character_cnt(character_list, combat_type_list, cal_combat_type_list)
+        self._cal_character_cnt(node_team, combat_type_list, cal_combat_type_list)
         self._cal_total_score()
 
     def _cal_need_combat_type(self,
-                              character_list: List[Character],
+                              node_team: TreasuresLightwardNodeTeam,
                               need_combat_type_list: List[CharacterCombatType]):
         """
         计算在配队中真正需要的属性列表
-        :param character_list: 当前角色列表
         :param need_combat_type_list: 原来需要的属性列表
         :return: 由配队调整后的属性列表
         """
-        if SILVERWOLF in character_list:  # 有银狼的情况 可以添加弱点
+        if node_team.with_silver:  # 有银狼的情况 可以添加弱点
             team_combat_type_not_in_need: Set[CharacterCombatType] = set()
-            for c in character_list:
-                if c.combat_type not in need_combat_type_list:
-                    team_combat_type_not_in_need.add(c.combat_type)
+            for c in node_team.merge_team_module.character_list:
+                if c.character.combat_type not in need_combat_type_list:
+                    team_combat_type_not_in_need.add(c.character.combat_type)
             self.combat_type_not_need_cnt = len(team_combat_type_not_in_need)
             cal: List[CharacterCombatType] = []
             for ct in need_combat_type_list:
@@ -310,33 +471,33 @@ class TreasuresLightwardNodeTeamScore:
             return need_combat_type_list
 
     def _cal_character_cnt(self,
-                           character_list: List[Character],
+                           node_team: TreasuresLightwardNodeTeam,
                            origin_combat_type_list: List[CharacterCombatType],
                            cal_combat_type_list: List[CharacterCombatType]):
         """
         统计各种角色的数量
-        :param character_list: 角色列表
+        :param node_team: 节点的配队
         :param cal_combat_type_list: 节点需要的属性
         :return:
         """
-        for c in character_list:
-            if is_attack_character(c.id):
+        for item in node_team.merge_team_module.character_list:
+            if item.is_attack:
                 self.attack_cnt += 1
-                if c.combat_type in origin_combat_type_list:
+                if item.character.combat_type in origin_combat_type_list:
                     self.combat_type_attack_cnt += 1
-                elif c.combat_type in cal_combat_type_list:
+                elif item.character.combat_type in cal_combat_type_list:
                     self.combat_type_attack_cnt_under_silver += 1
-            elif is_survival_character(c.id):
+            elif item.is_survival:
                 self.survival_cnt += 1
-                if c.combat_type in origin_combat_type_list:
+                if item.character.combat_type in origin_combat_type_list:
                     self.combat_type_other_cnt += 1
-                elif c.combat_type in cal_combat_type_list:
+                elif item.character.combat_type in cal_combat_type_list:
                     self.combat_type_other_cnt_under_silver += 1
-            elif is_support_character(c.id):
+            elif item.is_support:
                 self.support_cnt += 1
-                if c.combat_type in origin_combat_type_list:
+                if item.character.combat_type in origin_combat_type_list:
                     self.combat_type_other_cnt += 1
-                elif c.combat_type in cal_combat_type_list:
+                elif item.character.combat_type in cal_combat_type_list:
                     self.combat_type_other_cnt_under_silver += 1
 
     def _cal_total_score(self):
@@ -420,14 +581,14 @@ class TreasuresLightwardMissionTeam:
         self.total_score: float = 0
         """总得分"""
 
-    def existed_characters(self, character_id_list: List[str]) -> bool:
+    def existed_characters(self, character_list: List[TreasuresLightwardTeamModuleItem]) -> bool:
         """
         判断角色列表是否已经在列表中存在了
-        :param character_id_list:
+        :param character_list:
         :return:
         """
         for node_team in self.node_team_list:
-            if node_team.existed_characters(character_id_list):
+            if node_team.existed_characters(character_list):
                 return True
         return False
 
@@ -438,9 +599,9 @@ class TreasuresLightwardMissionTeam:
         :param module: 配队模块
         :return: 是否成功添加
         """
-        if len(self.node_team_list[node_num].character_id_set) + len(module.character_id_list) > 4:  # 超过人数限制
+        if len(self.node_team_list[node_num].character_id_set) + len(module.character_list) > 4:  # 超过人数限制
             return False
-        if self.existed_characters(module.character_id_list):
+        if self.existed_characters(module.character_list):
             return False
         else:
             self.node_team_list[node_num].add_module(module)
@@ -471,10 +632,14 @@ class TreasuresLightwardMissionTeam:
         return True
 
     @property
-    def character_list(self) -> List[List[Character]]:
+    def final_character_list(self) -> List[List[Character]]:
+        """
+        最后使用的配队 包含角色站位
+        :return:
+        """
         ret_list = []
         for node_team in self.node_team_list:
-            ret_list.append(node_team.character_list)
+            ret_list.append(node_team.final_character_list)
         return ret_list
 
     @property
@@ -514,10 +679,9 @@ class TreasuresLightwardMissionTeam:
 
             log.debug('配队 %d: %s 得分: %d',
                       i,
-                      [i.cn for i in self.node_team_list[i].character_list],
+                      [i.cn for i in self.node_team_list[i].final_character_list if i is not None],
                       node.total_score
                       )
-
 
 
 @record_performance
