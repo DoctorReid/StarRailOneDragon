@@ -276,9 +276,9 @@ class SimUniMoveToEnemyByDetect(Operation):
             self.ctx.controller.stop_moving_forward()
             return self.round_wait()
 
-        if now - self.last_debug_time > 0.5 and self.ctx.one_dragon_config.is_debug:
-            self.save_screenshot()
-            self.last_debug_time = now
+        # if now - self.last_debug_time > 0.5 and self.ctx.one_dragon_config.is_debug:
+        #     self.save_screenshot()
+        #     self.last_debug_time = now
 
         # 进行目标识别判断后续动作
         return self.detect_screen(screen)
@@ -569,6 +569,9 @@ class MoveToNextLevelV2(MoveToNextLevel):
         self.existed_interact_word: str = ''
         """还没开始移动就已经存在的交互词"""
 
+        self.find_entry: bool = False
+        """是否找到了下层入口"""
+
     def _turn_to_next(self) -> OperationOneRoundResult:
         """
         寻找下层入口 并转向
@@ -578,7 +581,8 @@ class MoveToNextLevelV2(MoveToNextLevel):
 
         words = get_move_interact_words(self.ctx, screen, single_line=True)
         self.existed_interact_word = words[0].data if len(words) > 0 and len(words[0].data) > 0 else ''
-        log.debug('开始朝下层入口移动前已有交互 %s', self.existed_interact_word)
+        if len(self.existed_interact_word) > 0:
+            log.debug('开始朝下层入口移动前已有交互 %s', self.existed_interact_word)
         if self._is_target_interact():  # 符合目标交互 就不需要OCR了
             self.existed_interact_word = ''
 
@@ -592,11 +596,9 @@ class MoveToNextLevelV2(MoveToNextLevel):
 
         if len(entry_angles) > 0:
             avg_delta_angle = np.mean(entry_angles)
+            log.debug('转向 %.2f', avg_delta_angle)
             turn_by_angle_slowly(self.ctx, avg_delta_angle)
-            if abs(avg_delta_angle) <= _MAX_TURN_ANGLE * 2:
-                return self.round_success(wait=0.1)
-            else:
-                return self.round_wait(wait=0.1)
+            return self.round_success(wait=0.1)
         else:
             self.ctx.controller.turn_by_angle(35)
             return self.round_retry(status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=0.5)

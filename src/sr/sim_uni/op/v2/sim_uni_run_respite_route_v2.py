@@ -135,7 +135,8 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
             return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT)
         else:
             if self.ctx.one_dragon_config.is_debug:
-                self.save_screenshot()
+                if self.nothing_times == 1:
+                    self.save_screenshot()
                 cv2_utils.show_image(draw_detections(frame_result), win_name='respite_detect_screen')
             return self.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
 

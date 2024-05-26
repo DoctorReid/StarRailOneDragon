@@ -190,7 +190,8 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBase):
             return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENTRY)
         else:
             if self.ctx.one_dragon_config.is_debug:
-                self.save_screenshot()
+                if self.nothing_times == 1:
+                    self.save_screenshot()
             return self.round_success(SimUniRunRouteBase.STATUS_NOTHING)
 
     def _move_by_detect(self) -> OperationOneRoundResult:

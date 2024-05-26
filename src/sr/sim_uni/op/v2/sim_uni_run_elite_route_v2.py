@@ -184,7 +184,8 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBase):
             return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_REWARD)
         else:
             if self.ctx.one_dragon_config.is_debug:
-                self.save_screenshot()
+                if self.nothing_times == 1:
+                    self.save_screenshot()
                 cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniRunEliteRouteV2')
 
             if self.had_fight and self.nothing_times <= 11:  # 战斗后 一定要找到沉浸奖励

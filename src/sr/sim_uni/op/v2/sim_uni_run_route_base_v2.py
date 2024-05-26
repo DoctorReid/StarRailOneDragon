@@ -58,6 +58,9 @@ class SimUniRunRouteBase(StateOperation):
         self.turn_direction_when_nothing: int = 1  # 没有目标时候的转动方向 正数向右 负数向左
         self.detect_move_timeout_times: int = 0  # 识别移动的超时失败次数
 
+    def _init_before_execute(self):
+        super()._init_before_execute()
+
     def _before_route(self) -> OperationOneRoundResult:
         """
         路线开始前

@@ -240,7 +240,6 @@ class StartFightForElite(StateOperation):
         if screen_state.is_normal_in_world(screen, self.ctx.im) \
                 or screen_state.is_mission_in_world(screen, self.ctx.im):
             self.ctx.controller.initiate_attack()
-            self.save_screenshot()
             return self.round_retry('未进入战斗 尝试攻击', wait=1)
         else:
             return self.round_success()

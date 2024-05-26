@@ -68,7 +68,8 @@ class SimUniRunLevel(StateOperation):
         # 最终还是失败时 部分场景可以尝试重置
         reset = StateOperationNode('重置', self._reset)
         edges.append(StateOperationEdge(route, reset, success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND))
-        edges.append(StateOperationEdge(reset, route))
+        # 之前失败有可能是类型或者路线匹配错了 重进的话完全重新来一遍
+        edges.append(StateOperationEdge(reset, check_level_type))
 
         super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=wait_start, op_callback=op_callback)
 
