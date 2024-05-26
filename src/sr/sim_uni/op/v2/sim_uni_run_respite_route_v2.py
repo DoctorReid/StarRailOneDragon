@@ -11,12 +11,12 @@ from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToInteractByDetect
-from sr.sim_uni.op.v2.sim_uni_run_route_base_v2 import SimUniRunRouteBase
+from sr.sim_uni.op.v2.sim_uni_run_route_base_v2 import SimUniRunRouteBaseV2
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType
 from sryolo.detector import draw_detections
 
 
-class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
+class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.ELITE.value):
         edges: List[StateOperationEdge] = []
@@ -30,14 +30,14 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         check_mm = StateOperationNode('识别小地图黑塔', self._check_mm_icon)
         edges.append(StateOperationEdge(destroy, check_mm))
         move_by_mm = StateOperationNode('按小地图朝黑塔移动', self._move_by_mm)
-        edges.append(StateOperationEdge(check_mm, move_by_mm, status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT))
+        edges.append(StateOperationEdge(check_mm, move_by_mm, status=SimUniRunRouteBaseV2.STATUS_WITH_MM_EVENT))
 
         # 小地图没有事件的话就靠识别
         detect_screen = StateOperationNode('识别画面黑塔', self._detect_screen)
-        edges.append(StateOperationEdge(check_mm, detect_screen, status=SimUniRunRouteBase.STATUS_NO_MM_EVENT))
+        edges.append(StateOperationEdge(check_mm, detect_screen, status=SimUniRunRouteBaseV2.STATUS_NO_MM_EVENT))
         # 识别到就移动
         move_by_detect = StateOperationNode('按画面朝黑塔移动', self._move_by_detect)
-        edges.append(StateOperationEdge(detect_screen, move_by_detect, status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT))
+        edges.append(StateOperationEdge(detect_screen, move_by_detect, status=SimUniRunRouteBaseV2.STATUS_WITH_DETECT_EVENT))
 
         # 走到了就进行交互
         interact = StateOperationNode('交互', self._interact)
@@ -52,17 +52,17 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
         edges.append(StateOperationEdge(event, check_entry))
         # 识别不到事件、交互失败 也识别下层入口
-        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_NO_DETECT_EVENT))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBaseV2.STATUS_NO_DETECT_EVENT))
         edges.append(StateOperationEdge(interact, check_entry, success=False))
         # 之前已经处理过事件了 识别下层人口
-        edges.append(StateOperationEdge(check_mm, check_entry, status=SimUniRunRouteBase.STATUS_HAD_EVENT))
-        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBase.STATUS_HAD_EVENT))
+        edges.append(StateOperationEdge(check_mm, check_entry, status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT))
+        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
-        edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBase.STATUS_WITH_ENTRY))
+        edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY))
         # 找不到下层入口就转向找目标 重新开始
         turn = StateOperationNode('转动找目标', self._turn_when_nothing)
-        edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBase.STATUS_NO_ENTRY))
+        edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBaseV2.STATUS_NO_ENTRY))
         edges.append(StateOperationEdge(turn, check_mm))
 
         super().__init__(ctx, level_type=level_type,
@@ -90,16 +90,19 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return self.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
         screen = self.screenshot()
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
         mrl = self.ctx.im.match_template(mm_info.origin_del_radio, template_id='mm_sp_herta', template_sub_dir='sim_uni')
         if mrl.max is not None:
             self.mm_icon_pos = mrl.max.center
-            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_MM_EVENT)
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_MM_EVENT)
         else:
-            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_MM_EVENT)
+            if not self.event_handled and not self.is_level_type_correct(screen):
+                # 如何没有交互过 又没有小地图图标 可能是之前楼层类型判断错了
+                return self.round_fail(status=SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE)
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_NO_MM_EVENT)
 
     def _move_by_mm(self) -> OperationOneRoundResult:
         """
@@ -119,7 +122,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
         :return:
         """
         if self.event_handled:  # 已经交互过事件了
-            return self.round_success(status=SimUniRunRouteBase.STATUS_HAD_EVENT)
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
         self._view_down()
         screen = self.screenshot()
 
@@ -132,13 +135,13 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBase):
                 break
 
         if with_event:
-            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_DETECT_EVENT)
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_DETECT_EVENT)
         else:
             if self.ctx.one_dragon_config.is_debug:
                 if self.nothing_times == 1:
                     self.save_screenshot()
                 cv2_utils.show_image(draw_detections(frame_result), win_name='respite_detect_screen')
-            return self.round_success(SimUniRunRouteBase.STATUS_NO_DETECT_EVENT)
+            return self.round_success(SimUniRunRouteBaseV2.STATUS_NO_DETECT_EVENT)
 
     def _move_by_detect(self) -> OperationOneRoundResult:
         """

@@ -9,14 +9,17 @@ from sr.operation import Operation, OperationResult, StateOperation, StateOperat
     StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.team import CheckTeamMembersInWorld
+from sr.sim_uni import sim_uni_screen_state
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
-from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
+from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute, \
+    SimUniRunRouteBase
 from sr.sim_uni.op.v2.sim_uni_run_respite_route_v2 import SimUniRunRespiteRouteV2
 from sr.sim_uni.op.v2.sim_uni_run_event_route_v2 import SimUniRunEventRouteV2
 from sr.sim_uni.op.v2.sim_uni_run_elite_route_v2 import SimUniRunEliteRouteV2
 from sr.sim_uni.op.v2.sim_uni_run_combat_route_v2 import SimUniRunCombatRouteV2
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
+from sr.sim_uni.op.v2.sim_uni_run_route_base_v2 import SimUniRunRouteBaseV2
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
 from sr.sim_uni.sim_uni_route import SimUniRoute
@@ -65,9 +68,14 @@ class SimUniRunLevel(StateOperation):
         route_v2 = StateOperationNode('区域v2', self._route_op_v2)
         edges.append(StateOperationEdge(route, route_v2, success=False, status=MoveDirectly.STATUS_NO_POS))
 
+        # 有可能是楼层类型判断错了
+        edges.append(StateOperationEdge(route, check_level_type, success=False, status=SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE))
+        edges.append(StateOperationEdge(route_v2, check_level_type, success=False, status=SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE))
+
         # 最终还是失败时 部分场景可以尝试重置
         reset = StateOperationNode('重置', self._reset)
         edges.append(StateOperationEdge(route, reset, success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND))
+        edges.append(StateOperationEdge(route_v2, reset, success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND))
         # 之前失败有可能是类型或者路线匹配错了 重进的话完全重新来一遍
         edges.append(StateOperationEdge(reset, check_level_type))
 
@@ -106,19 +114,15 @@ class SimUniRunLevel(StateOperation):
         """
         screen = self.screenshot()
 
-        region_name = screen_state.get_region_name(screen, self.ctx.ocr)
-        level_type_list: List[SimUniLevelType] = [enum.value for enum in SimUniLevelTypeEnum]
-        target_list = [gt(level_type.type_name, 'ocr') for level_type in level_type_list]
-        target_idx = str_utils.find_best_match_by_lcs(region_name, target_list)
+        level_type = sim_uni_screen_state.get_level_type(screen, self.ctx.ocr)
 
-        if target_idx is None:
+        if level_type is None:
             self.level_type = None
             return self.round_retry('匹配楼层类型失败', wait=1)
 
         another_type = False  # 是否匹配到另一钟类型
-        target_level_type = level_type_list[target_idx]
-        if self.level_type is None or self.level_type != target_level_type:
-            self.level_type = target_level_type
+        if self.level_type is None or self.level_type != level_type:
+            self.level_type = level_type
             another_type = True
 
         # OCR运行需要时间 下面这些就不等待了

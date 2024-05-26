@@ -10,13 +10,14 @@ from sr.image.sceenshot import mini_map
 from sr.operation import StateOperation, StateOperationNode, StateOperationEdge, OperationResult, \
     OperationOneRoundResult, Operation
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
+from sr.sim_uni import sim_uni_screen_state
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.v2.sim_uni_move_v2 import MoveToNextLevelV2
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 
 
-class SimUniRunRouteBase(StateOperation):
+class SimUniRunRouteBaseV2(StateOperation):
 
     STATUS_FIGHT: ClassVar[str] = '遭遇战斗'
     STATUS_WITH_RED: ClassVar[str] = '小地图有红点'
@@ -37,6 +38,7 @@ class SimUniRunRouteBase(StateOperation):
     STATUS_WITH_DETECT_REWARD: ClassVar[str] = '识别到沉浸奖励'
     STATUS_NO_DETECT_REWARD: ClassVar[str] = '识别不到沉浸奖励'
     STATUS_WITH_DANGER: ClassVar[str] = '被敌人锁定'
+    STATUS_WRONG_LEVEL_TYPE: ClassVar[str] = '楼层识别错误'
 
     def __init__(self, ctx: Context, level_type: SimUniLevelType,
                  try_times: int = 2,
@@ -217,3 +219,12 @@ class SimUniRunRouteBase(StateOperation):
             self.ctx.controller.move('a', 1)
 
         return self.round_success()
+
+    def is_level_type_correct(self, screen: MatLike) -> bool:
+        """
+        当前识别的楼层类型是否正确
+        :param screen: 游戏画面
+        :return:
+        """
+        level_type = sim_uni_screen_state.get_level_type(screen, self.ctx.ocr)
+        return level_type is not None and self.level_type.type_id == level_type.type_id
