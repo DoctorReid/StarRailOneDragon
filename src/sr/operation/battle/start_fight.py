@@ -169,8 +169,10 @@ class StartFightForElite(StateOperation):
                 break
 
         # 任何攻击类只能有一个 选择之后就可以返回了
-        for i in range(4):  # 输出位攻击类
+        for i in range(4):  # 输出角色 攻击类
             if self.character_list[i] is None:
+                continue
+            if not is_attack_character(self.character_list[i].id):
                 continue
             if self.character_list[i].technique_type.id in [TECHNIQUE_ATTACK.id, TECHNIQUE_BUFF_ATTACK.id]:
                 self.technique_order.append(i)
@@ -184,7 +186,7 @@ class StartFightForElite(StateOperation):
                 self.finish_tech_type = TECHNIQUE_ATTACK
                 return self.round_success()
 
-        for i in range(4):  # 普通攻击
+        for i in range(4):  # 普通角色 攻击类
             if self.character_list[i] is None:
                 continue
             if self.character_list[i].technique_type.id in [TECHNIQUE_ATTACK.id, TECHNIQUE_BUFF_ATTACK.id]:
