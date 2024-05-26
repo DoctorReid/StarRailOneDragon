@@ -311,6 +311,7 @@ class TreasuresLightwardNodeTeam:
         # 先按位置选
         for character in self.merge_team_module.character_list:
             if character.pos == TlModuleItemPositionEnum.AUTO:
+                auto_character_list.append(character.character)
                 continue
             pos = int(character.pos.value) - 1
             if character_list[pos] is None:
@@ -784,4 +785,4 @@ def search_best_mission_team(
     if best_mission_team is None:
         return None
     else:
-        return best_mission_team.character_list
+        return best_mission_team.final_character_list

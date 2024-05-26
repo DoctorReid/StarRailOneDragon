@@ -245,7 +245,7 @@ class TreasuresLightwardApp(Application):
         if result is not None:
             log.info('得到配队')
             for team in result:
-                log.info([i.cn for i in team])
+                log.info([i.cn for i in team if i is not None])
         return result
 
     def _update_record_after_stop(self, result: OperationResult):

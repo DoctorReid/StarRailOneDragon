@@ -37,7 +37,7 @@ class TeamListItem(ft.Row):
         ]
 
         self.combat_type_text: ft.TextField = ft.TextField(
-            label=gt('应付属性', 'ui'), width=100
+            label=gt('应付属性', 'ui'), width=80, disabled=True
         )
 
         self.enable_fh = ft.Dropdown(label=gt('忘却之庭', 'ui'),
@@ -472,7 +472,7 @@ class TeamEditCard(components.Card):
         self.update()
 
     def _on_member_changed(self, character_id_list: List[str]):
-        self.character_dropdown_list[self.selected_idx].value = character_id_list[0]
+        self.character_dropdown_list[self.selected_idx].value = character_id_list[0] if len(character_id_list) > 0 else 'none'
         self.character_input.visible = False
 
         self.update()
