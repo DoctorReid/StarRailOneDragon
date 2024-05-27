@@ -102,15 +102,15 @@ class SimUniRunRouteBaseV2(StateOperation):
         :return:
         """
         if self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            return self.round_success(status=SimUniRunRouteBase.STATUS_BOSS_EXIT)
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_BOSS_EXIT)
         self._view_up()
         screen: MatLike = self.screenshot()
         entry_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
         if len(entry_list) == 0:
-            return self.round_success(status=SimUniRunRouteBase.STATUS_NO_ENTRY)
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_NO_ENTRY)
         else:
             self.nothing_times = 0
-            return self.round_success(status=SimUniRunRouteBase.STATUS_WITH_ENTRY)
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY)
 
     def _move_to_next(self):
         """
@@ -138,7 +138,7 @@ class SimUniRunRouteBaseV2(StateOperation):
             return self.round_success()
 
         if self.nothing_times >= 23:
-            return self.round_fail(SimUniRunRouteBase.STATUS_NOTHING)
+            return self.round_fail(SimUniRunRouteBaseV2.STATUS_NOTHING)
 
         # angle = (25 + 10 * self.nothing_times) * (1 if self.nothing_times % 2 == 0 else -1)  # 来回转动视角
         # 由于攻击之后 人物可能朝反方向了 因此要转动多一点
