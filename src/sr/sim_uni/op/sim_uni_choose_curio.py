@@ -10,7 +10,7 @@ from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state import ScreenState
-from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
+from sr.operation import OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.click import ClickDialogConfirm
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import match_best_curio_by_ocr, SimUniCurio, SimUniCurioEnum
@@ -185,6 +185,9 @@ class SimUniChooseCurio(StateOperation):
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       in_world=True,
                                                       curio=True,
+                                                      drop_curio=True,
+                                                      bless=True,
+                                                      drop_bless=True,
                                                       empty_to_close=True)
         log.info(f'当前画面状态 {state}')
         if state is None:
@@ -198,6 +201,8 @@ class SimUniChooseCurio(StateOperation):
                 return self.round_fail("点击确认失败")
             else:
                 return self.round_success(ScreenState.SIM_CURIOS.value)
+        elif state in [ScreenState.SIM_BLESS.value, ScreenState.SIM_DROP_BLESS.value, ScreenState.SIM_DROP_CURIOS.value]:
+            return self.round_success(state)
         else:
             return self.round_success(state)
 
