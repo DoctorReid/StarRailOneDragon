@@ -340,7 +340,6 @@ def get_region_by_prl_id(prd_id: str) -> Optional[Region]:
     return None
 
 
-
 class TransportPoint:
 
     def __init__(self, id: str, cn: str, region: Region, template_id: str, lm_pos: tuple, tp_pos: Optional[tuple] = None):

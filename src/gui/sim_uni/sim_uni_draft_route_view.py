@@ -18,6 +18,7 @@ from gui.sr_basic_view import SrBasicView
 from sr import cal_pos
 from sr.app.sim_uni.sim_uni_route_holder import get_sim_uni_route_list, clear_sim_uni_route_cache, \
     match_best_sim_uni_route
+from sr.const.map_const import PLANET_2_REGION
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 from sr.app.sim_uni.test_sim_uni_route_app import TestSimUniRouteApp
 from sr.const import map_const, operation_const
@@ -41,6 +42,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.algo_dropdown = ft.Dropdown(label='使用算法', width=100, disabled=True,
                                          options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 3)],
                                          value='1', on_change=self._on_algo_changed)
+        self.switch_floor_dropdown = ft.Dropdown(label='切换层数', width=50, on_change=self._on_switch_floor)
+
         self.cancel_edit_existed_btn = components.RectOutlinedButton(
             text='取消编辑', disabled=True,on_click=self._cancel_edit_existed)
         self.num_dropdown = ft.Dropdown(
@@ -61,7 +64,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.save_btn = components.RectOutlinedButton(text='新建', disabled=True, on_click=self._do_save)
         self.delete_btn = components.RectOutlinedButton(text='删除', disabled=True, on_click=self._do_delete)
         self.test_btn = components.RectOutlinedButton(text='测试', disabled=True, on_click=self._do_test)
-        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_type_dropdown,self.existed_route_dropdown, self.algo_dropdown])
+        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_type_dropdown,self.existed_route_dropdown, self.algo_dropdown, self.switch_floor_dropdown])
         route_op_btn_row = ft.Row(controls=[self.cancel_edit_existed_btn, self.save_btn, self.delete_btn, self.test_btn])
 
         self.screenshot_btn = components.RectOutlinedButton(text=gt('F8 截图', 'ui'), on_click=self._do_screenshot, disabled=True)
@@ -70,9 +73,11 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.next_start_btn = components.RectOutlinedButton(text=gt('下一个', 'ui'), on_click=self._on_next_start_clicked, disabled=True)
         self.set_start_btn = components.RectOutlinedButton(text=gt('选定开始点', 'ui'), on_click=self._on_set_start_clicked, disabled=True)
         self.cal_pos_btn = components.RectOutlinedButton(text=gt('计算坐标', 'ui'), on_click=self._on_cal_pos_clicked, disabled=True)
+        self.screen_cal_pos_btn = components.RectOutlinedButton(text=gt('R 截图计算坐标', 'ui'), on_click=self._on_screen_cal_pos_clicked, disabled=True)
+        self.screen_patrol_btn = components.RectOutlinedButton(text=gt('F 截图攻击怪物', 'ui'), on_click=self._on_screen_patrol_clicked, disabled=True)
         screenshot_row = ft.Row(controls=[self.screenshot_btn,
                                           self.match_start_btn, self.previous_start_btn, self.next_start_btn, self.set_start_btn,
-                                          self.cal_pos_btn])
+                                          self.cal_pos_btn, self.screen_cal_pos_btn, self.screen_patrol_btn])
 
         self.back_btn = components.RectOutlinedButton(text='后退', disabled=True, on_click=self._del_last_op)
         self.reset_btn = components.RectOutlinedButton(text='重置', disabled=True, on_click=self._clear_op)
@@ -153,6 +158,10 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         k = event.name
         if k == 'f8' and self.chosen_route is not None:
             self._do_screenshot()
+        if k == 'f' and self.chosen_route is not None:
+            self._on_screen_patrol_clicked()
+        if k == 'r' and self.chosen_route is not None:
+            self._on_screen_cal_pos_clicked()
 
     def _do_screenshot(self, e=None):
         """
@@ -242,7 +251,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             if 0 <= self.chosen_start_pos_idx < len(self.start_pos_list):
                 lm_info = self.sr_ctx.ih.get_large_map(self.start_pos_list[self.chosen_start_pos_idx].data)
         else:
-            lm_info = self.sr_ctx.ih.get_large_map(self.chosen_route.region)
+            last_region, _ = self.chosen_route.last_pos
+            lm_info = self.sr_ctx.ih.get_large_map(last_region)
 
         if lm_info is None:
             self.large_map_display.visible = False
@@ -303,22 +313,21 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         screenshot_mm = self.screenshot_mm_display.visible
 
         self.screenshot_btn.disabled = not route_chosen
-        self.screenshot_btn.update()
 
         self.previous_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx <= 0)
-        self.previous_start_btn.update()
 
         self.next_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx >= len(self.start_pos_list) - 1)
-        self.next_start_btn.update()
 
         self.match_start_btn.disabled = not screenshot_mm or (self.mini_map_image is None)
-        self.match_start_btn.update()
 
         self.set_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or not (0 <= self.chosen_start_pos_idx < len(self.start_pos_list))
-        self.set_start_btn.update()
 
         self.cal_pos_btn.disabled = not route_chosen or not start_chosen or not screenshot_mm
-        self.cal_pos_btn.update()
+
+        self.screen_cal_pos_btn.disabled = not route_chosen or not start_chosen
+        self.screen_patrol_btn.disabled = not route_chosen or not start_chosen
+
+        self.update()
 
     def _on_previous_start_clicked(self, e):
         """
@@ -578,7 +587,23 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self._update_route_text_display()
         self._update_large_map_display()
 
-    def _on_cal_pos_clicked(self, e=None):
+    def _cal_pos_by_screenshot(self):
+        """
+        根据截图 计算坐标
+        :return:
+        """
+        self.sr_ctx.init_image_matcher()
+        last_region, last_pos = self.chosen_route.last_pos
+
+        mm_info = mini_map.analyse_mini_map(self.mini_map_image)
+        lm_info = self.sr_ctx.ih.get_large_map(last_region)
+
+        possible_pos = (last_pos.x, last_pos.y, 20)
+        lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, self.mini_map_image.shape[:2], possible_pos)
+        return cal_pos.sim_uni_cal_pos_by_gray(self.sr_ctx.im, lm_info, mm_info, lm_rect=lm_rect,
+                                               scale_list=[1], match_threshold=0.3)
+
+    def _on_cal_pos_clicked(self, e=None) -> bool:
         """
         根据当前截图计算坐标 需要已经设定好了开始点
         即已经知道在哪个区域地图了
@@ -587,23 +612,53 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         """
         if self.mini_map_image is None or self.chosen_route is None or self.chosen_route.region is None:
             log.info('需要先选定开始点和截图')
-            return
-        self.sr_ctx.init_image_matcher()
-        mm_info = mini_map.analyse_mini_map(self.mini_map_image)
+            return False
 
-        lm_info = self.sr_ctx.ih.get_large_map(self.chosen_route.region)
-        last_pos = self.chosen_route.last_pos
-        possible_pos = (last_pos.x, last_pos.y, 20)
-        lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, self.mini_map_image.shape[:2], possible_pos)
-        pos: MatchResult = cal_pos.sim_uni_cal_pos_by_gray(self.sr_ctx.im, lm_info, mm_info, lm_rect=lm_rect,
-                                                           scale_list=[1], match_threshold=0.3)
-
+        pos: MatchResult = self._cal_pos_by_screenshot()
         if pos is None:
             log.info('计算坐标失败')
-            return
+            return False
+        else:
+            self.chosen_route.add_move(pos.center)
+            self._on_op_list_changed()
 
-        self.chosen_route.op_list.append(SimUniRouteOperation(op=operation_const.OP_MOVE, data=[pos.center.x, pos.center.y]))
-        self._on_op_list_changed()
+    def _on_screen_cal_pos_clicked(self, e=None):
+        """
+        截图 并计算坐标增加一个移动指令
+        :param e:
+        :return:
+        """
+        if self.mini_map_image is None or self.chosen_route is None or self.chosen_route.region is None:
+            log.info('需要先选定路线和开始点')
+            return
+        self._do_screenshot()
+
+        pos: MatchResult = self._cal_pos_by_screenshot()
+        if pos is None:
+            log.info('计算坐标失败')
+            return False
+        else:
+            self.chosen_route.add_move(pos.center)
+            self._on_op_list_changed()
+
+    def _on_screen_patrol_clicked(self, e=None):
+        """
+        截图 并计算坐标增加一个移动指令和攻击指令
+        :param e:
+        :return:
+        """
+        if self.mini_map_image is None or self.chosen_route is None or self.chosen_route.region is None:
+            log.info('需要先选定路线和开始点')
+            return
+        self._do_screenshot()
+
+        pos: MatchResult = self._cal_pos_by_screenshot()
+        if pos is None:
+            log.info('计算坐标失败')
+            return False
+        else:
+            self.chosen_route.add_move(pos.center, patrol=True)
+            self._on_op_list_changed()
 
     def _update_route_btn_row(self):
         """
@@ -639,6 +694,13 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.delete_btn.disabled = not route_chosen
 
         self.test_btn.disabled = not route_chosen
+
+        self.switch_floor_dropdown.disabled = not route_chosen or not start_chosen
+        if start_chosen:
+            r_arr = PLANET_2_REGION[self.chosen_route.region.planet.np_id]
+            self.switch_floor_dropdown.options = [
+                ft.dropdown.Option(text=str(r.floor), key=str(r.floor)) for r in r_arr if r.cn == self.chosen_route.region.cn
+            ]
 
         self.update()
 
@@ -689,6 +751,18 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             log.error('未选择路线')
             return
         self.chosen_route.algo = int(self.algo_dropdown.value)
+        self._update_route_text_display()
+
+    def _on_switch_floor(self, e=None):
+        """
+        点击了切换楼层
+        :param e:
+        :return:
+        """
+        if self.chosen_route is None:
+            log.error('未选择路线')
+            return
+        self.chosen_route.switch_floor(int(self.switch_floor_dropdown.value))
         self._update_route_text_display()
 
 

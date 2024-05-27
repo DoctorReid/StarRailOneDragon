@@ -8,6 +8,7 @@ from basic.img import cv2_utils
 from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
 from sr.const import operation_const
+from sr.const.map_const import region_with_another_floor, Region
 from sr.context import Context
 from sr.image.sceenshot import mini_map, large_map
 from sr.operation import Operation, \
@@ -67,7 +68,11 @@ class SimUniRunRouteOp(StateOperation):
         """
         super()._init_before_execute()
         self.op_idx = -1
+        """当前执行的指令下标"""
         self.current_pos: Point = self.route.start_pos
+        """当前的坐标"""
+        self.current_region: Region = self.route.region
+        """当前的区域"""
 
     def _next_op(self) -> OperationOneRoundResult:
         """
@@ -134,8 +139,13 @@ class SimUniRunRouteOp(StateOperation):
         :param op_result:
         :return:
         """
-        if op_result.success:
-            self.current_pos = op_result.data
+        if not op_result.success:
+            return
+        self.current_pos = op_result.data
+
+        route_item = self.route.op_list[self.op_idx]
+        if len(route_item['data']) > 2:
+            self.current_region = region_with_another_floor(self.current_region, route_item['data'][2])
 
     def _finished(self) -> OperationOneRoundResult:
         """

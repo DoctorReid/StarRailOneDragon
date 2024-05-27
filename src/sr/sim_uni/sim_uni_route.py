@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import TypedDict, Union, List, Optional
+from typing import TypedDict, Union, List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -10,7 +10,7 @@ from cv2.typing import MatLike
 from basic import Point, os_utils
 from basic.img import cv2_utils
 from sr.const import operation_const
-from sr.const.map_const import Region, get_planet_by_cn, get_region_by_cn
+from sr.const.map_const import Region, get_planet_by_cn, get_region_by_cn, region_with_another_floor
 
 
 class SimUniRouteOperation(TypedDict):
@@ -227,18 +227,21 @@ class SimUniRoute:
         return True
 
     @property
-    def last_pos(self) -> Point:
+    def last_pos(self) -> Tuple[Region, Point]:
         """
         获取最后的位置 应该是最后一个 op=move 的位置
         :return:
         """
+        region = self.region
         pos = self.start_pos
         if self.op_list is None or len(self.op_list) == 0:
-            return pos
+            return region, pos
         for op in self.op_list:
-            if op['op'] == operation_const.OP_MOVE:
+            if op['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE]:
                 pos = Point(op['data'][0], op['data'][1])
-        return pos
+                if len(op['data']) > 2 and op['data'][2] != region.floor:
+                    region = region_with_another_floor(region, op['data'][2])
+        return region, pos
 
     @property
     def next_pos(self) -> Optional[Point]:
@@ -266,3 +269,32 @@ class SimUniRoute:
             return None
         else:
             return self.op_list[-1]
+
+    def add_move(self, pos: Point, patrol: bool = False):
+        """
+        增加一个移动指令
+        :param pos:
+        :param patrol: 是否追加一个攻击指令
+        :return:
+        """
+        self.op_list.append(SimUniRouteOperation(op=operation_const.OP_MOVE, data=[pos.x, pos.y]))
+        if patrol:
+            self.op_list.append(SimUniRouteOperation(op=operation_const.OP_PATROL))
+
+    def switch_floor(self, floor: int):
+        """
+        只有最后一个指令是移动时生效
+        将该指令多加一个楼层
+        :param floor:
+        :return:
+        """
+        if self.op_list is None or len(self.op_list) == 0:
+            return
+        idx = len(self.op_list) - 1
+        if self.op_list[idx]['op'] not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE]:
+            return
+        self.op_list[idx]['data'] = [
+            self.op_list[idx]['data'][0],
+            self.op_list[idx]['data'][1],
+            floor
+        ]
