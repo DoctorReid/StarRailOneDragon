@@ -16,7 +16,7 @@ from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state, fill_uid_black
 from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode
-from sr.operation.unit.enter_auto_fight import WorldPatrolEnterFight
+from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.operation.unit.record_coordinate import RecordCoordinate
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 

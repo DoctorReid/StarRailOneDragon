@@ -6,7 +6,7 @@ from sr.context import Context
 from sr.image.sceenshot import LargeMapInfo
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.enter_auto_fight import WorldPatrolEnterFight
+from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.operation.unit.move import MoveDirectly
 
 

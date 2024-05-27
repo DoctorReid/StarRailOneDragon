@@ -13,6 +13,7 @@ from sr.operation import Operation, OperationOneRoundResult, StateOperation, Sta
 from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.team import SwitchMember
 from sr.operation.unit.technique import UseTechnique, UseTechniqueResult, FastRecover
+from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_sim_uni import ScreenSimUni
@@ -26,7 +27,6 @@ class SimUniEnterFight(Operation):
     ATTACK_INTERVAL: ClassVar[float] = 0.2  # 发起攻击的间隔
     EXIT_AFTER_NO_ALTER_TIME: ClassVar[int] = 2  # 多久没警报退出
     EXIT_AFTER_NO_BATTLE_TIME: ClassVar[int] = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
-    ATTACK_DIRECTION_ARR: ClassVar[List] = ['w', 's', 'a', 'd']
 
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
     STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
@@ -60,6 +60,7 @@ class SimUniEnterFight(Operation):
         self.last_no_alert_time: float = now  # 上次没有警报时间
         self.last_not_in_world_time: float = now  # 上次在战斗的时间
         self.attack_times: int = 0  # 攻击次数
+        self.last_attack_direction: Optional[str] = None  # 上一次攻击方向
         self.with_battle: bool = False  # 是否有进入战斗
 
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
@@ -162,12 +163,11 @@ class SimUniEnterFight(Operation):
 
         if self.disposable:
             result = self._attack(now_time)
-            self.attack_times += 1
             return result
         else:
-            can_attack = self._can_attack(screen)
-            if can_attack:
-                log.debug('可攻击')
+            with_alert, attack_direction = WorldPatrolEnterFight.get_attack_direction(self.ctx, screen, self.last_attack_direction)
+            if with_alert:
+                log.debug('有告警')
                 self.last_alert_time = now_time
                 if now_time - self.last_no_alert_time > 20:
                     # 已经在原地攻击了很久了 可能是被地形卡住了 不再尝试攻击 退出后尝试继续移动
@@ -176,7 +176,7 @@ class SimUniEnterFight(Operation):
                     # 已经在原地攻击了很久了 可能是被地形卡住了 尝试往告警方向移动
                     self._move_to_attack()
             else:
-                log.debug('不可攻击')
+                log.debug('无告警')
                 self.last_no_alert_time = now_time
                 if now_time - self.last_alert_time > SimUniEnterFight.EXIT_AFTER_NO_ALTER_TIME:
                     # 长时间没有告警 攻击可以结束了
@@ -186,10 +186,8 @@ class SimUniEnterFight(Operation):
                 # 长时间没有离开大世界画面 可能是小地图背景色污染
                 return self._exit_with_last_move()
 
-            self.ctx.controller.move(direction=SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
-
-            # 每次攻击后 换一个方向再尝试
-            self.attack_times += 1
+            self.ctx.controller.move(direction=attack_direction)
+            self.last_attack_direction = attack_direction
 
             current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
             if (self.technique_fight and not self.ctx.technique_used
@@ -211,6 +209,7 @@ class SimUniEnterFight(Operation):
 
             if self.technique_fight and self.technique_only and current_use_tech:
                 # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击
+                self.attack_times += 1
                 return self.round_wait(wait_round_time=0.05)
             else:
                 return self._attack(now_time)
@@ -249,6 +248,7 @@ class SimUniEnterFight(Operation):
             return self.round_success()
         self.last_attack_time = now_time
         self.ctx.controller.initiate_attack()
+        self.attack_times += 1
         self.ctx.controller.stop_moving_forward()  # 攻击之后再停止移动 避免停止移动的后摇
         return self.round_wait(wait_round_time=0.5)
 
@@ -320,9 +320,10 @@ class SimUniEnterFight(Operation):
             # 已经进行过最后的移动了
             return self.round_success(None if self.with_battle else SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:
+            direction = self.last_attack_direction
             for i in range(2):  # 多按几次 防止被后摇吞了
-                self.ctx.controller.move(direction=SimUniEnterFight.ATTACK_DIRECTION_ARR[self.attack_times % 4])
-                self.attack_times += 1
+                direction = 's' if direction is None else WorldPatrolEnterFight.OPPOSITE_DIRECTION[direction]
+                self.ctx.controller.move(direction=direction)
                 time.sleep(0.25)
             self.had_last_move = True
             return self.round_wait()

@@ -11,7 +11,7 @@ from sr.context import Context
 from sr.operation import Operation, OperationResult, OperationFail, StateOperation, \
     StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.enter_auto_fight import WorldPatrolEnterFight
+from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.record_coordinate import RecordCoordinate
