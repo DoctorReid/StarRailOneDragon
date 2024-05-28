@@ -35,8 +35,8 @@ This software is open source, free of charge and for learning and exchange purpo
 
 如果喜欢本项目，可以为作者的边牧赞助一点狗粮~
 
-![支付宝](./wiki/sponsor.png)
+![赞助](./wiki/sponsor.png)
 
 （趁机宣传我的边牧~）
 
-![边牧](./wiki/my_dog.jpg)
+![边牧](./wiki/my_dog.png)
