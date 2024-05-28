@@ -11,6 +11,7 @@ from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
+from sr.const import game_config_const
 from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
@@ -32,148 +33,61 @@ class MoveDirectlyInSimUni(MoveDirectly):
 
     模拟宇宙专用
     - 不需要考虑特殊点
-    - 不需要考虑多层地图
     - 战斗后需要选择祝福
     """
     def __init__(self, ctx: Context, lm_info: LargeMapInfo,
                  start: Point, target: Point,
+                 next_lm_info: Optional[LargeMapInfo] = None,
                  config: Optional[SimUniChallengeConfig] = None,
                  stop_afterwards: bool = True,
                  no_run: bool = False,
                  no_battle: bool = False,
-                 op_callback: Optional[Callable[[OperationResult], None]] = None,
+                 op_callback: Optional[Callable[[OperationResult], None]] = None
                  ):
         MoveDirectly.__init__(
             self,
             ctx, lm_info,
-            start, target, stop_afterwards=stop_afterwards,
+            start, target,
+            next_lm_info=next_lm_info, stop_afterwards=stop_afterwards,
             no_run=no_run, no_battle=no_battle,
             op_callback=op_callback)
         self.op_name = '%s %s' % (gt('模拟宇宙', 'ui'), gt('移动 %s -> %s') % (start, target))
         self.config: SimUniChallengeConfig = config
 
-    def cal_pos(self, mm: MatLike, now_time: float) -> Tuple[Optional[Point], MiniMapInfo]:
+    def get_fight_op(self) -> Operation:
         """
-        根据上一次的坐标和行进距离 计算当前位置坐标
-        :param mm: 小地图截图
-        :param now_time: 当前时间
+        移动过程中被袭击时候处理的指令
         :return:
         """
-        # 根据上一次的坐标和行进距离 计算当前位置
-        if self.last_rec_time > 0:
-            if self.stop_move_time is not None:
-                move_time = self.stop_move_time - self.last_rec_time  # 停止移动后的时间不应该纳入计算
-            else:
-                move_time = now_time - self.last_rec_time
-            if move_time < 1:
-                move_time = 1
-        else:
-            move_time = 1
+        return SimUniEnterFight(self.ctx, config=self.config)
 
-        if self.ctx.pos_info.first_cal_pos_after_fight:
-            move_time += 1  # 扩大范围 兼容攻击时产生的位移
-
-        log.debug('上次记录时间 %.2f 停止移动时间 %.2f 当前时间 %.2f',
-                  self.last_rec_time,
-                  0 if self.stop_move_time is None else self.stop_move_time,
-                  now_time)
-        move_distance = self.ctx.controller.cal_move_distance_by_time(move_time)
-        last_pos = self.pos[len(self.pos) - 1] if len(self.pos) > 0 else self.start_pos
-        possible_pos = (last_pos.x, last_pos.y, move_distance)
-        log.debug('准备计算人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos,
-                  move_time, self.ctx.controller.is_moving)
-        lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
-
-        mm_info = mini_map.analyse_mini_map(mm)
-
-        if len(self.pos) == 0:
-            return self.start_pos, mm_info
-
-        verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
-                               line_p1=self.start_pos, line_p2=self.target,
-                               max_line_distance=40 if self.ctx.pos_info.first_cal_pos_after_fight else 20)
+    def do_cal_pos(self, mm_info: MiniMapInfo,
+                   lm_rect: Rect, verify: VerifyPosInfo) -> Optional[MatchResult]:
+        """
+        真正的计算坐标
+        :param mm_info: 当前的小地图信息
+        :param lm_rect: 使用的大地图范围
+        :param verify: 用于验证坐标的信息
+        :return:
+        """
         try:
+            real_move_time = self.ctx.controller.get_move_time()
             next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, self.lm_info, mm_info,
                                                lm_rect=lm_rect,
                                                running=self.ctx.controller.is_moving,
-                                               real_move_time=self.ctx.controller.get_move_time(),
+                                               real_move_time=real_move_time,
                                                verify=verify)
+            if next_pos is None and self.next_lm_info is not None:
+                next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, self.next_lm_info, mm_info,
+                                                   lm_rect=lm_rect,
+                                                   running=self.ctx.controller.is_moving,
+                                                   real_move_time=real_move_time,
+                                                   verify=verify)
         except Exception:
             next_pos = None
             log.error('识别坐标失败', exc_info=True)
 
-        if next_pos is None:
-            log.error('无法判断当前人物坐标')
-            if self.ctx.one_dragon_config.is_debug:
-                save_debug_image(mm, file_name='%s_%d_%d_%d_%s' %
-                                               (self.lm_info.region.prl_id,
-                                                possible_pos[0],
-                                                possible_pos[1],
-                                                int(possible_pos[2]),
-                                                self.ctx.controller.is_moving)
-                                 )
-
-        return next_pos, mm_info
-
-    def be_attacked(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
-        """
-        判断当前是否在不在宇宙移动的画面
-        即被怪物攻击了 等待至战斗完成
-        :param screen: 屏幕截图
-        :return:
-        """
-        if self.no_battle:
-            return None
-        if not screen_state.is_normal_in_world(screen, self.ctx.im):
-            fight_start_time = time.time()
-            self.last_auto_fight_fail = False
-            self.ctx.controller.stop_moving_forward()
-            if self.stop_move_time is None:
-                self.stop_move_time = time.time()
-            fight = SimUniEnterFight(self.ctx, config=self.config)
-            fight_result = fight.execute()
-            fight_end_time = time.time()
-            if not fight_result.success:
-                return self.round_fail(status=fight_result.status, data=fight_result.data)
-            self.last_battle_time = fight_end_time
-            self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-            self.ctx.pos_info.first_cal_pos_after_fight = True
-            # self.move_after_battle()
-            return self.round_wait()
-        return None
-
-    def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
-        """
-        从小地图检测敌人 如果有的话 进入索敌
-        :param mm: 小地图
-        :return: 是否有敌人
-        """
-        if self.no_battle:
-            return None
-        if self.last_auto_fight_fail:  # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
-            return None
-        if not mini_map.is_under_attack(mm):
-            return None
-
-        # 停下来的任务交给了 SimUniEnterFight 这样可以取消停止移动造成的后摇
-        # self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
-        if self.stop_move_time is None:
-            self.stop_move_time = time.time()
-
-        fight_start_time = time.time()
-        fight = SimUniEnterFight(self.ctx, self.config)
-        op_result = fight.execute()
-        if not op_result.success:
-            return self.round_fail(status=op_result.status, data=op_result.data)
-        fight_end_time = time.time()
-
-        self.last_auto_fight_fail = (op_result.status == SimUniEnterFight.STATUS_ENEMY_NOT_FOUND)
-        self.last_battle_time = fight_end_time
-        self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-        self.ctx.pos_info.first_cal_pos_after_fight = True
-        # self.move_after_battle()
-
-        return self.round_wait()
+        return next_pos
 
 
 class MoveWithoutPosInSimUni(StateOperation):

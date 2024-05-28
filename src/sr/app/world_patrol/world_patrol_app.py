@@ -11,7 +11,7 @@ from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
 from sr.context import Context
 from sr.image.sceenshot import mini_map
-from sr.operation import Operation, OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
+from sr.operation import OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.common.cancel_mission_trace import CancelMissionTrace
 from sr.operation.unit.team import SwitchMember, ChooseTeamInWorld
@@ -76,6 +76,7 @@ class WorldPatrol(Application):
         - 角度匹配用的矩阵
         :return:
         """
+        _ = self.ctx.sim_uni_yolo  # 加载yolo
         self.ctx.ih.preheat_for_world_patrol()
         mini_map.preheat()
 

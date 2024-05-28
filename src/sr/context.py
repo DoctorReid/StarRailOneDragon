@@ -65,6 +65,7 @@ class PosInfo:
         """是否已经取消了任务追踪"""
 
         self.first_cal_pos_after_fight: bool = False
+        """战斗后第一次计算坐标 由于部分攻击会产生位移 这次的坐标识别允许更大范围"""
 
 
 class TeamInfo:

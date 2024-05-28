@@ -5,8 +5,9 @@ from typing import List, Optional, Tuple, Callable, ClassVar
 import cv2
 from cv2.typing import MatLike
 
-from basic import Point, cal_utils, debug_utils, os_utils
+from basic import Point, cal_utils, debug_utils, os_utils, Rect
 from basic.i18_utils import gt
+from basic.img import MatchResult
 from basic.log_utils import log
 from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
@@ -172,7 +173,7 @@ class MoveDirectly(Operation):
         self.stop_move_time: Optional[float] = None  # 停止移动的时间
 
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else self.ctx.game_config.run_mode
-        self.no_battle: bool = no_battle  # 本次移动是否没有战斗
+        self.no_battle: bool = no_battle  # 本次移动是否保证没有战斗
         self.technique_fight: bool = technique_fight  # 是否使用秘技进入战斗
         self.technique_only: bool = technique_only  # 是否只使用秘技进入战斗
 
@@ -193,20 +194,53 @@ class MoveDirectly(Operation):
             return self.round_fail('移动超时')
 
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
-        if stuck is not None:
+        if stuck is not None:  # 只有脱困失败的情况会返回 round_fail
             return stuck
-
-        # 如果使用小箭头计算方向 则需要前进一步 保证小箭头方向就是人物朝向
-        # if not self.ctx.controller.is_moving:
-        #     self.ctx.controller.move('w')
-        #     time.sleep(0.5)  # 等待人物转过来再截图
 
         screen = self.screenshot()
 
-        be_attacked = self.be_attacked(screen)  # 查看是否被攻击
-        if be_attacked is not None:
-            return be_attacked
+        if screen_state.is_normal_in_world(screen, self.ctx.im):
+            return self.handle_in_world(screen, now_time)
+        else:
+            return self.handle_not_in_world(screen, now_time)
 
+    def handle_not_in_world(self, screen: MatLike, now_time: float) -> OperationOneRoundResult:
+        """
+        不在大世界中 进行处理
+        目前就只会进入了战斗
+        :return:
+        """
+        self.last_auto_fight_fail = False
+        self.ctx.controller.stop_moving_forward()
+        if self.stop_move_time is None:
+            self.stop_move_time = now_time + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
+        log.info('移动中被袭击')
+        fight = self.get_fight_op()
+        fight_start_time = now_time
+        fight_result = fight.execute()
+        fight_end_time = time.time()
+        if not fight_result.success:
+            return self.round_fail(status=fight_result.status, data=fight_result.data)
+        self.last_battle_time = fight_end_time
+        self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
+        self.ctx.pos_info.first_cal_pos_after_fight = True
+        return self.round_wait()
+
+    def get_fight_op(self) -> Operation:
+        """
+        移动过程中被袭击时候处理的指令
+        :return:
+        """
+        return WorldPatrolEnterFight(self.ctx,
+                                     technique_fight=self.technique_fight,
+                                     technique_only=self.technique_only,
+                                     first_state=screen_state.ScreenState.BATTLE.value)
+
+    def handle_in_world(self, screen: MatLike, now_time: float) -> OperationOneRoundResult:
+        """
+        在大世界中 进行处理
+        :return:
+        """
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
 
         next_pos, mm_info = self.cal_pos(mm, now_time)  # 计算当前坐标
@@ -220,7 +254,7 @@ class MoveDirectly(Operation):
 
         # 被敌人锁定的时候 小地图会被染红 坐标匹配能力大减
         # 因此 就算识别不到坐标 也要判断是否被怪锁定 以免一直识别坐标失败站在原地被袭
-        check_enemy = self.check_enemy_and_attack(mm_info.origin_del_radio)
+        check_enemy = self.check_enemy_and_attack(screen, mm_info.origin_del_radio)
         if check_enemy is not None:
             return check_enemy
 
@@ -257,61 +291,27 @@ class MoveDirectly(Operation):
 
         return None
 
-    def be_attacked(self, screen: MatLike) -> Optional[OperationOneRoundResult]:
-        """
-        判断当前是否在不在宇宙移动的画面
-        即被怪物攻击了 等待至战斗完成
-        :param screen: 屏幕截图
-        :return:
-        """
-        if self.no_battle:
-            return None
-        if not screen_state.is_normal_in_world(screen, self.ctx.im):
-            self.last_auto_fight_fail = False
-            self.ctx.controller.stop_moving_forward()
-            if self.stop_move_time is None:
-                self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
-            log.info('移动中被袭击')
-            fight = WorldPatrolEnterFight(self.ctx,
-                                          technique_fight=self.technique_fight,
-                                          technique_only=self.technique_only,
-                                          first_state=screen_state.ScreenState.BATTLE.value)
-            fight_start_time = time.time()
-            fight_result = fight.execute()
-            fight_end_time = time.time()
-            if not fight_result.success:
-                return self.round_fail(status=fight_result.status, data=fight_result.data)
-            self.last_battle_time = time.time()
-            self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-            self.ctx.pos_info.first_cal_pos_after_fight = True
-            # self.move_after_battle()
-            return self.round_wait()
-        return None
-
-    def check_enemy_and_attack(self, mm: MatLike) -> Optional[OperationOneRoundResult]:
+    def check_enemy_and_attack(self, screen: MatLike, mm: MatLike) -> Optional[OperationOneRoundResult]:
         """
         从小地图检测敌人 如果有的话 进入索敌
-        :param mm:
+        :param screen: 游戏画面
+        :param mm: 小地图部分
         :return: 是否有敌人
         """
-        if self.no_battle:
+        if self.no_battle:  # 外层调用保证没有战斗 跳过后续检测
             return None
-        if not mini_map.is_under_attack(mm):
-            return None
-
-        # 上一次索敌失败了 可能小地图背景有问题 等待下一次进入战斗画面刷新
-        if not mini_map.with_enemy_nearby(mm) and self.last_auto_fight_fail:
+        if not self.should_attack(mm):
             return None
 
-        # 停下来的任务交给了 EnterAutoFight 这样可以取消停止移动造成的后摇
-        # self.ctx.controller.stop_moving_forward()  # 先停下来再攻击
+        # 上一次索敌失败了 可能与怪在一个 等待下一次进入战斗画面刷新
+        if self.last_auto_fight_fail:
+            return None
+
+        # 停止移动的指令交给了 WorldPatrolEnterFight 这样可以通过攻击或者十方秘技来取消停止移动造成的后摇
         if self.stop_move_time is None:
             self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
 
-        fight = WorldPatrolEnterFight(self.ctx,
-                                      technique_fight=self.technique_fight,
-                                      technique_only=self.technique_only,
-                                      first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
+        fight = self.get_fight_op()
         fight_start_time = time.time()
         op_result = fight.execute()
         if not op_result.success:
@@ -322,7 +322,6 @@ class MoveDirectly(Operation):
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
         self.ctx.pos_info.first_cal_pos_after_fight = True
-        # self.move_after_battle()
 
         return self.round_wait()
 
@@ -371,6 +370,30 @@ class MoveDirectly(Operation):
                                line_p1=self.start_pos, line_p2=self.target,
                                max_line_distance=max_line_distance
                                )
+
+        next_pos = self.do_cal_pos(mm_info, lm_rect, verify)
+
+        if next_pos is None:
+            log.error('无法判断当前人物坐标')
+            if self.ctx.one_dragon_config.is_debug and self.no_pos_times == 0:  # 只记录第一次识别坐标失败的
+                debug_utils.get_executor().submit(
+                    cal_pos.save_as_test_case,
+                    mm, self.region, verify
+                )
+        else:
+            if self.ctx.record_coordinate and now_time - self.last_rec_time > 0.5:
+                RecordCoordinate.save(self.region, mm, next_pos)
+        return next_pos.center if next_pos is not None else None, mm_info
+
+    def do_cal_pos(self, mm_info: MiniMapInfo,
+                   lm_rect: Rect, verify: VerifyPosInfo) -> Optional[MatchResult]:
+        """
+        真正的计算坐标
+        :param mm_info: 当前的小地图信息
+        :param lm_rect: 使用的大地图范围
+        :param verify: 用于验证坐标的信息
+        :return:
+        """
         try:
             real_move_time = self.ctx.controller.get_move_time()
             next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
@@ -388,17 +411,7 @@ class MoveDirectly(Operation):
             next_pos = None
             log.error('识别坐标失败', exc_info=True)
 
-        if next_pos is None:
-            log.error('无法判断当前人物坐标')
-            if self.ctx.one_dragon_config.is_debug and self.no_pos_times == 0:  # 只记录第一次识别坐标失败的
-                debug_utils.get_executor().submit(
-                    cal_pos.save_as_test_case,
-                    mm, self.region, verify
-                )
-        else:
-            if self.ctx.record_coordinate and now_time - self.last_rec_time > 0.5:
-                RecordCoordinate.save(self.region, mm, next_pos)
-        return next_pos.center if next_pos is not None else None, mm_info
+        return next_pos
 
     def check_no_pos(self, next_pos: Point, now_time: float) -> Optional[OperationOneRoundResult]:
         """
@@ -455,21 +468,19 @@ class MoveDirectly(Operation):
                 del self.pos[0]
             self.last_rec_time = now_time
 
-    def move_after_battle(self):
+    def should_attack(self, screen: MatLike) -> bool:
         """
-        战斗后 继续使用上一个坐标进行移动
-        加入秘技和近战后 攻击会产生位移 直接使用上一个坐标容易卡死
+        目前是否处于应该攻击的状态
+        - 有被怪物锁定的标志
+        - 有可攻击的标志
+        :param screen:
         :return:
         """
-        if len(self.pos) == 0:
-            return
-        screen = self.screenshot()
-        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info = mini_map.analyse_mini_map(mm)
-        last_pos = self.pos[-1]
-        self.ctx.controller.move_towards(last_pos, self.target, mm_info.angle,
-                                         run=self.run_mode == game_config_const.RUN_MODE_BTN)
-        self.stop_move_time = None
+        frame_result = self.ctx.sim_uni_yolo.detect(screen)
+        for result in frame_result.results:
+            if result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
+                return True
+        return False
 
     def on_pause(self, e=None):
         super().on_pause()

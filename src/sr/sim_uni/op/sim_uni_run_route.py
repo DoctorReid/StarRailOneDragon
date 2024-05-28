@@ -117,7 +117,15 @@ class SimUniRunRouteOp(StateOperation):
                                   operation_const.OP_PATROL, operation_const.OP_DISPOSABLE,
                                   ]
         )
-        op = MoveDirectlyInSimUni(self.ctx, self.ctx.ih.get_large_map(self.route.region),
+
+        current_lm_info = self.ctx.ih.get_large_map(self.current_region)
+        if len(current_op['data']) > 2:
+            next_region = region_with_another_floor(self.current_region, current_op['data'][2])
+            next_lm_info = self.ctx.ih.get_large_map(next_region)
+        else:
+            next_lm_info = None
+        op = MoveDirectlyInSimUni(self.ctx, current_lm_info,
+                                  next_lm_info=next_lm_info,
                                   start=self.current_pos, target=next_pos,
                                   stop_afterwards=stop_afterwards,
                                   op_callback=self._update_pos,
