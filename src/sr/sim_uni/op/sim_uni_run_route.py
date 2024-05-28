@@ -524,11 +524,12 @@ class SimUniRunEliteAfterRoute(StateOperation):
         lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
 
         verify = VerifyPosInfo(last_pos=self.current_pos, max_distance=self.ctx.controller.run_speed)
-        next_pos = cal_pos.sim_uni_cal_pos(self.ctx.im, lm_info, mm_info,
-                                           lm_rect=lm_rect,
-                                           running=self.ctx.controller.is_moving,
-                                           real_move_time=0,
-                                           verify=verify)
+        result = cal_pos.sim_uni_cal_pos(self.ctx.im, lm_info, mm_info,
+                                         lm_rect=lm_rect,
+                                         running=self.ctx.controller.is_moving,
+                                         real_move_time=0,
+                                         verify=verify)
+        next_pos = None if result is None else result.center
 
         if next_pos is not None:
             self.current_pos = next_pos

@@ -479,7 +479,7 @@ def sim_uni_cal_pos(
         lm_info: LargeMapInfo, mm_info: MiniMapInfo,
         lm_rect: Rect = None, show: bool = False,
         running: bool = False, real_move_time: float = 0,
-        verify: Optional[VerifyPosInfo] = None) -> Optional[Point]:
+        verify: Optional[VerifyPosInfo] = None) -> Optional[MatchResult]:
     """
     根据小地图 匹配大地图 判断当前的坐标。模拟宇宙中使用
     :param im: 图片匹配器
@@ -531,7 +531,7 @@ def sim_uni_cal_pos(
 
     log.debug('计算当前坐标为 %s 使用缩放 %.2f 置信度 %.2f', target, scale, result.confidence)
 
-    return target
+    return result
 
 
 @record_performance

@@ -600,6 +600,6 @@ class SimUniUpgradeBless(StateOperation):
         """
         click = self.ctx.controller.click(SimUniUpgradeBless.EXIT_BTN.center)
         if click:
-            return self.round_success()
+            return self.round_success(wait=1)
         else:
             return self.round_retry('退出失败')
