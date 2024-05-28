@@ -70,7 +70,7 @@ jobs:
           7z a -r data.zip StarRailOneDragon/_internal/data/**
           7z a -r images.zip StarRailOneDragon/_internal/images/**
           7z a -r model.zip StarRailOneDragon/_internal/model/**
-          7z a -r src.zip StarRailOneDragon/StarRailOneDragon.exe
+          7z a -r src.zip StarRailOneDragon/StarRailOneDragon.exe StarRailOneDragon/README.pdf
 
       - name: Upload All
         run: |

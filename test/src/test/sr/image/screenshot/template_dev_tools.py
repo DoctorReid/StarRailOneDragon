@@ -496,8 +496,24 @@ def init_store_icon(template_id: str, sub_dir: Optional[str] = None):
     show_and_save(template_id, final_origin, final_mask, sub_dir='sim_uni')
 
 
+def generate_sponsor_png():
+    """
+    合并赞助图片
+    :return:
+    """
+    pics = ['alipay.png', 'wechat.png']  # 都是500*500的
+    output = np.zeros((500, 500 * len(pics), 3), dtype=np.uint8)
+    img_dir = os_utils.get_path_under_work_dir('.github', 'wiki')
+    for i in range(len(pics)):
+        png = cv2_utils.read_image(os.path.join(img_dir, pics[i]))
+        png = cv2.cvtColor(png, cv2.COLOR_BGRA2BGR)
+        output[:, 500*i:500*i+500, :] = png[:, :, :]
+    cv2_utils.show_image(output, win_name='sponsor', wait=0)
+    cv2.imwrite(os.path.join(img_dir, 'sponsor.png'), output)
+
+
 if __name__ == '__main__':
-    init_tp_with_background('mm_tp_17', noise_threshold=30)
+    # init_tp_with_background('mm_tp_17', noise_threshold=30)
     # init_sp_with_background('mm_sp_18')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
@@ -512,10 +528,11 @@ if __name__ == '__main__':
     # init_store_buy_num_ctrl('store_buy_max')
     # init_battle_times_control('battle_times_plus')
     # init_mission_star_active()
-    init_character_avatar_from_alas()
+    # init_character_avatar_from_alas()
     # init_character_combat_type('lightning')
     # init_inventory_category('valuables')
     # init_sim_uni_move_target('level_type_encounter')
     # init_sim_uni_event_opt_icon('event_option_exit_icon')
     # init_store_icon('store_money', sub_dir='sim_uni')
+    generate_sponsor_png()
     cv2.destroyAllWindows()

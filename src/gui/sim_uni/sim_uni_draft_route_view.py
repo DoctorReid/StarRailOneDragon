@@ -51,7 +51,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             options=[
                 ft.dropdown.Option(key=str(num), text=gt('第%s宇宙' % cn, 'ui')) for num, cn in UNI_NUM_CN.items()
             ],
-            value='8',  # TODO 测试用默认选项
+            value='8',
             on_change=self._on_uni_changed
         )
         self.level_type_dropdown = ft.Dropdown(

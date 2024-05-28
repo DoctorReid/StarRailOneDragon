@@ -18,8 +18,6 @@ __崩坏：星穹铁道 - 一条龙__ - 基于图像识别的自动游戏脚本�
 
 ![APP主页](https://github.com/DoctorReid/StarRailOneDragon/blob/main/.github/wiki/app.png)
 
-[当前进度](https://github.com/DoctorReid/StarRailOneDragon/milestone/8)
-
 ## 免责声明
 本软件是一个外部工具旨在自动化崩坏星轨的游戏玩法。它被设计成仅通过现有用户界面与游戏交互,并遵守相关法律法规。该软件包旨在提供简化和用户通过功能与游戏交互,并且它不打算以任何方式破坏游戏平衡或提供任何不公平的优势。该软件包不会以任何方式修改任何游戏文件或游戏代码。
 
@@ -33,8 +31,12 @@ This software is open source, free of charge and for learning and exchange purpo
     "严禁使用外挂、加速器、脚本或其他破坏游戏公平性的第三方工具。"
     "一经发现，米哈游（下亦称“我们”）将视违规严重程度及违规次数，采取扣除违规收益、冻结游戏账号、永久封禁游戏账号等措施。"
 
-## 相关项目
-点赞以下灵感来源
-- [崩坏：星穹铁道 模拟宇宙自动化](https://github.com/CHNZYX/Auto_Simulated_Universe)
-- [崩铁速溶茶](https://github.com/LmeSzinc/StarRailCopilot)
-- [崩坏：星穹铁道自动锄大地](https://github.com/Starry-Wind/StarRailAssistant)
+## 赞助
+
+如果喜欢本项目，可以为作者的边牧赞助一点狗粮~
+
+![支付宝](./wiki/sponsor.png)
+
+（趁机宣传我的边牧~）
+
+![边牧](./wiki/my_dog.jpg)

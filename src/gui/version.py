@@ -256,5 +256,5 @@ def move_temp_and_restart():
     :return:
     """
     bat_file = os.path.join(os_utils.get_work_dir(), 'update_by_temp.bat')
-    # 执行批处理文件
-    subprocess.Popen(bat_file, shell=True)
+    # 执行批处理文件 bat中会关闭现有的exe
+    subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/k', bat_file], shell=True)

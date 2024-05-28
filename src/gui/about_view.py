@@ -2,6 +2,7 @@ import webbrowser
 from typing import Optional
 
 import flet as ft
+import os
 
 from basic import os_utils
 from basic.i18_utils import gt
@@ -12,7 +13,7 @@ from sr.context import Context
 from sr.one_dragon_config import PROXY_TYPE_LIST
 
 
-class AboutView(SrBasicView, components.Card):
+class AboutView(SrBasicView, ft.Row):
 
     def __init__(self, page: ft.Page, ctx: Context):
         SrBasicView.__init__(self, page, ctx)
@@ -22,7 +23,7 @@ class AboutView(SrBasicView, components.Card):
 
         self.check_update_btn = components.RectOutlinedButton(text='检查更新', on_click=self.check_update)
         self.update_btn = components.RectOutlinedButton(text='更新', on_click=self.do_update, visible=False)
-        self.specified_version_input = ft.TextField(hint_text='指定需要更新的版本 例如 v1.0.0')
+        self.specified_version_input = ft.TextField(hint_text='例如 2.2.2', width=150)
         self.proxy_type_dropdown = ft.Dropdown(
             options=[
                 ft.dropdown.Option(text=gt(i.cn, 'ui'), key=i.id) for i in PROXY_TYPE_LIST
@@ -33,21 +34,37 @@ class AboutView(SrBasicView, components.Card):
                                                  value='http://127.0.0.1:8234', disabled=True,
                                                  on_change=self._on_personal_proxy_changed)
 
-        plan_list = components.SettingsList(
+        sponsor_dir = os_utils.get_path_under_work_dir('.github', 'wiki')
+        self.sponsor_alipay_img = ft.Image(src=os.path.join(sponsor_dir, 'alipay.png'),
+                                           width=200, height=200)
+        self.sponsor_wechat_img = ft.Image(src=os.path.join(sponsor_dir, 'wechat.png'),
+                                           width=200, height=200)
+
+        home_list = components.SettingsList(
             controls=[
-                components.SettingsListGroupTitle(gt('喜欢脚本记得到主页点Star', 'ui')),
+                components.SettingsListGroupTitle(gt('喜欢一条龙记得到主页点Star', 'ui')),
                 components.SettingsListItem(gt('Github主页', 'ui'), self.home_btn),
                 components.SettingsListItem(gt('问题反馈', 'ui'), self.report_btn),
+                components.SettingsListGroupTitle('赞赏'),
+                components.SettingsListItem('', ft.Row(controls=[self.sponsor_alipay_img, self.sponsor_wechat_img])),
+            ],
+            width=450
+        )
+        home_card = components.Card(home_list, width=460)
+
+        update_list = components.SettingsList(
+            controls=[
                 components.SettingsListGroupTitle('更新'),
                 components.SettingsListItem('指定版本', self.specified_version_input),
                 components.SettingsListItem('代理类型', self.proxy_type_dropdown),
                 components.SettingsListItem('代理地址', self.personal_proxy_input),
                 components.SettingsListItem('检查更新', ft.Row(controls=[self.check_update_btn, self.update_btn])),
             ],
-            width=400
+            width=300
         )
+        update_card = components.Card(update_list, width=310)
 
-        components.Card.__init__(self, plan_list, width=800)
+        ft.Row.__init__(self, controls=[home_card, update_card])
 
     def handle_after_show(self):
         self._load_config_and_display()
@@ -135,7 +152,6 @@ class AboutView(SrBasicView, components.Card):
 
     def _on_personal_proxy_changed(self, e):
         self.sr_ctx.one_dragon_config.personal_proxy = self.personal_proxy_input.value
-
 
 
 _about_view: Optional[AboutView] = None
