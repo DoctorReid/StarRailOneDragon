@@ -59,15 +59,16 @@ class TestCalPosForSimUni(test.SrTestBase):
         verify = VerifyPosInfo(last_pos=Point(case.possible_pos[0], case.possible_pos[1]),
                                max_distance=case.possible_pos[1])
 
-        pos = cal_pos.sim_uni_cal_pos(ctx.im,
-                                      lm_info=lm_info,
-                                      mm_info=mm_info,
-                                      running=case.running,
-                                      real_move_time=case.real_move_time,
-                                      lm_rect=lm_rect,
-                                      verify=verify,
-                                      show=show
-                                      )
+        result = cal_pos.sim_uni_cal_pos(ctx.im,
+                                         lm_info=lm_info,
+                                         mm_info=mm_info,
+                                         running=case.running,
+                                         real_move_time=case.real_move_time,
+                                         lm_rect=lm_rect,
+                                         verify=verify,
+                                         show=show
+                                         )
+        pos = None if result is None else result.center
         if show:
             cv2.waitKey(0)
 

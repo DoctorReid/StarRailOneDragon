@@ -1,3 +1,5 @@
+import ctypes
+import os
 import subprocess
 import time
 from enum import Enum
@@ -524,7 +526,7 @@ class Context:
             return False
         global_context.running = 1
         log.info('尝试自动启动游戏 路径为 %s', self.game_config.game_path)
-        subprocess.Popen(self.game_config.game_path)
+        subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/c', self.game_config.game_path])
         return True
 
     def init_after_enter_game(self):

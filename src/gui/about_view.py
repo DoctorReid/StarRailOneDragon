@@ -34,7 +34,7 @@ class AboutView(SrBasicView, ft.Row):
                                                  value='http://127.0.0.1:8234', disabled=True,
                                                  on_change=self._on_personal_proxy_changed)
 
-        sponsor_dir = os_utils.get_path_under_work_dir('.github', 'wiki')
+        sponsor_dir = os_utils.get_path_under_work_dir('images', 'ui')
         self.sponsor_alipay_img = ft.Image(src=os.path.join(sponsor_dir, 'alipay.png'),
                                            width=200, height=200)
         self.sponsor_wechat_img = ft.Image(src=os.path.join(sponsor_dir, 'wechat.png'),

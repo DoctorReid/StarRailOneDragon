@@ -255,6 +255,8 @@ def move_temp_and_restart():
     复制 .temp 目录下文件 并重启应用
     :return:
     """
-    bat_file = os.path.join(os_utils.get_work_dir(), 'update_by_temp.bat')
+    old_bat_file = os.path.join(os_utils.get_work_dir(), 'update_by_temp.bat')
+    new_bat_file = os.path.join(os_utils.get_work_dir(), 'update_by_temp_2.bat')
+    shutil.copyfile(old_bat_file, new_bat_file)  # 复制一个新的来运行 防止更新的时候被覆盖杀掉了
     # 执行批处理文件 bat中会关闭现有的exe
-    subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/k', bat_file], shell=True)
+    subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/k', new_bat_file], shell=True)

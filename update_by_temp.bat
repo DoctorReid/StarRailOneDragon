@@ -3,7 +3,6 @@ setlocal enabledelayedexpansion
 chcp 65001
 cd /D %~dp0
 
-pause
 echo 准备关闭现有程序
 taskkill /IM "StarRailOneDragon.exe" /F
 taskkill /IM "flet.exe" /F
