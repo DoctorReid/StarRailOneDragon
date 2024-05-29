@@ -7,7 +7,8 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context
 from sr.image.sceenshot import screen_state
-from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
+from sr.image.sceenshot.screen_state import in_secondary_ui
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN

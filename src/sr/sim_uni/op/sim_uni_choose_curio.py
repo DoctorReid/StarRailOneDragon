@@ -3,13 +3,14 @@ from typing import Optional, ClassVar, List
 
 from cv2.typing import MatLike
 
+import sr.image.sceenshot.screen_state_enum
 from basic import Rect
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
-from sr.image.sceenshot.screen_state import ScreenState
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.click import ClickDialogConfirm
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
@@ -258,7 +259,7 @@ class SimUniDropCurio(StateOperation):
 
         if self.first_screen_check and self.skip_first_screen_check:
             self.first_screen_check = False
-            return self.round_success(screen_state.ScreenState.SIM_DROP_CURIOS.value)
+            return self.round_success(sr.image.sceenshot.screen_state_enum.ScreenState.SIM_DROP_CURIOS.value)
 
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       drop_curio=True)

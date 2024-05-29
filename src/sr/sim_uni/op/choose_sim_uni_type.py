@@ -2,6 +2,7 @@ from typing import ClassVar
 
 from cv2.typing import MatLike
 
+import sr.image.sceenshot.screen_state_enum
 from basic import Point
 from basic.i18_utils import gt
 from sr.context import Context
@@ -30,9 +31,9 @@ class ChooseSimUniType(Operation):
 
         state = screen_state.get_sim_uni_initial_screen_state(screen, self.ctx.im, self.ctx.ocr)
 
-        if state == screen_state.ScreenState.SIM_TYPE_NORMAL.value:
+        if state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_TYPE_NORMAL.value:
             return self.round_success()
-        elif state == screen_state.ScreenState.SIM_TYPE_EXTEND.value:
+        elif state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_TYPE_EXTEND.value:
             self.ctx.controller.click(ChooseSimUniType.SWITCH_TYPE_BTN)
             return self.round_wait(wait=1)
         else:

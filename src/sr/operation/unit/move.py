@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple, Callable, ClassVar
 import cv2
 from cv2.typing import MatLike
 
+import sr.image.sceenshot.screen_state_enum
 from basic import Point, cal_utils, debug_utils, os_utils, Rect
 from basic.i18_utils import gt
 from basic.img import MatchResult
@@ -234,7 +235,7 @@ class MoveDirectly(Operation):
         return WorldPatrolEnterFight(self.ctx,
                                      technique_fight=self.technique_fight,
                                      technique_only=self.technique_only,
-                                     first_state=screen_state.ScreenState.BATTLE.value)
+                                     first_state=sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE.value)
 
     def handle_in_world(self, screen: MatLike, now_time: float) -> OperationOneRoundResult:
         """

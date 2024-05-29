@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 from cv2.typing import MatLike
 
+import sr.image.sceenshot.screen_state_enum
 from basic import cal_utils, Point
 from basic.log_utils import log
 from sr.context import Context
@@ -101,7 +102,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
             in_world=True, battle=True)
         log.debug('当前画面 %s', self.current_state)
 
-        if self.current_state == screen_state.ScreenState.NORMAL_IN_WORLD.value:
+        if self.current_state == sr.image.sceenshot.screen_state_enum.ScreenState.NORMAL_IN_WORLD.value:
             return self._handle_in_world(screen)
         else:
             return self._handle_not_in_world(screen)
@@ -134,7 +135,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
 
     def _enter_fight(self) -> OperationOneRoundResult:
         op = SimUniEnterFight(self.ctx,
-                              first_state=screen_state.ScreenState.NORMAL_IN_WORLD.value,
+                              first_state=sr.image.sceenshot.screen_state_enum.ScreenState.NORMAL_IN_WORLD.value,
                               )
         op_result = op.execute()
         return self.round_by_op(op_result)

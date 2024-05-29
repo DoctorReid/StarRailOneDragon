@@ -7,7 +7,8 @@ from basic import Rect, Point, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.context import Context
-from sr.image.sceenshot.screen_state import ScreenState, in_secondary_ui
+from sr.image.sceenshot.screen_state import in_secondary_ui
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult
 
 

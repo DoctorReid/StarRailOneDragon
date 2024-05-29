@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
+import sr.image.sceenshot.screen_state_enum
 from basic import Rect, str_utils, Point
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
@@ -377,7 +378,7 @@ class SimUniDropBless(StateOperation):
 
         if self.first_screen_check and self.skip_first_screen_check:
             self.first_screen_check = False
-            return self.round_success(screen_state.ScreenState.SIM_DROP_CURIOS.value)
+            return self.round_success(sr.image.sceenshot.screen_state_enum.ScreenState.SIM_DROP_CURIOS.value)
 
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       drop_bless=True)
@@ -474,7 +475,7 @@ class SimUniUpgradeBless(StateOperation):
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       upgrade_bless=True)
 
-        if state != screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
+        if state != sr.image.sceenshot.screen_state_enum.ScreenState.SIM_UPGRADE_BLESS.value:
             return self.round_retry('未在祝福强化页面', wait=1)
 
         num = self._get_left_num(screen)
@@ -547,7 +548,7 @@ class SimUniUpgradeBless(StateOperation):
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       upgrade_bless=True)
 
-        if state != screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
+        if state != sr.image.sceenshot.screen_state_enum.ScreenState.SIM_UPGRADE_BLESS.value:
             return self.round_retry('未在祝福强化页面', wait=1)
 
         self.ctx.controller.click(self.upgrade_list[self.upgrade_idx].center)
@@ -587,7 +588,7 @@ class SimUniUpgradeBless(StateOperation):
                                                       upgrade_bless=True,
                                                       empty_to_close=True)
 
-        if state == screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
+        if state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_UPGRADE_BLESS.value:
             return self.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
         else:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)

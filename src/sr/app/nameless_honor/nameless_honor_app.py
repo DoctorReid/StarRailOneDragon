@@ -9,7 +9,8 @@ from sr.app.application_base import Application
 from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import phone_menu
-from sr.image.sceenshot.screen_state import in_secondary_ui, ScreenState
+from sr.image.sceenshot.screen_state import in_secondary_ui
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu

@@ -1,5 +1,6 @@
 import time
 
+import sr.image.sceenshot.screen_state_enum
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import screen_state
@@ -69,19 +70,19 @@ class BackToNormalWorldPlus(Operation):
             drop_curio=True
         )
 
-        if sim_uni_state == screen_state.ScreenState.SIM_BLESS.value:
+        if sim_uni_state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_BLESS.value:
             return self.sim_uni_choose_bless()
 
-        if sim_uni_state == screen_state.ScreenState.SIM_DROP_BLESS.value:
+        if sim_uni_state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_DROP_BLESS.value:
             return self.sim_uni_drop_bless()
 
-        if sim_uni_state == screen_state.ScreenState.SIM_CURIOS.value:
+        if sim_uni_state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_CURIOS.value:
             return self.sim_uni_choose_curio()
 
-        if sim_uni_state == screen_state.ScreenState.SIM_DROP_CURIOS.value:
+        if sim_uni_state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_DROP_CURIOS.value:
             return self.sim_uni_drop_curio()
 
-        if sim_uni_state == screen_state.ScreenState.SIM_EVENT.value:
+        if sim_uni_state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_EVENT.value:
             return self.sim_uni_event()
 
         # 对话框 - 逐光捡金 退出确认

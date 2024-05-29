@@ -1,5 +1,6 @@
 from cv2.typing import MatLike
 
+import sr.image.sceenshot.screen_state_enum
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import screen_state
@@ -25,7 +26,7 @@ class WaitBattleReward(Operation):
                                                         in_world=True,
                                                         battle_success=True,
                                                         battle_fail=True)
-        if state == screen_state.ScreenState.BATTLE.value:
+        if state == sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE.value:
             return self.round_wait(wait=1)
         else:
             return self.round_success(state)

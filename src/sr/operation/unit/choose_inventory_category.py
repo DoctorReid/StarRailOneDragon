@@ -3,7 +3,8 @@ import time
 from basic import Point
 from basic.i18_utils import gt
 from sr.context import Context
-from sr.image.sceenshot.screen_state import ScreenState, in_secondary_ui
+from sr.image.sceenshot.screen_state import in_secondary_ui
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult
 
 

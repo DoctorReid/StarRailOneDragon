@@ -4,7 +4,7 @@ from typing import Optional, Union, List
 from sr.const import map_const
 from sr.const.map_const import TransportPoint
 
-from sr.image.sceenshot.screen_state import ScreenState
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.screen_area import ScreenArea
 from sr.screen_area.interastral_peace_guide import ScreenGuide
 from sr.sim_uni.sim_uni_const import SimUniWorld, SimUniWorldEnum

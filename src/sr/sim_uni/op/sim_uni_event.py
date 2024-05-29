@@ -2,6 +2,7 @@ from typing import ClassVar, List, Optional
 
 from cv2.typing import MatLike
 
+import sr.image.sceenshot.screen_state_enum
 from basic import Rect, Point, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
@@ -64,14 +65,14 @@ class SimUniEvent(StateOperation):
         drop_curio = StateOperationNode('丢弃奇物', self._drop_curio)
         empty = StateOperationNode('点击空白处关闭', self._click_empty_to_continue)
         battle = StateOperationNode('战斗', self._battle)
-        edges.append(StateOperationEdge(check_after_confirm, bless, status=screen_state.ScreenState.SIM_BLESS.value))
-        edges.append(StateOperationEdge(check_after_confirm, drop_bless, status=screen_state.ScreenState.SIM_DROP_BLESS.value))
-        edges.append(StateOperationEdge(check_after_confirm, upgrade_bless, status=screen_state.ScreenState.SIM_UPGRADE_BLESS.value))
-        edges.append(StateOperationEdge(check_after_confirm, curio, status=screen_state.ScreenState.SIM_CURIOS.value))
-        edges.append(StateOperationEdge(check_after_confirm, drop_curio, status=screen_state.ScreenState.SIM_DROP_CURIOS.value))
-        edges.append(StateOperationEdge(check_after_confirm, choose_opt, status=screen_state.ScreenState.SIM_EVENT.value))
-        edges.append(StateOperationEdge(check_after_confirm, empty, status=screen_state.ScreenState.EMPTY_TO_CLOSE.value))
-        edges.append(StateOperationEdge(check_after_confirm, battle, status=screen_state.ScreenState.BATTLE.value))
+        edges.append(StateOperationEdge(check_after_confirm, bless, status=sr.image.sceenshot.screen_state_enum.ScreenState.SIM_BLESS.value))
+        edges.append(StateOperationEdge(check_after_confirm, drop_bless, status=sr.image.sceenshot.screen_state_enum.ScreenState.SIM_DROP_BLESS.value))
+        edges.append(StateOperationEdge(check_after_confirm, upgrade_bless, status=sr.image.sceenshot.screen_state_enum.ScreenState.SIM_UPGRADE_BLESS.value))
+        edges.append(StateOperationEdge(check_after_confirm, curio, status=sr.image.sceenshot.screen_state_enum.ScreenState.SIM_CURIOS.value))
+        edges.append(StateOperationEdge(check_after_confirm, drop_curio, status=sr.image.sceenshot.screen_state_enum.ScreenState.SIM_DROP_CURIOS.value))
+        edges.append(StateOperationEdge(check_after_confirm, choose_opt, status=sr.image.sceenshot.screen_state_enum.ScreenState.SIM_EVENT.value))
+        edges.append(StateOperationEdge(check_after_confirm, empty, status=sr.image.sceenshot.screen_state_enum.ScreenState.EMPTY_TO_CLOSE.value))
+        edges.append(StateOperationEdge(check_after_confirm, battle, status=sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE.value))
 
         edges.append(StateOperationEdge(choose_opt, check_after_confirm, status=SimUniEvent.STATUS_NO_OPT))
         edges.append(StateOperationEdge(bless, check_after_confirm))
