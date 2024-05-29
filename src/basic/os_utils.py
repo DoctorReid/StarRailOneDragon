@@ -1,7 +1,6 @@
 import datetime
 import os
 import sys
-from typing import Optional
 
 
 def join_dir_path_with_mk(path: str, *subs) -> str:

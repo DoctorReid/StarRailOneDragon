@@ -20,3 +20,4 @@ config/app_run_record/
 config/[0-9]*/
 StarRailGPS/
 model/yolo
+update_by_temp_2.bat

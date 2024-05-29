@@ -8,7 +8,7 @@ taskkill /IM "StarRailOneDragon.exe" /F
 taskkill /IM "flet.exe" /F
 
 echo 准备更新文件
-timeout /t 5 >nul
+timeout /t 3
 
 echo 更新中
 xcopy ".temp\StarRailOneDragon" "..\" /E /I /Y
@@ -19,4 +19,5 @@ echo 更新成功 即将启动脚本
 start "StarRailOneDragon" "../StarRailOneDragon.exe"
 
 echo 启动完成后 可关闭本窗口
-pause
+timeout /t 3
+exit

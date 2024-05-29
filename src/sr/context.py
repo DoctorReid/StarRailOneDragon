@@ -1,5 +1,3 @@
-import ctypes
-import os
 import subprocess
 import time
 from enum import Enum
@@ -8,7 +6,6 @@ from typing import Optional, List
 import keyboard
 import pyautogui
 
-from basic import os_utils
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
@@ -526,7 +523,9 @@ class Context:
             return False
         global_context.running = 1
         log.info('尝试自动启动游戏 路径为 %s', self.game_config.game_path)
-        subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/c', self.game_config.game_path])
+        subprocess.Popen(
+            f'cmd /c "start "" "{self.game_config.game_path}" & exit"'
+        )
         return True
 
     def init_after_enter_game(self):
