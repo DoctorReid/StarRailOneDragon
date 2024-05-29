@@ -124,7 +124,7 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         if not screen_state.is_normal_in_world(screen, self.ctx.im):  # 不在大世界 可能被袭击了
             return self._enter_battle()
 
-        if screen_state.should_attack_in_world(self.ctx, screen):
+        if not self.no_attack and screen_state.should_attack_in_world(self.ctx, screen):
             return self._enter_battle()
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)

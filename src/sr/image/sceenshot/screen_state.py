@@ -447,7 +447,7 @@ def should_attack_in_world(ctx: Context, screen: MatLike) -> bool:
     :param screen: 游戏画面
     :return:
     """
-    frame_result = ctx.sim_uni_yolo.detect(screen)
+    frame_result = ctx.sim_uni_yolo.detect(screen, conf=0.9)
     for result in frame_result.results:
         if result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
             return True

@@ -44,7 +44,8 @@ class WorldPatrolEnterFight(Operation):
         self.last_alert_time: float = now  # 上次警报时间
         self.last_not_in_world_time: float = now  # 上次不在移动画面的时间
         self.attack_times: int = 0  # 攻击次数
-        self.last_attack_direction: Optional[str] = None  # 上一次攻击方向
+        self.last_attack_direction: str = 's'  # 上一次攻击方向
+
         self.with_battle: bool = False  # 是否有进入战斗
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
         self.last_state: str = ''  # 上一次的画面状态
@@ -112,8 +113,12 @@ class WorldPatrolEnterFight(Operation):
                 # 长时间没有离开大世界画面 可能是小地图背景色污染
                 return self._exit_with_last_move()
 
-            self.ctx.controller.move(direction=attack_direction)
-            self.last_attack_direction = attack_direction
+            if self.ctx.controller.is_moving and self.attack_times == 0:
+                # 目前是直接攻击再松开w 这样避免停止移动带来的后摇 因此第一下攻击一定是在按着w的情况下进行的 攻击方向会固定为前方
+                self.last_attack_direction = 'w'
+            else:
+                self.ctx.controller.move(direction=attack_direction)
+                self.last_attack_direction = attack_direction
             current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
             if (self.technique_fight and not self.ctx.technique_used
                     and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
@@ -138,7 +143,7 @@ class WorldPatrolEnterFight(Operation):
                 self.attack_times += 1
                 return self.round_wait(wait_round_time=0.05)
             else:
-                self._attack(now_time)
+                return self._attack(now_time)
 
     def _attack(self, now_time: float) -> OperationOneRoundResult:
         if now_time - self.last_attack_time < WorldPatrolEnterFight.ATTACK_INTERVAL:

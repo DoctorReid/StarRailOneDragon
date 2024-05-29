@@ -168,7 +168,6 @@ class MoveDirectly(Operation):
         self.last_rec_time = 0  # 上一次记录坐标的时间
         self.no_pos_times = 0  # 累计算不到坐标的次数
         self.stop_afterwards = stop_afterwards  # 最后是否停止前进
-        self.last_auto_fight_fail: bool = False  # 上一次索敌是否失败 只有小地图背景污染严重时候出现
         self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
         self.stop_move_time: Optional[float] = None  # 停止移动的时间
@@ -211,7 +210,6 @@ class MoveDirectly(Operation):
         目前就只会进入了战斗
         :return:
         """
-        self.last_auto_fight_fail = False
         self.ctx.controller.stop_moving_forward()
         if self.stop_move_time is None:
             self.stop_move_time = now_time + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
@@ -301,11 +299,7 @@ class MoveDirectly(Operation):
         """
         if self.no_battle:  # 外层调用保证没有战斗 跳过后续检测
             return None
-        if screen_state.should_attack_in_world(self.ctx, screen):
-            return None
-
-        # 上一次索敌失败了 可能与怪在一个 等待下一次进入战斗画面刷新
-        if self.last_auto_fight_fail:
+        if not screen_state.should_attack_in_world(self.ctx, screen):
             return None
 
         # 停止移动的指令交给了 WorldPatrolEnterFight 这样可以通过攻击或者十方秘技来取消停止移动造成的后摇
@@ -319,7 +313,6 @@ class MoveDirectly(Operation):
             return self.round_fail(status=op_result.status, data=op_result.data)
         fight_end_time = time.time()
 
-        self.last_auto_fight_fail = (op_result.status == WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
         self.ctx.pos_info.first_cal_pos_after_fight = True
