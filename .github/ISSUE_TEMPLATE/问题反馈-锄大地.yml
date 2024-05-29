@@ -1,0 +1,67 @@
+name: 问题反馈-通用
+description: 卡死、漏怪、新路线等
+title: "[问题反馈] "
+labels: ["bug"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 前置须知
+
+        请先阅读以下文档，里面可能就有你想要的答案
+        - [运行前须知](https://github.com/DoctorReid/StarRailOneDragon/wiki#12-%E8%BF%90%E8%A1%8C%E5%89%8D%E9%A1%BB%E7%9F%A5)
+        - [锄大地介绍](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%94%84%E5%A4%A7%E5%9C%B0)
+        - [常见Q&A](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%B8%B8%E8%A7%81QA)
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 问题反馈
+
+  - type: input
+    attributes:
+      label: "使用版本"
+      placeholder: "例如 2.2.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: "问题分类"
+      options:
+        - 卡死
+        - 漏怪
+        - 其它
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "问题描述"
+      description: "尽量具体地描述产生这个问题的场景，详细的上下文有助于理解问题产生的原因。"
+      placeholder: |
+        1. 运行锄大地
+        2. 脚本打开大地图
+        3. 来回拖动大地图
+        4. 无法选择传送点
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "游戏截图"
+      description: "提供游戏截图有助于更直观地理解问题。使用脚本按F11进行截图最佳，图片保存在 .debug/images/ 文件夹中"
+      placeholder: "游戏截图"
+
+  - type: textarea
+    attributes:
+      label: "运行日志"
+      description: "提供日志可以有助于理解脚本运行情况，日志保存在 .log/log.txt 中"
+      placeholder: "运行日志"
+
+  - type: textarea
+    attributes:
+      label: "你的建议"
+      description: "针对这个场景，你觉得合适的解决方案是"
+      placeholder: "你的建议"

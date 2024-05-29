@@ -1,0 +1,26 @@
+name: 需求建议-通用
+description: 遗器副本、历战回响、模拟宇宙沉浸奖励等需要使用开拓力的场景
+title: "[需求建议] "
+labels: ["enhancement"]
+
+body:
+  - type: input
+    attributes:
+      label: "使用版本"
+      placeholder: "例如 2.2.2"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "当前状况"
+      description: "使用当前脚本，你认为需要改进的场景"
+      placeholder: "现在日常用黄泉锄大地，希望一条龙可以支持每天去仙舟买固定数量的气态流体和种子，用来合成奇巧零食"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: "你的建议"
+      description: "针对这个场景，你觉得合适的解决方案是"
+      placeholder: "自动购买合成"
