@@ -124,12 +124,11 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         if not screen_state.is_normal_in_world(screen, self.ctx.im):  # 不在大世界 可能被袭击了
             return self._enter_battle()
 
-        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
-
-        if not self.no_attack and mini_map.is_under_attack_new(mm_info, danger=True, enemy=True):
+        if screen_state.should_attack_in_world(self.ctx, screen):
             return self._enter_battle()
 
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
+        mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
         enemy_pos_list = mini_map.get_enemy_pos(mm_info)
 
         if len(enemy_pos_list) == 0:  # 没有红点 可能太近被自身箭头覆盖了

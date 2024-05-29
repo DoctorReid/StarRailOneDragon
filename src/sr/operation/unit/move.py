@@ -300,7 +300,7 @@ class MoveDirectly(Operation):
         """
         if self.no_battle:  # 外层调用保证没有战斗 跳过后续检测
             return None
-        if not self.should_attack(mm):
+        if screen_state.should_attack_in_world(self.ctx, screen):
             return None
 
         # 上一次索敌失败了 可能与怪在一个 等待下一次进入战斗画面刷新
@@ -467,20 +467,6 @@ class MoveDirectly(Operation):
             if len(self.pos) > MoveDirectly.max_len:
                 del self.pos[0]
             self.last_rec_time = now_time
-
-    def should_attack(self, screen: MatLike) -> bool:
-        """
-        目前是否处于应该攻击的状态
-        - 有被怪物锁定的标志
-        - 有可攻击的标志
-        :param screen:
-        :return:
-        """
-        frame_result = self.ctx.sim_uni_yolo.detect(screen)
-        for result in frame_result.results:
-            if result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
-                return True
-        return False
 
     def on_pause(self, e=None):
         super().on_pause()
