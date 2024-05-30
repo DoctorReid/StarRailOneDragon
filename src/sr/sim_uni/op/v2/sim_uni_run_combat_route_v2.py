@@ -9,6 +9,7 @@ from sr.context import Context
 from sr.image.sceenshot import screen_state, mini_map, MiniMapInfo
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import StateOperationEdge, StateOperationNode, Operation, OperationOneRoundResult
+from sr.operation.unit.technique import UseTechnique
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, \
     delta_angle_to_detected_object
@@ -88,6 +89,30 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
 
         self.last_state: str = ''  # 上一次的画面状态
         self.current_state: str = ''  # 这一次的画面状态
+
+    def _before_route(self) -> OperationOneRoundResult:
+        """
+        路线开始前
+        1. 按照小地图识别初始的朝向
+        2. 如果是 buff秘技 且需要 秘技开怪，先使用秘技
+        :return:
+        """
+        screen = self.screenshot()
+        self._check_angle(screen)
+
+        if (self.ctx.sim_uni_challenge_config.technique_fight
+                and self.ctx.team_info.is_buff_technique
+                and not self.ctx.technique_used):
+            op = UseTechnique(self.ctx,
+                              max_consumable_cnt=self.ctx.sim_uni_challenge_config.max_consumable_cnt,
+                              need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
+                              quirky_snacks=self.ctx.game_config.use_quirky_snacks
+                              )
+            op.execute()
+
+            return self.round_by_op(op.execute())
+
+        return self.round_success()
 
     def _check_screen(self) -> OperationOneRoundResult:
         """
