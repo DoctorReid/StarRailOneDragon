@@ -1,7 +1,7 @@
-import sr.image.sceenshot.screen_state_enum
 import test
 from sr.context import get_context
 from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 
 
 class TestOperation(test.SrTestBase):
@@ -38,21 +38,21 @@ class TestOperation(test.SrTestBase):
                                                         in_world=True,
                                                         battle_success=True,
                                                         battle_fail=True)
-        self.assertEqual(sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE_FAIL.value, state)
+        self.assertEqual(ScreenState.BATTLE_FAIL.value, state)
 
         screen = self.get_test_image_new('tp_battle_success_1.png')
         state = screen_state.get_tp_battle_screen_state(screen, ctx.im, ctx.ocr,
                                                         in_world=True,
                                                         battle_success=True,
                                                         battle_fail=True)
-        self.assertEqual(sr.image.sceenshot.screen_state_enum.ScreenState.TP_BATTLE_SUCCESS.value, state)
+        self.assertEqual(ScreenState.TP_BATTLE_SUCCESS.value, state)
 
         screen = self.get_test_image_new('tp_battle_success_2.png')
         state = screen_state.get_tp_battle_screen_state(screen, ctx.im, ctx.ocr,
                                                         in_world=True,
                                                         battle_success=True,
                                                         battle_fail=True)
-        self.assertEqual(sr.image.sceenshot.screen_state_enum.ScreenState.TP_BATTLE_SUCCESS.value, state)
+        self.assertEqual(ScreenState.TP_BATTLE_SUCCESS.value, state)
 
     def test_get_ui_title(self):
         ctx = get_context()

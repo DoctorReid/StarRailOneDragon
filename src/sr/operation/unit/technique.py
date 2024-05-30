@@ -162,7 +162,7 @@ class UseTechnique(StateOperation):
             self.ctx.technique_used = False
 
         if self.op_result.with_dialog and self.op_result.use_consumable_times > 0:
-            # 之前出现过对话框 且已经用过消耗品了 那这次就不需要判断了
+            # 之前出现过对话框 且已经用 过消耗品了 那这次就不需要判断了
             return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
 
         screen = self.screenshot()

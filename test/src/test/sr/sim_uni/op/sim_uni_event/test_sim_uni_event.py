@@ -1,10 +1,7 @@
-import unittest
-
-import sr.image.sceenshot.screen_state_enum
 import test
 from basic.img import cv2_utils
 from sr.context import get_context
-from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
 
 
@@ -59,4 +56,4 @@ class TestSimUniEvent(test.SrTestBase):
 
         screen = self.get_test_image_new('choose_bless.png')
         state = op._get_screen_state(screen)
-        self.assertTrue(sr.image.sceenshot.screen_state_enum.ScreenState.SIM_BLESS.value, state)
+        self.assertTrue(ScreenState.SIM_BLESS.value, state)

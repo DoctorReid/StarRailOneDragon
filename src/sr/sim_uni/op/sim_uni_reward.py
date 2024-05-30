@@ -2,14 +2,14 @@ from typing import Callable, Optional, ClassVar
 
 from cv2.typing import MatLike
 
-import sr.image.sceenshot.screen_state_enum
-from basic import Rect, str_utils, Point
+from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
 from sr.image.sceenshot import screen_state
-from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, \
+from sr.image.sceenshot.screen_state_enum import ScreenState
+from sr.operation import StateOperation, OperationOneRoundResult, StateOperationNode, \
     StateOperationEdge
 
 
@@ -37,12 +37,12 @@ class SimUniReward(StateOperation):
 
         check = StateOperationNode('检查画面', self._check_state)
         edges.append(StateOperationEdge(empty, check))
-        edges.append(StateOperationEdge(check, get_reward, status=sr.image.sceenshot.screen_state_enum.ScreenState.SIM_REWARD.value))  # 第二次领取
+        edges.append(StateOperationEdge(check, get_reward, status=ScreenState.SIM_REWARD.value))  # 第二次领取
 
         esc = StateOperationNode('退出', self._esc)
         edges.append(StateOperationEdge(get_reward, esc, ignore_status=True))  # 到达领取上限 或者 已经没有体力领取了
         edges.append(StateOperationEdge(get_reward, esc, success=False))  # 可能画面判断出错了
-        edges.append(StateOperationEdge(check, esc, status=sr.image.sceenshot.screen_state_enum.ScreenState.NORMAL_IN_WORLD.value))  # 已经领取完了
+        edges.append(StateOperationEdge(check, esc, status=ScreenState.NORMAL_IN_WORLD.value))  # 已经领取完了
 
         super().__init__(ctx, try_times=5,
                          op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('沉浸奖励', 'ui')),
@@ -63,7 +63,7 @@ class SimUniReward(StateOperation):
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       reward=True)
 
-        if state != sr.image.sceenshot.screen_state_enum.ScreenState.SIM_REWARD.value:
+        if state != ScreenState.SIM_REWARD.value:
             return self.round_retry('未在沉浸奖励画面', wait=1)
 
         if self.get_reward_cnt >= self.max_to_get:
@@ -110,7 +110,7 @@ class SimUniReward(StateOperation):
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       empty_to_close=True)
 
-        if state != sr.image.sceenshot.screen_state_enum.ScreenState.EMPTY_TO_CLOSE.value:
+        if state != ScreenState.EMPTY_TO_CLOSE.value:
             return self.round_retry('未在点击空白处关闭画面', wait=1)
 
         click = self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)

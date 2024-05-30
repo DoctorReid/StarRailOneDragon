@@ -1,12 +1,9 @@
-import os
 import time
 from typing import List, Optional, Tuple, Callable, ClassVar
 
-import cv2
 from cv2.typing import MatLike
 
-import sr.image.sceenshot.screen_state_enum
-from basic import Point, cal_utils, debug_utils, os_utils, Rect
+from basic import Point, cal_utils, debug_utils, Rect
 from basic.i18_utils import gt
 from basic.img import MatchResult
 from basic.log_utils import log
@@ -16,11 +13,11 @@ from sr.const import game_config_const
 from sr.const.map_const import Region
 from sr.context import Context
 from sr.control import GameController
-from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state, fill_uid_black
+from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode
-from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.operation.unit.record_coordinate import RecordCoordinate
-from sr.screen_area.screen_normal_world import ScreenNormalWorld
+from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 
 
 class GetRidOfStuck(Operation):
@@ -233,7 +230,7 @@ class MoveDirectly(Operation):
         return WorldPatrolEnterFight(self.ctx,
                                      technique_fight=self.technique_fight,
                                      technique_only=self.technique_only,
-                                     first_state=sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE.value)
+                                     first_state=ScreenState.BATTLE.value)
 
     def handle_in_world(self, screen: MatLike, now_time: float) -> OperationOneRoundResult:
         """

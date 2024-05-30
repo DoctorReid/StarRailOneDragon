@@ -1,14 +1,14 @@
 import time
-from typing import ClassVar, List, Optional, Tuple
+from typing import ClassVar, Optional, Tuple
 
 from cv2.typing import MatLike
 
-import sr.image.sceenshot.screen_state_enum
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const import STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H
 from sr.context import Context
 from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult
 from sr.operation.unit.technique import UseTechnique, UseTechniqueResult
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
@@ -68,12 +68,12 @@ class WorldPatrolEnterFight(Operation):
 
         self.first_screen_check = False
 
-        if self.current_state == sr.image.sceenshot.screen_state_enum.ScreenState.NORMAL_IN_WORLD.value:
+        if self.current_state == ScreenState.NORMAL_IN_WORLD.value:
             self._update_in_world()
 
             round_result = self._try_attack(screen)
             return round_result
-        elif self.current_state == sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE.value:
+        elif self.current_state == ScreenState.BATTLE.value:
             round_result = self._handle_not_in_world(screen)
             self._update_not_in_world_time()
             return round_result
@@ -85,7 +85,7 @@ class WorldPatrolEnterFight(Operation):
         在大世界画面的更新
         :return:
         """
-        if self.last_state != sr.image.sceenshot.screen_state_enum.ScreenState.NORMAL_IN_WORLD.value:
+        if self.last_state != ScreenState.NORMAL_IN_WORLD.value:
             self._update_not_in_world_time()
 
     def _try_attack(self, screen: MatLike) -> OperationOneRoundResult:
@@ -181,12 +181,12 @@ class WorldPatrolEnterFight(Operation):
             in_world=False, battle=True, battle_fail=True,
             express_supply=True)
 
-        if state == sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE_FAIL.value:
+        if state == ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return self.round_fail(WorldPatrolEnterFight.STATUS_BATTLE_FAIL, wait=5)
         elif state == ScreenNormalWorld.EXPRESS_SUPPLY.value.status:
             return self._claim_express_supply()
-        elif state == sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE.value:
+        elif state == ScreenState.BATTLE.value:
             return self._in_battle()
         else:
             return self.round_retry('未知画面', wait=1)

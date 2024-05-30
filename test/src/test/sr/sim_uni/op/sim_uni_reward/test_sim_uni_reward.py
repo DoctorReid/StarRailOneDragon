@@ -1,9 +1,6 @@
-import unittest
-
-import sr.image.sceenshot.screen_state_enum
 import test
 from sr.context import get_context
-from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.sim_uni.op.sim_uni_reward import SimUniReward
 
 
@@ -29,4 +26,4 @@ class TestSimUniReward(test.SrTestBase):
         op = SimUniReward(ctx, 1)
         screen = self.get_test_image_new('reward_right.png')
         state = op._get_screen_state(screen)
-        self.assertEqual(sr.image.sceenshot.screen_state_enum.ScreenState.SIM_REWARD.value, state)
+        self.assertEqual(ScreenState.SIM_REWARD.value, state)

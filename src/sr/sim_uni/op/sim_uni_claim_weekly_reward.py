@@ -2,10 +2,10 @@ from typing import ClassVar
 
 from cv2.typing import MatLike
 
-import sr.image.sceenshot.screen_state_enum
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode, StateOperationEdge
 from sr.screen_area.screen_sim_uni import ScreenSimUni
 
@@ -42,7 +42,7 @@ class SimUniClaimWeeklyReward(StateOperation):
         screen = self.screenshot()
         state = screen_state.get_sim_uni_initial_screen_state(screen, self.ctx.im, self.ctx.ocr)
 
-        if state in [sr.image.sceenshot.screen_state_enum.ScreenState.SIM_TYPE_EXTEND.value, sr.image.sceenshot.screen_state_enum.ScreenState.SIM_TYPE_NORMAL.value]:
+        if state in [ScreenState.SIM_TYPE_EXTEND.value, ScreenState.SIM_TYPE_NORMAL.value]:
             return self.round_success()
         else:
             return self.round_retry('未在模拟宇宙画面', wait=1)

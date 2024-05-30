@@ -1,14 +1,14 @@
 import time
-from typing import ClassVar, List, Optional
+from typing import ClassVar, Optional
 
 from cv2.typing import MatLike
 
-import sr.image.sceenshot.screen_state_enum
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const import STANDARD_CENTER_POS
 from sr.context import Context
 from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge, \
     OperationResult
 from sr.operation.battle.start_fight import StartFightForElite
@@ -86,14 +86,14 @@ class SimUniEnterFight(Operation):
         self.first_screen_check = False
 
         log.debug('当前画面 %s', self.current_state)
-        if self.current_state == sr.image.sceenshot.screen_state_enum.ScreenState.NORMAL_IN_WORLD.value:
+        if self.current_state == ScreenState.NORMAL_IN_WORLD.value:
             if self.no_attack:
                 # 适用于OP前就已经知道进入了战斗 这里只是等待战斗结束 因此只要是在大世界画面就认为完成了
                 return self.round_success()
 
             round_result = self._try_attack(screen)
             return round_result
-        elif self.current_state == sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE.value:
+        elif self.current_state == ScreenState.BATTLE.value:
             round_result = self._handle_not_in_world(screen)
             self._update_not_in_world_time()
             return round_result
@@ -270,21 +270,21 @@ class SimUniEnterFight(Operation):
             empty_to_close=True,
             fast_recover=True,  # 目前黄泉连续使用秘技时 弹出快速恢复的话 会触发祝福 因此处理完祝福 还需要处理快速恢复
         )
-        if state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_BLESS.value:
+        if state == ScreenState.SIM_BLESS.value:
             return self._choose_bless()
-        elif state == sr.image.sceenshot.screen_state_enum.ScreenState.SIM_CURIOS.value:
+        elif state == ScreenState.SIM_CURIOS.value:
             return self._choose_curio()
-        elif state == sr.image.sceenshot.screen_state_enum.ScreenState.EMPTY_TO_CLOSE.value:
+        elif state == ScreenState.EMPTY_TO_CLOSE.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return self.round_wait(wait=1)
-        elif state == sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE_FAIL.value:
+        elif state == ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return self.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
         elif state == ScreenNormalWorld.EXPRESS_SUPPLY.value.status:
             return self._claim_express_supply()
         elif state == ScreenDialog.FAST_RECOVER_TITLE.value.status:
             return self._fast_recover()
-        elif state == sr.image.sceenshot.screen_state_enum.ScreenState.BATTLE.value:
+        elif state == ScreenState.BATTLE.value:
             return self._in_battle()
         else:
             return self.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)

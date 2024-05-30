@@ -2,11 +2,11 @@ from typing import List, Optional, Callable
 
 from cv2.typing import MatLike
 
-import sr.image.sceenshot.screen_state_enum
 from basic.i18_utils import gt
 from sr.const.character_const import Character
 from sr.context import Context
 from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge, \
     OperationOneRoundResult
 from sr.operation.battle.start_fight import StartFightForElite
@@ -174,8 +174,8 @@ class TlAfterNodeFight(StateOperation):
         :param screen:
         :return:
         """
-        if screen_state.in_secondary_ui(screen, self.ctx.ocr, sr.image.sceenshot.screen_state_enum.ScreenState.FORGOTTEN_HALL.value):
-            return sr.image.sceenshot.screen_state_enum.ScreenState.FORGOTTEN_HALL.value
+        if screen_state.in_secondary_ui(screen, self.ctx.ocr, ScreenState.FORGOTTEN_HALL.value):
+            return ScreenState.FORGOTTEN_HALL.value
 
         if self.schedule_type == TreasuresLightwardTypeEnum.FORGOTTEN_HALL:
             area_list = [
