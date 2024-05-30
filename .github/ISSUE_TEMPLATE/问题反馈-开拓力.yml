@@ -9,6 +9,7 @@ body:
       value: "## 问题反馈"
 
   - type: input
+    id: version
     attributes:
       label: "使用版本"
       placeholder: "例如 2.2.2"
@@ -16,6 +17,7 @@ body:
       required: true
 
   - type: input
+    id: mission
     attributes:
       label: "问题副本"
       description: "出现问题的副本名称"
@@ -24,6 +26,7 @@ body:
       required: true
 
   - type: textarea
+    id: problem
     attributes:
       label: "问题描述"
       description: "尽量具体地描述产生这个问题的场景，详细的上下文有助于理解问题产生的原因。"
@@ -32,18 +35,21 @@ body:
       required: true
 
   - type: textarea
+    id: screenshot
     attributes:
       label: "游戏截图"
       description: "提供游戏截图有助于更直观地理解问题。使用脚本按F11进行截图最佳，图片保存在 .debug/images/ 文件夹中"
       placeholder: "游戏截图"
 
   - type: textarea
+    id: log
     attributes:
       label: "运行日志"
       description: "提供日志可以有助于理解脚本运行情况，日志保存在 .log/log.txt 中"
       placeholder: "运行日志"
 
   - type: textarea
+    id: advice
     attributes:
       label: "你的建议"
       description: "针对这个场景，你觉得合适的解决方案是"
