@@ -15,9 +15,10 @@ from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.record_coordinate import RecordCoordinate
-from sr.operation.unit.team import CheckTeamMembersInWorld
+from sr.operation.unit.team import CheckTeamMembersInWorld, SwitchMember
 from sr.operation.unit.technique import UseTechnique
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
+from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
@@ -33,17 +34,17 @@ class WorldPatrolRunRoute(StateOperation):
         :param route_id: 路线ID
         """
         self.route: WorldPatrolRoute = WorldPatrolRoute(route_id)
-        self.op_idx: int = -2
-        self.current_pos: Point = self.route.tp.tp_pos
-        self.current_region: Region = self.route.tp.region
 
         edges = []
         tp = StateOperationNode('传送', op=Transport(ctx, self.route.tp))
         check_members = StateOperationNode('检测组队', self._check_members)
         edges.append(StateOperationEdge(tp, check_members))
 
+        switch = StateOperationNode('切换1号位', self.switch_first)
+        edges.append(StateOperationEdge(check_members, switch))
+
         use_tech = StateOperationNode('使用秘技', self._use_tech)
-        edges.append(StateOperationEdge(check_members, use_tech))
+        edges.append(StateOperationEdge(switch, use_tech))
 
         op_node = StateOperationNode('执行路线指令', self._next_op)
         edges.append(StateOperationEdge(use_tech, op_node))
@@ -60,8 +61,17 @@ class WorldPatrolRunRoute(StateOperation):
     def _init_before_execute(self):
         super()._init_before_execute()
         self.op_idx: int = -1
+        """当前执行的指令下标"""
+
         self.current_pos: Point = self.route.tp.tp_pos
+        """当前角色的坐标信息"""
+
         self.current_region: Region = self.route.tp.region
+        """当前的区域"""
+
+        self.switch_first_success: bool = True
+        """切换1号位是否成功"""
+
         log.info('准备执行线路 %s', self.route.display_name)
         log.info('感谢以下人员提供本路线 %s', self.route.author_list)
 
@@ -75,6 +85,23 @@ class WorldPatrolRunRoute(StateOperation):
 
         return self.round_by_op(check_members_result)
 
+    def switch_first(self) -> OperationOneRoundResult:
+        """
+        切换到1号位
+        :return:
+        """
+        op = SwitchMember(self.ctx, 1)
+        op_result = op.execute()
+
+        if not op_result.success or \
+                ScreenDialog.FAST_RECOVER_CANCEL.value == op_result.status:
+            # 切换不成功 或者 无法复活
+            self.switch_first_success = False
+        else:
+            self.switch_first_success = True
+
+        return self.round_success(status=op_result.status)
+
     def _use_tech(self) -> OperationOneRoundResult:
         """
         如果是秘技开怪 且是上buff类的 就在路线运行前上buff
@@ -82,7 +109,8 @@ class WorldPatrolRunRoute(StateOperation):
         """
         if (not self.ctx.world_patrol_config.technique_fight
                 or not self.ctx.team_info.is_buff_technique
-                or self.ctx.technique_used):
+                or self.ctx.technique_used
+                or not self.switch_first_success):
             return self.round_success()
 
         op = UseTechnique(self.ctx,
@@ -113,7 +141,7 @@ class WorldPatrolRunRoute(StateOperation):
             op = self.move(route_item, next_route_item)
         elif route_item.op == operation_const.OP_PATROL:
             op = WorldPatrolEnterFight(self.ctx,
-                                       technique_fight=self.ctx.world_patrol_config.technique_fight,
+                                       technique_fight=self.switch_first_success and self.ctx.world_patrol_config.technique_fight,
                                        technique_only=self.ctx.world_patrol_config.technique_only,
                                        first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         elif route_item.op == operation_const.OP_DISPOSABLE:
@@ -187,7 +215,7 @@ class WorldPatrolRunRoute(StateOperation):
         return MoveDirectly(self.ctx, current_lm_info, next_lm_info=next_lm_info,
                             target=next_pos, start=current_pos,
                             stop_afterwards=stop_afterwards, no_run=no_run,
-                            technique_fight=self.ctx.world_patrol_config.technique_fight,
+                            technique_fight=self.switch_first_success and self.ctx.world_patrol_config.technique_fight,
                             technique_only=self.ctx.world_patrol_config.technique_only,
                             op_callback=self._update_pos_after_op)
 
