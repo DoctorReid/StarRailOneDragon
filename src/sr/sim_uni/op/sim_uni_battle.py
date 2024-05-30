@@ -302,12 +302,19 @@ class SimUniEnterFight(Operation):
         return self.round_wait()
 
     def _fast_recover(self) -> OperationOneRoundResult:
+        """
+        两种情况会出现在"快速恢复"画面
+        - 由于追求连续攻击 使用秘技后仅在较短时间内判断"快速恢复"对话框是否出现 部分机器运行慢的话 对话框较久才会出现 但已经被脚本判断为无需使用消耗品
+        - 模拟宇宙 黄泉连续使用秘技时 弹出快速恢复的话 会触发前一次还没出现的祝福 因此处理完祝福 还需要处理快速恢复
+        因此 在这里做一个兜底判断
+        :return:
+        """
         op = FastRecover(self.ctx,
                          max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
                          quirky_snacks=self.ctx.game_config.use_quirky_snacks)
         op_result = op.execute()
         if op_result.success:
-            return self.round_wait(wait=1)
+            return self.round_wait()
         else:
             return self.round_retry(op_result.status, wait=1)
 

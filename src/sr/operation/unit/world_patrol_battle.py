@@ -10,7 +10,8 @@ from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.technique import UseTechnique, UseTechniqueResult
+from sr.operation.unit.technique import UseTechnique, UseTechniqueResult, FastRecover
+from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
@@ -179,13 +180,15 @@ class WorldPatrolEnterFight(Operation):
         state = screen_state.get_world_patrol_screen_state(
             screen, self.ctx.im, self.ctx.ocr,
             in_world=False, battle=True, battle_fail=True,
-            express_supply=True)
+            express_supply=True, fast_recover=True)
 
         if state == ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)
             return self.round_fail(WorldPatrolEnterFight.STATUS_BATTLE_FAIL, wait=5)
         elif state == ScreenNormalWorld.EXPRESS_SUPPLY.value.status:
             return self._claim_express_supply()
+        elif state == ScreenDialog.FAST_RECOVER_TITLE.value.status:
+            return self.handle_fast_recover()
         elif state == ScreenState.BATTLE.value:
             return self._in_battle()
         else:
@@ -213,6 +216,19 @@ class WorldPatrolEnterFight(Operation):
         time.sleep(1)  # 暂停一段时间再操作
 
         return self.round_wait()
+
+    def handle_fast_recover(self) -> OperationOneRoundResult:
+        """
+        由于追求连续攻击 使用秘技后仅在较短时间内判断"快速恢复"对话框是否出现
+        部分机器运行慢的话 对话框较久才会出现 但已经被脚本判断为无需使用消耗品
+        因此 在这里做一个兜底判断
+        :return:
+        """
+        op = FastRecover(self.ctx,
+                         max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
+                         quirky_snacks=self.ctx.game_config.use_quirky_snacks
+                         )
+        return self.round_by_op(op.execute())
 
     def _exit_with_last_move(self) -> OperationOneRoundResult:
         """
