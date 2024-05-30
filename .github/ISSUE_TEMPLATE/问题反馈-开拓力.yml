@@ -6,18 +6,7 @@ labels: ["bug"]
 body:
   - type: markdown
     attributes:
-      value: |
-        ## 前置须知
-
-        请先阅读以下文档，里面可能就有你想要的答案
-        - [运行前须知](https://github.com/DoctorReid/StarRailOneDragon/wiki#12-%E8%BF%90%E8%A1%8C%E5%89%8D%E9%A1%BB%E7%9F%A5)
-        - [开拓力介绍](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8#%E5%BC%80%E6%8B%93%E5%8A%9B)
-        - [常见Q&A](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%B8%B8%E8%A7%81QA)
-
-  - type: markdown
-    attributes:
-      value: |
-        ## 问题反馈
+      value: "## 问题反馈"
 
   - type: input
     attributes:
@@ -38,8 +27,7 @@ body:
     attributes:
       label: "问题描述"
       description: "尽量具体地描述产生这个问题的场景，详细的上下文有助于理解问题产生的原因。"
-      placeholder: |
-        历战余响，出现光锥奖励时，会卡死在光锥领取画面
+      placeholder: "历战余响，出现光锥奖励时，会卡死在光锥领取画面"
     validations:
       required: true
 
