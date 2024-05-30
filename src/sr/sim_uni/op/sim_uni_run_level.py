@@ -1,24 +1,22 @@
 from typing import List, Optional, Callable, ClassVar
 
-from basic import str_utils
 from basic.i18_utils import gt
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.context import Context
-from sr.image.sceenshot import screen_state, mini_map
+from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationEdge, \
     StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.move import MoveDirectly
-from sr.operation.unit.team import CheckTeamMembersInWorld
+from sr.operation.unit.team import CheckTeamMembersInWorld, SwitchMember
 from sr.sim_uni import sim_uni_screen_state
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
-from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute, \
-    SimUniRunRouteBase
-from sr.sim_uni.op.v2.sim_uni_run_respite_route_v2 import SimUniRunRespiteRouteV2
-from sr.sim_uni.op.v2.sim_uni_run_event_route_v2 import SimUniRunEventRouteV2
-from sr.sim_uni.op.v2.sim_uni_run_elite_route_v2 import SimUniRunEliteRouteV2
-from sr.sim_uni.op.v2.sim_uni_run_combat_route_v2 import SimUniRunCombatRouteV2
+from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
+from sr.sim_uni.op.v2.sim_uni_run_combat_route_v2 import SimUniRunCombatRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_elite_route_v2 import SimUniRunEliteRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_event_route_v2 import SimUniRunEventRouteV2
+from sr.sim_uni.op.v2.sim_uni_run_respite_route_v2 import SimUniRunRespiteRouteV2
 from sr.sim_uni.op.v2.sim_uni_run_route_base_v2 import SimUniRunRouteBaseV2
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelType, SimUniLevelTypeEnum
@@ -54,8 +52,11 @@ class SimUniRunLevel(StateOperation):
         check_members = StateOperationNode('识别组队成员', self._check_members)
         edges.append(StateOperationEdge(wait_start, check_members))
 
+        switch = StateOperationNode('切换1号位', self._switch_first)
+        edges.append(StateOperationEdge(check_members, switch))
+
         check_level_type = StateOperationNode('识别楼层类型', self._check_level_type)
-        edges.append(StateOperationEdge(check_members, check_level_type))
+        edges.append(StateOperationEdge(switch, check_level_type, ignore_status=True))  # 1号位切换成功与否都可以继续
 
         check_route = StateOperationNode('匹配路线', self._check_route)
         edges.append(StateOperationEdge(check_level_type, check_route))
@@ -104,6 +105,14 @@ class SimUniRunLevel(StateOperation):
 
     def _check_members(self) -> OperationOneRoundResult:
         op = CheckTeamMembersInWorld(self.ctx)
+        return self.round_by_op(op.execute())
+
+    def _switch_first(self) -> OperationOneRoundResult:
+        """
+        切换1号位
+        :return:
+        """
+        op = SwitchMember(self.ctx, 1)
         return self.round_by_op(op.execute())
 
     def _check_level_type(self) -> OperationOneRoundResult:

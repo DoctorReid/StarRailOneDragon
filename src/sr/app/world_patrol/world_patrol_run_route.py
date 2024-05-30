@@ -11,14 +11,13 @@ from sr.context import Context
 from sr.operation import Operation, OperationResult, OperationFail, StateOperation, \
     StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.transport import Transport
-from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.record_coordinate import RecordCoordinate
 from sr.operation.unit.team import CheckTeamMembersInWorld, SwitchMember
 from sr.operation.unit.technique import UseTechnique
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
-from sr.screen_area.dialog import ScreenDialog
+from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
@@ -44,7 +43,7 @@ class WorldPatrolRunRoute(StateOperation):
         edges.append(StateOperationEdge(check_members, switch))
 
         use_tech = StateOperationNode('使用秘技', self._use_tech)
-        edges.append(StateOperationEdge(switch, use_tech))
+        edges.append(StateOperationEdge(switch, use_tech, ignore_status=True))  # 1号位切换成功与否都可以继续
 
         op_node = StateOperationNode('执行路线指令', self._next_op)
         edges.append(StateOperationEdge(use_tech, op_node))
@@ -69,9 +68,6 @@ class WorldPatrolRunRoute(StateOperation):
         self.current_region: Region = self.route.tp.region
         """当前的区域"""
 
-        self.switch_first_success: bool = True
-        """切换1号位是否成功"""
-
         log.info('准备执行线路 %s', self.route.display_name)
         log.info('感谢以下人员提供本路线 %s', self.route.author_list)
 
@@ -91,16 +87,7 @@ class WorldPatrolRunRoute(StateOperation):
         :return:
         """
         op = SwitchMember(self.ctx, 1)
-        op_result = op.execute()
-
-        if not op_result.success or \
-                ScreenDialog.FAST_RECOVER_CANCEL.value == op_result.status:
-            # 切换不成功 或者 无法复活
-            self.switch_first_success = False
-        else:
-            self.switch_first_success = True
-
-        return self.round_success(status=op_result.status)
+        return self.round_by_op(op.execute())
 
     def _use_tech(self) -> OperationOneRoundResult:
         """
@@ -109,8 +96,7 @@ class WorldPatrolRunRoute(StateOperation):
         """
         if (not self.ctx.world_patrol_config.technique_fight
                 or not self.ctx.team_info.is_buff_technique
-                or self.ctx.technique_used
-                or not self.switch_first_success):
+                or self.ctx.technique_used):
             return self.round_success()
 
         op = UseTechnique(self.ctx,
@@ -141,7 +127,7 @@ class WorldPatrolRunRoute(StateOperation):
             op = self.move(route_item, next_route_item)
         elif route_item.op == operation_const.OP_PATROL:
             op = WorldPatrolEnterFight(self.ctx,
-                                       technique_fight=self.switch_first_success and self.ctx.world_patrol_config.technique_fight,
+                                       technique_fight=self.ctx.world_patrol_config.technique_fight,
                                        technique_only=self.ctx.world_patrol_config.technique_only,
                                        first_state=ScreenNormalWorld.CHARACTER_ICON.value.status)
         elif route_item.op == operation_const.OP_DISPOSABLE:
@@ -215,7 +201,7 @@ class WorldPatrolRunRoute(StateOperation):
         return MoveDirectly(self.ctx, current_lm_info, next_lm_info=next_lm_info,
                             target=next_pos, start=current_pos,
                             stop_afterwards=stop_afterwards, no_run=no_run,
-                            technique_fight=self.switch_first_success and self.ctx.world_patrol_config.technique_fight,
+                            technique_fight=self.ctx.world_patrol_config.technique_fight,
                             technique_only=self.ctx.world_patrol_config.technique_only,
                             op_callback=self._update_pos_after_op)
 

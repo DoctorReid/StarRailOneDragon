@@ -10,7 +10,8 @@ from sr.const import phone_menu_const
 from sr.const.character_const import Character, CHARACTER_LIST
 from sr.context import Context
 from sr.image.sceenshot import screen_state
-from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
+from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge, \
+    OperationResult
 from sr.operation.battle.choose_team import ChooseTeam
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
@@ -253,6 +254,17 @@ class SwitchMember(StateOperation):
             return self.round_success()
         else:
             return self.round_retry('未在大世界画面', wait=1)
+
+    def _after_operation_done(self, result: OperationResult):
+        super()._after_operation_done(result)
+
+        if not result.success or \
+                ScreenDialog.FAST_RECOVER_CANCEL.value == result.status:
+            # 指令出错 或者 没药复活 导致切换失败
+            # 将当前角色设置成一个非法的下标 这样就可以让所有依赖这个的判断失效
+            self.ctx.team_info.current_active = -1
+        else:
+            self.ctx.team_info.current_active = self.num - 1
 
 
 class ChooseTeamInWorld(StateOperation):
