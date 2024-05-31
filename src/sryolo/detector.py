@@ -22,6 +22,18 @@ class DetectContext:
         self.detect_time: float = time.time() if detect_time is None else detect_time
         """识别时间"""
 
+        self.conf: float = 0.7
+        """检测时用的置信度阈值"""
+
+        self.iou: float = 0.5
+        """检测时用的IOU阈值"""
+
+        self.labels: Optional[List[str]] = None
+        """只检测特定的标签 见 labels.csv 的label"""
+
+        self.cates: Optional[List[str]] = None
+        """只检测特定类别的标签 见 labels.csv 的 cate"""
+
         self.img: MatLike = raw_image
         """预测用的图片"""
 
@@ -30,12 +42,6 @@ class DetectContext:
 
         self.img_width: int = raw_image.shape[1]
         """原图的宽度"""
-
-        self.conf: float = 0.7
-        """检测时用的置信度阈值"""
-
-        self.iou: float = 0.5
-        """检测时用的IOU阈值"""
 
         self.scale_height: int = 0
         """缩放后的高度"""
@@ -136,6 +142,8 @@ class StarRailYOLO:
 
         # 分类
         self.idx_2_class: dict[int, DetectClass] = {}
+        self.class_2_idx: dict[str, int] = {}
+        self.cate_2_idx: dict[str, int] = {}
 
         # 检测并下载模型
         model_dir_path = get_model_dir_path(model_parent_dir_path, model_name)
@@ -181,25 +189,36 @@ class StarRailYOLO:
         csv_path = os.path.join(model_dir_path, 'labels.csv')
         labels_df = pd.read_csv(csv_path, encoding='utf-8')
         self.idx_2_class = {}
+        self.class_2_idx = {}
+        self.cate_2_idx = {}
         for _, row in labels_df.iterrows():
             self.idx_2_class[row['idx']] = DetectClass(row['idx'], row['label'], row['cate'])
+            self.class_2_idx[row['label']] = row['idx']
+            self.cate_2_idx[row['cate']] = row['idx']
 
     def detect(self, image: MatLike,
-               conf: float = 0.5,
+               conf: float = 0.7,
                iou: float = 0.5,
-               detect_time: Optional[float] = None) -> DetectFrameResult:
+               detect_time: Optional[float] = None,
+               labels: Optional[List[str]] = None,
+               cates: Optional[List[str]] = None
+               ) -> DetectFrameResult:
         """
 
         :param image: 使用 opencv 读取的图片 BGR通道
         :param conf: 置信度阈值
         :param iou: IOU阈值
         :param detect_time: 识别时间 应该是画面记录的时间 不传入时使用系统当前时间
+        :param labels: 只检测特定的标签 见 labels.csv 的label
+        :param cates: 只检测特定类别的标签 见 labels.csv 的 cate
         :return: 检测得到的目标
         """
         t1 = time.time()
         context = DetectContext(image, detect_time)
         context.conf = conf
         context.iou = iou
+        context.labels = labels
+        context.cates = cates
 
         input_tensor = self.prepare_input(context)
         t2 = time.time()
@@ -210,7 +229,7 @@ class StarRailYOLO:
         results = self.process_output(outputs, context)
         t4 = time.time()
 
-        log.info(f'识别完毕 得到结果 {len(results)}个。预处理耗时 {t2 - t1:.3f}s, 推理耗时 {t3 - t2:.3f}s, 后处理耗时 {t4 - t3:.3f}s')
+        log.debug(f'识别完毕 得到结果 {len(results)}个。预处理耗时 {t2 - t1:.3f}s, 推理耗时 {t3 - t2:.3f}s, 后处理耗时 {t4 - t3:.3f}s')
 
         self.record_frame_result(context, results)
         return self.last_detect_result
@@ -264,6 +283,23 @@ class StarRailYOLO:
         :return: 最终得到的识别结果
         """
         predictions = np.squeeze(output[0]).T
+
+        keep = np.ones(shape=(predictions.shape[1]), dtype=bool)
+
+        if context.labels is not None or context.cates is not None:
+            keep[4:] = False  # 前4位是坐标 先把所有标签都设置为False
+            if context.labels is not None:
+                for label in context.labels:
+                    idx = self.class_2_idx.get(label)
+                    if idx is not None:
+                        keep[idx + 4] = True
+            if context.cates is not None:
+                for cate in context.cates:
+                    idx = self.cate_2_idx.get(cate)
+                    if idx is not None:
+                        keep[idx + 4] = True
+
+        predictions[:, keep == False] = 0
 
         # 按置信度阈值进行基本的过滤
         scores = np.max(predictions[:, 4:], axis=1)

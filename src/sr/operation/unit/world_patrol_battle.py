@@ -1,11 +1,10 @@
 import time
-from typing import ClassVar, Optional, Tuple
+from typing import ClassVar, Optional
 
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.const import STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
@@ -19,7 +18,6 @@ class WorldPatrolEnterFight(Operation):
     ATTACK_INTERVAL: ClassVar[float] = 0.2  # 发起攻击的间隔
     EXIT_AFTER_NO_ALTER_TIME: ClassVar[int] = 2  # 多久没警报退出
     EXIT_AFTER_NO_BATTLE_TIME: ClassVar[int] = 20  # 持续多久没有进入战斗画面就退出 这时候大概率是小地图判断被怪物锁定有问题
-    OPPOSITE_DIRECTION: ClassVar[dict[str, str]] = {'w': 's', 'a': 'd', 's': 'w', 'd': 'a'}  # 反方向
 
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
     STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
@@ -100,7 +98,7 @@ class WorldPatrolEnterFight(Operation):
             result = self._attack(now_time)
             return result
         else:
-            with_alert, attack_direction = WorldPatrolEnterFight.get_attack_direction(self.ctx, screen, self.last_attack_direction)
+            with_alert, attack_direction = self.ctx.yolo_detector.get_attack_direction(screen, self.last_attack_direction, now_time)
             if with_alert:
                 log.debug('有告警')
                 self.last_alert_time = now_time
@@ -245,46 +243,3 @@ class WorldPatrolEnterFight(Operation):
             time.sleep(0.25)
             self.had_last_move = True
             return self.round_wait()
-
-    @staticmethod
-    def get_attack_direction(ctx: Context, screen: MatLike, last_direction: Optional[str]) -> Tuple[bool, str]:
-        """
-        根据画面结果 判断下一次的攻击方向
-        多个候选方向时 优先选上一次反方向的 防止产生的位置越走越远
-        :param ctx: 上下文
-        :param screen: 游戏画面
-        :param last_direction: 上一次的攻击方向
-        :return: 是否有警告, 攻击方向
-        """
-        direction_cnt: dict[str, int] = {'w': 0, 'a': 0, 's': 0, 'd': 0}
-
-        frame_result = ctx.sim_uni_yolo.detect(screen)
-        for result in frame_result.results:
-            if result.detect_class.class_cate in ['界面提示被发现', '界面提示被锁定', '界面提示可攻击']:
-                x, y = result.center
-                if x < STANDARD_RESOLUTION_W // 3:
-                    direction_cnt['a'] = direction_cnt['a'] + 1
-                elif x > STANDARD_RESOLUTION_W // 3 * 2:
-                    direction_cnt['d'] = direction_cnt['d'] + 1
-                elif y > STANDARD_RESOLUTION_H // 3 * 2:
-                    direction_cnt['s'] = direction_cnt['s'] + 1
-                else:
-                    direction_cnt['w'] = direction_cnt['w'] + 1
-
-        max_direction: Optional[str] = None
-        max_cnt: int = 0
-        for direction, cnt in direction_cnt.items():
-            if cnt > max_cnt:
-                max_cnt = cnt
-                max_direction = direction
-        with_alert: bool = max_cnt > 0
-
-        if last_direction is not None:
-            if max_cnt == 0 or direction_cnt[WorldPatrolEnterFight.OPPOSITE_DIRECTION[last_direction]] > 0:
-                # 目前没有识别到警告 或者 有警告在上一次的反方向的 优先用反方向
-                return with_alert, WorldPatrolEnterFight.OPPOSITE_DIRECTION[last_direction]
-
-        # 其他情况 优先取警告最多的方向
-        # 没有告警时候优先向后攻击 因为这是来的方向 向后的话不容易陷入卡死
-        target_direction = 's' if max_direction is None else max_direction
-        return with_alert, target_direction

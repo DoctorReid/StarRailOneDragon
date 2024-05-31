@@ -194,7 +194,7 @@ class SimUniRunRouteBaseV2(StateOperation):
             return self.round_by_op(op_result)
 
         # 看上一帧识别结果
-        frame_result = self.ctx.sim_uni_yolo.last_detect_result
+        frame_result = self.ctx.yolo_detector.sim_uni_yolo.last_detect_result
         min_x = STANDARD_RESOLUTION_W
         max_x = 0
         for r in frame_result.results:

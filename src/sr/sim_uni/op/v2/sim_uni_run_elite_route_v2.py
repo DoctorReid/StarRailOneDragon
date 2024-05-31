@@ -172,7 +172,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBaseV2):
         # self._view_down()  # 入口和下层奖励 都比较大 应该不需要视角往下
         screen = self.screenshot()
 
-        frame_result = self.ctx.sim_uni_yolo.detect(screen)
+        frame_result = self.ctx.yolo_detector.sim_uni_yolo.detect(screen)
 
         detected: bool = False
         for result in frame_result.results:

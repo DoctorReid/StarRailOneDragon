@@ -237,6 +237,10 @@ class MoveDirectly(Operation):
         在大世界中 进行处理
         :return:
         """
+        # 先异步识别是否需要攻击
+        if not self.no_battle:  # 外层调用保证没有战斗 跳过后续检测
+            attack_future = self.ctx.yolo_detector.detect_should_attack_in_world_async(screen, now_time)
+
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
 
         next_pos, mm_info = self.cal_pos(mm, now_time)  # 计算当前坐标
@@ -287,16 +291,17 @@ class MoveDirectly(Operation):
 
         return None
 
-    def check_enemy_and_attack(self, screen: MatLike, mm: MatLike) -> Optional[OperationOneRoundResult]:
+    def check_enemy_and_attack(self, screen: MatLike, mm: MatLike, now_time: float) -> Optional[OperationOneRoundResult]:
         """
         从小地图检测敌人 如果有的话 进入索敌
         :param screen: 游戏画面
         :param mm: 小地图部分
+        :param now_time: 当前时间
         :return: 是否有敌人
         """
         if self.no_battle:  # 外层调用保证没有战斗 跳过后续检测
             return None
-        if not screen_state.should_attack_in_world(self.ctx, screen):
+        if not self.ctx.yolo_detector.should_attack_in_world_last_result(now_time):
             return None
 
         # 停止移动的指令交给了 WorldPatrolEnterFight 这样可以通过攻击或者十方秘技来取消停止移动造成的后摇

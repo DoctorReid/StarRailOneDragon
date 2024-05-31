@@ -126,7 +126,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
         self._view_down()
         screen = self.screenshot()
 
-        frame_result = self.ctx.sim_uni_yolo.detect(screen)
+        frame_result = self.ctx.yolo_detector.sim_uni_yolo.detect(screen)
 
         with_event: bool = False
         for result in frame_result.results:

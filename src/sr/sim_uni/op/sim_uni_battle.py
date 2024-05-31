@@ -215,19 +215,12 @@ class SimUniEnterFight(Operation):
             else:
                 return self._attack(now_time)
 
-    def _can_attack(self, screen: MatLike) -> bool:
-        frame_result = self.ctx.sim_uni_yolo.detect(screen)
-        for result in frame_result.results:
-            if result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
-                return True
-        return False
-
     def _move_to_attack(self):
         """
         往之前识别的可攻击方向移动
         :return:
         """
-        frame_result = self.ctx.sim_uni_yolo.last_detect_result
+        frame_result = self.ctx.yolo_detector.sim_uni_yolo.last_detect_result
         direction_cnt: int = 0   # 负数往左 正数往右
         if frame_result is not None:
             for result in frame_result.results:

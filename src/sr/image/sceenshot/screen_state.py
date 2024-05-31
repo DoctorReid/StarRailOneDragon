@@ -6,7 +6,6 @@ from cv2.typing import MatLike
 from basic import Rect, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from sr.context import Context
 from sr.image import ImageMatcher
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot.screen_state_enum import ScreenState
@@ -436,19 +435,3 @@ def is_mission_in_world(screen: MatLike, im: ImageMatcher) -> bool:
     :return:
     """
     return in_screen_by_area_template(screen, im, ScreenSimUni.EXIT_BTN.value)
-
-
-def should_attack_in_world(ctx: Context, screen: MatLike) -> bool:
-    """
-    大世界画面下使用 判断目前是否处于应该攻击的状态
-    - 有被怪物锁定的标志
-    - 有可攻击的标志
-    :param ctx: 上下文
-    :param screen: 游戏画面
-    :return:
-    """
-    frame_result = ctx.sim_uni_yolo.detect(screen, conf=0.9)
-    for result in frame_result.results:
-        if result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
-            return True
-    return False

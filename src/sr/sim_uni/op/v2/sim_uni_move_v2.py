@@ -1,9 +1,6 @@
 import time
 from typing import List, Optional, ClassVar
 
-import time
-from typing import List, Optional, ClassVar
-
 import numpy as np
 from cv2.typing import MatLike
 
@@ -124,8 +121,10 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         if not screen_state.is_normal_in_world(screen, self.ctx.im):  # 不在大世界 可能被袭击了
             return self._enter_battle()
 
-        if not self.no_attack and screen_state.should_attack_in_world(self.ctx, screen):
-            return self._enter_battle()
+        if not self.no_attack:
+            self.ctx.yolo_detector.detect_should_attack_in_world_async(screen, now)
+            if self.ctx.yolo_detector.should_attack_in_world_last_result(now):
+                return self._enter_battle()
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
@@ -300,7 +299,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         :param screen:
         :return:
         """
-        frame_result = self.ctx.sim_uni_yolo.detect(screen)
+        frame_result = self.ctx.yolo_detector.sim_uni_yolo.detect(screen)
         normal_enemy_result = []
         can_attack: bool = False
         for result in frame_result.results:
@@ -463,7 +462,7 @@ class SimUniMoveToInteractByDetect(Operation):
         :param screen: 游戏截图
         :return:
         """
-        frame_result = self.ctx.sim_uni_yolo.detect(screen)
+        frame_result = self.ctx.yolo_detector.sim_uni_yolo.detect(screen)
         filter_results = []
         for result in frame_result.results:
             if not result.detect_class.class_cate == self.interact_class:
@@ -588,7 +587,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
         if self._is_target_interact():  # 符合目标交互 就不需要OCR了
             self.existed_interact_word = ''
 
-        frame_result = self.ctx.sim_uni_yolo.detect(screen)
+        frame_result = self.ctx.yolo_detector.sim_uni_yolo.detect(screen)
 
         entry_angles: List[float] = []
         for result in frame_result.results:

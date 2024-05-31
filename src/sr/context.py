@@ -41,13 +41,12 @@ from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import fill_uid_black
-from sr.image.yolo_screen_detector import get_yolo_model_parent_dir
+from sr.image.yolo_screen_detector import YoloScreenDetector
 from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig, SimUniChallengeConfig
 from sr.win import Window
-from sryolo.detector import StarRailYOLO
 
 
 class PosInfo:
@@ -170,7 +169,7 @@ class Context:
         self.im: Optional[ImageMatcher] = None
         self.ocr: Optional[OcrMatcher] = None
         self.controller: Optional[GameController] = None
-        self._sim_uni_yolo: Optional[StarRailYOLO] = None
+        self.yolo_detector: Optional[YoloScreenDetector] = None
         self.running: int = 0  # 0-停止 1-运行 2-暂停
         self.press_event: dict = {}
         self.event_bus: EventBus = EventBus()
@@ -488,6 +487,7 @@ class Context:
         result: bool = True
         result = result and self.init_image_matcher(renew)
         result = result and self.init_ocr_matcher(renew)
+        result = result and self.init_yolo_detector(renew)
         result = result and self.init_controller(renew)
         if result:
             log.info('加载工具完毕')
@@ -553,17 +553,13 @@ class Context:
         else:
             return self.sim_uni_config.get_challenge_config(self.sim_uni_info.world_num)
 
-    @property
-    def sim_uni_yolo(self) -> StarRailYOLO:
-        if self._sim_uni_yolo is None:
-            model_name = self.one_dragon_config.sim_uni_yolo
-            self._sim_uni_yolo = StarRailYOLO(
-                model_parent_dir_path=get_yolo_model_parent_dir(),
-                model_name=model_name
-            )
-            log.info('加载YOLO识别器完毕')
+    def init_yolo_detector(self, renew: bool = False) -> bool:
+        if renew:
+            self.yolo_detector = None
+        if self.yolo_detector is None:
+            self.yolo_detector = YoloScreenDetector(sim_uni_model_name=self.one_dragon_config.sim_uni_yolo)
 
-        return self._sim_uni_yolo
+        return True
 
 
 def get_game_win() -> Window:

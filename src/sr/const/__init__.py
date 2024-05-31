@@ -17,3 +17,5 @@ COLOR_MAP_ROAD_BGR = (60, 60, 60)  # 地图上道路颜色
 COLOR_ARROW_BGR = (255, 200, 0)  # 小箭头颜色
 
 CLICK_TO_CONTINUE_POS = Point(STANDARD_RESOLUTION_W // 2, STANDARD_RESOLUTION_H - 100)  # 空白点击继续的地方
+
+OPPOSITE_DIRECTION = {'w': 's', 'a': 'd', 's': 'w', 'd': 'a'}  # 反方向

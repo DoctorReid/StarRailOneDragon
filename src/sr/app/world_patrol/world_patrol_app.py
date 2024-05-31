@@ -73,7 +73,6 @@ class WorldPatrol(Application):
         - 角度匹配用的矩阵
         :return:
         """
-        _ = self.ctx.sim_uni_yolo  # 加载yolo
         self.ctx.ih.preheat_for_world_patrol()
         mini_map.preheat()
 
