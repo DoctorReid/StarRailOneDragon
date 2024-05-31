@@ -407,6 +407,9 @@ class SimUniMoveToInteractByDetect(Operation):
         self.existed_interact_word: Optional[str] = None
         """还没开始移动就已经存在的交互词"""
 
+        self.find_in_last_detect: bool = False
+        """在上一次识别中找到目标"""
+
     def _execute_one_round(self) -> OperationOneRoundResult:
         now = time.time()
         screen = self.screenshot()
@@ -477,7 +480,13 @@ class SimUniMoveToInteractByDetect(Operation):
         处理当前画面识别不到交互物体的情况
         :return:
         """
+        if self.no_detect_times == 0 and self.find_in_last_detect:
+            # 上一次能识别的 但转向之后刚好盖住了 那也可以开始移动了
+            self.ctx.controller.start_moving_forward()
+            self.start_move_time = time.time()
+
         self.no_detect_times += 1
+        self.find_in_last_detect = False
 
         if self.no_detect_times >= 9:
             return self.round_fail(SimUniMoveToInteractByDetect.STATUS_NO_DETECT)
@@ -497,11 +506,12 @@ class SimUniMoveToInteractByDetect(Operation):
         :param pos_list: 识别的列表
         :return:
         """
+        self.find_in_last_detect = True
         self.no_detect_times = 0
         target = pos_list[0]  # 先固定找第一个
         target_angle = delta_angle_to_detected_object(target)
         log.debug('目标角度 %.2f', target_angle)
-        turn_angle = turn_by_angle_slowly(self.ctx, target_angle)
+        turn_by_angle_slowly(self.ctx, target_angle)
         if abs(target_angle) >= _MAX_TURN_ANGLE * 2:  # 转向较大时 先完成转向再开始移动
             return self.round_wait()
         self.ctx.controller.start_moving_forward()
