@@ -11,7 +11,7 @@ from sr.operation.unit.team import CheckTeamMembersInWorld, SwitchMember
 from sr.sim_uni import sim_uni_screen_state
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
-from sr.sim_uni.op.sim_uni_run_route import SimUniRunInteractRoute, SimUniRunEliteRoute, SimUniRunCombatRoute
+from sr.sim_uni.op.sim_uni_run_route import SimUniRunCombatRoute
 from sr.sim_uni.op.sim_uni_wait import SimUniWaitLevelStart
 from sr.sim_uni.op.v2.sim_uni_run_combat_route_v2 import SimUniRunCombatRouteV2
 from sr.sim_uni.op.v2.sim_uni_run_elite_route_v2 import SimUniRunEliteRouteV2
@@ -148,7 +148,7 @@ class SimUniRunLevel(StateOperation):
         """
         # 只有3~8宇宙的战斗楼层需要
         if (self.world_num > 8
-                or self.level_type.type_id != SimUniLevelTypeEnum.COMBAT.value):
+                or self.level_type != SimUniLevelTypeEnum.COMBAT.value):
             return self.round_success()
 
         screen = self.screenshot()
