@@ -116,7 +116,7 @@ class CharacterTechniqueType:
 
 
 TECHNIQUE_BUFF = CharacterTechniqueType(id='buff', remark='BUFF类')
-TECHNIQUE_AREA = CharacterTechniqueType(id='buff', remark='领域')
+TECHNIQUE_AREA = CharacterTechniqueType(id='buff_area', remark='领域')
 TECHNIQUE_BUFF_ATTACK = CharacterTechniqueType(id='buff_attack', remark='需攻击触发BUFF类')
 TECHNIQUE_ATTACK = CharacterTechniqueType(id='attack', remark='攻击类')
 

@@ -171,11 +171,15 @@ class StarRailYOLO:
             log.error('机器未支持CUDA 使用CPU')
             providers = ['CPUExecutionProvider']
 
+        sess_options = ort.SessionOptions()
+        sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL  # 模型分支不多 算子间并行作用不大
+
         onnx_path = os.path.join(model_dir_path, 'model.onnx')
         log.info('加载模型 %s', onnx_path)
         self.session = ort.InferenceSession(
             onnx_path,
-            providers=providers
+            providers=providers,
+            # sess_options=sess_options
         )
         self.get_input_details()
         self.get_output_details()

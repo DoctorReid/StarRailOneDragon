@@ -244,22 +244,6 @@ def init_arrow_template(mm: MatLike):
     save_template_image(precise_template, 'arrow_precise', 'mask')
 
 
-def init_battle_lock():
-    """
-    初始化界面的锁定怪物图标
-    需要找个怪兽锁定后截图 扣取红色的部分
-    :return:
-    """
-    raw = _read_template_raw_image('battle_lock')
-    b, g, r = cv2.split(raw)
-    mask = np.zeros((raw.shape[0], raw.shape[1]), dtype=np.uint8)
-    mask[np.where(r > 230)] = 255
-
-    origin = cv2.bitwise_and(raw, raw, mask=mask)
-    cv2_utils.show_image(origin, win_name='origin')
-    cv2.waitKey(0)
-
-
 def init_boss_icon(template_id):
     raw = _read_template_raw_image(template_id)
     lower_color = np.array([80, 80, 180], dtype=np.uint8)
@@ -518,7 +502,6 @@ if __name__ == '__main__':
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
-    # init_battle_lock()
     # init_boss_icon('mm_boss_05')
     # init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
     # init_ui_alert('ui_alert')

@@ -183,7 +183,6 @@ class StartFightForElite(StateOperation):
                 continue
             if self.character_list[i] == SILVERWOLF:
                 self.technique_order.append(i)
-                self.finish_tech_type = TECHNIQUE_ATTACK
                 return self.round_success()
 
         for i in range(4):  # 普通角色 攻击类
