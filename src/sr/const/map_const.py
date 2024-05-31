@@ -883,7 +883,7 @@ def get_sp_type_in_rect(region: Region, rect: Rect) -> dict:
     """
     sp_list = REGION_2_SP.get(region.pr_id)
     sp_map = {}
-    if len(sp_list) == 0:
+    if sp_list is None or len(sp_list) == 0:
         return sp_map
     for sp in sp_list:
         if rect is None or cal_utils.in_rect(sp.lm_pos, rect):
