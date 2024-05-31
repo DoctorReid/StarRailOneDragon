@@ -146,19 +146,23 @@ class SimUniRunLevel(StateOperation):
         防止匹配错误 两次匹配一样时才认为是正确 牺牲一点时间换取稳定性
         :return:
         """
+        # 只有3~8宇宙的战斗楼层需要
+        if (self.world_num > 8
+                or self.level_type.type_id != SimUniLevelTypeEnum.COMBAT.value):
+            return self.round_success()
+
         screen = self.screenshot()
 
         another_route = False  # 是否匹配到另一条路线
-        if self.world_num < 9:  # 目前只有3~8宇宙需要匹配路线
-            mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-            target_route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
+        mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
+        target_route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
 
-            if target_route is None:
-                self.route = None
-                return self.round_retry('匹配路线失败', wait=1)
-            elif self.route is None or self.route.uid != target_route.uid:
-                self.route = target_route
-                another_route = True
+        if target_route is None:
+            self.route = None
+            return self.round_retry('匹配路线失败', wait=1)
+        elif self.route is None or self.route.uid != target_route.uid:
+            self.route = target_route
+            another_route = True
 
         if another_route:
             return self.round_wait(wait=0.2)
@@ -201,25 +205,15 @@ class SimUniRunLevel(StateOperation):
                 return SimUniRunCombatRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
         elif self.level_type == SimUniLevelTypeEnum.EVENT.value or \
                 self.level_type == SimUniLevelTypeEnum.TRANSACTION.value or \
-                self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value or \
-                self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-            if self.route is None or self.route.algo == 2 or only_v2:
-                if self.level_type == SimUniLevelTypeEnum.RESPITE.value:
-                    return SimUniRunRespiteRouteV2(self.ctx, self.level_type)
-                else:
-                    return SimUniRunEventRouteV2(self.ctx, self.level_type)
-            else:
-                return SimUniRunInteractRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config)
+                self.level_type == SimUniLevelTypeEnum.ENCOUNTER.value:
+            return SimUniRunEventRouteV2(self.ctx, self.level_type)
+        elif self.level_type == SimUniLevelTypeEnum.RESPITE.value:
+            return SimUniRunRespiteRouteV2(self.ctx, self.level_type)
         elif self.level_type == SimUniLevelTypeEnum.ELITE.value or \
                 self.level_type == SimUniLevelTypeEnum.BOSS.value:
-            if self.route is None or self.route.algo == 2 or only_v2:
-                return SimUniRunEliteRouteV2(self.ctx, self.level_type,
-                                             max_reward_to_get=self.max_reward_to_get,
-                                             get_reward_callback=self.get_reward_callback)
-            else:
-                return SimUniRunEliteRoute(self.ctx, self.world_num, self.level_type, self.route, config=self.config,
-                                           max_reward_to_get=self.max_reward_to_get,
-                                           get_reward_callback=self.get_reward_callback)
+            return SimUniRunEliteRouteV2(self.ctx, self.level_type,
+                                         max_reward_to_get=self.max_reward_to_get,
+                                         get_reward_callback=self.get_reward_callback)
         else:
             return None
 
