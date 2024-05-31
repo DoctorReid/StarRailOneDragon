@@ -5,6 +5,7 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.log_utils import log
+from sr.const import OPPOSITE_DIRECTION
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
@@ -238,7 +239,7 @@ class WorldPatrolEnterFight(Operation):
             # 已经进行过最后的移动了
             return self.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:
-            move_direction = 's' if self.last_attack_direction is None else WorldPatrolEnterFight.OPPOSITE_DIRECTION[self.last_attack_direction]
+            move_direction = 's' if self.last_attack_direction is None else OPPOSITE_DIRECTION[self.last_attack_direction]
             self.ctx.controller.move(direction=move_direction)
             time.sleep(0.25)
             self.had_last_move = True

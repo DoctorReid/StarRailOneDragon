@@ -37,7 +37,9 @@ class YoloScreenDetector:
             )
 
         self.last_async_future: Optional[concurrent.futures.Future] = None
-        """上一次异步结果"""
+        """上一次异步回调"""
+        self.last_detect_result: Optional[DetectFrameResult] = None
+        """上一次识别结果"""
 
     def detect_should_attack_in_world(self, screen: MatLike, detect_time: float) -> DetectFrameResult:
         """

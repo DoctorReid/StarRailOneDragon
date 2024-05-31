@@ -254,7 +254,7 @@ class MoveDirectly(Operation):
 
         # 被敌人锁定的时候 小地图会被染红 坐标匹配能力大减
         # 因此 就算识别不到坐标 也要判断是否被怪锁定 以免一直识别坐标失败站在原地被袭
-        check_enemy = self.check_enemy_and_attack(screen, mm_info.origin_del_radio)
+        check_enemy = self.check_enemy_and_attack(screen, mm_info.origin_del_radio, now_time)
         if check_enemy is not None:
             return check_enemy
 

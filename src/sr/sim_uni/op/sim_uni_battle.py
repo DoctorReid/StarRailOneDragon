@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.const import STANDARD_CENTER_POS
+from sr.const import STANDARD_CENTER_POS, OPPOSITE_DIRECTION
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
@@ -14,7 +14,6 @@ from sr.operation import Operation, OperationOneRoundResult, StateOperation, Sta
 from sr.operation.battle.start_fight import StartFightForElite
 from sr.operation.unit.team import SwitchMember
 from sr.operation.unit.technique import UseTechnique, UseTechniqueResult, FastRecover
-from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_sim_uni import ScreenSimUni
@@ -166,7 +165,7 @@ class SimUniEnterFight(Operation):
             result = self._attack(now_time)
             return result
         else:
-            with_alert, attack_direction = WorldPatrolEnterFight.get_attack_direction(self.ctx, screen, self.last_attack_direction)
+            with_alert, attack_direction = self.ctx.yolo_detector.get_attack_direction(screen, self.last_attack_direction, now_time)
             if with_alert:
                 log.debug('有告警')
                 self.last_alert_time = now_time
@@ -323,7 +322,7 @@ class SimUniEnterFight(Operation):
         else:
             direction = self.last_attack_direction
             for i in range(2):  # 多按几次 防止被后摇吞了
-                direction = 's' if direction is None else WorldPatrolEnterFight.OPPOSITE_DIRECTION[direction]
+                direction = 's' if direction is None else OPPOSITE_DIRECTION[direction]
                 self.ctx.controller.move(direction=direction)
                 time.sleep(0.25)
             self.had_last_move = True
