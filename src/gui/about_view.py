@@ -19,7 +19,8 @@ class AboutView(SrBasicView, ft.Row):
         SrBasicView.__init__(self, page, ctx)
 
         self.home_btn = components.RectOutlinedButton(gt('访问', 'ui'), on_click=self._visit_home)
-        self.report_btn = components.RectOutlinedButton(gt('访问', 'ui'), on_click=self._report_problem)
+        self.report_github_btn = components.RectOutlinedButton(gt('Github', 'ui'), on_click=self._report_github_problem)
+        self.report_qq_btn = components.RectOutlinedButton(gt('腾讯文档', 'ui'), on_click=self._report_qq_problem)
 
         self.check_update_btn = components.RectOutlinedButton(text='检查更新', on_click=self.check_update)
         self.update_btn = components.RectOutlinedButton(text='更新', on_click=self.do_update, visible=False)
@@ -44,7 +45,8 @@ class AboutView(SrBasicView, ft.Row):
             controls=[
                 components.SettingsListGroupTitle(gt('喜欢一条龙记得到主页点Star', 'ui')),
                 components.SettingsListItem(gt('Github主页', 'ui'), self.home_btn),
-                components.SettingsListItem(gt('问题反馈', 'ui'), self.report_btn),
+                components.SettingsListItem(gt('问题反馈', 'ui'),
+                                            ft.Row(controls=[self.report_github_btn, self.report_qq_btn])),
                 components.SettingsListGroupTitle('赞赏'),
                 components.SettingsListItem('', ft.Row(controls=[self.sponsor_alipay_img, self.sponsor_wechat_img])),
             ],
@@ -81,8 +83,11 @@ class AboutView(SrBasicView, ft.Row):
     def _visit_home(self, e=None):
         webbrowser.open("https://github.com/DoctorReid/StarRailOneDragon")
 
-    def _report_problem(self, e=None):
+    def _report_github_problem(self, e=None):
         webbrowser.open("https://github.com/DoctorReid/StarRailOneDragon/issues/new/choose")
+
+    def _report_qq_problem(self, e=None):
+        webbrowser.open("https://docs.qq.com/form/page/DRmdOd2lKSkNGUFdj")
 
     def check_update(self, e):
         if self.specified_version_input.value is None or self.specified_version_input.value == '':
