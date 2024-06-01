@@ -127,20 +127,10 @@ class SimUniRunLevel(StateOperation):
         """
         screen = self.screenshot()
 
-        level_type = sim_uni_screen_state.get_level_type(screen, self.ctx.ocr)
+        self.level_type = sim_uni_screen_state.get_level_type(screen, self.ctx.ocr)
 
-        if level_type is None:
-            self.level_type = None
+        if self.level_type is None:
             return self.round_retry('匹配楼层类型失败', wait=1)
-
-        another_type = False  # 是否匹配到另一钟类型
-        if self.level_type is None or self.level_type != level_type:
-            self.level_type = level_type
-            another_type = True
-
-        # OCR运行需要时间 下面这些就不等待了
-        if another_type:
-            return self.round_wait()
         else:
             return self.round_success()
 

@@ -1,3 +1,4 @@
+import random
 import time
 from typing import List, Optional, ClassVar
 
@@ -274,10 +275,6 @@ class SimUniMoveToEnemyByDetect(Operation):
             self.ctx.controller.stop_moving_forward()
             return self.round_wait()
 
-        # if now - self.last_debug_time > 0.5 and self.ctx.one_dragon_config.is_debug:
-        #     self.save_screenshot()
-        #     self.last_debug_time = now
-
         # 进行目标识别判断后续动作
         return self.detect_screen(screen)
 
@@ -310,6 +307,8 @@ class SimUniMoveToEnemyByDetect(Operation):
 
         if self.ctx.one_dragon_config.is_debug:
             cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniMoveToEnemyByDetect')
+            if len(frame_result.results) > 3 and random.random() < 0.5:
+                self.save_screenshot()
 
         if can_attack:
             return self.enter_battle()
@@ -473,6 +472,8 @@ class SimUniMoveToInteractByDetect(Operation):
             filter_results.append(result)
         if self.ctx.one_dragon_config.is_debug:
             cv2_utils.show_image(draw_detections(frame_result), win_name='SimUniMoveToInteractByDetect')
+            if len(frame_result.results) > 3 and random.random() < 0.3:
+                self.save_screenshot()
         return filter_results
 
     def handle_no_detect(self) -> OperationOneRoundResult:
@@ -498,7 +499,7 @@ class SimUniMoveToInteractByDetect(Operation):
             angle = -30 if self.no_detect_times % 2 == 0 else 30
 
         self.ctx.controller.turn_by_angle(angle)
-        return self.round_wait(SimUniMoveToInteractByDetect.STATUS_NO_DETECT, wait=0.5)
+        return self.round_wait(SimUniMoveToInteractByDetect.STATUS_NO_DETECT, wait=0.3)
 
     def handle_detect(self, pos_list: List[DetectObjectResult]) -> OperationOneRoundResult:
         """

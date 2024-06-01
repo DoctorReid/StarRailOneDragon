@@ -167,7 +167,7 @@ class SimUniEnterFight(Operation):
         else:
             with_alert, attack_direction = self.ctx.yolo_detector.get_attack_direction(screen, self.last_attack_direction, now_time)
             if with_alert:
-                log.debug('有告警')
+                log.debug('有告警 上一次攻击方向 %s 本次攻击方向 %s', self.last_attack_direction, attack_direction)
                 self.last_alert_time = now_time
                 if now_time - self.last_no_alert_time > 20:
                     # 已经在原地攻击了很久了 可能是被地形卡住了 不再尝试攻击 退出后尝试继续移动

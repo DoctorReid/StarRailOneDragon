@@ -22,7 +22,7 @@ def get_level_type(screen: MatLike, ocr: OcrMatcher) -> Optional[SimUniLevelType
     region_name = ocr.ocr_for_single_line(part)
     level_type_list: List[SimUniLevelType] = [enum.value for enum in SimUniLevelTypeEnum]
     target_list = [gt(level_type.type_name, 'ocr') for level_type in level_type_list]
-    target_idx = str_utils.find_best_match_by_lcs(region_name, target_list)
+    target_idx = str_utils.find_best_match_by_lcs(region_name, target_list, lcs_percent_threshold=0.61)
 
     if target_idx is None:
         return None

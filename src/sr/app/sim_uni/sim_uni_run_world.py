@@ -2,13 +2,13 @@ from typing import Optional, Callable, ClassVar, List
 
 from basic.i18_utils import gt
 from sr.const.character_const import Character
+from sr.context import Context
+from sr.operation import OperationResult, StateOperation, OperationOneRoundResult, \
+    StateOperationNode, StateOperationEdge
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_run_level import SimUniRunLevel
-from sr.context import Context
-from sr.operation import Operation, OperationResult, StateOperation, OperationOneRoundResult, \
-    StateOperationNode, StateOperationEdge
-from sr.sim_uni.sim_uni_const import UNI_NUM_CN
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
+from sr.sim_uni.sim_uni_const import UNI_NUM_CN
 
 
 class SimUniRunWorld(StateOperation):
@@ -63,7 +63,8 @@ class SimUniRunWorld(StateOperation):
             self.skip_check_members = True
         op = SimUniRunLevel(self.ctx, self.world_num, config=self.config,
                             max_reward_to_get=self.max_reward_to_get - self.get_reward_cnt,
-                            get_reward_callback=self._on_get_reward)
+                            get_reward_callback=self._on_get_reward,
+                            skip_check_members=self.skip_check_members)
         op_result = op.execute()
         self.last_members = self.ctx.team_info.character_list  # 每次运行后 保存上一次识别的结果
         return self.round_by_op(op_result)
