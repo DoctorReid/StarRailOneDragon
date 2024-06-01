@@ -108,6 +108,26 @@ class TeamInfo:
     def update_character_list(self, new_character_list: List[Character]):
         self.character_list = new_character_list
 
+    def same_as_current(self, new_character_list: List[Character]):
+        """
+        是否跟当前配队一致
+        :param new_character_list:
+        :return:
+        """
+        if self.character_list is None and new_character_list is None:
+            return True
+        elif self.character_list is None:
+            return False
+        elif new_character_list is None:
+            return False
+        elif len(self.character_list) != len(new_character_list):
+            return False
+        else:
+            for i in range(len(self.character_list)):
+                if self.character_list[i].id != new_character_list[i].id:
+                    return False
+            return True
+
 
 class SimUniInfo:
 

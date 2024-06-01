@@ -32,7 +32,8 @@ class SimUniRunLevel(StateOperation):
                  config: Optional[SimUniChallengeConfig] = None,
                  max_reward_to_get: int = 0,
                  get_reward_callback: Optional[Callable[[int, int], None]] = None,
-                 op_callback: Optional[Callable[[OperationResult], None]] = None):
+                 op_callback: Optional[Callable[[OperationResult], None]] = None,
+                 skip_check_members: bool = False):
         """
         模拟宇宙中 识别楼层类型并运行
         完整通过整个楼层 进入下个楼层或通关后退出
@@ -89,6 +90,7 @@ class SimUniRunLevel(StateOperation):
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
         self.reset_times: int = 0  # 重置次数
+        self.skip_check_members: bool = skip_check_members  # 是否跳过配队检测
 
     def _init_before_execute(self):
         """
@@ -104,6 +106,8 @@ class SimUniRunLevel(StateOperation):
         return self.round_by_op(op.execute())
 
     def _check_members(self) -> OperationOneRoundResult:
+        if self.skip_check_members:
+            return self.round_success('跳过')
         op = CheckTeamMembersInWorld(self.ctx)
         return self.round_by_op(op.execute())
 

@@ -1,6 +1,7 @@
-from typing import Optional, Callable, ClassVar
+from typing import Optional, Callable, ClassVar, List
 
 from basic.i18_utils import gt
+from sr.const.character_const import Character
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_run_level import SimUniRunLevel
 from sr.context import Context
@@ -48,19 +49,24 @@ class SimUniRunWorld(StateOperation):
         self.world_num: int = world_num
         self.config: Optional[SimUniChallengeConfig] = config
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
-        self.get_reward_cnt: int = 0  # 当前获取的奖励次数
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
     def _init_before_execute(self):
         super()._init_before_execute()
         self.get_reward_cnt = 0
         self.ctx.no_technique_recover_consumables = False  # 模拟宇宙重新开始时重置
+        self.last_members: List[Character] = []  # 上一次识别的配队
+        self.skip_check_members: bool = False  # 是否可跳过配队检测 当连续两次检测配队都一样之后 就可以跳过了
 
     def _run_level(self) -> OperationOneRoundResult:
+        if self.ctx.team_info.same_as_current(self.last_members):
+            self.skip_check_members = True
         op = SimUniRunLevel(self.ctx, self.world_num, config=self.config,
                             max_reward_to_get=self.max_reward_to_get - self.get_reward_cnt,
                             get_reward_callback=self._on_get_reward)
-        return self.round_by_op(op.execute())
+        op_result = op.execute()
+        self.last_members = self.ctx.team_info.character_list  # 每次运行后 保存上一次识别的结果
+        return self.round_by_op(op_result)
 
     def _finish(self) -> OperationOneRoundResult:
         return self.round_success(status=SimUniRunWorld.STATUS_SUCCESS)
