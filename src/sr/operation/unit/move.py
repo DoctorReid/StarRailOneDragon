@@ -18,6 +18,7 @@ from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode
 from sr.operation.unit.record_coordinate import RecordCoordinate
 from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
 class GetRidOfStuck(Operation):
@@ -211,7 +212,7 @@ class MoveDirectly(Operation):
         if self.stop_move_time is None:
             self.stop_move_time = now_time + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
         log.info('移动中被袭击')
-        fight = self.get_fight_op()
+        fight = self.get_fight_op(in_world=False)
         fight_start_time = now_time
         fight_result = fight.execute()
         fight_end_time = time.time()
@@ -222,15 +223,16 @@ class MoveDirectly(Operation):
         self.ctx.pos_info.first_cal_pos_after_fight = True
         return self.round_wait()
 
-    def get_fight_op(self) -> Operation:
+    def get_fight_op(self, in_world: bool = True) -> Operation:
         """
         移动过程中被袭击时候处理的指令
         :return:
         """
+        first_state = ScreenNormalWorld.CHARACTER_ICON.value.status if in_world else ScreenState.BATTLE.value
         return WorldPatrolEnterFight(self.ctx,
                                      technique_fight=self.technique_fight,
                                      technique_only=self.technique_only,
-                                     first_state=ScreenState.BATTLE.value)
+                                     first_state=first_state)
 
     def handle_in_world(self, screen: MatLike, now_time: float) -> OperationOneRoundResult:
         """
@@ -239,7 +241,8 @@ class MoveDirectly(Operation):
         """
         # 先异步识别是否需要攻击
         if not self.no_battle:  # 外层调用保证没有战斗 跳过后续检测
-            attack_future = self.ctx.yolo_detector.detect_should_attack_in_world_async(screen, now_time)
+            submit, attack_future = self.ctx.yolo_detector.detect_should_attack_in_world_async(screen, now_time)
+            log.debug('提交攻击检测 %s', submit)
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
 

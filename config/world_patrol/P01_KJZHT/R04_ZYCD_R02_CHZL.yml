@@ -5,7 +5,7 @@ floor: 2
 tp: '存护之蕾·拟造花萼（赤）'
 route:
   - idx: 1
-    op: 'move'
+    op: 'slow_move'
     data: [480, 328]
   - idx: 2
     op: 'disposable'
@@ -16,10 +16,10 @@ route:
     op: 'disposable'
   - idx: 5
     op: 'move'
-    data: [454, 380]
+    data: [464, 380]
   - idx: 6
     op: 'move'
-    data: [485, 388]
+    data: [493, 390]
   - idx: 7
     op: 'interact'
     data: '配控装置'

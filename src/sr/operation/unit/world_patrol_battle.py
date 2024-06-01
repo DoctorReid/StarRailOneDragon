@@ -180,6 +180,7 @@ class WorldPatrolEnterFight(Operation):
             screen, self.ctx.im, self.ctx.ocr,
             in_world=False, battle=True, battle_fail=True,
             express_supply=True, fast_recover=True)
+        log.debug('当前画面 %s', state)
 
         if state == ScreenState.BATTLE_FAIL.value:
             self.ctx.controller.click(screen_state.TargetRect.EMPTY_TO_CLOSE.value.center)

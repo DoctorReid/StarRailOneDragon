@@ -14,9 +14,13 @@ op_list:
     data: [871, 271]
   - op: 'patrol'
   - op: 'move'
+    data: [883, 268]
+  - op: 'move'
+    data: [853, 275]
+  - op: 'move'
     data: [808, 287]
   - op: 'move'
     data: [811, 309]
   - op: 'move'
-    data: [815, 334]
+    data: [814, 327]
   - op: 'patrol'

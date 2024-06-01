@@ -10,6 +10,7 @@ from sr.image.sceenshot import screen_state, mini_map, MiniMapInfo
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import StateOperationEdge, StateOperationNode, Operation, OperationOneRoundResult
 from sr.operation.unit.technique import UseTechnique
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, \
     delta_angle_to_detected_object
@@ -160,7 +161,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
 
     def _enter_fight(self) -> OperationOneRoundResult:
         op = SimUniEnterFight(self.ctx,
-                              first_state=ScreenState.NORMAL_IN_WORLD.value,
+                              first_state=ScreenNormalWorld.CHARACTER_ICON.value.status,
                               )
         op_result = op.execute()
         return self.round_by_op(op_result)

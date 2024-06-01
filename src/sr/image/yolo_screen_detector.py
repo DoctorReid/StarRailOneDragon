@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 from cv2.typing import MatLike
 
 from basic import os_utils
-from sr.const import STANDARD_RESOLUTION_W, STANDARD_RESOLUTION_H, OPPOSITE_DIRECTION
+from sr.const import STANDARD_RESOLUTION_W, OPPOSITE_DIRECTION
 from sryolo.detector import StarRailYOLO, DetectFrameResult
 
 _EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='sr_yolo_detector', max_workers=1)
@@ -105,12 +105,15 @@ class YoloScreenDetector:
 
         return len(self.last_detect_result.results) > 0
 
-    def get_attack_direction(self, screen: MatLike, last_direction: Optional[str], detect_time: float) -> Tuple[bool, str]:
+    def get_attack_direction(self, screen: MatLike,
+                             last_direction: Optional[str],
+                             detect_time: float) -> Tuple[bool, str]:
         """
         根据画面结果 判断下一次的攻击方向
         多个候选方向时 优先选上一次反方向的 防止产生的位置越走越远
         :param screen: 游戏画面
         :param last_direction: 上一次的攻击方向
+        :param
         :param detect_time: 识别时间
         :return: 是否有警告, 攻击方向
         """
@@ -119,14 +122,15 @@ class YoloScreenDetector:
         frame_result = self.detect_should_attack_in_world(screen, detect_time)
         for result in frame_result.results:
             x, y = result.center
+            direction = None
             if x < STANDARD_RESOLUTION_W // 3:
                 direction_cnt['a'] = direction_cnt['a'] + 1
             elif x > STANDARD_RESOLUTION_W // 3 * 2:
                 direction_cnt['d'] = direction_cnt['d'] + 1
-            elif y > STANDARD_RESOLUTION_H // 3 * 2:
-                direction_cnt['s'] = direction_cnt['s'] + 1
             else:
+                # 怪在后面追赶的时候 感叹号显示在最上面 跟怪在前面的情况一样，因此无法很好判断在前面还是在后面
                 direction_cnt['w'] = direction_cnt['w'] + 1
+                direction_cnt['s'] = direction_cnt['s'] + 1
 
         max_direction: Optional[str] = None
         max_cnt: int = 0

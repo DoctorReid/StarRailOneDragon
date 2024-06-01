@@ -6,68 +6,81 @@ tp: '控制中心外'
 route:
   - idx: 1
     op: 'move'
-    data: [386, 328]
+    data: [380, 339]
   - idx: 2
     op: 'patrol'
   - idx: 3
     op: 'move'
-    data: [393, 320]
+    data: [386, 327]
   - idx: 4
     op: 'move'
-    data: [397, 287]
+    data: [399, 305]
   - idx: 5
-    op: 'disposable'
-  - idx: 6
     op: 'move'
-    data: [385, 355]
-  - idx: 7
+    data: [397, 287]
+  - idx: 6
     op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [397, 287]
   - idx: 8
     op: 'move'
-    data: [385, 413]
+    data: [399, 305]
   - idx: 9
-    op: 'disposable'
-  - idx: 10
     op: 'move'
-    data: [395, 424]
+    data: [385, 355]
+  - idx: 10
+    op: 'disposable'
   - idx: 11
     op: 'move'
-    data: [402, 447]
+    data: [385, 413]
   - idx: 12
-    op: 'move'
-    data: [442, 455]
+    op: 'disposable'
   - idx: 13
-    op: 'patrol'
+    op: 'move'
+    data: [395, 424]
   - idx: 14
     op: 'move'
-    data: [427, 469]
+    data: [402, 447]
   - idx: 15
     op: 'move'
-    data: [425, 489]
+    data: [442, 455]
   - idx: 16
-    op: 'move'
-    data: [443, 518]
+    op: 'patrol'
   - idx: 17
     op: 'move'
-    data: [481, 537]
+    data: [427, 469]
   - idx: 18
     op: 'move'
-    data: [557, 548]
+    data: [425, 489]
   - idx: 19
     op: 'move'
-    data: [573, 550, 2]
+    data: [443, 518]
   - idx: 20
-    op: 'disposable'
+    op: 'move'
+    data: [481, 537]
   - idx: 21
     op: 'move'
-    data: [570, 515]
+    data: [557, 548]
   - idx: 22
     op: 'move'
-    data: [610, 514]
+    data: [573, 550, 2]
   - idx: 23
-    op: 'patrol'
+    op: 'disposable'
   - idx: 24
     op: 'move'
-    data: [611, 543]
+    data: [571, 557]
   - idx: 25
+    op: 'slow_move'
+    data: [573, 541]
+  - idx: 26
+    op: 'slow_move'
+    data: [570, 512]
+  - idx: 27
+    op: 'move'
+    data: [610, 514]
+  - idx: 28
+    op: 'move'
+    data: [611, 543]
+  - idx: 29
     op: 'patrol'

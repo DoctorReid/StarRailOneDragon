@@ -14,10 +14,12 @@ from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, mini_map, screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import OperationResult, OperationOneRoundResult, Operation, StateOperation, StateOperationNode, \
     StateOperationEdge
 from sr.operation.unit.interact import check_move_interact
 from sr.operation.unit.move import MoveDirectly
+from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType, level_type_from_id
@@ -52,12 +54,13 @@ class MoveDirectlyInSimUni(MoveDirectly):
         self.op_name = '%s %s' % (gt('模拟宇宙', 'ui'), gt('移动 %s -> %s') % (start, target))
         self.config: SimUniChallengeConfig = config
 
-    def get_fight_op(self) -> Operation:
+    def get_fight_op(self, in_world: bool = True) -> Operation:
         """
         移动过程中被袭击时候处理的指令
         :return:
         """
-        return SimUniEnterFight(self.ctx, config=self.config)
+        first_state = ScreenNormalWorld.CHARACTER_ICON.value.status if in_world else ScreenState.BATTLE.value
+        return SimUniEnterFight(self.ctx, config=self.config, first_state=first_state)
 
     def do_cal_pos(self, mm_info: MiniMapInfo,
                    lm_rect: Rect, verify: VerifyPosInfo) -> Optional[MatchResult]:
