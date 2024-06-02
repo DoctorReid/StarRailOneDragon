@@ -40,6 +40,8 @@ class AboutView(SrBasicView, ft.Row):
                                            width=200, height=200)
         self.sponsor_wechat_img = ft.Image(src=os.path.join(sponsor_dir, 'wechat.png'),
                                            width=200, height=200)
+        self.thanks_btn = components.RectOutlinedButton(text=gt('小伙伴们的支持', 'ui'),
+                                                        on_click=self._open_thanks)
 
         home_list = components.SettingsList(
             controls=[
@@ -48,6 +50,7 @@ class AboutView(SrBasicView, ft.Row):
                 components.SettingsListItem(gt('问题反馈', 'ui'),
                                             ft.Row(controls=[self.report_github_btn, self.report_qq_btn])),
                 components.SettingsListGroupTitle('赞赏'),
+                components.SettingsListItem(gt('感谢', 'ui'), self.thanks_btn),
                 components.SettingsListItem('', ft.Row(controls=[self.sponsor_alipay_img, self.sponsor_wechat_img])),
             ],
             width=450
@@ -88,6 +91,9 @@ class AboutView(SrBasicView, ft.Row):
 
     def _report_qq_problem(self, e=None):
         webbrowser.open("https://docs.qq.com/form/page/DRmdOd2lKSkNGUFdj")
+
+    def _open_thanks(self, e=None):
+        webbrowser.open("https://github.com/DoctorReid/OneDragon-Thanks")
 
     def check_update(self, e):
         if self.specified_version_input.value is None or self.specified_version_input.value == '':

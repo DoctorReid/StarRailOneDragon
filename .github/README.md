@@ -35,6 +35,8 @@ This software is open source, free of charge and for learning and exchange purpo
 
 如果喜欢本项目，可以为作者的边牧赞助一点狗粮~
 
+感谢 [小伙伴们的支持](https://github.com/DoctorReid/OneDragon-Thanks)
+
 ![赞助](./wiki/sponsor.png)
 
 （趁机宣传我的边牧~）
