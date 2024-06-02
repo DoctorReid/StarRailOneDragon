@@ -237,7 +237,7 @@ class OneDragonConfig(ConfigHolder):
 
     @property
     def sim_uni_yolo(self) -> str:
-        return self.get('sim_uni_yolo', 'yolov8n-640-simuni-0512')
+        return self.get('sim_uni_yolo', 'yolov8n-640-simuni-0601')
 
     @sim_uni_yolo.setter
     def sim_uni_yolo(self, new_value: str):

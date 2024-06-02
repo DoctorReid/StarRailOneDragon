@@ -15,8 +15,8 @@ from sr.one_dragon_config import OneDragonAccount
 from sryolo.detector import check_model_exists, get_model_dir_path
 
 _SIM_UNI_YOLO_LIST: List[str] = [
-    'yolov8n-640-simuni-0512',
-    'yolov8n-960-simuni-0512'
+    'yolov8n-640-simuni-0601',
+    'yolov8n-960-simuni-0601'
 ]
 
 
