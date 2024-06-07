@@ -92,7 +92,6 @@ class SimUniEvent(StateOperation):
         self.opt_list: List[SimUniEventOption] = []
         self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config
         self.skip_first_screen_check: bool = skip_first_screen_check
-        self.chosen_opt_set: set[str] = set()
 
     def _init_before_execute(self):
         """
@@ -100,7 +99,7 @@ class SimUniEvent(StateOperation):
         """
         super()._init_before_execute()
         self.opt_list = []
-        self.chosen_opt_set: set[str] = set()
+        self.chosen_opt_set: set[str] = set()  # 已经选择过的选项名称
 
     def _wait(self) -> OperationOneRoundResult:
         self.ctx.detect_info.view_down = False  # 进入事件后 重置视角
@@ -224,6 +223,7 @@ class SimUniEvent(StateOperation):
         click = self.ctx.controller.click(self.opt_list[idx].title_rect.center)
         if click:
             self.chosen_opt = self.opt_list[idx]
+            self.chosen_opt_set.add(self.chosen_opt.title)
             if self.chosen_opt.confirm_rect is None:
                 status = SimUniEvent.STATUS_CHOOSE_OPT_NO_CONFIRM
                 return self.round_success(status, wait=1.5)
@@ -254,6 +254,7 @@ class SimUniEvent(StateOperation):
                     return self.round_fail('所有选项都无效')
             else:
                 break
+
         return self._do_choose_opt(idx)
 
     def _check_after_confirm(self) -> OperationOneRoundResult:
