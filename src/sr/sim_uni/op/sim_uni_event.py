@@ -123,7 +123,7 @@ class SimUniEvent(StateOperation):
         if self.ctx.one_dragon_config.is_debug:
             title = self._get_event_title(screen)
             if str_utils.find_by_lcs(gt('孤独太空美虫'), title, percent=0.5):
-                return self.round_fail()
+                return self.round_fail('遇到需要测试的事件啦')
 
         if len(self.opt_list) == 0:
             # 有可能在对话
