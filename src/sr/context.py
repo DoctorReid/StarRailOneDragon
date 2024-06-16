@@ -124,7 +124,11 @@ class TeamInfo:
             return False
         else:
             for i in range(len(self.character_list)):
-                if self.character_list[i].id != new_character_list[i].id:
+                if self.character_list[i] is None and new_character_list[i] is None:
+                    return True
+                elif self.character_list[i] is None or new_character_list[i] is None:
+                    return False
+                elif self.character_list[i].id != new_character_list[i].id:
                     return False
             return True
 
