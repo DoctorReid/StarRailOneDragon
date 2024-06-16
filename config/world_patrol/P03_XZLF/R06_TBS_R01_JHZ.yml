@@ -87,17 +87,20 @@ route:
     op: 'disposable'
   - idx: 30
     op: 'move'
-    data: [931, 431]
+    data: [930, 383]
   - idx: 31
     op: 'move'
-    data: [1010, 431]
+    data: [931, 431]
   - idx: 32
     op: 'move'
-    data: [1010, 465]
+    data: [1010, 431]
   - idx: 33
-    op: 'patrol'
+    op: 'move'
+    data: [1010, 465]
   - idx: 34
+    op: 'patrol'
+  - idx: 35
     op: 'move'
     data: [1029, 376]
-  - idx: 35
+  - idx: 36
     op: 'patrol'
