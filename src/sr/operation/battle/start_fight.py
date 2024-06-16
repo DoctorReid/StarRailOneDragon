@@ -8,7 +8,8 @@ from sr.const.character_const import Character, get_character_by_id, TECHNIQUE_B
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
-from sr.operation.unit.team import GetTeamMemberInWorld, SwitchMember
+from sr.operation.unit.team.get_team_member_in_world import GetTeamMemberInWorld
+from sr.operation.unit.team.switch_member import SwitchMember
 from sr.operation.unit.technique import UseTechnique, CheckTechniquePoint, UseTechniqueResult
 
 

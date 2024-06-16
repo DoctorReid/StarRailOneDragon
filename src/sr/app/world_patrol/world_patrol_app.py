@@ -14,7 +14,7 @@ from sr.image.sceenshot import mini_map
 from sr.operation import OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.common.cancel_mission_trace import CancelMissionTrace
-from sr.operation.unit.team import SwitchMember, ChooseTeamInWorld
+from sr.operation.unit.team.choose_team_in_world import ChooseTeamInWorld
 
 
 class WorldPatrol(Application):

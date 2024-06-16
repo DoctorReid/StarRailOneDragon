@@ -14,7 +14,8 @@ from sr.operation.combine.transport import Transport
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.record_coordinate import RecordCoordinate
-from sr.operation.unit.team import CheckTeamMembersInWorld, SwitchMember
+from sr.operation.unit.team.check_team_members_in_world import CheckTeamMembersInWorld
+from sr.operation.unit.team.switch_member import SwitchMember
 from sr.operation.unit.technique import UseTechnique
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
 from sr.operation.unit.world_patrol_battle import WorldPatrolEnterFight

@@ -12,7 +12,7 @@ from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge, \
     OperationResult
 from sr.operation.battle.start_fight import StartFightForElite
-from sr.operation.unit.team import SwitchMember
+from sr.operation.unit.team.switch_member import SwitchMember
 from sr.operation.unit.technique import UseTechnique, UseTechniqueResult, FastRecover
 from sr.screen_area.dialog import ScreenDialog
 from sr.screen_area.screen_normal_world import ScreenNormalWorld

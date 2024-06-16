@@ -7,7 +7,8 @@ from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationEdge, \
     StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.move import MoveDirectly
-from sr.operation.unit.team import CheckTeamMembersInWorld, SwitchMember
+from sr.operation.unit.team.check_team_members_in_world import CheckTeamMembersInWorld
+from sr.operation.unit.team.switch_member import SwitchMember
 from sr.sim_uni import sim_uni_screen_state
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
