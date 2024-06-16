@@ -10,7 +10,6 @@ app_order:
   - 'daily_training'
   - 'buy_xianzhou_parcel'
   - 'treasures_lightward'
-  - 'mys'
 app_run:
   - 'world_patrol'
 schedule_hour_1: 'none'

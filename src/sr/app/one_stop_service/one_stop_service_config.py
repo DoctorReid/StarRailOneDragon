@@ -23,7 +23,7 @@ class OneStopServiceConfig(ConfigHolder):
             valid = False
             for app_enum in AppDescriptionEnum:
                 app = app_enum.value
-                if app_id == app.id:
+                if app.valid and app_id == app.id:
                     valid = True
                     break
             if valid:

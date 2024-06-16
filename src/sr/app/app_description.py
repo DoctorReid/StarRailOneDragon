@@ -3,9 +3,10 @@ from enum import Enum
 
 class AppDescription:
 
-    def __init__(self, cn: str, id: str):
+    def __init__(self, cn: str, id: str, valid: bool = True):
         self.cn: str = cn
         self.id: str = id
+        self.valid: bool = valid
 
 
 class AppDescriptionEnum(Enum):
@@ -22,5 +23,5 @@ class AppDescriptionEnum(Enum):
     NAMELESS_HONOR = AppDescription(cn='无名勋礼', id='nameless_honor')
     SUPPORT_CHARACTER = AppDescription(cn='支援角色', id='support_character')
 
-    MYS = AppDescription(cn='米游社', id='mys')
+    MYS = AppDescription(cn='米游社', id='mys', valid=False)
 

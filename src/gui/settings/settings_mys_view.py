@@ -1,4 +1,3 @@
-import webbrowser
 from typing import Optional
 
 import flet as ft
@@ -21,12 +20,14 @@ class SettingsMysView(SrBasicView, ft.Row):
 
         self.auto_game_sign = ft.Checkbox(on_change=self._on_auto_game_sign_changed)
         self.auto_bbs_sign = ft.Checkbox(on_change=self._on_auto_bbs_sign_changed)
+        self.sign_text = ft.Text(value='发送 #签到 即可')
 
         setting_list = components.SettingsList(controls=[
             components.SettingsListItem(gt('账号状态', 'ui'), account_row_right),
 
-            components.SettingsListItem(gt('自动游戏签到', 'ui'), self.auto_game_sign),
-            components.SettingsListItem(gt('自动米游币任务', 'ui'), self.auto_bbs_sign),
+            components.SettingsListItem(gt('签到推荐使用QQ群机器人', 'ui'), self.sign_text),
+            # components.SettingsListItem(gt('自动游戏签到', 'ui'), self.auto_game_sign),
+            # components.SettingsListItem(gt('自动米游币任务', 'ui'), self.auto_bbs_sign),
         ])
         settings_card_title = components.CardTitleText(title=gt('米游社', 'ui'))
         settings_card = components.Card(setting_list, title=settings_card_title, width=400)
