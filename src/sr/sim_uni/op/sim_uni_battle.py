@@ -261,6 +261,7 @@ class SimUniEnterFight(Operation):
             curio=True,
             empty_to_close=True,
             fast_recover=True,  # 目前黄泉连续使用秘技时 弹出快速恢复的话 会触发祝福 因此处理完祝福 还需要处理快速恢复
+            express_supply=True
         )
         if state == ScreenState.SIM_BLESS.value:
             return self._choose_bless()

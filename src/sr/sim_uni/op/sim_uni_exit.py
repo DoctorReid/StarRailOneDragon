@@ -2,8 +2,11 @@ from typing import ClassVar, List
 
 from basic.i18_utils import gt
 from sr.context import Context
+from sr.image.sceenshot import screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationEdge, StateOperationNode
 from sr.screen_area.screen_sim_uni import ScreenSimUni
+from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 
 
 class SimUniExit(StateOperation):
@@ -18,7 +21,11 @@ class SimUniExit(StateOperation):
         """
         edges: List[StateOperationEdge] = []
 
+        check_screen = StateOperationNode('检测画面', self._check_screen)
+
         open_menu = StateOperationNode('打开菜单', self._open_menu)
+        edges.append(StateOperationEdge(check_screen, open_menu))
+
         click_exit = StateOperationNode('点击结算', self._click_exit)
         edges.append(StateOperationEdge(open_menu, click_exit))
         edges.append(StateOperationEdge(click_exit, open_menu, status=SimUniExit.STATUS_BACK_MENU))
@@ -34,7 +41,7 @@ class SimUniExit(StateOperation):
                                  (gt('模拟宇宙', 'ui'),
                                   gt('结束并结算', 'ui')),
                          edges=edges,
-                         specified_start_node=open_menu
+                         specified_start_node=check_screen
                          )
 
     def _init_before_execute(self):
@@ -42,6 +49,28 @@ class SimUniExit(StateOperation):
         执行前的初始化 注意初始化要全面 方便一个指令重复使用
         """
         super()._init_before_execute()
+
+    def _check_screen(self) -> OperationOneRoundResult:
+        """
+        检查屏幕
+        这个指令作为兜底的退出模拟宇宙的指令 应该兼容当前处于模拟宇宙的任何一种场景
+        :return:
+        """
+        screen = self.screenshot()
+        state = screen_state.get_sim_uni_screen_state(
+            screen, self.ctx.im, self.ctx.ocr,
+            in_world=True,
+            battle=True
+        )
+        if state == ScreenState.NORMAL_IN_WORLD.value:  # 只有在大世界画面才继续
+            return self.round_success()
+        else:  # 其他情况 统一交给 battle 处理
+            op = SimUniEnterFight(self.ctx)
+            op_result = op.execute()
+            if op_result.success:
+                return self.round_wait()  # 重新判断
+            else:
+                return self.round_retry()
 
     def _open_menu(self) -> OperationOneRoundResult:
         """
