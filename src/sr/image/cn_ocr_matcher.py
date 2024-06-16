@@ -9,7 +9,7 @@ from paddleocr import PaddleOCR
 from basic import os_utils
 from basic.img import MatchResultList, MatchResult
 from basic.log_utils import log
-from sr.image.ocr_matcher import OcrMatcher, merge_ocr_result_to_single_line
+from sr.image.ocr_matcher import OcrMatcher, merge_ocr_result_to_single_line, merge_ocr_result_to_multiple_line
 
 logging.getLogger().handlers.clear()  # 不知道为什么 这里会引入这个logger 清除掉避免console中有重复日志
 
@@ -69,6 +69,7 @@ class CnOcrMatcher(OcrMatcher):
         """
         start_time = time.time()
         scan_result: list = self.ocr.ocr(image, cls=False)
+
         result_map: dict = {}
         for anchor in scan_result:
             anchor_position = anchor[0]
@@ -84,6 +85,10 @@ class CnOcrMatcher(OcrMatcher):
                                                        anchor_position[1][0] - anchor_position[0][0],
                                                        anchor_position[3][1] - anchor_position[0][1],
                                                        data=anchor_text))
+
+        if merge_line_distance != -1:
+            result_map = merge_ocr_result_to_multiple_line(result_map, join_space=True,
+                                                           merge_line_distance=merge_line_distance)
         log.debug('OCR结果 %s 耗时 %.2f', result_map.keys(), time.time() - start_time)
         return result_map
         

@@ -16,8 +16,7 @@ class DebugDetector(test.SrTestBase):
         ctx = get_context()
         ctx.init_yolo_detector()
 
-        img = get_debug_image('2')
-        results = ctx.yolo_detector.sim_uni_yolo.detect(img, conf=0.7,
-                                                        cates=['界面提示被锁定', '界面提示可攻击'])
+        img = get_debug_image('1')
+        results = ctx.yolo_detector.sim_uni_yolo.detect(img, conf=0.6)
         cv2_utils.show_image(draw_detections(results), wait=0)
         cv2.destroyAllWindows()

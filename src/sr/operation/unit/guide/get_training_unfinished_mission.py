@@ -29,9 +29,9 @@ class GetTrainingUnfinishedMission(Operation):
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
-        go_pos_list = self._get_go_pos(screen)
+        go_pos_list = self.get_mission_list(screen)
         for go_pos in go_pos_list:
-            mission = self._get_mission(screen, go_pos)
+            mission = go_pos.data
 
             if mission is None:
                 continue
@@ -55,6 +55,17 @@ class GetTrainingUnfinishedMission(Operation):
         time.sleep(1)
 
         return self.round_retry('未找到可执行任务')
+
+    def get_mission_list(self, screen: MatLike) -> List[MatchResult]:
+        """
+        data 是具体的任务
+        :param screen:
+        :return:
+        """
+        go_pos_list = self._get_go_pos(screen)
+        for go_pos in go_pos_list:
+            go_pos.data = self._get_mission(screen, go_pos)
+        return go_pos_list
 
     def _get_mission(self, screen: MatLike, go_pos: MatchResult) -> Optional[DailyTrainingMission]:
         """
