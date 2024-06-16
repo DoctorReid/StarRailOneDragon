@@ -195,12 +195,14 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
     upper = 255
     part, _ = cv2_utils.crop_image(screen, REGION_LIST_RECT)
     bw = cv2.inRange(part, (lower, lower, lower), (upper, upper, upper))
+    bw = cv2_utils.connection_erase(bw)
+    # cv2_utils.show_image(bw, win_name='get_active_region_name_bw')
     left, right, top, bottom = cv2_utils.get_four_corner(bw)
     if left is None:
         return None
     rect = Rect(left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
     to_ocr: MatLike = cv2_utils.crop_image_only(part, rect)
-    # cv2_utils.show_image(to_ocr, win_name='get_active_region_name')
+    # cv2_utils.show_image(to_ocr, win_name='get_active_region_name', wait=0)
     return ocr.ocr_for_single_line(to_ocr, strict_one_line=False)
 
 
