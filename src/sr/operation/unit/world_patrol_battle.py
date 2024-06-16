@@ -1,5 +1,5 @@
 import time
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, List
 
 from cv2.typing import MatLike
 
@@ -45,6 +45,7 @@ class WorldPatrolEnterFight(Operation):
         self.last_not_in_world_time: float = now  # 上次不在移动画面的时间
         self.attack_times: int = 0  # 攻击次数
         self.last_attack_direction: str = 's'  # 上一次攻击方向
+        self.attack_direction_history: List[str] = []  # 攻击方向的历史记录
 
         self.with_battle: bool = False  # 是否有进入战斗
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
@@ -113,12 +114,9 @@ class WorldPatrolEnterFight(Operation):
                 # 长时间没有离开大世界画面 可能是小地图背景色污染
                 return self._exit_with_last_move()
 
-            if self.ctx.controller.is_moving and self.attack_times == 0:
-                # 目前是直接攻击再松开w 这样避免停止移动带来的后摇 因此第一下攻击一定是在按着w的情况下进行的 攻击方向会固定为前方
-                self.last_attack_direction = 'w'
-            else:
-                self.ctx.controller.move(direction=attack_direction)
-                self.last_attack_direction = attack_direction
+            fix_attack_direction = self.fix_and_record_direction(attack_direction)
+            self.ctx.controller.move(direction=fix_attack_direction)
+
             current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
             if (self.technique_fight and not self.ctx.technique_used
                     and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
@@ -245,3 +243,35 @@ class WorldPatrolEnterFight(Operation):
             time.sleep(0.25)
             self.had_last_move = True
             return self.round_wait()
+
+    def fix_and_record_direction(self, attack_direction: str) -> str:
+        """
+        修正攻击方向 同时记录
+        - 目前攻击有左右判定 但远程怪不靠近的情况下 可能会导致角色一直在左右攻击
+        :return:
+        """
+        if self.ctx.controller.is_moving and self.attack_times == 0:
+            # 目前是直接攻击再松开w 这样避免停止移动带来的后摇 因此第一下攻击一定是在按着w的情况下进行的 攻击方向会固定为前方
+            self.last_attack_direction = 'w'
+        else:
+            last_idx = len(self.attack_direction_history) - 1
+            ad_count = 0  # 左右攻击的计数
+            ws_count = 0  # 前后攻击的计数
+            last_ws = None  # 上一次前后攻击的方向
+            to_count = 8
+            for _ in range(to_count):
+                if last_idx < 0:
+                    break
+                if self.attack_direction_history[last_idx] in ['a', 'd']:
+                    ad_count += 1
+                else:
+                    ws_count += 1
+                    last_ws = self.attack_direction_history[last_idx]
+
+            if ad_count >= to_count - 1 and ws_count <= 1:
+                self.last_attack_direction = OPPOSITE_DIRECTION.get(last_ws, 's')
+            else:
+                self.last_attack_direction = attack_direction
+
+        self.attack_direction_history.append(self.last_attack_direction)
+        return self.last_attack_direction
