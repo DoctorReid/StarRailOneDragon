@@ -10,6 +10,7 @@ from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
 from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
+from sr.const import OPPOSITE_DIRECTION
 from sr.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
@@ -184,17 +185,16 @@ class MoveToNextLevel(StateOperation):
         self.level_type: SimUniLevelType = level_type
         self.route: SimUniRoute = route
         self.current_pos: Optional[Point] = current_pos
-        self.next_pos: Optional[Point] = None
         self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config
-        self.is_moving: bool = False  # 是否正在移动
-        self.start_move_time: float = 0  # 开始移动的时间
-        self.interacted: bool = False  # 是否已经交互了
         self.random_turn: bool = random_turn  # 随机转动找入口
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.is_moving = False
-        self.interacted = False
+        self.is_moving = False  # 是否正在移动
+        self.interacted = False  # 是否已经交互了
+        self.start_move_time: float = 0  # 开始移动的时间
+        self.move_times: int = 0  # 连续移动的次数
+        self.get_rid_direction: str = 'a'  # 脱困方向
         if self.route is None or self.route.next_pos_list is None or len(self.route.next_pos_list) == 0:
             self.next_pos = None
         else:
@@ -261,6 +261,11 @@ class MoveToNextLevel(StateOperation):
             if time.time() - self.start_move_time > MoveToNextLevel.MOVE_TIME:
                 self.ctx.controller.stop_moving_forward()
                 self.is_moving = False
+                self.move_times += 1
+
+            if self.move_times >= 4:  # 正常情况不会连续移动这么多次都没有到下层入口 尝试脱困
+                self.ctx.controller.move(self.get_rid_direction, 1)
+                self.get_rid_direction = OPPOSITE_DIRECTION[self.get_rid_direction]
             return self.round_wait()
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
@@ -271,6 +276,7 @@ class MoveToNextLevel(StateOperation):
                 else:
                     angle = 35
                 self.ctx.controller.turn_by_angle(angle)
+                self.move_times = 0  # 没有识别到就是没有移动
                 return self.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
             target = self.get_target_entry(type_list, self.config)

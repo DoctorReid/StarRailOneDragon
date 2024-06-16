@@ -9,7 +9,7 @@ from basic import Point, cal_utils, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.const import game_config_const
+from sr.const import game_config_const, OPPOSITE_DIRECTION
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
@@ -639,11 +639,16 @@ class MoveToNextLevelV2(MoveToNextLevel):
             if now - self.start_move_time > MoveToNextLevel.MOVE_TIME:
                 self.ctx.controller.stop_moving_forward()
                 self.is_moving = False
+                self.move_times += 1
+
+                if self.move_times >= 4:  # 正常情况不会连续移动这么多次都没有到下层入口 尝试脱困
+                    self.ctx.controller.move(self.get_rid_direction, 1)
+                    self.get_rid_direction = OPPOSITE_DIRECTION[self.get_rid_direction]
+                return self.round_wait()
             elif need_ocr:
                 interact = self._try_interact(screen)
                 if interact is not None:
                     return interact
-            return self.round_wait()
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
@@ -653,6 +658,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
                 else:
                     angle = 35
                 self.ctx.controller.turn_by_angle(angle)
+                self.move_times = 0  # 没有识别到就是没有移动
                 return self.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
             target = MoveToNextLevel.get_target_entry(type_list, self.config)
