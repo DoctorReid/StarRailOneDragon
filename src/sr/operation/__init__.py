@@ -705,6 +705,9 @@ class StateOperation(Operation):
         else:
             return self.round_fail('节点处理函数和指令都没有设置')
 
+        if current_round_result is None:
+            log.error(f'节点 {self._current_node.cn} 返回状态为None')
+
         # 重试到足够次数了 这里设置成失败
         # 因为有可能失败还有下一个节点 如果返回重试 则会返回整个op的失败
         if current_round_result.result == Operation.RETRY and self.op_round + 1 >= self.try_times:

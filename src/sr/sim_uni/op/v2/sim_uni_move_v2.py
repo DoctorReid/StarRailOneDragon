@@ -644,11 +644,11 @@ class MoveToNextLevelV2(MoveToNextLevel):
                 if self.move_times >= 4:  # 正常情况不会连续移动这么多次都没有到下层入口 尝试脱困
                     self.ctx.controller.move(self.get_rid_direction, 1)
                     self.get_rid_direction = OPPOSITE_DIRECTION[self.get_rid_direction]
-                return self.round_wait()
             elif need_ocr:
                 interact = self._try_interact(screen)
                 if interact is not None:
                     return interact
+            return self.round_wait()
         else:
             type_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
             if len(type_list) == 0:  # 当前没有入口 随便旋转看看
