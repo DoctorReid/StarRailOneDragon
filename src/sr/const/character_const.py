@@ -209,6 +209,7 @@ GALLAGHER = Character(id='gallagher', cn='拉加赫', path=CHARACTER_PATH_ABUNDA
 ACHERON = Character(id='acheron', cn='黄泉', path=CHARACTER_PATH_NIHILITY, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
 AVENTURINE = Character(id='aventurine', cn='砂金', path=CHARACTER_PATH_PRESERVATION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 ROBIN = Character(id='robin', cn='知更鸟', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_AREA)
+BOOTHILL = Character(id='boothill', cn='波提欧', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -263,6 +264,7 @@ CHARACTER_LIST: List[Character] = [
     ACHERON,
     AVENTURINE,
     ROBIN,
+    BOOTHILL
 ]
 
 
