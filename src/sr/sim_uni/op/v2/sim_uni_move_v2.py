@@ -13,6 +13,7 @@ from sr.const import game_config_const, OPPOSITE_DIRECTION
 from sr.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
+from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.operation.unit.interact import get_move_interact_words
 from sr.operation.unit.move import GetRidOfStuck
@@ -120,12 +121,12 @@ class SimUniMoveToEnemyByMiniMap(Operation):
         screen = self.screenshot()
 
         if not screen_state.is_normal_in_world(screen, self.ctx.im):  # 不在大世界 可能被袭击了
-            return self._enter_battle()
+            return self.enter_battle(False)
 
         if not self.no_attack:
             self.ctx.yolo_detector.detect_should_attack_in_world_async(screen, now)
             if self.ctx.yolo_detector.should_attack_in_world_last_result(now):
-                return self._enter_battle()
+                return self.enter_battle(True)
 
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
@@ -209,12 +210,16 @@ class SimUniMoveToEnemyByMiniMap(Operation):
 
         return None
 
-    def _enter_battle(self) -> OperationOneRoundResult:
+    def enter_battle(self, in_world: bool) -> OperationOneRoundResult:
         """
         进入战斗
         :return:
         """
-        op = SimUniEnterFight(self.ctx)
+        if in_world:
+            state = ScreenNormalWorld.CHARACTER_ICON.value.status
+        else:
+            state = ScreenState.BATTLE.value
+        op = SimUniEnterFight(self.ctx, first_state=state)
         op_result = op.execute()
         if op_result.success:
             return self.round_success(SimUniMoveToEnemyByMiniMap.STATUS_FIGHT)
@@ -262,13 +267,13 @@ class SimUniMoveToEnemyByDetect(Operation):
 
         # 不在大世界 可能被袭击了
         if not screen_state.is_normal_in_world(screen, self.ctx.im):
-            return self.enter_battle()
+            return self.enter_battle(False)
 
         # 被怪锁定了
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info = mini_map.analyse_mini_map(mm)
         if mini_map.is_under_attack_new(mm_info, danger=True):
-            return self.enter_battle()
+            return self.enter_battle(True)
 
         # 移动2秒后 如果丢失了目标 停下来
         if self.ctx.controller.is_moving and now - self.start_move_time >= 2 and self.no_enemy_times > 0:
@@ -278,12 +283,16 @@ class SimUniMoveToEnemyByDetect(Operation):
         # 进行目标识别判断后续动作
         return self.detect_screen(screen)
 
-    def enter_battle(self) -> OperationOneRoundResult:
+    def enter_battle(self, in_world: bool) -> OperationOneRoundResult:
         """
         进入战斗
         :return:
         """
-        op = SimUniEnterFight(self.ctx)
+        if in_world:
+            state = ScreenNormalWorld.CHARACTER_ICON.value.status
+        else:
+            state = ScreenState.BATTLE.value
+        op = SimUniEnterFight(self.ctx, first_state=state)
         op_result = op.execute()
         if op_result.success:
             return self.round_success(SimUniMoveToEnemyByDetect.STATUS_FIGHT)
@@ -311,7 +320,7 @@ class SimUniMoveToEnemyByDetect(Operation):
                 self.save_screenshot()
 
         if can_attack:
-            return self.enter_battle()
+            return self.enter_battle(True)
         elif len(normal_enemy_result) > 0:
             return self.handle_enemy(normal_enemy_result)
         else:
@@ -562,18 +571,21 @@ class SimUniMoveToInteractByDetect(Operation):
 
 class MoveToNextLevelV2(MoveToNextLevel):
 
-    def __init__(self, ctx: Context,
-                 level_type: SimUniLevelType):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType, with_entry: bool = False):
         """
         朝下一层入口走去 并且交互
         需确保不会被其它内容打断
         :param ctx:
         :param level_type: 当前楼层的类型 精英层的话 有可能需要确定
+        :param with_entry: 调用这个指令时，是否已经看到了入口
         """
         super().__init__(ctx,
                          level_type=level_type,
                          random_turn=False
                          )
+
+        self.start_with_entry: bool = with_entry
+        """调用这个指令时，是否已经看到了入口"""
 
     def _init_before_execute(self):
         super()._init_before_execute()

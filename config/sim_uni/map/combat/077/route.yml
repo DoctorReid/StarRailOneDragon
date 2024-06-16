@@ -2,6 +2,7 @@ support_world: [3, 4, 5, 6, 7, 8]
 planet: '空间站黑塔'
 region: '收容舱段'
 floor: 2
+algo: 1
 start_pos: [719, 429]
 next_pos_list:
   - [444, 378]
@@ -24,5 +25,5 @@ op_list:
     data: [545, 380]
   - op: 'patrol'
   - op: 'move'
-    data: [466, 373]
+    data: [453, 369]
   - op: 'patrol'
