@@ -1,5 +1,7 @@
 from typing import ClassVar, List
 
+from cv2.typing import MatLike
+
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import screen_state
@@ -60,10 +62,13 @@ class SimUniExit(StateOperation):
         state = screen_state.get_sim_uni_screen_state(
             screen, self.ctx.im, self.ctx.ocr,
             in_world=True,
-            battle=True
+            battle=True,
+            battle_fail=True
         )
         if state == ScreenState.NORMAL_IN_WORLD.value:  # 只有在大世界画面才继续
             return self.round_success()
+        elif state == ScreenState.BATTLE_FAIL.value:  # 战斗失败
+            return self._fail_click_empty(screen)
         else:  # 其他情况 统一交给 battle 处理
             op = SimUniEnterFight(self.ctx)
             op_result = op.execute()
@@ -118,3 +123,17 @@ class SimUniExit(StateOperation):
             return self.round_success(wait=2)
         else:
             return self.round_retry('点击%s失败' % area.status, wait=1)
+
+    def _fail_click_empty(self, screen: MatLike) -> OperationOneRoundResult:
+        """
+        战斗失败后 结算画面的点击空白
+        :return:
+        """
+        area = ScreenSimUni.EXIT_EMPTY_TO_CONTINUE.value
+
+        click = self.find_and_click_area(area, screen)
+
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return self.round_success(wait=2)
+        else:
+            return self.round_retry('未在结算画面', wait=1)
