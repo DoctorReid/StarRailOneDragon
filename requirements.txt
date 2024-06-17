@@ -12,3 +12,4 @@ paddlepaddle==2.5.2
 scipy==1.13.0
 whl//Shapely-1.8.2-cp311-cp311-win_amd64.whl  # https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely
 whl//paddleocr-2.6.0.3-py3-none-any.whl  # https://github.com/yinghaodang/PaddleOCR/tree/release/2.6rc
+numpy==1.26.4
