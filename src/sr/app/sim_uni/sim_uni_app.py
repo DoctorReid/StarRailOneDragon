@@ -264,7 +264,8 @@ class SimUniApp(Application):
             self.get_reward_callback(use_power, user_qty)
 
     def on_world_finished(self, op_result: OperationResult):
-        if op_result.success:
+        if op_result.success and op_result.status == SimUniRunWorld.STATUS_SUCCESS:
+            log.info('成功通过 记录次数+1')
             self.run_record.add_times()
 
     def _exception_exit(self) -> OperationOneRoundResult:
