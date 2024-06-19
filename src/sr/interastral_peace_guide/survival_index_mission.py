@@ -7,7 +7,7 @@ from sr.const.map_const import TransportPoint
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.screen_area import ScreenArea
 from sr.screen_area.interastral_peace_guide import ScreenGuide
-from sr.sim_uni.sim_uni_const import SimUniWorld, SimUniWorldEnum
+from sr.sim_uni.sim_uni_const import SimUniWorld, SimUniWorldEnum, OrnamentExtractionEnum
 
 
 class SurvivalIndexCategory:
@@ -34,13 +34,14 @@ class SurvivalIndexCategoryEnum(Enum):
     PATH = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='侵蚀虫洞',  ui_cn='遗器')
     ECHO_OF_WAR = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='历战余响')
     SI_SIM_UNI = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='模拟宇宙')
+    ORNAMENT_EXTRACTION = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='饰品提取')
 
     SU_SIM_UNI = SurvivalIndexCategory(tab=ScreenState.GUIDE_SIM_UNI, cn='模拟宇宙')
 
     @staticmethod
-    def get_by_ui_cn(ui_cn: str) -> Optional[SurvivalIndexCategory]:
+    def get_by_ui_cn(ui_cn: str, tab=ScreenState.GUIDE_SURVIVAL_INDEX) -> Optional[SurvivalIndexCategory]:
         for enum in SurvivalIndexCategoryEnum:
-            if enum.value.ui_cn == ui_cn:
+            if enum.value.tab == tab and enum.value.ui_cn == ui_cn:
                 return enum.value
         return None
 
@@ -145,6 +146,8 @@ class SurvivalIndexMission:
             return self.tp.name
         elif self.cate == SurvivalIndexCategoryEnum.ECHO_OF_WAR.value:
             return self.tp.cn[:-5]  # 去除 '·历战余响'
+        elif self.cate == SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value:
+            return self.tp.name
         else:
             return ''
 
@@ -229,6 +232,15 @@ class SurvivalIndexMissionEnum(Enum):
     SIM_UNI_07 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_07.value, power=40)
     SIM_UNI_08 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_08.value, power=40)
     SIM_UNI_09 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_09.value, power=40)
+
+    OE_10 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value, tp=OrnamentExtractionEnum.OE_10.value, power=40)
+    OE_09 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value, tp=OrnamentExtractionEnum.OE_09.value, power=40)
+    OE_08 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value, tp=OrnamentExtractionEnum.OE_08.value, power=40)
+    OE_07 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value, tp=OrnamentExtractionEnum.OE_07.value, power=40)
+    OE_06 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value, tp=OrnamentExtractionEnum.OE_06.value, power=40)
+    OE_05 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value, tp=OrnamentExtractionEnum.OE_05.value, power=40)
+    OE_04 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value, tp=OrnamentExtractionEnum.OE_04.value, power=40)
+    OE_03 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION.value, tp=OrnamentExtractionEnum.OE_03.value, power=40)
 
     @staticmethod
     def get_by_unique_id(unique_id: str) -> Optional[SurvivalIndexMission]:

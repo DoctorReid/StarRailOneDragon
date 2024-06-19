@@ -12,6 +12,7 @@ from sr.image.sceenshot.screen_state import in_secondary_ui
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult
 from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategory, SurvivalIndexCategoryEnum
+from sr.operation.unit.guide import GuideTab
 
 CATEGORY_LIST_RECT = Rect(270, 300, 680, 910)
 
@@ -95,9 +96,10 @@ class ChooseGuideMission(Operation):
     需要先在【星际和平指引】-【生存索引】位置 且左侧类目已经选好了
     在右边选择对应副本进行传送
     """
-    def __init__(self, ctx: Context, mission: GuideMission):
+    def __init__(self, ctx: Context, mission: GuideMission, guide_tab: Optional[GuideTab] = None):
         super().__init__(ctx, try_times=5, op_name='%s %s' % (gt(mission.category.tab.value, 'ui'), gt(mission.cn, 'ui')))
         self.mission: GuideMission = mission
+        self.guide_tab: GuideTab = guide_tab
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()

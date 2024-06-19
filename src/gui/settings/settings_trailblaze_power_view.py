@@ -35,7 +35,9 @@ class PlanListItem(ft.Row):
                 team_num=1 if history is None else history['team_num'],
                 support='none' if history is None else history['support'])
         self.category_dropdown = ft.Dropdown(options=[
-            ft.dropdown.Option(text=i.value.ui_cn, key=i.value.ui_cn) for i in SurvivalIndexCategoryEnum if i != SurvivalIndexCategoryEnum.ECHO_OF_WAR
+            ft.dropdown.Option(text=i.value.ui_cn, key=i.value.ui_cn)
+            for i in SurvivalIndexCategoryEnum
+            if i not in [SurvivalIndexCategoryEnum.ECHO_OF_WAR, SurvivalIndexCategoryEnum.SU_SIM_UNI, SurvivalIndexCategoryEnum.ORNAMENT_EXTRACTION]
         ],
             label='类目', width=100, on_change=self._on_category_changed)
         self.tp_dropdown = ft.Dropdown(label='挑战关卡', width=180, on_change=self._on_tp_changed)

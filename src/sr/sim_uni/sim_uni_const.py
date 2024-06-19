@@ -37,6 +37,18 @@ class SimUniWorldEnum(Enum):
     WORLD_09 = SimUniWorld(9, '第九宇宙', 4)
 
 
+class OrnamentExtractionEnum(Enum):
+
+    OE_10 = SimUniWorld(10, '永恒笑剧·差分宇宙', 5)
+    OE_09 = SimUniWorld(9, '伴你入眠·差分宇宙', 5)
+    OE_08 = SimUniWorld(8, '天剑如雨·差分宇宙', 5)
+    OE_07 = SimUniWorld(7, '孽果盘生·差分宇宙', 5)
+    OE_06 = SimUniWorld(6, '百年冻土·差分宇宙', 5)
+    OE_05 = SimUniWorld(5, '温柔话语·差分宇宙', 5)
+    OE_04 = SimUniWorld(4, '浴火钢心·差分宇宙', 5)
+    OE_03 = SimUniWorld(3, '坚城不倒·差分宇宙', 5)
+
+
 UNI_NUM_CN: dict[int, str] = {
     1: '一',
     2: '二',
