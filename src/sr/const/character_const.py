@@ -210,6 +210,7 @@ ACHERON = Character(id='acheron', cn='黄泉', path=CHARACTER_PATH_NIHILITY, com
 AVENTURINE = Character(id='aventurine', cn='砂金', path=CHARACTER_PATH_PRESERVATION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 ROBIN = Character(id='robin', cn='知更鸟', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_AREA)
 BOOTHILL = Character(id='boothill', cn='波提欧', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF)
+FIREFLY = Character(id='firefly', cn='流萤', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -264,7 +265,8 @@ CHARACTER_LIST: List[Character] = [
     ACHERON,
     AVENTURINE,
     ROBIN,
-    BOOTHILL
+    BOOTHILL,
+    FIREFLY
 ]
 
 
