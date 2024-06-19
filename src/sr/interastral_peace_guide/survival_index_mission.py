@@ -33,7 +33,9 @@ class SurvivalIndexCategoryEnum(Enum):
     SHAPE = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='凝滞虚影',  ui_cn='角色突破')
     PATH = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='侵蚀虫洞',  ui_cn='遗器')
     ECHO_OF_WAR = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='历战余响')
-    SIM_UNI = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='模拟宇宙')
+    SI_SIM_UNI = SurvivalIndexCategory(tab=ScreenState.GUIDE_SURVIVAL_INDEX, cn='模拟宇宙')
+
+    SU_SIM_UNI = SurvivalIndexCategory(tab=ScreenState.GUIDE_SIM_UNI, cn='模拟宇宙')
 
     @staticmethod
     def get_by_ui_cn(ui_cn: str) -> Optional[SurvivalIndexCategory]:
@@ -139,7 +141,7 @@ class SurvivalIndexMission:
                 return '先驱 钟表匠'
             else:
                 return ''
-        elif self.cate == SurvivalIndexCategoryEnum.SIM_UNI.value:
+        elif self.cate == SurvivalIndexCategoryEnum.SI_SIM_UNI.value:
             return self.tp.name
         elif self.cate == SurvivalIndexCategoryEnum.ECHO_OF_WAR.value:
             return self.tp.cn[:-5]  # 去除 '·历战余响'
@@ -220,13 +222,13 @@ class SurvivalIndexMissionEnum(Enum):
     ECHO_04 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P01_R05_SP07, power=30)
     ECHO_05 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P04_R10_SP08, power=30)
 
-    SIM_UNI_03 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_03.value, power=40)
-    SIM_UNI_04 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_04.value, power=40)
-    SIM_UNI_05 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_05.value, power=40)
-    SIM_UNI_06 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_06.value, power=40)
-    SIM_UNI_07 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_07.value, power=40)
-    SIM_UNI_08 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_08.value, power=40)
-    SIM_UNI_09 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SIM_UNI.value, tp=SimUniWorldEnum.WORLD_09.value, power=40)
+    SIM_UNI_03 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_03.value, power=40)
+    SIM_UNI_04 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_04.value, power=40)
+    SIM_UNI_05 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_05.value, power=40)
+    SIM_UNI_06 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_06.value, power=40)
+    SIM_UNI_07 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_07.value, power=40)
+    SIM_UNI_08 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_08.value, power=40)
+    SIM_UNI_09 = SurvivalIndexMission(cate=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, tp=SimUniWorldEnum.WORLD_09.value, power=40)
 
     @staticmethod
     def get_by_unique_id(unique_id: str) -> Optional[SurvivalIndexMission]:

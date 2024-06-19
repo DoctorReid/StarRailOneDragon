@@ -91,7 +91,7 @@ class TrailblazePower(Application):
             return self.round_success()
 
         point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
-        if point.cate == SurvivalIndexCategoryEnum.SIM_UNI.value:
+        if point.cate == SurvivalIndexCategoryEnum.SI_SIM_UNI.value:
             return self.round_success(TrailblazePower.STATUS_SIM_UNI_TASK)
         else:
             return self.round_success(TrailblazePower.STATUS_NORMAL_TASK)

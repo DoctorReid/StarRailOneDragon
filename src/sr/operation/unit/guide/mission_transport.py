@@ -80,7 +80,11 @@ class GuideMission:
 
 
 MISSION_FORGOTTEN_HALL = GuideMission(category=None, cn='混沌回忆')
-MISSION_SIM_UNIVERSE = GuideMission(category=SurvivalIndexCategoryEnum.SIM_UNI.value, cn='本周积分')  # 模拟宇宙最上方总分的传送
+MISSION_SIM_UNIVERSE = GuideMission(category=SurvivalIndexCategoryEnum.SI_SIM_UNI.value, cn='本周积分')  # 模拟宇宙最上方总分的传送
+
+MISSION_SU_GOLD = GuideMission(category=SurvivalIndexCategoryEnum.SU_SIM_UNI.value, cn='黄金与机械')
+MISSION_SU_HY = GuideMission(category=SurvivalIndexCategoryEnum.SU_SIM_UNI.value, cn='寰宇蝗灾')
+MISSION_SU_NORMAL = GuideMission(category=SurvivalIndexCategoryEnum.SU_SIM_UNI.value, cn='模拟宇宙')
 
 
 MISSION_LIST_RECT = Rect(695, 295, 1655, 930)  # 副本列表的位置

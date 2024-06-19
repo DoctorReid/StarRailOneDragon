@@ -1,6 +1,8 @@
 from typing import Optional, List, ClassVar, Callable
 
+from basic import str_utils
 from basic.i18_utils import gt
+from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
@@ -17,10 +19,11 @@ from sr.operation import OperationResult, Operation, StateOperationEdge, StateOp
 from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.guide import GuideTabEnum
 from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
-from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory
+from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory, ChooseGuideMission, MISSION_SU_NORMAL
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
+from sr.screen_area.interastral_peace_guide import ScreenGuide
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_sim_uni import ScreenSimUni
 from sr.sim_uni.op.choose_sim_uni_diff import ChooseSimUniDiff
@@ -36,6 +39,7 @@ from sr.sim_uni.sim_uni_const import SimUniType, SimUniPath, SimUniWorldEnum
 
 class SimUniApp(Application):
 
+    STATUS_NOT_FOUND_IN_SI: ClassVar[str] = '生存索引中未找到模拟宇宙'
     STATUS_ALL_FINISHED: ClassVar[str] = '已完成通关次数'
     STATUS_EXCEPTION: ClassVar[str] = '异常次数过多'
 
@@ -68,21 +72,31 @@ class SimUniApp(Application):
         edges.append(StateOperationEdge(check_initial_screen, choose_guide,
                                         status=ScreenState.PHONE_MENU.value))  # 在菜单的时候 打开指南
 
-        choose_survival_index = StateOperationNode('生存索引', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_3.value))
+        choose_survival_index = StateOperationNode('指南中选择生存索引', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_2.value))
         edges.append(StateOperationEdge(choose_guide, choose_survival_index))
         edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
                                         status=ScreenState.GUIDE.value))  # 在指南里 选择生存索引
 
-        choose_sim_category = StateOperationNode('模拟宇宙', op=ChooseGuideMissionCategory(ctx, SurvivalIndexCategoryEnum.SIM_UNI.value))
-        edges.append(StateOperationEdge(choose_survival_index, choose_sim_category))
-        edges.append(StateOperationEdge(check_initial_screen, choose_sim_category,
+        choose_in_si = StateOperationNode('生存索引中选择模拟宇宙', self.choose_in_survival_index)
+        edges.append(StateOperationEdge(choose_survival_index, choose_in_si))
+        edges.append(StateOperationEdge(check_initial_screen, choose_in_si,
                                         status=ScreenState.GUIDE_SURVIVAL_INDEX.value))  # 在生存索引 选择模拟宇宙
 
-        transport = StateOperationNode('传送', self._transport)
-        edges.append(StateOperationEdge(choose_sim_category, transport))
+        choose_sim_category = StateOperationNode('指南中选择模拟宇宙', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_3.value))
+        edges.append(StateOperationEdge(choose_in_si, choose_sim_category, status=self.STATUS_NOT_FOUND_IN_SI))
+
+        choose_in_su = StateOperationNode('模拟宇宙中选择模拟宇宙', self.choose_in_sim_uni)
+        edges.append(StateOperationEdge(choose_sim_category, choose_in_su))
+
+        si_transport = StateOperationNode('生存索引中传送', self._transport)
+        edges.append(StateOperationEdge(choose_in_si, si_transport))
+
+        su_transport = StateOperationNode('模拟宇宙中传送', op=ChooseGuideMission(ctx, MISSION_SU_NORMAL))
+        edges.append(StateOperationEdge(choose_in_su, su_transport))
 
         choose_normal_universe = StateOperationNode('普通宇宙', op=ChooseSimUniType(ctx, SimUniType.NORMAL))
-        edges.append(StateOperationEdge(transport, choose_normal_universe))
+        edges.append(StateOperationEdge(si_transport, choose_normal_universe))
+        edges.append(StateOperationEdge(su_transport, choose_normal_universe))
         edges.append(StateOperationEdge(check_initial_screen, choose_normal_universe,
                                         status=ScreenState.SIM_TYPE_EXTEND.value))  # 拓展装置 选择模拟宇宙
 
@@ -145,6 +159,7 @@ class SimUniApp(Application):
         super()._init_before_execute()
         self.get_reward_cnt = 0
         self.exception_times: int = 0
+        self.not_found_in_survival_times: int = 0  # 在生存索引中找不到模拟宇宙的次数
 
         Application.get_preheat_executor().submit(self.preheat)
 
@@ -272,3 +287,59 @@ class SimUniApp(Application):
         self.exception_times += 1
         op = SimUniExit(self.ctx)
         return self.round_by_op(op.execute())
+
+    def choose_in_survival_index(self) -> OperationOneRoundResult:
+        """
+        在生存索引中 选择模拟宇宙
+        开启差分宇宙后 就没有这个选项了
+        :return:
+        """
+        screen = self.screenshot()
+
+        area = ScreenGuide.SURVIVAL_INDEX_CATE.value
+        part = cv2_utils.crop_image_only(screen, area.rect)
+
+        target = SurvivalIndexCategoryEnum.SI_SIM_UNI.value
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+
+        for k, v in ocr_result_map.items():
+            # 看有没有目标
+            if str_utils.find_by_lcs(gt(target.cn, 'ocr'), k, 0.55):
+                to_click = v.max.center + area.rect.left_top
+                log.info('生存索引中找到 %s 尝试点击', target.cn)
+                if self.ctx.controller.click(to_click):
+                    return self.round_success(wait=0.5)
+
+        self.not_found_in_survival_times += 1
+        if self.not_found_in_survival_times > 1:
+            return self.round_success(status=self.STATUS_NOT_FOUND_IN_SI)
+        else:
+            return self.round_retry(wait=0.5)
+
+    def choose_in_sim_uni(self) -> OperationOneRoundResult:
+        """
+        在指南-模拟宇宙中 选择模拟宇宙
+        开启差分宇宙后 就有这个选项了
+        :return:
+        """
+        screen = self.screenshot()
+
+        area = ScreenGuide.SURVIVAL_INDEX_CATE.value
+        part = cv2_utils.crop_image_only(screen, area.rect)
+
+        target = SurvivalIndexCategoryEnum.SI_SIM_UNI.value
+        ocr_result_map = self.ctx.ocr.run_ocr(part)
+
+        for k, v in ocr_result_map.items():
+            # 看有没有目标
+            if str_utils.find_by_lcs(gt(target.cn, 'ocr'), k, 0.55):
+                to_click = v.max.center + area.rect.left_top
+                log.info('生存索引中找到 %s 尝试点击', target.cn)
+                if self.ctx.controller.click(to_click):
+                    return self.round_success(wait=0.5)
+
+        self.not_found_in_survival_times += 1
+        if self.not_found_in_survival_times > 1:
+            return self.round_fail(status='找不到模拟宇宙')
+        else:
+            return self.round_retry(wait=0.5)

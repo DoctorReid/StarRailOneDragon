@@ -1,7 +1,9 @@
 import test
+from basic.img.os import get_debug_image
 from sr.const import map_const
 from sr.const.map_const import Region
 from sr.context import get_context
+from sr.image.sceenshot import large_map
 from sr.operation.unit.op_map import ChooseRegion
 
 
@@ -37,3 +39,14 @@ class TestChooseRegion(test.SrTestBase):
             region: Region = pos.data
             region_set.add(region.pr_id)
         self.assertEquals(5, len(region_set))
+
+    def test_choose_region(self):
+        ctx = get_context()
+        ctx.init_ocr_matcher()
+
+        op = ChooseRegion(ctx, map_const.P04_R03)
+        screen = get_debug_image('2')
+        current_region_name = large_map.get_active_region_name(screen, ctx.ocr)
+
+        screen = get_debug_image('_1718548755416')
+        current_region_name = large_map.get_active_region_name(screen, ctx.ocr)

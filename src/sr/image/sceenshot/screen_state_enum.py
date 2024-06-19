@@ -23,6 +23,9 @@ class ScreenState(Enum):
     GUIDE_SURVIVAL_INDEX: str = '生存索引'
     """星际和平指南 - 生存索引"""
 
+    GUIDE_SIM_UNI: str = '模拟宇宙'
+    """星际和平指南 - 模拟宇宙"""
+
     GUIDE_TREASURES_LIGHTWARD: str = '逐光捡金'
     """星际和平指南 - 逐光捡金"""
 
