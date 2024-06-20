@@ -44,7 +44,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements-prod.txt
           pip freeze
 
       - name: Package Exe by PyInstaller

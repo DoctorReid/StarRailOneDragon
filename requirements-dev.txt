@@ -1,10 +1,8 @@
-polib==1.2.0
 pyautogui==0.9.54
 onnxruntime==1.17.0
 opencv-python==4.9.0.80
 keyboard==0.13.5
 flet==0.22.1
-pyinstaller==6.1.0
 schedule==1.2.1
 tenacity==8.2.3
 pydantic==1.10.14
