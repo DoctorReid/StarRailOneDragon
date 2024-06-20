@@ -42,13 +42,17 @@ class SimUniWaitLevelStart(Operation):
         state = screen_state.get_sim_uni_screen_state(screen, self.ctx.im, self.ctx.ocr,
                                                       in_world=True,
                                                       bless=True,
-                                                      curio=True
+                                                      curio=True,
+                                                      sim_uni=True
                                                       )
         if state == ScreenState.NORMAL_IN_WORLD.value:
             # 移动进入下一层后 小地图会有缩放 稍微等一下方便小地图匹配
             return self.round_success(wait=self.wait_after_success)
-        elif state == ScreenState.SIM_BLESS.value:
-            op = SimUniChooseBless(self.ctx, self.config, before_level_start=not self.first_bless_chosen)
+        elif (state == ScreenState.SIM_BLESS.value
+              or state == ScreenState.GUIDE_SIM_UNI.value):  # 2.3版本改了 开头会显示模拟宇宙
+            op = SimUniChooseBless(self.ctx, self.config,
+                                   skip_first_screen_check=True,
+                                   before_level_start=not self.first_bless_chosen)
             op_result = op.execute()
             if op_result.success:
                 self.first_bless_chosen = True

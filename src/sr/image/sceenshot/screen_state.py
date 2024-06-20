@@ -236,6 +236,7 @@ def get_sim_uni_screen_state(
         reward: bool = False,
         fast_recover: bool = False,
         express_supply: bool = False,
+        sim_uni: bool = False
 ) -> Optional[str]:
     """
     获取模拟宇宙中的画面状态
@@ -255,6 +256,7 @@ def get_sim_uni_screen_state(
     :param reward: 可能在沉浸奖励
     :param fast_recover: 可能在快速恢复
     :param express_supply: 可能在列车补给
+    :param sim_uni: 2.3版本新增 宇宙开始时选择祝福显示的是 模拟宇宙
     :return:
     """
     if in_world and is_normal_in_world(screen, im):
@@ -286,6 +288,9 @@ def get_sim_uni_screen_state(
         if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
             return ScreenState.BATTLE.value
         return None
+
+    if sim_uni and str_utils.find_best_match_by_lcs(ScreenState.GUIDE_SIM_UNI.value, titles, lcs_percent_threshold=0.51) is not None:
+        return ScreenState.GUIDE_SIM_UNI.value
 
     if bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
         return ScreenState.SIM_BLESS.value
