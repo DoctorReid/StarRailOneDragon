@@ -33,10 +33,10 @@ echo 准备在当前目录安装Python 3.11
 set bit=!PROCESSOR_ARCHITECTURE!
 echo 当前系统为 !bit!
 
-set py_url=https://www.python.org/ftp/python/3.11.3/python-3.11.3-embed-win32.zip
-set py_file_name=!env_path!\python-3.11.3-embed.zip
+set py_url=https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-win32.zip
+set py_file_name=!env_path!\python-3.11.9-embed.zip
 if "!bit!"=="AMD64" (
-    set py_url=https://www.python.org/ftp/python/3.11.3/python-3.11.3-embed-amd64.zip
+    set py_url=https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip
 )
 
 if not exist "!env_path!" mkdir "!env_path!"

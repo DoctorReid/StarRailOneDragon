@@ -7,7 +7,7 @@ from sr.const.map_const import TransportPoint
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.screen_area import ScreenArea
 from sr.screen_area.interastral_peace_guide import ScreenGuide
-from sr.sim_uni.sim_uni_const import SimUniWorld, SimUniWorldEnum, OrnamentExtractionEnum
+from sr.sim_uni.sim_uni_const import SimUniWorld, SimUniWorldEnum, OrnamentExtractionEnum, OrnamentExtraction
 
 
 class SurvivalIndexCategory:
@@ -66,24 +66,13 @@ class SurvivalIndexSubCategoryEnum(Enum):
 class SurvivalIndexMission:
 
     def __init__(self, cate: SurvivalIndexCategory,
-                 tp: Union[TransportPoint, SimUniWorld],
+                 tp: Union[TransportPoint, SimUniWorld, OrnamentExtraction],
                  power: int,
                  sub_cate: Optional[SurvivalIndexSubCategory] = None):
         self.cate: SurvivalIndexCategory = cate
         self.sub_cate: Optional[SurvivalIndexSubCategory] = sub_cate
-        self.tp: Union[TransportPoint, SimUniWorld] = tp
+        self.tp: Union[TransportPoint, SimUniWorld, OrnamentExtraction] = tp
         self.power: int = power
-
-    @property
-    def survival_index_cn(self) -> str:
-        """
-        在生存索引中显示的中文名称
-        :return:
-        """
-        if self.sub_cate is not None:
-            return self.tp.cn[:4] + '·' + self.sub_cate.area.text
-        else:
-            return self.tp.cn
 
     @property
     def ui_cn(self) -> str:

@@ -17,7 +17,7 @@ class TestTrailblazePower(test.SrTestBase):
         op = TrailblazePower(ctx)
 
         screen = self.get_test_image_new('sim_uni_power.png')
-        x, y = op._get_sim_uni_power_and_qty(screen)
+        x, y = op._get_power_and_qty(screen)
 
         self.assertEqual(92, x)
         self.assertEqual(9, y)
