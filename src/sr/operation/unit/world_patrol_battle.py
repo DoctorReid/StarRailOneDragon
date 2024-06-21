@@ -226,7 +226,8 @@ class WorldPatrolEnterFight(Operation):
                          max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
                          quirky_snacks=self.ctx.game_config.use_quirky_snacks
                          )
-        return self.round_by_op(op.execute())
+        # 可能把战斗中的文字错误识别成【快速恢复】 因此允许失败
+        return self.round_by_op(op.execute(), retry_on_fail=True)
 
     def _exit_with_last_move(self) -> OperationOneRoundResult:
         """

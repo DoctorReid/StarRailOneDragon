@@ -311,7 +311,7 @@ class MoveDirectly(Operation):
         if self.stop_move_time is None:
             self.stop_move_time = time.time() + (1 if self.run_mode != game_config_const.RUN_MODE_OFF else 0)
 
-        fight = self.get_fight_op()
+        fight = self.get_fight_op(in_world=True)
         fight_start_time = time.time()
         op_result = fight.execute()
         if not op_result.success:

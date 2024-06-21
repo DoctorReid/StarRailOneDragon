@@ -362,6 +362,7 @@ def get_world_patrol_screen_state(
 ):
     """
     获取锄大地的画面状态
+    注意 战斗中出现的技能文本 可能会被识别出来 因此lcs阈值应该最少为0.5
     :param screen: 屏幕截图
     :param im: 图片匹配器
     :param ocr: 文本识别器
