@@ -83,6 +83,6 @@ class ChooseSimUniPath(StateOperation):
         click = self.ocr_and_click_one_line('确认命途', ChooseSimUniPath.CONFIRM_BTN,
                                             lcs_percent=0.1)
         if click == Operation.OCR_CLICK_SUCCESS:
-            return self.round_success()
+            return self.round_success(wait=2)
         else:
             return self.round_retry('点击确认命途失败')

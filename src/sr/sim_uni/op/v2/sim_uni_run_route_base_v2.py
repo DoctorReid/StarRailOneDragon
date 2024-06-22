@@ -4,6 +4,7 @@ from typing import ClassVar, Optional, List, Callable
 from cv2.typing import MatLike
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from sr.const import STANDARD_RESOLUTION_W
 from sr.context import Context
 from sr.image.sceenshot import mini_map
@@ -145,6 +146,7 @@ class SimUniRunRouteBaseV2(StateOperation):
         time.sleep(0.5)
 
         if self.nothing_times % 11 == 0:
+            log.debug('无内容次数 %d', self.nothing_times)
             # 识别不到内容太多次 判断楼层类型是否有问题
             if self.last_screenshot is not None and not self.is_level_type_correct(self.last_screenshot):
                 return self.round_fail(SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE)
