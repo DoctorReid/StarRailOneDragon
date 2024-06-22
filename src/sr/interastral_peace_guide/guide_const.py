@@ -188,8 +188,10 @@ class GuideMission:
                 return '大公 系囚'
             elif self.tp == map_const.P04_R05_SP11:
                 return '先驱 钟表匠'
+            elif self.tp == map_const.P04_R10_SP10:
+                return '铁骑 勇烈'
             else:
-                return ''
+                return self.tp.cn
         elif self.cate == GuideCategoryEnum.SI_SIM_UNI.value:
             return self.sim_world.name
         elif self.cate == GuideCategoryEnum.ECHO_OF_WAR.value:
@@ -276,6 +278,7 @@ class GuideMissionEnum(Enum):
     BUD_2_FR_2 = GuideMission(cate=GuideCategoryEnum.BUD_2.value, tp=map_const.P03_R10_SP17, power=10)
 
     BUD_2_ZS_1 = GuideMission(cate=GuideCategoryEnum.BUD_2.value, tp=map_const.P02_R11_SP05, power=10)
+    BUD_2_ZS_2 = GuideMission(cate=GuideCategoryEnum.BUD_2.value, tp=map_const.P04_R10_SP09, power=10)
 
     BUD_2_TX_1 = GuideMission(cate=GuideCategoryEnum.BUD_2.value, tp=map_const.P02_R12_SP04, power=10)
     BUD_2_TX_2 = GuideMission(cate=GuideCategoryEnum.BUD_2.value, tp=map_const.P04_R05_SP09, power=10)
@@ -311,6 +314,7 @@ class GuideMissionEnum(Enum):
     PATH_07 = GuideMission(cate=GuideCategoryEnum.PATH.value, tp=map_const.P03_R10_SP06, power=40)
     PATH_08 = GuideMission(cate=GuideCategoryEnum.PATH.value, tp=map_const.P01_R03_SP06, power=40)
     PATH_09 = GuideMission(cate=GuideCategoryEnum.PATH.value, tp=map_const.P04_R05_SP11, power=40)
+    PATH_10 = GuideMission(cate=GuideCategoryEnum.PATH.value, tp=map_const.P04_R10_SP10, power=40)
 
     ECHO_01 = GuideMission(cate=GuideCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P01_R04_SP06, power=30)
     ECHO_02 = GuideMission(cate=GuideCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P02_R06_SP05, power=30)

@@ -241,11 +241,11 @@ P04_R09_SUB_05 = Region(9, "YJPTZ", "演技派挑战", P04,
 P04_R09_SUB_06 = Region(9, "DZPTZ", "动作派挑战", P04,
                         parent=P04_R09, enter_template_id='mm_sub_02', enter_lm_pos=Point(403, 1404),
                         large_map_scale=0)
-P04_R10 = Region(10, " PNKNDJY", "匹诺康尼大剧院", P04)
-P04_R10_SUB_01_F2 = Region(10, " MJKJ1", "梦境空间1", P04, floor=2,
+P04_R10 = Region(10, "PNKNDJY", "匹诺康尼大剧院", P04)
+P04_R10_SUB_01_F2 = Region(10, "MJKJ1", "梦境空间1", P04, floor=2,
                            parent=P04_R10, enter_template_id='mm_sp_05', enter_lm_pos=Point(387, 755),
                            large_map_scale=0)
-P04_R10_SUB_01_F3 = Region(10, " MJKJ1", "梦境空间1", P04, floor=3,
+P04_R10_SUB_01_F3 = Region(10, "MJKJ1", "梦境空间1", P04, floor=3,
                            parent=P04_R10, enter_template_id='mm_sp_05', enter_lm_pos=Point(387, 755),
                            large_map_scale=0)
 
@@ -794,6 +794,8 @@ P04_R10_SP05 = TransportPoint('', '', P04_R10, 'mm_sp_05', (385, 749))
 P04_R10_SP06 = TransportPoint('XXHNXD', '小小哈努行动', P04_R10, 'mm_sp_11', (1267, 882))
 P04_R10_SP07 = TransportPoint('FSFRDDS', '妃色夫人的「大树」', P04_R10, 'mm_sp_14', (322, 891))
 P04_R10_SP08 = TransportPoint('CMDZLLZYX', '尘梦的赞礼·历战余响', P04_R10, 'mm_boss_05', (793, 298), tp_pos=(796, 309))
+P04_R10_SP09 = TransportPoint('ZSZLNZHEC', '智识之蕾·拟造花萼（赤）', P04_R10, 'mm_tp_07', (1022, 383), tp_pos=(1028, 381))
+P04_R10_SP10 = TransportPoint('YQZJQSCD', '勇骑之径·侵蚀隧洞', P04_R10, 'mm_tp_09', (222, 627), tp_pos=(228, 631))
 
 
 REGION_2_SP = {
