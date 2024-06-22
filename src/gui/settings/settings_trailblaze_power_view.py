@@ -33,14 +33,15 @@ class PlanListItem(ft.Row):
                 plan_times=1, run_times=0,
                 team_num=1 if history is None else history['team_num'],
                 support='none' if history is None else history['support'])
-        self.category_dropdown = ft.Dropdown(options=[
-            ft.dropdown.Option(text=i.value.ui_cn, key=i.value.ui_cn)
-            for i in GuideCategoryEnum
-            if i not in [GuideCategoryEnum.ECHO_OF_WAR, GuideCategoryEnum.SU_SIM_UNI, GuideCategoryEnum.SU_OE]
-        ],
+        self.category_dropdown = ft.Dropdown(
+            options=[
+                ft.dropdown.Option(text=i.value.ui_cn, key=i.value.ui_cn)
+                for i in GuideCategoryEnum
+                if i not in [GuideCategoryEnum.ECHO_OF_WAR, GuideCategoryEnum.SU_SIM_UNI, GuideCategoryEnum.SU_OE]
+            ],
             label='类目', width=100, on_change=self._on_category_changed)
         self.tp_dropdown = ft.Dropdown(label='挑战关卡', width=180, on_change=self._on_tp_changed)
-        self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(1, 10)],
+        self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(10)],
                                              label='使用配队', width=80, on_change=self._on_team_num_changed)
         self.support_dropdown = ft.Dropdown(label='支援', value='none', disabled=True, width=80,
                                             options=[ft.dropdown.Option(text='无', key='none')])
@@ -56,6 +57,7 @@ class PlanListItem(ft.Row):
 
         self.category_dropdown.value = self.chosen_point.cate.ui_cn
         self._update_tp_dropdown_list()
+        self.auto_set_team_dropdown_label()
         self.tp_dropdown.value = self.chosen_point.unique_id
         self.team_num_dropdown.value = self.value['team_num']
         self.support_dropdown.value = self.value['support']
@@ -80,8 +82,25 @@ class PlanListItem(ft.Row):
         self.tp_dropdown.options = [ft.dropdown.Option(text=i.ui_cn, key=i.unique_id) for i in point_list]
         self.tp_dropdown.value = self.tp_dropdown.options[0].key
 
+    def auto_set_team_dropdown_label(self) -> None:
+        """
+        根据选项 自动设置配队下拉框的文本
+        :return:
+        """
+        team_num_label = '使用配队'
+        if self.category_dropdown.value == GuideCategoryEnum.ORNAMENT_EXTRACTION.value.ui_cn:
+            team_num_label = '使用存档'
+        self.team_num_dropdown.label = gt(team_num_label, 'ui')
+
     def _on_category_changed(self, e):
+        """
+        更改类别后的回调
+        :param e:
+        :return:
+        """
         self._update_tp_dropdown_list()
+        self.auto_set_team_dropdown_label()
+
         self.plan_times_input.value = 1
         self.run_times_input.value = 0
         self._load_history()

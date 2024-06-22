@@ -1,17 +1,20 @@
 import time
 from typing import Optional
 
+from basic import str_utils
 from basic.i18_utils import gt
-from sr.context import Context
+from basic.img import cv2_utils
+from sr.context import Context, get_context
 from sr.div_uni.screen_div_uni import ScreenDivUni
 from sr.operation import StateOperation, OperationOneRoundResult, StateOperationNode, Operation
+from sr.screen_area.screen_phone_menu import ScreenPhoneMenu
 
 
 class ChooseOeFile(StateOperation):
 
     def __init__(self, ctx: Context, num: int):
         """
-        选择存档
+        选择存档 最终返回【位面饰品提取】画面
         """
         super().__init__(ctx, op_name=gt('选择存档', 'ui'))
 
@@ -68,7 +71,7 @@ class ChooseOeFile(StateOperation):
         if self.find_area(area, screen):
             return self.round_success(area.status)
 
-        return self.round_retry(status='未在指定页面', wait_round_time=0.5)
+        return self.round_retry(status='未在指定页面', wait_round_time=1)
 
     def click_switch_file(self) -> OperationOneRoundResult:
         """
@@ -76,14 +79,8 @@ class ChooseOeFile(StateOperation):
         :return:
         """
         screen = self.screenshot()
-
         area = ScreenDivUni.OE_SWITCH_FILE_BTN.value
-        click = self.find_and_click_area(area, screen)
-
-        if click == Operation.OCR_CLICK_SUCCESS:
-            return self.round_success()
-        else:
-            return self.round_retry(f'点击{area.status}失败', wait_round_time=0.5)
+        return self.round_by_find_and_click_area(screen, area, success_wait=1.5, retry_wait_round=0.5)
 
     def wait_management_screen(self) -> OperationOneRoundResult:
         """
@@ -116,10 +113,28 @@ class ChooseOeFile(StateOperation):
         time.sleep(0.25)
 
         screen = self.screenshot()
-        area = ScreenDivUni.OC_CONFIRM_SWITCH_BTN.value
-        click = self.find_and_click_area(area, screen)
+        area1 = ScreenDivUni.OE_CONFIRM_SWITCH_BTN.value
+        area2 = ScreenDivUni.OE_FILE_USING_BTN.value
+        part = cv2_utils.crop_image_only(screen, area1.rect)
+        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
 
-        if click == Operation.OCR_CLICK_SUCCESS:
-            return self.round_success(wait=1)  # 选择后 等待一会返回外层界面
+        if str_utils.find_by_lcs(ocr_result, area1.text, percent=area1.lcs_percent):
+            self.ctx.controller.click(area1.center)
+            return self.round_success(wait=1.5)  # 选择后 等待一会返回外层界面
+        elif str_utils.find_by_lcs(ocr_result, area2.text, percent=area2.lcs_percent):  # 已经在使用了 返回即可
+            self.ctx.controller.click(ScreenPhoneMenu.EXIT_BTN.value.center)
+            return self.round_success(wait=1.5)  # 选择后 等待一会返回外层界面
         else:
-            return self.round_retry(f'点击{area.status}失败', wait_round_time=0.5)
+            return self.round_retry(f'点击{area1.status}失败', wait_round_time=0.5)
+
+
+def __debug_op():
+    ctx = get_context()
+    ctx.start_running()
+
+    op = ChooseOeFile(ctx, 2)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug_op()

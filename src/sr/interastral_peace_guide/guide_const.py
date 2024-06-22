@@ -195,7 +195,24 @@ class GuideMission:
         elif self.cate == GuideCategoryEnum.ECHO_OF_WAR.value:
             return self.tp.cn[:-5]  # 去除 '·历战余响'
         elif self.cate == GuideCategoryEnum.ORNAMENT_EXTRACTION.value:
-            return self.ornament_extraction.name
+            if self.ornament_extraction == OrnamentExtractionEnum.OE_10.value:
+                return '崩狼 劫火'
+            elif self.ornament_extraction == OrnamentExtractionEnum.OE_09.value:
+                return '茨冈尼亚 出云'
+            elif self.ornament_extraction == OrnamentExtractionEnum.OE_08.value:
+                return '苍穹 匹诺康尼'
+            elif self.ornament_extraction == OrnamentExtractionEnum.OE_07.value:
+                return '繁星 龙骨'
+            elif self.ornament_extraction == OrnamentExtractionEnum.OE_06.value:
+                return '贝洛伯格 停转'
+            elif self.ornament_extraction == OrnamentExtractionEnum.OE_05.value:
+                return '银河 差分'
+            elif self.ornament_extraction == OrnamentExtractionEnum.OE_04.value:
+                return '盗贼 翁瓦克'
+            elif self.ornament_extraction == OrnamentExtractionEnum.OE_03.value:
+                return '太空 仙舟'
+            else:
+                return self.ornament_extraction.name
         elif self.cate == GuideCategoryEnum.SU_SIM_UNI.value:
             return self.sim_uni_type.name
         else:

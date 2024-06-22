@@ -492,6 +492,30 @@ class Operation:
         else:
             return Operation.OCR_CLICK_FAIL
 
+    def round_by_find_and_click_area(self, screen: MatLike, area: ScreenArea,
+                                     success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
+                                     retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+                                     ) -> OperationOneRoundResult:
+        """
+        是否能找到目标区域 并进行点击
+        :param screen: 屏幕截图
+        :param area: 目标区域
+        :param success_wait: 成功后等待的秒数
+        :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :param retry_wait: 失败后等待的秒数
+        :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :return:
+        """
+        click = self.find_and_click_area(area=area, screen=screen)
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return self.round_success(status=area.status, wait=success_wait, wait_round_time=success_wait_round)
+        elif click == Operation.OCR_CLICK_NOT_FOUND:
+            return self.round_retry(status=f'未找到{area.status}',wait=retry_wait, wait_round_time=retry_wait_round)
+        elif click == Operation.OCR_CLICK_FAIL:
+            return self.round_retry(status=f'点击{area.status}失败', wait=retry_wait, wait_round_time=retry_wait_round)
+        else:
+            return self.round_retry(status='未知状态', wait=retry_wait, wait_round_time=retry_wait_round)
+
     def find_area(self, area: ScreenArea, screen: Optional[MatLike] = None) -> bool:
         """
         在一个区域匹配成功后进行点击
@@ -640,7 +664,7 @@ class StateOperationEdge:
 
 class StateOperation(Operation):
 
-    def __init__(self, ctx: Context, op_name: str, try_times: int = 2,
+    def __init__(self, ctx: Context, op_name: str, try_times: int = 3,
                  nodes: Optional[List[StateOperationNode]] = None,
                  edges: Optional[List[StateOperationEdge]] = None,
                  specified_start_node: Optional[StateOperationNode] = None,
@@ -721,6 +745,7 @@ class StateOperation(Operation):
         进行节点网络的初始化
         :return:
         """
+        self.add_edges_and_nodes()
         self._init_edge_list()
 
         self._node_edges_map: dict[str, List[StateOperationEdge]] = {}
@@ -805,8 +830,8 @@ class StateOperation(Operation):
         elif self._current_node.op is not None:
             op_result = self._current_node.op.execute()
             current_round_result = self.round_by_op(op_result,
-                                                         retry_on_fail=self._current_node.retry_on_op_fail,
-                                                         wait=self._current_node.wait_after_op)
+                                                    retry_on_fail=self._current_node.retry_on_op_fail,
+                                                    wait=self._current_node.wait_after_op)
         else:
             return self.round_fail('节点处理函数和指令都没有设置')
 

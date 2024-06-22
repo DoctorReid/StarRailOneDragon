@@ -34,3 +34,8 @@ class ScreenGuide(Enum):
     # 饰品提取
     OE_DIFF_DROPDOWN = ScreenArea(pc_rect=Rect(98, 39, 350, 100))  # 难度下拉框
     OE_DIFF_DROPDOWN_OPTIONS = ScreenArea(pc_rect=Rect(98, 39, 350, 100))  # 难度列表
+    OE_DIFF_OPT_1 = ScreenArea(pc_rect=Rect(1365, 460, 1572, 535), text='难度Ⅰ')
+    OE_DIFF_OPT_2 = ScreenArea(pc_rect=Rect(1365, 545, 1572, 620), text='难度Ⅱ')
+    OE_DIFF_OPT_3 = ScreenArea(pc_rect=Rect(1365, 630, 1572, 705), text='难度Ⅲ')
+    OE_DIFF_OPT_4 = ScreenArea(pc_rect=Rect(1365, 715, 1572, 790), text='难度Ⅳ')
+    OE_DIFF_OPT_5 = ScreenArea(pc_rect=Rect(1365, 800, 1572, 875), text='难度Ⅴ')

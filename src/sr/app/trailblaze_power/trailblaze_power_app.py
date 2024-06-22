@@ -12,6 +12,7 @@ from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanI
 from sr.const import phone_menu_const
 from sr.const.map_const import TransportPoint
 from sr.context import Context
+from sr.div_uni.op.ornamenet_extraction import ChallengeOrnamentExtraction
 from sr.operation import StateOperationNode, StateOperationEdge, OperationOneRoundResult
 from sr.operation.combine.use_trailblaze_power import UseTrailblazePower
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
@@ -52,7 +53,7 @@ class TrailblazePower(Application):
 
         execute = StateOperationNode('执行开拓力计划', self._execute_plan)
         edges.append(StateOperationEdge(check_power, execute))
-        edges.append(StateOperationEdge(execute, check_task))  # 循环挑战
+        edges.append(StateOperationEdge(execute, execute))  # 循环挑战
 
         back = StateOperationNode('完成后返回大世界', op=BackToNormalWorldPlus(ctx))
         edges.append(StateOperationEdge(execute, back, status=TrailblazePower.STATUS_NO_ENOUGH_POWER))
@@ -96,9 +97,6 @@ class TrailblazePower(Application):
         识别开拓力和沉浸器
         :return:
         """
-        if self.qty is not None:
-            return self.round_success()
-
         ops = [
             OpenPhoneMenu(self.ctx),
             ClickPhoneMenuItem(self.ctx, phone_menu_const.INTERASTRAL_GUIDE),
@@ -156,21 +154,29 @@ class TrailblazePower(Application):
 
         self.ctx.sim_uni_run_record.check_and_update_status()
 
-        if isinstance(mission.tp, TransportPoint):
+        if mission.tp is not None:
             op = UseTrailblazePower(self.ctx, mission, plan['team_num'], run_times,
                                     support=plan['support'] if plan['support'] != 'none' else None,
                                     on_battle_success=self._on_normal_task_success,
                                     need_transport=mission != self.last_mission)
-        elif isinstance(mission.tp, SimUniWorld):
+        elif mission.sim_world is not None:
             op = SimUniApp(self.ctx,
-                           specified_uni_num=mission.tp.idx,
+                           specified_uni_num=mission.sim_world.idx,
                            max_reward_to_get=can_run_times,
                            get_reward_callback=self._on_sim_uni_get_reward
                            )
             op.init_context_before_start = False
             op.stop_context_after_stop = False
-        elif isinstance(mission.tp, OrnamentExtraction):
-            pass
+        elif mission.ornament_extraction is not None:
+            op = ChallengeOrnamentExtraction(self.ctx, mission.ornament_extraction,
+                                             run_times=run_times,
+                                             diff=0,
+                                             file_num=plan['team_num'],
+                                             support_character=plan['support'] if plan['support'] != 'none' else None,
+                                             get_reward_callback=self.on_oe_get_reward)
+        else:
+            return self.round_fail('未知副本类型')
+
         self.last_mission = mission
         return self.round_by_op(op.execute())
 
@@ -199,3 +205,20 @@ class TrailblazePower(Application):
 
         self.power -= use_power
         self.qty -= user_qty
+
+    def on_oe_get_reward(self, qty: int):
+        """
+        饰品提取 获取奖励后的回调
+        :return:
+        """
+        log.info('饰品提取获取奖励 次数 %d', qty)
+        plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
+        mission: Optional[GuideMission] = GuideMissionEnum.get_by_unique_id(plan['mission_id'])
+        for _ in range(qty):
+            if self.qty > 0:  # 优先使用沉浸器
+                self.qty -= 1
+            elif self.power >= mission.power:
+                self.power -= mission.power
+
+            plan['run_times'] += 1
+            self.ctx.tp_config.save()
