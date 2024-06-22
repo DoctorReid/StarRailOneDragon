@@ -3,17 +3,17 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.context import Context
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategory
+from sr.interastral_peace_guide.guide_const import GuideCategory
 from sr.operation import Operation, StateOperation, StateOperationNode, OperationOneRoundResult
 from sr.screen_area.interastral_peace_guide import ScreenGuide
 
 
-class SurvivalIndexChooseCategory(StateOperation):
+class ChooseGuideCategory(StateOperation):
 
-    def __init__(self, ctx: Context, target: SurvivalIndexCategory,
+    def __init__(self, ctx: Context, target: GuideCategory,
                  skip_wait: bool = True):
         """
-        在 星际和平指南-生存索引 画面中使用
+        在 星际和平指南 画面中使用
         选择左方的一个类目
         :param ctx: 上下文
         :param target: 目标类目
@@ -25,20 +25,28 @@ class SurvivalIndexChooseCategory(StateOperation):
         nodes.append(StateOperationNode('选择', self._choose))
 
         super().__init__(ctx, try_times=5,
-                         op_name='%s %s' % (gt('生存索引', 'ui'), gt(target.cn, 'ui')),
+                         op_name='%s %s' % (gt('指南', 'ui'), gt(target.cn, 'ui')),
                          nodes=nodes
                          )
 
-        self.target: SurvivalIndexCategory = target
+        self.target: GuideCategory = target
 
     def _wait(self) -> OperationOneRoundResult:
+        """
+        等待画面加载 左上角出现对应tab的
+        :return:
+        """
         screen = self.screenshot()
 
         area = ScreenGuide.SURVIVAL_INDEX_TITLE.value
-        if self.find_area(area, screen):
+        part = cv2_utils.crop_image_only(screen, area.rect)
+
+        target_tab = self.target.tab.cn
+        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        if str_utils.find_by_lcs(ocr_result, gt(target_tab, 'ocr'), percent=0.55):
             return self.round_success()
         else:
-            return self.round_retry('未在%s画面' % area.text)
+            return self.round_retry('未在%s画面' % target_tab)
 
     def _choose(self) -> OperationOneRoundResult:
         screen = self.screenshot()

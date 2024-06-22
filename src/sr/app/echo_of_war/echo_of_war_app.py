@@ -12,7 +12,7 @@ from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem
 from sr.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr.context import Context
 from sr.image.sceenshot import large_map
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexMission, SurvivalIndexMissionEnum
+from sr.interastral_peace_guide.guide_const import GuideMission, GuideMissionEnum
 from sr.operation import Operation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.combine.challenge_ehco_of_war import ChallengeEchoOfWar
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
@@ -60,7 +60,7 @@ class EchoOfWarApp(Application):
         if plan is None:
             return self.round_success('无挑战计划')
 
-        point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
+        point: Optional[GuideMission] = GuideMissionEnum.get_by_unique_id(plan['mission_id'])
 
         run_times: int = self.power // point.power
 

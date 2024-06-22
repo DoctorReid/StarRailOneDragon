@@ -3,7 +3,7 @@ from typing import Optional, Callable, ClassVar
 from basic.i18_utils import gt
 from sr.context import Context
 from sr.image.sceenshot import screen_state
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission
+from sr.interastral_peace_guide.guide_const import GuideCategoryEnum, GuideMission
 from sr.operation import Operation, StateOperation, OperationOneRoundResult, StateOperationNode, StateOperationEdge
 from sr.operation.battle.choose_challenge_times import ChooseChallengeTimes
 from sr.operation.battle.choose_support import ChooseSupport
@@ -20,7 +20,7 @@ class UseTrailblazePower(StateOperation):
 
     STATUS_CHALLENGE_EXIT_AGAIN: ClassVar[str] = '退出关卡后再来一次'
 
-    def __init__(self, ctx: Context, mission: SurvivalIndexMission,
+    def __init__(self, ctx: Context, mission: GuideMission,
                  team_num: int, plan_times: int, support: Optional[str] = None,
                  on_battle_success: Optional[Callable[[int, int], None]] = None,
                  need_transport: bool = True):
@@ -78,7 +78,7 @@ class UseTrailblazePower(StateOperation):
                          edges=edges
                          )
 
-        self.mission: SurvivalIndexMission = mission
+        self.mission: GuideMission = mission
         self.team_num: int = team_num
         self.support: Optional[str] = support
         self.plan_times: int = plan_times  # 计划挑战次数
@@ -117,8 +117,8 @@ class UseTrailblazePower(StateOperation):
         获取当前的挑战次数
         :return:
         """
-        if self.mission.cate == SurvivalIndexCategoryEnum.BUD_1.value or \
-                self.mission.cate == SurvivalIndexCategoryEnum.BUD_2.value:
+        if self.mission.cate == GuideCategoryEnum.BUD_1.value or \
+                self.mission.cate == GuideCategoryEnum.BUD_2.value:
             current_challenge_times = self.plan_times - self.finish_times
             if current_challenge_times > 6:
                 current_challenge_times = 6
@@ -132,8 +132,8 @@ class UseTrailblazePower(StateOperation):
         :return:
         """
         self.current_challenge_times = self._get_current_challenge_times()
-        if self.mission.cate == SurvivalIndexCategoryEnum.BUD_1.value or \
-                self.mission.cate == SurvivalIndexCategoryEnum.BUD_2.value:
+        if self.mission.cate == GuideCategoryEnum.BUD_1.value or \
+                self.mission.cate == GuideCategoryEnum.BUD_2.value:
             op = ChooseChallengeTimes(self.ctx, self.current_challenge_times)
             op_result = op.execute()
             return self.round_by_op(op_result)
@@ -179,7 +179,7 @@ class UseTrailblazePower(StateOperation):
         点击开始挑战后 进入战斗前
         :return:
         """
-        if self.mission.cate == SurvivalIndexCategoryEnum.SHAPE.value:
+        if self.mission.cate == GuideCategoryEnum.SHAPE.value:
             op = WaitInWorld(self.ctx, wait_after_success=2)  # 等待怪物苏醒
             op_result = op.execute()
             if not op_result.success:

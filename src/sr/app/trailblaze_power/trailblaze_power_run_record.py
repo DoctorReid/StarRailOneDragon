@@ -4,7 +4,7 @@ from typing import Optional
 from sr.app.app_description import AppDescriptionEnum
 from sr.app.app_run_record import AppRunRecord
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexMission, SurvivalIndexMissionEnum
+from sr.interastral_peace_guide.guide_const import GuideMission, GuideMissionEnum
 from sr.mystools.one_dragon_mys_config import MysConfig
 
 
@@ -26,6 +26,6 @@ class TrailblazePowerRunRecord(AppRunRecord):
         time_usage = now - mys.refresh_time
         power = mys.current_stamina + time_usage // 360  # 6分钟恢复一点体力
         if self.tp_config.next_plan_item is not None:
-            point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(self.tp_config.next_plan_item['mission_id'])
+            point: Optional[GuideMission] = GuideMissionEnum.get_by_unique_id(self.tp_config.next_plan_item['mission_id'])
             return point is not None and power >= point.power
         return False

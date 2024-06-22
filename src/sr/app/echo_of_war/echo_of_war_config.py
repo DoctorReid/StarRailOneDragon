@@ -2,7 +2,7 @@ from typing import TypedDict, List, Optional
 
 from basic.config import ConfigHolder
 from sr.app.app_description import AppDescriptionEnum
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexMissionEnum, SurvivalIndexCategoryEnum
+from sr.interastral_peace_guide.guide_const import GuideCategoryEnum, GuideMissionEnum
 
 
 class EchoOfWarPlanItem(TypedDict):
@@ -37,7 +37,7 @@ class EchoOfWarConfig(ConfigHolder):
                 any_changed = True
 
         # 兼容旧配置 将新增的历战余响加入
-        mission_list = SurvivalIndexMissionEnum.get_list_by_category(SurvivalIndexCategoryEnum.ECHO_OF_WAR.value)
+        mission_list = GuideMissionEnum.get_list_by_category(GuideCategoryEnum.ECHO_OF_WAR.value)
         for i in mission_list:
             existed = False
             for plan_item in plan_list:

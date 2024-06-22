@@ -13,8 +13,8 @@ from sr.operation.combine.dt_take_photo import DtTakePhoto
 from sr.operation.combine.dt_use_2_technique import Use2Technique
 from sr.operation.combine.salvage_relic import SalvageRelic
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
-from sr.operation.unit.guide import GuideTabEnum
-from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
+from sr.interastral_peace_guide.guide_const import GuideTabEnum
+from sr.interastral_peace_guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.guide.claim_training_reward import ClaimTrainingReward
 from sr.operation.unit.guide.claim_training_score import ClaimTrainingScore
 from sr.operation.unit.guide.get_training_score import GetTrainingScore

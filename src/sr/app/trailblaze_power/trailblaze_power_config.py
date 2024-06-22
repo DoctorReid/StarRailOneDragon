@@ -11,6 +11,7 @@ class TrailblazePowerPlanItem(TypedDict):
     support: str
     plan_times: int  # 计划通关次数
     run_times: int  # 已经通关次数
+    diff: int  # 难度 0代表自动最高
 
 
 class TrailblazePowerConfig(ConfigHolder):

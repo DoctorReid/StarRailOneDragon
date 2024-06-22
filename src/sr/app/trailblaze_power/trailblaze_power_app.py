@@ -12,14 +12,12 @@ from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanI
 from sr.const import phone_menu_const
 from sr.const.map_const import TransportPoint
 from sr.context import Context
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexMission, \
-    SurvivalIndexMissionEnum
 from sr.operation import StateOperationNode, StateOperationEdge, OperationOneRoundResult
 from sr.operation.combine.use_trailblaze_power import UseTrailblazePower
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.common.cancel_mission_trace import CancelMissionTrace
-from sr.operation.unit.guide import GuideTabEnum
-from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
+from sr.interastral_peace_guide.guide_const import GuideTabEnum, GuideMission, GuideMissionEnum
+from sr.interastral_peace_guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.sim_uni.sim_uni_const import SimUniWorld, OrnamentExtraction
@@ -67,7 +65,7 @@ class TrailblazePower(Application):
 
     def _init_before_execute(self):
         super()._init_before_execute()
-        self.last_mission: Optional[SurvivalIndexMission] = None  # 上一个挑战副本
+        self.last_mission: Optional[GuideMission] = None  # 上一个挑战副本
         self.power: int = 0  # 剩余开拓力
         self.qty: int = 0  # 沉浸器数量
 
@@ -133,7 +131,7 @@ class TrailblazePower(Application):
 
     def _execute_plan(self) -> OperationOneRoundResult:
         plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
-        mission: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(plan['mission_id'])
+        mission: Optional[GuideMission] = GuideMissionEnum.get_by_unique_id(plan['mission_id'])
         can_run_times: int = self.power // mission.power
         if isinstance(mission.tp, (SimUniWorld, OrnamentExtraction)):  # 模拟宇宙相关的增加沉浸器数量
             can_run_times += self.qty

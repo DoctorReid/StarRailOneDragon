@@ -14,8 +14,8 @@ from sr.context import Context
 from sr.operation import StateOperationEdge, StateOperationNode, OperationResult, OperationOneRoundResult, Operation
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.forgotten_hall.get_reward_in_fh import GetRewardInForgottenHall
-from sr.operation.unit.guide import GuideTabEnum
-from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
+from sr.interastral_peace_guide.guide_const import GuideTabEnum
+from sr.interastral_peace_guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard

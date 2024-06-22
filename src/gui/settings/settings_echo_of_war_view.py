@@ -12,8 +12,8 @@ from gui.sr_basic_view import SrBasicView
 from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem, EchoOfWarConfig
 from sr.const.character_const import CHARACTER_LIST
 from sr.context import Context
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum, SurvivalIndexMission, \
-    SurvivalIndexMissionEnum
+from sr.interastral_peace_guide.guide_const import GuideCategoryEnum, GuideMission, \
+    GuideMissionEnum
 
 
 class PlanListItem(ft.Row):
@@ -22,7 +22,7 @@ class PlanListItem(ft.Row):
                  on_value_changed: Callable,
                  on_click_support: Callable):
         self.value: EchoOfWarPlanItem = item
-        mission_list = SurvivalIndexMissionEnum.get_list_by_category(SurvivalIndexCategoryEnum.ECHO_OF_WAR.value)
+        mission_list = GuideMissionEnum.get_list_by_category(GuideCategoryEnum.ECHO_OF_WAR.value)
         self.war_dropdown = ft.Dropdown(options=[
             ft.dropdown.Option(text=i.ui_cn, key=i.unique_id) for i in mission_list
         ],
@@ -169,7 +169,7 @@ class SettingsEchoOfWarView(SrBasicView, ft.Row):
 
     def show_choose_support_character(self, target: PlanListItem):
         self.chosen_plan_item = target
-        chosen_point: Optional[SurvivalIndexMission] = SurvivalIndexMissionEnum.get_by_unique_id(target.value['mission_id'])
+        chosen_point: Optional[GuideMission] = GuideMissionEnum.get_by_unique_id(target.value['mission_id'])
         self.character_card.update_title('%s %s' % (gt('支援角色', 'ui'), chosen_point.ui_cn))
         chosen_list: List[str] = []
         if target.support_dropdown.value is not None and target.support_dropdown.value != 'none':

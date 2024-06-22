@@ -5,11 +5,26 @@ from basic import str_utils
 from basic.i18_utils import gt
 
 
-class SimUniType(Enum):
+class SimUniType:
 
-    NORMAL: str = '模拟宇宙'
+    def __init__(self, uid: str, category: str, name: str):
+        self.uid: str = uid
+        """唯一标识"""
 
-    EXTEND: str = '拓展装置'
+        self.category: str = category
+        """左上角显示的分类"""
+
+        self.name: str = name
+        """类型名称"""
+
+
+class SimUniTypeEnum(Enum):
+
+    NORMAL = SimUniType('sim_uni_type_normal', '模拟宇宙', '模拟宇宙')
+
+    EXTEND_HY = SimUniType('sim_uni_type_hy', '拓展装置', '寰宇蝗虫')
+
+    EXTEND_GOLD = SimUniType('sim_uni_type_gold', '拓展装置', '黄金与机械')
 
 
 class SimUniWorld:
@@ -26,6 +41,7 @@ class SimUniWorld:
 
 class SimUniWorldEnum(Enum):
 
+    WORLD_00 = SimUniWorld(0, '每周总分', 0)
     WORLD_01 = SimUniWorld(1, '第一宇宙', 0)
     WORLD_02 = SimUniWorld(2, '第二宇宙', 0)
     WORLD_03 = SimUniWorld(3, '第三宇宙', 5)

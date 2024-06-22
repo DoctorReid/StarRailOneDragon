@@ -13,28 +13,27 @@ from sr.const import phone_menu_const
 from sr.context import Context
 from sr.image.sceenshot import screen_state, mini_map
 from sr.image.sceenshot.screen_state_enum import ScreenState
-from sr.interastral_peace_guide.survival_index_mission import SurvivalIndexCategoryEnum
+from sr.interastral_peace_guide.choose_guide_mission import ChooseGuideMission
+from sr.interastral_peace_guide.choose_guide_tab import ChooseGuideTab
+from sr.interastral_peace_guide.guide_const import GuideTabEnum, GuideCategoryEnum, GuideMissionEnum
 from sr.operation import OperationResult, Operation, StateOperationEdge, StateOperationNode, \
     OperationOneRoundResult
 from sr.operation.unit.back_to_world import BackToWorld
-from sr.operation.unit.guide import GuideTabEnum
-from sr.operation.unit.guide.choose_guide_tab import ChooseGuideTab
-from sr.operation.unit.guide.mission_transport import ChooseGuideMissionCategory, ChooseGuideMission, MISSION_SU_NORMAL
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.interastral_peace_guide import ScreenGuide
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.screen_area.screen_sim_uni import ScreenSimUni
+from sr.sim_uni.op.choose_sim_uni_category import ChooseSimUniCategory
 from sr.sim_uni.op.choose_sim_uni_diff import ChooseSimUniDiff
 from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
 from sr.sim_uni.op.choose_sim_uni_path import ChooseSimUniPath
-from sr.sim_uni.op.choose_sim_uni_type import ChooseSimUniType
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_claim_weekly_reward import SimUniClaimWeeklyReward
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_start import SimUniStart
-from sr.sim_uni.sim_uni_const import SimUniType, SimUniPath, SimUniWorldEnum
+from sr.sim_uni.sim_uni_const import SimUniTypeEnum, SimUniPath, SimUniWorldEnum
 
 
 class SimUniApp(Application):
@@ -88,13 +87,13 @@ class SimUniApp(Application):
         choose_in_su = StateOperationNode('模拟宇宙中选择模拟宇宙', self.choose_in_sim_uni)
         edges.append(StateOperationEdge(choose_sim_category, choose_in_su))
 
-        si_transport = StateOperationNode('生存索引中传送', self._transport)
+        si_transport = StateOperationNode('生存索引中传送', op=ChooseGuideMission(ctx, GuideMissionEnum.SIM_UNI_00.value))
         edges.append(StateOperationEdge(choose_in_si, si_transport))
 
-        su_transport = StateOperationNode('模拟宇宙中传送', op=ChooseGuideMission(ctx, MISSION_SU_NORMAL))
+        su_transport = StateOperationNode('模拟宇宙中传送', op=ChooseGuideMission(ctx, GuideMissionEnum.SIM_UNI_00.value))
         edges.append(StateOperationEdge(choose_in_su, su_transport))
 
-        choose_normal_universe = StateOperationNode('普通宇宙', op=ChooseSimUniType(ctx, SimUniType.NORMAL))
+        choose_normal_universe = StateOperationNode('普通宇宙', op=ChooseSimUniCategory(ctx, SimUniTypeEnum.NORMAL))
         edges.append(StateOperationEdge(si_transport, choose_normal_universe))
         edges.append(StateOperationEdge(su_transport, choose_normal_universe))
         edges.append(StateOperationEdge(check_initial_screen, choose_normal_universe,
@@ -299,7 +298,7 @@ class SimUniApp(Application):
         area = ScreenGuide.SURVIVAL_INDEX_CATE.value
         part = cv2_utils.crop_image_only(screen, area.rect)
 
-        target = SurvivalIndexCategoryEnum.SI_SIM_UNI.value
+        target = GuideCategoryEnum.SI_SIM_UNI.value
         ocr_result_map = self.ctx.ocr.run_ocr(part)
 
         for k, v in ocr_result_map.items():
@@ -327,7 +326,7 @@ class SimUniApp(Application):
         area = ScreenGuide.SURVIVAL_INDEX_CATE.value
         part = cv2_utils.crop_image_only(screen, area.rect)
 
-        target = SurvivalIndexCategoryEnum.SI_SIM_UNI.value
+        target = GuideCategoryEnum.SI_SIM_UNI.value
         ocr_result_map = self.ctx.ocr.run_ocr(part)
 
         for k, v in ocr_result_map.items():

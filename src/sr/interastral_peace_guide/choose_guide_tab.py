@@ -8,7 +8,7 @@ from sr.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult
-from sr.operation.unit.guide import GuideTab
+from sr.interastral_peace_guide.guide_const import GuideTab
 
 
 class ChooseGuideTab(Operation):

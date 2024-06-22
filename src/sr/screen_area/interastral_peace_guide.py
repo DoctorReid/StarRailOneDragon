@@ -18,6 +18,9 @@ class ScreenGuide(Enum):
     GUIDE_TAB_4 = ScreenArea(pc_rect=Rect(650, 170, 780, 245))  # 逐光捡金
     GUIDE_TAB_5 = ScreenArea(pc_rect=Rect(780, 170, 900, 245))  # 战术训练
 
+    # 指南右侧的副本列表
+    MISSION_LIST_RECT = ScreenArea(pc_rect=Rect(695, 295, 1655, 930))
+
     # 拟造花萼金-二级分类
     BUD_1_SUB_CATE_1 = ScreenArea(pc_rect=Rect(728, 297, 861, 356), text=map_const.P02.cn)
     BUD_1_SUB_CATE_2 = ScreenArea(pc_rect=Rect(861, 297, 993, 356), text=map_const.P03.cn)
@@ -27,3 +30,7 @@ class ScreenGuide(Enum):
     SURVIVAL_INDEX_TITLE = ScreenArea(pc_rect=Rect(98, 39, 350, 100), text='生存索引')  # 二级标题 TODO 未细化
     SURVIVAL_INDEX_CATE = ScreenArea(pc_rect=Rect(270, 300, 680, 910))  # 左边类目区域
     SURVIVAL_INDEX_TRANSPORT = ScreenArea(pc_rect=Rect(270, 300, 680, 910))  # 右边传送一列的位置
+
+    # 饰品提取
+    OE_DIFF_DROPDOWN = ScreenArea(pc_rect=Rect(98, 39, 350, 100))  # 难度下拉框
+    OE_DIFF_DROPDOWN_OPTIONS = ScreenArea(pc_rect=Rect(98, 39, 350, 100))  # 难度列表
