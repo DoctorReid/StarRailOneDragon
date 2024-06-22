@@ -34,9 +34,6 @@ class StartFight(Operation):
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name=gt('主动攻击进入战斗', 'ui'), timeout_seconds=10)
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
-
     def _execute_one_round(self) -> int:
         screen = self.screenshot()
 
@@ -100,15 +97,21 @@ class StartFightForElite(StateOperation):
         self.technique_idx: int = 0  # 当前到哪一个角色使用
         self.skip_resurrection_check: bool = skip_resurrection_check  # 跳过切换角色时检测复活
 
-    def _init_before_execute(self):
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
         self.character_list = []
         self.technique_order = []
         self.need_attack_finally = True
         self.technique_idx: int = 0  # 当前到哪一个角色使用
+
+        return None
 
     def _check_technique_point(self) -> OperationOneRoundResult:
         """

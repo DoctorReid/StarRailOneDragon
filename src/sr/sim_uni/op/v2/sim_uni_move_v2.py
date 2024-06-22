@@ -409,8 +409,15 @@ class SimUniMoveToInteractByDetect(Operation):
         self.interact_during_move: bool = interact_during_move
         """移动过程中不断尝试交互"""
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
 
         self.existed_interact_word: Optional[str] = None
         """还没开始移动就已经存在的交互词"""
@@ -587,8 +594,15 @@ class MoveToNextLevelV2(MoveToNextLevel):
         self.start_with_entry: bool = with_entry
         """调用这个指令时，是否已经看到了入口"""
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
 
         self.existed_interact_word: str = ''
         """还没开始移动就已经存在的交互词"""

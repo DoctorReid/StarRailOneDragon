@@ -4,7 +4,8 @@ from typing import Optional, List
 from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
 from sr.context import Context
-from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge
+from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge, \
+    OperationOneRoundResult
 from sr.operation.unit.enter_game import EnterGame
 from concurrent.futures import ThreadPoolExecutor
 
@@ -59,10 +60,19 @@ class Application(StateOperation):
 
         return True
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         if self.run_record is not None:
             self.run_record.update_status(AppRunRecord.STATUS_RUNNING)
+
+        return None
 
     def execute(self) -> OperationResult:
         if not self._init_context():
@@ -74,8 +84,11 @@ class Application(StateOperation):
         result: OperationResult = super().execute()
         return result
 
-    def on_resume(self, e=None):
-        super().on_resume()
+    def handle_resume(self) -> None:
+        """
+        恢复运行后的处理 由子类实现
+        :return:
+        """
         self.ctx.controller.init()
 
     def _stop_context(self):

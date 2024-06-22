@@ -55,9 +55,15 @@ class WorldPatrol(Application):
                 whitelist = WorldPatrolWhitelist(self.config.whitelist_id)
         self.whitelist: WorldPatrolWhitelist = whitelist
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
-
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.route_id_list = load_all_route_id(self.whitelist,
                                                None if self.ignore_record else self.ctx.world_patrol_run_record.finished)
 
@@ -65,6 +71,8 @@ class WorldPatrol(Application):
 
         Application.get_preheat_executor().submit(self.preheat)
         self.current_fail_times: int = 0  # 当前路线的失败次数
+
+        return None
 
     def preheat(self):
         """

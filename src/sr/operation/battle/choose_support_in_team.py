@@ -11,43 +11,42 @@ from sr.operation import Operation, OperationOneRoundResult, StateOperation, Sta
 from sr.screen_area.screen_team import ScreenTeam
 
 
-class ChooseSupport(StateOperation):
+class ChooseSupportInTeam(StateOperation):
 
     STATUS_SUPPORT_NOT_FOUND: ClassVar[str] = '未找到支援角色'
     STATUS_SUPPORT_NEEDED: ClassVar[str] = '需要支援角色'
 
     def __init__(self, ctx: Context, character_id: Optional[str]):
         """
-        在角色列表页 选择对应支援角色
+        需要在管理配队页面使用 选择对应支援角色
         如果不传入支援角色 则直接返回成功
         :param ctx:
         :param character_id:
         """
         edges: List[StateOperationEdge] = []
 
-        super().__init__(ctx, try_times=5,
+        wait = StateOperationNode('等待画面加载', self._wait)
+
+        click_support = StateOperationNode('点击支援', self._click_support)
+        edges.append(StateOperationEdge(wait, click_support, status=ChooseSupportInTeam.STATUS_SUPPORT_NEEDED))
+
+        click_avatar = StateOperationNode('点击头像', self._click_avatar)
+        edges.append(StateOperationEdge(click_support, click_avatar))
+
+        click_join = StateOperationNode('点击入队', self._click_join)
+        edges.append(StateOperationEdge(click_avatar, click_join))
+
+        wait2 = StateOperationNode('选择后等待画面加载', self._wait)
+        edges.append(StateOperationEdge(click_join, wait2))
+        edges.append(StateOperationEdge(click_avatar, wait2, success=False))
+
+        super().__init__(ctx, try_times=10,
                          op_name=gt('选择支援', 'ui'),
                          edges=edges
                          )
 
-        self.character_id: str = character_id
-
-    def add_edges_and_nodes(self) -> None:
-        """
-        初始化前 添加边和节点 由子类实行
-        :return:
-        """
-        check_screen = StateOperationNode('识别画面', self.check_screen)
-
-        click_avatar = StateOperationNode('点击头像', self.click_avatar)
-        self.add_edge(check_screen, click_avatar, status=ChooseSupport.STATUS_SUPPORT_NEEDED)
-
-        click_join = StateOperationNode('点击入队', self.click_join)
-        self.add_edge(click_avatar, click_join)
-
-        back = StateOperationNode('返回', self.back)
-        self.add_edge(check_screen, back)  # 不需要支援的
-        self.add_edge(click_avatar, back, success=False)  # 找不到支援角色的
+        self.character_id: Optional[str] = character_id
+        self.no_find_character_times: int = 0
 
     def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
@@ -58,26 +57,36 @@ class ChooseSupport(StateOperation):
         - 失败时立刻返回失败
         - 不返回时正常运行本指令
         """
-        self.found_character: bool = False
-        """是否找到支援角色"""
-
+        self.no_find_character_times: int = 0
         return None
 
-    def check_screen(self) -> OperationOneRoundResult:
+    def _wait(self) -> OperationOneRoundResult:
         """
-        等待加载 左上角有【支援】
+        等待加载 左上角有【队伍】
         :return:
         """
-        area = ScreenTeam.SUPPORT_TITLE.value
+        area = ScreenTeam.TEAM_TITLE.value
         if self.find_area(area):
-            if self.character_id is not None:
-                return self.round_success(status=ChooseSupport.STATUS_SUPPORT_NEEDED)
-            else:
+            if self.character_id is None:
                 return self.round_success()
+            else:
+                return self.round_success(ChooseSupportInTeam.STATUS_SUPPORT_NEEDED)
         else:
-            return self.round_retry('未在%s画面' % area.status, wait_round_time=1)
+            return self.round_retry('未在%s画面' % area.status, wait=1)
 
-    def click_avatar(self) -> OperationOneRoundResult:
+    def _click_support(self) -> OperationOneRoundResult:
+        """
+        点击支援按钮
+        :return:
+        """
+        area = ScreenTeam.SUPPORT_BTN.value
+        click = self.find_and_click_area(area)
+        if click == Operation.OCR_CLICK_SUCCESS:
+            return self.round_success(wait=1)
+        else:
+            return self.round_retry('点击%s失败' % area.status, wait=1)
+
+    def _click_avatar(self) -> OperationOneRoundResult:
         """
         点击头像
         :return:
@@ -86,21 +95,26 @@ class ChooseSupport(StateOperation):
         pos = self._get_character_pos(screen)
 
         if pos is None:
+            self.no_find_character_times += 1
+            if self.no_find_character_times >= 5:
+                # 找不到支援角色 点击右边返回 按特殊状态返回成功
+                self.ctx.controller.click(ScreenTeam.SUPPORT_CLOSE.value.rect.center)
+                return self.round_fail(ChooseSupportInTeam.STATUS_SUPPORT_NOT_FOUND, wait=1.5)
+
             drag_from = ScreenTeam.SUPPORT_CHARACTER_LIST.value.rect.center
             drag_to = drag_from + Point(0, -400)
             self.ctx.controller.drag_to(drag_to, drag_from)
-            return self.round_retry(ChooseSupport.STATUS_SUPPORT_NOT_FOUND, wait=2)
+            return self.round_retry(ChooseSupportInTeam.STATUS_SUPPORT_NOT_FOUND, wait=2)
         else:
             click = self.ctx.controller.click(pos.center)
             if click:
-                self.found_character = True
                 return self.round_success(wait=0.5)
             else:
                 return self.round_retry('点击头像失败', wait=0.5)
 
-    def click_join(self) -> OperationOneRoundResult:
+    def _click_join(self) -> OperationOneRoundResult:
         """
-        点击入队 点击后会返回上级画面
+        点击入队
         :return:
         """
         area = ScreenTeam.SUPPORT_JOIN.value
@@ -153,18 +167,3 @@ class ChooseSupport(StateOperation):
                     return character_pos
 
         return None
-
-    def back(self) -> OperationOneRoundResult:
-        """
-        返回
-        :return:
-        """
-        self.ctx.controller.click(ScreenTeam.SUPPORT_CLOSE.value.rect.center)
-
-        if self.character_id is None:
-            return self.round_success('无需支援')
-        elif self.found_character:
-            return self.round_success(wait_round_time=1.5)
-        else:
-            return self.round_fail(ChooseSupport.STATUS_SUPPORT_NOT_FOUND, wait_round_time=1.5)
-

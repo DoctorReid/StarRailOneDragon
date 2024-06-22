@@ -5,7 +5,7 @@ from sr.const.map_const import TransportPoint
 from sr.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, StateOperation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
-from sr.operation.battle.choose_support import ChooseSupport
+from sr.operation.battle.choose_support_in_team import ChooseSupportInTeam
 from sr.operation.battle.choose_team import ChooseTeam
 from sr.operation.battle.click_challenge import ClickChallenge
 from sr.operation.battle.click_challenge_confirm import ClickChallengeConfirm
@@ -13,7 +13,6 @@ from sr.operation.battle.click_start_challenge import ClickStartChallenge
 from sr.operation.combine.transport import Transport
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.interact import Interact
-from sr.operation.unit.wait import WaitInWorld
 from sr.screen_area.screen_battle import ScreenBattle
 
 
@@ -44,7 +43,7 @@ class ChallengeEchoOfWar(StateOperation):
         choose_team = StateOperationNode('选择配队', op=ChooseTeam(ctx, team_num))
         edges.append(StateOperationEdge(challenge_confirm, choose_team))
 
-        choose_support = StateOperationNode('选择支援', op=ChooseSupport(ctx, support))
+        choose_support = StateOperationNode('选择支援', op=ChooseSupportInTeam(ctx, support))
         edges.append(StateOperationEdge(choose_team, choose_support))
 
         start_challenge = StateOperationNode('开始挑战', op=ClickStartChallenge(ctx))

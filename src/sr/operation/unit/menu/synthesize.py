@@ -1,4 +1,4 @@
-from typing import ClassVar
+from typing import ClassVar, Optional
 
 from basic import Rect
 from basic.i18_utils import gt
@@ -23,12 +23,18 @@ class DoSynthesize(Operation):
 
         self.phase: int = 0
 
-    def _init_before_execute(self):
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
         self.phase = 0
+
+        return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 需要在合成页面

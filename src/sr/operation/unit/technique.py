@@ -120,12 +120,18 @@ class UseTechnique(StateOperation):
         self.need_check_available: bool = need_check_available  # 是否需要检查秘技是否可用
         self.need_check_point: bool = need_check_point  # 是否检测剩余秘技点再使用
 
-    def _init_before_execute(self):
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
         self.op_result: UseTechniqueResult = UseTechniqueResult()  # 最后返回的结果
+
+        return None
 
     def _check_technique_point(self) -> OperationOneRoundResult:
         if self.need_check_point:
@@ -258,9 +264,18 @@ class FastRecover(StateOperation):
         self.max_consumable_cnt: int = max_consumable_cnt  # 最多使用的消耗品个数
         self.quirky_snacks: bool = quirky_snacks  # 只使用奇巧零食
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.op_result: UseTechniqueResult = UseTechniqueResult()
+
+        return None
 
     def _use(self) -> OperationOneRoundResult:
         screen = self.screenshot()

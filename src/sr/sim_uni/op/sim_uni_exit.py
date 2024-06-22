@@ -46,12 +46,6 @@ class SimUniExit(StateOperation):
                          specified_start_node=check_screen
                          )
 
-    def _init_before_execute(self):
-        """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
-        """
-        super()._init_before_execute()
-
     def _check_screen(self) -> OperationOneRoundResult:
         """
         检查屏幕

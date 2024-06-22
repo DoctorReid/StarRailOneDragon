@@ -82,9 +82,6 @@ class ChooseTeamInForgottenHall(Operation):
         self.teams: List[List[Character]] = []
         self.choose_team_callback: Optional[Callable[[List[List[Character]]], None]] = choose_team_callback
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
-
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 按照BOSS属性计算配队
             if self._cal_team_member():

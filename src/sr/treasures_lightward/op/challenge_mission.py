@@ -82,11 +82,15 @@ class ChallengeTreasuresLightwardMission(StateOperation):
         self.cal_team_func: Callable[[List[List[CharacterCombatType]]], Optional[List[List[Character]]]] = cal_team_func
         """计算配队的函数"""
 
-    def _init_before_execute(self):
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
         self.teams = None
         self.current_node_idx = 0
 

@@ -119,9 +119,18 @@ class StatusCombineOperation(Operation):
                         self._multiple_start = True
                     self._start_op = self._op_map[from_id]
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self._current_op = self._start_op
+
+        return None
 
     def execute(self) -> OperationResult:
         if self._multiple_start:
@@ -320,13 +329,19 @@ class StatusCombineOperation2(Operation):
         else:
             self._start_node = self._specified_start_node
 
-    def _init_before_execute(self):
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
         self._init_network()
         self._current_node = self._start_node
+
+        return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self._current_node is None:

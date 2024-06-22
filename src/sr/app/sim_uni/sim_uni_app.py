@@ -154,13 +154,22 @@ class SimUniApp(Application):
 
         self.exception_times: int = 0  # 异常出现次数
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.get_reward_cnt = 0
         self.exception_times: int = 0
         self.not_found_in_survival_times: int = 0  # 在生存索引中找不到模拟宇宙的次数
 
         Application.get_preheat_executor().submit(self.preheat)
+
+        return None
 
     def preheat(self):
         """

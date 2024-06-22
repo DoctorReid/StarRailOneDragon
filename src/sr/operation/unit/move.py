@@ -175,8 +175,15 @@ class MoveDirectly(Operation):
         self.technique_fight: bool = technique_fight  # 是否使用秘技进入战斗
         self.technique_only: bool = technique_only  # 是否只使用秘技进入战斗
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         now = time.time()
         self.last_rec_time = now - 1
         self.last_battle_time = now
@@ -184,6 +191,8 @@ class MoveDirectly(Operation):
         if self.ctx.controller.is_moving:  # 连续移动的时候 使用开始点作为一个起始点
             self.pos.append(self.start_pos)
         self.stop_move_time = None
+
+        return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         now_time = time.time()
@@ -467,12 +476,18 @@ class MoveDirectly(Operation):
                 del self.pos[0]
             self.last_rec_time = now_time
 
-    def on_pause(self, e=None):
-        super().on_pause()
+    def handle_pause(self, e=None):
+        """
+        暂停后的处理 由子类实现
+        :return:
+        """
         self.ctx.controller.stop_moving_forward()
 
-    def on_resume(self, e=None):
-        super().on_resume()
+    def handle_resume(self) -> None:
+        """
+        恢复运行后的处理 由子类实现
+        :return:
+        """
         self.last_rec_time += self.current_pause_time
         self.last_battle_time += self.current_pause_time
 
@@ -500,9 +515,18 @@ class MoveToEnemy(Operation):
         self.run_mode = game_config_const.RUN_MODE_OFF if no_run else self.ctx.game_config.run_mode
         self.last_move_time: float = 0  # 上一次移动的时间
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.last_move_time = 0
+
+        return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()

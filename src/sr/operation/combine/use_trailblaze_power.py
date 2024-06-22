@@ -6,7 +6,7 @@ from sr.image.sceenshot import screen_state
 from sr.interastral_peace_guide.guide_const import GuideCategoryEnum, GuideMission
 from sr.operation import Operation, StateOperation, OperationOneRoundResult, StateOperationNode, StateOperationEdge
 from sr.operation.battle.choose_challenge_times import ChooseChallengeTimes
-from sr.operation.battle.choose_support import ChooseSupport
+from sr.operation.battle.choose_support_in_team import ChooseSupportInTeam
 from sr.operation.battle.choose_team import ChooseTeam
 from sr.operation.battle.click_challenge import ClickChallenge
 from sr.operation.battle.click_start_challenge import ClickStartChallenge
@@ -88,10 +88,19 @@ class UseTrailblazePower(StateOperation):
         self.on_battle_success: Optional[Callable[[int, int], None]] = on_battle_success
         self.battle_fail_times: int = 0  # 战斗失败次数
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.finish_times = 0
         self.battle_fail_times = 0
+
+        return None
 
     def _transport(self) -> OperationOneRoundResult:
         """
@@ -163,7 +172,7 @@ class UseTrailblazePower(StateOperation):
         """
         if self.support is None:
             return self.round_success()
-        op = ChooseSupport(self.ctx, self.support)
+        op = ChooseSupportInTeam(self.ctx, self.support)
         return self.round_by_op(op.execute())
 
     def _start_challenge(self) -> OperationOneRoundResult:

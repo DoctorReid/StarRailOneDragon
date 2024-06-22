@@ -145,8 +145,11 @@ class MoveWithoutPosInSimUni(StateOperation):
 
         return self.round_wait(wait=0.02)
 
-    def on_pause(self, e=None):
-        super().on_pause()
+    def handle_pause(self) -> None:
+        """
+        暂停后的处理 由子类实现
+        :return:
+        """
         self.ever_pause = True
 
 
@@ -188,8 +191,15 @@ class MoveToNextLevel(StateOperation):
         self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config
         self.random_turn: bool = random_turn  # 随机转动找入口
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.is_moving = False  # 是否正在移动
         self.interacted = False  # 是否已经交互了
         self.start_move_time: float = 0  # 开始移动的时间
@@ -201,6 +211,8 @@ class MoveToNextLevel(StateOperation):
             avg_pos_x = np.mean([pos.x for pos in self.route.next_pos_list], dtype=np.uint16)
             avg_pos_y = np.mean([pos.y for pos in self.route.next_pos_list], dtype=np.uint16)
             self.next_pos = Point(avg_pos_x, avg_pos_y)
+
+        return None
 
     def _turn_to_next(self) -> OperationOneRoundResult:
         """
@@ -502,8 +514,11 @@ class MoveToMiniMapInteractIcon(Operation):
         super()._after_operation_done(result)
         self.ctx.controller.stop_moving_forward()
 
-    def on_pause(self, e=None):
-        super().on_pause(e)
+    def handle_pause(self) -> None:
+        """
+        暂停后的处理 由子类实现
+        :return:
+        """
         self.ctx.controller.stop_moving_forward()
 
 

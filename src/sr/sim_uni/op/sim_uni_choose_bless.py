@@ -216,12 +216,21 @@ class SimUniChooseBless(StateOperation):
         self.before_level_start: bool = before_level_start  # 在真正楼层开始前 即选择开拓祝福时
         self.fast_back_to_world: bool = fast_back_to_world  # 需要快速判断返回世界
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.first_screen_check = True
         self.choose_bless_time: Optional[float] = None  # 选择祝福的时间
         self.last_bless_pos_list: List[MatchResult] = []  # 上一次识别到的祝福
         self.bless_cnt_type: int = 3  # 祝福数量
+
+        return None
 
     def _first_wait(self):
         screen = self.screenshot()
@@ -368,10 +377,19 @@ class SimUniDropBless(StateOperation):
         self.config: Optional[SimUniChallengeConfig] = config
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.first_screen_check = True  # 是否第一次检查画面状态
         self.bless_cnt_type: int = 3  # 祝福数量类型
+
+        return None
 
     def _check_screen_state(self):
         screen = self.screenshot()

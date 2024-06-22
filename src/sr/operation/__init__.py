@@ -104,9 +104,10 @@ class Operation:
         self.op_callback: Optional[Callable[[OperationResult], None]] = op_callback
         """该节点结束后的回调"""
 
-    def _init_before_execute(self):
+    def _init_before_execute(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化
+        :return:
         """
         now = time.time()
 
@@ -132,11 +133,30 @@ class Operation:
         self.ctx.event_bus.listen(ContextEventId.CONTEXT_PAUSE.value, self.on_pause)
         self.ctx.event_bus.listen(ContextEventId.CONTEXT_RESUME.value, self.on_resume)
 
+        return self.handle_init()
+
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
+        pass
+
     def execute(self) -> OperationResult:
         """
         循环执系列动作直到完成为止
         """
-        self._init_before_execute()
+        init_result: OperationOneRoundResult = self._init_before_execute()
+        if init_result is not None:
+            if init_result.is_success:
+                return self.op_success(init_result.status, init_result.data)
+            else:
+                return self.op_fail(init_result.status, init_result.data)
+
         op_result: Optional[OperationResult] = None
         retry_status: Optional[str] = None
         while self.op_round < self.try_times:
@@ -209,12 +229,37 @@ class Operation:
         子类需要保证多次触发不会有问题
         :return:
         """
+        if self.ctx.running != 2:
+            return
         self.current_pause_time = 0
         self.pause_start_time = time.time()
+        self.handle_pause()
+
+    def handle_pause(self) -> None:
+        """
+        暂停后的处理 由子类实现
+        :return:
+        """
+        pass
 
     def on_resume(self, e=None):
+        """
+        脚本恢复运行时的回调
+        :param e:
+        :return:
+        """
+        if self.ctx.running != 1:
+            return
         self.current_pause_time = time.time() - self.pause_start_time
         self.pause_total_time += self.current_pause_time
+        self.handle_resume()
+
+    def handle_resume(self) -> None:
+        """
+        恢复运行后的处理 由子类实现
+        :return:
+        """
+        pass
 
     @property
     def _operation_usage_time(self) -> float:
@@ -472,6 +517,26 @@ class Operation:
         else:
             return False
 
+    def round_by_find_area(self, screen: MatLike, area: ScreenArea,
+                           success_wait: Optional[float] = None, success_wait_round: Optional[float] = None,
+                           retry_wait: Optional[float] = None, retry_wait_round: Optional[float] = None,
+                           ) -> OperationOneRoundResult:
+        """
+        是否能找到目标区域
+        :param screen: 屏幕截图
+        :param area: 目标区域
+        :param success_wait: 成功后等待的秒数
+        :param success_wait_round: 成功后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :param retry_wait: 失败后等待的秒数
+        :param retry_wait_round: 失败后等待当前轮的运行时间到达这个时间时再结束 优先success_wait
+        :return:
+        """
+        if self.find_area(area=area, screen=screen):
+            return self.round_success(wait=success_wait, wait_round_time=success_wait_round)
+        else:
+            return self.round_retry(wait=retry_wait, wait_round_time=retry_wait_round)
+
+
 
 class OperationSuccess(Operation):
     """
@@ -593,8 +658,70 @@ class StateOperation(Operation):
         """
         super().__init__(ctx, op_name=op_name, try_times=try_times, timeout_seconds=timeout_seconds, op_callback=op_callback)
 
+        self.param_edge_list: List[StateOperationEdge] = edges
+        """入参的边列表"""
+
+        self.param_node_list: List[StateOperationNode] = nodes
+        """入参的节点列表"""
+
+        self.param_start_node: StateOperationNode = specified_start_node
+        """入参的开始节点 当网络存在环时 需要自己指定"""
+
+        self.add_edge_list: List[StateOperationEdge] = []
+        """调用方法添加的边"""
+
+    def add_edges_and_nodes(self) -> None:
+        """
+        初始化前 添加边和节点 由子类实行
+        :return:
+        """
+        pass
+
+    def _init_edge_list(self) -> None:
+        """
+        初始化边列表
+        :return:
+        """
         self.edge_list: List[StateOperationEdge] = []
-        """边列表"""
+        """合并的边列表"""
+
+        if self.param_edge_list is not None:
+            for edge in self.param_edge_list:
+                self.edge_list.append(edge)
+        if len(self.add_edge_list) > 0:
+            for edge in self.add_edge_list:
+                self.edge_list.append(edge)
+
+        if len(self.edge_list) == 0 and self.param_node_list is not None:
+            if len(self.param_node_list) == 1:
+                self.param_start_node = self.param_node_list[0]
+            else:
+                last_node = None
+                for node in self.param_node_list:
+                    if last_node is not None:
+                        self.edge_list.append(StateOperationEdge(last_node, node))
+                    last_node = node
+
+    def add_edge(self, node_from: StateOperationNode, node_to: StateOperationNode,
+                 success: bool = True, status: Optional[str] = None, ignore_status: bool = True):
+        """
+        添加一条边
+        :param node_from:
+        :param node_to:
+        :param success:
+        :param status:
+        :param ignore_status:
+        :return:
+        """
+        self.add_edge_list.append(StateOperationEdge(node_from, node_to,
+                                                     success=success, status=status, ignore_status=ignore_status))
+
+    def _init_network(self) -> None:
+        """
+        进行节点网络的初始化
+        :return:
+        """
+        self._init_edge_list()
 
         self._node_edges_map: dict[str, List[StateOperationEdge]] = {}
         """下一个节点的集合"""
@@ -602,51 +729,11 @@ class StateOperation(Operation):
         self._node_map: dict[str, StateOperationNode] = {}
         """节点"""
 
-        self._specified_start_node: Optional[StateOperationNode] = specified_start_node
-        """指定的开始节点 当网络存在环时 需要自己指定"""
-
-        self._start_node: Optional[StateOperationNode] = None
-        """其实节点 初始化后才会有"""
-
-        self._multiple_start: bool = False
-        """是否有多个开始节点 属于异常情况"""
-
-        self._current_node: Optional[StateOperationNode] = None
-        """当前执行的节点"""
-
         self._current_node_start_time: Optional[float] = None
         """当前节点的开始运行时间"""
 
-        if edges is not None:
-            for edge in edges:
-                self.edge_list.append(edge)
-        elif nodes is not None:
-            if len(nodes) == 1:
-                self._specified_start_node = nodes[0]
-            else:
-                last_node = None
-                for node in nodes:
-                    if last_node is not None:
-                        self.edge_list.append(StateOperationEdge(last_node, node))
-                    last_node = node
-
-    def set_specified_start_node(self, start_node: StateOperationNode):
-        """
-        设置开始节点
-        :param start_node: 开始节点
-        :return:
-        """
-        self._specified_start_node = start_node
-
-    def _init_network(self):
-        """
-        进行节点网络的初始化
-        :return:
-        """
-        self._node_edges_map = {}
-        self._node_map = {}
-        self._start_node = None
-        self._multiple_start = False
+        self._multiple_start: bool = False
+        """是否有多个开始节点 有的话属于异常情况"""
 
         op_in_map: dict[str, int] = {}  # 入度
 
@@ -664,26 +751,44 @@ class StateOperation(Operation):
             self._node_map[from_id] = edge.node_from
             self._node_map[to_id] = edge.node_to
 
-        if self._specified_start_node is None:  # 没有指定开始节点时 自动判断
+        start_node: Optional[StateOperationNode] = None
+        if self.param_start_node is None:  # 没有指定开始节点时 自动判断
             # 找出入度为0的开始点
             for edge in self.edge_list:
                 from_id = edge.node_from.cn
                 if from_id not in op_in_map or op_in_map[from_id] == 0:
-                    if self._start_node is not None and self._start_node.cn != from_id:
-                        self._start_node = None
+                    if start_node is not None and start_node.cn != from_id:
+                        start_node = None
                         break
-                    self._start_node = self._node_map[from_id]
+                    start_node = self._node_map[from_id]
         else:
-            self._start_node = self._specified_start_node
+            start_node = self.param_start_node
 
-    def _init_before_execute(self):
+        self._start_node: StateOperationNode = start_node
+        """其实节点 初始化后才会有"""
+
+        self._current_node: StateOperationNode = start_node
+        """当前执行的节点"""
+
+    def _init_before_execute(self) -> Optional[OperationOneRoundResult]:
         """
         执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
+        init_result = super()._init_before_execute()
+        if init_result is not None:
+            return init_result
+
         self._init_network()
-        self._current_node = self._start_node
         self._current_node_start_time = time.time()
+
+        if self._start_node is None:
+            return self.round_fail('未定义开始节点')
+        else:
+            return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self._current_node is None:

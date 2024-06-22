@@ -29,6 +29,9 @@ class ChooseTeam(Operation):
         self.on: bool = on
 
     def _execute_one_round(self) -> OperationOneRoundResult:
+        if self.team_num == 0:
+            return self.round_success()
+
         screen: MatLike = self.screenshot()
 
         if not self.in_secondary_ui(screen):

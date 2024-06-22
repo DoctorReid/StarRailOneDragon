@@ -74,10 +74,19 @@ class SimUniChooseCurio(StateOperation):
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.first_screen_check = True
         self.curio_cnt_type: int = 3  # 奇物数量
+
+        return None
 
     def _choose_curio(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -248,10 +257,19 @@ class SimUniDropCurio(StateOperation):
         self.config: Optional[SimUniChallengeConfig] = config
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.first_screen_check = True  # 是否第一次检查画面状态
         self.curio_cnt_type: int = 3  # 奇物数量类型 3 2 1
+
+        return None
 
     def _check_screen_state(self):
         screen = self.screenshot()

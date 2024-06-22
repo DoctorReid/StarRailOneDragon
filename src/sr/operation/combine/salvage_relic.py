@@ -33,11 +33,19 @@ class DoSalvageRelic(Operation):
         分解成功后逗留在【遗器分解】页面
         """
         super().__init__(ctx, try_times=5, op_name='%s %s' % (gt('遗器分解', 'ui'), gt('执行', 'ui')))
-        self.phase: int = 0
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.phase = 0
+
+        return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         if self.phase == 0:  # 点击过滤

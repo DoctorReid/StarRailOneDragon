@@ -32,8 +32,15 @@ class SimUniWaitLevelStart(Operation):
         self.first_bless_chosen: bool = False
         self.wait_after_success: Optional[int] = wait_after_success
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.first_bless_chosen = False
 
     def _execute_one_round(self) -> OperationOneRoundResult:

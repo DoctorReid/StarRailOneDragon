@@ -52,8 +52,15 @@ class SimUniEnterFight(Operation):
         self.technique_only: bool = False if self.config is None else self.config.technique_only  # 是否仅用秘技开怪
         self.first_state: Optional[str] = first_state  # 初始画面状态 传入后会跳过第一次画面状态判断
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         now = time.time()
         self.last_attack_time: float = now - SimUniEnterFight.ATTACK_INTERVAL
         self.last_alert_time: float = now  # 上次警报时间
@@ -69,6 +76,8 @@ class SimUniEnterFight(Operation):
 
         self.ctx.pos_info.first_cal_pos_after_fight = True
         self.had_last_move: bool = False  # 退出这个指令前 是否已经进行过最后的移动了
+
+        return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
@@ -329,12 +338,18 @@ class SimUniEnterFight(Operation):
             self.had_last_move = True
             return self.round_wait()
 
-    def on_resume(self, e=None):
-        super().on_resume()
+    def handle_resume(self) -> None:
+        """
+        恢复运行后的处理 由子类实现
+        :return:
+        """
         self._update_not_in_world_time()
 
-    def on_pause(self, e=None):
-        super().on_pause()
+    def handle_pause(self) -> None:
+        """
+        暂停后的处理 由子类实现
+        :return:
+        """
         self.ctx.controller.stop_moving_forward()
 
     def _after_operation_done(self, result: OperationResult):

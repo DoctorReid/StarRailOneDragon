@@ -12,3 +12,5 @@ class ScreenTeam(Enum):
     SUPPORT_CLOSE = ScreenArea(pc_rect=Rect(1834, 39, 1889, 90))  # 支援画面 右上角关闭按钮
     SUPPORT_CHARACTER_LIST = ScreenArea(pc_rect=Rect(70, 160, 520, 940))  # 支援角色列表
     SUPPORT_JOIN = ScreenArea(pc_rect=Rect(1560, 970, 1840, 1010), text='入队')
+
+    SUPPORT_TITLE = ScreenArea(pc_rect=Rect(99, 37, 214, 59), text='支援')

@@ -62,17 +62,23 @@ class SimUniRunRouteOp(StateOperation):
                          specified_start_node=op_node,
                          op_callback=op_callback)
 
-    def _init_before_execute(self):
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
         self.op_idx = -1
         """当前执行的指令下标"""
         self.current_pos: Point = self.route.start_pos
         """当前的坐标"""
         self.current_region: Region = self.route.region
         """当前的区域"""
+
+        return None
 
     def _next_op(self) -> OperationOneRoundResult:
         """
@@ -193,12 +199,18 @@ class SimUniRunRouteBase(StateOperation):
                          nodes=[before_route, run_route, after_route, go_next]
                          )
 
-    def _init_before_execute(self):
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
         self.current_pos = None
+
+        return None
 
     def _before_route(self) -> OperationOneRoundResult:
         """
@@ -344,11 +356,15 @@ class SimUniRunInteractRoute(SimUniRunRouteBase):
         self.can_ignore_interact: bool = is_respite
         self.no_icon: bool = False  # 小地图上没有图标了 说明之前已经交互过了
 
-    def _init_before_execute(self):
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
-        执行前的初始化 注意初始化要全面 方便一个指令重复使用
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
         """
-        super()._init_before_execute()
         self.no_icon = False
 
     def _before_route(self) -> OperationOneRoundResult:
@@ -596,8 +612,15 @@ class SimUniRunEliteRoute(SimUniRunRouteBase):
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.with_enemy = True
         self.no_icon: bool = False
 

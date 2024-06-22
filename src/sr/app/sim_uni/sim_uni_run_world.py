@@ -51,12 +51,21 @@ class SimUniRunWorld(StateOperation):
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.get_reward_cnt = 0
         self.ctx.no_technique_recover_consumables = False  # 模拟宇宙重新开始时重置
         self.last_members: List[Character] = []  # 上一次识别的配队
         self.skip_check_members: bool = False  # 是否可跳过配队检测 当连续两次检测配队都一样之后 就可以跳过了
+
+        return None
 
     def _run_level(self) -> OperationOneRoundResult:
         if self.ctx.team_info.same_as_current(self.last_members):

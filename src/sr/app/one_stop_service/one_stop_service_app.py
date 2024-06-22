@@ -51,12 +51,21 @@ class OneStopServiceApp(Application):
         self.current_account_idx: Optional[int] = None  # 当前运行的账号
         self.current_app_id: Optional[str] = None  # 当前运行的应用ID
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.account_idx_list = None
         self.original_account_idx = None
         self.current_account_idx = None
         self.current_app_id = None
+
+        return None
 
     def _init_account_order(self) -> OperationOneRoundResult:
         """

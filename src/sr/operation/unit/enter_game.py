@@ -33,11 +33,19 @@ class EnterGame(StateOperation):
                          op_name=gt('进入游戏', 'ui'),
                          edges=edges,
                          timeout_seconds=180)
+
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.login_status: Optional[str] = None
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
-        self.login_status: Optional[str] = None
+        return None
 
     def _wait(self) -> OperationOneRoundResult:
         """
@@ -307,10 +315,19 @@ class WaitEnterGame(Operation):
         self.first_in_world_time: float = 0  # 第一次在大世界的时间
         self.claim_express_supply: bool = False  # 是否已经获取过列车补给
 
-    def _init_before_execute(self):
-        super()._init_before_execute()
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.first_in_world_time = 0
         self.claim_express_supply = False
+
+        return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()

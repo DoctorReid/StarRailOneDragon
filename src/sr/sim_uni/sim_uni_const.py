@@ -20,11 +20,11 @@ class SimUniType:
 
 class SimUniTypeEnum(Enum):
 
-    NORMAL = SimUniType('sim_uni_type_normal', '模拟宇宙', '模拟宇宙')
+    NORMAL = SimUniType('sim_uni_type_simulated_universe', '模拟宇宙', '模拟宇宙')
 
-    EXTEND_HY = SimUniType('sim_uni_type_hy', '拓展装置', '寰宇蝗虫')
+    EXTEND_SWARM = SimUniType('sim_uni_type_swarm_disaster', '拓展装置', '寰宇蝗虫')
 
-    EXTEND_GOLD = SimUniType('sim_uni_type_gold', '拓展装置', '黄金与机械')
+    EXTEND_GOLD = SimUniType('sim_uni_type_gold_and_gears', '拓展装置', '黄金与机械')
 
 
 class SimUniWorld:

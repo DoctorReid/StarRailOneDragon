@@ -320,7 +320,7 @@ class GuideMissionEnum(Enum):
     OE_03 = GuideMission(cate=GuideCategoryEnum.ORNAMENT_EXTRACTION.value, ornament_extraction=OrnamentExtractionEnum.OE_03.value, power=40)
 
     SIM_UNI_GOLD = GuideMission(cate=GuideCategoryEnum.SU_SIM_UNI.value, sim_uni_type=SimUniTypeEnum.NORMAL.value, power=40, show_in_tp_plan=False)
-    SIM_UNI_HY = GuideMission(cate=GuideCategoryEnum.SU_SIM_UNI.value, sim_uni_type=SimUniTypeEnum.EXTEND_HY.value, power=40, show_in_tp_plan=False)
+    SIM_UNI_SWARM = GuideMission(cate=GuideCategoryEnum.SU_SIM_UNI.value, sim_uni_type=SimUniTypeEnum.EXTEND_SWARM.value, power=40, show_in_tp_plan=False)
     SIM_UNI_NORMAL = GuideMission(cate=GuideCategoryEnum.SU_SIM_UNI.value, sim_uni_type=SimUniTypeEnum.EXTEND_GOLD.value, power=40, show_in_tp_plan=False)
 
     @staticmethod
