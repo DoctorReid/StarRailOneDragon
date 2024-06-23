@@ -172,6 +172,7 @@ class SimUniEnterFight(Operation):
 
         if self.disposable:
             result = self._attack(now_time)
+            time.sleep(0.5)  # 攻击可破坏时 多等一会 防止刮刮乐出奖
             return result
         else:
             with_alert, attack_direction = self.ctx.yolo_detector.get_attack_direction(screen, self.last_attack_direction, now_time)

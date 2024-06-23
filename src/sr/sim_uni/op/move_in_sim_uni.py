@@ -275,7 +275,7 @@ class MoveToNextLevel(StateOperation):
                 self.is_moving = False
                 self.move_times += 1
 
-            if self.move_times >= 4:  # 正常情况不会连续移动这么多次都没有到下层入口 尝试脱困
+            if self.move_times > 0 and self.move_times % 4 == 0:  # 正常情况不会连续移动这么多次都没有到下层入口 尝试脱困
                 self.ctx.controller.move(self.get_rid_direction, 1)
                 self.get_rid_direction = OPPOSITE_DIRECTION[self.get_rid_direction]
             return self.round_wait()
@@ -288,7 +288,6 @@ class MoveToNextLevel(StateOperation):
                 else:
                     angle = 35
                 self.ctx.controller.turn_by_angle(angle)
-                self.move_times = 0  # 没有识别到就是没有移动
                 return self.round_retry(MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=1)
 
             target = self.get_target_entry(type_list, self.config)
