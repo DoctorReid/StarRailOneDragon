@@ -11,6 +11,7 @@ from sr.const import map_const
 from sr.const.map_const import TransportPoint
 from sr.context.context import Context
 from sr.image.sceenshot import mini_map
+from sr.operation import StateOperationNode, OperationOneRoundResult
 from sr.operation.combine.transport import Transport
 
 
@@ -22,22 +23,23 @@ class Calibrator(Application):
     def __init__(self, ctx: Context):
         super().__init__(ctx, op_name='校准')
 
-    def _execute_one_round(self):
-        self._check_mini_map_pos()
-        self._check_turning_rate()
-        # self._check_running_distance()
-        return True
+    def add_edges_and_nodes(self) -> None:
+        """
+        初始化前 添加边和节点 由子类实行
+        :return:
+        """
+        nodes = [
+            StateOperationNode('传送1', op=Transport(self.ctx, map_const.P01_R02_SP02), wait_after_op=1),
+            StateOperationNode('小地图定位校准', self.check_mini_map_pos),
+            StateOperationNode('传送2', op=Transport(self.ctx, map_const.P01_R01_SP03), wait_after_op=1),
+            StateOperationNode('转向校准', self.check_turning_rate)
+        ]
 
-    def _check_mini_map_pos(self, screenshot: MatLike = None, config=None):
+        self.param_node_list = nodes
+
+    def check_mini_map_pos(self) -> OperationOneRoundResult:
         log.info('[小地图定位校准] 开始')
-        if screenshot is None:
-            tp: TransportPoint = map_const.P01_R02_SP02
-            op = Transport(self.ctx, tp)
-            if not op.execute().success:
-                log.error('传送到 %s %s 失败 小地图定位校准 失败', gt(tp.region.cn, 'ocr'), gt(tp.cn, 'ocr'))
-                return False
-
-            screenshot = self.screenshot()
+        screenshot = self.screenshot()
         mm_pos: MiniMapPos = mini_map.cal_little_map_pos(screenshot)
         cfg: GameConfig = self.ctx.game_config
         cfg.update('mini_map', {
@@ -48,23 +50,16 @@ class Calibrator(Application):
         cfg.save()
 
         log.info('[小地图定位校准] 完成 位置: (%d, %d) 半径: %d', mm_pos.x, mm_pos.y, mm_pos.r)
-        return True
+        return self.round_success(wait=0.5)
 
-    def _check_turning_rate(self, tp: bool = True):
+    def check_turning_rate(self) -> OperationOneRoundResult:
         """
         检测转向 需要找一个最容易检测到见箭头的位置
         通过固定滑动距离 判断转动角度
         反推转动角度所需的滑动距离
-        :param tp: 是否需要传送
         :return:
         """
         log.info('[转向校准] 开始')
-        if tp:
-            p: TransportPoint = map_const.P01_R01_SP03
-            op = Transport(self.ctx, p)
-            if not op.execute().success:
-                log.error('传送到 %s %s 失败 转向校准 失败', gt(p.region.cn), gt(p.cn))
-                return False
         turn_distance = 500
 
         angle = self._get_current_angle()
@@ -87,7 +82,7 @@ class Calibrator(Application):
         gc.save()
         log.info('[转向校准] 完成')
         # cv2.waitKey(0)
-        return ans
+        return self.round_success(wait=0.5)
 
     def _get_current_angle(self):
         self.ctx.controller.move('w')
