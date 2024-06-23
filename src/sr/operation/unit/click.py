@@ -1,8 +1,8 @@
-from typing import Optional, ClassVar, Union
+from typing import Optional, ClassVar
 
 from basic import Point, Rect
 from basic.i18_utils import gt
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import Operation, OperationOneRoundResult
 
 

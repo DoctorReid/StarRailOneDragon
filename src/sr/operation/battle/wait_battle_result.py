@@ -1,7 +1,7 @@
 from typing import ClassVar
 
 from basic.i18_utils import gt
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult
 from sr.screen_area.screen_battle import ScreenBattle

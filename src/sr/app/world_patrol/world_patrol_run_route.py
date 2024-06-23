@@ -7,7 +7,7 @@ from basic.log_utils import log
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolRoute
 from sr.const import operation_const, map_const
 from sr.const.map_const import Region, get_sub_region_by_cn
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import Operation, OperationResult, OperationFail, StateOperation, \
     StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.transport import Transport
@@ -112,7 +112,7 @@ class WorldPatrolRunRoute(StateOperation):
         op = UseTechnique(self.ctx,
                           max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
                           need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
-                          quirky_snacks=self.ctx.game_config.use_quirky_snacks
+                          trick_snack=self.ctx.game_config.use_quirky_snacks
                           )
 
         return self.round_by_op(op.execute())

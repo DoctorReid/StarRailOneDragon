@@ -4,7 +4,7 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from sr.const.character_const import Character
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge, \

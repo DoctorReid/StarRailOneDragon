@@ -1,8 +1,7 @@
-import unittest
 from typing import Optional
 
 import test
-from sr.context import Context, get_context
+from sr.context.context import Context, get_context
 from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationNode, StatusCombineOperationEdge2
 

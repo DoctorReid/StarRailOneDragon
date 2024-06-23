@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const import STANDARD_CENTER_POS, OPPOSITE_DIRECTION
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge, \
@@ -74,7 +74,7 @@ class SimUniEnterFight(Operation):
         self.last_state: str = ''  # 上一次的画面状态
         self.current_state: str = ''  # 这一次的画面状态
 
-        self.ctx.pos_info.first_cal_pos_after_fight = True
+        self.ctx.pos_first_cal_pos_after_fight = True
         self.had_last_move: bool = False  # 退出这个指令前 是否已经进行过最后的移动了
 
         return None
@@ -204,7 +204,7 @@ class SimUniEnterFight(Operation):
                     and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique)):  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx,
                                   max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
-                                  quirky_snacks=self.ctx.game_config.use_quirky_snacks
+                                  trick_snack=self.ctx.game_config.use_quirky_snacks
                                   )
                 op_result = op.execute()
                 if op_result.success:

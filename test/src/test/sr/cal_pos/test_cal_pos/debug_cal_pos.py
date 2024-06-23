@@ -3,7 +3,7 @@ from basic.img.os import get_debug_image
 from basic.log_utils import log
 from sr import performance_recorder
 from sr.const.map_const import get_region_by_prl_id
-from sr.context import get_context
+from sr.context.context import get_context
 from test.sr.cal_pos.cal_pos_test_case import read_test_cases, TestCase, save_test_cases
 from test.sr.cal_pos.test_cal_pos.test_cal_pos import TestCalPos
 

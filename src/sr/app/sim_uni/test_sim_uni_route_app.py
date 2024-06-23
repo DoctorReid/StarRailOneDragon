@@ -5,9 +5,9 @@ from sr.app.application_base import Application
 from sr.app.sim_uni.sim_uni_config import SimUniConfig
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map
-from sr.operation import Operation, OperationResult, StateOperationNode, OperationOneRoundResult, \
+from sr.operation import OperationResult, StateOperationNode, OperationOneRoundResult, \
     StateOperationEdge
 from sr.sim_uni.op.reset_sim_uni_level import ResetSimUniLevel
 from sr.sim_uni.sim_uni_const import SimUniLevelType

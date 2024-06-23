@@ -2,7 +2,7 @@ import test
 from basic.img.os import get_debug_image
 from sr.const import map_const
 from sr.const.map_const import Region
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.image.sceenshot import large_map
 from sr.operation.unit.op_map import ChooseRegion
 

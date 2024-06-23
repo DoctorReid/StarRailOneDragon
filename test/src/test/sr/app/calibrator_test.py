@@ -1,6 +1,6 @@
-from basic.img.os import get_test_image, get_debug_image
+from basic.img.os import get_debug_image
 from sr.app.calibrator import Calibrator
-from sr.context import get_context
+from sr.context.context import get_context
 
 
 def _test_check_mini_map_pos():

@@ -1,8 +1,7 @@
 import sr.app.world_patrol
 import sr.app.world_patrol.world_patrol_route
-from sr.app import world_patrol_app
 from sr.app.world_patrol_app import WorldPatrol
-from sr.context import Context, get_context
+from sr.context.context import Context, get_context
 
 
 def _test_load_all_route():

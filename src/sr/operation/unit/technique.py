@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationEdge, StateOperationNode
@@ -77,7 +77,7 @@ class UseTechnique(StateOperation):
                  max_consumable_cnt: int = 0,
                  need_check_available: bool = False,
                  need_check_point: bool = False,
-                 quirky_snacks: bool = False
+                 trick_snack: bool = False
                  ):
         """
         需在大世界页面中使用
@@ -88,7 +88,7 @@ class UseTechnique(StateOperation):
         :param max_consumable_cnt: 秘技点不足时最多使用的消耗品个数
         :param need_check_available: 是否需要检查秘技是否可用 普通大世界战斗后 会有一段时间才能使用秘技
         :param need_check_point: 是否检测剩余秘技点再使用。如果没有秘技点 又不能用消耗品 那就不使用了。目前OCR较慢 不建议开启
-        :param quirky_snacks: 只使用奇巧零食
+        :param trick_snack: 只使用奇巧零食
         """
         edges: List[StateOperationEdge] = []
 
@@ -115,7 +115,7 @@ class UseTechnique(StateOperation):
                          specified_start_node=check)
 
         self.max_consumable_cnt: int = max_consumable_cnt  # 最多使用的消耗品个数
-        self.quirky_snacks: bool = quirky_snacks  # 只使用奇巧零食
+        self.trick_snack: bool = trick_snack  # 只使用奇巧零食
 
         self.need_check_available: bool = need_check_available  # 是否需要检查秘技是否可用
         self.need_check_point: bool = need_check_point  # 是否检测剩余秘技点再使用
@@ -186,7 +186,7 @@ class UseTechnique(StateOperation):
         return FastRecover.handle_consumable_dialog(
             self, self.ctx, screen, self.op_result,
             max_consumable_cnt=self.max_consumable_cnt,
-            quirky_snacks=self.quirky_snacks
+            quirky_snacks=self.trick_snack
         )
 
     def _wait_in_world(self):

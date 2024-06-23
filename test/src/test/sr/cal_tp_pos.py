@@ -9,7 +9,7 @@ from basic.log_utils import log
 from sr import cal_pos
 from sr.const import map_const
 from sr.const.map_const import TransportPoint
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.image.sceenshot import mini_map, large_map, LargeMapInfo
 
 
@@ -46,12 +46,16 @@ if __name__ == '__main__':
     ctx.init_image_matcher()
 
     sp_list = [
-        map_const.P04_R10_SP09,
-        map_const.P04_R10_SP10,
+        map_const.P03_R01_SP01,
+        map_const.P03_R01_SP02,
+        map_const.P03_R01_SP03,
+        map_const.P03_R01_SP17,
     ]
     img_list = [
-        '_1719039909693',
-        '_1719039924240',
+        '_1719041330393',
+        '_1719041335960',
+        '_1719041342690',
+        '_1719041348558'
     ]
     for i in range(len(sp_list)):
         cal_one(sp_list[i], debug_image=img_list[i], show=True)

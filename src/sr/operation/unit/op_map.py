@@ -1,4 +1,3 @@
-import re
 import difflib
 import random
 import time
@@ -16,7 +15,7 @@ from sr import const
 from sr.const import STANDARD_RESOLUTION_W, game_config_const
 from sr.const.map_const import Planet, PLANET_LIST, best_match_planet_by_name, Region, best_match_region_by_name, \
     PLANET_2_REGION, TransportPoint
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import large_map, LargeMapInfo
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationEdge, StateOperationNode
 from sr.screen_area.screen_large_map import ScreenLargeMap
@@ -289,7 +288,7 @@ class ChooseRegion(StateOperation):
         return self.round_by_op(op.execute())
 
     def _scale_main_region(self) -> OperationOneRoundResult:
-        if self.ctx.pos_info.large_map_scale != self.region_to_choose_1.large_map_scale:
+        if self.ctx.pos_lm_scale != self.region_to_choose_1.large_map_scale:
             op = ScaleLargeMap(self.ctx, self.region_to_choose_1.large_map_scale, is_main_region=True)
             return self.round_by_op(op.execute())
         else:
@@ -378,7 +377,7 @@ class ChooseRegion(StateOperation):
         if self.region.parent is None:
             return self.round_success('非子区域无需操作')
 
-        if self.ctx.pos_info.large_map_scale != self.region.large_map_scale:
+        if self.ctx.pos_lm_scale != self.region.large_map_scale:
             op = ScaleLargeMap(self.ctx, self.region.large_map_scale, is_main_region=False)
             return self.round_by_op(op.execute())
         else:
@@ -485,6 +484,7 @@ class ChooseTransportPoint(Operation):
 
         # 先判断右边是不是出现传送了
         if self.check_and_click_transport(screen):
+            self.ctx.update_pos_after_tp(self.tp)
             time.sleep(2)
             return Operation.SUCCESS
 
@@ -687,10 +687,10 @@ class ScaleLargeMap(Operation):
         super().__init__(ctx, 5, op_name=gt('缩放地图至 %d', 'ui') % to_scale)
         self.is_main_region: bool = is_main_region
         self.to_scale: int = to_scale
-        self.scale_per_time: int = -1 if to_scale < self.ctx.pos_info.large_map_scale else 1  # 负数为缩小，正数为放大
+        self.scale_per_time: int = -1 if to_scale < self.ctx.pos_lm_scale else 1  # 负数为缩小，正数为放大
 
     def _execute_one_round(self) -> OperationOneRoundResult:
-        if self.to_scale == self.ctx.pos_info.large_map_scale:
+        if self.to_scale == self.ctx.pos_lm_scale:
             return self.round_success()
 
         # 没有使用模板匹配找加减号的位置 实际测试无法区分减价
@@ -700,8 +700,8 @@ class ScaleLargeMap(Operation):
             area = ScreenLargeMap.SUB_SCALE_MINUS.value if self.scale_per_time < 0 else ScreenLargeMap.SUB_SCALE_PLUS.value
         log.info('准备缩放地图 点击 %s %s', area.center,
                  self.ctx.controller.click(area.center))
-        self.ctx.pos_info.large_map_scale += self.scale_per_time
-        if self.to_scale == self.ctx.pos_info.large_map_scale:
+        self.ctx.pos_lm_scale += self.scale_per_time
+        if self.to_scale == self.ctx.pos_lm_scale:
             return self.round_success()
         else:
             return self.round_wait(wait=0.5)

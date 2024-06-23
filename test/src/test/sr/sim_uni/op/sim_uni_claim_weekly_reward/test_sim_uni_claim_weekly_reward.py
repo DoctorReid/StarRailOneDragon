@@ -1,5 +1,5 @@
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.sim_uni.op.sim_uni_claim_weekly_reward import SimUniClaimWeeklyReward
 from test.sr.control.mock_controller import MockController
 

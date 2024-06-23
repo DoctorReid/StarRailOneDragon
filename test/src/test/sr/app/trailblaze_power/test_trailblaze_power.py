@@ -1,8 +1,6 @@
-import unittest
-
 import test
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
-from sr.context import get_context
+from sr.context.context import get_context
 
 
 class TestTrailblazePower(test.SrTestBase):

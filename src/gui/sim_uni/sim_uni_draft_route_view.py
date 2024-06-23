@@ -22,7 +22,7 @@ from sr.const.map_const import PLANET_2_REGION
 from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 from sr.app.sim_uni.test_sim_uni_route_app import TestSimUniRouteApp
 from sr.const import map_const, operation_const
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map, LargeMapInfo, large_map
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, level_type_from_id, SimUniLevelTypeEnum
 

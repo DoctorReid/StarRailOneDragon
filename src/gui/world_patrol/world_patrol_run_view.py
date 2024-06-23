@@ -8,7 +8,7 @@ from gui import components
 from gui.sr_app_view import SrAppView
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
-from sr.context import Context
+from sr.context.context import Context
 
 
 class WorldPatrolRunView(SrAppView):

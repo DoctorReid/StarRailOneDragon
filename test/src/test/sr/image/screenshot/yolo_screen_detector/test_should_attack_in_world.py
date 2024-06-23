@@ -1,7 +1,7 @@
 import time
 
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 
 
 class TestOperation(test.SrTestBase):

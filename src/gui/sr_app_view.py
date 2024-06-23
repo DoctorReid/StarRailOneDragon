@@ -8,7 +8,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import snack_bar, components
 from gui.sr_basic_view import SrBasicView
-from sr.context import Context, ContextEventId
+from sr.context.context import Context, ContextEventId
 
 _sr_app_view_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_sr_app_view', max_workers=1)
 

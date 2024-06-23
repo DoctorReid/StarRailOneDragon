@@ -31,6 +31,7 @@ from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, TECHNIQUE_ATTACK
 from sr.const.map_const import Planet, Region
+from sr.context.context_pos_info import ContextPosInfo
 from sr.control import GameController
 from sr.control.pc_controller import PcController
 from sr.event_bus import EventBus
@@ -47,23 +48,6 @@ from sr.one_dragon_config import OneDragonConfig, OneDragonAccount
 from sr.performance_recorder import PerformanceRecorder, get_recorder, log_all_performance
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeAllConfig, SimUniChallengeConfig
 from sr.win import Window
-
-
-class PosInfo:
-
-    def __init__(self, planet: Optional[Planet] = None, region: Optional[Region] = None):
-        """
-        当前位置信息 包含大地图
-        """
-        self.large_map_scale: int = 5  # 当前大地图缩放比例
-        self.planet: Planet = planet
-        self.region: Region = region
-
-        self.cancel_mission_trace: bool = False
-        """是否已经取消了任务追踪"""
-
-        self.first_cal_pos_after_fight: bool = False
-        """战斗后第一次计算坐标 由于部分攻击会产生位移 这次的坐标识别允许更大范围"""
 
 
 class TeamInfo:
@@ -182,12 +166,14 @@ class ContextEventId(Enum):
     CONTEXT_STOP: str = '运行结束'
 
 
-class Context:
+class Context(ContextPosInfo):
 
     def __init__(self):
         """
         用于存放运行时的上下文
         """
+        ContextPosInfo.__init__(self)
+
         self.platform: str = 'PC'
         self.ih: ImageHolder = ImageHolder()
         self.im: Optional[ImageMatcher] = None
@@ -241,7 +227,6 @@ class Context:
         self.no_technique_recover_consumables: bool = False  # 没有恢复秘技的物品了 为True的时候就不使用秘技了
         self.consumable_used: bool = False  # 是否已经使用过消耗品了
 
-        self.pos_info: PosInfo = PosInfo()
         self.team_info: TeamInfo = TeamInfo()
         self.sim_uni_info: SimUniInfo = SimUniInfo()
         self.detect_info: DetectInfo = DetectInfo()
@@ -557,8 +542,8 @@ class Context:
         进入游戏后需要做的初始化
         :return:
         """
-        self.pos_info.large_map_scale = 5
-        self.pos_info.cancel_mission_trace = False
+        self.pos_lm_scale = 5
+        self.pos_cancel_mission_trace = False
         self.no_technique_recover_consumables = False
 
     def init_before_app_start(self):
@@ -566,9 +551,9 @@ class Context:
         应用开始前的初始化
         :return:
         """
-        self.pos_info.planet = None
-        self.pos_info.region = None
-        self.pos_info.first_cal_pos_after_fight = False
+        self.pos_planet = None
+        self.pos_region = None
+        self.pos_first_cal_pos_after_fight = False
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:

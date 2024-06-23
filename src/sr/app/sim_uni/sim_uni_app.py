@@ -10,9 +10,10 @@ from sr.app.application_base import Application
 from sr.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr.app.sim_uni.sim_uni_run_world import SimUniRunWorld
 from sr.const import phone_menu_const
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state, mini_map
 from sr.image.sceenshot.screen_state_enum import ScreenState
+from sr.interastral_peace_guide.choose_guide_category import ChooseGuideCategory
 from sr.interastral_peace_guide.choose_guide_mission import ChooseGuideMission
 from sr.interastral_peace_guide.choose_guide_tab import ChooseGuideTab
 from sr.interastral_peace_guide.guide_const import GuideTabEnum, GuideCategoryEnum, GuideMissionEnum
@@ -76,7 +77,7 @@ class SimUniApp(Application):
         edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
                                         status=ScreenState.GUIDE.value))  # 在指南里 选择生存索引
 
-        choose_in_si = StateOperationNode('生存索引中选择模拟宇宙', self.choose_in_survival_index)
+        choose_in_si = StateOperationNode('生存索引中选择模拟宇宙', self.choose_category_in_survival_index)
         edges.append(StateOperationEdge(choose_survival_index, choose_in_si))
         edges.append(StateOperationEdge(check_initial_screen, choose_in_si,
                                         status=ScreenState.GUIDE_SURVIVAL_INDEX.value))  # 在生存索引 选择模拟宇宙
@@ -84,13 +85,13 @@ class SimUniApp(Application):
         choose_sim_category = StateOperationNode('指南中选择模拟宇宙', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_3.value))
         edges.append(StateOperationEdge(choose_in_si, choose_sim_category, status=self.STATUS_NOT_FOUND_IN_SI))
 
-        choose_in_su = StateOperationNode('模拟宇宙中选择模拟宇宙', self.choose_in_sim_uni)
+        choose_in_su = StateOperationNode('模拟宇宙中选择模拟宇宙', self.choose_category_in_sim_uni)
         edges.append(StateOperationEdge(choose_sim_category, choose_in_su))
 
         si_transport = StateOperationNode('生存索引中传送', op=ChooseGuideMission(ctx, GuideMissionEnum.SIM_UNI_00.value))
         edges.append(StateOperationEdge(choose_in_si, si_transport))
 
-        su_transport = StateOperationNode('模拟宇宙中传送', op=ChooseGuideMission(ctx, GuideMissionEnum.SIM_UNI_00.value))
+        su_transport = StateOperationNode('模拟宇宙中传送', op=ChooseGuideMission(ctx, GuideMissionEnum.SIM_UNI_NORMAL.value))
         edges.append(StateOperationEdge(choose_in_su, su_transport))
 
         choose_normal_universe = StateOperationNode('普通宇宙', op=ChooseSimUniCategory(ctx, SimUniTypeEnum.NORMAL))
@@ -296,7 +297,7 @@ class SimUniApp(Application):
         op = SimUniExit(self.ctx)
         return self.round_by_op(op.execute())
 
-    def choose_in_survival_index(self) -> OperationOneRoundResult:
+    def choose_category_in_survival_index(self) -> OperationOneRoundResult:
         """
         在生存索引中 选择模拟宇宙
         开启差分宇宙后 就没有这个选项了
@@ -324,7 +325,7 @@ class SimUniApp(Application):
         else:
             return self.round_retry(wait=0.5)
 
-    def choose_in_sim_uni(self) -> OperationOneRoundResult:
+    def choose_category_in_sim_uni(self) -> OperationOneRoundResult:
         """
         在指南-模拟宇宙中 选择模拟宇宙
         开启差分宇宙后 就有这个选项了

@@ -9,7 +9,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from gui import components, version, snack_bar
 from gui.sr_basic_view import SrBasicView
-from sr.context import Context
+from sr.context.context import Context
 from sr.one_dragon_config import PROXY_TYPE_LIST
 
 

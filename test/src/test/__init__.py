@@ -11,7 +11,7 @@ from basic import os_utils, Rect
 from basic.img import cv2_utils
 from basic.img.os import get_debug_image
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map
 
 

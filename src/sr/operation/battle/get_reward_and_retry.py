@@ -4,7 +4,7 @@ from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import battle
 from sr.operation import Operation
 from sr.operation.battle.click_challenge_confirm import ClickChallengeConfirm

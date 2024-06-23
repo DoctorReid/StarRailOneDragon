@@ -1,6 +1,5 @@
-import unittest
 import test
-from sr.context import Context, get_context
+from sr.context.context import Context, get_context
 from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationNode, \
     StateOperationEdge
 

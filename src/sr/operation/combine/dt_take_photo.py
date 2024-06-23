@@ -1,7 +1,7 @@
 from basic.i18_utils import gt
 from sr.const import phone_menu_const
 from sr.const.traing_mission_const import MISSION_TAKE_PHOTO
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationNode, StatusCombineOperationEdge2
 from sr.operation.unit.back_to_world import BackToWorld
 from sr.operation.unit.menu.click_phone_menu_item_at_right import ClickPhoneMenuItemAtRight

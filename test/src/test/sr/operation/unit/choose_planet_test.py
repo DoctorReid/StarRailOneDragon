@@ -1,10 +1,9 @@
 import cv2
 
-import const.region
 from basic.img import cv2_utils
 from basic.img.os import get_test_image
 from sr import const
-from sr.context import get_context, Context
+from sr.context.context import get_context, Context
 from sr.operation.unit.op_map import ChoosePlanet
 
 

@@ -6,7 +6,7 @@ from basic import os_utils
 from basic.log_utils import log
 from gui import components
 from gui.sr_basic_view import SrBasicView
-from sr.context import Context
+from sr.context.context import Context
 
 
 class GuiHandler(logging.Handler):

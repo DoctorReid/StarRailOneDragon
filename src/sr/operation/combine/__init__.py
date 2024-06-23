@@ -1,7 +1,6 @@
 from typing import List, Optional, Callable
 
-from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import Operation, OperationResult, OperationOneRoundResult
 
 

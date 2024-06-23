@@ -1,12 +1,11 @@
 from typing import List
 
 from basic.i18_utils import gt
-from basic.log_utils import log
 from sr.const.map_const import TransportPoint
-from sr.context import Context
-from sr.operation import Operation, OperationResult
+from sr.context.context import Context
+from sr.operation import Operation
 from sr.operation.combine import CombineOperation
-from sr.operation.unit.op_map import ChoosePlanet, ChooseRegion, ChooseTransportPoint, ScaleLargeMap
+from sr.operation.unit.op_map import ChoosePlanet, ChooseRegion, ChooseTransportPoint
 from sr.operation.unit.open_map import OpenMap
 from sr.operation.unit.wait import WaitInWorld
 

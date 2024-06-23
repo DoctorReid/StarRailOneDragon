@@ -2,20 +2,14 @@ from typing import Optional
 
 import flet as ft
 import keyboard
-from flet_core import CrossAxisAlignment
 
-from basic import i18_utils, os_utils
+from basic import i18_utils
 from basic.i18_utils import gt
-from basic.log_utils import log
-from gui import version, snack_bar, components
+from gui import components
 from gui.components import SettingsList, SettingsListItem, SettingsListGroupTitle
-from gui.settings import gui_config
-from gui.settings.gui_config import GuiConfig
 from gui.sr_basic_view import SrBasicView
-from sr.config import game_config
-from sr.config.game_config import GameConfig
 from sr.const import game_config_const
-from sr.context import Context
+from sr.context.context import Context
 
 
 class SettingsGameConfigView(components.Card, SrBasicView):

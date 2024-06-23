@@ -1,0 +1,42 @@
+name: '购买合成奇巧零食'
+ops:
+  - op: 'back_to_world_plus'
+    data: []
+  - op: 'transport'
+    data: ['仙舟「罗浮」', '星槎海中枢', '0', '宣夜大道']
+  - op: 'wait'
+    data: ['in_world', '20']
+  - op: 'move'
+    data: [ '420', '606' ]
+  - op: 'move'
+    data: [ '422', '572' ]
+  - op: 'move'
+    data: [ '556', '570' ]
+  - op: 'move'
+    data: [ '565', '525' ]
+  - op: 'move'
+    data: [ '578', '496' ]
+  - op: 'interact'
+    data: ['world_single_line', '货全']
+  - op: 'interact'
+    data: ['talk', '都有些什么好东西']
+  - op: 'wait'
+    data: ['seconds', '0.5']
+  - op: 'click'
+    data: [ '100', '100' ]
+  - op: 'wait'
+    data: ['seconds', '0.5']
+  - op: 'click'
+    data: [ '100', '100' ]
+  - op: 'wait'
+    data: ['seconds', '0.5']
+  - op: 'buy_store_item'
+    data: ['gaseous_liquid', '0']
+    allow_fail: true
+  - op: 'buy_store_item'
+    data: ['seed', '0']
+    allow_fail: true
+  - op: 'back_to_world_plus'
+    data: []
+  - op: 'synthesizing'
+    data: ['consumable', 'trick_snack', '0']

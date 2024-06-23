@@ -5,8 +5,8 @@ from cv2.typing import MatLike
 from basic import Point, Rect
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
-from sr.context import Context
-from sr.operation import Operation, OperationOneRoundResult, OperationResult, StateOperation, StateOperationEdge, \
+from sr.context.context import Context
+from sr.operation import OperationOneRoundResult, OperationResult, StateOperation, StateOperationEdge, \
     StateOperationNode
 from sr.operation.unit.forgotten_hall import get_all_mission_num_pos
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard

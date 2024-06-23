@@ -1,7 +1,5 @@
-import unittest
-
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum
 
 

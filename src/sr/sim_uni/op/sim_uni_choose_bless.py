@@ -9,7 +9,7 @@ from basic import Rect, str_utils, Point
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState

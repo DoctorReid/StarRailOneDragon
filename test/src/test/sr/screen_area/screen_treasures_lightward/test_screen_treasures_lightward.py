@@ -1,5 +1,5 @@
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.operation import Operation
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard
 

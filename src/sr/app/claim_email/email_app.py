@@ -7,9 +7,9 @@ from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
 from sr.app.application_base import Application
 from sr.const import phone_menu_const
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import phone_menu
-from sr.operation import Operation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
+from sr.operation import StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 

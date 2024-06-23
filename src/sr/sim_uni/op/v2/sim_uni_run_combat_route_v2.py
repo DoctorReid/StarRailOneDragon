@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 
 from basic import cal_utils, Point
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state, mini_map, MiniMapInfo
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import StateOperationEdge, StateOperationNode, Operation, OperationOneRoundResult
@@ -107,7 +107,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
             op = UseTechnique(self.ctx,
                               max_consumable_cnt=self.ctx.sim_uni_challenge_config.max_consumable_cnt,
                               need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
-                              quirky_snacks=self.ctx.game_config.use_quirky_snacks
+                              trick_snack=self.ctx.game_config.use_quirky_snacks
                               )
             op.execute()
 

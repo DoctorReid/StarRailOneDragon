@@ -4,13 +4,10 @@ import flet as ft
 import re
 
 from basic.i18_utils import gt
-from basic.log_utils import log
 from gui import components
 from gui.sr_app_view import SrAppView
 from sr.app.sim_uni.sim_uni_app import SimUniApp
-from sr.app.world_patrol.world_patrol_app import WorldPatrol
-from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
-from sr.context import Context
+from sr.context.context import Context
 from sr.sim_uni.sim_uni_const import SimUniWorldEnum
 
 

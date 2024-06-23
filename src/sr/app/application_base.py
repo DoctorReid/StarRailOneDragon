@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from basic.log_utils import log
 from sr.app.app_run_record import AppRunRecord
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationNode, StateOperationEdge, \
     OperationOneRoundResult
 from sr.operation.unit.enter_game import EnterGame

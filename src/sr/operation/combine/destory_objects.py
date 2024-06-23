@@ -2,7 +2,7 @@ from basic import Point
 from basic.i18_utils import gt
 from sr.const import map_const
 from sr.const.traing_mission_const import MISSION_DESTRUCTIBLE_OBJECTS
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import LargeMapInfo
 from sr.operation.combine import CombineOperation
 from sr.operation.combine.transport import Transport

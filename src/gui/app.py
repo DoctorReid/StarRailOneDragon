@@ -7,7 +7,6 @@ import keyboard
 
 from basic import os_utils
 from basic.i18_utils import gt, update_default_lang
-from basic.log_utils import log
 from gui import log_view, calibrator_view, version, one_stop_view, scheduler, snack_bar, about_view
 from gui.settings import gui_config, settings_game_config_view, settings_trailblaze_power_view, \
     settings_echo_of_war_view, \
@@ -17,7 +16,7 @@ from gui.settings.gui_config import ThemeColors, GuiConfig
 from gui.sim_uni import sim_uni_draft_route_view, sim_uni_challenge_config_view, sim_uni_run_view
 from gui.sr_basic_view import SrBasicView
 from gui.world_patrol import world_patrol_run_view, world_patrol_draft_route_view, world_patrol_whitelist_view
-from sr.context import get_context, Context
+from sr.context.context import get_context, Context
 
 _app_executor = ThreadPoolExecutor(thread_name_prefix='sr_od_app', max_workers=1)
 

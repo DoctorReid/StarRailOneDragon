@@ -2,9 +2,8 @@ import time
 from typing import Optional, Callable
 
 from basic.i18_utils import gt
-from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr.const import phone_menu_const
-from sr.context import Context
+from sr.context.context import Context
 from sr.div_uni.op.choose_oe_file import ChooseOeFile
 from sr.div_uni.op.choose_oe_support import ChooseOeSupport
 from sr.div_uni.screen_div_uni import ScreenDivUni

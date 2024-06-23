@@ -6,7 +6,7 @@ from basic import str_utils, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, OperationResult
 from sr.screen_area.screen_treasures_lightward import ScreenTreasuresLightWard

@@ -8,7 +8,7 @@ from gui.components import Card, SettingsList, SettingsListItem, SettingsListGro
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.context import Context
+from sr.context.context import Context
 from sr.sim_uni.sim_uni_const import SimUniWorldEnum
 
 

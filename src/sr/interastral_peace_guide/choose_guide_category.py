@@ -2,9 +2,9 @@ from basic import Point, str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.interastral_peace_guide.guide_const import GuideCategory
-from sr.operation import Operation, StateOperation, StateOperationNode, OperationOneRoundResult
+from sr.operation import StateOperation, StateOperationNode, OperationOneRoundResult
 from sr.screen_area.interastral_peace_guide import ScreenGuide
 
 

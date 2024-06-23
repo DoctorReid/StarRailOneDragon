@@ -4,7 +4,7 @@ import flet as ft
 
 from gui.sr_app_view import SrAppView
 from sr.app.calibrator import Calibrator
-from sr.context import Context
+from sr.context.context import Context
 
 
 class CalibratorView(SrAppView):

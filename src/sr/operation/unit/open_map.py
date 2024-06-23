@@ -1,6 +1,6 @@
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.control import GameController
 from sr.image.ocr_matcher import OcrMatcher
 from sr.image.sceenshot import large_map, screen_state

@@ -1,7 +1,7 @@
 from flet_core import Control
 import flet as ft
 
-from sr.context import Context
+from sr.context.context import Context
 
 
 class SrBasicView(Control):

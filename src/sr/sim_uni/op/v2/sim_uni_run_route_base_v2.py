@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const import STANDARD_RESOLUTION_W
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import StateOperation, StateOperationNode, StateOperationEdge, OperationResult, \
     OperationOneRoundResult, Operation

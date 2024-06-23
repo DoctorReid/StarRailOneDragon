@@ -5,7 +5,7 @@ from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const.character_const import Character, get_character_by_id, TECHNIQUE_BUFF, is_attack_character, \
     TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK, SILVERWOLF, TECHNIQUE_AREA
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationNode, StateOperationEdge
 from sr.operation.unit.team.get_team_member_in_world import GetTeamMemberInWorld

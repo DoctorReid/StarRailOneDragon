@@ -9,7 +9,7 @@ from sr.app.application_base import Application
 from sr.config.game_config import GameConfig, MiniMapPos
 from sr.const import map_const
 from sr.const.map_const import TransportPoint
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation.combine.transport import Transport
 

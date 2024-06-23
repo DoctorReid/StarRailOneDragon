@@ -9,7 +9,7 @@ from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
 from sr.const import operation_const
 from sr.const.map_const import region_with_another_floor, Region
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map, large_map
 from sr.operation import Operation, \
     OperationResult, StateOperation, StateOperationNode, OperationOneRoundResult, \
@@ -273,7 +273,7 @@ class SimUniRunCombatRoute(SimUniRunRouteBase):
             op = UseTechnique(self.ctx,
                               max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
                               need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
-                              quirky_snacks=self.ctx.game_config.use_quirky_snacks
+                              trick_snack=self.ctx.game_config.use_quirky_snacks
                               )
             return self.round_by_op(op.execute())
 

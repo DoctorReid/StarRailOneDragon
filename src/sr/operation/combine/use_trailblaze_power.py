@@ -1,7 +1,7 @@
 from typing import Optional, Callable, ClassVar
 
 from basic.i18_utils import gt
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.interastral_peace_guide.guide_const import GuideCategoryEnum, GuideMission
 from sr.operation import Operation, StateOperation, OperationOneRoundResult, StateOperationNode, StateOperationEdge

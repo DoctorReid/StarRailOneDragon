@@ -16,8 +16,8 @@ from sr.app.support_character.support_character_app import SupportCharacterApp
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
-from sr.context import Context
-from sr.operation import Operation, OperationOneRoundResult, StateOperationEdge, StateOperationNode
+from sr.context.context import Context
+from sr.operation import OperationOneRoundResult, StateOperationEdge, StateOperationNode
 from sr.operation.unit.enter_game import LoginWithAnotherAccount
 
 

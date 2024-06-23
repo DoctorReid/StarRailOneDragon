@@ -9,7 +9,7 @@ from basic.img import cv2_utils
 from basic.img.os import save_debug_image
 from basic.log_utils import log
 from sr.config.game_config import GameConfig
-from sr.context import Context, ContextEventId
+from sr.context.context import Context, ContextEventId
 from sr.image.sceenshot import fill_uid_black
 from sr.screen_area import ScreenArea
 
@@ -153,9 +153,11 @@ class Operation:
         init_result: OperationOneRoundResult = self._init_before_execute()
         if init_result is not None:
             if init_result.is_success:
-                return self.op_success(init_result.status, init_result.data)
+                op_result = self.op_success(init_result.status, init_result.data)
             else:
-                return self.op_fail(init_result.status, init_result.data)
+                op_result = self.op_fail(init_result.status, init_result.data)
+            self._after_operation_done(op_result)
+            return op_result
 
         op_result: Optional[OperationResult] = None
         retry_status: Optional[str] = None
@@ -482,7 +484,9 @@ class Operation:
             rect = area.rect
             part = cv2_utils.crop_image_only(screen, rect)
 
-            mrl = self.ctx.im.match_template(part, area.template_id, threshold=area.template_match_threshold)
+            mrl = self.ctx.im.match_template(part, area.template_id,
+                                             template_sub_dir=area.template_sub_dir,
+                                             threshold=area.template_match_threshold)
             if mrl.max is None:
                 return Operation.OCR_CLICK_NOT_FOUND
             elif self.ctx.controller.click(mrl.max.center + rect.left_top, pc_alt=area.pc_alt):

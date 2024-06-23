@@ -2,7 +2,7 @@ from typing import List, Optional, Callable
 
 from basic.i18_utils import gt
 from sr.const.map_const import TransportPoint
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import Operation, StateOperation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.battle.choose_support_in_team import ChooseSupportInTeam

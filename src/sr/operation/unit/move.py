@@ -11,7 +11,7 @@ from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
 from sr.const import game_config_const
 from sr.const.map_const import Region
-from sr.context import Context
+from sr.context.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, LargeMapInfo, large_map, screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
@@ -229,7 +229,7 @@ class MoveDirectly(Operation):
             return self.round_fail(status=fight_result.status, data=fight_result.data)
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-        self.ctx.pos_info.first_cal_pos_after_fight = True
+        self.ctx.pos_first_cal_pos_after_fight = True
         return self.round_wait()
 
     def get_fight_op(self, in_world: bool = True) -> Operation:
@@ -329,7 +329,7 @@ class MoveDirectly(Operation):
 
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-        self.ctx.pos_info.first_cal_pos_after_fight = True
+        self.ctx.pos_first_cal_pos_after_fight = True
 
         return self.round_wait()
 
@@ -350,7 +350,7 @@ class MoveDirectly(Operation):
                 move_time = 1
         else:
             move_time = 1
-        if self.ctx.pos_info.first_cal_pos_after_fight:
+        if self.ctx.pos_first_cal_pos_after_fight:
             move_time += 1  # 扩大范围 兼容攻击时产生的位移
 
         log.debug('上次记录时间 %.2f 停止移动时间 %.2f 当前时间 %.2f',
@@ -373,7 +373,7 @@ class MoveDirectly(Operation):
         # 正确移动时 人物不应该偏离直线太远
         # 攻击后 可能因为攻击产生了位移 允许远一点
         # 脱困移动时 会向左右移动 允许远一点
-        max_line_distance = 40 if self.ctx.pos_info.first_cal_pos_after_fight or self.stuck_times > 0 else 20
+        max_line_distance = 40 if self.ctx.pos_first_cal_pos_after_fight or self.stuck_times > 0 else 20
         verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
                                line_p1=self.start_pos, line_p2=self.target,
                                max_line_distance=max_line_distance
@@ -443,7 +443,7 @@ class MoveDirectly(Operation):
             return self.round_wait()
         else:
             self.no_pos_times = 0
-            self.ctx.pos_info.first_cal_pos_after_fight = False
+            self.ctx.pos_first_cal_pos_after_fight = False
 
     def check_arrive(self, next_pos: Point) -> Optional[OperationOneRoundResult]:
         """
@@ -454,6 +454,7 @@ class MoveDirectly(Operation):
         if cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
+            self.ctx.update_pos_after_move(next_pos, region=None if self.next_lm_info is None else self.next_lm_info.region)
             return self.round_success(data=next_pos)
         return None
 
@@ -466,6 +467,7 @@ class MoveDirectly(Operation):
         :return:
         """
         self.stop_move_time = None
+        self.ctx.update_pos_after_move(next_pos)
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
             self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle,
                                              run=self.run_mode == game_config_const.RUN_MODE_BTN)

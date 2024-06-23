@@ -1,10 +1,10 @@
 import time
 
-from basic import os_utils, Point
+from basic import os_utils
 from basic.i18_utils import gt
 from basic.img.os import save_debug_image
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import battle, fill_uid_black, screen_state
 from sr.operation import Operation
 

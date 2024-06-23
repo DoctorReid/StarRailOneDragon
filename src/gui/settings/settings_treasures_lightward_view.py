@@ -9,9 +9,9 @@ from gui.components.character_input import CharacterInput
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.const.character_const import CHARACTER_LIST, get_character_by_id, CHARACTER_COMBAT_TYPE_LIST, \
+from sr.const.character_const import CHARACTER_LIST, CHARACTER_COMBAT_TYPE_LIST, \
     get_combat_type_by_id
-from sr.context import Context
+from sr.context.context import Context
 from sr.treasures_lightward.treasures_lightward_team_module import TreasuresLightwardTeamModule, \
     TlModuleItemCharacterTypeEnum, TlModuleItemPositionEnum, TreasuresLightwardTeamModuleItem
 

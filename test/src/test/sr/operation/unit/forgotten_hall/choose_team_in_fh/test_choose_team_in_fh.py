@@ -4,7 +4,7 @@ import test
 from basic.img.os import get_debug_image
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
 from sr.const import character_const
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.operation.unit.forgotten_hall.choose_team_in_fh import ChooseTeamInForgottenHall
 
 

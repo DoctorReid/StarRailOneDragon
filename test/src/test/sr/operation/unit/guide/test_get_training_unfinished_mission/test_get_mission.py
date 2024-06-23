@@ -1,6 +1,6 @@
 import test
 from basic.img.os import get_debug_image
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.operation.unit.guide.get_training_unfinished_mission import GetTrainingUnfinishedMission
 
 

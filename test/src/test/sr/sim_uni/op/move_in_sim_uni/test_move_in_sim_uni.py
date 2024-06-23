@@ -1,5 +1,5 @@
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 

@@ -2,16 +2,15 @@ from typing import List, Optional, Callable
 
 import flet as ft
 
-import sr.app.echo_of_war.echo_of_war_config
 from basic.i18_utils import gt
 from gui import components
 from gui.components.character_input import CharacterInput
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
-from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem, EchoOfWarConfig
+from sr.app.echo_of_war.echo_of_war_config import EchoOfWarPlanItem
 from sr.const.character_const import CHARACTER_LIST
-from sr.context import Context
+from sr.context.context import Context
 from sr.interastral_peace_guide.guide_const import GuideCategoryEnum, GuideMission, \
     GuideMissionEnum
 

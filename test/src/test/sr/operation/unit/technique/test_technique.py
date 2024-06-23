@@ -1,5 +1,5 @@
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.operation.unit.technique import pc_can_use_technique
 
 

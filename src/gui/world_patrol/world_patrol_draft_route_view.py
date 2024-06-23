@@ -1,5 +1,4 @@
 import base64
-import os
 from typing import List, Optional
 
 import cv2
@@ -10,11 +9,11 @@ from cv2.typing import MatLike
 from flet_core import ScrollMode
 
 import sr.const.operation_const
-from basic import os_utils, Point
+from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
-from gui import snack_bar, components
+from gui import components
 from gui.settings import gui_config
 from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
@@ -22,10 +21,10 @@ from sr import cal_pos
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, WorldPatrolRoute, load_all_route_id, new_route_id
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
-from sr.const import map_const, operation_const
+from sr.const import operation_const
 from sr.const.map_const import Planet, get_planet_by_cn, PLANET_LIST, PLANET_2_REGION, get_region_by_cn, Region, \
-    REGION_2_SP, TransportPoint, region_with_another_floor, get_sub_region_by_cn
-from sr.context import Context
+    REGION_2_SP, TransportPoint, get_sub_region_by_cn
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map, large_map
 
 
@@ -468,7 +467,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
             log.error('未选择路线')
             return
 
-        if self.sub_region_floor_dropdown.value is None:
+        if self.sub_region_floor_dropdown.value is None or len(self.sub_region_floor_dropdown.value) == 0:
             floor = int(self.switch_floor_dropdown.value)
         else:
             floor = int(self.sub_region_floor_dropdown.value)

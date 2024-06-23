@@ -1,5 +1,5 @@
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
 

@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const import OPPOSITE_DIRECTION
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult
@@ -59,7 +59,7 @@ class WorldPatrolEnterFight(Operation):
         self.last_state: str = ''  # 上一次的画面状态
         self.current_state: str = ''  # 这一次的画面状态
         self.first_tech_after_battle: bool = False  # 是否战斗画面后第一次使用秘技
-        self.ctx.pos_info.first_cal_pos_after_fight = True
+        self.ctx.pos_first_cal_pos_after_fight = True
         self.had_last_move: bool = False  # 退出这个指令前 是否已经进行过最后的移动了
 
         return None
@@ -132,7 +132,7 @@ class WorldPatrolEnterFight(Operation):
                     and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique)):  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx, max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
                                   need_check_available=self.ctx.is_pc and self.first_tech_after_battle,  # 只有战斗结束刚出来的时候可能用不了秘技
-                                  quirky_snacks=self.ctx.game_config.use_quirky_snacks
+                                  trick_snack=self.ctx.game_config.use_quirky_snacks
                                   )
                 op_result = op.execute()
                 if op_result.success:

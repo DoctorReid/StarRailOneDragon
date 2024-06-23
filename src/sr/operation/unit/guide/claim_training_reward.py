@@ -1,7 +1,7 @@
 from typing import Optional
 
 from basic.i18_utils import gt
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import phone_menu
 from sr.image.sceenshot.screen_state import in_secondary_ui
 from sr.operation import Operation, OperationOneRoundResult

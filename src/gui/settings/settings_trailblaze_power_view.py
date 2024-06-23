@@ -10,7 +10,7 @@ from gui.settings.gui_config import ThemeColors
 from gui.sr_basic_view import SrBasicView
 from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr.const.character_const import CHARACTER_LIST
-from sr.context import Context
+from sr.context.context import Context
 from sr.interastral_peace_guide.guide_const import GuideCategory, GuideCategoryEnum, \
     GuideMission, GuideMissionEnum
 

@@ -1,8 +1,8 @@
 from typing import List
 
 from sr.app.application_base import Application
-from sr.context import Context
-from sr.operation import Operation, StateOperationEdge, StateOperationNode, OperationOneRoundResult
+from sr.context.context import Context
+from sr.operation import StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.enter_game import LoginWithAnotherAccount
 

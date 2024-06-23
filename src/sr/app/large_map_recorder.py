@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from cv2.typing import MatLike
 
-from basic import Point, Rect
+from basic import Point
 from basic.img import cv2_utils
 from basic.img.os import save_debug_image, get_debug_image
 from basic.log_utils import log
@@ -14,9 +14,9 @@ from sr.app.sim_uni.sim_uni_route_holder import get_sim_uni_route_list
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRoute, load_all_route_id
 from sr.const import map_const, STANDARD_CENTER_POS, operation_const
 from sr.const.map_const import Region, region_with_another_floor, PLANET_2_REGION
-from sr.context import Context, get_context
+from sr.context.context import Context, get_context
 from sr.image.sceenshot import large_map
-from sr.operation import Operation, StateOperationNode, OperationOneRoundResult
+from sr.operation import StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.op_map import ChoosePlanet, ChooseRegion, ChooseFloor
 from sr.operation.unit.open_map import OpenMap
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
@@ -119,7 +119,7 @@ class LargeMapRecorder(Application):
             else:
                 break
 
-            if self.row > self.max_row:
+            if self.max_row is not None and self.row > self.max_row:
                 break
 
     def screenshot_horizontally(self):
@@ -615,9 +615,9 @@ if __name__ == '__main__':
         map_const.P04_R10.prl_id: {'skip_height': 700, 'max_row': 4}  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
     }
 
-    r = map_const.P04_R10
+    r = map_const.P03_R01
     sc = special_condition.get(r.prl_id, None)
-    _row, _col = 4, 4
+    # _row, _col = 4, 4
     # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
     # LargeMapRecorder.do_merge_1(r, _row, _col, show=True)
     # exit(0)
@@ -632,7 +632,7 @@ if __name__ == '__main__':
                            )
 
     ctx.init_all(renew=True)
-    # app.execute()
-    app.do_save()
-    # fix_all_after_map_record(r, 1, 10)
+    app.execute()
+    # app.do_save()
+    # fix_all_after_map_record(r, -5, -11)
 

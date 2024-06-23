@@ -6,7 +6,7 @@ from basic import Rect, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import Operation, OperationOneRoundResult, StateOperation, StateOperationEdge, StateOperationNode
 from sr.screen_area.screen_team import ScreenTeam
 

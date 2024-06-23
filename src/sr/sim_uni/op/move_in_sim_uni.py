@@ -11,7 +11,7 @@ from basic.log_utils import log
 from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
 from sr.const import OPPOSITE_DIRECTION
-from sr.context import Context
+from sr.context.context import Context
 from sr.control import GameController
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import LargeMapInfo, MiniMapInfo, mini_map, screen_state

@@ -2,7 +2,7 @@ from typing import ClassVar
 
 from basic import Rect
 from basic.i18_utils import gt
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import StateOperation, OperationOneRoundResult, Operation, StateOperationNode
 from sr.operation.unit.interact import Interact
 from sr.sim_uni.op.choose_sim_uni_num import ChooseSimUniNum

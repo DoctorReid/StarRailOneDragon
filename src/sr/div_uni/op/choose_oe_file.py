@@ -4,9 +4,9 @@ from typing import Optional
 from basic import str_utils
 from basic.i18_utils import gt
 from basic.img import cv2_utils
-from sr.context import Context, get_context
+from sr.context.context import Context, get_context
 from sr.div_uni.screen_div_uni import ScreenDivUni
-from sr.operation import StateOperation, OperationOneRoundResult, StateOperationNode, Operation
+from sr.operation import StateOperation, OperationOneRoundResult, StateOperationNode
 from sr.screen_area.screen_phone_menu import ScreenPhoneMenu
 
 

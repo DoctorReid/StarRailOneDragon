@@ -2,9 +2,9 @@ from typing import List, Optional
 
 from basic import Point
 from basic.img import cv2_utils
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map, MiniMapInfo
-from sr.operation import StateOperationEdge, StateOperationNode, OperationOneRoundResult, Operation
+from sr.operation import StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveWithoutPos
 from sr.screen_area.screen_normal_world import ScreenNormalWorld

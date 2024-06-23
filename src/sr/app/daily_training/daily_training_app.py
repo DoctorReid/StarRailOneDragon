@@ -5,7 +5,7 @@ from sr.app.application_base import Application
 from sr.const import phone_menu_const
 from sr.const.traing_mission_const import MISSION_SALVAGE_RELIC, MISSION_DESTRUCTIBLE_OBJECTS, MISSION_USE_TECHNIQUE, \
     MISSION_TAKE_PHOTO, MISSION_SYNTHESIZE_CONSUMABLE
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import StateOperationEdge, StateOperationNode
 from sr.operation.combine.destory_objects import DestroyObjects
 from sr.operation.combine.dt_synthesize_consumable import DtSynthesizeConsumable

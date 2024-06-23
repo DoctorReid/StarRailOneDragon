@@ -10,7 +10,7 @@ from gui.settings import gui_config
 from gui.settings.gui_config import GuiConfig
 from gui.sr_basic_view import SrBasicView
 from sr.app.switch_account.switch_account_app import SwitchAccountApp
-from sr.context import Context
+from sr.context.context import Context
 from sr.one_dragon_config import OneDragonAccount
 from sryolo.detector import check_model_exists, get_model_dir_path
 

@@ -2,7 +2,7 @@ from typing import List, Optional, Callable, ClassVar
 
 from basic.i18_utils import gt
 from sr.app.sim_uni.sim_uni_route_holder import match_best_sim_uni_route
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import Operation, OperationResult, StateOperation, StateOperationEdge, \
     StateOperationNode, OperationOneRoundResult

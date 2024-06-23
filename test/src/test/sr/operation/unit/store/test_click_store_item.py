@@ -1,8 +1,6 @@
-import unittest
-
 import test
 from basic import cal_utils, Point
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.operation.unit.store.click_store_item import ClickStoreItem
 
 

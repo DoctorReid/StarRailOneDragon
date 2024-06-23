@@ -10,7 +10,7 @@ from basic.log_utils import log
 from sr import cal_pos
 from sr.cal_pos import VerifyPosInfo
 from sr.const.map_const import Region
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map, large_map, LargeMapInfo
 from sr.operation import Operation, OperationOneRoundResult
 

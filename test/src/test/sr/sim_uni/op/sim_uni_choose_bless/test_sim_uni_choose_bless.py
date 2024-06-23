@@ -2,7 +2,7 @@ from typing import List
 
 import test
 from basic.img import MatchResult
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniChooseBless, get_bless_pos, get_bless_by_priority
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr.sim_uni.sim_uni_const import SimUniBless, SimUniBlessEnum

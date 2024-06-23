@@ -1,7 +1,7 @@
 from typing import List, ClassVar
 
 from basic.i18_utils import gt
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import screen_state
 from sr.operation import StateOperation, StateOperationEdge, OperationOneRoundResult, Operation, StateOperationNode
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
@@ -45,7 +45,7 @@ class CancelMissionTrace(StateOperation):
         尝试点击左方这个任务唤出任务列表
         :return:
         """
-        if self.ctx.pos_info.cancel_mission_trace:
+        if self.ctx.pos_cancel_mission_trace:
             return self.round_success()
 
         area = ScreenNormalWorld.TRACE_MISSION_ICON.value
@@ -61,13 +61,13 @@ class CancelMissionTrace(StateOperation):
         """
         screen = self.screenshot()
         if screen_state.is_normal_in_world(screen, self.ctx.im):  # 依旧在大地图 说明没有追踪任务
-            self.ctx.pos_info.cancel_mission_trace = True
+            self.ctx.pos_cancel_mission_trace = True
             return self.round_success()
 
         area1 = ScreenMission.CANCEL_TRACE_BTN.value
         click = self.find_and_click_area(area1, screen)
         if click == Operation.OCR_CLICK_SUCCESS:
-            self.ctx.pos_info.cancel_mission_trace = True
+            self.ctx.pos_cancel_mission_trace = True
             return self.round_success(CancelMissionTrace.STATUS_CANCELLED)
         else:
             return self.round_retry('点击%s失败' % area1.status, wait=1)

@@ -4,7 +4,7 @@ from basic.img import cv2_utils
 from basic.img.os import get_test_image
 from sr.const import map_const
 from sr.const.map_const import Region
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.image import ImageMatcher
 from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher

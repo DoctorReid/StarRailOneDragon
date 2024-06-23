@@ -10,7 +10,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
 from sr.const import game_config_const, OPPOSITE_DIRECTION
-from sr.context import Context
+from sr.context.context import Context
 from sr.control import GameController
 from sr.image.sceenshot import mini_map, MiniMapInfo, screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
@@ -603,6 +603,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
         - 失败时立刻返回失败
         - 不返回时正常运行本指令
         """
+        super().handle_init()
 
         self.existed_interact_word: str = ''
         """还没开始移动就已经存在的交互词"""

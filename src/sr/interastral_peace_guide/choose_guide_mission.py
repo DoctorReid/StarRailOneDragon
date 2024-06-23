@@ -7,7 +7,7 @@ from basic import Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from basic.log_utils import log
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.interastral_peace_guide.guide_const import GuideMission
@@ -44,14 +44,14 @@ class ChooseGuideMission(Operation):
         tp_point = self._find_transport_btn(screen)
 
         if tp_point is None:  # 由于这里每次打开都是在最顶端 所以应该只需往下滑就好了
-            log.info('生存索引中未找到 %s 尝试滑动', self.mission.name_in_guide)
+            log.info('未找到 %s 尝试滑动', self.mission.name_in_guide)
             point_from = area.center
             point_to = point_from + Point(0, -200)
             self.ctx.controller.drag_to(point_to, point_from)
             time.sleep(0.5)
             return self.round_retry('未找到 ' + self.mission.name_in_guide)
         else:
-            log.info('生存索引中找到 %s 尝试传送', self.mission.name_in_guide)
+            log.info('找到 %s 尝试传送', self.mission.name_in_guide)
             if self.ctx.controller.click(tp_point):
                 return self.round_success()
             else:

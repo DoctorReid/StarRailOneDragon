@@ -9,7 +9,7 @@ from basic import os_utils
 from basic.img import cv2_utils
 from basic.img.os import get_debug_image_dir, get_test_image, save_debug_image, get_debug_image
 from basic.log_utils import log
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.image.cv2_matcher import CvImageMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map, mini_map_angle_alas

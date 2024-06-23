@@ -2,7 +2,7 @@ from typing import Optional, Callable, ClassVar, List
 
 from basic.i18_utils import gt
 from sr.const.character_const import Character
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import OperationResult, StateOperation, OperationOneRoundResult, \
     StateOperationNode, StateOperationEdge
 from sr.sim_uni.op.sim_uni_exit import SimUniExit

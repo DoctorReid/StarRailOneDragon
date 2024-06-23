@@ -3,7 +3,7 @@ from typing import List
 from basic.i18_utils import gt
 from sr.const import phone_menu_const
 from sr.const.traing_mission_const import MISSION_SYNTHESIZE_CONSUMABLE
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation.combine import StatusCombineOperation2, StatusCombineOperationNode, StatusCombineOperationEdge2
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu

@@ -496,6 +496,18 @@ def generate_sponsor_png():
     cv2.imwrite(os.path.join(img_dir, 'sponsor.png'), output)
 
 
+def remove_alpha(template_id: str, template_sub_dir: Optional[str] = None):
+    """
+    去除透明通道
+    :param template_id: 
+    :param template_sub_dir: 
+    :return: 
+    """
+    raw = _read_template_raw_image(template_id, sub_dir=template_sub_dir)
+    origin = cv2.cvtColor(raw, cv2.COLOR_BGRA2BGR)
+    save_template_image(origin, template_id, 'origin', sub_dir=template_sub_dir)
+
+
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_17', noise_threshold=30)
     # init_sp_with_background('mm_sp_18')
@@ -511,11 +523,12 @@ if __name__ == '__main__':
     # init_store_buy_num_ctrl('store_buy_max')
     # init_battle_times_control('battle_times_plus')
     # init_mission_star_active()
-    init_character_avatar_from_alas()
+    # init_character_avatar_from_alas()
     # init_character_combat_type('lightning')
     # init_inventory_category('valuables')
     # init_sim_uni_move_target('level_type_encounter')
     # init_sim_uni_event_opt_icon('event_option_exit_icon')
     # init_store_icon('store_money', sub_dir='sim_uni')
     # generate_sponsor_png()
+    remove_alpha('seed', template_sub_dir='store')
     cv2.destroyAllWindows()

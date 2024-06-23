@@ -3,7 +3,7 @@ from typing import Optional
 
 from basic import Rect
 from basic.i18_utils import gt
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import Operation, OperationOneRoundResult
 
 

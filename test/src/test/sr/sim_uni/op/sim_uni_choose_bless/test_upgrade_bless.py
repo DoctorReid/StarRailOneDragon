@@ -1,5 +1,5 @@
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.sim_uni.op.sim_uni_choose_bless import SimUniUpgradeBless
 
 

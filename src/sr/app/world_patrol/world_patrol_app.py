@@ -9,7 +9,7 @@ from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_route import WorldPatrolRouteId, load_all_route_id
 from sr.app.world_patrol.world_patrol_run_route import WorldPatrolRunRoute
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import OperationResult, StateOperationEdge, StateOperationNode, OperationOneRoundResult
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus

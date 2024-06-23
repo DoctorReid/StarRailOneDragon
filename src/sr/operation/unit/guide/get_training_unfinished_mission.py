@@ -8,7 +8,7 @@ from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
 from basic.log_utils import log
 from sr.const.traing_mission_const import DailyTrainingMission, ALL_MISSION_LIST
-from sr.context import Context
+from sr.context.context import Context
 from sr.operation import Operation, OperationOneRoundResult
 
 

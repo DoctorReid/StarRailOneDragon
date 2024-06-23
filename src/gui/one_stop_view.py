@@ -15,7 +15,7 @@ from sr.app.app_run_record import AppRunRecord
 from sr.app.application_base import Application, ApplicationEventId
 from sr.app.one_stop_service.one_stop_service_app import OneStopServiceApp
 from sr.app.one_stop_service.one_stop_service_config import OneStopServiceConfig
-from sr.context import Context, ContextEventId
+from sr.context.context import Context, ContextEventId
 from sr.mystools.one_dragon_mys_config import MysConfig
 from sr.treasures_lightward.treasures_lightward_const import TreasuresLightwardTypeEnum
 

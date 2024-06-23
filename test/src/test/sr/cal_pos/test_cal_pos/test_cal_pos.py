@@ -7,7 +7,7 @@ from basic import Point, cal_utils
 from basic.log_utils import log
 from sr import cal_pos, performance_recorder
 from sr.cal_pos import VerifyPosInfo
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.image.image_holder import ImageHolder
 from sr.image.sceenshot import mini_map, large_map
 from test.sr.cal_pos.cal_pos_test_case import TestCase, read_test_cases

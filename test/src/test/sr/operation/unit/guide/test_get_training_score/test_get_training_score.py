@@ -1,7 +1,5 @@
-import unittest
-
 import test
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.operation.unit.guide.get_training_score import GetTrainingScore
 
 

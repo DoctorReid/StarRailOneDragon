@@ -1,6 +1,6 @@
 import test
 from sr.const import character_const
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.treasures_lightward.op.choose_character import TlChooseCharacter
 
 

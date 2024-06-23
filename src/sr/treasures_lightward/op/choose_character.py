@@ -5,12 +5,10 @@ from cv2.typing import MatLike
 from basic import Rect, Point
 from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils
-from basic.img.os import get_debug_image
 from basic.log_utils import log
 from sr.const import character_const
 from sr.const.character_const import Character
-from sr.context import Context
-from sr.image.image_holder import ImageHolder
+from sr.context.context import Context
 from sr.operation import Operation, OperationOneRoundResult
 
 

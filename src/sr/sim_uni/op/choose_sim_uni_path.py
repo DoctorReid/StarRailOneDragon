@@ -6,7 +6,7 @@ from basic import Point, Rect
 from basic.i18_utils import gt
 from basic.img import cv2_utils
 from sr.const import STANDARD_CENTER_POS
-from sr.context import Context
+from sr.context.context import Context
 from sr.image.sceenshot.screen_state import in_secondary_ui
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import StateOperation, StateOperationNode, OperationOneRoundResult, Operation

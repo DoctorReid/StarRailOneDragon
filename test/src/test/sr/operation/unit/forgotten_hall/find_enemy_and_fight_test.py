@@ -1,5 +1,5 @@
 from basic.img.os import get_debug_image
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.image.sceenshot import mini_map
 from sr.operation.unit.forgotten_hall.auto_fight_in_forgotten_hall import FindEnemyAndFightInForgottenHall
 

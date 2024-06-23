@@ -7,7 +7,7 @@ from gui import components
 from gui.components import SettingsListItem, SettingsList
 from gui.sr_basic_view import SrBasicView
 from sr.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, load_all_whitelist_id
-from sr.context import Context
+from sr.context.context import Context
 
 
 class SettingsWorldPatrolView(SrBasicView, components.Card):

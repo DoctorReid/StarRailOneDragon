@@ -1,7 +1,6 @@
-import unittest
 import test
 from sr.const import character_const
-from sr.context import get_context
+from sr.context.context import get_context
 from sr.operation.battle.start_fight import StartFightForElite
 
 
