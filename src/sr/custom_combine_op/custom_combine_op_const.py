@@ -12,6 +12,7 @@ class OpEnum(Enum):
     INTERACT = 'interact'
     CLICK = 'click'
     BUY_STORE_ITEM = 'buy_store_item'
+    SYNTHESIZE = 'synthesize'
 
 
 class OpWaitTypeEnum(Enum):

@@ -25,3 +25,4 @@ class AppDescriptionEnum(Enum):
 
     MYS = AppDescription(cn='米游社', id='mys', valid=False)
 
+    TRICK_SNACK = AppDescription(cn='奇巧零食', id='trick_snack')

@@ -15,6 +15,7 @@ from sr.app.sim_uni.sim_uni_app import SimUniApp
 from sr.app.support_character.support_character_app import SupportCharacterApp
 from sr.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr.app.treasures_lightward.treasures_lightward_app import TreasuresLightwardApp
+from sr.app.trick_snack.trick_snack_app import TrickSnackApp
 from sr.app.world_patrol.world_patrol_app import WorldPatrol
 from sr.context.context import Context
 from sr.operation import OperationOneRoundResult, StateOperationEdge, StateOperationNode
@@ -249,6 +250,8 @@ class OneStopServiceApp(Application):
             return SimUniApp(ctx)
         elif app_id == AppDescriptionEnum.MYS.value.id:
             return MysApp(ctx)
+        elif app_id == AppDescriptionEnum.TRICK_SNACK.value.id:
+            return TrickSnackApp(ctx)
         return None
 
     @staticmethod
@@ -277,6 +280,8 @@ class OneStopServiceApp(Application):
             return ctx.sim_uni_run_record
         elif app_id == AppDescriptionEnum.MYS.value.id:
             return ctx.mys_run_record
+        elif app_id == AppDescriptionEnum.TRICK_SNACK.value.id:
+            return ctx.trick_snack_run_record
         return None
 
     @staticmethod

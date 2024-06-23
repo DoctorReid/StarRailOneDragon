@@ -15,6 +15,8 @@ from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.store.buy_store_item_2 import BuyStoreItem2
 from sr.operation.unit.store.store_const import StoreItemEnum
 from sr.operation.unit.wait import WaitInWorld, WaitInSeconds
+from sr.synthesize.synthesize import Synthesize
+from sr.synthesize.synthesize_const import SynthesizeItemEnum, SynthesizeItem
 
 
 class CustomCombineOp(StateOperation):
@@ -79,6 +81,8 @@ class CustomCombineOp(StateOperation):
             op = ClickPoint(self.ctx, Point(int(op_item.data[0]), int(op_item.data[1])))
         elif op_item.op == OpEnum.BUY_STORE_ITEM.value:
             op = self.op_buy_store_item(op_item)
+        elif op_item.op == OpEnum.SYNTHESIZE.value:
+            op = self.op_synthesize(op_item)
         else:
             return self.round_fail(f'不支持的指令 {op_item.op}')
 
@@ -191,6 +195,19 @@ class CustomCombineOp(StateOperation):
         store_item = StoreItemEnum[item_id.upper()].value
 
         return BuyStoreItem2(self.ctx, store_item, buy_num)
+
+    def op_synthesize(self, op_item: CustomCombineOpItem) -> Operation:
+        """
+        合成指令
+        :param op_item:
+        :return:
+        """
+        category = op_item.data[0]
+        item_id = op_item.data[1]
+        num = int(op_item.data[2])
+
+        item = SynthesizeItemEnum[item_id.upper()].value
+        return Synthesize(self.ctx, item, num)
 
     def finish(self) -> OperationOneRoundResult:
         """

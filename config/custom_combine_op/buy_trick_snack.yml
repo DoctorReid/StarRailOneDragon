@@ -38,5 +38,5 @@ ops:
     allow_fail: true
   - op: 'back_to_world_plus'
     data: []
-  - op: 'synthesizing'
+  - op: 'synthesize'
     data: ['consumable', 'trick_snack', '0']

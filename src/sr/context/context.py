@@ -25,6 +25,7 @@ from sr.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfi
 from sr.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr.app.treasures_lightward.treasures_lightward_config import TreasuresLightwardConfig
 from sr.app.treasures_lightward.treasures_lightward_record import TreasuresLightwardRunRecord
+from sr.app.trick_snack.trick_snack_record import TrickSnackRunRecord
 from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.config.game_config import GameConfig
@@ -214,6 +215,7 @@ class Context(ContextPosInfo):
         self.email_run_record: Optional[EmailRunRecord] = None
         self.nameless_honor_run_record: Optional[NamelessHonorRunRecord] = None
         self.support_character_run_record: Optional[SupportCharacterRunRecord] = None
+        self.trick_snack_run_record: Optional[TrickSnackRunRecord] = None
 
         self.one_stop_service_config: Optional[OneStopServiceConfig] = None
 
@@ -293,6 +295,9 @@ class Context(ContextPosInfo):
         self.support_character_run_record = SupportCharacterRunRecord()
         self.support_character_run_record.move_to_account_idx(account_idx)
 
+        self.trick_snack_run_record = TrickSnackRunRecord()
+        self.trick_snack_run_record.move_to_account_idx(account_idx)
+
         self.one_stop_service_config = OneStopServiceConfig()
         self.one_stop_service_config.move_to_account_idx(account_idx)
 
@@ -329,6 +334,7 @@ class Context(ContextPosInfo):
         self.email_run_record = EmailRunRecord(account_idx)
         self.nameless_honor_run_record = NamelessHonorRunRecord(account_idx)
         self.support_character_run_record = SupportCharacterRunRecord(account_idx)
+        self.trick_snack_run_record = TrickSnackRunRecord(account_idx)
 
         self.one_stop_service_config = OneStopServiceConfig(account_idx)
 

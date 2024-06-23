@@ -4,12 +4,12 @@ from basic import str_utils, Point
 from basic.i18_utils import gt
 from basic.img import cv2_utils, MatchResult
 from sr.const import phone_menu_const
-from sr.context.context import Context
+from sr.context.context import Context, get_context
 from sr.operation import StateOperation, OperationOneRoundResult, StateOperationNode
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
-from sr.synthesize.synthesize_const import ScreenSynthesize, SynthesizeItem
+from sr.synthesize.synthesize_const import ScreenSynthesize, SynthesizeItem, SynthesizeItemEnum
 
 
 class Synthesize(StateOperation):
@@ -85,7 +85,7 @@ class Synthesize(StateOperation):
 
         screen = self.screenshot()
         area = ScreenSynthesize.CATEGORY_TITLE.value
-        part = cv2_utils.crop_image_only(screen, area)
+        part = cv2_utils.crop_image_only(screen, area.rect)
 
         ocr_result = self.ctx.ocr.ocr_for_single_line(part)
         if str_utils.find_by_lcs(ocr_result, gt(category.name, 'ocr'), percent=0.5):
@@ -119,9 +119,9 @@ class Synthesize(StateOperation):
         :return:
         """
         area = ScreenSynthesize.ITEM_LIST.value
-        part = cv2_utils.crop_image_only(screen, area)
+        part = cv2_utils.crop_image_only(screen, area.rect)
 
-        mrl = self.ctx.im.match_template(part, self.item.template_id, template_sub_dir='consumable')
+        mrl = self.ctx.im.match_template(part, self.item.template_id, template_sub_dir='synthesize')
 
         if mrl.max is None:
             return None
@@ -172,3 +172,15 @@ class Synthesize(StateOperation):
         screen = self.screenshot()
         area = ScreenSynthesize.SYNTHESIZE_EMPTY_TO_CLOSE.value
         return self.round_by_find_and_click_area(screen, area, success_wait=1, retry_wait_round=0.5)
+
+
+def __debug_op():
+    ctx = get_context()
+    ctx.start_running()
+
+    op = Synthesize(ctx, SynthesizeItemEnum.TRICK_SNACK.value, 0)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug_op()
