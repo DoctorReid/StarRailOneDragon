@@ -41,7 +41,7 @@ class SimUniWorld:
 
 class SimUniWorldEnum(Enum):
 
-    WORLD_00 = SimUniWorld(0, '每周总分', 0)
+    WORLD_00 = SimUniWorld(0, '本周积分', 0)
     WORLD_01 = SimUniWorld(1, '第一宇宙', 0)
     WORLD_02 = SimUniWorld(2, '第二宇宙', 0)
     WORLD_03 = SimUniWorld(3, '第三宇宙', 5)
