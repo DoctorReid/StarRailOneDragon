@@ -17,7 +17,7 @@ class ScreenSynthesize(Enum):
     ITEM_LIST = ScreenArea(pc_rect=Rect(74, 100, 507, 994))  # 合成物品的列表
 
     NOT_ENOUGH_MATERIAL = ScreenArea(pc_rect=Rect(1080, 849, 1289, 894), text='合成所需材料不足', lcs_percent=0.55)
-    NUM_MAX = ScreenArea(pc_rect=Rect(1462, 870, 1462, 870))  # 合成数量最大值
+    NUM_MAX = ScreenArea(pc_rect=Rect(1445, 870, 1445, 870))  # 合成数量最大值
 
     SYNTHESIZE_BTN = ScreenArea(pc_rect=Rect(1015, 963, 1347, 1005), text='合成')  # 合成按钮
     SYNTHESIZE_DIALOG_CONFIRM = ScreenArea(pc_rect=Rect(1008, 672, 1327, 728), text='确认')  # 合成弹窗的确认
