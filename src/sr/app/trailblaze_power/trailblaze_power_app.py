@@ -148,6 +148,7 @@ class TrailblazePower(Application):
             run_times = plan['plan_times'] - plan['run_times']
         else:
             run_times = can_run_times
+        log.info(f'准备挑战 {mission.ui_cn} 次数 {run_times}')
         if run_times == 0:
             return self.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
 
@@ -161,7 +162,7 @@ class TrailblazePower(Application):
         elif mission.sim_world is not None:
             op = SimUniApp(self.ctx,
                            specified_uni_num=mission.sim_world.idx,
-                           max_reward_to_get=can_run_times,
+                           max_reward_to_get=run_times,
                            get_reward_callback=self._on_sim_uni_get_reward
                            )
             op.init_context_before_start = False
