@@ -139,7 +139,7 @@ class TrailblazePower(Application):
         plan: Optional[TrailblazePowerPlanItem] = self.ctx.tp_config.next_plan_item
         mission: Optional[GuideMission] = GuideMissionEnum.get_by_unique_id(plan['mission_id'])
         can_run_times: int = self.power // mission.power
-        if isinstance(mission.tp, (SimUniWorld, OrnamentExtraction)):  # 模拟宇宙相关的增加沉浸器数量
+        if mission.sim_world is not None or mission.ornament_extraction is not None:  # 模拟宇宙相关的增加沉浸器数量
             can_run_times += self.qty
         if can_run_times == 0:
             return self.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
