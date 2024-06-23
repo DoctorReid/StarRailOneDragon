@@ -36,7 +36,7 @@ class DailyTrainingApp(Application):
         click_guide = StateOperationNode('点击【指南】', op=ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
         edges.append(StateOperationEdge(open_menu, click_guide))
 
-        choose_daily_training = StateOperationNode('选择每日实训', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_2.value))
+        choose_daily_training = StateOperationNode('选择每日实训', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_1.value))
         edges.append(StateOperationEdge(click_guide, choose_daily_training))
 
         claim_score = StateOperationNode('领取实训点数', op=ClaimTrainingScore(ctx))
