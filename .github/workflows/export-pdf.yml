@@ -24,6 +24,9 @@ jobs:
           fetch-depth: 1
           path: wiki
 
+      - name: Apt Update
+        run: sudo apt-get update
+
       - name: Install pandoc
         run: sudo apt-get install -y pandoc
 
