@@ -1,6 +1,7 @@
 import time
 from typing import ClassVar, Optional
 
+import cv2
 from cv2.typing import MatLike
 
 from basic import Rect, Point, str_utils
@@ -14,7 +15,7 @@ from sr.operation import Operation, OperationOneRoundResult
 
 class ChooseTeam(Operation):
 
-    TEAM_NUM_RECT: ClassVar[Rect] = Rect(505, 50, 1380, 95)  # 配队号码
+    TEAM_NUM_RECT: ClassVar[Rect] = Rect(505, 40, 1380, 105)  # 配队号码
     TURN_ON_RECT: ClassVar[Rect] = Rect(1590, 960, 1760, 1000)  # 【启用】按钮
 
     def __init__(self, ctx: Context, team_num: int, on: bool = False):
@@ -84,8 +85,14 @@ class ChooseTeam(Operation):
             screen = self.screenshot()
 
         part, _ = cv2_utils.crop_image(screen, ChooseTeam.TEAM_NUM_RECT)
+        mask1 = cv2.inRange(part, (185, 225, 250), (195, 235, 255))
+        mask2 = cv2.inRange(part, (135, 135, 135), (165, 165, 165))
+        mask = cv2.bitwise_or(mask1, mask2)
+        # cv2_utils.show_image(mask1, win_name='mask1')
+        # cv2_utils.show_image(mask2, win_name='mask2')
+        # cv2_utils.show_image(mask, win_name='get_all_num_pos', wait=0)
 
-        ocr_map = self.ctx.ocr.run_ocr(part)
+        ocr_map = self.ctx.ocr.run_ocr(mask)
 
         team_num_pos: dict[int, Point] = {}
 

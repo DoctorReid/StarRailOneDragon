@@ -1,4 +1,7 @@
+import cv2
+
 import test
+from basic.img.os import get_debug_image
 from sr.context.context import get_context
 from sr.operation.battle.choose_team import ChooseTeam
 
@@ -22,8 +25,13 @@ class TestGetTeamMemberInWorld(test.SrTestBase):
 
             for num in team_nums.keys():
                 self.assertTrue(num in team_nums_in_img[i - 1])
+        cv2.destroyAllWindows()
 
     def test_in_secondary_ui(self):
         for i in range(1, 4):
             screen = self.get_test_image_new('choose_team_%d.png' % i)
             self.assertTrue(self.op.in_secondary_ui(screen))
+
+    def test(self):
+        screen = get_debug_image('_1719241796718')
+        team_nums = self.op.get_all_num_pos(screen)
