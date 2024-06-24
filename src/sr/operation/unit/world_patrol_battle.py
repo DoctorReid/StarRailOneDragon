@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const import OPPOSITE_DIRECTION
-from sr.context.context import Context
+from sr.context.context import Context, get_context
 from sr.image.sceenshot import screen_state
 from sr.image.sceenshot.screen_state_enum import ScreenState
 from sr.operation import Operation, OperationOneRoundResult
@@ -292,3 +292,15 @@ class WorldPatrolEnterFight(Operation):
 
         self.attack_direction_history.append(self.last_attack_direction)
         return self.last_attack_direction
+
+
+def __debug_op():
+    ctx = get_context()
+    ctx.start_running()
+
+    op = WorldPatrolEnterFight(ctx)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug_op()
