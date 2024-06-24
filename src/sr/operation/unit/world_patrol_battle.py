@@ -22,6 +22,7 @@ class WorldPatrolEnterFight(Operation):
 
     STATUS_ENEMY_NOT_FOUND: ClassVar[str] = '未发现敌人'
     STATUS_BATTLE_FAIL: ClassVar[str] = '战斗失败'
+    STATUS_EXIT_WITH_ALERT: ClassVar[str] = '退出但有告警'
 
     def __init__(self, ctx: Context,
                  technique_fight: bool = False,
@@ -117,11 +118,11 @@ class WorldPatrolEnterFight(Operation):
                 log.debug('无告警')
                 if now_time - self.last_alert_time > WorldPatrolEnterFight.EXIT_AFTER_NO_ALTER_TIME:
                     # 长时间没有告警 攻击可以结束了
-                    return self._exit_with_last_move()
+                    return self._exit_with_last_move(with_alert)
 
             if now_time - self.last_not_in_world_time > WorldPatrolEnterFight.EXIT_AFTER_NO_BATTLE_TIME:
-                # 长时间没有离开大世界画面 可能是小地图背景色污染
-                return self._exit_with_last_move()
+                # 长时间没有离开大世界画面 可能是人物卡住了 攻击不到怪
+                return self._exit_with_last_move(with_alert)
 
             fix_attack_direction = self.fix_and_record_direction(attack_direction)
             self.ctx.controller.move(direction=fix_attack_direction)
@@ -241,15 +242,18 @@ class WorldPatrolEnterFight(Operation):
         # 可能把战斗中的文字错误识别成【快速恢复】 因此允许失败
         return self.round_by_op(op.execute(), retry_on_fail=True)
 
-    def _exit_with_last_move(self) -> OperationOneRoundResult:
+    def _exit_with_last_move(self, with_alert: bool = False) -> OperationOneRoundResult:
         """
         结束前再移动一次 取消掉后摇 才能继续后续指令
+        :param with_alert: 退出时 是否仍然有告警。有的话说明卡住了
         :return:
         """
         log.debug('结束前移动')
-        if self.had_last_move:
-            # 已经进行过最后的移动了
-            return self.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
+        if self.had_last_move:  # 已经进行过最后的移动了
+            if with_alert:  # 仍然有告警 最后进入战斗失败了
+                return self.round_success(WorldPatrolEnterFight.STATUS_EXIT_WITH_ALERT)
+            else:
+                return self.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:
             move_direction = 's' if self.last_attack_direction is None else OPPOSITE_DIRECTION[self.last_attack_direction]
             self.ctx.controller.move(direction=move_direction)

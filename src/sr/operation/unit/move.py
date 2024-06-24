@@ -166,7 +166,6 @@ class MoveDirectly(Operation):
         self.last_rec_time = 0  # 上一次记录坐标的时间
         self.no_pos_times = 0  # 累计算不到坐标的次数
         self.stop_afterwards = stop_afterwards  # 最后是否停止前进
-        self.last_battle_time = time.time()
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
         self.stop_move_time: Optional[float] = None  # 停止移动的时间
 
@@ -186,7 +185,8 @@ class MoveDirectly(Operation):
         """
         now = time.time()
         self.last_rec_time = now - 1
-        self.last_battle_time = now
+        self.last_battle_time = now  # 上一次在战斗的时间 用于判断是否长时间没有进入战斗 然后退出
+        self.last_battle_exit_with_alert: bool = False  # 上一次战斗指令退出时 仍然有告警。说明人物卡住了，后续要先忽略攻击告警进行移动。
         self.pos = []
         if self.ctx.controller.is_moving:  # 连续移动的时候 使用开始点作为一个起始点
             self.pos.append(self.start_pos)
@@ -227,6 +227,9 @@ class MoveDirectly(Operation):
         fight_end_time = time.time()
         if not fight_result.success:
             return self.round_fail(status=fight_result.status, data=fight_result.data)
+        else:
+            self.last_battle_exit_with_alert = fight_result.status == WorldPatrolEnterFight.STATUS_EXIT_WITH_ALERT
+
         self.last_battle_time = fight_end_time
         self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
         self.ctx.pos_first_cal_pos_after_fight = True
@@ -249,7 +252,9 @@ class MoveDirectly(Operation):
         :return:
         """
         # 先异步识别是否需要攻击
-        if not self.no_battle:  # 外层调用保证没有战斗 跳过后续检测
+        if (not self.no_battle  # 如果外层调用保证没有战斗 跳过识别
+            and not self.last_battle_exit_with_alert  # 如果上一次的战斗指令是有告警地退出，说明人物卡住了，先移动，不识别攻击
+        ):
             submit, attack_future = self.ctx.yolo_detector.detect_should_attack_in_world_async(screen, now_time)
             log.debug('提交攻击检测 %s', submit)
 
@@ -325,6 +330,9 @@ class MoveDirectly(Operation):
         op_result = fight.execute()
         if not op_result.success:
             return self.round_fail(status=op_result.status, data=op_result.data)
+        else:
+            self.last_battle_exit_with_alert = op_result.status == WorldPatrolEnterFight.STATUS_EXIT_WITH_ALERT
+
         fight_end_time = time.time()
 
         self.last_battle_time = fight_end_time
