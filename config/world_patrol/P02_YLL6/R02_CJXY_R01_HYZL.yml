@@ -48,24 +48,22 @@ route:
   - idx: 17
     op: 'patrol'
   - idx: 18
-    op: 'patrol'
-  - idx: 19
-    op: 'move'
-    data: [715, 226]
-  - idx: 20
-    op: 'disposable'
-  - idx: 21
     op: 'move'
     data: [689, 227]
-  - idx: 22
+  - idx: 19
     op: 'patrol'
-  - idx: 23
+  - idx: 20
+    op: 'move'
+    data: [710, 229]
+  - idx: 21
+    op: 'disposable'
+  - idx: 22
     op: 'move'
     data: [624, 292]
-  - idx: 24
+  - idx: 23
     op: 'disposable'
-  - idx: 25
+  - idx: 24
     op: 'move'
     data: [570, 235]
-  - idx: 26
+  - idx: 25
     op: 'disposable'
