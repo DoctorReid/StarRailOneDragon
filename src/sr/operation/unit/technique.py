@@ -248,21 +248,26 @@ class FastRecover(StateOperation):
         :param max_consumable_cnt: 秘技点不足时最多使用的消耗品个数
         :param quirky_snacks: 只使用奇巧零食
         """
-        edges: List[StateOperationEdge] = []
 
-        use = StateOperationNode('使用消耗品', self._use)
-
-        # 关闭对话框后判断是否在大世界
-        wait_for_other = StateOperationNode('等待大世界', self._wait_in_world)
-        edges.append(StateOperationEdge(use, wait_for_other))
-
-        super().__init__(ctx,
-                         op_name=gt('快速恢复', 'ui'),
-                         edges=edges
-                         )
+        super().__init__(ctx, op_name=gt('快速恢复', 'ui'))
 
         self.max_consumable_cnt: int = max_consumable_cnt  # 最多使用的消耗品个数
         self.quirky_snacks: bool = quirky_snacks  # 只使用奇巧零食
+
+    def add_edges_and_nodes(self) -> None:
+        """
+        初始化前 添加边和节点 由子类实行
+        :return:
+        """
+        _use = StateOperationNode('使用消耗品', self.use)
+
+        # 关闭对话框后判断是否在大世界
+        _wait_for_other = StateOperationNode('等待大世界', self.wait_in_world)
+        self.add_edge(_use, _wait_for_other)
+
+        # 点击按钮失败时 识别画面看之前是不是误判成快速恢复了
+        _check_screen = StateOperationNode('失败后失败画面', self.fail_check_screen)
+        self.add_edge(_use, _check_screen, success=False)
 
     def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
@@ -277,13 +282,13 @@ class FastRecover(StateOperation):
 
         return None
 
-    def _use(self) -> OperationOneRoundResult:
+    def use(self) -> OperationOneRoundResult:
         screen = self.screenshot()
         return FastRecover.handle_consumable_dialog(self, self.ctx, screen, self.op_result,
                                                     max_consumable_cnt=self.max_consumable_cnt,
                                                     quirky_snacks=self.quirky_snacks)
 
-    def _wait_in_world(self):
+    def wait_in_world(self):
         """
         使用后判断是否在大世界
         这里需要足够快的判断 方便后续的指令进行 因此尽量等待少的时间
@@ -298,6 +303,20 @@ class FastRecover(StateOperation):
             return self.round_success(data=self.op_result)
         else:
             return self.round_retry(status='未在大世界画面', wait=0.1)
+
+    def fail_check_screen(self) -> OperationOneRoundResult:
+        """
+        指令失败时 识别画面 确定还在 快速恢复 对话框中
+        部分战斗场景会被误识别为 快速恢复，这时 use 方法会失败，此时再兜底判断是不是在对话框中，
+        :return:
+        """
+        screen = self.screenshot()
+        area = ScreenDialog.FAST_RECOVER_TITLE.value
+
+        if self.find_area(screen=screen, area=area):  # 如果在对话框中 说明指令真的失败了
+            return self.round_fail(data=self.op_result)
+        else:
+            return self.round_success('误判为快速恢复', data=self.op_result)  # 不在对话框 说明是误判
 
     @staticmethod
     def handle_consumable_dialog(
