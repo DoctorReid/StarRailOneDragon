@@ -121,6 +121,7 @@ class SimUniEnterFight(Operation):
         log.debug(f'更新不在大世界的时间 {now:.4f}')
         self.last_not_in_world_time = now
         self.last_alert_time = now
+        self.last_no_alert_time = now
 
     def _in_battle(self) -> Optional[OperationOneRoundResult]:
         """
