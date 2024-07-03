@@ -19,7 +19,6 @@ class SimUniWaitLevelStart(Operation):
         """
         模拟宇宙 等待某一层的开始
         :param ctx:
-        :param priority: 优先级
         :param wait_after_success: 进入后等待秒数
         """
         super().__init__(ctx, try_times=20,
@@ -28,8 +27,7 @@ class SimUniWaitLevelStart(Operation):
                                   gt('等待楼层加载', 'ui'))
                          )
 
-        self.config: Optional[SimUniChallengeConfig] = config
-        self.first_bless_chosen: bool = False
+        self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config
         self.wait_after_success: Optional[int] = wait_after_success
 
     def handle_init(self) -> Optional[OperationOneRoundResult]:
@@ -42,6 +40,8 @@ class SimUniWaitLevelStart(Operation):
         - 不返回时正常运行本指令
         """
         self.first_bless_chosen = False
+
+        return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
         screen = self.screenshot()
