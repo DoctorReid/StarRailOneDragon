@@ -1,0 +1,21 @@
+name: '购买过期邮包'
+ops:
+  - op: 'back_to_world_plus'
+    data: []
+  - op: 'transport'
+    data: ['仙舟「罗浮」', '流云渡', '1', '积玉坊']
+  - op: 'wait'
+    data: ['in_world', '20']
+  - op: 'move'
+    data: [ '393', '789' ]
+  - op: 'interact'
+    data: ['world_single_line', '茂贞']
+  - op: 'interact'
+    data: ['talk', '我想买个过期邮包试试手气']
+  - op: 'wait'
+    data: ['seconds', '1']
+  - op: 'buy_store_item'
+    data: ['xianzhou_parcel', '0']
+    allow_fail: true
+  - op: 'back_to_world_plus'
+    data: []
