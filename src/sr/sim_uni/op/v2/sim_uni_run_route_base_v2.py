@@ -148,7 +148,8 @@ class SimUniRunRouteBaseV2(StateOperation):
         if self.nothing_times % 11 == 0:
             log.debug('无内容次数 %d', self.nothing_times)
             # 识别不到内容太多次 判断楼层类型是否有问题
-            if self.last_screenshot is not None and not self.is_level_type_correct(self.last_screenshot):
+            screen = self.screenshot()
+            if self.is_level_type_correct(screen):
                 return self.round_fail(SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE)
 
             # 大概转了一圈之后还没有找到东西 就往之前的方向走一点
