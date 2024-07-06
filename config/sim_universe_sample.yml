@@ -2,6 +2,8 @@ weekly_uni_num: 'WORLD_08'
 weekly_uni_diff: 0
 weekly_times: 34
 daily_times: 5
+elite_weekly_times: 100
+elite_daily_times: 15
 sim_uni_03: '05'
 sim_uni_04: '05'
 sim_uni_05: '05'
