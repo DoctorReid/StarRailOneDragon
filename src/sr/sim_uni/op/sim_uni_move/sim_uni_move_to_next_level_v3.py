@@ -77,12 +77,19 @@ class MoveToNextLevelV3(StateOperation):
         self.detect_entry_angle: float = -1  # YOLO识别的入口所在的方向
         self.feature_no_entry_times: int = 0  # 特征识别图标没有找到入口的次数
         self.current_interact_word: str = ''  # 当前存在的交互词
-        self.existed_interact_word: bool = False  # 是否出现过交互词
         self.get_rid_direction: str = 'a'  # 脱困方向
         self.move_times: int = 0  # 累计的移动次数
         self.start_move_time: float = 0  # 开始移动的时间
         self.interacted: bool = False  # 是否已经尝试过交互
         self.detect_fail_times: int = 0  # YOLO识别失败的次数
+
+        # 是否出现过交互词
+        # 休整、精英楼层有其它可以交互的内容 因此需要出现过正确交互词才能交互
+        # 其它楼层无脑交互即可
+        self.existed_interact_word: bool = self.level_type not in [
+            SimUniLevelTypeEnum.RESPITE.value,
+            SimUniLevelTypeEnum.ELITE.value
+        ]
 
         return None
 
