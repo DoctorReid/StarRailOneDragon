@@ -55,12 +55,25 @@ class SimUniRunRouteBaseV2(StateOperation):
                                 timeout_seconds=timeout_seconds, op_callback=op_callback)
 
         self.level_type: SimUniLevelType = level_type  # 楼层类型
+
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
         self.moved_to_target: bool = False  # 是否已经产生了朝向目标的移动
         self.nothing_times: int = 0  # 识别不到任何内容的次数
         self.previous_angle: float = 0  # 之前的朝向 识别到目标时应该记录下来 后续可以在这个方向附近找下一个目标
         self.turn_direction_when_nothing: int = 1  # 没有目标时候的转动方向 正数向右 负数向左
         self.detect_move_timeout_times: int = 0  # 识别移动的超时失败次数
         self.check_next_entry_knn: float = 0.5  # 特征匹配下层入口的阈值 越小精度越高
+        self.detect_entry: bool = False  # 识别到入口 只有yolo识别的才认可
+
+        return None
 
     def _before_route(self) -> OperationOneRoundResult:
         """
@@ -121,7 +134,7 @@ class SimUniRunRouteBaseV2(StateOperation):
         self.moved_to_target = True
 
         self._view_up()
-        op = MoveToNextLevelV2(self.ctx, level_type=self.level_type)
+        op = MoveToNextLevelV2(self.ctx, level_type=self.level_type, with_entry=self.detect_entry)
         return self.round_by_op(op.execute())
 
     def _turn_when_nothing(self) -> OperationOneRoundResult:

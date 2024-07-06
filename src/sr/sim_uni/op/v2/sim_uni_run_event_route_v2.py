@@ -87,6 +87,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBaseV2):
         - 失败时立刻返回失败
         - 不返回时正常运行本指令
         """
+        SimUniRunRouteBaseV2.handle_init(self)
         self.move_by_mm_time: int = 0  # 按小地图移动的次数
         self.mm_icon_pos: Optional[Point] = None  # 小地图上事件的坐标
         self.event_handled: bool = False  # 已经处理过事件了
@@ -136,25 +137,25 @@ class SimUniRunEventRouteV2(SimUniRunRouteBaseV2):
         识别游戏画面上是否有事件牌
         :return:
         """
-        if self.event_handled:  # 已经交互过事件了
-            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
+        self.detect_entry = False
         self._view_down()
         screen = self.screenshot()
 
         frame_result = self.ctx.yolo_detector.sim_uni_yolo.detect(screen)
 
         with_event: bool = False
-        with_entry: bool = False
         for result in frame_result.results:
             if result.detect_class.class_cate == '模拟宇宙事件':
                 with_event = True
             elif result.detect_class.class_cate == '模拟宇宙下层入口':
-                with_entry = True
+                self.detect_entry = True
 
-        if with_event:
+        if with_event and not self.event_handled:
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_DETECT_EVENT)
-        elif with_entry:
+        elif self.detect_entry:
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY)
+        elif self.event_handled:  # 已经交互过事件了
+            return self.round_success(status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
         else:
             if self.ctx.one_dragon_config.is_debug:
                 if self.nothing_times == 1:

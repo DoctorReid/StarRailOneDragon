@@ -588,11 +588,10 @@ class MoveToNextLevelV2(MoveToNextLevel):
         """
         super().__init__(ctx,
                          level_type=level_type,
-                         random_turn=False
+                         random_turn=with_entry
                          )
 
-        self.start_with_entry: bool = with_entry
-        """调用这个指令时，是否已经看到了入口"""
+        self.with_entry: bool = with_entry  # 是否已经看到入口了
 
     def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
@@ -610,6 +609,8 @@ class MoveToNextLevelV2(MoveToNextLevel):
 
         self.find_entry: bool = False
         """是否找到了下层入口"""
+
+        return None
 
     def _turn_to_next(self) -> OperationOneRoundResult:
         """
@@ -634,10 +635,16 @@ class MoveToNextLevelV2(MoveToNextLevel):
                 entry_angles.append(delta_angle)
 
         if len(entry_angles) > 0:
+            self.with_entry = True
             avg_delta_angle = np.mean(entry_angles)
             log.debug('转向 %.2f', avg_delta_angle)
             turn_by_angle_slowly(self.ctx, avg_delta_angle)
-            return self.round_success(wait=0.1)
+            if avg_delta_angle < 30:  # 慢慢转过去
+                return self.round_success()
+            else:
+                return self.round_wait(wait=0.1)
+        elif self.with_entry:
+            return self.round_success()
         else:
             self.ctx.controller.turn_by_angle(35)
             return self.round_retry(status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=0.5)

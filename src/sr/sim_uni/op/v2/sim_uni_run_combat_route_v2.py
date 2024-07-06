@@ -184,6 +184,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
         没有红点时 对画面进行目标识别
         :return:
         """
+        self.detect_entry = False
         self._view_down()
         screen: MatLike = self.screenshot()
 
@@ -199,6 +200,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
                 enemy_angles.append(delta_angle)
             elif result.detect_class.class_cate == '模拟宇宙下层入口':
                 entry_angles.append(delta_angle)
+                self.detect_entry = True
             elif result.detect_class.class_cate == '模拟宇宙下层入口未激活':
                 inactive_entry_angles.append(delta_angle)
             elif result.detect_class.class_cate == '界面提示被锁定':
