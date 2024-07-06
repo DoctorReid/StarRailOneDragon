@@ -230,6 +230,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self.curio_text = ft.TextField(disabled=True, min_lines=3, max_lines=7, width=380, multiline=True,
                                        on_blur=self._on_curio_text_update)
 
+        self.skip_herta_checkbox = ft.Checkbox(disabled=True, on_change=self._on_skip_herta_changed)
         self.technique_fight_checkbox = ft.Checkbox(disabled=True, on_change=self._on_technique_fight_changed)
         self.technique_only_checkbox = ft.Checkbox(disabled=True, on_change=self._on_technique_only_changed)
         self.max_consumable_cnt = ft.Dropdown(options=[ft.dropdown.Option(key=str(i), text=str(i)) for i in range(6)],
@@ -250,6 +251,7 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
             SettingsListItem(gt('奇物优先级', 'ui'), self.curio_btn),
             SettingsListItem('', self.curio_text),
             SettingsListGroupTitle(gt('战斗', 'ui')),
+            SettingsListItem(gt('跳过黑塔', 'ui'), self.skip_herta_checkbox),
             SettingsListItem(gt('秘技开怪', 'ui'), self.technique_fight_checkbox),
             SettingsListItem(gt('仅秘技开怪', 'ui'), self.technique_only_checkbox),
             SettingsListItem(gt('单次最多消耗品个数', 'ui'), self.max_consumable_cnt),
@@ -309,37 +311,30 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         config_chosen = self.chosen_config is not None
 
         self.copy_btn.disabled = not config_chosen
-        self.copy_btn.update()
 
         self.del_btn.disabled = not config_chosen
-        self.del_btn.update()
 
         self.name_text.disabled = not config_chosen
-        self.name_text.update()
 
         self.path_dropdown.disabled = not config_chosen
-        self.path_dropdown.update()
 
         self.bless_btn.disabled = not config_chosen
-        self.bless_btn.update()
 
         self.bless_btn_2.disabled = not config_chosen
-        self.bless_btn_2.update()
 
         self.level_type_btn.disabled = not config_chosen
-        self.level_type_btn.update()
 
         self.curio_btn.disabled = not config_chosen
-        self.curio_btn.update()
+
+        self.skip_herta_checkbox.disabled = not config_chosen
 
         self.technique_fight_checkbox.disabled = not config_chosen
-        self.technique_fight_checkbox.update()
 
         self.technique_only_checkbox.disabled = not config_chosen
-        self.technique_only_checkbox.update()
 
         self.max_consumable_cnt.disabled = not config_chosen
-        self.max_consumable_cnt.update()
+
+        self.update()
 
     def _load_config_to_input(self):
         """
@@ -357,14 +352,12 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         self._update_level_type_text()
         self._update_curio_text()
 
+        self.skip_herta_checkbox.value = self.chosen_config.skip_herta
         self.technique_fight_checkbox.value = self.chosen_config.technique_fight
-        self.technique_fight_checkbox.update()
-
         self.technique_only_checkbox.value = self.chosen_config.technique_only
-        self.technique_only_checkbox.update()
-
         self.max_consumable_cnt.value = str(self.chosen_config.max_consumable_cnt)
-        self.max_consumable_cnt.update()
+
+        self.update()
 
     def _on_existed_list_changed(self, chosen_idx: Optional[int]):
         """
@@ -684,6 +677,14 @@ class SimUniChallengeConfigView(ft.Row, SrBasicView):
         if arr[len(arr) - 1] == '':
             arr.pop()
         return arr
+
+    def _on_skip_herta_changed(self, e):
+        """
+        跳过黑塔更改
+        :param e:
+        :return:
+        """
+        self.chosen_config.skip_herta = self.skip_herta_checkbox.value
 
     def _on_technique_fight_changed(self, e):
         """

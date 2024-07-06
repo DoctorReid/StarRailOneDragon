@@ -89,6 +89,8 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
         识别小地图上的黑塔图标
         :return:
         """
+        if self.ctx.sim_uni_challenge_config.skip_herta:  # 跳过黑塔
+            self.event_handled = True
         if self.event_handled:  # 已经交互过事件了
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
         screen = self.screenshot()

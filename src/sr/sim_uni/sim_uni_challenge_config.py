@@ -122,6 +122,14 @@ class SimUniChallengeConfig(ConfigHolder):
     def max_consumable_cnt(self, new_value: int):
         self.update('max_consumable_cnt', new_value)
 
+    @property
+    def skip_herta(self) -> bool:
+        return self.get('skip_herta', False)
+
+    @skip_herta.setter
+    def skip_herta(self, new_value: bool) -> None:
+        self.update('skip_herta', new_value)
+
 
 class SimUniChallengeAllConfig:
 
