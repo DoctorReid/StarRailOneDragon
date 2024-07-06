@@ -684,7 +684,7 @@ class StateOperation(Operation):
         :param specified_start_node: 指定的开始节点。当网图有环时候使用，指定后脚本不会根据网图入度自动判断开始节点。
         :param op_callback: 指令的回调
         """
-        super().__init__(ctx, op_name=op_name, try_times=try_times, timeout_seconds=timeout_seconds, op_callback=op_callback)
+        Operation.__init__(self, ctx, op_name=op_name, try_times=try_times, timeout_seconds=timeout_seconds, op_callback=op_callback)
 
         self.param_edge_list: List[StateOperationEdge] = edges
         """入参的边列表"""

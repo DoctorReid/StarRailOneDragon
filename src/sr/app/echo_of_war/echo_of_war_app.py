@@ -14,7 +14,7 @@ from sr.context.context import Context
 from sr.image.sceenshot import large_map
 from sr.interastral_peace_guide.guide_const import GuideMission, GuideMissionEnum
 from sr.operation import StateOperationEdge, StateOperationNode, OperationOneRoundResult
-from sr.operation.combine.challenge_ehco_of_war import ChallengeEchoOfWar
+from sr.operation.battle.challenge_ehco_of_war import ChallengeEchoOfWar
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.common.cancel_mission_trace import CancelMissionTrace
 from sr.operation.unit.open_map import OpenMap
@@ -59,10 +59,9 @@ class EchoOfWarApp(Application):
         plan: Optional[EchoOfWarPlanItem] = config.next_plan_item
         if plan is None:
             return self.round_success('无挑战计划')
+        mission: Optional[GuideMission] = GuideMissionEnum.get_by_unique_id(plan['mission_id'])
 
-        point: Optional[GuideMission] = GuideMissionEnum.get_by_unique_id(plan['mission_id'])
-
-        run_times: int = self.power // point.power
+        run_times: int = self.power // mission.power
 
         record: EchoOfWarRunRecord = self.ctx.echo_run_record
         if record.left_times < run_times:
@@ -74,17 +73,17 @@ class EchoOfWarApp(Application):
         if run_times + plan['run_times'] > plan['plan_times']:
             run_times = plan['plan_times'] - plan['run_times']
 
-        def on_battle_success():
-            self.power -= point.power
-            log.info('消耗体力: %d, 剩余体力: %d', point.power, self.power)
-            plan['run_times'] += 1
+        def on_battle_success(run_times: int, use_power: int):
+            self.power -= use_power
+            log.info('运行次数 %d, 消耗体力: %d, 剩余体力: %d', run_times, use_power, self.power)
+            plan['run_times'] += run_times
             log.info('副本完成次数: %d, 计划次数: %d', plan['run_times'], plan['plan_times'])
-            record.left_times = record.left_times - 1
+            record.left_times = record.left_times - run_times
             log.info('本周历战余响剩余次数: %d', record.left_times)
             config.save()
             record.update_status(AppRunRecord.STATUS_RUNNING)
 
-        op = ChallengeEchoOfWar(self.ctx, point.tp, plan['team_num'], run_times,
+        op = ChallengeEchoOfWar(self.ctx, mission, plan['team_num'], run_times,
                                 support=plan['support'] if plan['support'] != 'none' else None,
                                 on_battle_success=on_battle_success)
         if op.execute().success:

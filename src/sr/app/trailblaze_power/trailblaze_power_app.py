@@ -13,14 +13,13 @@ from sr.const import phone_menu_const
 from sr.context.context import Context
 from sr.div_uni.op.ornamenet_extraction import ChallengeOrnamentExtraction
 from sr.operation import StateOperationNode, StateOperationEdge, OperationOneRoundResult
-from sr.operation.combine.use_trailblaze_power import UseTrailblazePower
+from sr.operation.battle.use_trailblaze_power import UseTrailblazePower
 from sr.operation.common.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr.operation.common.cancel_mission_trace import CancelMissionTrace
 from sr.interastral_peace_guide.guide_const import GuideTabEnum, GuideMission, GuideMissionEnum
 from sr.interastral_peace_guide.choose_guide_tab import ChooseGuideTab
 from sr.operation.unit.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
-from sr.sim_uni.sim_uni_const import SimUniWorld, OrnamentExtraction
 
 
 class TrailblazePower(Application):
