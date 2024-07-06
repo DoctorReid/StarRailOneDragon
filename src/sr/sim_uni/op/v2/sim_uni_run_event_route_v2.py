@@ -87,6 +87,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBaseV2):
         - 失败时立刻返回失败
         - 不返回时正常运行本指令
         """
+        self.move_by_mm_time: int = 0  # 按小地图移动的次数
         self.mm_icon_pos: Optional[Point] = None  # 小地图上事件的坐标
         self.event_handled: bool = False  # 已经处理过事件了
 
@@ -97,6 +98,9 @@ class SimUniRunEventRouteV2(SimUniRunRouteBaseV2):
         识别小地图上的事件图标
         :return:
         """
+        if self.move_by_mm_time >= 2:
+            # 如果移动了2次都没有交互完 说明小地图没有这个图标 只是识别错了
+            self.event_handled = True
         if self.event_handled:  # 已经交互过事件了
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
 
@@ -121,6 +125,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBaseV2):
         按小地图的图标位置机械移动
         :return:
         """
+        self.move_by_mm_time += 1
         self.nothing_times = 0
         self.moved_to_target = True
         op = MoveWithoutPos(self.ctx, start=self.ctx.game_config.mini_map_pos.mm_center, target=self.mm_icon_pos)
