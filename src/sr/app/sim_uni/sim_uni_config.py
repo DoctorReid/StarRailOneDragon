@@ -67,3 +67,27 @@ class SimUniConfig(ConfigHolder):
     @daily_times.setter
     def daily_times(self, new_value: int):
         self.update('daily_times', new_value)
+
+    @property
+    def elite_weekly_times(self) -> int:
+        """
+        每周挑战精英的次数
+        :return:
+        """
+        return self.get('elite_weekly_times', 100)
+
+    @elite_weekly_times.setter
+    def elite_weekly_times(self, new_value: int):
+        self.update('elite_weekly_times', new_value)
+
+    @property
+    def elite_daily_times(self) -> int:
+        """
+        每天挑战的次数
+        :return:
+        """
+        return self.get('elite_daily_times', 15)
+
+    @elite_daily_times.setter
+    def elite_daily_times(self, new_value: int):
+        self.update('elite_daily_times', new_value)

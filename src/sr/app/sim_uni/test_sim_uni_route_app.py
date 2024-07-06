@@ -59,11 +59,5 @@ class TestSimUniRouteApp(Application):
         uni_challenge_config = self.config.get_challenge_config(self.uni_num)
         op = SimUniRunWorld(self.ctx, self.uni_num,
                             config=uni_challenge_config,
-                            op_callback=self._on_world_done
                             )
         return self.round_by_op(op.execute())
-
-    def _on_world_done(self, op_result: OperationResult):
-        run_record = self.ctx.sim_uni_run_record
-        if op_result.success:
-            run_record.add_times()

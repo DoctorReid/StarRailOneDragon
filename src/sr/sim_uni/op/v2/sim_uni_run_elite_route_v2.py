@@ -154,6 +154,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBaseV2):
         :return:
         """
         self.had_fight = True
+        self.ctx.sim_uni_run_record.add_elite_times()
         self._turn_to_previous_angle()
         self.moved_to_target = True  # 与精英战斗后 该识别的目标都在附近了 就算识别不到也不需要往前走了
 

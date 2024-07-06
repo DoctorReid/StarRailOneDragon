@@ -12,6 +12,13 @@ class SimUniRunRecord(AppRunRecord):
         super().__init__(AppDescriptionEnum.SIM_UNIVERSE.value.id, account_idx=account_idx)
         self.config = config
 
+    def _init_after_read_file(self):
+        AppRunRecord._init_after_read_file(self)
+
+        if self.weekly_times > 0:  # 2024-07-06 加入 下次可去除原来的次数判断
+            self.elite_weekly_times = self.weekly_times * 3
+            self.elite_daily_times = self.daily_times * 3
+
     @property
     def run_status_under_now(self):
         """
@@ -74,3 +81,36 @@ class SimUniRunRecord(AppRunRecord):
     @daily_times.setter
     def daily_times(self, new_value: int):
         self.update('daily_times', new_value)
+
+    @property
+    def elite_weekly_times(self) -> int:
+        """
+        每周挑战精英的次数
+        :return:
+        """
+        return self.get('elite_weekly_times', 0)
+
+    @elite_weekly_times.setter
+    def elite_weekly_times(self, new_value: int):
+        self.update('elite_weekly_times', new_value)
+
+    @property
+    def elite_daily_times(self) -> int:
+        """
+        每天挑战的次数
+        :return:
+        """
+        return self.get('elite_daily_times', 0)
+
+    @elite_daily_times.setter
+    def elite_daily_times(self, new_value: int):
+        self.update('elite_daily_times', new_value)
+
+    def add_elite_times(self, times: int = 1):
+        """
+        增加挑战精英的次数
+        :param times: 本次完成次数
+        :return:
+        """
+        self.elite_daily_times = self.elite_daily_times + times
+        self.elite_weekly_times = self.elite_weekly_times + times

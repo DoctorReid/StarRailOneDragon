@@ -42,8 +42,8 @@ class SettingsSimUniView(ft.Row, SrBasicView):
             SettingsListGroupTitle(gt('模拟宇宙', 'ui')),
             SettingsListItem(gt('每周挑战', 'ui'), self.weekly_uni_num),
             SettingsListItem(gt('挑战难度', 'ui'), self.weekly_uni_diff),
-            SettingsListItem(gt('每周次数', 'ui'), self.weekly_times),
-            SettingsListItem(gt('每天次数', 'ui'), self.daily_times),
+            SettingsListItem(gt('每周精英次数', 'ui'), self.weekly_times),
+            SettingsListItem(gt('每天精英次数', 'ui'), self.daily_times),
             SettingsListGroupTitle(gt('挑战设置', 'ui')),
             SettingsListItem(gt('第三宇宙', 'ui'), self.uni_03_dd),
             SettingsListItem(gt('第四宇宙', 'ui'), self.uni_04_dd),
@@ -82,10 +82,10 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         self.weekly_uni_diff.value = str(self.sr_ctx.sim_uni_config.weekly_uni_diff)
         self.weekly_uni_diff.update()
 
-        self.weekly_times.value = str(self.sr_ctx.sim_uni_config.weekly_times)
+        self.weekly_times.value = str(self.sr_ctx.sim_uni_config.elite_weekly_times)
         self.weekly_times.update()
 
-        self.daily_times.value = str(self.sr_ctx.sim_uni_config.daily_times)
+        self.daily_times.value = str(self.sr_ctx.sim_uni_config.elite_daily_times)
         self.daily_times.update()
 
     def _on_sim_uni_challenge_changed(self, e):
@@ -116,7 +116,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         if text != self.weekly_times.value:
             self.weekly_times.value = text
             self.weekly_times.update()
-        self.sr_ctx.sim_uni_config.weekly_times = int(text)
+        self.sr_ctx.sim_uni_config.elite_weekly_times = int(text)
 
     def _on_daily_times_changed(self, e):
         """
@@ -128,7 +128,7 @@ class SettingsSimUniView(ft.Row, SrBasicView):
         if text != self.daily_times.value:
             self.daily_times.value = text
             self.daily_times.update()
-        self.sr_ctx.sim_uni_config.daily_times = int(text)
+        self.sr_ctx.sim_uni_config.elite_daily_times = int(text)
 
 
 _settings_sim_uni_view: Optional[SettingsSimUniView] = None

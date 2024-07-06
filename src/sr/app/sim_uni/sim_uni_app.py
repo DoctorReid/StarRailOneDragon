@@ -277,7 +277,6 @@ class SimUniApp(Application):
 
         op = SimUniRunWorld(self.ctx, self.current_uni_num,
                             config=uni_challenge_config,
-                            op_callback=self.on_world_finished,
                             max_reward_to_get=self.max_reward_to_get - self.get_reward_cnt if get_reward else 0,
                             get_reward_callback=self._on_sim_uni_get_reward if get_reward else None
                             )
@@ -287,11 +286,6 @@ class SimUniApp(Application):
         self.get_reward_cnt += 1
         if self.get_reward_callback is not None:
             self.get_reward_callback(use_power, user_qty)
-
-    def on_world_finished(self, op_result: OperationResult):
-        if op_result.success and op_result.status == SimUniRunWorld.STATUS_SUCCESS:
-            log.info('成功通过 记录次数+1')
-            self.run_record.add_times()
 
     def _exception_exit(self) -> OperationOneRoundResult:
         self.exception_times += 1
