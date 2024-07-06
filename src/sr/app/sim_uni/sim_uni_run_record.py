@@ -18,6 +18,8 @@ class SimUniRunRecord(AppRunRecord):
         if self.weekly_times > 0:  # 2024-07-06 加入 下次可去除原来的次数判断
             self.elite_weekly_times = self.weekly_times * 3
             self.elite_daily_times = self.daily_times * 3
+            self.weekly_times = 0
+            self.daily_times = 0
 
     @property
     def run_status_under_now(self):

@@ -14,7 +14,9 @@ from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni import sim_uni_screen_state
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sr.sim_uni.op.v2.sim_uni_move_v2 import MoveToNextLevelV2
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_next_level_v2 import MoveToNextLevelV2
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_interact_by_detect import SimUniMoveToInteractByDetect
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_next_level_v3 import MoveToNextLevelV3
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 
 
@@ -135,6 +137,23 @@ class SimUniRunRouteBaseV2(StateOperation):
 
         self._view_up()
         op = MoveToNextLevelV2(self.ctx, level_type=self.level_type, with_entry=self.detect_entry)
+        op = MoveToNextLevelV3(self.ctx, level_type=self.level_type)
+        return self.round_by_op(op.execute())
+
+    def move_to_next_by_detect(self):
+        """
+        按YOLO识别结果 朝下层移动
+        只适合中途没有其它交互的楼层使用
+        :return:
+        """
+        self.nothing_times = 0
+        self.moved_to_target = True
+
+        self._view_up()
+        op = SimUniMoveToInteractByDetect(self.ctx,
+                                          interact_class='模拟宇宙下层入口',
+                                          interact_word='区域',
+                                          interact_during_move=True)
         return self.round_by_op(op.execute())
 
     def _turn_when_nothing(self) -> OperationOneRoundResult:
@@ -143,6 +162,7 @@ class SimUniRunRouteBaseV2(StateOperation):
         :return:
         """
         self.nothing_times += 1
+        log.debug('无内容次数 %d', self.nothing_times)
 
         if not self.moved_to_target:
             # 还没有产生任何移动的情况下 又识别不到任何内容 则可能是距离较远导致。先尝试往前走1秒
@@ -161,10 +181,9 @@ class SimUniRunRouteBaseV2(StateOperation):
         time.sleep(0.5)
 
         if self.nothing_times % 11 == 0:
-            log.debug('无内容次数 %d', self.nothing_times)
             # 识别不到内容太多次 判断楼层类型是否有问题
             screen = self.screenshot()
-            if self.is_level_type_correct(screen):
+            if not self.is_level_type_correct(screen):
                 return self.round_fail(SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE)
 
             # 大概转了一圈之后还没有找到东西 就往之前的方向走一点

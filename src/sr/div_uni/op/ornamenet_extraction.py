@@ -21,7 +21,7 @@ from sr.operation.unit.menu.open_phone_menu import OpenPhoneMenu
 from sr.screen_area.interastral_peace_guide import ScreenGuide
 from sr.screen_area.screen_battle import ScreenBattle
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
-from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_enemy_by_mm import SimUniMoveToEnemyByMiniMap
 from sr.sim_uni.sim_uni_const import OrnamentExtraction
 
 

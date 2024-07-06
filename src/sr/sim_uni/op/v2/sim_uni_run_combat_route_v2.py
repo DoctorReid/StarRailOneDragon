@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 from cv2.typing import MatLike
@@ -8,12 +8,13 @@ from basic.log_utils import log
 from sr.context.context import Context
 from sr.image.sceenshot import screen_state, mini_map, MiniMapInfo
 from sr.image.sceenshot.screen_state_enum import ScreenState
-from sr.operation import StateOperationEdge, StateOperationNode, Operation, OperationOneRoundResult
+from sr.operation import StateOperationNode, Operation, OperationOneRoundResult
 from sr.operation.unit.technique import UseTechnique
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToEnemyByDetect, \
-    delta_angle_to_detected_object
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_enemy_by_detect import SimUniMoveToEnemyByDetect
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_enemy_by_mm import SimUniMoveToEnemyByMiniMap
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_by_detect import delta_angle_to_detected_object
 from sr.sim_uni.op.v2.sim_uni_run_route_base_v2 import SimUniRunRouteBaseV2
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 
@@ -28,68 +29,82 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
         3. 如果没有红点 识别敌对物种位置，向最大的移动，并进行攻击。攻击一次后回到步骤1判断。
         4. 如果没有红点也没有识别到敌对物种，检测下层入口位置，发现后进入下层移动。未发现则选择视角返回步骤1判断。
         """
-        edges: List[StateOperationEdge] = []
+        super().__init__(ctx, level_type=level_type)
 
+    def add_edges_and_nodes(self) -> None:
+        """
+        初始化前 添加边和节点 由子类实行
+        :return:
+        """
         before_route = StateOperationNode('区域开始前', self._before_route)
 
         check = StateOperationNode('画面检测', self._check_screen)
-        edges.append(StateOperationEdge(before_route, check))
+        self.add_edge(before_route, check)
 
         # 小地图有红点 就按红点移动
         move_by_red = StateOperationNode('向红点移动', self._move_by_red)
-        edges.append(StateOperationEdge(check, move_by_red, status=SimUniRunRouteBaseV2.STATUS_WITH_RED))
+        self.add_edge(check, move_by_red, status=SimUniRunRouteBaseV2.STATUS_WITH_RED)
 
         # 小地图没有红点 就在画面上找敌人
         detect_screen = StateOperationNode('识别敌人', self._detect_screen)
-        edges.append(StateOperationEdge(check, detect_screen, status=SimUniRunRouteBaseV2.STATUS_NO_RED))
+        self.add_edge(check, detect_screen, status=SimUniRunRouteBaseV2.STATUS_NO_RED)
         # 找到了敌人就开始移动
         move_by_detect = StateOperationNode('向敌人移动', self._move_by_detect)
-        edges.append(StateOperationEdge(detect_screen, move_by_detect, status=SimUniRunRouteBaseV2.STATUS_WITH_ENEMY))
+        self.add_edge(detect_screen, move_by_detect, status=SimUniRunRouteBaseV2.STATUS_WITH_ENEMY)
         # 识别移动超时的话 尝试脱困
         detect_timeout = StateOperationNode('移动超时脱困', self._after_detect_timeout)
-        edges.append(StateOperationEdge(move_by_detect, detect_timeout, success=False, status=Operation.STATUS_TIMEOUT))
-        edges.append(StateOperationEdge(detect_timeout, check))
+        self.add_edge(move_by_detect, detect_timeout, success=False, status=Operation.STATUS_TIMEOUT)
+        self.add_edge(detect_timeout, check)
         # 到达后开始战斗
         fight = StateOperationNode('进入战斗', self._enter_fight)
-        edges.append(StateOperationEdge(move_by_red, fight, status=SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL))
+        self.add_edge(move_by_red, fight, status=SimUniMoveToEnemyByMiniMap.STATUS_ARRIVAL)
         # 识别到被锁定也进入战斗
-        edges.append(StateOperationEdge(detect_screen, fight, status=SimUniRunRouteBaseV2.STATUS_WITH_DANGER))
+        self.add_edge(detect_screen, fight, status=SimUniRunRouteBaseV2.STATUS_WITH_DANGER)
         # 进行了战斗 就重新开始
         after_fight = StateOperationNode('战斗后处理', self._turn_to_previous_angle)
-        edges.append(StateOperationEdge(fight, after_fight))
-        edges.append(StateOperationEdge(after_fight, check))
+        self.add_edge(fight, after_fight)
+        self.add_edge(after_fight, check)
         # 其它可能会进入战斗的情况
-        edges.append(StateOperationEdge(check, after_fight, status=SimUniRunRouteBaseV2.STATUS_FIGHT))
-        edges.append(StateOperationEdge(move_by_red, after_fight, status=SimUniMoveToEnemyByMiniMap.STATUS_FIGHT))
-        edges.append(StateOperationEdge(move_by_detect, after_fight, status=SimUniMoveToEnemyByDetect.STATUS_FIGHT))
+        self.add_edge(check, after_fight, status=SimUniRunRouteBaseV2.STATUS_FIGHT)
+        self.add_edge(move_by_red, after_fight, status=SimUniMoveToEnemyByMiniMap.STATUS_FIGHT)
+        self.add_edge(move_by_detect, after_fight, status=SimUniMoveToEnemyByDetect.STATUS_FIGHT)
 
         # 画面上识别不到任何内容时 使用旧的方法进行识别下层入口兜底
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
-        edges.append(StateOperationEdge(detect_screen, check_entry, status=SimUniRunRouteBaseV2.STATUS_NO_ENEMY))
-        edges.append(StateOperationEdge(move_by_detect, check_entry, success=False, status=SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY))
+        self.add_edge(detect_screen, check_entry, status=SimUniRunRouteBaseV2.STATUS_NO_ENEMY)
+        self.add_edge(move_by_detect, check_entry, success=False, status=SimUniMoveToEnemyByDetect.STATUS_NO_ENEMY)
         # 找到了下层入口就开始移动
-        move_to_next = StateOperationNode('向下层移动', self._move_to_next)
-        edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY))
-        edges.append(StateOperationEdge(detect_screen, move_to_next, status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY))
+        move_to_next = StateOperationNode('识别图标向下层移动', self._move_to_next)
+        self.add_edge(check_entry, move_to_next, status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY)
+        self.add_edge(detect_screen, move_to_next, status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY)
 
         # 找不到下层入口就转向找目标
         turn = StateOperationNode('转动找目标', self._turn_when_nothing)
-        edges.append(StateOperationEdge(check_entry, turn, status=SimUniRunRouteBaseV2.STATUS_NO_ENTRY))
+        self.add_edge(check_entry, turn, status=SimUniRunRouteBaseV2.STATUS_NO_ENTRY)
         # 画面识别不到内容时 也转动找目标
-        edges.append(StateOperationEdge(detect_screen, turn, status=SimUniRunRouteBaseV2.STATUS_NOTHING))
+        self.add_edge(detect_screen, turn, status=SimUniRunRouteBaseV2.STATUS_NOTHING)
         # 移动到下层入口失败时 也转动找目标
         # 可能1 走过了 没交互成功
         # 可能2 识别错了未激活的入口 移动过程中被攻击了
-        edges.append(StateOperationEdge(move_to_next, turn, success=False))
+        self.add_edge(move_to_next, turn, success=False)
         # 转动完重新开始目标识别
-        edges.append(StateOperationEdge(turn, check))
+        self.add_edge(turn, check)
 
-        super().__init__(ctx, level_type=level_type,
-                         edges=edges,
-                         specified_start_node=before_route)
+    def handle_init(self) -> Optional[OperationOneRoundResult]:
+        """
+        执行前的初始化 由子类实现
+        注意初始化要全面 方便一个指令重复使用
+        可以返回初始化后判断的结果
+        - 成功时跳过本指令
+        - 失败时立刻返回失败
+        - 不返回时正常运行本指令
+        """
+        SimUniRunRouteBaseV2.handle_init(self)
 
         self.last_state: str = ''  # 上一次的画面状态
         self.current_state: str = ''  # 这一次的画面状态
+
+        return None
 
     def _before_route(self) -> OperationOneRoundResult:
         """

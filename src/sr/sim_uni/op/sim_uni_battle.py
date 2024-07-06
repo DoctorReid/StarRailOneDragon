@@ -239,7 +239,8 @@ class SimUniEnterFight(Operation):
                         direction_cnt -= 1
                     else:
                         direction_cnt += 1
-
+        direction: str = 'a' if direction_cnt < 0 else 'd'
+        log.info('尝试往攻击方向移动 %s', direction)
         if direction_cnt < 0:
             self.ctx.controller.move('a', 1)
         else:

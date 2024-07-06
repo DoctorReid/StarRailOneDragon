@@ -5,6 +5,8 @@ from sr.const.character_const import Character
 from sr.context.context import Context
 from sr.operation import OperationResult, StateOperation, OperationOneRoundResult, \
     StateOperationNode, StateOperationEdge
+from sr.screen_area.screen_sim_uni import ScreenSimUni
+from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_run_level import SimUniRunLevel
 from sr.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
@@ -29,27 +31,42 @@ class SimUniRunWorld(StateOperation):
             gt('第%s世界' % UNI_NUM_CN[world_num], 'ui')
         )
 
-        edges = []
 
-        # 逐层挑战
-        run_level = StateOperationNode('挑战楼层', self._run_level)
-        edges.append(StateOperationEdge(run_level, run_level, ignore_status=True))
-
-        # 通关后退出
-        finished = StateOperationNode('结束', self._finish)
-        edges.append(StateOperationEdge(run_level, finished, status=SimUniRunLevel.STATUS_BOSS_CLEARED))
-
-        # 失败后退出宇宙 继续下一次
-        exit_world = StateOperationNode('退出宇宙', self._exit)
-        edges.append(StateOperationEdge(run_level, exit_world, success=False))
-
-        super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=run_level,
-                         op_callback=op_callback)
+        super().__init__(ctx, op_name=op_name, op_callback=op_callback)
 
         self.world_num: int = world_num
         self.config: Optional[SimUniChallengeConfig] = config
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
+
+    def add_edges_and_nodes(self) -> None:
+        """
+        初始化前 添加边和节点 由子类实行
+        :return:
+        """
+        # 逐层挑战
+        run_level = StateOperationNode('挑战楼层', self._run_level)
+        self.add_edge(run_level, run_level, ignore_status=True)
+
+        # 通关后退出
+        finished = StateOperationNode('结束', self._finish)
+        self.add_edge(run_level, finished, status=SimUniRunLevel.STATUS_BOSS_CLEARED)
+
+        # 失败后退出宇宙 继续下一次
+        exit_world = StateOperationNode('退出宇宙', self._exit)
+        self.add_edge(run_level, exit_world, success=False)
+
+        # 战斗失败的情况 需要点击结算
+        battle_fail_exit = StateOperationNode('战斗失败结算', self.battle_fail_exit)
+        self.add_edge(run_level, battle_fail_exit, success=False, status=SimUniEnterFight.STATUS_BATTLE_FAIL)
+
+        battle_fail_exit_confirm = StateOperationNode('战斗失败结算确认', self.battle_fail_exit_confirm, wait_after_op=5)
+        self.add_edge(battle_fail_exit, battle_fail_exit_confirm)
+
+        click_empty = StateOperationNode('战斗失败结算点击空白', self.click_empty)
+        self.add_edge(battle_fail_exit_confirm, click_empty)
+
+        self.param_start_node = run_level
 
     def handle_init(self) -> Optional[OperationOneRoundResult]:
         """
@@ -96,3 +113,33 @@ class SimUniRunWorld(StateOperation):
         self.get_reward_cnt += 1
         if self.get_reward_callback is not None:
             self.get_reward_callback(use_power, user_qty)
+
+    def battle_fail_exit(self) -> OperationOneRoundResult:
+        """
+        战斗失败后 点击结算
+        :return:
+        """
+        screen = self.screenshot()
+        area = ScreenSimUni.BATTLE_FAIL_EXIT.value
+
+        return self.round_by_find_and_click_area(screen, area, success_wait_round=1, retry_wait_round=1)
+
+    def battle_fail_exit_confirm(self) -> OperationOneRoundResult:
+        """
+        战斗失败后 点击结算后 确认
+        :return:
+        """
+        screen = self.screenshot()
+        area = ScreenSimUni.BATTLE_FAIL_EXIT_CONFIRM.value
+
+        return self.round_by_find_and_click_area(screen, area, success_wait_round=1, retry_wait_round=1)
+
+    def click_empty(self) -> OperationOneRoundResult:
+        """
+        结算画面点击空白
+        :return:
+        """
+        screen = self.screenshot()
+        area = ScreenSimUni.EXIT_EMPTY_TO_CONTINUE.value
+
+        return self.round_by_find_and_click_area(screen, area, success_wait_round=1, retry_wait_round=1)

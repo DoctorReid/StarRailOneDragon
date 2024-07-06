@@ -8,7 +8,8 @@ from sr.operation import StateOperationEdge, StateOperationNode, Operation, Oper
 from sr.sim_uni.op.sim_uni_battle import SimUniFightElite
 from sr.sim_uni.op.sim_uni_exit import SimUniExit
 from sr.sim_uni.op.sim_uni_reward import SimUniReward
-from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToEnemyByMiniMap, SimUniMoveToInteractByDetect
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_interact_by_detect import SimUniMoveToInteractByDetect
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_enemy_by_mm import SimUniMoveToEnemyByMiniMap
 from sr.sim_uni.op.v2.sim_uni_run_route_base_v2 import SimUniRunRouteBaseV2
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sryolo.detector import draw_detections
@@ -73,10 +74,11 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBaseV2):
         get_reward = StateOperationNode('领取沉浸奖励', self._get_reward)
         edges.append(StateOperationEdge(move_to_reward, get_reward, status=SimUniMoveToInteractByDetect.STATUS_INTERACT))
 
-        # 无需领奖励 或者 领取奖励后 识别下层入口
+        # 无需领奖励 或者 领取奖励后 或者 朝沉浸奖励移动失败 识别下层入口
         check_entry = StateOperationNode('识别下层入口', self._check_next_entry)
         edges.append(StateOperationEdge(detect_reward, check_entry, status=SimUniRunRouteBaseV2.STATUS_NO_NEED_REWARD))
         edges.append(StateOperationEdge(get_reward, check_entry))
+        edges.append(StateOperationEdge(move_to_reward, check_entry, success=False))
         # 找到了下层入口就开始移动
         move_to_next = StateOperationNode('向下层移动', self._move_to_next)
         edges.append(StateOperationEdge(check_entry, move_to_next, status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY))

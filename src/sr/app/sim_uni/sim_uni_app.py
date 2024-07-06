@@ -128,12 +128,6 @@ class SimUniApp(Application):
         edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniApp.STATUS_ALL_FINISHED))
         edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniApp.STATUS_EXCEPTION))
 
-        # 战斗失败
-        fail_click_empty = StateOperationNode('战斗失败结算', self._fail_click_empty)
-        edges.append(StateOperationEdge(run_world, fail_click_empty,
-                                        success=False, status=SimUniEnterFight.STATUS_BATTLE_FAIL))
-        edges.append(StateOperationEdge(fail_click_empty, check_times_to_continue))
-
         if not ctx.one_dragon_config.is_debug:  # 任何异常错误都退出当前宇宙 调试模式下不退出 直接失败等待处理
             exception_exit = StateOperationNode('异常退出', self._exception_exit)
             edges.append(StateOperationEdge(run_world, exception_exit,

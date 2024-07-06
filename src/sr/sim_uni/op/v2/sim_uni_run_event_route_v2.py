@@ -1,14 +1,14 @@
-from typing import List, Optional
+from typing import Optional
 
 from basic import Point
 from basic.img import cv2_utils
 from sr.context.context import Context
 from sr.image.sceenshot import mini_map, MiniMapInfo
-from sr.operation import StateOperationEdge, StateOperationNode, Operation, OperationOneRoundResult
+from sr.operation import StateOperationNode, Operation, OperationOneRoundResult
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveWithoutPos
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
-from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToInteractByDetect
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_interact_by_detect import SimUniMoveToInteractByDetect
 from sr.sim_uni.op.v2.sim_uni_run_route_base_v2 import SimUniRunRouteBaseV2
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sryolo.detector import draw_detections
@@ -16,7 +16,7 @@ from sryolo.detector import draw_detections
 
 class SimUniRunEventRouteV2(SimUniRunRouteBaseV2):
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.ELITE.value):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.EVENT.value):
         """
         区域-事件
         1. 识别小地图上是否有事件图标 有的话就移动
@@ -70,12 +70,17 @@ class SimUniRunEventRouteV2(SimUniRunRouteBaseV2):
         self.add_edge(check_mm, check_entry, status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
         self.add_edge(detect_screen, check_entry, status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
         # 找到了下层入口就开始移动
-        move_to_next = StateOperationNode('向下层移动', self._move_to_next)
+        move_to_next = StateOperationNode('识别图标向下层移动', self._move_to_next)
         self.add_edge(check_entry, move_to_next, status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY)
         self.add_edge(detect_screen, move_to_next, status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY)
         # 找不到下层入口就转向找目标 重新开始
         turn = StateOperationNode('转动找目标', self._turn_when_nothing)
         self.add_edge(check_entry, turn, status=SimUniRunRouteBaseV2.STATUS_NO_ENTRY)
+        # 移动到下层入口失败时 也转动找目标
+        # 可能1 走过了 没交互成功
+        # 可能2 识别错了未激活的入口 移动过程中被攻击了
+        self.add_edge(move_to_next, turn, success=False)
+        # 转动完重新开始目标识别
         self.add_edge(turn, check_mm)
 
     def handle_init(self) -> Optional[OperationOneRoundResult]:

@@ -32,3 +32,7 @@ class ScreenSimUni(Enum):
 
     # 事件画面
     EVENT_TITLE = ScreenArea(pc_rect=Rect(190, 980, 650, 1025))
+
+    # 战斗失败后
+    BATTLE_FAIL_EXIT = ScreenArea(pc_rect=Rect(536, 961, 873, 1020), text='终止战斗并结算')
+    BATTLE_FAIL_EXIT_CONFIRM = ScreenArea(pc_rect=Rect(1003, 646, 1326, 701), text='确认')

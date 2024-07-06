@@ -1,16 +1,16 @@
-from typing import List, Optional
+from typing import Optional
 
 from basic import Point
 from basic.img import cv2_utils
 from sr.context.context import Context
 from sr.image.sceenshot import mini_map, MiniMapInfo
-from sr.operation import StateOperationEdge, StateOperationNode, OperationOneRoundResult
+from sr.operation import StateOperationNode, OperationOneRoundResult
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveWithoutPos
 from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
 from sr.sim_uni.op.sim_uni_event import SimUniEvent
-from sr.sim_uni.op.v2.sim_uni_move_v2 import SimUniMoveToInteractByDetect
+from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_interact_by_detect import SimUniMoveToInteractByDetect
 from sr.sim_uni.op.v2.sim_uni_run_route_base_v2 import SimUniRunRouteBaseV2
 from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum, SimUniLevelType
 from sryolo.detector import draw_detections
@@ -18,7 +18,7 @@ from sryolo.detector import draw_detections
 
 class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.ELITE.value):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType = SimUniLevelTypeEnum.RESPITE.value):
         SimUniRunRouteBaseV2.__init__(self, ctx, level_type=level_type)
 
     def add_edges_and_nodes(self) -> None:
@@ -40,6 +40,8 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
         # 小地图没有事件的话就靠识别
         detect_screen = StateOperationNode('识别画面黑塔', self._detect_screen)
         self.add_edge(check_mm, detect_screen, status=SimUniRunRouteBaseV2.STATUS_NO_MM_EVENT)
+        # 已经处理过事件的 也进入这里用YOLO识别入口
+        self.add_edge(check_mm, detect_screen, status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
         # 识别到就移动
         move_by_detect = StateOperationNode('按画面朝黑塔移动', self._move_by_detect)
         self.add_edge(detect_screen, move_by_detect, status=SimUniRunRouteBaseV2.STATUS_WITH_DETECT_EVENT)
@@ -69,6 +71,11 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
         # 找不到下层入口就转向找目标 重新开始
         turn = StateOperationNode('转动找目标', self._turn_when_nothing)
         self.add_edge(check_entry, turn, status=SimUniRunRouteBaseV2.STATUS_NO_ENTRY)
+        # 移动到下层入口失败时 也转动找目标
+        # 可能1 走过了 没交互成功
+        # 可能2 识别错了未激活的入口 移动过程中被攻击了
+        self.add_edge(move_to_next, turn, success=False)
+        # 转动完重新开始目标识别
         self.add_edge(turn, check_mm)
 
     def handle_init(self) -> Optional[OperationOneRoundResult]:
