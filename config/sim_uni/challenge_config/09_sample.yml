@@ -30,3 +30,4 @@ name: "\u667A\u8BC6"
 path: ERUDITION
 technique_fight: false
 technique_only: false
+skip_herta: false

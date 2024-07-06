@@ -39,3 +39,4 @@ curio_priority:
 technique_fight: false
 technique_only: false
 max_consumable_cnt: 0
+skip_herta: false
