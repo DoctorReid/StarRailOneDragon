@@ -32,8 +32,8 @@ class SimUniRunView(SrAppView):
             controls=[
                 components.SettingsListItem(gt('每周挑战', 'ui'), self.weekly_uni_num),
                 components.SettingsListItem(gt('挑战难度', 'ui'), self.weekly_uni_diff),
-                components.SettingsListItem(gt('每周次数', 'ui'), self.weekly_times),
-                components.SettingsListItem(gt('每天次数', 'ui'), self.daily_times),
+                components.SettingsListItem(gt('每周精英', 'ui'), self.weekly_times),
+                components.SettingsListItem(gt('每天精英', 'ui'), self.daily_times),
             ],
             width=400
         )
@@ -44,16 +44,12 @@ class SimUniRunView(SrAppView):
 
     def handle_after_show(self):
         self.weekly_uni_num.value = self.sr_ctx.sim_uni_config.weekly_uni_num
-        self.weekly_uni_num.update()
-
         self.weekly_uni_diff.value = str(self.sr_ctx.sim_uni_config.weekly_uni_diff)
-        self.weekly_uni_diff.update()
 
-        self.weekly_times.value = str(self.sr_ctx.sim_uni_config.weekly_times)
-        self.weekly_times.update()
+        self.weekly_times.value = str(self.sr_ctx.sim_uni_config.elite_weekly_times)
+        self.daily_times.value = str(self.sr_ctx.sim_uni_config.elite_daily_times)
 
-        self.daily_times.value = str(self.sr_ctx.sim_uni_config.daily_times)
-        self.daily_times.update()
+        self.update()
 
     def _on_weekly_uni_num_changed(self, e):
         """
@@ -77,7 +73,7 @@ class SimUniRunView(SrAppView):
         if text != self.weekly_times.value:
             self.weekly_times.value = text
             self.weekly_times.update()
-        self.sr_ctx.sim_uni_config.weekly_times = int(text)
+        self.sr_ctx.sim_uni_config.elite_weekly_times = int(text)
 
     def _on_daily_times_changed(self, e):
         """
@@ -89,7 +85,7 @@ class SimUniRunView(SrAppView):
         if text != self.daily_times.value:
             self.daily_times.value = text
             self.daily_times.update()
-        self.sr_ctx.sim_uni_config.daily_times = int(text)
+        self.sr_ctx.sim_uni_config.elite_daily_times = int(text)
 
     def run_app(self):
         self.sr_ctx.sim_uni_run_record.check_and_update_status()

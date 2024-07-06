@@ -28,13 +28,13 @@ class SimUniRunRecord(AppRunRecord):
         if self._should_reset_by_dt():
             if os_utils.is_monday(self.get_current_dt()):
                 return AppRunRecord.STATUS_WAIT
-            elif self.weekly_times >= self.config.weekly_times:  # 已完成本周次数
+            elif self.elite_weekly_times >= self.config.elite_weekly_times:  # 已完成本周次数
                 return AppRunRecord.STATUS_SUCCESS
             else:
                 return AppRunRecord.STATUS_WAIT
         else:
-            if self.weekly_times >= self.config.weekly_times or \
-                    self.daily_times >= self.config.daily_times:  # 已完成次数
+            if self.elite_weekly_times >= self.config.elite_weekly_times or \
+                    self.elite_daily_times >= self.config.elite_daily_times:  # 已完成次数
                 return AppRunRecord.STATUS_SUCCESS
             else:
                 return AppRunRecord.STATUS_WAIT

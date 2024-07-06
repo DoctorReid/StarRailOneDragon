@@ -109,7 +109,7 @@ class SimUniRunEventRouteV2(SimUniRunRouteBaseV2):
         mm = mini_map.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map.analyse_mini_map(mm)
         mrl = self.ctx.im.match_template(mm_info.origin_del_radio, template_id='mm_sp_event', template_sub_dir='sim_uni',
-                                         threshold=0.8)
+                                         threshold=0.7)
         if mrl.max is not None:
             self.mm_icon_pos = mrl.max.center
             if self.ctx.one_dragon_config.is_debug:  # 按小地图图标已经成熟 调试时强制使用yolo

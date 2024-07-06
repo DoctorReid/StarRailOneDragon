@@ -192,9 +192,9 @@ class SimUniApp(Application):
         if self.exception_times >= 10:
             return self.round_success(SimUniApp.STATUS_EXCEPTION)
 
-        log.info('本日通关次数 %d 本周通关次数 %d', self.run_record.daily_times, self.run_record.weekly_times)
-        if (self.run_record.daily_times >= self.ctx.sim_uni_config.daily_times
-                or self.run_record.weekly_times >= self.ctx.sim_uni_config.weekly_times):
+        log.info('本日精英次数 %d 本周精英次数 %d', self.run_record.elite_daily_times, self.run_record.elite_weekly_times)
+        if (self.run_record.elite_daily_times >= self.ctx.sim_uni_config.elite_daily_times
+                or self.run_record.elite_weekly_times >= self.ctx.sim_uni_config.elite_weekly_times):
             return self.round_success(SimUniApp.STATUS_ALL_FINISHED)
         else:
             return self.round_success()
