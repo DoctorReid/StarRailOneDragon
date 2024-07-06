@@ -35,5 +35,4 @@ class StoreItemEnum(Enum):
 
     GASEOUS_LIQUID = StoreItem('gaseous_liquid', '气态流体')
     SEED = StoreItem('seed', '种子')
-
-
+    XIANZHOU_PARCEL = StoreItem('xianzhou_parcel', '逾期未取的贵重邮包')

@@ -530,5 +530,5 @@ if __name__ == '__main__':
     # init_sim_uni_event_opt_icon('event_option_exit_icon')
     # init_store_icon('store_money', sub_dir='sim_uni')
     # generate_sponsor_png()
-    remove_alpha('seed', template_sub_dir='store')
+    remove_alpha('parcel', template_sub_dir='store')
     cv2.destroyAllWindows()
