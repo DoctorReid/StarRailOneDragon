@@ -110,8 +110,9 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
         识别小地图上的黑塔图标
         :return:
         """
-        if self.ctx.sim_uni_challenge_config.skip_herta:  # 跳过黑塔
+        if self.ctx.sim_uni_challenge_config.skip_herta and not self.event_handled:  # 跳过黑塔
             self.event_handled = True
+            self.ctx.controller.move('w', 2)  # 跳过黑塔的话 离下层入口还有点距离 先移动
         if self.move_by_mm_time >= 2:
             # 如果移动了2次都没有交互完 说明小地图没有这个图标 只是识别错了
             self.event_handled = True
