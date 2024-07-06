@@ -77,6 +77,8 @@ class SimUniEnterFight(Operation):
         self.ctx.pos_first_cal_pos_after_fight = True
         self.had_last_move: bool = False  # 退出这个指令前 是否已经进行过最后的移动了
 
+        self.finish_fast_cover_time: float = now  # 上一次完成快速恢复的时间
+
         return None
 
     def _execute_one_round(self) -> OperationOneRoundResult:
@@ -312,13 +314,17 @@ class SimUniEnterFight(Operation):
         - 由于追求连续攻击 使用秘技后仅在较短时间内判断"快速恢复"对话框是否出现 部分机器运行慢的话 对话框较久才会出现 但已经被脚本判断为无需使用消耗品
         - 模拟宇宙 黄泉连续使用秘技时 弹出快速恢复的话 会触发前一次还没出现的祝福 因此处理完祝福 还需要处理快速恢复
         因此 在这里做一个兜底判断
+        同时，由于追求在【快速恢复】后尽快攻击，关闭【快速恢复】对话框后，可能对话框还没有消失又进行了截图判断，认为还在对话框，因此多加一个时间间隔判断
         :return:
         """
+        if time.time() - self.finish_fast_cover_time < 1:  # 距离上一次快速恢复必须大于1秒
+            return self.round_wait(wait_round_time=0.02)
         op = FastRecover(self.ctx,
                          max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
                          quirky_snacks=self.ctx.game_config.use_quirky_snacks)
         op_result = op.execute()
         if op_result.success:
+            self.finish_fast_cover_time = time.time()
             return self.round_wait()
         else:
             return self.round_retry(op_result.status, wait=1)
