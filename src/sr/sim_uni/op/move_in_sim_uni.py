@@ -296,12 +296,14 @@ class MoveToNextLevel(StateOperation):
             return self.round_wait(wait=0.1)
 
     @staticmethod
-    def get_next_level_type(screen: MatLike, ih: ImageHolder) -> List[MatchResult]:
+    def get_next_level_type(screen: MatLike, ih: ImageHolder,
+                            knn_distance_percent: float=0.6) -> List[MatchResult]:
         """
         获取当前画面中的下一层入口
         MatchResult.data 是对应的类型 SimUniLevelType
         :param screen: 屏幕截图
         :param ih: 图片加载器
+        :param knn_distance_percent: 越小要求匹配程度越高
         :return:
         """
         source_kps, source_desc = cv2_utils.feature_detect_and_compute(screen)
@@ -315,7 +317,7 @@ class MoveToNextLevel(StateOperation):
             result = cv2_utils.feature_match_for_one(source_kps, source_desc,
                                                      template.kps, template.desc,
                                                      template.origin.shape[1], template.origin.shape[0],
-                                                     knn_distance_percent=0.6)
+                                                     knn_distance_percent=knn_distance_percent)
 
             if result is None:
                 continue

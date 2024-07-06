@@ -60,6 +60,7 @@ class SimUniRunRouteBaseV2(StateOperation):
         self.previous_angle: float = 0  # 之前的朝向 识别到目标时应该记录下来 后续可以在这个方向附近找下一个目标
         self.turn_direction_when_nothing: int = 1  # 没有目标时候的转动方向 正数向右 负数向左
         self.detect_move_timeout_times: int = 0  # 识别移动的超时失败次数
+        self.check_next_entry_knn: float = 0.5  # 特征匹配下层入口的阈值 越小精度越高
 
     def _before_route(self) -> OperationOneRoundResult:
         """
@@ -103,7 +104,8 @@ class SimUniRunRouteBaseV2(StateOperation):
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_BOSS_EXIT)
         self._view_up()
         screen: MatLike = self.screenshot()
-        entry_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih)
+        entry_list = MoveToNextLevel.get_next_level_type(screen, self.ctx.ih,
+                                                         knn_distance_percent=self.check_next_entry_knn)
         if len(entry_list) == 0:
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_NO_ENTRY)
         else:
