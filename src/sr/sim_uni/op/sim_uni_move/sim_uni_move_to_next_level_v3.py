@@ -22,10 +22,12 @@ from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 
 class MoveToNextLevelV3(StateOperation):
 
-    def __init__(self, ctx: Context, level_type: SimUniLevelType, with_entry: bool=True):
+    def __init__(self, ctx: Context, level_type: SimUniLevelType, with_entry: bool = True,
+                 turn_direction: int = 0):
         StateOperation.__init__(self, ctx, op_name=gt('向下层移动v3', 'ui'))
         self.level_type: SimUniLevelType = level_type
         self.start_with_entry: bool = with_entry  # 开始前是否识别到入口
+        self.turn_direction: int = turn_direction  # 转动找下层入口的方向 1=右边 -1=左边
 
     def add_edges_and_nodes(self) -> None:
         """
@@ -127,7 +129,7 @@ class MoveToNextLevelV3(StateOperation):
             else:
                 return self.round_wait(wait=0.1)
         else:
-            self.ctx.controller.turn_by_angle(35)
+            self.ctx.controller.turn_by_angle(35 * self.turn_direction)
             return self.round_retry(status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND, wait=0.5)
 
     def record_detect_angle(self) -> OperationOneRoundResult:
@@ -173,6 +175,7 @@ class MoveToNextLevelV3(StateOperation):
             else:
                 return self.round_success(status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND)
         else:
+            self.turn_to_target(type_list[0])
             return self.round_success()
 
     def move_by_detect_angle(self) -> OperationOneRoundResult:
@@ -300,11 +303,19 @@ class MoveToNextLevelV3(StateOperation):
         :param target:
         :return:
         """
-        angle_to_turn = self.get_angle_to_turn(target)
-        self.ctx.controller.turn_by_angle(angle_to_turn)
-        time.sleep(0.5)
+        self.turn_to_target(target)
         self.ctx.controller.start_moving_forward()
         self.start_move_time = time.time()
+
+    def turn_to_target(self, target: MatchResult, wait: float = 0.5):
+        """
+        朝目标转向
+        :param target:
+        :return:
+        """
+        angle_to_turn = self.get_angle_to_turn(target)
+        self.ctx.controller.turn_by_angle(angle_to_turn)
+        time.sleep(wait)
 
     def get_angle_to_turn(self, target: MatchResult) -> float:
         """

@@ -104,6 +104,7 @@ class SimUniEnterFight(Operation):
             round_result = self._try_attack(screen)
             return round_result
         elif self.current_state == ScreenState.BATTLE.value:
+            self._update_not_in_world_time()
             round_result = self._handle_not_in_world(screen)
             self._update_not_in_world_time()
             return round_result
@@ -343,7 +344,7 @@ class SimUniEnterFight(Operation):
             for i in range(2):  # 多按几次 防止被后摇吞了
                 direction = 's' if direction is None else OPPOSITE_DIRECTION[direction]
                 self.ctx.controller.move(direction=direction)
-                time.sleep(0.25)
+                time.sleep(0.5)
             self.had_last_move = True
             return self.round_wait()
 
@@ -382,6 +383,7 @@ class SimUniFightElite(StateOperation):
 
         fight = StateOperationNode('战斗', self._fight)
         edges.append(StateOperationEdge(technique_fight, fight))
+        edges.append(StateOperationEdge(technique_fight, fight, success=False))  # 角色判断错误时 可能会提前用了秘技进入战斗
 
         switch = StateOperationNode('切换1号位', self._switch_1)
         edges.append(StateOperationEdge(fight, switch))

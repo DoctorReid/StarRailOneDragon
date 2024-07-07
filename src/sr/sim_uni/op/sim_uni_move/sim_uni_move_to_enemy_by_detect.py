@@ -77,7 +77,7 @@ class SimUniMoveToEnemyByDetect(Operation):
         if op_result.success:
             return self.round_success(SimUniMoveToEnemyByDetect.STATUS_FIGHT)
         else:
-            return self.round_by_op(op_result)
+            return self.round_by_op(op_result, retry_on_fail=True)
 
     def detect_screen(self, screen: MatLike) -> OperationOneRoundResult:
         """

@@ -5,7 +5,7 @@ from cv2.typing import MatLike
 
 from basic.i18_utils import gt
 from basic.log_utils import log
-from sr.const import STANDARD_RESOLUTION_W
+from sr.const import STANDARD_RESOLUTION_W, STANDARD_CENTER_POS, OPPOSITE_DIRECTION
 from sr.context.context import Context
 from sr.image.sceenshot import mini_map
 from sr.operation import StateOperation, StateOperationNode, StateOperationEdge, OperationResult, \
@@ -14,7 +14,6 @@ from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni import sim_uni_screen_state
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_battle import SimUniEnterFight
-from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_next_level_v2 import MoveToNextLevelV2
 from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_interact_by_detect import SimUniMoveToInteractByDetect
 from sr.sim_uni.op.sim_uni_move.sim_uni_move_to_next_level_v3 import MoveToNextLevelV3
 from sr.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
@@ -74,6 +73,9 @@ class SimUniRunRouteBaseV2(StateOperation):
         self.detect_move_timeout_times: int = 0  # 识别移动的超时失败次数
         self.check_next_entry_knn: float = 0.5  # 特征匹配下层入口的阈值 越小精度越高
         self.detect_entry: bool = False  # 识别到入口 只有yolo识别的才认可
+        self.next_entry_direction: int = -1  # 下层入口的方向 1=右边 -1=左边
+        self.move_to_next_fail_times: int = 0  # 向下层移动失败的次数
+        self.move_to_next_get_rid_direction: str = 'a'  # 向下层移动的脱困方向
 
         return None
 
@@ -125,6 +127,17 @@ class SimUniRunRouteBaseV2(StateOperation):
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_NO_ENTRY)
         else:
             self.nothing_times = 0
+            left = 0
+            right = 0
+            for entry in entry_list:
+                if entry.center.x < STANDARD_CENTER_POS.x:
+                    left += 1
+                elif entry.center.x > STANDARD_CENTER_POS.x:
+                    right += 1
+            if left > right:
+                self.next_entry_direction = -1
+            elif right > left:
+                self.next_entry_direction = 1
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY)
 
     def _move_to_next(self):
@@ -136,9 +149,16 @@ class SimUniRunRouteBaseV2(StateOperation):
         self.moved_to_target = True
 
         self._view_up()
-        op = MoveToNextLevelV2(self.ctx, level_type=self.level_type, with_entry=self.detect_entry)
-        op = MoveToNextLevelV3(self.ctx, level_type=self.level_type)
-        return self.round_by_op(op.execute())
+        op = MoveToNextLevelV3(self.ctx, level_type=self.level_type, turn_direction=self.next_entry_direction)
+        op_result = op.execute()
+
+        if not op_result.success:
+            self.move_to_next_fail_times += 1
+            if self.move_to_next_fail_times >= 3:  # 向下层移动失败过多时 尝试脱困
+                self.ctx.controller.move(self.move_to_next_get_rid_direction, 1)
+                self.move_to_next_get_rid_direction = OPPOSITE_DIRECTION[self.move_to_next_get_rid_direction]
+
+        return self.round_by_op(op_result)
 
     def move_to_next_by_detect(self):
         """
