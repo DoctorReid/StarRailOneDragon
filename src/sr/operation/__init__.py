@@ -831,6 +831,8 @@ class StateOperation(Operation):
         if self._current_node.func is not None:
             current_op = self._current_node.func
             current_round_result: OperationOneRoundResult = current_op()
+            if self._current_node.wait_after_op is not None:
+                time.sleep(self._current_node.wait_after_op)
         elif self._current_node.op is not None:
             op_result = self._current_node.op.execute()
             current_round_result = self.round_by_op(op_result,
