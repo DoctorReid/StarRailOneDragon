@@ -11,8 +11,8 @@ route:
     op: 'move'
     data: [399, 770]
   - idx: 3
-    op: 'slow_move'
-    data: [387, 755]
+    op: 'move'
+    data: [381, 754]
   - idx: 4
     op: 'interact'
     data: '进入梦境空间'
