@@ -50,7 +50,9 @@ class SimUniRunRecord(AppRunRecord):
         current_dt = self.get_current_dt()
         if os_utils.get_money_dt(current_dt) != os_utils.get_money_dt(self.dt):
             self.weekly_times = 0
+            self.elite_weekly_times = 0
         self.daily_times = 0
+        self.elite_daily_times = 0
 
     def add_times(self):
         """
