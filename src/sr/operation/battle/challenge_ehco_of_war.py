@@ -86,8 +86,11 @@ class ChallengeEchoOfWar(StateOperation):
         _exit_with_full = StateOperationNode('点击挑战后次数用完', self.exit_first_challenge_with_full)
         self.add_edge(_first_challenge_confirm, _exit_with_full, status=ScreenDialog.CHALLENGE_ECHO_FULL_CANCEL.value.status)
 
+        choose_team = StateOperationNode('选择配队', op=ChooseTeam(self.ctx, self.team_num))
+        self.add_edge(_first_challenge_confirm, choose_team)
+
         choose_support = StateOperationNode('选择支援', op=ChooseSupportInTeam(self.ctx, self.support))
-        self.add_edge(_first_challenge_confirm, choose_support)
+        self.add_edge(choose_team, choose_support)
 
         start_challenge = StateOperationNode('开始挑战', op=ClickStartChallenge(self.ctx), wait_after_op=1)
         self.add_edge(choose_support, start_challenge)
