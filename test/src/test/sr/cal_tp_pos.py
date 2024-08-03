@@ -27,7 +27,7 @@ def cal_one(tp: TransportPoint, debug_image: str = None, show: bool = False):
     else:
         mm = cv2_utils.read_image(image_path)
 
-    possible_pos = (*(tp.lm_pos.tuple()), 50)
+    possible_pos = (*(tp.lm_pos.tuple()), 200)
     lm_info: LargeMapInfo = ctx.ih.get_large_map(tp.region)
     lm_rect = large_map.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
     mm_info = mini_map.analyse_mini_map(mm)
@@ -46,16 +46,20 @@ if __name__ == '__main__':
     ctx.init_image_matcher()
 
     sp_list = [
-        map_const.P03_R01_SP01,
-        map_const.P03_R01_SP02,
-        map_const.P03_R01_SP03,
-        map_const.P03_R01_SP17,
+        map_const.P03_R11_SP01,
+        map_const.P03_R11_SP02,
+        map_const.P03_R11_SP03,
+        map_const.P03_R11_SP04,
+        map_const.P03_R11_SP08,
+        map_const.P03_R11_SP09,
     ]
     img_list = [
-        '_1719041330393',
-        '_1719041335960',
-        '_1719041342690',
-        '_1719041348558'
+        '_1722657301794',
+        '_1722657309509',
+        '_1722657318759',
+        '_1722657323859',
+        '_1722657330278',
+        '_1722657336760',
     ]
     for i in range(len(sp_list)):
         cal_one(sp_list[i], debug_image=img_list[i], show=True)

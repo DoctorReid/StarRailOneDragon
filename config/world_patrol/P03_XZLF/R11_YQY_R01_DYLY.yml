@@ -1,0 +1,37 @@
+author: ['DoctorReid']
+planet: '仙舟「罗浮」'
+region: '幽囚狱'
+floor: -4
+tp: '断狱轮钥'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1371, 1030]
+  - idx: 2
+    op: 'move'
+    data: [1271, 1036]
+  - idx: 3
+    op: 'patrol'
+  - idx: 4
+    op: 'move'
+    data: [1209, 980]
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
+    data: [1206, 915]
+  - idx: 7
+    op: 'patrol'
+  - idx: 8
+    op: 'move'
+    data: [1243, 870]
+  - idx: 9
+    op: 'move'
+    data: [1260, 853]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [1304, 817]
+  - idx: 12
+    op: 'disposable'

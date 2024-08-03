@@ -510,7 +510,7 @@ def remove_alpha(template_id: str, template_sub_dir: Optional[str] = None):
 
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_17', noise_threshold=30)
-    # init_sp_with_background('mm_sp_18')
+    init_sp_with_background('mm_sp_19')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
@@ -530,5 +530,5 @@ if __name__ == '__main__':
     # init_sim_uni_event_opt_icon('event_option_exit_icon')
     # init_store_icon('store_money', sub_dir='sim_uni')
     # generate_sponsor_png()
-    remove_alpha('parcel', template_sub_dir='store')
+    # remove_alpha('parcel', template_sub_dir='store')
     cv2.destroyAllWindows()

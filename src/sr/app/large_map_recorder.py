@@ -23,7 +23,7 @@ from sr.sim_uni.sim_uni_const import SimUniLevelTypeEnum
 from sr.win import Window, WinRect
 
 
-_FLOOR_LIST = [-2, -1, 0, 1, 2, 3]
+_FLOOR_LIST = [-4, -3, -2, -1, 0, 1, 2, 3]
 
 
 class LargeMapRecorder(Application):
@@ -36,7 +36,9 @@ class LargeMapRecorder(Application):
                  skip_height: Optional[int] = None,
                  floor_list: Optional[List[int]] = None,
                  row_list: Optional[List[int]] = None,
-                 max_row: Optional[int] = None):
+                 max_row: Optional[int] = None,
+                 max_column: Optional[int] = None
+                 ):
         nodes = []
 
         nodes.append(StateOperationNode('打开地图', op=OpenMap(ctx)))
@@ -57,6 +59,7 @@ class LargeMapRecorder(Application):
         self.row_list: Optional[List[int]] = row_list  # 需要重新录制的行数
         self.floor_list: Optional[List[int]] = floor_list  # 需要重新录制的楼层
         self.max_row: int = max_row  # 最多录制的行数 不传入时自动判断
+        self.max_column: int = max_column  # 最多录制的列数 不传入时自动判断
 
     def _do_screenshot(self) -> OperationOneRoundResult:
         if self.current_floor > 3:
@@ -140,6 +143,9 @@ class LargeMapRecorder(Application):
                 img.append(map_part)
                 self.drag_to_next_col()
             else:
+                break
+
+            if self.max_column is not None and self.col > self.max_column:
                 break
 
     def _do_screenshot_2(self, region: Region):
@@ -612,23 +618,31 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 
 if __name__ == '__main__':
     special_condition = {
-        map_const.P04_R10.prl_id: {'skip_height': 700, 'max_row': 4}  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
+        map_const.P03_R11_F1.pr_id: {'max_row': 7, 'max_column': 6},  # 罗浮仙舟 - 幽囚狱 右边有较多空白
+        map_const.P04_R10.pr_id: {'skip_height': 700, 'max_row': 4},  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
     }
 
-    r = map_const.P03_R01
-    sc = special_condition.get(r.prl_id, None)
-    # _row, _col = 4, 4
+    r = map_const.P03_R11_B4
+    sc = special_condition.get(r.pr_id, None)
     # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
-    # LargeMapRecorder.do_merge_1(r, _row, _col, show=True)
-    # exit(0)
+    merge = False
+    if merge:
+        LargeMapRecorder.do_merge_1(r,
+                                    skip_height=sc.get('skip_height', None) if sc is not None else None,
+                                    max_row=sc.get('max_row', None) if sc is not None else None,
+                                    max_col=sc.get('max_column', None) if sc is not None else None,
+                                    show=True
+                                    )
+        exit(0)
 
     # 执行前先传送到别的地图 确保当前地图上没有无关的任务标记
     # 执行后 如果是重新录制地图 需要确保更新 map_const 中的坐标点 以及对应的 锄大地/模拟宇宙 路线
     ctx = get_context()
     app = LargeMapRecorder(ctx, r,
-                           skip_height=sc.get('skip_height') if sc is not None else None,
-                           max_row=sc.get('max_row') if sc is not None else None,
-                           # floor_list=[2]
+                           skip_height=sc.get('skip_height', None) if sc is not None else None,
+                           max_row=sc.get('max_row', None) if sc is not None else None,
+                           max_column=sc.get('max_column', None) if sc is not None else None,
+                           floor_list=[-2],
                            )
 
     ctx.init_all(renew=True)

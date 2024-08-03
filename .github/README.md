@@ -5,13 +5,11 @@ __崩坏：星穹铁道 - 一条龙__ - 基于图像识别的自动游戏脚本�
 
 目前支持`锄大地`、`体力刷本`、`逐光捡金`、`模拟宇宙`等日常功能。下载、运行及使用方式，见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)。
 
-如果喜欢本项目，可右上角送作者一个```Star```
-
-如有疑问，可以提ISSUE或进QQ群```743525216```咨询。~~__(虽然上班搬砖时间回复较慢，下班写代码时间也回复较慢__~~
+如果喜欢本项目，可右上角送作者一个```Star```。QQ群```743525216```。
 
 ## 项目进度
 
-- [锄大地](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%94%84%E5%A4%A7%E5%9C%B0) `2.2 已完成` (不包含3D地图) 支持`黄泉`秘技
+- [锄大地](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%94%84%E5%A4%A7%E5%9C%B0) `2.4 已完成` (不包含3D地图) 支持`黄泉`秘技
 - [日常](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8) `已完成`
 - [模拟宇宙](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%A8%A1%E6%8B%9F%E5%AE%87%E5%AE%99) `已完成` 支持`第九宇宙` 支持`黄泉`秘技
 - [逐光捡金](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%80%90%E5%85%89%E6%8D%A1%E9%87%91) `已完成`

@@ -20,4 +20,4 @@ class ScreenLargeMap(Enum):
 
     TP_BTN = ScreenArea(pc_rect=Rect(1500, 950, 1800, 1000), text='传送')  # 右侧 传送按钮
 
-    FLOOR_LIST = ScreenArea(pc_rect=Rect(30, 650, 110, 1000))  # 楼层
+    FLOOR_LIST = ScreenArea(pc_rect=Rect(30, 580, 110, 1000))  # 楼层
