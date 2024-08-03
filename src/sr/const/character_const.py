@@ -163,8 +163,9 @@ ASTA = Character(id='asta', cn='艾丝妲', path=CHARACTER_PATH_HARMONY, combat_
 BAILU = Character(id='bailu', cn='白露', path=CHARACTER_PATH_ABUNDANCE, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_BUFF)
 BLADE = Character(id='blade', cn='刃', path=CHARACTER_PATH_DESTRUCTION, combat_type=WIND, level=5, technique_type=TECHNIQUE_ATTACK)
 BRONYA = Character(id='bronya', cn='布洛妮娅', path=CHARACTER_PATH_HARMONY, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
-CAELUMDESTRUCTION = Character(id='caelumdestruction', cn='男主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
-CAELUMPRESERVATION = Character(id='caelumpreservation', cn='男主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
+CAELUM_DESTRUCTION = Character(id='caelum_destruction', cn='男主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
+CAELUM_PRESERVATION = Character(id='caelum_preservation', cn='男主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
+CAELUM_HARMONY = Character(id='caelum_harmony', cn='女主同谐', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF)
 CLARA = Character(id='clara', cn='卡拉拉', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_ATTACK)
 DANHENG = Character(id='danheng', cn='丹恒', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=4, technique_type=TECHNIQUE_BUFF)
 DANHENGIMBIBITORLUNAE = Character(id='danhengimbibitorlunae', cn='丹恒·饮月', path=CHARACTER_PATH_DESTRUCTION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
@@ -181,7 +182,8 @@ KAFKA = Character(id='kafka', cn='卡芙卡', path=CHARACTER_PATH_NIHILITY, comb
 LUKA = Character(id='luka', cn='卢卡', path=CHARACTER_PATH_NIHILITY, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
 LUOCHA = Character(id='luocha', cn='罗刹', path=CHARACTER_PATH_ABUNDANCE, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 LYNX = Character(id='lynx', cn='玲可', path=CHARACTER_PATH_ABUNDANCE, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_BUFF)
-MARCH7THPRESERVATION = Character(id='march7thpreservation', cn='三月七存护', path=CHARACTER_PATH_PRESERVATION, combat_type=ICE, level=4, technique_type=TECHNIQUE_ATTACK)
+MARCH7TH_PRESERVATION = Character(id='march7th_preservation', cn='三月七存护', path=CHARACTER_PATH_PRESERVATION, combat_type=ICE, level=4, technique_type=TECHNIQUE_ATTACK)
+MARCH7TH_HUNT = Character(id='march7th_hunt', cn='三月七巡猎', path=CHARACTER_PATH_HUNT, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF)
 NATASHA = Character(id='natasha', cn='娜塔莎', path=CHARACTER_PATH_ABUNDANCE, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
 PELA = Character(id='pela', cn='佩拉', path=CHARACTER_PATH_NIHILITY, combat_type=ICE, level=4, technique_type=TECHNIQUE_ATTACK)
 QINGQUE = Character(id='qingque', cn='青雀', path=CHARACTER_PATH_ERUDITION, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_BUFF)
@@ -189,8 +191,9 @@ SAMPO = Character(id='sampo', cn='桑博', path=CHARACTER_PATH_NIHILITY, combat_
 SEELE = Character(id='seele', cn='希儿', path=CHARACTER_PATH_HUNT, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 SERVAL = Character(id='serval', cn='希露瓦', path=CHARACTER_PATH_ERUDITION, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_ATTACK)
 SILVERWOLF = Character(id='silverwolf', cn='银狼', path=CHARACTER_PATH_NIHILITY, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_ATTACK)
-STELLEDESTRUCTION = Character(id='stelledestruction', cn='女主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
-STELLEPRESERVATION = Character(id='stellepreservation', cn='女主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
+STELLE_DESTRUCTION = Character(id='stelle_destruction', cn='女主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
+STELLE_PRESERVATION = Character(id='stelle_preservation', cn='女主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
+STELLE_HARMONY = Character(id='stelle_harmony', cn='女主同谐', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF)
 SUSHANG = Character(id='sushang', cn='素裳', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
 TINGYUN = Character(id='tingyun', cn='停云', path=CHARACTER_PATH_HARMONY, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_BUFF)
 TOPAZNUMBY = Character(id='topaznumby', cn='托帕&账账', path=CHARACTER_PATH_HUNT, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
@@ -221,8 +224,9 @@ CHARACTER_LIST: List[Character] = [
     BAILU,
     BLADE,
     BRONYA,
-    CAELUMDESTRUCTION,
-    CAELUMPRESERVATION,
+    CAELUM_DESTRUCTION,
+    CAELUM_PRESERVATION,
+    CAELUM_HARMONY,
     CLARA,
     DANHENG,
     DANHENGIMBIBITORLUNAE,
@@ -239,7 +243,8 @@ CHARACTER_LIST: List[Character] = [
     LUKA,
     LUOCHA,
     LYNX,
-    MARCH7TH,
+    MARCH7TH_PRESERVATION,
+    MARCH7TH_HUNT,
     NATASHA,
     PELA,
     QINGQUE,
@@ -247,8 +252,9 @@ CHARACTER_LIST: List[Character] = [
     SEELE,
     SERVAL,
     SILVERWOLF,
-    STELLEDESTRUCTION,
-    STELLEPRESERVATION,
+    STELLE_DESTRUCTION,
+    STELLE_PRESERVATION,
+    STELLE_HARMONY,
     SUSHANG,
     TINGYUN,
     TOPAZNUMBY,
@@ -268,7 +274,9 @@ CHARACTER_LIST: List[Character] = [
     AVENTURINE,
     ROBIN,
     BOOTHILL,
-    FIREFLY
+    FIREFLY,
+    JADE,
+    YUNLI
 ]
 
 

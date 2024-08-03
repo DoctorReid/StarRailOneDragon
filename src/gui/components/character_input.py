@@ -5,6 +5,7 @@ import cv2
 import flet as ft
 
 from basic.i18_utils import gt
+from basic.log_utils import log
 from gui import components
 from sr.const.character_const import CHARACTER_PATH_LIST, CHARACTER_COMBAT_TYPE_LIST, filter_character_list, Character
 from sr.image.image_holder import ImageHolder
@@ -17,6 +18,8 @@ class CharacterAvatar(ft.Container):
                  is_chosen: bool = False,
                  on_click: Optional[Callable] = None):
         avatar_image = ih.get_character_avatar_template(c.id)
+        if avatar_image is None:
+            log.error('%s 未有头像', c.cn)
         _, buffer = cv2.imencode('.png', avatar_image.origin)
         base64_data = base64.b64encode(buffer)
         base64_string = base64_data.decode("utf-8")
