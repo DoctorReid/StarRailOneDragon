@@ -181,7 +181,7 @@ KAFKA = Character(id='kafka', cn='卡芙卡', path=CHARACTER_PATH_NIHILITY, comb
 LUKA = Character(id='luka', cn='卢卡', path=CHARACTER_PATH_NIHILITY, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
 LUOCHA = Character(id='luocha', cn='罗刹', path=CHARACTER_PATH_ABUNDANCE, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 LYNX = Character(id='lynx', cn='玲可', path=CHARACTER_PATH_ABUNDANCE, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_BUFF)
-MARCH7TH = Character(id='march7th', cn='三月七', path=CHARACTER_PATH_PRESERVATION, combat_type=ICE, level=4, technique_type=TECHNIQUE_ATTACK)
+MARCH7THPRESERVATION = Character(id='march7thpreservation', cn='三月七存护', path=CHARACTER_PATH_PRESERVATION, combat_type=ICE, level=4, technique_type=TECHNIQUE_ATTACK)
 NATASHA = Character(id='natasha', cn='娜塔莎', path=CHARACTER_PATH_ABUNDANCE, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
 PELA = Character(id='pela', cn='佩拉', path=CHARACTER_PATH_NIHILITY, combat_type=ICE, level=4, technique_type=TECHNIQUE_ATTACK)
 QINGQUE = Character(id='qingque', cn='青雀', path=CHARACTER_PATH_ERUDITION, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_BUFF)
@@ -211,6 +211,8 @@ AVENTURINE = Character(id='aventurine', cn='砂金', path=CHARACTER_PATH_PRESERV
 ROBIN = Character(id='robin', cn='知更鸟', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_AREA)
 BOOTHILL = Character(id='boothill', cn='波提欧', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF)
 FIREFLY = Character(id='firefly', cn='流萤', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+JADE = Character(id='jade', cn='翡翠', path=CHARACTER_PATH_ERUDITION, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+YUNLI = Character(id='yunli', cn='云璃', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 
 
 CHARACTER_LIST: List[Character] = [
