@@ -1,0 +1,29 @@
+author: ['obtus', 'DoctorReid']
+planet: '匹诺康尼'
+region: '城市沙盒'
+floor: 0
+tp: '城市沙盒'
+route:
+  - idx: 1
+    op: 'move'
+    data: [789, 407]
+  - idx: 2
+    op: 'interact'
+    data: '气泡弹珠机'
+  - idx: 3
+    op: 'wait'
+    data: ['seconds', '5']
+  - idx: 4
+    op: 'catapult'
+  - idx: 5
+    op: 'update_pos'
+    data: [669, 251]
+  - idx: 6
+    op: 'move'
+    data: [595, 251]
+  - idx: 7
+    op: 'move'
+    data: [558, 251]
+  - idx: 8
+    op: 'interact'
+    data: '气泡弹珠机'
