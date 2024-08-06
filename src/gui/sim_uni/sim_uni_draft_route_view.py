@@ -18,13 +18,13 @@ from gui.sr_basic_view import SrBasicView
 from sr import cal_pos
 from sr.app.sim_uni.sim_uni_route_holder import get_sim_uni_route_list, clear_sim_uni_route_cache, \
     match_best_sim_uni_route
-from sr.const.map_const import PLANET_2_REGION
-from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 from sr.app.sim_uni.test_sim_uni_route_app import TestSimUniRouteApp
 from sr.const import map_const, operation_const
+from sr.const.map_const import PLANET_2_REGION
 from sr.context.context import Context
 from sr.image.sceenshot import mini_map, LargeMapInfo, large_map
 from sr.sim_uni.sim_uni_const import UNI_NUM_CN, level_type_from_id, SimUniLevelTypeEnum
+from sr.sim_uni.sim_uni_route import SimUniRouteOperation, SimUniRoute
 
 
 class SimUniDraftRouteView(ft.Row, SrBasicView):
@@ -45,7 +45,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.switch_floor_dropdown = ft.Dropdown(label='切换层数', width=50, on_change=self._on_switch_floor)
 
         self.cancel_edit_existed_btn = components.RectOutlinedButton(
-            text='取消编辑', disabled=True,on_click=self._cancel_edit_existed)
+            text='取消编辑', disabled=True, on_click=self._cancel_edit_existed)
         self.num_dropdown = ft.Dropdown(
             label=gt('选择宇宙', 'ui'), width=150,
             options=[
@@ -64,27 +64,42 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         self.save_btn = components.RectOutlinedButton(text='新建', disabled=True, on_click=self._do_save)
         self.delete_btn = components.RectOutlinedButton(text='删除', disabled=True, on_click=self._do_delete)
         self.test_btn = components.RectOutlinedButton(text='测试', disabled=True, on_click=self._do_test)
-        route_btn_row = ft.Row(controls=[self.num_dropdown, self.level_type_dropdown,self.existed_route_dropdown, self.algo_dropdown, self.switch_floor_dropdown])
-        route_op_btn_row = ft.Row(controls=[self.cancel_edit_existed_btn, self.save_btn, self.delete_btn, self.test_btn])
+        route_btn_row = ft.Row(
+            controls=[self.num_dropdown, self.level_type_dropdown, self.existed_route_dropdown, self.algo_dropdown,
+                      self.switch_floor_dropdown])
+        route_op_btn_row = ft.Row(
+            controls=[self.cancel_edit_existed_btn, self.save_btn, self.delete_btn, self.test_btn])
 
-        self.screenshot_btn = components.RectOutlinedButton(text=gt('F8 截图', 'ui'), on_click=self._do_screenshot, disabled=True)
-        self.match_start_btn = components.RectOutlinedButton(text=gt('开始点匹配', 'ui'), on_click=self._cal_start_pos, disabled=True)
-        self.previous_start_btn = components.RectOutlinedButton(text=gt('上一个', 'ui'), on_click=self._on_previous_start_clicked, disabled=True)
-        self.next_start_btn = components.RectOutlinedButton(text=gt('下一个', 'ui'), on_click=self._on_next_start_clicked, disabled=True)
-        self.set_start_btn = components.RectOutlinedButton(text=gt('选定开始点', 'ui'), on_click=self._on_set_start_clicked, disabled=True)
-        self.cal_pos_btn = components.RectOutlinedButton(text=gt('计算坐标', 'ui'), on_click=self._on_cal_pos_clicked, disabled=True)
-        self.screen_cal_pos_btn = components.RectOutlinedButton(text=gt('R 截图计算坐标', 'ui'), on_click=self._on_screen_cal_pos_clicked, disabled=True)
-        self.screen_patrol_btn = components.RectOutlinedButton(text=gt('F 截图攻击怪物', 'ui'), on_click=self._on_screen_patrol_clicked, disabled=True)
+        self.screenshot_btn = components.RectOutlinedButton(text=gt('F8 截图', 'ui'), on_click=self._do_screenshot,
+                                                            disabled=True)
+        self.match_start_btn = components.RectOutlinedButton(text=gt('开始点匹配', 'ui'), on_click=self._cal_start_pos,
+                                                             disabled=True)
+        self.previous_start_btn = components.RectOutlinedButton(text=gt('上一个', 'ui'),
+                                                                on_click=self._on_previous_start_clicked, disabled=True)
+        self.next_start_btn = components.RectOutlinedButton(text=gt('下一个', 'ui'),
+                                                            on_click=self._on_next_start_clicked, disabled=True)
+        self.set_start_btn = components.RectOutlinedButton(text=gt('选定开始点', 'ui'),
+                                                           on_click=self._on_set_start_clicked, disabled=True)
+        self.cal_pos_btn = components.RectOutlinedButton(text=gt('计算坐标', 'ui'), on_click=self._on_cal_pos_clicked,
+                                                         disabled=True)
+        self.screen_cal_pos_btn = components.RectOutlinedButton(text=gt('R 截图计算坐标', 'ui'),
+                                                                on_click=self._on_screen_cal_pos_clicked, disabled=True)
+        self.screen_patrol_btn = components.RectOutlinedButton(text=gt('F 截图攻击怪物', 'ui'),
+                                                               on_click=self._on_screen_patrol_clicked, disabled=True)
         screenshot_row = ft.Row(controls=[self.screenshot_btn,
-                                          self.match_start_btn, self.previous_start_btn, self.next_start_btn, self.set_start_btn,
+                                          self.match_start_btn, self.previous_start_btn, self.next_start_btn,
+                                          self.set_start_btn,
                                           self.cal_pos_btn, self.screen_cal_pos_btn, self.screen_patrol_btn])
 
         self.back_btn = components.RectOutlinedButton(text='后退', disabled=True, on_click=self._del_last_op)
         self.reset_btn = components.RectOutlinedButton(text='重置', disabled=True, on_click=self._clear_op)
         self.patrol_btn = components.RectOutlinedButton(text='攻击怪物', disabled=True, on_click=self._add_patrol)
-        self.disposable_btn = components.RectOutlinedButton(text='攻击破坏物', disabled=True, on_click=self._add_disposable)
-        self.slow_move_btn = components.RectOutlinedButton(text='禁疾跑', disabled=True, on_click=self._change_slow_move)
-        self.no_pos_move_btn = components.RectOutlinedButton(text='机械移动', disabled=True, on_click=self._change_no_pos_move)
+        self.disposable_btn = components.RectOutlinedButton(text='攻击破坏物', disabled=True,
+                                                            on_click=self._add_disposable)
+        self.slow_move_btn = components.RectOutlinedButton(text='禁疾跑', disabled=True,
+                                                           on_click=self._change_slow_move)
+        self.no_pos_move_btn = components.RectOutlinedButton(text='机械移动', disabled=True,
+                                                             on_click=self._change_no_pos_move)
         self.add_next_btn = components.RectOutlinedButton(text='下层入口', disabled=True, on_click=self._add_next)
         self.add_reward_btn = components.RectOutlinedButton(text='沉浸奖励', disabled=True, on_click=self._add_reward)
         op_btn_row = ft.Row(controls=[self.back_btn, self.reset_btn, self.patrol_btn, self.disposable_btn,
@@ -261,10 +276,12 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         display_image = lm_info.origin.copy()
 
-        last_point: Point = self.start_pos_list[self.chosen_start_pos_idx].center if self.chosen_route.start_pos is None else self.chosen_route.start_pos
+        last_point: Point = self.start_pos_list[
+            self.chosen_start_pos_idx].center if self.chosen_route.start_pos is None else self.chosen_route.start_pos
         cv2.circle(display_image, last_point.tuple(), 5, color=(0, 255, 0), thickness=2)
         for route_item in self.chosen_route.op_list:
-            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE]:
+            if route_item['op'] in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
+                                    operation_const.OP_NO_POS_MOVE]:
                 pos = Point(x=route_item['data'][0], y=route_item['data'][1])
                 cv2.circle(display_image, pos.tuple(), 5, color=(0, 0, 255), thickness=-1)
                 if last_point is not None:
@@ -281,7 +298,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
             elif route_item['op'] in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
                 if last_point is not None:
                     cv2.circle(display_image, last_point.tuple(), 10, color=(0, 255, 255), thickness=2)
-            elif route_item['op'] == operation_const.OP_INTERACT:
+            elif route_item['op'] == operation_const.OP_INTERACT or route_item['op'] == operation_const.OP_CATAPULT:
                 if last_point is not None:
                     cv2.circle(display_image, last_point.tuple(), 12, color=(255, 0, 255), thickness=2)
             elif route_item['op'] == operation_const.OP_WAIT:
@@ -314,13 +331,16 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
 
         self.screenshot_btn.disabled = not route_chosen
 
-        self.previous_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx <= 0)
+        self.previous_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (
+                self.chosen_start_pos_idx <= 0)
 
-        self.next_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (self.chosen_start_pos_idx >= len(self.start_pos_list) - 1)
+        self.next_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or (
+                self.chosen_start_pos_idx >= len(self.start_pos_list) - 1)
 
         self.match_start_btn.disabled = not screenshot_mm or (self.mini_map_image is None)
 
-        self.set_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or not (0 <= self.chosen_start_pos_idx < len(self.start_pos_list))
+        self.set_start_btn.disabled = not route_chosen or start_chosen or not screenshot_mm or not (
+                0 <= self.chosen_start_pos_idx < len(self.start_pos_list))
 
         self.cal_pos_btn.disabled = not route_chosen or not start_chosen or not screenshot_mm
 
@@ -455,7 +475,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         if not self.chosen_route.is_last_op_move:
             return
         l = len(self.chosen_route.op_list)
-        self.chosen_route.op_list[l-1]['op'] = operation_const.OP_SLOW_MOVE
+        self.chosen_route.op_list[l - 1]['op'] = operation_const.OP_SLOW_MOVE
         self._on_op_list_changed()
 
     def _change_no_pos_move(self, e):
@@ -467,7 +487,7 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         if not self.chosen_route.is_last_op_move:
             return
         l = len(self.chosen_route.op_list)
-        self.chosen_route.op_list[l-1]['op'] = operation_const.OP_NO_POS_MOVE
+        self.chosen_route.op_list[l - 1]['op'] = operation_const.OP_NO_POS_MOVE
         self._on_op_list_changed()
 
     def _add_next(self, e):
@@ -699,7 +719,8 @@ class SimUniDraftRouteView(ft.Row, SrBasicView):
         if start_chosen:
             r_arr = PLANET_2_REGION[self.chosen_route.region.planet.np_id]
             self.switch_floor_dropdown.options = [
-                ft.dropdown.Option(text=str(r.floor), key=str(r.floor)) for r in r_arr if r.cn == self.chosen_route.region.cn
+                ft.dropdown.Option(text=str(r.floor), key=str(r.floor)) for r in r_arr if
+                r.cn == self.chosen_route.region.cn
             ]
 
         self.update()
