@@ -253,7 +253,9 @@ P04_R10_SUB_01_F2 = Region(10, "MJKJ1", "梦境空间1", P04, floor=2,
 P04_R10_SUB_01_F3 = Region(10, "MJKJ1", "梦境空间1", P04, floor=3,
                            parent=P04_R10, enter_template_id='mm_sp_05', enter_lm_pos=Point(387, 755),
                            large_map_scale=0)
-
+P04_R11_B1 = Region(11, "HCSH", "晖长石号", P04, floor=-1)
+P04_R11_F1 = Region(11, "HCSH", "晖长石号", P04, floor=1)
+P04_R11_F2 = Region(11, "HCSH", "晖长石号", P04, floor=2)
 
 # 这里的顺序需要保持和界面上的区域顺序一致
 PLANET_2_REGION: Dict[str, List[Region]] = {
@@ -265,7 +267,8 @@ PLANET_2_REGION: Dict[str, List[Region]] = {
     P04.np_id: [P04_R01_F1, P04_R01_F2, P04_R01_F3, P04_R02_F1, P04_R02_F2, P04_R02_F3, P04_R03, P04_R04, P04_R05_F1, P04_R05_F2, P04_R05_F3,
                 P04_R06_F1, P04_R06_F2, P04_R06_SUB_01, P04_R07_F1, P04_R07_F2, P04_R08_F1, P04_R08_F2,
                 P04_R09, P04_R09_SUB_01, P04_R09_SUB_02, P04_R09_SUB_03_B2, P04_R09_SUB_03_B1, P04_R09_SUB_03_F1, P04_R09_SUB_03_F2, P04_R09_SUB_04, P04_R09_SUB_05, P04_R09_SUB_06,
-                P04_R10, P04_R10_SUB_01_F2, P04_R10_SUB_01_F3]
+                P04_R10, P04_R10_SUB_01_F2, P04_R10_SUB_01_F3,
+                P04_R11_B1, P04_R11_F1, P04_R11_F2]
 }
 
 
@@ -814,7 +817,10 @@ P04_R10_SP08 = TransportPoint('CMDZLLZYX', '尘梦的赞礼·历战余响', P04_
 P04_R10_SP09 = TransportPoint('ZSZLNZHEC', '智识之蕾·拟造花萼（赤）', P04_R10, 'mm_tp_07', (1022, 383), tp_pos=(1028, 381))
 P04_R10_SP10 = TransportPoint('YQZJQSCD', '勇骑之径·侵蚀隧洞', P04_R10, 'mm_tp_09', (222, 627), tp_pos=(228, 631))
 
-
+P04_R11_SP01 = TransportPoint('ZYHC', '主宴会舱', P04_R11_F1, 'mm_tp_03', (499, 649), tp_pos=(521, 663))
+P04_R11_SP02 = TransportPoint('ZCXXS', '中舱休息室', P04_R11_B1, 'mm_tp_03', (595, 560), tp_pos=(573, 575))
+P04_R11_SP03 = TransportPoint('WBYC', '艉部泳池', P04_R11_F1, 'mm_tp_03', (543, 956), tp_pos=(573, 975))
+P04_R11_SP04 = TransportPoint('JSC', '驾驶舱', P04_R11_F1, 'mm_tp_03', (586, 169), tp_pos=(571, 167))
 
 REGION_2_SP = {
     P01_R01.pr_id: [P01_R01_SP03],
@@ -874,6 +880,7 @@ REGION_2_SP = {
     P04_R09_SUB_05.pr_id: [P04_R09_SUB_05_SP01, P04_R09_SUB_05_SP02, P04_R09_SUB_05_SP03],
     P04_R09_SUB_06.pr_id: [P04_R09_SUB_06_SP01, P04_R09_SUB_06_SP02, P04_R09_SUB_06_SP03],
     P04_R10.pr_id: [P04_R10_SP01, P04_R10_SP02, P04_R10_SP03, P04_R10_SP04, P04_R10_SP05, P04_R10_SP06, P04_R10_SP07, P04_R10_SP08],
+    P04_R11_F1.pr_id: [P04_R11_SP01, P04_R11_SP02, P04_R11_SP03, P04_R11_SP04],
 }
 
 def get_sp_by_cn(planet_cn: str, region_cn: str, floor: int, tp_cn: str) -> TransportPoint:

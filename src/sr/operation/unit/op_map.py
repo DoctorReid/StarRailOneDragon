@@ -12,6 +12,7 @@ from basic.i18_utils import gt
 from basic.img import MatchResult, cv2_utils, MatchResultList
 from basic.log_utils import log
 from sr import const
+from sr.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr.const import STANDARD_RESOLUTION_W, game_config_const
 from sr.const.map_const import Planet, PLANET_LIST, best_match_planet_by_name, Region, best_match_region_by_name, \
     PLANET_2_REGION, TransportPoint
@@ -131,6 +132,10 @@ class ChooseRegion(StateOperation):
         self.skip_planet_check: bool = skip_planet_check  # 跳过当前星球的检测
         self.planet: Planet = region.planet
         self.region: Region = region  # 目标区域
+        self.region_config: WorldPatrolConfig = ctx.world_patrol_config
+        if region.cn == '晖长石号':
+            region.cn = self.region_config.radiant_feldspar_name
+
         self.region_to_choose_1: Region = region if region.parent is None else region.parent  # 第一步需要选择的区域
         self.sub_region_clicked: bool = False  # 是否已经点击了子区域
 
@@ -176,7 +181,9 @@ class ChooseRegion(StateOperation):
         # 判断当前选择区域是否目标区域
         current_region_name = large_map.get_active_region_name(screen, self.ctx.ocr)
         current_region = best_match_region_by_name(current_region_name, planet=self.planet)
-        log.info('当前区域文本 %s 匹配区域名称 %s', current_region_name, current_region.cn if current_region is not None else '')
+        print(current_region_name, current_region)
+        log.info('当前区域文本 %s 匹配区域名称 %s', current_region_name,
+                 current_region.cn if current_region is not None else '')
 
         is_current: bool = (current_region is not None and current_region.pr_id == self.region_to_choose_1.pr_id)
 
@@ -204,7 +211,7 @@ class ChooseRegion(StateOperation):
         else:
             return self.round_success()
 
-    def get_region_pos_list(self, screen: MatLike, confidence:int = 0.3) -> List[MatchResult]:
+    def get_region_pos_list(self, screen: MatLike, confidence: int = 0.3) -> List[MatchResult]:
         """
         获取当前屏幕显示的区域
         MatchResult.data = Region
@@ -465,7 +472,6 @@ class ChooseFloor(Operation):
 
 
 class ChooseTransportPoint(Operation):
-
     tp_name_rect: ClassVar[Rect] = Rect(1485, 120, 1870, 170)  # 右侧显示传送点名称的区域
     drag_distance: ClassVar[int] = -200
 
@@ -553,7 +559,8 @@ class ChooseTransportPoint(Operation):
             log.info('当前选择传送点名称 %s', tp_name_str)
             # cv2_utils.show_image(gold_part, win_name='gold_part')
             if (tp_name_str is not None and
-                    str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True, percent=self.gc.special_point_lcs_percent)):
+                    str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True,
+                                          percent=self.gc.special_point_lcs_percent)):
                 # 点击传送
                 to_click = large_map.TP_BTN_RECT.left_top
                 for r in tp_btn_ocr.values():
@@ -574,7 +581,8 @@ class ChooseTransportPoint(Operation):
             sm_offset_y = self.tp.lm_pos.y - offset.y
             sp_rect = Rect(sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100)
             crop_screen_map, sp_rect = cv2_utils.crop_image(screen_part, sp_rect)
-            result: MatchResultList = self.ctx.im.match_template(crop_screen_map, self.tp.template_id, threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
+            result: MatchResultList = self.ctx.im.match_template(crop_screen_map, self.tp.template_id,
+                                                                 threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
 
             if result.max is not None:
                 return MatchResult(result.max.confidence,
@@ -586,7 +594,8 @@ class ChooseTransportPoint(Operation):
             else:
                 return None
         else:
-            result: MatchResultList = self.ctx.im.match_template(screen_part, self.tp.template_id, threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
+            result: MatchResultList = self.ctx.im.match_template(screen_part, self.tp.template_id,
+                                                                 threshold=const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
             return result.max
 
     def check_and_click_sp_cn(self, screen) -> bool:

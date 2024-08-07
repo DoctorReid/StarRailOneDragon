@@ -1,0 +1,17 @@
+author: ['obtus']
+planet: '匹诺康尼'
+region: '晖长石号'
+floor: 1
+tp: '驾驶舱'
+route:
+  - idx: 1
+    op: 'move'
+    data: [555, 198]
+  - idx: 2
+    op: 'move'
+    data: [553, 243]
+  - idx: 3
+    op: 'move'
+    data: [584, 263]
+  - idx: 4
+    op: 'disposable'

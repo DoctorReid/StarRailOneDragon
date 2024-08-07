@@ -4,3 +4,4 @@ whitelist_id: ''
 technique_fight: false
 technique_only: false
 max_consumable_cnt: 0
+radiant_feldspar_name: "\u6656\u957F\u77F3\u53F7"
