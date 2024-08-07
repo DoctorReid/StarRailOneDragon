@@ -1,0 +1,28 @@
+author: ['obtus', 'DoctorReid']
+planet: '匹诺康尼'
+region: '晖长石号'
+floor: 1
+tp: '艉部泳池'
+route:
+  - idx: 1
+    op: 'move'
+    data: [539, 940]
+  - idx: 2
+    op: 'move'
+    data: [535, 895]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
+    data: [535, 890]
+  - idx: 5
+    op: 'move'
+    data: [574, 879]
+  - idx: 6
+    op: 'move'
+    data: [574, 828]
+  - idx: 7
+    op: 'move'
+    data: [548, 793]
+  - idx: 8
+    op: 'disposable'

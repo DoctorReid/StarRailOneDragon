@@ -53,3 +53,11 @@ class WorldPatrolConfig(ConfigHolder):
     @max_consumable_cnt.setter
     def max_consumable_cnt(self, new_value: int):
         self.update('max_consumable_cnt', new_value)
+
+    @property
+    def radiant_feldspar_name(self) -> str:
+        return self.get('radiant_feldspar_name', '晖长石号')
+
+    @radiant_feldspar_name.setter
+    def radiant_feldspar_name(self, new_value: str):
+        self.update('radiant_feldspar_name', new_value)

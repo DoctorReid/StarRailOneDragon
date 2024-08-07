@@ -17,13 +17,15 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
 
         plan_title = components.CardTitleText(gt('锄大地', 'ui'))
 
-        self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i))for i in range(10)],
+        self.team_num_dropdown = ft.Dropdown(options=[ft.dropdown.Option(text=str(i), key=str(i)) for i in range(10)],
                                              on_change=self._on_team_num_changed)
         self.whitelist_dropdown = ft.Dropdown(on_change=self._on_whitelist_changed)
         self.tech_fight_cb = ft.Checkbox(on_change=self._on_tech_fight_changed)
         self.tech_only_cb = ft.Checkbox(on_change=self._on_tech_only_changed)
         self.max_consumable_cnt = ft.Dropdown(options=[ft.dropdown.Option(key=str(i), text=str(i)) for i in range(6)],
                                               on_change=self._on_max_consumable_cnt_changed)
+        self.radiant_feldspar_name = ft.Dropdown(options=[ft.dropdown.Option(text=i, key=i) for i in ['晖长石号', '塔塔洛夫号', '开拓之尾号', '飞翔时针号']], on_change=self._on_radiant_feldspar_name_change)
+
         self.plan_list = SettingsList(
             controls=[
                 SettingsListItem('使用配队', self.team_num_dropdown),
@@ -31,6 +33,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
                 SettingsListItem('秘技开怪', self.tech_fight_cb),
                 SettingsListItem('仅秘技开怪', self.tech_only_cb),
                 SettingsListItem('单次最多消耗品个数', self.max_consumable_cnt),
+                SettingsListItem('晖长石号名称', self.radiant_feldspar_name),
             ],
             width=400
         )
@@ -40,6 +43,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
     def handle_after_show(self):
         self._load_whitelist()
         self._init_by_config()
+
 
     def _load_whitelist(self):
         """
@@ -62,6 +66,7 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         self.tech_fight_cb.value = config.technique_fight
         self.tech_only_cb.value = config.technique_only
         self.max_consumable_cnt.value = str(config.max_consumable_cnt)
+        self.radiant_feldspar_name.value = str(config.radiant_feldspar_name)
         self.update()
 
     def _on_team_num_changed(self, e):
@@ -104,9 +109,16 @@ class SettingsWorldPatrolView(SrBasicView, components.Card):
         """
         self.sr_ctx.world_patrol_config.max_consumable_cnt = int(self.max_consumable_cnt.value)
 
+    def _on_radiant_feldspar_name_change(self, e):
+        """
+        晖长石号名称
+        :param e:
+        :return:
+        """
+        self.sr_ctx.world_patrol_config.radiant_feldspar_name = self.radiant_feldspar_name.value
+
 
 _settings_world_patrol_view: Optional[SettingsWorldPatrolView] = None
-
 
 def get(page: ft.Page, ctx: Context) -> SettingsWorldPatrolView:
     global _settings_world_patrol_view
