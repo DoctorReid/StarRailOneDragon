@@ -11,6 +11,7 @@ from sr.context.context import Context
 from sr.operation import Operation, OperationResult, OperationFail, StateOperation, \
     StateOperationNode, OperationOneRoundResult, StateOperationEdge
 from sr.operation.combine.transport import Transport
+from sr.operation.unit.catapult import Catapult
 from sr.operation.unit.interact import Interact
 from sr.operation.unit.move import MoveDirectly
 from sr.operation.unit.record_coordinate import RecordCoordinate
@@ -23,7 +24,6 @@ from sr.screen_area.screen_normal_world import ScreenNormalWorld
 
 
 class WorldPatrolRunRoute(StateOperation):
-
     STATUS_ALL_DONE: ClassVar[str] = '执行结束'
 
     def __init__(self, ctx: Context,
@@ -131,7 +131,8 @@ class WorldPatrolRunRoute(StateOperation):
             return self.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
 
         route_item = self.route.route_list[self.op_idx]
-        next_route_item = self.route.route_list[self.op_idx + 1] if self.op_idx + 1 < len(self.route.route_list) else None
+        next_route_item = self.route.route_list[self.op_idx + 1] if self.op_idx + 1 < len(
+            self.route.route_list) else None
 
         if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
@@ -146,6 +147,8 @@ class WorldPatrolRunRoute(StateOperation):
                                        disposable=True)
         elif route_item.op == operation_const.OP_INTERACT:
             op = Interact(self.ctx, route_item.data)
+        elif route_item.op == operation_const.OP_CATAPULT:
+            op = Catapult(self.ctx)
         elif route_item.op == operation_const.OP_WAIT:
             op = self.wait(route_item.data[0], float(route_item.data[1]))
         elif route_item.op == operation_const.OP_UPDATE_POS:
@@ -163,13 +166,13 @@ class WorldPatrolRunRoute(StateOperation):
         # 以下代码仅用作记录坐标和小地图测试用
         if self.ctx.record_coordinate and op_result.success and (
                 (  # 当前是移动 下一个不是战斗 避免被怪攻击卡死
-                    route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE] and
-                    next_route_item is not None and
-                    next_route_item.op not in [operation_const.OP_PATROL]
+                        route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE] and
+                        next_route_item is not None and
+                        next_route_item.op not in [operation_const.OP_PATROL]
                 )
                 or
                 (  # 当前是战斗
-                    route_item.op == operation_const.OP_PATROL
+                        route_item.op == operation_const.OP_PATROL
                 )
         ):
             record_times = 5

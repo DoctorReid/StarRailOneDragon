@@ -101,6 +101,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.disposable_btn = components.RectOutlinedButton(text='可破坏物', disabled=True, on_click=self.add_disposable)
         self.interact_text = ft.TextField(label="交互文本", width=150, disabled=True)
         self.interact_btn = components.RectOutlinedButton(text='交互', disabled=True, on_click=self.on_interact)
+        self.catapult_btn = components.RectOutlinedButton(text='弹珠机发射', disabled=True, on_click=self.on_catapult)
         self.update_pos_btn = components.RectOutlinedButton(text='传送更新坐标', disabled=True, on_click=self.on_update_pos)
         self.wait_timeout_text = ft.TextField(
             label='等待秒数', width=100,
@@ -119,13 +120,14 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         screen_row = ft.Row(
             spacing=10,
             controls=[self.screenshot_btn, self.cal_pos_btn,
-                      self.screen_cal_pos_btn, self.screen_patrol_btn, self.screen_disposable_btn]
+                      self.screen_cal_pos_btn, self.screen_patrol_btn, self.screen_disposable_btn, self.catapult_btn]
         )
 
         ctrl_row = ft.Row(
             spacing=10,
             controls=[self.patrol_btn, self.disposable_btn, self.interact_text, self.interact_btn,
-                      self.wait_dropdown, self.wait_timeout_text, self.add_wait_btn, self.update_pos_btn, self.no_run_btn]
+                      self.wait_dropdown, self.wait_timeout_text, self.add_wait_btn, self.update_pos_btn,
+                      self.no_run_btn]
         )
 
         self.large_map_width = 1000
@@ -680,6 +682,13 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.chosen_route.add_interact(self.interact_text.value)
         self.draw_route_and_display()
 
+    def on_catapult(self, e):
+        if self.chosen_route is None:
+            log.error('未选择路线')
+            return
+        self.chosen_route.add_catapult()
+        self.draw_route_and_display()
+
     def on_wait_changed(self, e):
         if self.wait_dropdown.value == sr.const.operation_const.WAIT_TYPE_IN_WORLD:
             self.wait_timeout_text.value = '20'  # 给主界面加一个20秒固定超时时间
@@ -747,6 +756,7 @@ class WorldPatrolDraftRouteView(ft.Row, SrBasicView):
         self.disposable_btn.disabled = self.chosen_sp is None
         self.interact_text.disabled = self.chosen_sp is None
         self.interact_btn.disabled = self.chosen_sp is None
+        self.catapult_btn.disabled = self.chosen_sp is None
         self.wait_timeout_text.disabled = self.chosen_sp is None
         self.wait_dropdown.disabled = self.chosen_sp is None
         self.add_wait_btn.disabled = self.chosen_sp is None
@@ -834,7 +844,7 @@ def draw_route_in_image(ctx: Context, region: Region, route: WorldPatrolRoute):
         elif route_item.op == operation_const.OP_DISPOSABLE:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 10, color=(67, 34, 49), thickness=2)
-        elif route_item.op == operation_const.OP_INTERACT:
+        elif route_item.op == operation_const.OP_INTERACT or route_item.op == operation_const.OP_CATAPULT:
             if last_point is not None:
                 cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
         elif route_item.op == operation_const.OP_WAIT:

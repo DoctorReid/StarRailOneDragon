@@ -253,7 +253,7 @@ class WorldPatrolRoute:
                     last_floor = pos[2]
                 else:
                     cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
-            elif route_item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
+            elif route_item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE, operation_const.OP_CATAPULT]:
                 cfg += "    op: '%s'\n" % route_item.op
             elif route_item.op == operation_const.OP_INTERACT:
                 cfg += "    op: '%s'\n" % route_item.op
@@ -349,6 +349,16 @@ class WorldPatrolRoute:
         :return:
         """
         to_add = WorldPatrolRouteOperation(op=operation_const.OP_INTERACT, data=interact_text)
+        self.route_list.append(to_add)
+        self.init_idx()
+
+    def add_catapult(self):
+        """
+        增加交互指令
+        :param interact_text: 交互文本
+        :return:
+        """
+        to_add = WorldPatrolRouteOperation(op=operation_const.OP_CATAPULT)
         self.route_list.append(to_add)
         self.init_idx()
 
