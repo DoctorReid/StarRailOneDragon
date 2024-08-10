@@ -46,7 +46,7 @@ class GetTeamMemberInWorld(Operation):
         rect = GetTeamMemberInWorld.CHARACTER_NAME_RECT_LIST[self.character_num - 1]
         part, _ = cv2_utils.crop_image(screen, rect)
 
-        character_name = self.ctx.ocr.ocr_for_single_line(part)
+        character_name = self.ctx.ocr.run_ocr_single_line(part)
         best_character: Optional[Character] = None
         best_lcs: Optional[int] = None
         for character in CHARACTER_LIST:

@@ -48,7 +48,7 @@ class EchoOfWarApp(Application):
     def _check_power(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
         part, _ = cv2_utils.crop_image(screen, large_map.LARGE_MAP_POWER_RECT)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
         self.power = str_utils.get_positive_digits(ocr_result)
         log.info('当前体力 %d', self.power)
         return self.round_success()

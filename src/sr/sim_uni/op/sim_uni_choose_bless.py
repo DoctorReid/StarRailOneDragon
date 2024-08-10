@@ -82,13 +82,13 @@ def get_bless_pos_by_rect_list(screen: MatLike,
 
     for bless_rect_list in rect_list:
         path_part = cv2_utils.crop_image_only(screen, bless_rect_list[1])
-        path_ocr = ocr.ocr_for_single_line(path_part)
+        path_ocr = ocr.run_ocr_single_line(path_part)
         # cv2_utils.show_image(path_black_part, wait=0)
         if path_ocr is None or len(path_ocr) == 0:
             break  # 其中有一个位置识别不到就认为不是使用这些区域了 加速这里的判断
 
         title_part = cv2_utils.crop_image_only(screen, bless_rect_list[0])
-        title_ocr = ocr.ocr_for_single_line(title_part)
+        title_ocr = ocr.run_ocr_single_line(title_part)
 
         bless = match_best_bless_by_ocr(title_ocr, path_ocr)
 
@@ -311,7 +311,7 @@ class SimUniChooseBless(StateOperation):
         upper_color = np.array([255, 255, 255], dtype=np.uint8)
         white_part = cv2.inRange(part, lower_color, upper_color)
 
-        ocr_result = self.ctx.ocr.ocr_for_single_line(white_part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(white_part)
 
         return str_utils.find_by_lcs(gt('重置祝福', 'ocr'), ocr_result)
 
@@ -509,7 +509,7 @@ class SimUniUpgradeBless(StateOperation):
         :return:
         """
         part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.LEFT_RECT)
-        digit_str = self.ctx.ocr.ocr_for_single_line(part)
+        digit_str = self.ctx.ocr.run_ocr_single_line(part)
         return str_utils.get_positive_digits(digit_str, err=None)
 
     def _check_can_upgrade(self) -> OperationOneRoundResult:
@@ -541,7 +541,7 @@ class SimUniUpgradeBless(StateOperation):
             digit_part = cv2_utils.crop_image_only(screen, digit_rect)
             white_part = cv2_utils.get_white_part(digit_part)
             # cv2_utils.show_image(white_part, win_name='digit_part', wait=0)
-            ocr_result = self.ctx.ocr.ocr_for_single_line(white_part)
+            ocr_result = self.ctx.ocr.run_ocr_single_line(white_part)
             digit = str_utils.get_positive_digits(ocr_result, 0)
             if digit == 0:
                 continue
@@ -592,7 +592,7 @@ class SimUniUpgradeBless(StateOperation):
     def _can_upgrade(self, screen: MatLike) -> bool:
         part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.UPGRADE_BTN)
         white = cv2_utils.get_white_part(part)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(white)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(white)
 
         return str_utils.find_by_lcs(gt('强化', 'ocr'), ocr_result, percent=0.1)
 

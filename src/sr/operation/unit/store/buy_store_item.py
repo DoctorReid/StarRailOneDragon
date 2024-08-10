@@ -78,7 +78,7 @@ class BuyStoreItem(Operation):
 
         template_id: str = 'store_buy_max' if self.buy_max else 'store_buy_max'
 
-        ocr_result: str = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result: str = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
 
         if str_utils.find_by_lcs(gt('确认', 'ocr'), ocr_result, 0.3):
             return self.ctx.controller.click(BuyStoreItem.CONFIRM_BTN_RECT.center)

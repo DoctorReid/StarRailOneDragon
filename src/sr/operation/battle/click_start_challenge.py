@@ -24,7 +24,7 @@ class ClickStartChallenge(Operation):
     def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()
         part, _ = cv2_utils.crop_image(screen, ClickStartChallenge.START_CHALLENGE_BTN_RECT)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
         if str_utils.find_by_lcs(gt('开始挑战', 'ocr'), ocr_result, percent=0.5):
             if self.ctx.controller.click(ClickStartChallenge.START_CHALLENGE_BTN_RECT.center):
                 return Operation.SUCCESS

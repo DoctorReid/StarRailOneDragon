@@ -49,7 +49,7 @@ class GetTrainingScore(Operation):
             screen = self.screenshot()
 
         part, _ = cv2_utils.crop_image(screen, GetTrainingScore.SCORE_RECT)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
 
         for i in range(1, 6):  # 优先判断1-5数字是否有出现
             if ocr_result.find(str(i)) != -1:

@@ -26,7 +26,7 @@ class ClickChallengeConfirm(Operation):
     def _execute_one_round(self) -> int:
         screen: MatLike = self.screenshot()
         part, _ = cv2_utils.crop_image(screen, ClickChallengeConfirm.CONFIRM_BTN_RECT)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
 
         if str_utils.find_by_lcs(gt('确认' 'ocr'), ocr_result, 0.1):
             if self.ctx.controller.click(ClickChallengeConfirm.CONFIRM_BTN_RECT.center):

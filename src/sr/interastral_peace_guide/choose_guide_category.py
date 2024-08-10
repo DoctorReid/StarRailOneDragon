@@ -42,7 +42,7 @@ class ChooseGuideCategory(StateOperation):
         part = cv2_utils.crop_image_only(screen, area.rect)
 
         target_tab = self.target.tab.cn
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         if str_utils.find_by_lcs(ocr_result, gt(target_tab, 'ocr'), percent=0.55):
             return self.round_success()
         else:

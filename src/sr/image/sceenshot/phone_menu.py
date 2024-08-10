@@ -206,7 +206,7 @@ def get_nameless_honor_tab_1_cancel_btn(screen: MatLike, ocr: OcrMatcher) -> Opt
     """
     part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_1_CANCEL_BTN)
 
-    ocr_result = ocr.ocr_for_single_line(part)
+    ocr_result = ocr.run_ocr_single_line(part)
     if str_utils.find_by_lcs(gt('取消', 'ocr'), ocr_result, percent=0.3):
         x, y = NAMELESS_HONOR_TAB_1_CANCEL_BTN.left_top.tuple()
         x2, y2 = NAMELESS_HONOR_TAB_1_CANCEL_BTN.left_top.tuple()

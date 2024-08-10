@@ -143,7 +143,7 @@ class TreasuresLightwardApp(Application):
                 find_schedule = True
 
                 part = cv2_utils.crop_image_only(screen, name_area_list[i].rect)
-                schedule_name = self.ctx.ocr.ocr_for_single_line(part)
+                schedule_name = self.ctx.ocr.run_ocr_single_line(part)
                 existed_schedule: TreasuresLightwardScheduleRecord = self.run_record.match_existed_schedule(self.schedule_type, schedule_name)
                 if existed_schedule is None:
                     self.challenge_schedule = self.run_record.add_schedule(self.schedule_type, schedule_name)

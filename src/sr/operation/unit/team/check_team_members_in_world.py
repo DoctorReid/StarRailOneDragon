@@ -72,7 +72,7 @@ class CheckTeamMembersInWorld(Operation):
 
             part = cv2_utils.crop_image_only(screen, area.rect)
 
-            character_name = self.ctx.ocr.ocr_for_single_line(part)
+            character_name = self.ctx.ocr.run_ocr_single_line(part)
             best_character: Optional[Character] = None
             best_lcs: Optional[int] = None
             for character in CHARACTER_LIST:

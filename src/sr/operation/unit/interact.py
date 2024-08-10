@@ -42,23 +42,17 @@ def get_move_interact_words(ctx: Context, screen: MatLike, single_line: bool = F
     :param single_line:
     :return:
     """
-    l = 200
-    u = 255
-    lower_color = np.array([l, l, l], dtype=np.uint8)
-    upper_color = np.array([u, u, u], dtype=np.uint8)
     area: ScreenArea = ScreenNormalWorld.MOVE_INTERACT_SINGLE_LINE.value if single_line else ScreenNormalWorld.MOVE_INTERACT.value
     part, _ = cv2_utils.crop_image(screen, area.rect)
-    white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
-    # cv2_utils.show_image(white_part, wait=0)
 
     if single_line:
-        word = ctx.ocr.ocr_for_single_line(part)
+        word = ctx.ocr.run_ocr_single_line(part)
         if word is not None:
             return [MatchResult(1, area.rect.x1, area.rect.y1, area.rect.width, area.rect.height, data=word)]
         else:
             return []
     else:
-        ocr_result = ctx.ocr.run_ocr(white_part)
+        ocr_result = ctx.ocr.run_ocr(part)
         return [i.max for i in ocr_result.values()]
 
 

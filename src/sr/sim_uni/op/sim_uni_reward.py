@@ -103,7 +103,7 @@ class SimUniReward(StateOperation):
             part = cv2_utils.crop_image_only(screen, rect)
             black_part = cv2_utils.color_in_range(part, [0, 0, 0], [80, 80, 80])
             # cv2_utils.show_image(black_part, win_name='black_part', wait=0)
-            ocr_result = self.ctx.ocr.ocr_for_single_line(black_part)
+            ocr_result = self.ctx.ocr.run_ocr_single_line(black_part)
             digit = str_utils.get_positive_digits(ocr_result, err=0)
             if digit > 0:
                 return rect

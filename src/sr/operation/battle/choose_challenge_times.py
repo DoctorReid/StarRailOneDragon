@@ -54,7 +54,7 @@ class ChooseChallengeTimes(Operation):
         """
         part, _ = cv2_utils.crop_image(screen, ChooseChallengeTimes.CURRENT_TIMES_RECT)
         # cv2_utils.show_image(part, win_name='_get_current_times')
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
         return str_utils.get_positive_digits(ocr_result)
 
     def _click_plus(self, screen: MatLike, click_times: int) -> bool:

@@ -116,7 +116,7 @@ class ChooseOeFile(StateOperation):
         area1 = ScreenDivUni.OE_CONFIRM_SWITCH_BTN.value
         area2 = ScreenDivUni.OE_FILE_USING_BTN.value
         part = cv2_utils.crop_image_only(screen, area1.rect)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
 
         if str_utils.find_by_lcs(ocr_result, area1.text, percent=area1.lcs_percent):
             self.ctx.controller.click(area1.center)

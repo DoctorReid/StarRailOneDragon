@@ -153,7 +153,7 @@ def get_region_name(screen: MatLike, ocr: OcrMatcher) -> str:
     :return:
     """
     part, _ = cv2_utils.crop_image(screen, TargetRect.REGION_NAME.value)
-    return ocr.ocr_for_single_line(part)
+    return ocr.run_ocr_single_line(part)
 
 
 def is_empty_to_close(screen: MatLike, ocr: OcrMatcher) -> bool:
@@ -178,7 +178,7 @@ def is_battle_fail(screen: MatLike, ocr: OcrMatcher) -> bool:
     :return:
     """
     part, _ = cv2_utils.crop_image(screen, TargetRect.BATTLE_FAIL.value)
-    ocr_result = ocr.ocr_for_single_line(part)
+    ocr_result = ocr.run_ocr_single_line(part)
 
     return str_utils.find_by_lcs(gt('战斗失败', 'ui'), ocr_result, percent=0.51)
 
@@ -191,7 +191,7 @@ def is_sim_uni_get_reward(screen: MatLike, ocr: OcrMatcher) -> bool:
     :return:
     """
     part = cv2_utils.crop_image_only(screen, TargetRect.SIM_UNI_REWARD.value)
-    ocr_result = ocr.ocr_for_single_line(part)
+    ocr_result = ocr.run_ocr_single_line(part)
     return str_utils.find_by_lcs(gt('沉浸奖励', 'ocr'), ocr_result, percent=0.1)
 
 
@@ -204,7 +204,7 @@ def in_screen_by_area_text(screen: MatLike, ocr: OcrMatcher, area: ScreenArea) -
     :return:
     """
     part = cv2_utils.crop_image_only(screen, area.rect)
-    ocr_result = ocr.ocr_for_single_line(part)
+    ocr_result = ocr.run_ocr_single_line(part)
     return str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent)
 
 
@@ -423,7 +423,7 @@ def get_tp_battle_screen_state(
 
     for area in area_list:
         part = cv2_utils.crop_image_only(screen, area.rect)
-        ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result = ocr.run_ocr_single_line(part, strict_one_line=True)
         if battle_success and str_utils.find_by_lcs(gt(success_area.text, 'ocr'), ocr_result, percent=success_area.lcs_percent):
             return success_area.status
         elif battle_fail and str_utils.find_by_lcs(gt(fail_area.text, 'ocr'), ocr_result, percent=fail_area.lcs_percent):

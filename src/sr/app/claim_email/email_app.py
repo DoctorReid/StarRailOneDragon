@@ -62,7 +62,7 @@ class EmailApp(Application):
     def _claim(self) -> OperationOneRoundResult:
         screen: MatLike = self.screenshot()
         claim_all_part, _ = cv2_utils.crop_image(screen, EmailApp.CLAIM_ALL_RECT)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(claim_all_part, strict_one_line=True)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(claim_all_part, strict_one_line=True)
         if str_utils.find_by_lcs(gt('全部领取', 'ocr'), ocr_result, percent=0.5):
             self.ctx.controller.click(EmailApp.CLAIM_ALL_RECT.center)
             return self.round_success(wait=1)

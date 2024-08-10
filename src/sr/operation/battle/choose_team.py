@@ -92,7 +92,8 @@ class ChooseTeam(Operation):
         # cv2_utils.show_image(mask2, win_name='mask2')
         # cv2_utils.show_image(mask, win_name='get_all_num_pos', wait=0)
 
-        ocr_map = self.ctx.ocr.run_ocr(mask)
+        to_ocr = cv2.bitwise_or(part, part, mask=mask)
+        ocr_map = self.ctx.ocr.run_ocr(to_ocr)
 
         team_num_pos: dict[int, Point] = {}
 

@@ -137,7 +137,7 @@ class SimUniChooseCurio(StateOperation):
 
         for rect in rect_list:
             title_part = cv2_utils.crop_image_only(screen, rect)
-            title_ocr = self.ctx.ocr.ocr_for_single_line(title_part)
+            title_ocr = self.ctx.ocr.run_ocr_single_line(title_part)
             # cv2_utils.show_image(title_part, wait=0)
 
             curio = match_best_curio_by_ocr(title_ocr)
@@ -330,7 +330,7 @@ class SimUniDropCurio(StateOperation):
 
         for rect in rect_list:
             title_part = cv2_utils.crop_image_only(screen, rect)
-            title_ocr = self.ctx.ocr.ocr_for_single_line(title_part)
+            title_ocr = self.ctx.ocr.run_ocr_single_line(title_part)
             # cv2_utils.show_image(title_part, wait=0)
 
             curio = match_best_curio_by_ocr(title_ocr)

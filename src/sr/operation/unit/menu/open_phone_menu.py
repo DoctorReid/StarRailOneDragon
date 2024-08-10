@@ -27,4 +27,4 @@ class OpenPhoneMenu(Operation):
         self.ctx.controller.esc()
         log.info('尝试打开菜单')
 
-        return self.round_retry(status='未在菜单画面', wait=1)
+        return self.round_retry(status='未在菜单画面', wait=2)

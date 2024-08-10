@@ -63,7 +63,7 @@ def get_all_mission_num_pos(ctx: Context, screen: MatLike) -> dict[int, MatchRes
 
         white_number_part = cv2.inRange(number_part, lower_color, upper_color)
 
-        ocr_result = ctx.ocr.ocr_for_single_line(white_number_part)
+        ocr_result = ctx.ocr.run_ocr_single_line(white_number_part)
         # cv2_utils.show_image(white_number_part, win_name='part', wait=0)
         digit_str = str_utils.remove_not_digit(ocr_result)
         if len(digit_str) != 2:  # 避免识别错误 只有两位数字的才认为是对的

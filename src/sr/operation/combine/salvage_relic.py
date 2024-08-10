@@ -107,7 +107,7 @@ class DoSalvageRelic(Operation):
             screen = self.screenshot()
 
         part, _ = cv2_utils.crop_image(screen, DoSalvageRelic.FILTER_RULE_RECT)
-        ocr_str = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_str = self.ctx.ocr.run_ocr_single_line(part)
 
         return str_utils.find_by_lcs(gt('筛选规则', 'ocr'), ocr_str, percent=0.1)
 
@@ -170,7 +170,7 @@ class DoSalvageRelic(Operation):
             screen = self.screenshot()
 
         part, _ = cv2_utils.crop_image(screen, DoSalvageRelic.CONFIRM_RECT)
-        ocr_str = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_str = self.ctx.ocr.run_ocr_single_line(part)
 
         return str_utils.find_by_lcs(gt('确认', 'ocr'), ocr_str, percent=0.1)
 

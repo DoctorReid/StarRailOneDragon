@@ -125,11 +125,11 @@ class TrailblazePower(Application):
         :return:
         """
         part = cv2_utils.crop_image_only(screen, TrailblazePower.SIM_UNI_POWER_RECT)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         power = str_utils.get_positive_digits(ocr_result, err=None)
 
         part = cv2_utils.crop_image_only(screen, TrailblazePower.SIM_UNI_QTY_RECT)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         qty = str_utils.get_positive_digits(ocr_result, err=None)
 
         return power, qty

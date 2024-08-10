@@ -24,7 +24,7 @@ class TakePhoto(Operation):
         screen = self.screenshot()
 
         part, _ = cv2_utils.crop_image(screen, TakePhoto.SAVE_BTN)
-        ocr_str = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_str = self.ctx.ocr.run_ocr_single_line(part)
 
         if str_utils.find_by_lcs(gt('保存', 'ocr'), ocr_str, percent=0.1):
             return self.round_success()

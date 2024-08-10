@@ -87,7 +87,7 @@ class Synthesize(StateOperation):
         area = ScreenSynthesize.CATEGORY_TITLE.value
         part = cv2_utils.crop_image_only(screen, area.rect)
 
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
         if str_utils.find_by_lcs(ocr_result, gt(category.name, 'ocr'), percent=0.5):
             return self.round_success()
         else:

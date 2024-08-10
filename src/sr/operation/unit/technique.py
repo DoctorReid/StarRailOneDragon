@@ -25,7 +25,7 @@ def pc_can_use_technique(screen: MatLike, ocr: OcrMatcher, key: str) -> bool:
     area = ScreenNormalWorld.TECH_KEY.value
     part = cv2_utils.crop_image_only(screen, area.rect)
     # cv2_utils.show_image(part, win_name='pc_can_use_technique', wait=0)
-    ocr_result = ocr.ocr_for_single_line(part)
+    ocr_result = ocr.run_ocr_single_line(part)
 
     if ocr_result is not None and ocr_result.lower() == key.lower():
         return True
@@ -42,7 +42,7 @@ def get_technique_point(screen: MatLike,
     for rect in rect_list:
         part = cv2_utils.crop_image_only(screen, rect)
 
-        ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result = ocr.run_ocr_single_line(part, strict_one_line=True)
         point = str_utils.get_positive_digits(ocr_result, None)
         if point is not None:
             return point

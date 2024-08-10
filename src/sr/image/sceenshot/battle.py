@@ -134,7 +134,7 @@ def get_battle_result_str(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
     """
     for rect in [AFTER_BATTLE_RESULT_RECT_1, AFTER_BATTLE_RESULT_RECT_2]:
         part, _ = cv2_utils.crop_image(screen, rect)
-        ocr_result = ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result = ocr.run_ocr_single_line(part, strict_one_line=True)
         if str_utils.find_by_lcs(gt('成功', 'ocr'), ocr_result, percent=0.1):
             return gt('挑战成功', 'ocr')
         elif str_utils.find_by_lcs(gt('失败', 'ocr'), ocr_result, percent=0.1):

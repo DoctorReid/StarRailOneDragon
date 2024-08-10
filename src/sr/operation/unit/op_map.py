@@ -90,9 +90,10 @@ class ChoosePlanet(Operation):
         # 二值化后更方便识别字体
         gray = cv2.cvtColor(screen, cv2.COLOR_RGB2GRAY)
         _, mask = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
+        part = cv2.bitwise_and(screen, screen, mask=mask)
 
         words = [p.cn for p in PLANET_LIST]
-        ocr_map = self.ctx.ocr.match_words(mask, words, lcs_percent=self.gc.planet_lcs_percent)
+        ocr_map = self.ctx.ocr.match_words(part, words, lcs_percent=self.gc.planet_lcs_percent)
 
         result_list: List[MatchResult] = []
         for ocr_word, mrl in ocr_map.items():
@@ -332,7 +333,7 @@ class ChooseRegion(StateOperation):
         :return:
         """
         title_part = cv2_utils.crop_image_only(screen, ScreenLargeMap.PLANET_NAME.value.rect)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(title_part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(title_part)
         ocr_region = best_match_region_by_name(ocr_result, self.region.planet)
         if ocr_region is None:
             return False
@@ -532,17 +533,12 @@ class ChooseTransportPoint(Operation):
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
             tp_name_part, _ = cv2_utils.crop_image(screen, ChooseTransportPoint.tp_name_rect)
-            lower_color = np.array([55, 55, 55], dtype=np.uint8)
-            upper_color = np.array([255, 255, 255], dtype=np.uint8)
-            gold_part = cv2.inRange(tp_name_part, lower_color, upper_color)
             current_lang: str = self.ctx.game_config.lang
-            if current_lang == game_config_const.LANG_CN:
-                gold_part = cv2_utils.dilate(gold_part, 1)
             tp_name_str: str = None
             if current_lang == game_config_const.LANG_CN:
-                tp_name_str = self.ctx.ocr.ocr_for_single_line(gold_part)
+                tp_name_str = self.ctx.ocr.run_ocr_single_line(tp_name_part)
             elif current_lang == game_config_const.LANG_EN:
-                ocr_result: dict = self.ctx.ocr.run_ocr(gold_part)
+                ocr_result: dict = self.ctx.ocr.run_ocr(tp_name_part)
                 tp_name_str = None
                 for k in ocr_result.keys():
                     if tp_name_str is None:
@@ -606,7 +602,8 @@ class ChooseTransportPoint(Operation):
         white_part = cv2.inRange(screen_map, lower_color, upper_color)  # 提取白色部分方便匹配
 
         # cv2_utils.show_image(white_part, win_name='check_and_click_sp_cn')
-        ocr_result = self.ctx.ocr.match_words(white_part, words=[self.tp.cn],
+        part = cv2.bitwise_and(screen_map, screen_map, mask=white_part)
+        ocr_result = self.ctx.ocr.match_words(part, words=[self.tp.cn],
                                               lcs_percent=self.gc.special_point_lcs_percent)
 
         for r in ocr_result.values():

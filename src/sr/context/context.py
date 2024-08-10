@@ -31,17 +31,15 @@ from sr.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr.config.game_config import GameConfig
 from sr.const import game_config_const
 from sr.const.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, TECHNIQUE_ATTACK
-from sr.const.map_const import Planet, Region
 from sr.context.context_pos_info import ContextPosInfo
 from sr.control import GameController
 from sr.control.pc_controller import PcController
 from sr.event_bus import EventBus
 from sr.image import ImageMatcher
-from sr.image.cn_ocr_matcher import CnOcrMatcher
 from sr.image.cv2_matcher import CvImageMatcher
-from sr.image.en_ocr_matcher import EnOcrMatcher
 from sr.image.image_holder import ImageHolder
 from sr.image.ocr_matcher import OcrMatcher
+from sr.image.onnx_ocr_matcher import OnnxOcrMatcher
 from sr.image.sceenshot import fill_uid_black
 from sr.image.yolo_screen_detector import YoloScreenDetector
 from sr.mystools.one_dragon_mys_config import MysConfig
@@ -494,6 +492,7 @@ class Context(ContextPosInfo):
             self.ocr = None
         if self.ocr is None:
             self.ocr = get_ocr_matcher(self.game_config.lang)
+            self.ocr.init_model()
         log.info('加载OCR识别器完毕')
         return True
 
@@ -588,9 +587,9 @@ def get_ocr_matcher(lang: str) -> OcrMatcher:
     matcher: Optional[OcrMatcher] = None
     if lang not in _ocr_matcher:
         if lang == game_config_const.LANG_CN:
-            matcher = CnOcrMatcher()
+            matcher = OnnxOcrMatcher()
         elif lang == game_config_const.LANG_EN:
-            matcher = EnOcrMatcher()
+            matcher = OnnxOcrMatcher()
         _ocr_matcher[lang] = matcher
     else:
         matcher = _ocr_matcher[lang]

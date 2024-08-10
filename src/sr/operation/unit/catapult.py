@@ -1,8 +1,6 @@
 import time
 from typing import List
 
-import cv2
-import numpy as np
 from cv2.typing import MatLike
 
 from basic import str_utils
@@ -12,7 +10,6 @@ from sr.context.context import Context
 from sr.operation import Operation, OperationOneRoundResult
 from sr.screen_area import ScreenArea
 from sr.screen_area.screen_trillion_catapult import ScreenTrillionCatapult
-
 
 
 def check_line_green(ctx, screen, lcs_percent):
@@ -34,14 +31,11 @@ def get_move_interact_words(ctx: Context, screen: MatLike) -> List[MatchResult]:
     :param single_line:
     :return:
     """
-    lower_color = np.array([87, 85, 73], dtype=np.uint8)
-    upper_color = np.array([108, 225, 151], dtype=np.uint8)
     area: ScreenArea = ScreenTrillionCatapult.CATAPULT_SINGLE_LINE.value
     part, _ = cv2_utils.crop_image(screen, area.rect)
-    white_part = cv2.inRange(part, lower_color, upper_color)  # 提取白色部分方便匹配
-    cv2_utils.show_image(white_part, wait=0)
+    # cv2_utils.show_image(white_part, wait=0)
 
-    word = ctx.ocr.ocr_for_single_line(part)
+    word = ctx.ocr.run_ocr_single_line(part)
     if word is not None:
         return [MatchResult(1, area.rect.x1, area.rect.y1, area.rect.width, area.rect.height, data=word)]
     else:
@@ -71,7 +65,6 @@ class Catapult(Operation):
         :return: 操作结果
         """
         word_pos = check_line_green(self.ctx, screen, lcs_percent=self.lcs_percent)
-        print("word pos:", word_pos)
         if word_pos:
             area = ScreenTrillionCatapult.CATAPULT.value
             self.ctx.controller.click(area.center)

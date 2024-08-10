@@ -446,7 +446,7 @@ class Operation:
             screen = self.screenshot()
         part, _ = cv2_utils.crop_image(screen, target_rect)
 
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
 
         if str_utils.find_by_lcs(gt(target_cn, 'ocr'), ocr_result, percent=lcs_percent):
             if self.ctx.controller.click(target_rect.center):
@@ -471,7 +471,7 @@ class Operation:
             rect = area.rect
             part = cv2_utils.crop_image_only(screen, rect)
 
-            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+            ocr_result = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
 
             if str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent):
                 if self.ctx.controller.click(rect.center, pc_alt=area.pc_alt):
@@ -532,8 +532,9 @@ class Operation:
         if area.text is not None:
             rect = area.rect
             part = cv2_utils.crop_image_only(screen, rect)
+            # cv2_utils.show_image(part, win_name='find_area', wait=0)
 
-            ocr_result = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+            ocr_result = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
 
             return str_utils.find_by_lcs(gt(area.text, 'ocr'), ocr_result, percent=area.lcs_percent)
         elif area.template_id is not None:

@@ -48,7 +48,7 @@ def get_planet(screen: MatLike, ocr: OcrMatcher) -> Optional[Planet]:
     """
     planet_name_part = cv2_utils.crop_image_only(screen, ScreenLargeMap.PLANET_NAME.value.rect)
     # cv2_utils.show_image(white_part, win_name='white_part')
-    planet_name_str: str = ocr.ocr_for_single_line(planet_name_part)
+    planet_name_str: str = ocr.run_ocr_single_line(planet_name_part)
 
     log.debug('屏幕左上方获取星球结果 %s', planet_name_str)
     if planet_name_str is not None:
@@ -203,7 +203,7 @@ def get_active_region_name(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
     rect = Rect(left[0] - 10, top[1] - 10, right[0] + 10, bottom[1] + 10)
     to_ocr: MatLike = cv2_utils.crop_image_only(part, rect)
     # cv2_utils.show_image(to_ocr, win_name='get_active_region_name', wait=0)
-    return ocr.ocr_for_single_line(to_ocr, strict_one_line=False)
+    return ocr.run_ocr_single_line(to_ocr, strict_one_line=False)
 
 
 def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
@@ -224,7 +224,7 @@ def get_active_floor(screen: MatLike, ocr: OcrMatcher) -> Optional[str]:
     to_ocr: MatLike = cv2_utils.crop_image_only(part, rect)
     # cv2_utils.show_image(to_ocr, win_name='get_active_floor', wait=0)
 
-    return ocr.ocr_for_single_line(to_ocr)
+    return ocr.run_ocr_single_line(to_ocr)
 
 
 def init_large_map(region: Region, raw: MatLike, im: ImageMatcher,

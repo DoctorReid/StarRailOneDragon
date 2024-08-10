@@ -95,7 +95,7 @@ class BuyStoreItem2(StateOperation):
         no_money = ScreenStore.BUY_DIALOG_NO_MONEY.value
 
         part = cv2_utils.crop_image_only(screen, sold_out.rect)
-        ocr_result = self.ctx.ocr.ocr_for_single_line(part)
+        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
 
         if (str_utils.find_by_lcs(ocr_result, gt(sold_out.text, 'ocr'), percent=sold_out.lcs_percent)
             or str_utils.find_by_lcs(ocr_result, gt(no_money.text, 'ocr'), percent=no_money.lcs_percent)):

@@ -59,5 +59,5 @@ class TlCheckTotalStar(Operation):
         area = ScreenTreasuresLightWard.FH_TOTAL_STAR.value
         part = cv2_utils.crop_image_only(screen, area.rect)
         # cv2_utils.show_image(part, win_name='_get_star_cnt')
-        ocr_str = self.ctx.ocr.ocr_for_single_line(part, strict_one_line=True)
+        ocr_str = self.ctx.ocr.run_ocr_single_line(part, strict_one_line=True)
         return str_utils.get_positive_digits(ocr_str, -1)

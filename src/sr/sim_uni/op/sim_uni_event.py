@@ -166,7 +166,7 @@ class SimUniEvent(StateOperation):
             title_rect = Rect(title_lt.x, title_lt.y, title_rb.x, title_rb.y)
 
             title_part, _ = cv2_utils.crop_image(screen, title_rect)
-            title = self.ctx.ocr.ocr_for_single_line(title_part)
+            title = self.ctx.ocr.run_ocr_single_line(title_part)
 
             confirm_lt = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(260, 85)
             confirm_rb = SimUniEvent.OPT_RECT.left_top + mr.left_top + Point(440, 165)  #
@@ -204,7 +204,7 @@ class SimUniEvent(StateOperation):
                 title_rect = Rect(title_lt.x, title_lt.y, title_rb.x, title_rb.y)
 
                 title_part, _ = cv2_utils.crop_image(screen, title_rect)
-                title = self.ctx.ocr.ocr_for_single_line(title_part)
+                title = self.ctx.ocr.run_ocr_single_line(title_part)
 
                 opt = SimUniEventOption(title, title_rect)
                 log.info('识别无需选项 %s', opt.title)
@@ -359,4 +359,4 @@ class SimUniEvent(StateOperation):
         """
         area = ScreenSimUni.EVENT_TITLE.value
         part = cv2_utils.crop_image_only(screen, area.rect)
-        return self.ctx.ocr.ocr_for_single_line(part)
+        return self.ctx.ocr.run_ocr_single_line(part)

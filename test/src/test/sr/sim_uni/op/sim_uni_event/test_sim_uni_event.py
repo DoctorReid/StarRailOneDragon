@@ -42,7 +42,7 @@ class TestSimUniEvent(test.SrTestBase):
         opt_list = op._get_opt_list(screen)
         self.assertEqual(2, len(opt_list))
         part = cv2_utils.crop_image_only(screen, opt_list[1].confirm_rect)
-        self.assertEqual('确定', ctx.ocr.ocr_for_single_line(part))
+        self.assertEqual('确定', ctx.ocr.run_ocr_single_line(part))
 
     def test_get_screen_state(self):
         ctx = get_context()
