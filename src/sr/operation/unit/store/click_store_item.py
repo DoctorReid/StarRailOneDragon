@@ -57,8 +57,9 @@ class ClickStoreItem(Operation):
         lower_color = np.array([200, 200, 200], dtype=np.uint8)
         upper_color = np.array([255, 255, 255], dtype=np.uint8)
         white_part = cv2.inRange(part, lower_color, upper_color)
+        to_ocr = cv2.bitwise_and(part, part, mask=white_part)
 
-        best_result = self.ctx.ocr.match_one_best_word(white_part, self.item_name, self.lcs_percent)
+        best_result = self.ctx.ocr.match_one_best_word(to_ocr, self.item_name, self.lcs_percent)
 
         if best_result is not None:
             lt = ClickStoreItem.STORE_ITEM_LIST.left_top
