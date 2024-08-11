@@ -807,12 +807,12 @@ P04_R10_SP01 = TransportPoint('TXDT', '调弦大厅', P04_R10, 'mm_tp_03', (796,
 P04_R10_SP02 = TransportPoint('JYT', '交谊厅', P04_R10, 'mm_tp_03', (1306, 790), tp_pos=(1282, 767))
 P04_R10_SP03 = TransportPoint('FYSL', '福音沙龙', P04_R10, 'mm_tp_03', (283, 792), tp_pos=(319, 782))
 P04_R10_SP04 = TransportPoint('SXCL', '上行长廊', P04_R10, 'mm_tp_03', (813, 1306), tp_pos=(796, 1308))
-P04_R10_SP05 = TransportPoint('CMDZLLZYX', '尘梦的赞礼·历战余响', P04_R10, 'mm_boss_05', (793, 298), tp_pos=(796, 309))
+P04_R10_SP05 = TransportPoint('', '梦境空间', P04_R10, 'mm_sp_05', (385, 749))
 P04_R10_SP06 = TransportPoint('XXHNXD', '小小哈努行动', P04_R10, 'mm_sp_11', (1267, 882))
 P04_R10_SP07 = TransportPoint('FSFRDDS', '妃色夫人的「大树」', P04_R10, 'mm_sp_14', (322, 891))
-P04_R10_SP08 = TransportPoint('ZSZLNZHEC', '智识之蕾·拟造花萼（赤）', P04_R10, 'mm_tp_07', (1022, 383), tp_pos=(1028, 381))
-P04_R10_SP09 = TransportPoint('YQZJQSCD', '勇骑之径·侵蚀隧洞', P04_R10, 'mm_tp_09', (222, 627), tp_pos=(228, 631))
-P04_R10_SP10 = TransportPoint('', '梦境空间', P04_R10, 'mm_sp_05', (385, 749))
+P04_R10_SP08 = TransportPoint('CMDZLLZYX', '尘梦的赞礼·历战余响', P04_R10, 'mm_boss_05', (793, 298), tp_pos=(796, 309))
+P04_R10_SP09 = TransportPoint('ZSZLNZHEC', '智识之蕾·拟造花萼（赤）', P04_R10, 'mm_tp_07', (1022, 383), tp_pos=(1028, 381))
+P04_R10_SP10 = TransportPoint('YQZJQSCD', '勇骑之径·侵蚀隧洞', P04_R10, 'mm_tp_09', (222, 627), tp_pos=(228, 631))
 
 
 
