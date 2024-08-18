@@ -228,8 +228,9 @@ def get_training_activity_claim_btn_pos(screen: MatLike, ocr: OcrMatcher):
     upper_color = np.array([30, 30, 30], dtype=np.uint8)
     black_part = cv2.inRange(part, lower_color, upper_color)
     # cv2_utils.show_image(black_part, 'get_nameless_honor_tab_pos')
+    to_cor = cv2.bitwise_and(part, part, mask=black_part)
 
-    ocr_map = ocr.match_words(black_part, words=['领取'], lcs_percent=0.3)
+    ocr_map = ocr.match_words(to_cor, words=['领取'], lcs_percent=0.3)
 
     if len(ocr_map) == 0:
         return None
