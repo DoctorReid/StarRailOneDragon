@@ -49,7 +49,7 @@ jobs:
           pip freeze
 
       - name: Package Exe by PyInstaller
-        run: pyinstaller src/gui/app.py --name StarRailOneDragon --clean --noconfirm --noconsole --icon "images/ui/icon.ico" --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --collect-all paddle --collect-all paddleocr --collect-all shapely --collect-all pyclipper --collect-all skimage --collect-all imghdr --collect-all imgaug --collect-all lmdb --collect-all scipy
+        run: pyinstaller src/gui/app.py --name StarRailOneDragon --clean --noconfirm --noconsole --icon "images/ui/icon.ico" --add-data "images:images" --add-data "data:data" --add-data "config:config" --add-data "model:model" --add-data "version.yml:." --add-data "update_by_temp.bat:." --collect-all shapely --collect-all pyclipper --collect-all skimage --collect-all imghdr --collect-all imgaug --collect-all lmdb --collect-all scipy
 
       - name: Remove Raw Image
         run: Get-ChildItem -Path ./dist/StarRailOneDragon/ -Filter "raw.png" -Recurse | Remove-Item
