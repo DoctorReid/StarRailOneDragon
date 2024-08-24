@@ -223,10 +223,11 @@ class UseTrailblazePower(StateOperation):
         :return:
         """
         if self.mission.cate == GuideCategoryEnum.SHAPE.value:
-            op = WaitInWorld(self.ctx, wait_after_success=2)  # 等待怪物苏醒
+            op = WaitInWorld(self.ctx, wait_after_success=1)  # 等待怪物苏醒
             op_result = op.execute()
             if not op_result.success:
                 return self.round_fail('未在大世界画面')
+            self.ctx.controller.move('w', press_time=1)
             self.ctx.controller.initiate_attack()
             return self.round_success(wait=1)
         else:
