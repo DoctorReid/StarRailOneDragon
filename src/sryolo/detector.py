@@ -1,14 +1,15 @@
-import os
 import time
-import urllib.request
-import zipfile
-from typing import Optional, List, Tuple
 
+import csv
 import cv2
 import numpy as np
 import onnxruntime as ort
-import pandas as pd
+import os
+import urllib.request
+import zipfile
 from cv2.typing import MatLike
+from typing import Optional, List, Tuple
+
 from basic.log_utils import log
 
 
@@ -191,14 +192,16 @@ class StarRailYOLO:
         :return:
         """
         csv_path = os.path.join(model_dir_path, 'labels.csv')
-        labels_df = pd.read_csv(csv_path, encoding='utf-8')
-        self.idx_2_class = {}
-        self.class_2_idx = {}
-        self.cate_2_idx = {}
-        for _, row in labels_df.iterrows():
-            self.idx_2_class[row['idx']] = DetectClass(row['idx'], row['label'], row['cate'])
-            self.class_2_idx[row['label']] = row['idx']
-            self.cate_2_idx[row['cate']] = row['idx']
+        with open(csv_path, mode='r', encoding='utf-8') as file:
+            csv_reader = csv.reader(file)
+            for row in csv_reader:
+                if row[0] != 'idx':
+                    idx = int(row[0])
+                    label = row[1]
+                    cate = row[2]
+                    self.idx_2_class[idx] = DetectClass(idx, label, cate)
+                    self.class_2_idx[label] =idx
+                    self.cate_2_idx[cate] =idx
 
     def detect(self, image: MatLike,
                conf: float = 0.7,

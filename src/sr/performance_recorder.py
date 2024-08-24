@@ -1,7 +1,6 @@
 import time
 import os
 import yaml
-import psutil
 
 from basic import os_utils
 from basic.log_utils import log
@@ -92,11 +91,6 @@ def save_performance_record():
     """
     path = os.path.join(os_utils.get_path_under_work_dir('.log'), 'performance.txt')
     data = {}
-    data['cpu_frequency'] = f"{psutil.cpu_freq().current}MHz"
-    data['cpu_count'] = psutil.cpu_count()
-    memory_info = psutil.virtual_memory()
-    data['memory_total'] = f"{memory_info.total / (1024.0 ** 3)} GB"
-    data['memory_used'] = f"{memory_info.used / (1024.0 ** 3)} GB"
     for k, v in recorder.record_map.items():
         data['time_%s' % k] = v.avg
 

@@ -10,3 +10,4 @@ scipy==1.13.0
 numpy==1.26.4
 shapely==2.0.4
 pyclipper==1.3.0.post5
+pytz==2024.1

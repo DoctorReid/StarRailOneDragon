@@ -4,7 +4,6 @@
 #
 #    pip-compile --annotation-style=line --index-url=https://pypi.tuna.tsinghua.edu.cn/simple --output-file=requirements-prod.txt requirements-dev.txt
 #
---index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 anyio==4.4.0              # via httpx, starlette, watchfiles
 arrow==1.3.0              # via cookiecutter
@@ -61,6 +60,7 @@ python-dotenv==1.0.1      # via uvicorn
 python-multipart==0.0.9   # via fastapi
 python-slugify==8.0.4     # via cookiecutter
 pytweening==1.2.0         # via pyautogui
+pytz==2024.1              # via -r requirements-dev.txt
 pyyaml==6.0.1             # via cookiecutter, uvicorn
 qrcode==7.4.2             # via flet
 repath==0.9.0             # via flet-core
