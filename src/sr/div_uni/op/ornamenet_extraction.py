@@ -1,4 +1,5 @@
 import time
+
 from typing import Optional, Callable
 
 from basic.i18_utils import gt
@@ -30,7 +31,7 @@ class ChallengeOrnamentExtraction(StateOperation):
     def __init__(self, ctx: Context, mission: OrnamentExtraction, run_times: int,
                  diff: int, file_num: int, support_character: str,
                  get_reward_callback: Optional[Callable[[int], None]] = None):
-        super().__init__(ctx, op_name=gt('饰品提取', 'ui'))
+        super().__init__(ctx, try_times=10, op_name=gt('饰品提取', 'ui'))
 
         self.mission: OrnamentExtraction = mission
         """需要挑战的副本"""
