@@ -94,7 +94,11 @@ class LargeMapRecorder(Application):
                     break
                 else:
                     self.col += 1
-        LargeMapRecorder.do_merge_1(self.current_region, self.row, self.col, skip_height=self.skip_height)
+
+        row = self.row if self.max_row is None else self.max_row
+        col = self.col if self.max_column is None else self.max_column
+
+        LargeMapRecorder.do_merge_1(self.current_region, row, col, skip_height=self.skip_height)
 
         return self.round_wait()
 
@@ -642,7 +646,7 @@ if __name__ == '__main__':
                            skip_height=sc.get('skip_height', None) if sc is not None else None,
                            max_row=sc.get('max_row', None) if sc is not None else None,
                            max_column=sc.get('max_column', None) if sc is not None else None,
-                           floor_list=[-2],
+                           floor_list=[-3],
                            )
 
     ctx.init_all(renew=True)

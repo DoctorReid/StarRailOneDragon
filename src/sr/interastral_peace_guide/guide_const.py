@@ -156,7 +156,7 @@ class GuideMission:
                 prefix = '量子'
             elif self.tp in [map_const.P02_R11_SP04, map_const.P03_R08_SP05]:
                 prefix = '风'
-            elif self.tp in [map_const.P02_R05_SP05, map_const.P03_R03_SP05]:
+            elif self.tp in [map_const.P02_R05_SP05, map_const.P03_R03_SP05, map_const.P03_R11_SP12]:
                 prefix = '雷'
             elif self.tp in [map_const.P02_R04_SP04, map_const.P02_R10_SP06, map_const.P04_R06_SUB_01_SP02]:
                 prefix = '火'
@@ -304,6 +304,7 @@ class GuideMissionEnum(Enum):
     SHAPE_16 = GuideMission(cate=GuideCategoryEnum.SHAPE.value, tp=map_const.P04_R03_SP05, power=30)
     SHAPE_17 = GuideMission(cate=GuideCategoryEnum.SHAPE.value, tp=map_const.P04_R06_SUB_01_SP02, power=30)
     SHAPE_18 = GuideMission(cate=GuideCategoryEnum.SHAPE.value, tp=map_const.P04_R07_SP13, power=30)
+    SHAPE_19 = GuideMission(cate=GuideCategoryEnum.SHAPE.value, tp=map_const.P03_R11_SP12, power=30)
 
     PATH_01 = GuideMission(cate=GuideCategoryEnum.PATH.value, tp=map_const.P02_R04_SP05, power=40)
     PATH_02 = GuideMission(cate=GuideCategoryEnum.PATH.value, tp=map_const.P02_R05_SP07, power=40)

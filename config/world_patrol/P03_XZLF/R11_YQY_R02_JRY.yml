@@ -12,124 +12,119 @@ route:
     data: [1717, 1024]
   - idx: 3
     op: 'move'
-    data: [1759, 991]
+    data: [1727, 1047]
   - idx: 4
-    op: 'disposable'
+    op: 'patrol'
   - idx: 5
     op: 'move'
-    data: [1824, 980]
+    data: [1759, 991]
   - idx: 6
-    op: 'patrol'
+    op: 'disposable'
   - idx: 7
     op: 'move'
-    data: [1809, 926]
-  - idx: 8
-    op: 'patrol'
-  - idx: 9
-    op: 'move'
     data: [1764, 971]
-  - idx: 10
+  - idx: 8
     op: 'move'
     data: [1724, 959]
-  - idx: 11
+  - idx: 9
     op: 'slow_move'
     data: [1710, 951]
-  - idx: 12
+  - idx: 10
     op: 'interact'
     data: '穿行'
-  - idx: 13
+  - idx: 11
     op: 'wait'
     data: ['seconds', '1']
-  - idx: 14
+  - idx: 12
     op: 'wait'
     data: ['in_world', '20']
-  - idx: 15
+  - idx: 13
     op: 'update_pos'
     data: [1645, 898]
-  - idx: 16
+  - idx: 14
     op: 'move'
     data: [1580, 879]
+  - idx: 15
+    op: 'patrol'
+  - idx: 16
+    op: 'move'
+    data: [1576, 834]
   - idx: 17
     op: 'patrol'
   - idx: 18
     op: 'move'
-    data: [1576, 834]
-  - idx: 19
-    op: 'patrol'
-  - idx: 20
-    op: 'move'
     data: [1538, 823]
-  - idx: 21
+  - idx: 19
     op: 'disposable'
-  - idx: 22
+  - idx: 20
     op: 'slow_move'
     data: [1528, 823]
-  - idx: 23
+  - idx: 21
     op: 'interact'
     data: '按下'
-  - idx: 24
+  - idx: 22
     op: 'wait'
     data: ['seconds', '1']
-  - idx: 25
+  - idx: 23
     op: 'wait'
     data: ['in_world', '20']
-  - idx: 26
+  - idx: 24
     op: 'move'
     data: [1523, 848]
-  - idx: 27
+  - idx: 25
     op: 'move'
     data: [1458, 875]
-  - idx: 28
+  - idx: 26
     op: 'slow_move'
     data: [1440, 894]
-  - idx: 29
+  - idx: 27
     op: 'interact'
     data: '按下'
-  - idx: 30
+  - idx: 28
     op: 'wait'
     data: ['seconds', '1']
-  - idx: 31
+  - idx: 29
     op: 'wait'
     data: ['in_world', '20']
-  - idx: 32
+  - idx: 30
     op: 'move'
     data: [1510, 849]
-  - idx: 33
+  - idx: 31
     op: 'move'
     data: [1527, 827]
-  - idx: 34
+  - idx: 32
     op: 'disposable'
-  - idx: 35
+  - idx: 33
     op: 'move'
     data: [1572, 872]
+  - idx: 34
+    op: 'patrol'
+  - idx: 35
+    op: 'move'
+    data: [1527, 895]
   - idx: 36
     op: 'patrol'
   - idx: 37
     op: 'move'
-    data: [1527, 895]
-  - idx: 38
-    op: 'patrol'
-  - idx: 39
-    op: 'move'
     data: [1572, 887]
-  - idx: 40
+  - idx: 38
     op: 'move'
     data: [1565, 861]
-  - idx: 41
+  - idx: 39
     op: 'move'
     data: [1585, 842]
-  - idx: 42
+  - idx: 40
     op: 'disposable'
-  - idx: 43
+  - idx: 41
     op: 'move'
     data: [1559, 815]
-  - idx: 44
+  - idx: 42
     op: 'move'
     data: [1546, 763]
-  - idx: 45
+  - idx: 43
     op: 'patrol'
-  - idx: 46
+  - idx: 44
     op: 'move'
     data: [1509, 791]
-  - idx: 47
+  - idx: 45
     op: 'patrol'
