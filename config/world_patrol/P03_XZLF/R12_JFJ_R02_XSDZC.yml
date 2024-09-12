@@ -1,0 +1,13 @@
+author: ['DoctorReid']
+planet: '仙舟「罗浮」'
+region: '竞锋舰'
+floor: 3
+tp: '心兽的战场·历战余响'
+route:
+  - idx: 1
+    op: 'disposable'
+  - idx: 2
+    op: 'move'
+    data: [584, 645]
+  - idx: 3
+    op: 'disposable'

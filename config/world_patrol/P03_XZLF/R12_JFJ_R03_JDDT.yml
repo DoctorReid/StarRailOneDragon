@@ -1,0 +1,16 @@
+author: ['DoctorReid']
+planet: '仙舟「罗浮」'
+region: '竞锋舰'
+floor: 2
+tp: '接待大厅'
+route:
+  - idx: 1
+    op: 'move'
+    data: [632, 867]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [632, 885]
+  - idx: 4
+    op: 'disposable'

@@ -197,6 +197,9 @@ P03_R11_B1 = Region(11, "YQY", "幽囚狱", P03, floor=-1)
 P03_R11_B2 = Region(11, "YQY", "幽囚狱", P03, floor=-2)
 P03_R11_B3 = Region(11, "YQY", "幽囚狱", P03, floor=-3)
 P03_R11_B4 = Region(11, "YQY", "幽囚狱", P03, floor=-4)
+P03_R12_F1 = Region(12, "JFJ", "竞锋舰", P03, floor=1)
+P03_R12_F2 = Region(12, "JFJ", "竞锋舰", P03, floor=2)
+P03_R12_F3 = Region(12, "JFJ", "竞锋舰", P03, floor=3)
 
 # 匹诺康尼
 P04_R01_F1 = Region(1, "BRMJDXS", "「白日梦」酒店-现实", P04, floor=1)
@@ -669,6 +672,16 @@ P03_R11_SP10 = TransportPoint('LYJ', '鳞渊境', P03_R11_F1, 'mm_sp_02', (626, 
 P03_R11_SP11 = TransportPoint('JQN', '机巧鸟', P03_R11_B4, 'mm_sp_09', (1364, 1007))
 P03_R11_SP12 = TransportPoint('JLZXNZXY', '机狼之形·凝滞虚影', P03_R11_B3, 'mm_tp_06', (1809, 954), tp_pos=(1793, 965))
 
+# 仙舟罗浮 - 竞锋舰
+P03_R12_SP01 = TransportPoint('WLZZX', '物流中转线', P03_R12_F2, 'mm_tp_03', (522, 457), (523, 473))
+P03_R12_SP02 = TransportPoint('BCQ', '泊船区', P03_R12_F2, 'mm_tp_03', (744, 498), (745, 487))
+P03_R12_SP03 = TransportPoint('YWTXC', '演武台下层', P03_R12_F1, 'mm_tp_03', (464, 674), (469, 692))
+P03_R12_SP04 = TransportPoint('JDDT', '接待大厅', P03_R12_F2, 'mm_tp_03', (754, 859), (727, 865))
+P03_R12_SP05 = TransportPoint('HFGZX', '红方观众席', P03_R12_F3, 'mm_tp_03', (437, 866), (445, 849))
+P03_R12_SP06 = TransportPoint('LFGZX', '蓝方观众席', P03_R12_F3, 'mm_tp_03', (691, 867), (684, 848))
+P03_R12_SP07 = TransportPoint('ZSB', '战术板', P03_R12_F2, 'mm_tp_18', (383, 544), (385, 547))
+P03_R12_SP08 = TransportPoint('XSDZC', '心兽的战场·历战余响', P03_R12_F3, 'mm_boss_06', (565, 629), (564, 640))
+
 # 匹诺康尼 - 「白日梦」酒店-现实
 P04_R01_SP01 = TransportPoint('JDDT', '酒店大堂', P04_R01_F1, 'mm_tp_03', (587, 413), (571, 399))
 P04_R01_SP02 = TransportPoint('GBXXQ', '贵宾休息区', P04_R01_F2, 'mm_tp_03', (557, 696), (571, 701))
@@ -855,6 +868,8 @@ REGION_2_SP = {
                     P03_R10_SP11, P03_R10_SP12, P03_R10_SP13, P03_R10_SP14, P03_R10_SP15, P03_R10_SP16, P03_R10_SP17],
     P03_R11_F1.pr_id: [P03_R11_SP01, P03_R11_SP02, P03_R11_SP03, P03_R11_SP04, P03_R11_SP05, P03_R11_SP06, P03_R11_SP07,
                        P03_R11_SP08, P03_R11_SP09, P03_R11_SP10, P03_R11_SP11, P03_R11_SP12],
+    P03_R12_F1.pr_id: [P03_R12_SP01, P03_R12_SP02, P03_R12_SP03, P03_R12_SP04, P03_R12_SP05, P03_R12_SP06, P03_R12_SP07,
+                       P03_R12_SP08],
     P04_R01_F1.pr_id: [P04_R01_SP01, P04_R01_SP02, P04_R01_SP03, P04_R01_SP04],
     P04_R02_F1.pr_id: [P04_R02_SP01, P04_R02_SP02, P04_R02_SP03, P04_R02_SP04, P04_R02_SP05, P04_R02_SP06, P04_R02_SP07, P04_R02_SP08, P04_R02_SP09, P04_R02_SP10,
                        P04_R02_SP11, P04_R02_SP12, P04_R02_SP13, P04_R02_SP14, P04_R02_SP15, P04_R02_SP16, P04_R02_SP17, P04_R02_SP18, P04_R02_SP19],

@@ -1,0 +1,11 @@
+author: ['DoctorReid']
+planet: '仙舟「罗浮」'
+region: '竞锋舰'
+floor: 2
+tp: '物流中转线'
+route:
+  - idx: 1
+    op: 'move'
+    data: [597, 462]
+  - idx: 2
+    op: 'disposable'
