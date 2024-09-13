@@ -6,40 +6,6 @@ tp: '上行长廊'
 route:
   - idx: 1
     op: 'move'
-    data: [839, 1284]
+    data: [799, 1523]
   - idx: 2
-    op: 'move'
-    data: [908, 1298]
-  - idx: 3
-    op: 'disposable'
-  - idx: 4
-    op: 'move'
-    data: [941, 1290]
-  - idx: 5
-    op: 'patrol'
-  - idx: 6
-    op: 'move'
-    data: [966, 1313]
-  - idx: 7
-    op: 'patrol'
-  - idx: 8
-    op: 'move'
-    data: [994, 1293]
-  - idx: 9
-    op: 'patrol'
-  - idx: 10
-    op: 'move'
-    data: [964, 1272]
-  - idx: 11
-    op: 'patrol'
-  - idx: 12
-    op: 'move'
-    data: [924, 1289]
-  - idx: 13
-    op: 'move'
-    data: [808, 1286]
-  - idx: 14
-    op: 'move'
-    data: [811, 1517]
-  - idx: 15
     op: 'patrol'

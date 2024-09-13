@@ -815,6 +815,7 @@ P04_R10_SP07 = TransportPoint('FSFRDDS', '妃色夫人的「大树」', P04_R10,
 P04_R10_SP08 = TransportPoint('CMDZLLZYX', '尘梦的赞礼·历战余响', P04_R10, 'mm_boss_05', (793, 298), tp_pos=(796, 309))
 P04_R10_SP09 = TransportPoint('ZSZLNZHEC', '智识之蕾·拟造花萼（赤）', P04_R10, 'mm_tp_07', (1022, 383), tp_pos=(1028, 381))
 P04_R10_SP10 = TransportPoint('YQZJQSCD', '勇骑之径·侵蚀隧洞', P04_R10, 'mm_tp_09', (222, 627), tp_pos=(228, 631))
+P04_R10_SP11 = TransportPoint('JXZXNZXY', '今宵之形·凝滞虚影', P04_R10, 'mm_tp_06', (973, 1291), tp_pos=(952, 1292))
 
 
 

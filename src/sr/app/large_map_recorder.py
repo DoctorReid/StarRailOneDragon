@@ -484,10 +484,10 @@ class LargeMapRecorder(Application):
         # 进行垂直合并
         final_merge = LargeMapRecorder.concat_vertically_by_list(row_image_list)
 
-        if skip_height is not None:
-            empty = np.full((skip_height, final_merge.shape[1], 3),
-                            fill_value=large_map.EMPTY_COLOR, dtype=np.uint8)
-            final_merge = cv2.vconcat([empty, final_merge])
+        # if skip_height is not None:
+        #     empty = np.full((skip_height, final_merge.shape[1], 3),
+        #                     fill_value=large_map.EMPTY_COLOR, dtype=np.uint8)
+        #     final_merge = cv2.vconcat([empty, final_merge])
 
         log.info('最终合并后size为 %s', final_merge.shape)
         if show:
@@ -623,10 +623,10 @@ def fix_sim_uni_route_after_map_record(region: Region, dx: int, dy: int):
 if __name__ == '__main__':
     special_condition = {
         map_const.P03_R11_F1.pr_id: {'max_row': 7, 'max_column': 6},  # 罗浮仙舟 - 幽囚狱 右边有较多空白
-        map_const.P04_R10.pr_id: {'skip_height': 700, 'max_row': 4},  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
+        map_const.P04_R10.pr_id: {'skip_height': 700, 'max_row': 4, 'max_column': 4},  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
     }
 
-    r = map_const.P03_R11_B4
+    r = map_const.P04_R10
     sc = special_condition.get(r.pr_id, None)
     # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
     merge = False
@@ -646,11 +646,11 @@ if __name__ == '__main__':
                            skip_height=sc.get('skip_height', None) if sc is not None else None,
                            max_row=sc.get('max_row', None) if sc is not None else None,
                            max_column=sc.get('max_column', None) if sc is not None else None,
-                           floor_list=[-3],
+                           # floor_list=[-3],
                            )
 
     ctx.init_all(renew=True)
-    app.execute()
-    # app.do_save()
+    # app.execute()
+    app.do_save()
     # fix_all_after_map_record(r, -5, -11)
 
