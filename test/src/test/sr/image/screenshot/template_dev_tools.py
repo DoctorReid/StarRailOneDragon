@@ -509,12 +509,12 @@ def remove_alpha(template_id: str, template_sub_dir: Optional[str] = None):
 
 
 if __name__ == '__main__':
-    # init_tp_with_background('mm_tp_17', noise_threshold=30)
+    init_tp_with_background('mm_tp_18', noise_threshold=30)
     # init_sp_with_background('mm_sp_19')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
-    # init_boss_icon('mm_boss_05')
+    # init_boss_icon('mm_boss_06')
     # init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
     # init_ui_alert('ui_alert')
     # init_ui_ellipsis('ui_ellipsis')
@@ -523,7 +523,7 @@ if __name__ == '__main__':
     # init_store_buy_num_ctrl('store_buy_max')
     # init_battle_times_control('battle_times_plus')
     # init_mission_star_active()
-    init_character_avatar_from_alas()
+    # init_character_avatar_from_alas()
     # init_character_combat_type('lightning')
     # init_inventory_category('valuables')
     # init_sim_uni_move_target('level_type_encounter')

@@ -323,6 +323,7 @@ class GuideMissionEnum(Enum):
     ECHO_03 = GuideMission(cate=GuideCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P03_R09_SP06, power=30)
     ECHO_04 = GuideMission(cate=GuideCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P01_R05_SP07, power=30)
     ECHO_05 = GuideMission(cate=GuideCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P04_R10_SP08, power=30)
+    ECHO_06 = GuideMission(cate=GuideCategoryEnum.ECHO_OF_WAR.value, tp=map_const.P03_R12_SP15, power=30)
 
     SIM_UNI_00 = GuideMission(cate=GuideCategoryEnum.SI_SIM_UNI.value, sim_world=SimUniWorldEnum.WORLD_00.value, power=40, show_in_tp_plan=False)
     SIM_UNI_03 = GuideMission(cate=GuideCategoryEnum.SI_SIM_UNI.value, sim_world=SimUniWorldEnum.WORLD_03.value, power=40)
