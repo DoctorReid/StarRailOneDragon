@@ -73,14 +73,15 @@ class OrnamentExtraction:
 
 class OrnamentExtractionEnum(Enum):
 
-    OE_10 = OrnamentExtraction(10, '永恒笑剧·差分宇宙', 5)
-    OE_09 = OrnamentExtraction(9, '伴你入眠·差分宇宙', 5)
-    OE_08 = OrnamentExtraction(8, '天剑如雨·差分宇宙', 5)
-    OE_07 = OrnamentExtraction(7, '孽果盘生·差分宇宙', 5)
-    OE_06 = OrnamentExtraction(6, '百年冻土·差分宇宙', 5)
-    OE_05 = OrnamentExtraction(5, '温柔话语·差分宇宙', 5)
-    OE_04 = OrnamentExtraction(4, '浴火钢心·差分宇宙', 5)
-    OE_03 = OrnamentExtraction(3, '坚城不倒·差分宇宙', 5)
+    OE_11 = OrnamentExtraction(11, '蠹役饥肠', 5)
+    OE_10 = OrnamentExtraction(10, '永恒笑剧', 5)
+    OE_09 = OrnamentExtraction(9, '伴你入眠', 5)
+    OE_08 = OrnamentExtraction(8, '天剑如雨', 5)
+    OE_07 = OrnamentExtraction(7, '孽果盘生', 5)
+    OE_06 = OrnamentExtraction(6, '百年冻土', 5)
+    OE_05 = OrnamentExtraction(5, '温柔话语', 5)
+    OE_04 = OrnamentExtraction(4, '浴火钢心', 5)
+    OE_03 = OrnamentExtraction(3, '坚城不倒', 5)
 
 
 UNI_NUM_CN: dict[int, str] = {

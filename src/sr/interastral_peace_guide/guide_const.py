@@ -197,7 +197,9 @@ class GuideMission:
         elif self.cate == GuideCategoryEnum.ECHO_OF_WAR.value:
             return self.tp.cn[:-5]  # 去除 '·历战余响'
         elif self.cate == GuideCategoryEnum.ORNAMENT_EXTRACTION.value:
-            if self.ornament_extraction == OrnamentExtractionEnum.OE_10.value:
+            if self.ornament_extraction == OrnamentExtractionEnum.OE_11.value:
+                return '露莎卡 蕉乐园'
+            elif self.ornament_extraction == OrnamentExtractionEnum.OE_10.value:
                 return '崩狼 劫火'
             elif self.ornament_extraction == OrnamentExtractionEnum.OE_09.value:
                 return '茨冈尼亚 出云'
@@ -334,6 +336,7 @@ class GuideMissionEnum(Enum):
     SIM_UNI_08 = GuideMission(cate=GuideCategoryEnum.SI_SIM_UNI.value, sim_world=SimUniWorldEnum.WORLD_08.value, power=40)
     SIM_UNI_09 = GuideMission(cate=GuideCategoryEnum.SI_SIM_UNI.value, sim_world=SimUniWorldEnum.WORLD_09.value, power=40)
 
+    OE_11 = GuideMission(cate=GuideCategoryEnum.ORNAMENT_EXTRACTION.value, ornament_extraction=OrnamentExtractionEnum.OE_11.value, power=40)
     OE_10 = GuideMission(cate=GuideCategoryEnum.ORNAMENT_EXTRACTION.value, ornament_extraction=OrnamentExtractionEnum.OE_10.value, power=40)
     OE_09 = GuideMission(cate=GuideCategoryEnum.ORNAMENT_EXTRACTION.value, ornament_extraction=OrnamentExtractionEnum.OE_09.value, power=40)
     OE_08 = GuideMission(cate=GuideCategoryEnum.ORNAMENT_EXTRACTION.value, ornament_extraction=OrnamentExtractionEnum.OE_08.value, power=40)

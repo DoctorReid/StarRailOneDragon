@@ -83,10 +83,14 @@ class ChooseGuideMission(Operation):
         tp_point: Optional[Point] = None
         for v in tp_ocr_map.values():
             for result in v:
-                if result.center.y < mission_point.y:  # 传送按钮需要在副本名称下方
-                    continue
-                if tp_point is None or tp_point.y > result.center.y:  # 找出在副本名称下方最近的一个传送按钮
-                    tp_point = result.center
+                if self.mission.sim_world is not None or self.mission.sim_uni_type is not None:  # 模拟宇宙的传送在下方
+                    if result.center.y < mission_point.y:  # 传送按钮需要在副本名称下方
+                        continue
+                    if tp_point is None or tp_point.y > result.center.y:  # 找出在副本名称下方最近的一个传送按钮
+                        tp_point = result.center
+                else:  # 普通副本的传送在平行位置
+                    if tp_point is None or abs(tp_point.y - mission_point.y) > abs(result.center.y - mission_point.y):  # 找出与副本名称y轴最接近的传送按钮
+                        tp_point = result.center
 
         if tp_point is not None:
             tp_point = tp_point + area.rect.left_top
