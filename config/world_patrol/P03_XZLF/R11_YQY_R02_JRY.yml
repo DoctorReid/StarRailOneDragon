@@ -25,10 +25,10 @@ route:
     data: [1764, 971]
   - idx: 8
     op: 'move'
-    data: [1724, 959]
+    data: [1736, 967]
   - idx: 9
     op: 'slow_move'
-    data: [1710, 951]
+    data: [1712, 951]
   - idx: 10
     op: 'interact'
     data: '穿行'
