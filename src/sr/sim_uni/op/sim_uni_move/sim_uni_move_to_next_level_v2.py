@@ -1,19 +1,17 @@
 import time
-from typing import Optional, List
 
 import numpy as np
 from cv2.typing import MatLike
+from typing import Optional, List
 
 from basic import str_utils
 from basic.i18_utils import gt
 from basic.log_utils import log
 from sr.const import OPPOSITE_DIRECTION
 from sr.context.context import Context
-from sr.control import GameController
 from sr.image.sceenshot import screen_state
 from sr.operation import OperationOneRoundResult, OperationResult
 from sr.operation.unit.interact import get_move_interact_words
-from sr.screen_area.screen_normal_world import ScreenNormalWorld
 from sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 from sr.sim_uni.op.sim_uni_move.sim_uni_move_by_detect import delta_angle_to_detected_object, turn_by_angle_slowly
 from sr.sim_uni.sim_uni_const import SimUniLevelType
@@ -93,13 +91,7 @@ class MoveToNextLevelV2(MoveToNextLevel):
         now = time.time()
 
         # 等待最开始的交互词消失了 就可以无脑交互了
-        need_ocr: bool = len(self.existed_interact_word) > 0
-        log.debug('是否需要OCR %s', need_ocr)
-        if not need_ocr:
-            self.ctx.controller.interact(
-                pos=ScreenNormalWorld.MOVE_INTERACT_SINGLE_LINE.value.center,
-                interact_type=GameController.MOVE_INTERACT_TYPE
-            )
+        need_ocr: bool = True  # 现在OCR速度快 可以保持使用
 
         screen = self.screenshot()
 
