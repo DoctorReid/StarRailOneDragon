@@ -1,13 +1,25 @@
+# 开发过程的临时文件
 .idea
-.env
-.log
-.temp
 __pycache__
-.debug
 out/
 /build
 /dist
 *.spec
+
+# 测试文件
+sr-od-test/
+
+# 运行时产生的文件
+.env
+.log
+.temp
+.debug
+update_by_temp_2.bat
+
+# 模型文件 依赖下载
+model/yolo
+
+# 用户配置文件
 config/world_patrol/record.yml
 config/world_patrol/whitelist/*.yml
 config/mystool
@@ -18,6 +30,5 @@ config/sim_uni/challenge_config/*.yml
 config/*[!_sample].yml
 config/app_run_record/
 config/[0-9]*/
-StarRailGPS/
-model/yolo
-update_by_temp_2.bat
+
+#
