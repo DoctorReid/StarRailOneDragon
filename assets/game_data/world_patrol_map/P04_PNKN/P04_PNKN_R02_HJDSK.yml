@@ -1,0 +1,171 @@
+- uid: "ZBXZGC"
+  cn: "钟表小子广场"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1055, 450]
+  tp_pos: [1038, 455]
+
+- uid: "CMSJ"
+  cn: "沉梦商街"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1292, 606]
+  tp_pos: [1313, 613]
+
+- uid: "ZBXZDX"
+  cn: "钟表小子雕像"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 1
+  template_id: "mm_sp_11"
+  lm_pos: [1492, 587]
+  tp_pos: [1492, 587]
+
+- uid: "XXHNXD"
+  cn: "小小哈努行动"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 1
+  template_id: "mm_sp_13"
+  lm_pos: [1034, 395]
+  tp_pos: [1034, 395]
+
+- uid: "ADEGY"
+  cn: "艾迪恩公园"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [721, 282]
+  tp_pos: [700, 265]
+
+- uid: "TMYY"
+  cn: "甜蜜一隅"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [662, 587]
+  tp_pos: [676, 578]
+
+- uid: "ADGWZX"
+  cn: "奥帝购物中心"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [1450, 593]
+  tp_pos: [1450, 612]
+
+- uid: "BRMJDDM"
+  cn: "「白日梦」酒店大门"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [1063, 968]
+  tp_pos: [1037, 944]
+
+- uid: "ZBXZCC"
+  cn: "钟表小子餐车"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [952, 268]
+  tp_pos: [952, 268]
+
+- uid: "BKTC"
+  cn: "报刊推车"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [1542, 361]
+  tp_pos: [1542, 361]
+
+- uid: "ZBCT"
+  cn: "钟表餐厅"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [1487, 402]
+  tp_pos: [1487, 402]
+
+- uid: "SLDCC"
+  cn: "苏乐达餐车"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [624, 464]
+  tp_pos: [624, 464]
+
+- uid: "FDND"
+  cn: "斐迪南德"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [1511, 489]
+  tp_pos: [1511, 489]
+
+- uid: "MDFMD"
+  cn: "梦境贩卖店"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [1577, 645]
+  tp_pos: [1577, 645]
+
+- uid: "PNKNCH"
+  cn: "匹诺康尼车行"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [1552, 737]
+  tp_pos: [1552, 737]
+
+- uid: "BMHCC"
+  cn: "爆米花餐车"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [651, 763]
+  tp_pos: [651, 763]
+
+- uid: "SLDTC"
+  cn: "苏乐达推车"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [1087, 784]
+  tp_pos: [1087, 784]
+
+- uid: "BQLTC"
+  cn: "冰淇淋推车"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [1517, 798]
+  tp_pos: [1517, 798]
+
+- uid: "XXHNXD"
+  cn: "小小哈努行动"
+  planet_name: "匹诺康尼"
+  region_name: "黄金的时刻"
+  region_floor: 2
+  template_id: "mm_sp_11"
+  lm_pos: [673, 882]
+  tp_pos: [673, 882]
+

@@ -1,0 +1,53 @@
+- num: 1
+  uid: "XCHZS"
+  cn: "星槎海中枢"
+
+- num: 2
+  uid: "LYD"
+  cn: "流云渡"
+  floors: [1, 2]
+
+- num: 3
+  uid: "HXG"
+  cn: "廻星港"
+  floors: [1, 2]
+
+- num: 4
+  uid: "CLT"
+  cn: "长乐天"
+
+- num: 5
+  uid: "JRX"
+  cn: "金人巷"
+
+- num: 6
+  uid: "TBS"
+  cn: "太卜司"
+  floors: [1, 2]
+
+- num: 7
+  uid: "GZS"
+  cn: "工造司"
+
+- num: 8
+  uid: "DDS"
+  cn: "丹鼎司"
+  floors: [1, 2]
+
+- num: 9
+  uid: "LYJ"
+  cn: "鳞渊境"
+
+- num: 10
+  uid: "SY"
+  cn: "绥园"
+
+- num: 11
+  uid: "YQY"
+  cn: "幽囚狱"
+  floors: [-4, -3, -2, -1, 1]
+
+- num: 12
+  uid: "JFJ"
+  cn: "竞锋舰"
+  floors: [1, 2, 3]

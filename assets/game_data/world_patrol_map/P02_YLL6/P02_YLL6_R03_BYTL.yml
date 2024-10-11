@@ -1,0 +1,54 @@
+- uid: "HCGC"
+  cn: "候车广场"
+  planet_name: "雅利洛-VI"
+  region_name: "边缘通路"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [598, 832]
+  tp_pos: [580, 833]
+
+- uid: "XXGC"
+  cn: "休闲广场"
+  planet_name: "雅利洛-VI"
+  region_name: "边缘通路"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [690, 480]
+  tp_pos: [701, 491]
+
+- uid: "GDJZ"
+  cn: "歌德旧宅"
+  planet_name: "雅利洛-VI"
+  region_name: "边缘通路"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [811, 259]
+  tp_pos: [800, 267]
+
+- uid: "HGZX"
+  cn: "幻光之形·凝滞虚影"
+  planet_name: "雅利洛-VI"
+  region_name: "边缘通路"
+  region_floor: 0
+  template_id: "mm_tp_06"
+  lm_pos: [450, 840]
+  tp_pos: [474, 842]
+
+- uid: "FRZL"
+  cn: "丰饶之蕾·拟造花萼（赤）"
+  planet_name: "雅利洛-VI"
+  region_name: "边缘通路"
+  region_floor: 0
+  template_id: "mm_tp_07"
+  lm_pos: [659, 509]
+  tp_pos: [669, 510]
+
+- uid: "YTZL"
+  cn: "以太之蕾·拟造花萼（金）"
+  planet_name: "雅利洛-VI"
+  region_name: "边缘通路"
+  region_floor: 0
+  template_id: "mm_tp_08"
+  lm_pos: [596, 194]
+  tp_pos: [606, 195]
+

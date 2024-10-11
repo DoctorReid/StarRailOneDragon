@@ -1,0 +1,108 @@
+- uid: "JXZL"
+  cn: "巨星之路"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [585, 635]
+  tp_pos: [572, 638]
+
+- uid: "HXGC"
+  cn: "海选广场"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [558, 2155]
+  tp_pos: [570, 2118]
+
+- uid: "XLZLNZHEC"
+  cn: "巡猎之蕾·拟造花萼（赤）"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_tp_07"
+  lm_pos: [517, 1691]
+  tp_pos: [522, 1693]
+
+- uid: "CHDGDDS"
+  cn: "赤红大哥的「大树」"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sp_14"
+  lm_pos: [627, 1694]
+  tp_pos: [627, 1694]
+
+- uid: "FCTK"
+  cn: "返程特快"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sp_18"
+  lm_pos: [570, 801]
+  tp_pos: [570, 801]
+
+- uid: "HXTK"
+  cn: "海选特快"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sp_18"
+  lm_pos: [569, 1581]
+  tp_pos: [569, 1581]
+
+- uid: "YHLTRK"
+  cn: "一号擂台入口"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sub_02"
+  lm_pos: [337, 1025]
+  tp_pos: [337, 1025]
+
+- uid: "EHLTRK"
+  cn: "二号擂台入口"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sub_02"
+  lm_pos: [447, 1025]
+  tp_pos: [447, 1025]
+
+- uid: "QHDSLRK"
+  cn: "枪火的试炼入口"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sub_02"
+  lm_pos: [746, 1192]
+  tp_pos: [746, 1192]
+
+- uid: "SJDSLRK"
+  cn: "时间的试炼入口"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sub_02"
+  lm_pos: [857, 1192]
+  tp_pos: [857, 1192]
+
+- uid: "YJPTZRK"
+  cn: "演技派挑战入口"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sub_02"
+  lm_pos: [294, 1404]
+  tp_pos: [294, 1404]
+
+- uid: "DZPTZRK"
+  cn: "动作派挑战入口"
+  planet_name: "匹诺康尼"
+  region_name: "苏乐达TM热砂海选会场"
+  region_floor: 0
+  template_id: "mm_sub_02"
+  lm_pos: [403, 1404]
+  tp_pos: [403, 1404]
+

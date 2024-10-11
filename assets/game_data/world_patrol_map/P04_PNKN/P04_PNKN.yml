@@ -1,0 +1,104 @@
+- num: 1
+  uid: "BRMJDXS"
+  cn: "「白日梦」酒店-现实"
+  floors: [1, 2, 3]
+
+- num: 2
+  uid: "HJDSK"
+  cn: "黄金的时刻"
+  floors: [1, 2, 3]
+
+- num: 3
+  uid: "ZMBJ"
+  cn: "筑梦边境"
+
+- num: 4
+  uid: "ZZDM"
+  cn: "稚子的梦"
+
+- num: 5
+  uid: "BRMJDMJ"
+  cn: "「白日梦」酒店-梦境"
+  floors: [1, 2, 3]
+
+- num: 6
+  uid: "ZLGG"
+  cn: "朝露公馆"
+  floors: [1, 2]
+
+- num: 6
+  uid: "CSSH"
+  cn: "城市沙盒"
+  parent_region_name: "朝露公馆"
+  parent_region_floor: 1
+  enter_template_id: "mm_sub_01"
+  enter_lm_pos: [572, 455]
+
+- num: 7
+  uid: "KLKYSLY"
+  cn: "克劳克影视乐园"
+  floors: [1, 2]
+
+- num: 8
+  uid: "LMJ"
+  cn: "流梦礁"
+  floors: [1, 2]
+
+- num: 9
+  uid: "SLDRSHXHC"
+  cn: "苏乐达TM热砂海选会场"
+
+- num: 9
+  uid: "YHLT"
+  cn: "一号擂台"
+  parent_region_name: "苏乐达TM热砂海选会场"
+  enter_template_id: "mm_sub_02"
+  enter_lm_pos: [337, 1025]
+
+- num: 9
+  uid: "EHLT"
+  cn: "二号擂台"
+  parent_region_name: "苏乐达TM热砂海选会场"
+  enter_template_id: "mm_sub_02"
+  enter_lm_pos: [447, 1025]
+
+- num: 9
+  uid: "QHDSL"
+  cn: "枪火的试炼"
+  parent_region_name: "苏乐达TM热砂海选会场"
+  enter_template_id: "mm_sub_02"
+  enter_lm_pos: [746, 1192]
+  floors: [-2, -1, 1, 2]
+
+- num: 9
+  uid: "SJDSL"
+  cn: "时间的试炼入口"
+  parent_region_name: "苏乐达TM热砂海选会场"
+  enter_template_id: "mm_sub_02"
+  enter_lm_pos: [857, 1192]
+
+- num: 9
+  uid: "YJPTZ"
+  cn: "演技派挑战"
+  parent_region_name: "苏乐达TM热砂海选会场"
+  enter_template_id: "mm_sub_02"
+  enter_lm_pos: [294, 1404]
+
+- num: 9
+  uid: "DZPTZ"
+  cn: "动作派挑战"
+  parent_region_name: "苏乐达TM热砂海选会场"
+  enter_template_id: "mm_sub_02"
+  enter_lm_pos: [403, 1404]
+
+- num: 10
+  uid: "PNKNDJY"
+  cn: "匹诺康尼大剧院"
+
+- num: 10
+  uid: "MJKJ1"
+  cn: "梦境空间1"
+  parent_region_name: "匹诺康尼大剧院"
+  enter_template_id: "mm_sp_05"
+  enter_lm_pos: [387, 755]
+  floors: [2, 3]

@@ -1,0 +1,81 @@
+- uid: "LYDHD"
+  cn: "流云渡货道"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [710, 432]
+  tp_pos: [700, 412]
+
+- uid: "JYF"
+  cn: "积玉坊"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [546, 806]
+  tp_pos: [528, 791]
+
+- uid: "JYFNC"
+  cn: "积玉坊南侧"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [573, 997]
+  tp_pos: [565, 994]
+
+- uid: "LYDCCC"
+  cn: "流云渡乘槎处"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [584, 1380]
+  tp_pos: [593, 1391]
+
+- uid: "BLZX"
+  cn: "冰棱之形·凝滞虚影"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 1
+  template_id: "mm_tp_06"
+  lm_pos: [735, 1379]
+  tp_pos: [715, 1378]
+
+- uid: "SSZJ"
+  cn: "圣颂之径·侵蚀隧洞"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 1
+  template_id: "mm_tp_09"
+  lm_pos: [547, 1165]
+  tp_pos: [548, 1158]
+
+- uid: "XCHZS"
+  cn: "星槎海中枢"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [584, 1514]
+  tp_pos: [584, 1514]
+
+- uid: "GQYBSGC"
+  cn: "过期邮包收购处"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 1
+  template_id: "mm_sp_03"
+  lm_pos: [393, 789]
+  tp_pos: [393, 789]
+
+- uid: "HYZLNZHEJ"
+  cn: "回忆之蕾·拟造花萼（金）"
+  planet_name: "仙舟「罗浮」"
+  region_name: "流云渡"
+  region_floor: 1
+  template_id: "mm_tp_08"
+  lm_pos: [453, 1239]
+  tp_pos: [453, 1239]
+

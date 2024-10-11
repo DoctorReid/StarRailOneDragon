@@ -1,0 +1,45 @@
+- uid: "GZCXY"
+  cn: "古战场雪原"
+  planet_name: "雅利洛-VI"
+  region_name: "永冬岭"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [366, 776]
+  tp_pos: [372, 793]
+
+- uid: "ZWPT"
+  cn: "造物平台"
+  planet_name: "雅利洛-VI"
+  region_name: "永冬岭"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [784, 571]
+  tp_pos: [811, 566]
+
+- uid: "RZZJ"
+  cn: "睿治之径·侵蚀隧洞"
+  planet_name: "雅利洛-VI"
+  region_name: "永冬岭"
+  region_floor: 0
+  template_id: "mm_tp_09"
+  lm_pos: [585, 663]
+  tp_pos: [581, 661]
+
+- uid: "CXHL"
+  cn: "残响回廊"
+  planet_name: "雅利洛-VI"
+  region_name: "永冬岭"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [338, 793]
+  tp_pos: [338, 793]
+
+- uid: "HCDLM"
+  cn: "寒潮的落幕·历战余响"
+  planet_name: "雅利洛-VI"
+  region_name: "永冬岭"
+  region_floor: 0
+  template_id: "mm_boss_02"
+  lm_pos: [814, 701]
+  tp_pos: [814, 701]
+

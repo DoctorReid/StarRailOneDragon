@@ -43,6 +43,17 @@ class TextSettingCard(SettingCardBase):
         if self.adapter is not None:
             self.adapter.set_value(val)
 
+    def init_with_adapter(self, adapter: Optional[YamlConfigAdapter]) -> None:
+        """
+        初始化值
+        """
+        self.adapter = adapter
+
+        if self.adapter is None:
+            self.setValue('', emit_signal=False)
+        else:
+            self.setValue(self.adapter.get_value(), emit_signal=False)
+
     def init_value(self) -> None:
         """
         初始化值

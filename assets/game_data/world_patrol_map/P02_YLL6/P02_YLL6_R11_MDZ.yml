@@ -1,0 +1,63 @@
+- uid: "GEY"
+  cn: "孤儿院"
+  planet_name: "雅利洛-VI"
+  region_name: "铆钉镇"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [600, 211]
+  tp_pos: [603, 225]
+
+- uid: "FQSJ"
+  cn: "废弃市集"
+  planet_name: "雅利洛-VI"
+  region_name: "铆钉镇"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [465, 374]
+  tp_pos: [474, 363]
+
+- uid: "RK"
+  cn: "入口"
+  planet_name: "雅利洛-VI"
+  region_name: "铆钉镇"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [613, 675]
+  tp_pos: [601, 663]
+
+- uid: "XFZX"
+  cn: "巽风之形·凝滞虚影"
+  planet_name: "雅利洛-VI"
+  region_name: "铆钉镇"
+  region_floor: 1
+  template_id: "mm_tp_06"
+  lm_pos: [580, 374]
+  tp_pos: [582, 400]
+
+- uid: "ZSZL"
+  cn: "智识之蕾·拟造花萼（赤）"
+  planet_name: "雅利洛-VI"
+  region_name: "铆钉镇"
+  region_floor: 1
+  template_id: "mm_tp_07"
+  lm_pos: [609, 608]
+  tp_pos: [610, 616]
+
+- uid: "JWQSYC"
+  cn: "旧武器试验场"
+  planet_name: "雅利洛-VI"
+  region_name: "铆钉镇"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [767, 244]
+  tp_pos: [767, 244]
+
+- uid: "PYZ"
+  cn: "磐岩镇"
+  planet_name: "雅利洛-VI"
+  region_name: "铆钉镇"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [597, 698]
+  tp_pos: [597, 698]
+

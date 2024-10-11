@@ -1,0 +1,153 @@
+- uid: "YXGCL"
+  cn: "偃息馆长廊"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [867, 402]
+  tp_pos: [868, 417]
+
+- uid: "THLHM"
+  cn: "谈狐林后门"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [210, 481]
+  tp_pos: [235, 480]
+
+- uid: "QQTRK"
+  cn: "青丘台入口"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [607, 646]
+  tp_pos: [617, 647]
+
+- uid: "YYTRK"
+  cn: "燕乐亭入口"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [838, 796]
+  tp_pos: [855, 777]
+
+- uid: "YFZX"
+  cn: "幽府之形·凝滞虚影"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_tp_06"
+  lm_pos: [152, 679]
+  tp_pos: [155, 658]
+
+- uid: "YMZJ"
+  cn: "幽冥之径·侵蚀隧洞"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_tp_09"
+  lm_pos: [418, 463]
+  tp_pos: [423, 459]
+
+- uid: "JHD"
+  cn: "集合点"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_tp_13"
+  lm_pos: [908, 447]
+  tp_pos: [907, 447]
+
+- uid: "CLT"
+  cn: "长乐天"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [629, 772]
+  tp_pos: [629, 772]
+
+- uid: "THLCZYT"
+  cn: "谈狐林处镇妖塔"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_08"
+  lm_pos: [235, 409]
+  tp_pos: [235, 409]
+
+- uid: "YXGCZYT"
+  cn: "偃息馆处镇妖塔"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_08"
+  lm_pos: [839, 461]
+  tp_pos: [839, 461]
+
+- uid: "QQTCZYT"
+  cn: "青丘台处镇妖塔"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_08"
+  lm_pos: [621, 509]
+  tp_pos: [621, 509]
+
+- uid: "YYTCZYT"
+  cn: "燕乐亭处镇妖塔"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_08"
+  lm_pos: [832, 710]
+  tp_pos: [832, 710]
+
+- uid: "DMZCZYT"
+  cn: "狐眠冢处镇妖塔"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_08"
+  lm_pos: [487, 787]
+  tp_pos: [487, 787]
+
+- uid: "QQTQM"
+  cn: "青丘台栖木"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_09"
+  lm_pos: [488, 516]
+  tp_pos: [488, 516]
+
+- uid: "DMZQM"
+  cn: "狐眠冢栖木"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_09"
+  lm_pos: [297, 665]
+  tp_pos: [297, 665]
+
+- uid: "YYTQM"
+  cn: "燕乐亭栖木"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_sp_09"
+  lm_pos: [965, 728]
+  tp_pos: [965, 728]
+
+- uid: "FRZL"
+  cn: "丰饶之蕾·拟造花萼（赤）"
+  planet_name: "仙舟「罗浮」"
+  region_name: "绥园"
+  region_floor: 0
+  template_id: "mm_tp_07"
+  lm_pos: [189, 823]
+  tp_pos: [194, 821]
+

@@ -1,0 +1,153 @@
+- uid: "YCDM"
+  cn: "影城大门"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1244, 884]
+  tp_pos: [1262, 910]
+
+- uid: "HJDSK"
+  cn: "黄金的时刻"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [1272, 910]
+  tp_pos: [1272, 910]
+
+- uid: "WEN"
+  cn: "沃尔纳"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 1
+  template_id: "mm_sp_03"
+  lm_pos: [1146, 819]
+  tp_pos: [1146, 819]
+
+- uid: "CSQLY"
+  cn: "仓鼠球乐园"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [664, 424]
+  tp_pos: [688, 433]
+
+- uid: "FYQRK"
+  cn: "放映区入口"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [490, 895]
+  tp_pos: [528, 912]
+
+- uid: "HNBPJD"
+  cn: "哈努帮派基地"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [705, 1456]
+  tp_pos: [702, 1442]
+
+- uid: "CHZLNZHEC"
+  cn: "存护之蕾·拟造花萼（赤）"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_tp_07"
+  lm_pos: [832, 1243]
+  tp_pos: [837, 1247]
+
+- uid: "MMXZZTCT"
+  cn: "美梦小镇主题餐厅"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [478, 830]
+  tp_pos: [478, 830]
+
+- uid: "XXHNXD"
+  cn: "小小哈努行动"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_sp_11"
+  lm_pos: [776, 439]
+  tp_pos: [776, 439]
+
+- uid: "XXHNXD"
+  cn: "小小哈努行动"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_sp_11"
+  lm_pos: [816, 1405]
+  tp_pos: [816, 1405]
+
+- uid: "HJGZDDS"
+  cn: "黄金公子的「大树」"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_sp_14"
+  lm_pos: [819, 493]
+  tp_pos: [819, 493]
+
+- uid: "CSQQSSDYJG"
+  cn: "《仓鼠球骑士：速度与坚果》"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_sp_17"
+  lm_pos: [756, 333]
+  tp_pos: [756, 333]
+
+- uid: "ZSZXNZXY"
+  cn: "职司之形·凝滞虚影"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 1
+  template_id: "mm_tp_06"
+  lm_pos: [855, 1040]
+  tp_pos: [873, 1028]
+
+- uid: "MMWSPSDD"
+  cn: "《美梦往事》拍摄地点"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_tp_16"
+  lm_pos: [332, 909]
+  tp_pos: [332, 909]
+
+- uid: "HNXDLZD"
+  cn: "《哈努兄弟：狼之道》"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_sp_17"
+  lm_pos: [634, 1465]
+  tp_pos: [634, 1465]
+
+- uid: "HNXDDJA"
+  cn: "哈努兄弟大劫案"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_sp_01"
+  lm_pos: [659, 1420]
+  tp_pos: [659, 1420]
+
+- uid: "MMXZ"
+  cn: "美梦仙踪"
+  planet_name: "匹诺康尼"
+  region_name: "克劳克影视乐园"
+  region_floor: 2
+  template_id: "mm_sp_01"
+  lm_pos: [674, 403]
+  tp_pos: [674, 403]
+

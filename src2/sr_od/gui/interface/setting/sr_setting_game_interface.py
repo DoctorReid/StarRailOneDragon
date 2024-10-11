@@ -42,21 +42,17 @@ class SrSettingGameInterface(VerticalScrollInterface):
         self.game_path_opt.clicked.connect(self._on_game_path_clicked)
         basic_group.addSettingCard(self.game_path_opt)
 
-        self.game_region_opt = ComboBoxSettingCard(icon=FluentIcon.HOME, title='游戏区服', options_enum=GameRegionEnum,
-                                                   adapter=self.ctx.game_config.game_region_adapter)
+        self.game_region_opt = ComboBoxSettingCard(icon=FluentIcon.HOME, title='游戏区服', options_enum=GameRegionEnum)
         basic_group.addSettingCard(self.game_region_opt)
 
-        self.game_account_opt = TextSettingCard(icon=FluentIcon.PEOPLE, title='账号',
-                                                adapter=self.ctx.game_config.game_account_adapter)
+        self.game_account_opt = TextSettingCard(icon=FluentIcon.PEOPLE, title='账号')
         basic_group.addSettingCard(self.game_account_opt)
 
         self.game_password_opt = TextSettingCard(icon=FluentIcon.EXPRESSIVE_INPUT_ENTRY, title='密码',
-                                                 content='放心不会盗你的号 异地登陆需要验证',
-                                                 adapter=self.ctx.game_config.game_account_password_adapter)
+                                                 content='放心不会盗你的号 异地登陆需要验证')
         basic_group.addSettingCard(self.game_password_opt)
 
-        self.use_quirky_snacks_opt = SwitchSettingCard(icon=FluentIcon.CAFE, title='只用奇巧零食',
-                                                       adapter=self.ctx.game_config.use_quirky_snacks_adapter)
+        self.use_quirky_snacks_opt = SwitchSettingCard(icon=FluentIcon.CAFE, title='只用奇巧零食')
         basic_group.addSettingCard(self.use_quirky_snacks_opt)
 
         return basic_group
@@ -64,16 +60,13 @@ class SrSettingGameInterface(VerticalScrollInterface):
     def _get_key_group(self) -> QWidget:
         key_group = SettingCardGroup(gt('游戏按键', 'ui'))
 
-        self.key_interact_opt = KeySettingCard(icon=FluentIcon.GAME, title='交互',
-                                               adapter=self.ctx.game_config.key_interact_adapter)
+        self.key_interact_opt = KeySettingCard(icon=FluentIcon.GAME, title='交互')
         key_group.addSettingCard(self.key_interact_opt)
 
-        self.key_technique_opt = KeySettingCard(icon=FluentIcon.GAME, title='秘技',
-                                                adapter=self.ctx.game_config.key_technique_adapter)
+        self.key_technique_opt = KeySettingCard(icon=FluentIcon.GAME, title='秘技')
         key_group.addSettingCard(self.key_technique_opt)
 
-        self.key_esc_opt = KeySettingCard(icon=FluentIcon.GAME, title='返回',
-                                                adapter=self.ctx.game_config.key_esc_adapter)
+        self.key_esc_opt = KeySettingCard(icon=FluentIcon.GAME, title='返回')
         key_group.addSettingCard(self.key_esc_opt)
 
         return key_group
@@ -81,16 +74,16 @@ class SrSettingGameInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
-        self.game_region_opt.init_value()
-        self.game_account_opt.init_value()
-        self.game_password_opt.init_value()
-        self.use_quirky_snacks_opt.init_value()
+        self.game_region_opt.init_with_adapter(self.ctx.game_config.game_region_adapter)
+        self.game_account_opt.init_with_adapter(self.ctx.game_config.game_account_adapter)
+        self.game_password_opt.init_with_adapter(self.ctx.game_config.game_account_password_adapter)
+        self.use_quirky_snacks_opt.init_with_adapter(self.ctx.game_config.use_quirky_snacks_adapter)
 
         self.game_path_opt.setContent(self.ctx.game_config.game_path)
 
-        self.key_interact_opt.init_value()
-        self.key_technique_opt.init_value()
-        self.key_esc_opt.init_value()
+        self.key_interact_opt.init_with_adapter(self.ctx.game_config.key_interact_adapter)
+        self.key_technique_opt.init_with_adapter(self.ctx.game_config.key_technique_adapter)
+        self.key_esc_opt.init_with_adapter(self.ctx.game_config.key_esc_adapter)
 
     def _on_game_path_clicked(self) -> None:
         file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的 ZenlessZoneZero.exe'), filter="Exe (*.exe)")

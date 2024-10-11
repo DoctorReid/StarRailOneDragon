@@ -1,0 +1,171 @@
+- uid: "HJGJY"
+  cn: "黄金歌剧院"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [603, 374]
+  tp_pos: [619, 380]
+
+- uid: "ZYGC"
+  cn: "中央广场"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [487, 806]
+  tp_pos: [501, 801]
+
+- uid: "GDBG"
+  cn: "歌德宾馆"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [784, 1173]
+  tp_pos: [776, 1183]
+
+- uid: "LSWHBWG"
+  cn: "历史文化博物馆"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_tp_05"
+  lm_pos: [395, 771]
+  tp_pos: [395, 771]
+
+- uid: "CJXY"
+  cn: "城郊雪原"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [485, 370]
+  tp_pos: [485, 370]
+
+- uid: "BYTL"
+  cn: "边缘通路"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [508, 1113]
+  tp_pos: [508, 1113]
+
+- uid: "TWJQ"
+  cn: "铁卫禁区"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [792, 1259]
+  tp_pos: [792, 1259]
+
+- uid: "SHJ1"
+  cn: "售货机1"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_03"
+  lm_pos: [672, 521]
+  tp_pos: [672, 521]
+
+- uid: "SS"
+  cn: "书商"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_03"
+  lm_pos: [641, 705]
+  tp_pos: [641, 705]
+
+- uid: "MBR"
+  cn: "卖报人"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_03"
+  lm_pos: [610, 806]
+  tp_pos: [610, 806]
+
+- uid: "XZQSD"
+  cn: "行政区商店"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_03"
+  lm_pos: [639, 906]
+  tp_pos: [639, 906]
+
+- uid: "SHJ2"
+  cn: "售货机2"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_03"
+  lm_pos: [697, 1187]
+  tp_pos: [697, 1187]
+
+- uid: "HDCX"
+  cn: "花店长夏"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_05"
+  lm_pos: [602, 588]
+  tp_pos: [602, 588]
+
+- uid: "KLBB1"
+  cn: "克里珀堡1"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_05"
+  lm_pos: [769, 732]
+  tp_pos: [769, 732]
+
+- uid: "KLBB2"
+  cn: "克里珀堡2"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_05"
+  lm_pos: [769, 878]
+  tp_pos: [769, 878]
+
+- uid: "JWXYD"
+  cn: "机械屋永动"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_05"
+  lm_pos: [727, 918]
+  tp_pos: [727, 918]
+
+- uid: "GDBGRK"
+  cn: "歌德宾馆入口"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: 1
+  template_id: "mm_sp_05"
+  lm_pos: [627, 1152]
+  tp_pos: [627, 1152]
+
+- uid: "PYZ"
+  cn: "磐岩镇"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: -1
+  template_id: "mm_sp_02"
+  lm_pos: [641, 778]
+  tp_pos: [641, 778]
+
+- uid: "SHJ3"
+  cn: "售货机3"
+  planet_name: "雅利洛-VI"
+  region_name: "行政区"
+  region_floor: -1
+  template_id: "mm_sp_03"
+  lm_pos: [516, 864]
+  tp_pos: [516, 864]
+

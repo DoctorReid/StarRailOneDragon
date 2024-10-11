@@ -1,0 +1,108 @@
+- uid: "DYLY"
+  cn: "断狱轮钥"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -4
+  template_id: "mm_tp_03"
+  lm_pos: [1340, 863]
+  tp_pos: [1391, 990]
+
+- uid: "JRY"
+  cn: "焦热狱"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -3
+  template_id: "mm_tp_03"
+  lm_pos: [1557, 1071]
+  tp_pos: [1554, 1082]
+
+- uid: "YHYQE"
+  cn: "阴寒域·其二"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -1
+  template_id: "mm_tp_03"
+  lm_pos: [1364, 1215]
+  tp_pos: [1341, 1243]
+
+- uid: "YHYQY"
+  cn: "阴寒域·其一"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -1
+  template_id: "mm_tp_03"
+  lm_pos: [1200, 1258]
+  tp_pos: [1217, 1264]
+
+- uid: "AHMTCJT"
+  cn: "阿合马铁窗集团"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -1
+  template_id: "mm_sp_03"
+  lm_pos: [1546, 1384]
+  tp_pos: [1546, 1384]
+
+- uid: "AHMTCJTYJS"
+  cn: "阿合马铁窗集团日化研究所"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -1
+  template_id: "mm_sp_03"
+  lm_pos: [1116, 1408]
+  tp_pos: [1116, 1408]
+
+- uid: "MFMSXQ"
+  cn: "「魔方秘社」西桥"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -1
+  template_id: "mm_sp_19"
+  lm_pos: [1134, 1214]
+  tp_pos: [1134, 1214]
+
+- uid: "KLSZDQ"
+  cn: "勘录舍·栈道前"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1233, 680]
+  tp_pos: [1232, 698]
+
+- uid: "ZEM"
+  cn: "镇恶门"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [676, 893]
+  tp_pos: [665, 923]
+
+- uid: "LYJ"
+  cn: "鳞渊境"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [626, 917]
+  tp_pos: [626, 917]
+
+- uid: "JQN"
+  cn: "机巧鸟"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -4
+  template_id: "mm_sp_09"
+  lm_pos: [1364, 1007]
+  tp_pos: [1364, 1007]
+
+- uid: "JLZXNZXY"
+  cn: "机狼之形·凝滞虚影"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -3
+  template_id: "mm_tp_06"
+  lm_pos: [1809, 954]
+  tp_pos: [1793, 965]
+

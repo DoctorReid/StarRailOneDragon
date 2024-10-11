@@ -1,0 +1,72 @@
+- uid: "JQGS"
+  cn: "禁区岗哨"
+  planet_name: "雅利洛-VI"
+  region_name: "铁卫禁区"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1162, 576]
+  tp_pos: [1158, 586]
+
+- uid: "JQQX"
+  cn: "禁区前线"
+  planet_name: "雅利洛-VI"
+  region_name: "铁卫禁区"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [538, 596]
+  tp_pos: [530, 587]
+
+- uid: "NYSN"
+  cn: "能源枢纽"
+  planet_name: "雅利洛-VI"
+  region_name: "铁卫禁区"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [750, 1102]
+  tp_pos: [754, 1090]
+
+- uid: "YHZX"
+  cn: "炎华之形·凝滞虚影"
+  planet_name: "雅利洛-VI"
+  region_name: "铁卫禁区"
+  region_floor: 0
+  template_id: "mm_tp_06"
+  lm_pos: [463, 442]
+  tp_pos: [464, 465]
+
+- uid: "XQZJ"
+  cn: "迅拳之径·侵蚀隧洞"
+  planet_name: "雅利洛-VI"
+  region_name: "铁卫禁区"
+  region_floor: 0
+  template_id: "mm_tp_09"
+  lm_pos: [1143, 624]
+  tp_pos: [1145, 617]
+
+- uid: "YYHY"
+  cn: "以眼还眼"
+  planet_name: "雅利洛-VI"
+  region_name: "铁卫禁区"
+  region_floor: 0
+  template_id: "mm_sp_01"
+  lm_pos: [438, 578]
+  tp_pos: [438, 578]
+
+- uid: "DBJXQ"
+  cn: "冬兵进行曲"
+  planet_name: "雅利洛-VI"
+  region_name: "铁卫禁区"
+  region_floor: 0
+  template_id: "mm_sp_01"
+  lm_pos: [723, 1073]
+  tp_pos: [723, 1073]
+
+- uid: "CXHL"
+  cn: "残响回廊"
+  planet_name: "雅利洛-VI"
+  region_name: "铁卫禁区"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [314, 589]
+  tp_pos: [314, 589]
+

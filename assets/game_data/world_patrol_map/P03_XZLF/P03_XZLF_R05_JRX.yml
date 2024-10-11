@@ -1,0 +1,117 @@
+- uid: "QKJ"
+  cn: "乾坤街"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [694, 383]
+  tp_pos: [714, 382]
+
+- uid: "JRXYS"
+  cn: "金人巷夜市"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [432, 521]
+  tp_pos: [459, 470]
+
+- uid: "JRXMT"
+  cn: "金人巷码头"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_tp_11"
+  lm_pos: [480, 53]
+  tp_pos: [480, 53]
+
+- uid: "CLT1"
+  cn: "长乐天1"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [346, 495]
+  tp_pos: [346, 495]
+
+- uid: "CLT2"
+  cn: "长乐天2"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [447, 536]
+  tp_pos: [447, 536]
+
+- uid: "SKT"
+  cn: "寿考堂"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [365, 275]
+  tp_pos: [365, 275]
+
+- uid: "SZW"
+  cn: "尚滋味"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [423, 347]
+  tp_pos: [423, 347]
+
+- uid: "GAYDXCT"
+  cn: "高阿姨的小吃摊"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [500, 352]
+  tp_pos: [500, 352]
+
+- uid: "CJP"
+  cn: "陈机铺"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [653, 369]
+  tp_pos: [653, 369]
+
+- uid: "DSCZ"
+  cn: "杜氏茶庄"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [582, 392]
+  tp_pos: [582, 392]
+
+- uid: "MZG"
+  cn: "美馔阁"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [429, 393]
+  tp_pos: [429, 393]
+
+- uid: "SHJ"
+  cn: "售货机"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [491, 395]
+  tp_pos: [491, 395]
+
+- uid: "HSGDDYNC"
+  cn: "霍三哥的大衣内侧"
+  planet_name: "仙舟「罗浮」"
+  region_name: "金人巷"
+  region_floor: 0
+  template_id: "mm_sp_07"
+  lm_pos: [775, 266]
+  tp_pos: [775, 266]
+

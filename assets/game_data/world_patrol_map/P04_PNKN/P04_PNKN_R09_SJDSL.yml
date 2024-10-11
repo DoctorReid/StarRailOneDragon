@@ -1,0 +1,36 @@
+- uid: "QHSJSJDSLHF"
+  cn: "枪火时间·时间的试炼（后方）"
+  planet_name: "匹诺康尼"
+  region_name: "时间的试炼入口"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [918, 185]
+  tp_pos: [934, 195]
+
+- uid: "QHSJSJDSL"
+  cn: "枪火时间·时间的试炼"
+  planet_name: "匹诺康尼"
+  region_name: "时间的试炼入口"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [403, 545]
+  tp_pos: [419, 554]
+
+- uid: "HXTK"
+  cn: "海选特快"
+  planet_name: "匹诺康尼"
+  region_name: "时间的试炼入口"
+  region_floor: 0
+  template_id: "mm_sp_18"
+  lm_pos: [404, 173]
+  tp_pos: [404, 173]
+
+- uid: "FCTK"
+  cn: "返程特快"
+  planet_name: "匹诺康尼"
+  region_name: "时间的试炼入口"
+  region_floor: 0
+  template_id: "mm_sp_18"
+  lm_pos: [418, 622]
+  tp_pos: [418, 622]
+

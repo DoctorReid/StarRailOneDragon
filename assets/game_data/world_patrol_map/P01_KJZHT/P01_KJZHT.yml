@@ -1,0 +1,26 @@
+- num: 0
+  uid: "GJCX"
+  cn: "观景车厢"
+
+- num: 1
+  uid: "ZKCD"
+  cn: "主控舱段"
+
+- num: 2
+  uid: "JZCD"
+  cn: "基座舱段"
+
+- num: 3
+  uid: "SRCD"
+  cn: "收容舱段"
+  floors: [-1, 1, 2]
+
+- num: 4
+  uid: "ZYCD"
+  cn: "支援舱段"
+  floors: [1, 2]
+
+- num: 5
+  uid: "JBCD"
+  cn: "禁闭舱段"
+  floors: [1, 2, 3]

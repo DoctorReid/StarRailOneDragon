@@ -1,0 +1,108 @@
+- uid: "JKS"
+  cn: "监控室"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [344, 524]
+  tp_pos: [370, 496]
+
+- uid: "MJDT"
+  cn: "梦境大堂"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1178, 1107]
+  tp_pos: [1155, 1140]
+
+- uid: "FSFRDDS"
+  cn: "妃色夫人的「大树」"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 1
+  template_id: "mm_sp_14"
+  lm_pos: [1107, 1088]
+  tp_pos: [1107, 1088]
+
+- uid: "XXHNXD"
+  cn: "小小哈努行动"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 2
+  template_id: "mm_sp_11"
+  lm_pos: [411, 750]
+  tp_pos: [411, 750]
+
+- uid: "JMJB"
+  cn: "惊梦酒吧"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [437, 198]
+  tp_pos: [425, 221]
+
+- uid: "BJKF"
+  cn: "铂金客房"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [1491, 699]
+  tp_pos: [1471, 681]
+
+- uid: "GBXXSZL"
+  cn: "贵宾休息室走廊"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [493, 737]
+  tp_pos: [459, 745]
+
+- uid: "BNZXNZXY"
+  cn: "冰酿之形·凝滞虚影"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 3
+  template_id: "mm_tp_06"
+  lm_pos: [206, 745]
+  tp_pos: [230, 747]
+
+- uid: "TXZLNZHEC"
+  cn: "同谐之蕾·拟造花萼（赤）"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 3
+  template_id: "mm_tp_07"
+  lm_pos: [649, 1054]
+  tp_pos: [651, 1059]
+
+- uid: "CZZLNZHEJ"
+  cn: "藏珍之蕾·拟造花萼（金）"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 3
+  template_id: "mm_tp_08"
+  lm_pos: [1314, 1397]
+  tp_pos: [1318, 1398]
+
+- uid: "MQZJQSSD"
+  cn: "梦潜之径·侵蚀隧洞"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 3
+  template_id: "mm_tp_09"
+  lm_pos: [1507, 1354]
+  tp_pos: [1504, 1352]
+
+- uid: "RMC"
+  cn: "入梦池"
+  planet_name: "匹诺康尼"
+  region_name: "「白日梦」酒店-梦境"
+  region_floor: 3
+  template_id: "mm_sp_10"
+  lm_pos: [1493, 680]
+  tp_pos: [1493, 680]
+

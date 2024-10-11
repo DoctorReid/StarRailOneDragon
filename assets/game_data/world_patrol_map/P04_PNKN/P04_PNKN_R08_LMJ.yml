@@ -1,0 +1,90 @@
+- uid: "ZX"
+  cn: "窄巷"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [603, 1382]
+  tp_pos: [596, 1370]
+
+- uid: "ZZDYG"
+  cn: "稚子的月光"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [576, 270]
+  tp_pos: [593, 306]
+
+- uid: "SC"
+  cn: "睡城"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [894, 868]
+  tp_pos: [879, 880]
+
+- uid: "SXGC"
+  cn: "时隙广场"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [614, 930]
+  tp_pos: [592, 940]
+
+- uid: "JMJZ"
+  cn: "旧梦集镇"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [496, 1073]
+  tp_pos: [495, 1093]
+
+- uid: "ZZDM"
+  cn: "稚子的梦"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_sp_02"
+  lm_pos: [591, 184]
+  tp_pos: [591, 184]
+
+- uid: "CSKC"
+  cn: "翠丝快餐"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [355, 854]
+  tp_pos: [355, 854]
+
+- uid: "ZDYF"
+  cn: "自动乐坊"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [369, 978]
+  tp_pos: [369, 978]
+
+- uid: "JEK"
+  cn: "基尔克"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [357, 1188]
+  tp_pos: [357, 1188]
+
+- uid: "ZLJSDDS"
+  cn: "湛蓝爵士的「大树」"
+  planet_name: "匹诺康尼"
+  region_name: "流梦礁"
+  region_floor: 2
+  template_id: "mm_sp_14"
+  lm_pos: [549, 1107]
+  tp_pos: [549, 1107]
+

@@ -1,0 +1,99 @@
+- uid: "TXDT"
+  cn: "调弦大厅"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [796, 770]
+  tp_pos: [796, 756]
+
+- uid: "JYT"
+  cn: "交谊厅"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1306, 790]
+  tp_pos: [1282, 767]
+
+- uid: "FYSL"
+  cn: "福音沙龙"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [283, 792]
+  tp_pos: [319, 782]
+
+- uid: "SXCL"
+  cn: "上行长廊"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [813, 1306]
+  tp_pos: [796, 1308]
+
+- uid: ""
+  cn: "梦境空间"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_sp_05"
+  lm_pos: [385, 749]
+  tp_pos: [385, 749]
+
+- uid: "XXHNXD"
+  cn: "小小哈努行动"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_sp_11"
+  lm_pos: [1267, 882]
+  tp_pos: [1267, 882]
+
+- uid: "FSFRDDS"
+  cn: "妃色夫人的「大树」"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_sp_14"
+  lm_pos: [322, 891]
+  tp_pos: [322, 891]
+
+- uid: "CMDZLLZYX"
+  cn: "尘梦的赞礼·历战余响"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_boss_05"
+  lm_pos: [793, 298]
+  tp_pos: [796, 309]
+
+- uid: "ZSZLNZHEC"
+  cn: "智识之蕾·拟造花萼（赤）"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_tp_07"
+  lm_pos: [1022, 383]
+  tp_pos: [1028, 381]
+
+- uid: "YQZJQSCD"
+  cn: "勇骑之径·侵蚀隧洞"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_tp_09"
+  lm_pos: [222, 627]
+  tp_pos: [228, 631]
+
+- uid: "JXZXNZXY"
+  cn: "今宵之形·凝滞虚影"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_tp_06"
+  lm_pos: [973, 1291]
+  tp_pos: [952, 1292]
+

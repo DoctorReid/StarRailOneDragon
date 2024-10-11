@@ -1,0 +1,63 @@
+- uid: "JHZ"
+  cn: "界寰阵"
+  planet_name: "仙舟「罗浮」"
+  region_name: "太卜司"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [340, 302]
+  tp_pos: [335, 284]
+
+- uid: "TYQGZ"
+  cn: "太衍穷观阵"
+  planet_name: "仙舟「罗浮」"
+  region_name: "太卜司"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [553, 616]
+  tp_pos: [537, 615]
+
+- uid: "SST"
+  cn: "授事厅"
+  planet_name: "仙舟「罗浮」"
+  region_name: "太卜司"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [922, 845]
+  tp_pos: [909, 834]
+
+- uid: "XT"
+  cn: "祥台"
+  planet_name: "仙舟「罗浮」"
+  region_name: "太卜司"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [416, 1192]
+  tp_pos: [430, 1180]
+
+- uid: "GZS"
+  cn: "工造司"
+  planet_name: "仙舟「罗浮」"
+  region_name: "太卜司"
+  region_floor: 2
+  template_id: "mm_sp_02"
+  lm_pos: [1141, 804]
+  tp_pos: [1141, 804]
+
+- uid: "CLT"
+  cn: "长乐天"
+  planet_name: "仙舟「罗浮」"
+  region_name: "太卜司"
+  region_floor: 2
+  template_id: "mm_sp_02"
+  lm_pos: [449, 1162]
+  tp_pos: [449, 1162]
+
+- uid: "YTZLNZHEJ"
+  cn: "以太之蕾·拟造花萼（金）"
+  planet_name: "仙舟「罗浮」"
+  region_name: "太卜司"
+  region_floor: 2
+  template_id: "mm_tp_08"
+  lm_pos: [728, 1035]
+  tp_pos: [726, 1039]
+

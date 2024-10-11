@@ -1,0 +1,18 @@
+- uid: "JXDFZYHLT"
+  cn: "巨星巅峰战·一号擂台"
+  planet_name: "匹诺康尼"
+  region_name: "一号擂台"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [736, 510]
+  tp_pos: [763, 525]
+
+- uid: "FCTK"
+  cn: "返程特快"
+  planet_name: "匹诺康尼"
+  region_name: "一号擂台"
+  region_floor: 0
+  template_id: "mm_sp_18"
+  lm_pos: [763, 764]
+  tp_pos: [763, 764]
+

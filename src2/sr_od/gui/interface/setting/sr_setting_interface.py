@@ -4,7 +4,7 @@ from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigat
 from one_dragon.gui.view.setting.setting_env_interface import SettingEnvInterface
 from one_dragon.gui.view.setting.setting_instance_interface import SettingInstanceInterface
 from sr_od.context.sr_context import SrContext
-from sr_od.gui.interface.sr_setting_game_interface import SrSettingGameInterface
+from sr_od.gui.interface.setting.sr_setting_game_interface import SrSettingGameInterface
 
 
 class SrSettingInterface(PivotNavigatorInterface):

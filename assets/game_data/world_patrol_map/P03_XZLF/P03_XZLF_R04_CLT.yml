@@ -1,0 +1,144 @@
+- uid: "RMT"
+  cn: "若木亭"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [550, 206]
+  tp_pos: [559, 193]
+
+- uid: "YXT"
+  cn: "悠暇庭"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [589, 530]
+  tp_pos: [593, 519]
+
+- uid: "TBS"
+  cn: "太卜司"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [697, 104]
+  tp_pos: [697, 104]
+
+- uid: "SCF"
+  cn: "神策府"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [427, 145]
+  tp_pos: [427, 145]
+
+- uid: "JRX1"
+  cn: "金人巷1"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [355, 224]
+  tp_pos: [355, 224]
+
+- uid: "JRX2"
+  cn: "金人巷2"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [380, 465]
+  tp_pos: [380, 465]
+
+- uid: "XCHZS"
+  cn: "星槎海中枢"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [494, 588]
+  tp_pos: [494, 588]
+
+- uid: "ZHXT"
+  cn: "杂货小摊"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [695, 193]
+  tp_pos: [695, 193]
+
+- uid: "SHJ1"
+  cn: "售货机-1"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [550, 226]
+  tp_pos: [550, 226]
+
+- uid: "BET"
+  cn: "宝饵堂"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [745, 232]
+  tp_pos: [745, 232]
+
+- uid: "BET"
+  cn: "宝饵堂"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [745, 232]
+  tp_pos: [745, 232]
+
+- uid: "SHJ2"
+  cn: "售货机2"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [663, 262]
+  tp_pos: [663, 262]
+
+- uid: "SYSS"
+  cn: "三余书肆"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [662, 423]
+  tp_pos: [662, 423]
+
+- uid: "SHJ3"
+  cn: "售货机3"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [444, 505]
+  tp_pos: [444, 505]
+
+- uid: "XCT"
+  cn: "小吃摊"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [636, 560]
+  tp_pos: [636, 560]
+
+- uid: "DHSGX"
+  cn: "地衡司公廨"
+  planet_name: "仙舟「罗浮」"
+  region_name: "长乐天"
+  region_floor: 0
+  template_id: "mm_sp_05"
+  lm_pos: [538, 294]
+  tp_pos: [538, 294]
+

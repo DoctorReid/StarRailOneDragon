@@ -1,0 +1,90 @@
+- uid: "GDDFD"
+  cn: "歌德大饭店"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [614, 236]
+  tp_pos: [632, 236]
+
+- uid: "BJQLB"
+  cn: "搏击俱乐部"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [419, 251]
+  tp_pos: [409, 238]
+
+- uid: "NTSDZS"
+  cn: "娜塔莎的诊所"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [416, 417]
+  tp_pos: [418, 434]
+
+- uid: "PYZCJLS"
+  cn: "磐岩镇超级联赛"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_tp_10"
+  lm_pos: [358, 262]
+  tp_pos: [358, 262]
+
+- uid: "MDZ"
+  cn: "铆钉镇"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [630, 114]
+  tp_pos: [630, 114]
+
+- uid: "DKQ"
+  cn: "大矿区"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [453, 595]
+  tp_pos: [453, 595]
+
+- uid: "DDSD"
+  cn: "地底商店"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [632, 306]
+  tp_pos: [632, 306]
+
+- uid: "CXT"
+  cn: "小吃摊"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_sp_04"
+  lm_pos: [706, 458]
+  tp_pos: [706, 458]
+
+- uid: "GDDFD"
+  cn: "歌德大饭店"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_sp_05"
+  lm_pos: [688, 222]
+  tp_pos: [688, 222]
+
+- uid: "NTSDZSRK"
+  cn: "娜塔莎的诊所入口"
+  planet_name: "雅利洛-VI"
+  region_name: "磐岩镇"
+  region_floor: 0
+  template_id: "mm_sp_05"
+  lm_pos: [393, 475]
+  tp_pos: [393, 475]
+

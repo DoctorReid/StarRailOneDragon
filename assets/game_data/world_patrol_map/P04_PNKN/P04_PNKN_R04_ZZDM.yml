@@ -1,0 +1,45 @@
+- uid: "HYZL"
+  cn: "回忆走廊"
+  planet_name: "匹诺康尼"
+  region_name: "稚子的梦"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [614, 564]
+  tp_pos: [593, 555]
+
+- uid: "FHMJ"
+  cn: "洑洄梦境"
+  planet_name: "匹诺康尼"
+  region_name: "稚子的梦"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [575, 979]
+  tp_pos: [593, 995]
+
+- uid: "ZBF"
+  cn: "钟表坊"
+  planet_name: "匹诺康尼"
+  region_name: "稚子的梦"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [701, 1187]
+  tp_pos: [682, 1198]
+
+- uid: "YTZLNZHEJ"
+  cn: "以太之蕾·拟造花萼（金）"
+  planet_name: "匹诺康尼"
+  region_name: "稚子的梦"
+  region_floor: 0
+  template_id: "mm_tp_08"
+  lm_pos: [573, 1108]
+  tp_pos: [571, 1106]
+
+- uid: "CHDGDDS"
+  cn: "赤红大哥的「大树」"
+  planet_name: "匹诺康尼"
+  region_name: "稚子的梦"
+  region_floor: 0
+  template_id: "mm_sp_14"
+  lm_pos: [572, 516]
+  tp_pos: [572, 516]
+

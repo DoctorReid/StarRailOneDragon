@@ -1,0 +1,117 @@
+- uid: "TZDS"
+  cn: "太真丹室"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [548, 565]
+  tp_pos: [563, 570]
+
+- uid: "GYT"
+  cn: "观颐台"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [439, 705]
+  tp_pos: [448, 718]
+
+- uid: "XYSJ"
+  cn: "行医市集"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [826, 908]
+  tp_pos: [818, 893]
+
+- uid: "QHS"
+  cn: "岐黄署"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [819, 1542]
+  tp_pos: [853, 1554]
+
+- uid: "TRZX"
+  cn: "天人之形·凝滞虚影"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_tp_06"
+  lm_pos: [1226, 1097]
+  tp_pos: [1206, 1097]
+
+- uid: "YSZJ"
+  cn: "药使之径·侵蚀隧洞"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_tp_09"
+  lm_pos: [667, 1514]
+  tp_pos: [668, 1498]
+
+- uid: "LYJ"
+  cn: "麟渊境"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [454, 229]
+  tp_pos: [454, 229]
+
+- uid: "QLT"
+  cn: "祈龙坛"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [187, 721]
+  tp_pos: [187, 721]
+
+- uid: "SLDY"
+  cn: "蜃楼遁影"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_sp_01"
+  lm_pos: [846, 824]
+  tp_pos: [846, 824]
+
+- uid: "GZS"
+  cn: "工造司"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_sp_02"
+  lm_pos: [868, 1573]
+  tp_pos: [868, 1573]
+
+- uid: "YRDXYT"
+  cn: "永仁的小药摊"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [990, 768]
+  tp_pos: [990, 768]
+
+- uid: "GGDYCT"
+  cn: "汵汵的药材摊"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [837, 854]
+  tp_pos: [837, 854]
+
+- uid: "XWZLNZHEC"
+  cn: "虚无之蕾·拟造花萼（赤）"
+  planet_name: "仙舟「罗浮」"
+  region_name: "丹鼎司"
+  region_floor: 2
+  template_id: "mm_tp_07"
+  lm_pos: [607, 1157]
+  tp_pos: [609, 1154]
+

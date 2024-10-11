@@ -1,0 +1,51 @@
+- num: 1
+  uid: "XZQ"
+  cn: "行政区"
+  floors: [-1, 1]
+
+- num: 2
+  uid: "CJXY"
+  cn: "城郊雪原"
+
+- num: 3
+  uid: "BYTL"
+  cn: "边缘通路"
+
+- num: 4
+  uid: "TWJQ"
+  cn: "铁卫禁区"
+
+- num: 5
+  uid: "CXHL"
+  cn: "残响回廊"
+
+- num: 6
+  uid: "YDL"
+  cn: "永冬岭"
+
+- num: 7
+  uid: "ZWZZ"
+  cn: "造物之柱"
+
+- num: 8
+  uid: "JWQSYC"
+  cn: "旧武器试验场"
+  floors: [2]
+
+- num: 9
+  uid: "PYZ"
+  cn: "磐岩镇"
+
+- num: 10
+  uid: "DKQ"
+  cn: "大矿区"
+
+- num: 11
+  uid: "MDZ"
+  cn: "铆钉镇"
+  floors: [1, 2]
+
+- num: 12
+  uid: "JXJL"
+  cn: "机械聚落"
+  floors: [1, 2]

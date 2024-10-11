@@ -1,0 +1,54 @@
+- uid: "CP"
+  cn: "长坡"
+  planet_name: "雅利洛-VI"
+  region_name: "城郊雪原"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1035, 319]
+  tp_pos: [1023, 321]
+
+- uid: "ZLD"
+  cn: "着陆点"
+  planet_name: "雅利洛-VI"
+  region_name: "城郊雪原"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1283, 367]
+  tp_pos: [1271, 384]
+
+- uid: "XLZL"
+  cn: "巡猎之蕾·拟造花萼（赤）"
+  planet_name: "雅利洛-VI"
+  region_name: "城郊雪原"
+  region_floor: 0
+  template_id: "mm_tp_07"
+  lm_pos: [946, 244]
+  tp_pos: [947, 253]
+
+- uid: "HYZL"
+  cn: "回忆之蕾·拟造花萼（金）"
+  planet_name: "雅利洛-VI"
+  region_name: "城郊雪原"
+  region_floor: 0
+  template_id: "mm_tp_08"
+  lm_pos: [1098, 391]
+  tp_pos: [1103, 399]
+
+- uid: "XZQ"
+  cn: "行政区"
+  planet_name: "雅利洛-VI"
+  region_name: "城郊雪原"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [444, 109]
+  tp_pos: [444, 109]
+
+- uid: "LK"
+  cn: "玲可"
+  planet_name: "雅利洛-VI"
+  region_name: "城郊雪原"
+  region_floor: 0
+  template_id: "mm_sp_03"
+  lm_pos: [1032, 342]
+  tp_pos: [1032, 342]
+

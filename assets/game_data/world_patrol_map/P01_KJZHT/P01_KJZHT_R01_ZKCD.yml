@@ -1,0 +1,54 @@
+- uid: "JCY"
+  cn: "监察域"
+  planet_name: "空间站黑塔"
+  region_name: "主控舱段"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [529, 231]
+  tp_pos: [562, 243]
+
+- uid: "HXTL"
+  cn: "核心通路"
+  planet_name: "空间站黑塔"
+  region_name: "主控舱段"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [592, 691]
+  tp_pos: [563, 678]
+
+- uid: "HTDBGS"
+  cn: "黑塔的办公室"
+  planet_name: "空间站黑塔"
+  region_name: "主控舱段"
+  region_floor: 0
+  template_id: "mm_tp_04"
+  lm_pos: [245, 796]
+  tp_pos: [245, 770]
+
+- uid: "FSSQ"
+  cn: "封锁扇区"
+  planet_name: "空间站黑塔"
+  region_name: "主控舱段"
+  region_floor: 0
+  template_id: "mm_sp_01"
+  lm_pos: [228, 744]
+  tp_pos: [228, 744]
+
+- uid: "TKDT"
+  cn: "太空电梯"
+  planet_name: "空间站黑塔"
+  region_name: "主控舱段"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [562, 837]
+  tp_pos: [562, 837]
+
+- uid: "NGZY"
+  cn: "内购专员"
+  planet_name: "空间站黑塔"
+  region_name: "主控舱段"
+  region_floor: 0
+  template_id: "mm_sp_04"
+  lm_pos: [535, 628]
+  tp_pos: [535, 628]
+

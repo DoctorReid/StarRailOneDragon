@@ -1,0 +1,63 @@
+- uid: "WC"
+  cn: "温床"
+  planet_name: "空间站黑塔"
+  region_name: "禁闭舱段"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [684, 306]
+  tp_pos: [710, 309]
+
+- uid: "JSZX"
+  cn: "集散中心"
+  planet_name: "空间站黑塔"
+  region_name: "禁闭舱段"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [642, 500]
+  tp_pos: [609, 484]
+
+- uid: "PYM"
+  cn: "培养皿"
+  planet_name: "空间站黑塔"
+  region_name: "禁闭舱段"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [669, 560]
+  tp_pos: [677, 540]
+
+- uid: "YWZBJ"
+  cn: "药物制备间"
+  planet_name: "空间站黑塔"
+  region_name: "禁闭舱段"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [541, 796]
+  tp_pos: [530, 800]
+
+- uid: "SWHBX"
+  cn: "生物烘焙箱"
+  planet_name: "空间站黑塔"
+  region_name: "禁闭舱段"
+  region_floor: 2
+  template_id: "mm_tp_14"
+  lm_pos: [541, 154]
+  tp_pos: [554, 165]
+
+- uid: "KJYRYG"
+  cn: "开局一人一狗"
+  planet_name: "空间站黑塔"
+  region_name: "禁闭舱段"
+  region_floor: 2
+  template_id: "mm_sp_01"
+  lm_pos: [487, 323]
+  tp_pos: [487, 323]
+
+- uid: "ZXDJY"
+  cn: "蛀星的旧靥·历战余响"
+  planet_name: "空间站黑塔"
+  region_name: "禁闭舱段"
+  region_floor: 1
+  template_id: "mm_boss_04"
+  lm_pos: [571, 526]
+  tp_pos: [582, 529]
+

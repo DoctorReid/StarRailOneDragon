@@ -1,0 +1,72 @@
+- uid: "GWYTD"
+  cn: "格物院通道"
+  planet_name: "仙舟「罗浮」"
+  region_name: "工造司"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [461, 495]
+  tp_pos: [478, 462]
+
+- uid: "RJFTD"
+  cn: "镕金坊通道"
+  planet_name: "仙舟「罗浮」"
+  region_name: "工造司"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [821, 612]
+  tp_pos: [793, 605]
+
+- uid: "XJP"
+  cn: "玄机坪"
+  planet_name: "仙舟「罗浮」"
+  region_name: "工造司"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [189, 875]
+  tp_pos: [205, 856]
+
+- uid: "ZHHL"
+  cn: "造化洪炉"
+  planet_name: "仙舟「罗浮」"
+  region_name: "工造司"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [758, 974]
+  tp_pos: [754, 1000]
+
+- uid: "YOZX"
+  cn: "偃偶之形·凝滞虚影"
+  planet_name: "仙舟「罗浮」"
+  region_name: "工造司"
+  region_floor: 0
+  template_id: "mm_tp_06"
+  lm_pos: [388, 665]
+  tp_pos: [390, 640]
+
+- uid: "DDS"
+  cn: "丹鼎司"
+  planet_name: "仙舟「罗浮」"
+  region_name: "工造司"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [1029, 777]
+  tp_pos: [1029, 777]
+
+- uid: "TBS"
+  cn: "太卜司"
+  planet_name: "仙舟「罗浮」"
+  region_name: "工造司"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [170, 938]
+  tp_pos: [170, 938]
+
+- uid: "CZZLNZHEJ"
+  cn: "藏珍之蕾·拟造花萼（金）"
+  planet_name: "仙舟「罗浮」"
+  region_name: "工造司"
+  region_floor: 0
+  template_id: "mm_tp_08"
+  lm_pos: [964, 795]
+  tp_pos: [960, 799]
+

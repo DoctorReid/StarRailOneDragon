@@ -1,0 +1,27 @@
+- uid: "MZDT"
+  cn: "梦主大厅"
+  planet_name: "匹诺康尼"
+  region_name: "朝露公馆"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [535, 430]
+  tp_pos: [576, 458]
+
+- uid: "CLJLDDS"
+  cn: "草绿经理的「大树」"
+  planet_name: "匹诺康尼"
+  region_name: "朝露公馆"
+  region_floor: 1
+  template_id: "mm_sp_14"
+  lm_pos: [580, 415]
+  tp_pos: [580, 415]
+
+- uid: "YBC"
+  cn: "迎宾处"
+  planet_name: "匹诺康尼"
+  region_name: "朝露公馆"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [589, 856]
+  tp_pos: [574, 846]
+

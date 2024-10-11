@@ -1,0 +1,27 @@
+- uid: "ZWZZRK"
+  cn: "造物之柱入口"
+  planet_name: "雅利洛-VI"
+  region_name: "造物之柱"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [382, 426]
+  tp_pos: [373, 426]
+
+- uid: "ZWZZSGC"
+  cn: "造物之柱施工场"
+  planet_name: "雅利洛-VI"
+  region_name: "造物之柱"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [660, 616]
+  tp_pos: [647, 597]
+
+- uid: "CXHL"
+  cn: "残响回廊"
+  planet_name: "雅利洛-VI"
+  region_name: "造物之柱"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [313, 346]
+  tp_pos: [313, 346]
+

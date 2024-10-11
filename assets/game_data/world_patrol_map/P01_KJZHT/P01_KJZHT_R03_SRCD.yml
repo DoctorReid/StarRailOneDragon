@@ -1,0 +1,63 @@
+- uid: "ZT"
+  cn: "中庭"
+  planet_name: "空间站黑塔"
+  region_name: "收容舱段"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [627, 346]
+  tp_pos: [618, 330]
+
+- uid: "KZZXW"
+  cn: "控制中心外"
+  planet_name: "空间站黑塔"
+  region_name: "收容舱段"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [372, 375]
+  tp_pos: [385, 368]
+
+- uid: "TSJXS"
+  cn: "特殊解析室"
+  planet_name: "空间站黑塔"
+  region_name: "收容舱段"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [766, 439]
+  tp_pos: [752, 448]
+
+- uid: "WMZJ"
+  cn: "无明之间"
+  planet_name: "空间站黑塔"
+  region_name: "收容舱段"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1040, 510]
+  tp_pos: [1009, 515]
+
+- uid: "HMZL"
+  cn: "毁灭之蕾·拟造花萼（赤）"
+  planet_name: "空间站黑塔"
+  region_name: "收容舱段"
+  region_floor: 1
+  template_id: "mm_tp_07"
+  lm_pos: [317, 325]
+  tp_pos: [319, 335]
+
+- uid: "SFZJ"
+  cn: "霜风之径·侵蚀隧洞"
+  planet_name: "空间站黑塔"
+  region_name: "收容舱段"
+  region_floor: 1
+  template_id: "mm_tp_09"
+  lm_pos: [848, 367]
+  tp_pos: [841, 368]
+
+- uid: "LJZZ"
+  cn: "裂界征兆"
+  planet_name: "空间站黑塔"
+  region_name: "收容舱段"
+  region_floor: 1
+  template_id: "mm_sp_01"
+  lm_pos: [459, 342]
+  tp_pos: [459, 342]
+

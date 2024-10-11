@@ -1,0 +1,36 @@
+- uid: "LLZYD"
+  cn: "流浪者营地"
+  planet_name: "雅利洛-VI"
+  region_name: "机械聚落"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [556, 174]
+  tp_pos: [549, 190]
+
+- uid: "SQLZD"
+  cn: "史瓦罗驻地"
+  planet_name: "雅利洛-VI"
+  region_name: "机械聚落"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [554, 506]
+  tp_pos: [567, 510]
+
+- uid: "NYZHSS"
+  cn: "能源转换设施"
+  planet_name: "雅利洛-VI"
+  region_name: "机械聚落"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [413, 527]
+  tp_pos: [399, 533]
+
+- uid: "TXZL"
+  cn: "同谐之蕾·拟造花萼（赤）"
+  planet_name: "雅利洛-VI"
+  region_name: "机械聚落"
+  region_floor: 1
+  template_id: "mm_tp_07"
+  lm_pos: [298, 564]
+  tp_pos: [308, 557]
+

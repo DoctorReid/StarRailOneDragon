@@ -1,0 +1,135 @@
+- uid: "YWTXC"
+  cn: "演武台下层"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [464, 674]
+  tp_pos: [469, 693]
+
+- uid: "JQN"
+  cn: "机巧鸟"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 1
+  template_id: "mm_sp_09"
+  lm_pos: [651, 736]
+  tp_pos: [651, 736]
+
+- uid: "WLZZX"
+  cn: "物流中转线"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [522, 457]
+  tp_pos: [524, 474]
+
+- uid: "BCQ"
+  cn: "泊船区"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [744, 498]
+  tp_pos: [743, 488]
+
+- uid: "JDDT"
+  cn: "接待大厅"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [691, 867]
+  tp_pos: [727, 868]
+
+- uid: "ZSB"
+  cn: "战术板"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_tp_18"
+  lm_pos: [382, 542]
+  tp_pos: [384, 547]
+
+- uid: "XCHZS"
+  cn: "星槎海中枢"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_sp_02"
+  lm_pos: [819, 453]
+  tp_pos: [819, 453]
+
+- uid: "GBJFJFD"
+  cn: "丐帮竞锋舰分舵"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [817, 517]
+  tp_pos: [817, 517]
+
+- uid: "YQTYRMTZX"
+  cn: "曜青体育融媒体中心"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [698, 707]
+  tp_pos: [698, 707]
+
+- uid: "SLDGFQJDJFJD"
+  cn: "苏乐达官方旗舰店竞锋舰店"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_sp_03"
+  lm_pos: [640, 886]
+  tp_pos: [640, 886]
+
+- uid: "JQN2"
+  cn: "机巧鸟2"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 2
+  template_id: "mm_sp_09"
+  lm_pos: [853, 486]
+  tp_pos: [853, 486]
+
+- uid: "JBYWT"
+  cn: "甲板演武台"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [607, 753]
+  tp_pos: [564, 722]
+
+- uid: "LFGZX"
+  cn: "蓝方观众席"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [754, 858]
+  tp_pos: [686, 848]
+
+- uid: "HFGZX"
+  cn: "红方观众席"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [437, 866]
+  tp_pos: [444, 848]
+
+- uid: "XSDZCLZHX"
+  cn: "心兽的战场·历战余响"
+  planet_name: "仙舟「罗浮」"
+  region_name: "竞锋舰"
+  region_floor: 3
+  template_id: "mm_boss_06"
+  lm_pos: [562, 625]
+  tp_pos: [564, 636]
+

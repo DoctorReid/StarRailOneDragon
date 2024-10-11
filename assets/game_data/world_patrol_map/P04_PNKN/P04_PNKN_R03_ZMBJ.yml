@@ -1,0 +1,90 @@
+- uid: "JZJSJ"
+  cn: "家族建设局"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [552, 320]
+  tp_pos: [596, 326]
+
+- uid: "ZMGC"
+  cn: "筑梦广场"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1318, 704]
+  tp_pos: [1293, 722]
+
+- uid: "GJTQ"
+  cn: "观景台前"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [270, 1048]
+  tp_pos: [291, 1059]
+
+- uid: "WDHY"
+  cn: "屋顶花园"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [882, 1341]
+  tp_pos: [894, 1369]
+
+- uid: "JZZXNZXY"
+  cn: "焦炙之形·凝滞虚影"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_tp_06"
+  lm_pos: [474, 1054]
+  tp_pos: [453, 1059]
+
+- uid: "HYZLNZHEJ"
+  cn: "回忆之蕾·拟造花萼（金）"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_tp_08"
+  lm_pos: [272, 1398]
+  tp_pos: [275, 1398]
+
+- uid: "HJDSK"
+  cn: "黄金的时刻"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [626, 229]
+  tp_pos: [626, 229]
+
+- uid: "XXHNXD"
+  cn: "小小哈努行动"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_sp_11"
+  lm_pos: [1530, 857]
+  tp_pos: [1530, 857]
+
+- uid: "XLZT"
+  cn: "心灵侦探"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_sp_12"
+  lm_pos: [445, 507]
+  tp_pos: [445, 507]
+
+- uid: "CSJLDDS"
+  cn: "草树经理的「大树」"
+  planet_name: "匹诺康尼"
+  region_name: "筑梦边境"
+  region_floor: 0
+  template_id: "mm_sp_14"
+  lm_pos: [574, 369]
+  tp_pos: [574, 369]
+
