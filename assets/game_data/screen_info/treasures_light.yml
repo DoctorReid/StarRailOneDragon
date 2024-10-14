@@ -1,0 +1,356 @@
+screen_id: treasures_light
+screen_name: 逐光捡金
+pc_alt: false
+area_list:
+- area_name: TL_CATEGORY_FORGOTTEN_HALL
+  pc_rect:
+  - 280
+  - 435
+  - 670
+  - 535
+  text: 忘却之庭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TL_CATEGORY_PURE_FICTION
+  pc_rect:
+  - 280
+  - 570
+  - 670
+  - 670
+  text: 虚构叙事
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TL_SCHEDULE_1_TRANSPORT
+  pc_rect:
+  - 1488
+  - 648
+  - 1613
+  - 686
+  text: 传送
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TL_SCHEDULE_2_TRANSPORT
+  pc_rect:
+  - 1488
+  - 882
+  - 1613
+  - 920
+  text: 传送
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TL_SCHEDULE_1_NAME
+  pc_rect:
+  - 927
+  - 556
+  - 1417
+  - 587
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TL_SCHEDULE_2_NAME
+  pc_rect:
+  - 927
+  - 786
+  - 1417
+  - 820
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: FH_TITLE
+  pc_rect:
+  - 102
+  - 36
+  - 185
+  - 63
+  text: 忘却之庭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: FH_TOTAL_STAR
+  pc_rect:
+  - 1665
+  - 950
+  - 1725
+  - 995
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: FH_START_CHALLENGE
+  pc_rect:
+  - 1500
+  - 960
+  - 1840
+  - 1010
+  text: 混沌回忆
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: FH_AFTER_BATTLE_SUCCESS_1
+  pc_rect:
+  - 820
+  - 200
+  - 1100
+  - 270
+  text: 挑战成功
+  lcs_percent: 0.3
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: FH_AFTER_BATTLE_SUCCESS_2
+  pc_rect:
+  - 820
+  - 300
+  - 1100
+  - 370
+  text: 挑战成功
+  lcs_percent: 0.3
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: FH_AFTER_BATTLE_FAIL
+  pc_rect:
+  - 785
+  - 230
+  - 1155
+  - 320
+  text: 战斗失败
+  lcs_percent: 0.3
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: FH_AFTER_BATTLE_BACK_BTN_1
+  pc_rect:
+  - 630
+  - 920
+  - 870
+  - 975
+  text: 返回逐光捡金
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: FH_AFTER_BATTLE_BACK_BTN_2
+  pc_rect:
+  - 790
+  - 920
+  - 1140
+  - 975
+  text: 返回逐光捡金
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_TITLE
+  pc_rect:
+  - 160
+  - 63
+  - 262
+  - 90
+  text: 虚构叙事
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_NEW_START
+  pc_rect:
+  - 1316
+  - 870
+  - 1652
+  - 922
+  text: 开启故事
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_CACOPHONY_NODE_1
+  pc_rect:
+  - 1775
+  - 717
+  - 1873
+  - 792
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_CACOPHONY_NODE_2
+  pc_rect:
+  - 1775
+  - 823
+  - 1873
+  - 909
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_CACOPHONY_OPT_1
+  pc_rect:
+  - 806
+  - 177
+  - 870
+  - 224
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_CACOPHONY_OPT_2
+  pc_rect:
+  - 806
+  - 354
+  - 870
+  - 384
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_CACOPHONY_OPT_3
+  pc_rect:
+  - 806
+  - 523
+  - 870
+  - 554
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_CACOPHONY_CONFIRM
+  pc_rect:
+  - 1515
+  - 960
+  - 1865
+  - 1009
+  text: 装配效果
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_START_CHALLENGE
+  pc_rect:
+  - 1500
+  - 960
+  - 1840
+  - 1010
+  text: 进入故事
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_AFTER_BATTLE_SUCCESS_1
+  pc_rect:
+  - 820
+  - 200
+  - 1100
+  - 270
+  text: 挑战成功
+  lcs_percent: 0.3
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_AFTER_BATTLE_SUCCESS_2
+  pc_rect:
+  - 820
+  - 245
+  - 1100
+  - 307
+  text: 挑战成功
+  lcs_percent: 0.3
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_AFTER_BATTLE_FAIL
+  pc_rect:
+  - 836
+  - 312
+  - 1088
+  - 380
+  text: 战斗失败
+  lcs_percent: 0.3
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: PF_AFTER_BATTLE_BACK_BTN
+  pc_rect:
+  - 788
+  - 979
+  - 1121
+  - 1035
+  text: 返回虚构叙事
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 退出对话框确认
+  pc_rect:
+  - 1006
+  - 644
+  - 1327
+  - 704
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: NODE_FIRST_CLICK_EMPTY
+  pc_rect:
+  - 856
+  - 851
+  - 1071
+  - 885
+  text: 点击空白处关闭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: AFTER_BATTLE_QUICK_PASS_TITLE
+  pc_rect:
+  - 865
+  - 81
+  - 1061
+  - 131
+  text: 快速通关
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: AFTER_BATTLE_QUICK_PASS_CONFIRM
+  pc_rect:
+  - 800
+  - 960
+  - 1122
+  - 1010
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: AFTER_BATTLE_QUICK_PASS_EMPTY
+  pc_rect:
+  - 868
+  - 930
+  - 1053
+  - 960
+  text: 点击空白处关闭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

@@ -1,0 +1,235 @@
+screen_id: normal_world
+screen_name: 大世界
+pc_alt: true
+area_list:
+- area_name: 角色图标
+  pc_rect:
+  - 1800
+  - 0
+  - 1900
+  - 90
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ui_icon_01
+  template_match_threshold: 0.4
+- area_name: UID
+  pc_rect:
+  - 26
+  - 1040
+  - 160
+  - 1063
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TEAM_MEMBER_AVATAR_1
+  pc_rect:
+  - 1770
+  - 275
+  - 1873
+  - 355
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TEAM_MEMBER_AVATAR_2
+  pc_rect:
+  - 1770
+  - 375
+  - 1873
+  - 455
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TEAM_MEMBER_AVATAR_3
+  pc_rect:
+  - 1770
+  - 475
+  - 1873
+  - 555
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TEAM_MEMBER_AVATAR_4
+  pc_rect:
+  - 1770
+  - 575
+  - 1873
+  - 655
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TEAM_MEMBER_NAME_1
+  pc_rect:
+  - 1655
+  - 285
+  - 1800
+  - 330
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TEAM_MEMBER_NAME_2
+  pc_rect:
+  - 1655
+  - 385
+  - 1800
+  - 430
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TEAM_MEMBER_NAME_3
+  pc_rect:
+  - 1655
+  - 485
+  - 1800
+  - 530
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TEAM_MEMBER_NAME_4
+  pc_rect:
+  - 1655
+  - 585
+  - 1800
+  - 630
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 秘技-点数-1
+  pc_rect:
+  - 1654
+  - 836
+  - 1674
+  - 862
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 秘技-点数-2
+  pc_rect:
+  - 1684
+  - 836
+  - 1704
+  - 862
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TECH_STATUS
+  pc_rect:
+  - 1767
+  - 232
+  - 1857
+  - 255
+  text: 状态效果
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 秘技-快捷键
+  pc_rect:
+  - 1789
+  - 823
+  - 1807
+  - 841
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 列车补给1
+  pc_rect:
+  - 870
+  - 80
+  - 1050
+  - 130
+  text: 列车补给
+  lcs_percent: 0.55
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 列车补给2
+  pc_rect:
+  - 870
+  - 50
+  - 1050
+  - 110
+  text: 列车补给
+  lcs_percent: 0.55
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 点击领取今日补贴
+  pc_rect:
+  - 855
+  - 892
+  - 1078
+  - 932
+  text: 点击领取今日补贴
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: EMPTY_TO_CLOSE
+  pc_rect:
+  - 866
+  - 925
+  - 1062
+  - 965
+  text: 点击空白处关闭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: MOVE_INTERACT
+  pc_rect:
+  - 900
+  - 400
+  - 1450
+  - 870
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: MOVE_INTERACT_SINGLE_LINE
+  pc_rect:
+  - 1174
+  - 598
+  - 1558
+  - 647
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: TRACE_MISSION_ICON
+  pc_rect:
+  - 25
+  - 285
+  - 55
+  - 310
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

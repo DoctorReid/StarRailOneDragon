@@ -1,3 +1,5 @@
+
+
 try:
     import sys
 
@@ -13,6 +15,7 @@ try:
     from one_dragon.gui.view.context_event_signal import ContextEventSignal
     from one_dragon.utils.i18_utils import gt
     from sr_od.context.sr_context import SrContext
+    from sr_od.gui.interface.devtools.sr_devtools_interface import SrDevtoolsInterface
 
     _init_error = None
 
@@ -72,7 +75,7 @@ try:
             self.add_sub_interface(LikeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
 
             # 开发工具
-            # self.add_sub_interface(AppDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+            self.add_sub_interface(SrDevtoolsInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
 
             # 代码同步
             self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)

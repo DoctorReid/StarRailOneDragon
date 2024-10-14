@@ -1,0 +1,246 @@
+screen_id: sim_uni
+screen_name: 模拟宇宙
+pc_alt: true
+area_list:
+- area_name: GUIDE_TRANSPORT_1
+  pc_rect:
+  - 1489
+  - 523
+  - 1616
+  - 566
+  text: 传送
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: GUIDE_TRANSPORT_2
+  pc_rect:
+  - 1491
+  - 565
+  - 1616
+  - 609
+  text: 传送
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: WEEKLY_REWARD_ICON
+  pc_rect:
+  - 360
+  - 950
+  - 410
+  - 1000
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ui_alert
+  template_match_threshold: 0.7
+- area_name: WEEKLY_REWARD_CLAIM
+  pc_rect:
+  - 1425
+  - 740
+  - 1765
+  - 782
+  text: 一键领取
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: GOING_1
+  pc_rect:
+  - 813
+  - 484
+  - 888
+  - 511
+  text: 进行中
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: GOING_2
+  pc_rect:
+  - 813
+  - 505
+  - 888
+  - 540
+  text: 进行中
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: CURRENT_NUM_1
+  pc_rect:
+  - 805
+  - 515
+  - 945
+  - 552
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: CURRENT_NUM_2
+  pc_rect:
+  - 805
+  - 546
+  - 945
+  - 583
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 大世界返回按钮
+  pc_rect:
+  - 0
+  - 0
+  - 75
+  - 115
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ui_icon_10
+  template_match_threshold: 0.7
+- area_name: 菜单-结束并结算
+  pc_rect:
+  - 1323
+  - 930
+  - 1786
+  - 985
+  text: 结束并结算
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 终止战斗并结算
+  pc_rect:
+  - 1038
+  - 962
+  - 1391
+  - 1013
+  text: 终止战斗并结算
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 退出对话框-确认
+  pc_rect:
+  - 1022
+  - 651
+  - 1324
+  - 697
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 楼层类型
+  pc_rect:
+  - 52
+  - 13
+  - 276
+  - 40
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: ENEMY_LEVEL
+  pc_rect:
+  - 804
+  - 38
+  - 915
+  - 75
+  text: 等级
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 点击空白处继续
+  pc_rect:
+  - 869
+  - 899
+  - 1057
+  - 928
+  text: 点击空白处继续
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 事件标题
+  pc_rect:
+  - 190
+  - 980
+  - 650
+  - 1025
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: BATTLE_FAIL_EXIT
+  pc_rect:
+  - 536
+  - 961
+  - 873
+  - 1020
+  text: 终止战斗并结算
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: BATTLE_FAIL_EXIT_CONFIRM
+  pc_rect:
+  - 1003
+  - 646
+  - 1326
+  - 701
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 战斗失败
+  pc_rect:
+  - 783
+  - 231
+  - 1141
+  - 308
+  text: 战斗失败
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 点击空白处关闭
+  pc_rect:
+  - 876
+  - 878
+  - 1048
+  - 1026
+  text: 点击空白处关闭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 沉浸奖励
+  pc_rect:
+  - 760
+  - 343
+  - 1200
+  - 382
+  text: 沉浸奖励
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 左上角标题
+  pc_rect:
+  - 100
+  - 15
+  - 350
+  - 100
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

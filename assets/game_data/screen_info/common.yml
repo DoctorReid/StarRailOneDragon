@@ -1,0 +1,26 @@
+screen_id: common
+screen_name: 通用画面
+pc_alt: false
+area_list:
+- area_name: 左上角标题
+  pc_rect:
+  - 98
+  - 39
+  - 350
+  - 100
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 对话框-确认
+  pc_rect:
+  - 1024
+  - 647
+  - 1329
+  - 698
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

@@ -1,0 +1,59 @@
+screen_id: fast_recover_dialog
+screen_name: 快速恢复对话框
+pc_alt: false
+area_list:
+- area_name: 快速恢复标题
+  pc_rect:
+  - 890
+  - 250
+  - 1030
+  - 300
+  text: 快速恢复
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 确认
+  pc_rect:
+  - 1020
+  - 790
+  - 1330
+  - 844
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 取消
+  pc_rect:
+  - 592
+  - 790
+  - 903
+  - 844
+  text: 取消
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 暂无可用消耗品
+  pc_rect:
+  - 1094
+  - 554
+  - 1266
+  - 585
+  text: 暂无可用消耗品
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 奇巧零食
+  pc_rect:
+  - 900
+  - 300
+  - 1450
+  - 760
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: quirky_snacks
+  template_match_threshold: 0.5
