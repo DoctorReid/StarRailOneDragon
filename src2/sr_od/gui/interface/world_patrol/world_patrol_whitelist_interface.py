@@ -5,11 +5,10 @@ from typing import Optional, List
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from sr_od.context.sr_context import SrContext
-from sr_od.world_patrol.world_patrol_map_data import Planet, Region
+from sr_od.sr_map.sr_map_data import Planet, Region
 from sr_od.world_patrol.world_patrol_route import WorldPatrolRoute
 from sr_od.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, create_new_whitelist, \
     load_all_whitelist_list, WorldPatrolWhiteListType

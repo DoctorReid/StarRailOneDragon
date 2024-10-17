@@ -1,0 +1,114 @@
+screen_id: large_map
+screen_name: 大地图
+pc_alt: false
+area_list:
+- area_name: 子区域-返回
+  pc_rect:
+  - 1675
+  - 110
+  - 1838
+  - 150
+  text: 返回
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 主区域缩放-减号
+  pc_rect:
+  - 623
+  - 986
+  - 623
+  - 986
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 主区域缩放-加号
+  pc_rect:
+  - 999
+  - 984
+  - 999
+  - 984
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 子区域缩放-减号
+  pc_rect:
+  - 819
+  - 987
+  - 819
+  - 987
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 子区域缩放-加号
+  pc_rect:
+  - 1194
+  - 984
+  - 1194
+  - 984
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 星球名称
+  pc_rect:
+  - 100
+  - 60
+  - 350
+  - 100
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 星轨航图
+  pc_rect:
+  - 1580
+  - 120
+  - 1750
+  - 160
+  text: 星轨航图
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 区域列表
+  pc_rect:
+  - 1480
+  - 200
+  - 1820
+  - 1000
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 传送按钮
+  pc_rect:
+  - 1500
+  - 950
+  - 1800
+  - 1000
+  text: 传送
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 楼层列表
+  pc_rect:
+  - 30
+  - 580
+  - 110
+  - 1000
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

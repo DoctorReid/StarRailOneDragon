@@ -309,3 +309,10 @@ class GameConfig(YamlConfig):
     @property
     def use_quirky_snacks_adapter(self) -> YamlConfigAdapter:
         return YamlConfigAdapter(self, 'use_quirky_snacks', True)
+
+    @property
+    def win_title(self) -> str:
+        """
+        游戏窗口名称 只有区服有关
+        """
+        return '崩坏：星穹铁道'

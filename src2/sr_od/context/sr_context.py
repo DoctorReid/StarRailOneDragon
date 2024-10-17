@@ -7,8 +7,10 @@ from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK
 from sr_od.config.game_config import GameConfig
+from sr_od.context.context_pos_info import ContextPosInfo
+from sr_od.context.sr_pc_controller import SrPcController
 from sr_od.screen_state.yolo_screen_detector import YoloScreenDetector
-from sr_od.world_patrol.world_patrol_map_data import WorldPatrolMapData
+from sr_od.sr_map.sr_map_data import SrMapData
 from sr_od.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 
 
@@ -104,9 +106,12 @@ class SrContext(OneDragonContext):
         """
         OneDragonContext.__init__(self)
 
-        self.world_patrol_map_data: WorldPatrolMapData = WorldPatrolMapData()
+        self.controller: Optional[SrPcController] = None
+
+        self.world_patrol_map_data: SrMapData = SrMapData()
         self.world_patrol_route_data: WorldPatrolRouteData = WorldPatrolRouteData(self.world_patrol_map_data)
 
+        self.pos_info: ContextPosInfo = ContextPosInfo()
         self.team_info: TeamInfo = TeamInfo()
         self.sim_uni_info = SimUniInfo()
         self.detect_info: DetectInfo = DetectInfo()
@@ -127,6 +132,13 @@ class SrContext(OneDragonContext):
         """
         OneDragonContext.init_by_config(self)
         i18_utils.update_default_lang(self.game_config.lang)
+
+        self.controller = SrPcController(
+            game_config=self.game_config,
+            win_title=self.game_config.win_title,
+            standard_width=self.project_config.screen_standard_width,
+            standard_height=self.project_config.screen_standard_height
+        )
 
     def load_instance_config(self) -> None:
         OneDragonContext.load_instance_config(self)

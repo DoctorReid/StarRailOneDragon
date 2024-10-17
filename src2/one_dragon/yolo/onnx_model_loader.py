@@ -2,7 +2,6 @@ import os
 import time
 import urllib.request
 import zipfile
-import onnxruntime as ort
 from typing import Optional, List
 
 from one_dragon.utils.log_utils import log
@@ -29,7 +28,7 @@ class OnnxModelLoader:
         self.gpu: bool = gpu  # 是否使用GPU加速
 
         # 从模型中读取到的输入输出信息
-        self.session: ort.InferenceSession = None
+        self.session = None
         self.input_names: List[str] = []
         self.onnx_input_width: int = 0
         self.onnx_input_height: int = 0
@@ -114,6 +113,7 @@ class OnnxModelLoader:
         加载模型
         :return:
         """
+        import onnxruntime as ort
         availables = ort.get_available_providers()
         providers = ['DmlExecutionProvider' if self.gpu else 'CPUExecutionProvider']
         if self.gpu and 'DmlExecutionProvider' not in availables:

@@ -1,5 +1,3 @@
-
-
 try:
     import sys
 
@@ -8,6 +6,7 @@ try:
     from one_dragon.gui.view.like_interface import LikeInterface
     from sr_od.gui.interface.setting.sr_setting_interface import SrSettingInterface
     from sr_od.gui.interface.world_patrol.world_patrol_interface import WorldPatrolInterface
+    from sr_od.gui.interface.game_assistant.game_assistant_interface import GameAssistantInterface
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
     from one_dragon.gui.app.fluent_window_base import FluentWindowBase
     from one_dragon.gui.common.od_style_sheet import OdStyleSheet
@@ -70,6 +69,7 @@ try:
 
             # 游戏助手
             self.add_sub_interface(WorldPatrolInterface(self.ctx, parent=self))
+            self.add_sub_interface(GameAssistantInterface(self.ctx, parent=self))
 
             # 点赞
             self.add_sub_interface(LikeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
