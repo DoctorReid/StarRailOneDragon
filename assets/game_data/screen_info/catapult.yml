@@ -1,0 +1,59 @@
+screen_id: catapult
+screen_name: 弹珠机
+pc_alt: false
+area_list:
+- area_name: 移动交互-单行
+  pc_rect:
+  - 908
+  - 946
+  - 1012
+  - 971
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 离开按钮
+  pc_rect:
+  - 1847
+  - 44
+  - 1886
+  - 90
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 弹射
+  pc_rect:
+  - 1125
+  - 914
+  - 1220
+  - 1009
+  text: 弹射
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: DIALOG_CONFIRM
+  pc_rect:
+  - 989
+  - 644
+  - 1354
+  - 704
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 退出对话框-确认
+  pc_rect:
+  - 1006
+  - 644
+  - 1327
+  - 704
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

@@ -85,4 +85,4 @@ def convert_2_new_large_map() -> None:
 
 if __name__ == '__main__':
     convert_2_new_template()
-    convert_2_new_large_map()
+    # convert_2_new_large_map()

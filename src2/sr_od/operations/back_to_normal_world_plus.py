@@ -88,10 +88,7 @@ class BackToNormalWorldPlus(SrOperation):
 
         # 列车补给 - 点击空白处继续
         if common_screen_state.is_express_supply(self.ctx, screen):
-            self.round_by_click_area('大世界', '点击领取今日补贴')
-            time.sleep(3)  # 暂停一段时间再操作
-            self.round_by_click_area('大世界', '点击领取今日补贴')
-            time.sleep(1)  # 暂停一段时间再操作
+            common_screen_state.claim_express_supply(self.ctx)
             return self.round_wait(wait=2)
 
         # 战斗中 点击右上角后出现的画面 需要需要退出

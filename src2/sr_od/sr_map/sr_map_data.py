@@ -5,7 +5,8 @@ from typing import List, Optional
 
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.base.geometry.point import Point
-from one_dragon.utils import os_utils, str_utils, cv2_utils
+from one_dragon.base.geometry.rectangle import Rect
+from one_dragon.utils import os_utils, str_utils, cv2_utils, cal_utils
 from one_dragon.utils.i18_utils import gt
 from sr_od.sr_map.large_map_info import LargeMapInfo
 
@@ -298,6 +299,20 @@ class SrMapData:
         else:
             return to_check_region_list[idx]
 
+    def get_sub_region_by_cn(self, region: Region, cn: str, floor: int = 0) -> Optional[Region]:
+        """
+        根据子区域的中文 获取对应常量
+        :param region: 所属区域
+        :param cn: 子区域名称
+        :param floor: 子区域的层数
+        :return: 常量
+        """
+        same_planet_region_list = self.planet_2_region.get(region.planet.np_id, [])
+        for r in same_planet_region_list:
+            if r.parent is not None and r.parent == region and r.cn == cn and r.floor == floor:
+                return r
+        return None
+
     def best_match_sp_by_name(self, region: Region, ocr_word: str) -> Optional[SpecialPoint]:
         """
         在指定区域中 忽略楼层 根据名字匹配对应的特殊点
@@ -329,6 +344,25 @@ class SrMapData:
         planet = self.best_match_planet_by_name(planet_name)
         region = self.best_match_region_by_name(region_name, planet, region_floor)
         return self.best_match_sp_by_name(region, sp_name)
+
+    def get_sp_type_in_rect(self, region: Region, rect: Rect) -> dict:
+        """
+        获取区域特定矩形内的特殊点 按种类分组
+        :param region: 区域
+        :param rect: 矩形 为空时返回全部
+        :return: 特殊点
+        """
+        sp_list = self.region_2_sp.get(region.pr_id)
+        sp_map = {}
+        if sp_list is None or len(sp_list) == 0:
+            return sp_map
+        for sp in sp_list:
+            if rect is None or cal_utils.in_rect(sp.lm_pos, rect):
+                if sp.template_id not in sp_map:
+                    sp_map[sp.template_id] = []
+                sp_map[sp.template_id].append(sp)
+
+        return sp_map
 
     def get_region_list_by_planet(self, planet: Planet) -> List[Region]:
         """

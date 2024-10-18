@@ -1,10 +1,19 @@
+import time
+
 from cv2.typing import MatLike
+from enum import Enum
 from typing import List
 
 from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import cv2_utils
 from sr_od.context.sr_context import SrContext
+
+
+class ScreenState(Enum):
+
+    NORMAL_IN_WORLD = '大世界'
+    EXPRESS_SUPPLY = '列车补给'
 
 
 def is_normal_in_world(ctx: SrContext, screen: MatLike) -> bool:
@@ -67,3 +76,20 @@ def in_secondary_ui(ctx: SrContext, screen: MatLike,
                                   lcs_percent=lcs_percent, merge_line_distance=10)
 
     return len(ocr_map) > 0
+
+
+def click_empty_to_close(ctx: SrContext) -> bool:
+    area = ctx.screen_loader.get_area('大世界', '点击空白处关闭')
+    return ctx.controller.click(area.center)
+
+def claim_express_supply(ctx: SrContext):
+    """
+    领取列车补给
+    :param ctx:
+    :return:
+    """
+    area = ctx.screen_loader.get_area('列车补给', '点击领取今日补贴')
+    ctx.controller.click(area.center)
+    time.sleep(3)  # 暂停一段时间再操作
+    ctx.controller.click(area.center)  # 领取需要分两个阶段 点击两次
+    time.sleep(1)  # 暂停一段时间再操作

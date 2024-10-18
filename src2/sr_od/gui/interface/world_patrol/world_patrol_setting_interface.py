@@ -6,7 +6,7 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
 from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from sr_od.world_patrol.world_patrol_whitelist_config import load_all_whitelist_list, WorldPatrolWhitelist
+from sr_od.app.world_patrol.world_patrol_whitelist_config import load_all_whitelist_list, WorldPatrolWhitelist
 from sr_od.context.sr_context import SrContext
 
 

@@ -8,21 +8,17 @@ from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from sr_od.app.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sr_od.context.sr_context import SrContext
-from sr_od.screen_state import common_screen_state
+from sr_od.screen_state import common_screen_state, fast_recover_screen_state, battle_screen_state
 
 
 class SimUniScreenState(Enum):
 
     NORMAL_IN_WORLD: str = '大世界'
-    BATTLE_FAIL: str = '战斗失败'
     EMPTY_TO_CLOSE: str = '点击空白处关闭'
     SIM_REWARD: str = '沉浸奖励'
-    FAST_RECOVER: str = '快速恢复'
-    EXPRESS_SUPPLY: str = '列车补给'
     SIM_TYPE_NORMAL: str = '模拟宇宙'  # 模拟宇宙 - 普通
     SIM_TYPE_EXTEND: str = '扩展装置'  # 模拟宇宙 - 拓展装置
     SIM_TYPE_GOLD: str = '黄金与机械'  # 模拟宇宙 - 黄金与机械
-    BATTLE: str = '战斗'
     SIM_BLESS: str = '选择祝福'
     SIM_DROP_BLESS: str = '丢弃祝福'
     SIM_UPGRADE_BLESS: str = '祝福强化'
@@ -91,8 +87,8 @@ def get_sim_uni_screen_state(
     if in_world and common_screen_state.is_normal_in_world(ctx, screen):
         return SimUniScreenState.NORMAL_IN_WORLD.value
 
-    if battle_fail and is_battle_fail(ctx, screen):
-        return SimUniScreenState.BATTLE_FAIL.value
+    if battle_fail and battle_screen_state.is_battle_fail(ctx, screen):
+        return battle_screen_state.ScreenState.BATTLE_FAIL.value
 
     if empty_to_close and is_empty_to_close(ctx, screen):
         return SimUniScreenState.EMPTY_TO_CLOSE.value
@@ -100,11 +96,11 @@ def get_sim_uni_screen_state(
     if reward and is_sim_uni_get_reward(ctx, screen):
         return SimUniScreenState.SIM_REWARD.value
 
-    if fast_recover and is_fast_recover(ctx, screen):
-        return SimUniScreenState.FAST_RECOVER.value
+    if fast_recover and fast_recover_screen_state.is_fast_recover(ctx, screen):
+        return fast_recover_screen_state.ScreenState.FAST_RECOVER.value
 
     if express_supply and common_screen_state.is_express_supply(ctx, screen):
-        return SimUniScreenState.EXPRESS_SUPPLY.value
+        return common_screen_state.ScreenState.EXPRESS_SUPPLY.value
 
     titles = common_screen_state.get_ui_titles(ctx, screen, '模拟宇宙', '左上角标题')
     sim_uni_idx = str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_TYPE_NORMAL.value, titles)
@@ -142,16 +138,6 @@ def get_sim_uni_screen_state(
     return None
 
 
-def is_battle_fail(ctx: SrContext, screen: MatLike) -> bool:
-    """
-    是否在战斗失败画面
-    :param ctx: 上下文
-    :param screen: 游戏画面
-    :return:
-    """
-    return screen_utils.find_area(ctx, screen, '模拟宇宙', '战斗失败') == FindAreaResultEnum.TRUE
-
-
 def is_empty_to_close(ctx: SrContext, screen: MatLike) -> bool:
     """
     是否点击空白处关闭
@@ -170,16 +156,6 @@ def is_sim_uni_get_reward(ctx: SrContext, screen: MatLike) -> bool:
     :return:
     """
     return screen_utils.find_area(ctx, screen, '模拟宇宙', '沉浸奖励') == FindAreaResultEnum.TRUE
-
-
-def is_fast_recover(ctx: SrContext, screen: MatLike) -> bool:
-    """
-    是否在快速恢复画面
-    :param ctx: 上下文
-    :param screen: 游戏画面
-    :return:
-    """
-    return screen_utils.find_area(ctx, screen, '快速恢复对话框', '快速恢复') == FindAreaResultEnum.TRUE
 
 
 def in_sim_uni_choose_bless(ctx: SrContext, screen: MatLike) -> bool:

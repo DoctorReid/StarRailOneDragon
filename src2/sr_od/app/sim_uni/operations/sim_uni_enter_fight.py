@@ -15,6 +15,7 @@ from sr_od.config.game_const import STANDARD_CENTER_POS, OPPOSITE_DIRECTION
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.operations.technique import UseTechnique, UseTechniqueResult, FastRecover
+from sr_od.screen_state import common_screen_state
 
 
 class SimUniEnterFight(SrOperation):
@@ -296,10 +297,7 @@ class SimUniEnterFight(SrOperation):
         领取小月卡
         :return:
         """
-        self.round_by_click_area('大世界', '点击领取今日补贴')
-        time.sleep(3)  # 暂停一段时间再操作
-        self.round_by_click_area('大世界', '点击领取今日补贴')  # 领取需要分两个阶段 点击两次
-        time.sleep(1)  # 暂停一段时间再操作
+        common_screen_state.claim_express_supply(self.ctx)
         return self.round_wait()
 
     def _fast_recover(self) -> OperationRoundResult:

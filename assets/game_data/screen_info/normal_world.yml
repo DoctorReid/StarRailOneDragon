@@ -24,7 +24,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TEAM_MEMBER_AVATAR_1
+- area_name: 队伍-角色头像-1
   pc_rect:
   - 1770
   - 275
@@ -35,7 +35,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TEAM_MEMBER_AVATAR_2
+- area_name: 队伍-角色头像-2
   pc_rect:
   - 1770
   - 375
@@ -46,7 +46,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TEAM_MEMBER_AVATAR_3
+- area_name: 队伍-角色头像-3
   pc_rect:
   - 1770
   - 475
@@ -57,7 +57,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TEAM_MEMBER_AVATAR_4
+- area_name: 队伍-角色头像-4
   pc_rect:
   - 1770
   - 575
@@ -68,7 +68,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TEAM_MEMBER_NAME_1
+- area_name: 队伍-角色名称-1
   pc_rect:
   - 1655
   - 285
@@ -79,7 +79,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TEAM_MEMBER_NAME_2
+- area_name: 队伍-角色名称-2
   pc_rect:
   - 1655
   - 385
@@ -90,7 +90,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TEAM_MEMBER_NAME_3
+- area_name: 队伍-角色名称-3
   pc_rect:
   - 1655
   - 485
@@ -101,7 +101,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TEAM_MEMBER_NAME_4
+- area_name: 队伍-角色名称-4
   pc_rect:
   - 1655
   - 585
@@ -189,7 +189,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: EMPTY_TO_CLOSE
+- area_name: 点击空白处关闭
   pc_rect:
   - 866
   - 925
@@ -222,7 +222,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: TRACE_MISSION_ICON
+- area_name: 追踪任务图标
   pc_rect:
   - 25
   - 285

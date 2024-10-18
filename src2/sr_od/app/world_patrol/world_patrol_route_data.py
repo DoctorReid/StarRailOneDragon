@@ -6,8 +6,8 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.sr_map.sr_map_data import SrMapData, Planet, Region
-from sr_od.world_patrol.world_patrol_route import WorldPatrolRoute
-from sr_od.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist
+from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute
+from sr_od.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist
 
 
 class WorldPatrolRouteData:

@@ -5,13 +5,14 @@ from one_dragon.utils import i18_utils
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
+from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK
 from sr_od.config.game_config import GameConfig
 from sr_od.context.context_pos_info import ContextPosInfo
 from sr_od.context.sr_pc_controller import SrPcController
 from sr_od.screen_state.yolo_screen_detector import YoloScreenDetector
 from sr_od.sr_map.sr_map_data import SrMapData
-from sr_od.world_patrol.world_patrol_route_data import WorldPatrolRouteData
+from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 
 
 class TeamInfo:
@@ -107,6 +108,8 @@ class SrContext(OneDragonContext):
         OneDragonContext.__init__(self)
 
         self.controller: Optional[SrPcController] = None
+        self.is_pc: bool = True
+        self.record_coordinate: bool = False  # 记录坐标
 
         self.world_patrol_map_data: SrMapData = SrMapData()
         self.world_patrol_route_data: WorldPatrolRouteData = WorldPatrolRouteData(self.world_patrol_map_data)
@@ -144,7 +147,9 @@ class SrContext(OneDragonContext):
         OneDragonContext.load_instance_config(self)
 
         self.game_config: GameConfig = GameConfig(self.current_instance_idx)
+
         self.world_patrol_config: WorldPatrolConfig = WorldPatrolConfig(self.current_instance_idx)
+        self.world_patrol_record: WorldPatrolRunRecord = WorldPatrolRunRecord(self.current_instance_idx)
 
         self.sim_uni_config: SimUniConfig = SimUniConfig(self.current_instance_idx)
 

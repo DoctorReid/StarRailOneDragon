@@ -1,13 +1,18 @@
 import time
 
 import ctypes
+from typing import Optional, ClassVar
 
 from one_dragon.base.controller.pc_controller_base import PcControllerBase
+from one_dragon.base.geometry.point import Point
 from one_dragon.utils.log_utils import log
 from sr_od.config.game_config import GameConfig
 
 
 class SrPcController(PcControllerBase):
+
+    MOVE_INTERACT_TYPE: ClassVar[int] = 0
+    TALK_INTERACT_TYPE: ClassVar[int] = 1
 
     def __init__(self, game_config: GameConfig,
                  win_title: str,
@@ -79,9 +84,49 @@ class SrPcController(PcControllerBase):
             self.btn_controller.tap('mouse_right')
             self.is_running = False
 
+    def start_moving_forward(self, run: bool = False):
+        """
+        开始往前走
+        :param run: 是否启用疾跑
+        :return:
+        """
+        self.is_moving = True
+        self.btn_controller.press('w')
+        self.enter_running(run)
+
     def stop_moving_forward(self):
         if not self.is_moving:
             return
         self.btn_controller.release('w')
         self.is_moving = False
         self.is_running = False
+
+    def switch_character(self, idx: int):
+        """
+        切换角色
+        :param idx: 第几位角色 从1开始
+        :return:
+        """
+        log.info('切换角色 %s', str(idx))
+        self.btn_controller.tap(str(idx))
+
+    def initiate_attack(self):
+        """
+        主动发起攻击
+        :return:
+        """
+        # 虽然在大世界指定坐标点击没有用 但这可以防止准备攻击时候被怪攻击 导致鼠标可以点到游戏窗口外
+        self.click(Point(self.standard_width // 2, self.standard_height // 2))
+
+    def interact(self, pos: Optional[Point] = None, interact_type: int = 0) -> bool:
+        """
+        交互
+        :param pos: 如果是模拟器的话 需要传入交互内容的坐标
+        :param interact_type: 交互类型
+        :return:
+        """
+        if interact_type == SrPcController.MOVE_INTERACT_TYPE:
+            self.btn_controller.tap(self.game_config.key_interact)
+        else:
+            self.click(pos)
+        return True

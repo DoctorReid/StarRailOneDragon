@@ -1,12 +1,9 @@
-import math
-import os
-import time
-from functools import lru_cache
-from typing import Set, Optional, List, Tuple
-
 import cv2
 import numpy as np
+import os
 from cv2.typing import MatLike
+from functools import lru_cache
+from typing import Set, Optional, List, Tuple
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResultList, MatchResult
@@ -18,7 +15,6 @@ from sr_od.config.game_config import MiniMapPos
 from sr_od.context.sr_context import SrContext
 from sr_od.sr_map import mini_map_angle_alas
 from sr_od.sr_map.mini_map_info import MiniMapInfo
-from src.sr.image import TemplateImage
 
 
 def cal_little_map_pos(screen: MatLike) -> MiniMapPos:
