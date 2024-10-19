@@ -1,7 +1,7 @@
 from typing import Optional
 
 from one_dragon.base.geometry.point import Point
-from sr_od.sr_map.sr_map_data import Planet, Region, SpecialPoint
+from sr_od.sr_map.sr_map_def import Planet, Region, SpecialPoint
 
 
 class ContextPosInfo:

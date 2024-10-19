@@ -9,7 +9,7 @@ from sr_od.sr_map.operations.choose_planet import ChoosePlanet
 from sr_od.sr_map.operations.choose_region import ChooseRegion
 from sr_od.sr_map.operations.choose_special_point import ChooseSpecialPoint
 from sr_od.sr_map.operations.open_map import OpenMap
-from sr_od.sr_map.sr_map_data import SpecialPoint
+from sr_od.sr_map.sr_map_def import SpecialPoint
 
 
 class TransportByMap(SrOperation):

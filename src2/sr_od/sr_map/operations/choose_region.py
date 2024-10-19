@@ -17,7 +17,7 @@ from sr_od.operations.sr_operation import SrOperation
 from sr_od.sr_map import large_map_utils
 from sr_od.sr_map.operations.choose_floor import ChooseFloor
 from sr_od.sr_map.operations.scale_large_map import ScaleLargeMap
-from sr_od.sr_map.sr_map_data import Region, Planet
+from sr_od.sr_map.sr_map_def import Planet, Region
 
 
 class ChooseRegion(SrOperation):

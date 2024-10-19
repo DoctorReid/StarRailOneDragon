@@ -14,7 +14,7 @@ from sr_od.config import game_const
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.sr_map import large_map_utils
-from sr_od.sr_map.sr_map_data import Planet
+from sr_od.sr_map.sr_map_def import Planet
 
 
 class ChoosePlanet(SrOperation):

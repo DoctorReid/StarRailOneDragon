@@ -22,7 +22,7 @@ from sr_od.operations.wait.wait_in_seconds import WaitInSeconds
 from sr_od.operations.wait.wait_in_world import WaitInWorld
 from sr_od.screen_state import common_screen_state
 from sr_od.sr_map.operations.transport_by_map import TransportByMap
-from sr_od.sr_map.sr_map_data import Region
+from sr_od.sr_map.sr_map_def import Region
 
 
 class WorldPatrolRunRoute(SrOperation):

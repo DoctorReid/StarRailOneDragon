@@ -22,7 +22,7 @@ from sr_od.screen_state import common_screen_state, battle_screen_state
 from sr_od.sr_map import mini_map_utils, large_map_utils
 from sr_od.sr_map.large_map_info import LargeMapInfo
 from sr_od.sr_map.mini_map_info import MiniMapInfo
-from sr_od.sr_map.sr_map_data import Region
+from sr_od.sr_map.sr_map_def import Region
 
 
 class MoveDirectly(SrOperation):

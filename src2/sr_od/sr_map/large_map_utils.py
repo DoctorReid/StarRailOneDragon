@@ -15,7 +15,7 @@ from sr_od.config import game_const
 from sr_od.config.game_config import MiniMapPos
 from sr_od.context.sr_context import SrContext
 from sr_od.sr_map.large_map_info import LargeMapInfo
-from sr_od.sr_map.sr_map_data import Region, Planet
+from sr_od.sr_map.sr_map_def import Planet, Region
 
 CUT_MAP_RECT = Rect(200, 190, 1300, 930)  # 主区域 在屏幕上截取大地图的区域
 SUB_CUT_MAP_RECT = Rect(200, 190, 1600, 955)  # 子区域 在屏幕上截取大地图的区域

@@ -3,7 +3,7 @@ from cv2.typing import MatLike
 from typing import Optional, Tuple, List
 
 from one_dragon.utils import cv2_utils
-from sr_od.sr_map.sr_map_data import Region
+from sr_od.sr_map.sr_map_def import Region
 
 
 class LargeMapInfo:

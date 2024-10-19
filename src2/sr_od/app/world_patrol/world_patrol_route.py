@@ -5,7 +5,7 @@ from one_dragon.base.geometry.point import Point
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.config import operation_const
-from sr_od.sr_map.sr_map_data import SpecialPoint, Region
+from sr_od.sr_map.sr_map_def import Region, SpecialPoint
 
 
 class WorldPatrolRouteOperation:

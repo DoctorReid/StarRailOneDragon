@@ -18,7 +18,7 @@ from sr_od.context.sr_context import SrContext
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.sr_map import large_map_utils
 from sr_od.sr_map.large_map_info import LargeMapInfo
-from sr_od.sr_map.sr_map_data import SpecialPoint
+from sr_od.sr_map.sr_map_def import SpecialPoint
 
 
 class ChooseSpecialPoint(SrOperation):
