@@ -171,7 +171,7 @@ def cal_character_pos(ctx: SrContext,
 
     if show:
         # result中是缩放后的宽和高
-        cv2_utils.show_overlap(lm_info.raw, mm_info.origin,
+        cv2_utils.show_overlap(lm_info.raw, mm_info.raw,
                                result.x, result.y,
                                template_scale=result.template_scale,
                                win_name='overlap')
@@ -200,7 +200,7 @@ def cal_character_pos_by_gray(ctx: SrContext,
     source, lm_rect = cv2_utils.crop_image(lm_info.raw, lm_rect)
     source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
-    mm_del_radio = mm_info.origin_del_radio
+    mm_del_radio = mm_info.raw_del_radio
     template = cv2.cvtColor(mm_del_radio, cv2.COLOR_BGR2GRAY)
 
     mini_map_utils.init_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
@@ -247,7 +247,7 @@ def cal_character_pos_by_raw(ctx: SrContext,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.raw, lm_rect)
     # 使用道路掩码
-    template = mm_info.origin_del_radio
+    template = mm_info.raw_del_radio
     mini_map_utils.init_road_mask_for_world_patrol(mm_info, another_floor=lm_info.region.another_floor)
     template_mask = mm_info.road_mask_with_edge
 
@@ -258,7 +258,7 @@ def cal_character_pos_by_raw(ctx: SrContext,
         scale = target.template_scale if target is not None else 1
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
+        cv2_utils.show_image(mm_info.raw, win_name='mini_map')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage),
                              win_name='template_match_template')
@@ -288,7 +288,7 @@ def cal_character_pos_by_sp_result(ctx: SrContext,
         return None
     mini_map_utils.init_sp_mask_by_feature_match(ctx, mm_info, set(lm_sp_map.keys()))
 
-    mm_height, mm_width = mm_info.origin.shape[:2]
+    mm_height, mm_width = mm_info.raw.shape[:2]
 
     cal_pos_list = []
 
@@ -373,7 +373,7 @@ def cal_character_pos_by_road_mask(ctx: SrContext,
         scale = target.template_scale if target is not None else 1
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm_info.origin, win_name='mini_map')
+        cv2_utils.show_image(mm_info.raw, win_name='mini_map')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage),
                              win_name='template_match_template')
@@ -506,7 +506,7 @@ def sim_uni_cal_pos(
             result = r1
 
     if result is None:  # 使用模板匹配 原图
-        r2 = sim_uni_cal_pos_by_original(ctx, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
+        r2 = sim_uni_cal_pos_by_raw(ctx, lm_info, mm_info, lm_rect=lm_rect, scale_list=scale_list, show=show)
         if is_valid_result(r2, verify):
             result = r2
 
@@ -521,7 +521,7 @@ def sim_uni_cal_pos(
     target = result.center
 
     if show:
-        cv2_utils.show_overlap(lm_info.raw, mm_info.origin, result.x, result.y, template_scale=scale,
+        cv2_utils.show_overlap(lm_info.raw, mm_info.raw, result.x, result.y, template_scale=scale,
                                win_name='overlap')
         cv2_utils.show_image(lm_info.raw, MatchResult(1, result.center.x - 2, result.center.y - 2, 4, 4),
                              win_name='sim_uni_cal_pos_point')
@@ -552,7 +552,7 @@ def sim_uni_cal_pos_by_gray(ctx: SrContext,
     source, lm_rect = cv2_utils.crop_image(lm_info.raw, lm_rect)
     source = cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)
     # 使用道路掩码
-    template = cv2.cvtColor(mm_info.origin_del_radio, cv2.COLOR_BGR2GRAY)
+    template = cv2.cvtColor(mm_info.raw_del_radio, cv2.COLOR_BGR2GRAY)
     mini_map_utils.init_road_mask_for_sim_uni(mm_info)
     template_mask = mm_info.road_mask_with_edge  # 把白色边缘包括进来
 
@@ -563,7 +563,7 @@ def sim_uni_cal_pos_by_gray(ctx: SrContext,
         scale = target.template_scale if target is not None else 1
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm_info.origin_del_radio, win_name='mini_map')
+        cv2_utils.show_image(mm_info.raw_del_radio, win_name='mini_map')
         cv2_utils.show_image(mm_info.road_mask_with_edge, win_name='road_mask')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage),
@@ -578,12 +578,12 @@ def sim_uni_cal_pos_by_gray(ctx: SrContext,
         return None
 
 
-def sim_uni_cal_pos_by_original(ctx: SrContext,
-                                lm_info: LargeMapInfo, mm_info: MiniMapInfo,
-                                lm_rect: Rect = None,
-                                show: bool = False,
-                                scale_list: List[float] = None,
-                                match_threshold: float = 0.3) -> Optional[MatchResult]:
+def sim_uni_cal_pos_by_raw(ctx: SrContext,
+                           lm_info: LargeMapInfo, mm_info: MiniMapInfo,
+                           lm_rect: Rect = None,
+                           show: bool = False,
+                           scale_list: List[float] = None,
+                           match_threshold: float = 0.3) -> Optional[MatchResult]:
     """
     使用模板匹配 在大地图上匹配小地图的位置 会对小地图进行缩放尝试
     使用模拟宇宙专用的道路掩码图 + 原图
@@ -597,7 +597,7 @@ def sim_uni_cal_pos_by_original(ctx: SrContext,
     """
     source, lm_rect = cv2_utils.crop_image(lm_info.raw, lm_rect)
     # 使用道路掩码
-    template = mm_info.origin_del_radio
+    template = mm_info.raw_del_radio
     mini_map_utils.init_road_mask_for_sim_uni(mm_info)
     template_mask = mm_info.road_mask_with_edge
 
@@ -609,7 +609,7 @@ def sim_uni_cal_pos_by_original(ctx: SrContext,
         scale = target.template_scale if target is not None else 1
         template_usage = cv2_utils.scale_image(template, scale, copy=False)
         template_mask_usage = cv2_utils.scale_image(template_mask, scale, copy=False)
-        cv2_utils.show_image(mm_info.origin_del_radio, win_name='mini_map')
+        cv2_utils.show_image(mm_info.raw_del_radio, win_name='mini_map')
         cv2_utils.show_image(source, win_name='template_match_source')
         cv2_utils.show_image(cv2.bitwise_and(template_usage, template_usage, mask=template_mask_usage),
                              win_name='template_match_template')
@@ -694,6 +694,10 @@ def is_valid_result(result: MatchResult, verify: VerifyPosInfo) -> bool:
     return True
 
 
+def save_as_test_case_async(mm: MatLike, region: Region, verify: VerifyPosInfo):
+    cal_pos_executor.submit(save_as_test_case, mm, region, verify)
+
+
 def save_as_test_case(mm: MatLike, region: Region, verify: VerifyPosInfo):
     """
     保存成测试样例
@@ -711,3 +715,4 @@ def save_as_test_case(mm: MatLike, region: Region, verify: VerifyPosInfo):
 
     with open(os.path.join(base, 'verify.yml'), 'w', encoding='utf-8') as file:
         file.write(verify.yml_str)
+

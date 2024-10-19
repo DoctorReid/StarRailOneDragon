@@ -1,4 +1,4 @@
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_base import OperationResult
@@ -13,12 +13,14 @@ from sr_od.config import operation_const
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.interact.catapult import Catapult
 from sr_od.operations.interact.move_interact import MoveInteract
+from sr_od.operations.move.move_directly import MoveDirectly
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.operations.team.check_team_members_in_world import CheckTeamMembersInWorld
 from sr_od.operations.team.switch_member import SwitchMember
 from sr_od.operations.technique import UseTechnique
+from sr_od.operations.wait.wait_in_seconds import WaitInSeconds
+from sr_od.operations.wait.wait_in_world import WaitInWorld
 from sr_od.screen_state import common_screen_state
-from sr_od.sr_map import large_map_utils
 from sr_od.sr_map.operations.transport_by_map import TransportByMap
 from sr_od.sr_map.sr_map_data import Region
 
@@ -34,28 +36,7 @@ class WorldPatrolRunRoute(SrOperation):
         """
         self.route: WorldPatrolRoute = route
 
-        edges = []
-        tp = StateOperationNode('传送', op=Transport(ctx, self.route.tp))
-        check_members = StateOperationNode('检测组队', self._check_members)
-        edges.append(StateOperationEdge(tp, check_members))
-
-        switch = StateOperationNode('切换1号位', self.switch_first)
-        edges.append(StateOperationEdge(check_members, switch))
-
-        use_tech = StateOperationNode('使用秘技', self._use_tech)
-        edges.append(StateOperationEdge(switch, use_tech, ignore_status=True))  # 1号位切换成功与否都可以继续
-
-        op_node = StateOperationNode('执行路线指令', self._next_op)
-        edges.append(StateOperationEdge(use_tech, op_node))
-
-        edges.append(StateOperationEdge(op_node, op_node, ignore_status=True))
-        finish = StateOperationNode('结束', self._finish)
-        edges.append(StateOperationEdge(op_node, finish, status=WorldPatrolRunRoute.STATUS_ALL_DONE))
-
-        super().__init__(ctx,
-                         op_name='%s %s' % (gt('锄地路线', 'ui'), self.route.display_name),
-                         edges=edges,
-                         )
+        SrOperation.__init__(self, ctx, op_name='%s %s' % (gt('锄地路线', 'ui'), self.route.display_name))
 
     def handle_init(self):
         """
@@ -126,6 +107,7 @@ class WorldPatrolRunRoute(SrOperation):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='使用秘技')
+    @node_from(from_name='执行路线指令')
     @operation_node(name='执行路线指令')
     def _next_op(self) -> OperationRoundResult:
         """
@@ -140,6 +122,7 @@ class WorldPatrolRunRoute(SrOperation):
         if self.op_idx >= len(self.route.route_list):
             return self.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
 
+        op = None
         route_item = self.route.route_list[self.op_idx]
         next_route_item = self.route.route_list[self.op_idx + 1] if self.op_idx + 1 < len(
             self.route.route_list) else None
@@ -171,7 +154,6 @@ class WorldPatrolRunRoute(SrOperation):
         else:
             return self.round_fail(status='错误的锄大地指令 %s' % route_item.op)
 
-        op_result = op.execute()
 
         # 以下代码仅用作记录坐标和小地图测试用
         # if self.ctx.record_coordinate and op_result.success and (
@@ -191,7 +173,10 @@ class WorldPatrolRunRoute(SrOperation):
         #     op2 = RecordCoordinate(self.ctx, self.current_region, self.current_pos, record_times=record_times)
         #     op2.execute()
 
-        return self.round_by_op_result(op_result)
+        if op is not None:
+            return self.round_by_op_result(op.execute())
+        else:
+            return self.round_fail('指令错误 %d', self.op_idx)
 
     def move(self, route_item, next_route_item) -> SrOperation:
         """
@@ -242,9 +227,10 @@ class WorldPatrolRunRoute(SrOperation):
 
         route_item = self.route.route_list[self.op_idx]
         if len(route_item.data) > 2:
-            self.current_region = map_const.region_with_another_floor(self.current_region, route_item.data[2])
+            self.current_region = self.ctx.world_patrol_map_data.best_match_region_by_name(
+                gt(self.current_region.cn), self.current_region.planet, target_floor=route_item.data[2])
 
-    def wait(self, wait_type: str, seconds: float) -> Operation:
+    def wait(self, wait_type: str, seconds: float) -> SrOperation:
         """
         等待
         :param wait_type: 等待类型
@@ -253,11 +239,12 @@ class WorldPatrolRunRoute(SrOperation):
         """
         if wait_type == 'in_world':
             return WaitInWorld(self.ctx, seconds, wait_after_success=1)  # 多等待一秒 动画后界面完整显示需要点时间
-        elif wait_type == sr.const.operation_const.WAIT_TYPE_SECONDS:
+        elif wait_type == operation_const.WAIT_TYPE_SECONDS:
             return WaitInSeconds(self.ctx, seconds)
-        else:
-            return OperationFail(self.ctx, status='错误的wait类型 %s' % wait_type)
 
+
+    @node_from(from_name='执行路线指令', status=STATUS_ALL_DONE)
+    @operation_node(name='结束')
     def _finish(self) -> OperationRoundResult:
         """
         路线执行完毕

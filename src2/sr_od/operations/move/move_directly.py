@@ -4,18 +4,22 @@ from cv2.typing import MatLike
 from typing import ClassVar, Optional, Callable, List, Tuple
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.geometry.rectangle import Rect
+from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cal_utils, debug_utils
+from one_dragon.utils import cal_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.app.world_patrol.world_patrol_enter_fight import WorldPatrolEnterFight
 from sr_od.config.game_config import RunModeEnum
 from sr_od.context.sr_context import SrContext
+from sr_od.operations.move import cal_pos_utils
+from sr_od.operations.move.cal_pos_utils import VerifyPosInfo
 from sr_od.operations.move.get_rid_of_stuck import GetRidOfStuck
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.screen_state import common_screen_state, battle_screen_state
-from sr_od.sr_map import mini_map_utils
+from sr_od.sr_map import mini_map_utils, large_map_utils
 from sr_od.sr_map.large_map_info import LargeMapInfo
 from sr_od.sr_map.mini_map_info import MiniMapInfo
 from sr_od.sr_map.sr_map_data import Region
@@ -170,7 +174,7 @@ class MoveDirectly(SrOperation):
 
         # 被敌人锁定的时候 小地图会被染红 坐标匹配能力大减
         # 因此 就算识别不到坐标 也要判断是否被怪锁定 以免一直识别坐标失败站在原地被袭
-        check_enemy = self.check_enemy_and_attack(screen, mm_info.origin_del_radio, now_time)
+        check_enemy = self.check_enemy_and_attack(screen, mm_info.raw_del_radio, now_time)
         if check_enemy is not None:
             return check_enemy
 
@@ -270,9 +274,9 @@ class MoveDirectly(SrOperation):
         possible_pos = (last_pos.x, last_pos.y, move_distance)
         log.debug('准备计算人物坐标 使用上一个坐标为 %s 移动时间 %.2f 是否在移动 %s', possible_pos,
                   move_time, self.ctx.controller.is_moving)
-        lm_rect = large_map.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
+        lm_rect = large_map_utils.get_large_map_rect_by_pos(self.lm_info.gray.shape, mm.shape[:2], possible_pos)
 
-        mm_info = mini_map.analyse_mini_map(mm)
+        mm_info = mini_map_utils.analyse_mini_map(mm)
 
         if len(self.pos) == 0:  # 第一个可以直接使用开始点 不进行计算
             return self.start_pos, mm_info
@@ -291,13 +295,11 @@ class MoveDirectly(SrOperation):
         if next_pos is None:
             log.error('无法判断当前人物坐标')
             if self.ctx.one_dragon_config.is_debug and self.no_pos_times == 0:  # 只记录第一次识别坐标失败的
-                debug_utils.get_executor().submit(
-                    cal_pos.save_as_test_case,
-                    mm, self.region, verify
-                )
+                cal_pos_utils.save_as_test_case_async(mm, self.region, verify)
         else:
             if self.ctx.record_coordinate and now_time - self.last_rec_time > 0.5:
-                RecordCoordinate.save(self.region, mm, next_pos)
+                # RecordCoordinate.save(self.region, mm, next_pos)
+                pass
         return next_pos.center if next_pos is not None else None, mm_info
 
     def do_cal_pos(self, mm_info: MiniMapInfo,
@@ -311,17 +313,19 @@ class MoveDirectly(SrOperation):
         """
         try:
             real_move_time = self.ctx.controller.get_move_time()
-            next_pos = cal_pos.cal_character_pos(self.ctx.im, self.lm_info, mm_info,
-                                                 lm_rect=lm_rect, retry_without_rect=False,
-                                                 running=self.ctx.controller.is_moving,
-                                                 real_move_time=real_move_time,
-                                                 verify=verify)
+            next_pos = cal_pos_utils.cal_character_pos(
+                self.ctx, self.lm_info, mm_info,
+                lm_rect=lm_rect, retry_without_rect=False,
+                running=self.ctx.controller.is_moving,
+                real_move_time=real_move_time,
+                verify=verify)
             if next_pos is None and self.next_lm_info is not None:
-                next_pos = cal_pos.cal_character_pos(self.ctx.im, self.next_lm_info, mm_info,
-                                                     lm_rect=lm_rect, retry_without_rect=False,
-                                                     running=self.ctx.controller.is_moving,
-                                                     real_move_time=real_move_time,
-                                                     verify=verify)
+                next_pos = cal_pos_utils.cal_character_pos(
+                    self.ctx, self.next_lm_info, mm_info,
+                    lm_rect=lm_rect, retry_without_rect=False,
+                    running=self.ctx.controller.is_moving,
+                    real_move_time=real_move_time,
+                    verify=verify)
         except Exception:
             next_pos = None
             log.error('识别坐标失败', exc_info=True)
@@ -361,7 +365,7 @@ class MoveDirectly(SrOperation):
         if cal_utils.distance_between(next_pos, self.target) < MoveDirectly.arrival_distance:
             if self.stop_afterwards:
                 self.ctx.controller.stop_moving_forward()
-            self.ctx.update_pos_after_move(next_pos, region=None if self.next_lm_info is None else self.next_lm_info.region)
+            self.ctx.pos_info.update_pos_after_move(next_pos, region=None if self.next_lm_info is None else self.next_lm_info.region)
             return self.round_success(data=next_pos)
         return None
 
@@ -374,10 +378,10 @@ class MoveDirectly(SrOperation):
         :return:
         """
         self.stop_move_time = None
-        self.ctx.update_pos_after_move(next_pos)
+        self.ctx.pos_info.update_pos_after_move(next_pos)
         if now_time - self.last_rec_time > self.rec_pos_interval:  # 隔一段时间才记录一个点
             self.ctx.controller.move_towards(next_pos, self.target, mm_info.angle,
-                                             run=self.run_mode == game_config_const.RUN_MODE_BTN)
+                                             run=self.run_mode == RunModeEnum.BTN.value.value)
             # time.sleep(0.5)  # 如果使用小箭头计算方向 则需要等待人物转过来再进行下一轮
             self.pos.append(next_pos)
             log.debug('记录坐标 %s', next_pos)
@@ -400,7 +404,7 @@ class MoveDirectly(SrOperation):
         self.last_rec_time += self.current_pause_time
         self.last_battle_time += self.current_pause_time
 
-    def _after_operation_done(self, result: OperationResult):
-        super()._after_operation_done(result)
+    def after_operation_done(self, result: OperationResult):
+        SrOperation.after_operation_done(self, result)
         if not result.success:
             self.ctx.controller.stop_moving_forward()

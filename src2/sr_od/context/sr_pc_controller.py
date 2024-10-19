@@ -5,6 +5,7 @@ from typing import Optional, ClassVar
 
 from one_dragon.base.controller.pc_controller_base import PcControllerBase
 from one_dragon.base.geometry.point import Point
+from one_dragon.utils import cal_utils
 from one_dragon.utils.log_utils import log
 from sr_od.config.game_config import GameConfig
 
@@ -37,14 +38,6 @@ class SrPcController(PcControllerBase):
     def open_map(self) -> bool:
         self.btn_controller.tap(self.game_config.key_open_map)
         return True
-
-    def turn_by_distance(self, d: float):
-        """
-        横向转向 按距离转
-        :param d: 正数往右转 人物角度增加；负数往左转 人物角度减少
-        :return:
-        """
-        ctypes.windll.user32.mouse_event(PcControllerBase.MOUSEEVENTF_MOVE, int(d), 0)
 
     def move(self, direction: str, press_time: float = 0, run: bool = False):
         """
@@ -84,6 +77,13 @@ class SrPcController(PcControllerBase):
             self.btn_controller.tap('mouse_right')
             self.is_running = False
 
+    def get_move_time(self) -> float:
+        """
+        获取跑动的时间
+        :return:
+        """
+        return time.time() - self.start_move_time if self.is_moving else 0
+
     def start_moving_forward(self, run: bool = False):
         """
         开始往前走
@@ -100,6 +100,69 @@ class SrPcController(PcControllerBase):
         self.btn_controller.release('w')
         self.is_moving = False
         self.is_running = False
+
+    def move_towards(self, pos1: Point, pos2: Point, angle: float, run: bool = False) -> bool:
+        """
+        朝目标点行走
+        :param pos1: 起始点
+        :param pos2: 目标点
+        :param angle: 当前角度
+        :param run: 是否疾跑
+        :return:
+        """
+        if angle is None:
+            log.error('当前角度为空 无法判断移动方向')
+            return False
+        self.turn_by_pos(pos1, pos2, angle)
+        log.info('寻路中 当前点: %s 目标点: %s ', pos1, pos2)
+        self.start_moving_forward(run=run)
+        return True
+
+    def turn_by_pos(self, current_pos: Point, target_pos: Point, current_angle: float):
+        """
+        朝目标点转向
+        :param current_pos: 起始点
+        :param target_pos: 目标点
+        :param current_angle: 当前角度
+        :return:
+        """
+        target_angle = cal_utils.get_angle_by_pts(current_pos, target_pos)
+        self.turn_from_angle(current_angle, target_angle)
+
+    def turn_from_angle(self, from_angle: float, to_angle: float):
+        """
+        从一个角度转向到另一个角度
+        :param from_angle: 原来的角度
+        :param to_angle: 新的角度
+        :return:
+        """
+        delta_angle = cal_utils.angle_delta(from_angle, to_angle)
+        log.info('当前角度: %.2f度 目标角度: %.2f度 转动朝向: %.2f度', from_angle, to_angle, delta_angle)
+        self.turn_by_angle(delta_angle)
+
+    def turn_by_angle(self, angle: float):
+        """
+        按角度旋转
+        :param angle: 正数往右转 人物角度增加；负数往左转 人物角度减少
+        :return:
+        """
+        self.turn_by_distance(self.turn_dx * angle)
+
+    def turn_by_distance(self, d: float):
+        """
+        横向转向 按距离转
+        :param d: 正数往右转 人物角度增加；负数往左转 人物角度减少
+        :return:
+        """
+        ctypes.windll.user32.mouse_event(PcControllerBase.MOUSEEVENTF_MOVE, int(d), 0)
+
+    def cal_move_distance_by_time(self, seconds: float):
+        """
+        根据时间计算移动距离
+        :param seconds: 秒
+        :return:
+        """
+        return self.run_speed * seconds
 
     def switch_character(self, idx: int):
         """

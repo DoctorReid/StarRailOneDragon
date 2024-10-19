@@ -5,6 +5,7 @@ from one_dragon.utils import i18_utils
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
+from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK
 from sr_od.config.game_config import GameConfig
@@ -12,7 +13,6 @@ from sr_od.context.context_pos_info import ContextPosInfo
 from sr_od.context.sr_pc_controller import SrPcController
 from sr_od.screen_state.yolo_screen_detector import YoloScreenDetector
 from sr_od.sr_map.sr_map_data import SrMapData
-from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 
 
 class TeamInfo:
@@ -69,7 +69,7 @@ class TeamInfo:
             return False
         elif new_character_list is None:
             return False
-        elif len(self.character_list) != len(new_character_list):
+        elif self.character_list is not None and len(self.character_list) != len(new_character_list):
             return False
         else:
             for i in range(len(self.character_list)):

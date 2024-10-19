@@ -152,7 +152,7 @@ def init_sp_mask_by_feature_match(ctx: SrContext, mm_info: MiniMapInfo,
         mm_info.sp_result = sp_match_result
         return
 
-    source = mm_info.origin_del_radio
+    source = mm_info.raw_del_radio
     source_mask = mm_info.circle_mask
     source_kps, source_desc = cv2_utils.feature_detect_and_compute(source, mask=source_mask)
     for prefix in ['mm_tp', 'mm_sp', 'mm_boss', 'mm_sub']:
@@ -297,16 +297,16 @@ def get_radio_to_del(angle: Optional[float] = None):
         return mini_map_radio_to_del
 
 
-def analyse_mini_map(origin: MatLike) -> MiniMapInfo:
+def analyse_mini_map(raw: MatLike) -> MiniMapInfo:
     """
     预处理 从小地图中提取出所有需要的信息
-    :param origin: 小地图 左上角的一个正方形区域
+    :param raw: 小地图 左上角的一个正方形区域
     :return:
     """
     info = MiniMapInfo()
-    info.origin = origin
-    info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(origin)
-    info.origin_del_radio = remove_radio(info.origin, get_radio_to_del(info.angle))
+    info.raw = raw
+    info.center_arrow_mask, info.arrow_mask, info.angle = analyse_arrow_and_angle(raw)
+    info.raw_del_radio = remove_radio(info.raw, get_radio_to_del(info.angle))
     init_circle_mask(info)
 
     return info
@@ -321,24 +321,24 @@ def init_circle_mask(mm_info: MiniMapInfo):
 
 
 def remove_radio(mm: MatLike, radio_to_del: MatLike) -> MatLike:
-    origin = mm.copy()
+    raw = mm.copy()
     if radio_to_del is not None:
         radius = radio_to_del.shape[0] // 2
         d = radio_to_del.shape[0]
 
-        x1 = origin.shape[1] // 2 - radius
+        x1 = raw.shape[1] // 2 - radius
         x2 = x1 + d
-        y1 = origin.shape[1] // 2 - radius
+        y1 = raw.shape[1] // 2 - radius
         y2 = y1 + d
 
         overlap = np.zeros_like(radio_to_del, dtype=np.uint16)
-        overlap[:, :] = origin[y1:y2, x1:x2]
+        overlap[:, :] = raw[y1:y2, x1:x2]
         overlap[:, :] -= radio_to_del
-        overlap[np.where(origin[y1:y2, x1:x2] < radio_to_del)] = 0
-        origin[y1:y2, x1:x2] = overlap.astype(dtype=np.uint8)
+        overlap[np.where(raw[y1:y2, x1:x2] < radio_to_del)] = 0
+        raw[y1:y2, x1:x2] = overlap.astype(dtype=np.uint8)
 
-    # cv2_utils.show_image(origin, win_name='origin')
-    return origin
+    # cv2_utils.show_image(raw, win_name='raw')
+    return raw
 
 
 def init_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = False):
@@ -352,7 +352,7 @@ def init_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = 
     if mm_info.road_mask is not None:
         return
 
-    mm_del_radio = mm_info.origin_del_radio
+    mm_del_radio = mm_info.raw_del_radio
     b, g, r = cv2.split(mm_del_radio)
 
     l = 45
@@ -472,21 +472,21 @@ def merge_all_map_mask(gray_image: MatLike,
     return usage, all_mask
 
 
-def get_edge_mask(origin: MatLike, road_mask: MatLike, another_floor: bool = False):
+def get_edge_mask(raw: MatLike, road_mask: MatLike, another_floor: bool = False):
     """
     小地图道路边缘掩码 暂时不需要
-    :param origin: 小地图图片
+    :param raw: 小地图图片
     :param road_mask: 道路掩码
     :param another_floor: 是否有另一层
     :return:
     """
     lower_color = np.array([170, 170, 170], dtype=np.uint8)
     upper_color = np.array([230, 230, 230], dtype=np.uint8)
-    edge_mask_1 = cv2.inRange(origin, lower_color, upper_color)
+    edge_mask_1 = cv2.inRange(raw, lower_color, upper_color)
     if another_floor:
         lower_color = np.array([100, 100, 100], dtype=np.uint8)
         upper_color = np.array([130, 130, 130], dtype=np.uint8)
-        edge_mask_2 = cv2.inRange(origin, lower_color, upper_color)
+        edge_mask_2 = cv2.inRange(raw, lower_color, upper_color)
 
         color_edge_mask = cv2.bitwise_or(edge_mask_1, edge_mask_2)
     else:
@@ -557,8 +557,8 @@ def get_enemy_pos(mm_info: MiniMapInfo) -> List[Point]:
     """
     enemy_mask = get_enemy_mask(mm_info)
     # cv2_utils.show_image(enemy_mask, win_name='get_enemy_pos', wait=0)
-    cx = mm_info.origin.shape[1] // 2
-    cy = mm_info.origin.shape[0] // 2
+    cx = mm_info.raw.shape[1] // 2
+    cy = mm_info.raw.shape[0] // 2
 
     # 膨胀一下找连通块
     to_check = cv2_utils.dilate(enemy_mask, 5)
@@ -633,7 +633,7 @@ def get_enemy_mask(mm_info: MiniMapInfo, with_radio: bool = False) -> MatLike:
     :param with_radio: 是否包含雷达部分
     :return: 敌人红点的掩码
     """
-    mm_del_radio = mm_info.origin_del_radio
+    mm_del_radio = mm_info.raw_del_radio
     # cv2_utils.show_image(mm_del_radio, win_name='get_enemy_mask')
     b, g, r = cv2.split(mm_del_radio)
     b_g = b - g
@@ -663,7 +663,7 @@ def with_enemy_nearby_new(mm_info: MiniMapInfo):
         if dis < closest_dis:
             closest_dis = dis
 
-    return closest_dis < mm_info.origin.shape[0] // 4  # 半个小地图内
+    return closest_dis < mm_info.raw.shape[0] // 4  # 半个小地图内
 
 
 def is_under_attack_new(mm_info: MiniMapInfo, danger: bool = False, enemy: bool = False) -> bool:
@@ -674,7 +674,7 @@ def is_under_attack_new(mm_info: MiniMapInfo, danger: bool = False, enemy: bool 
     :param enemy: 小地图上是否有红点在旁边
     :return:
     """
-    _, g, r = cv2.split(mm_info.origin_del_radio)
+    _, g, r = cv2.split(mm_info.raw_del_radio)
     red_mask = np.zeros_like(r, dtype=np.uint8)
     if not danger:
         red_mask[r > 200] = 255

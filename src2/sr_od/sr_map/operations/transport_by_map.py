@@ -4,7 +4,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.sr_operation import SrOperation
-from sr_od.operations.wait_in_world import WaitInWorld
+from sr_od.operations.wait.wait_in_world import WaitInWorld
 from sr_od.sr_map.operations.choose_planet import ChoosePlanet
 from sr_od.sr_map.operations.choose_region import ChooseRegion
 from sr_od.sr_map.operations.choose_special_point import ChooseSpecialPoint
