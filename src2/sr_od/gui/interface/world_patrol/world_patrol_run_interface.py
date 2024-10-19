@@ -1,9 +1,11 @@
 from PySide6.QtWidgets import QWidget
 from typing import Optional
 
+from one_dragon.base.operation.application_base import Application
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from sr_od.app.sr_application import SrApplication
+from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.context.sr_context import SrContext
 
 
@@ -27,3 +29,6 @@ class WorldPatrolRunInterface(AppRunInterface):
         content = RowWidget()
 
         return content
+
+    def get_app(self) -> Application:
+        return WorldPatrolApp(self.ctx)

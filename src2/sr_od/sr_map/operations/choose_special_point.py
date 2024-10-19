@@ -104,7 +104,8 @@ class ChooseSpecialPoint(SrOperation):
             log.info('当前选择传送点名称 %s', tp_name_str)
             # cv2_utils.show_image(gold_part, win_name='gold_part')
             if (tp_name_str is not None and
-                    str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True, percent=self.gc.special_point_lcs_percent)):
+                    str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True,
+                                          percent=self.ctx.game_config.special_point_lcs_percent)):
                 # 点击传送
                 to_click = large_map_utils.TP_BTN_RECT.left_top
                 for r in tp_btn_ocr.values():
@@ -125,7 +126,7 @@ class ChooseSpecialPoint(SrOperation):
             sm_offset_y = self.tp.lm_pos.y - offset.y
             sp_rect = Rect(sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100)
             crop_screen_map, sp_rect = cv2_utils.crop_image(screen_part, sp_rect)
-            result: MatchResultList = self.ctx.tm.match_template(crop_screen_map, self.tp.template_id,
+            result: MatchResultList = self.ctx.tm.match_template(crop_screen_map, 'mm_icon', self.tp.template_id,
                                                                  threshold=game_const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
 
             if result.max is not None:

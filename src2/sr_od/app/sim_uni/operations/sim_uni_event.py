@@ -18,6 +18,7 @@ from sr_od.app.sim_uni.operations.curio.sim_uni_choose_curio import SimUniChoose
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.sr_operation import SrOperation
+from sr_od.screen_state import battle_screen_state
 
 
 class SimUniEventOption:
@@ -334,7 +335,7 @@ class SimUniEvent(SrOperation):
         return self.round_by_click_area('模拟宇宙', '点击空白处关闭',
                                         success_wait=2, retry_wait=1)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.SimUniScreenState.BATTLE.value)
+    @node_from(from_name='确认后判断', status=battle_screen_state.ScreenState.BATTLE.value)
     @operation_node(name='战斗')
     def _battle(self) -> OperationRoundResult:
         # op = SimUniEnterFight(self.ctx,

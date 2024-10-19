@@ -19,8 +19,8 @@ class ScaleLargeMap(SrOperation):
         self.to_scale: int = to_scale
         self.scale_per_time: int = -1 if to_scale < self.ctx.pos_info.pos_lm_scale else 1  # 负数为缩小，正数为放大
 
-    @operation_node(name='缩放大地图')
-    def _execute_one_round(self) -> OperationRoundResult:
+    @operation_node(name='缩放大地图', is_start_node=True)
+    def scale(self) -> OperationRoundResult:
         if self.to_scale == self.ctx.pos_info.pos_lm_scale:
             return self.round_success()
 

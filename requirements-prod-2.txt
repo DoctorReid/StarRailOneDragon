@@ -13,7 +13,7 @@ humanfriendly==10.0       # via coloredlogs
 mouseinfo==0.1.3          # via pyautogui
 mpmath==1.3.0             # via sympy
 mss==9.0.1                # via -r requirements-dev-2.txt
-numpy==2.1.1              # via onnxruntime-directml, opencv-python, scipy, shapely
+numpy==1.26.4             # via -r requirements-dev-2.txt, onnxruntime-directml, opencv-python, scipy, shapely
 onnxruntime-directml==1.18.0  # via -r requirements-dev-2.txt
 opencv-python==4.10.0.84  # via -r requirements-dev-2.txt
 packaging==24.1           # via onnxruntime-directml

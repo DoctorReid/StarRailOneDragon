@@ -21,7 +21,7 @@ class Calibrator(SrApplication):
     def __init__(self, ctx: SrContext):
         SrApplication.__init__(self, ctx, 'calibrator', op_name='校准')
 
-    @operation_node(name='传送1', is_start_node=True)
+    @operation_node(name='传送1', is_start_node=False)
     def tp1(self) -> OperationRoundResult:
         sp = self.ctx.world_patrol_map_data.best_match_sp_by_all_name('空间站黑塔', '基座舱段', '接待中心')
         op = TransportByMap(self.ctx, sp)
@@ -34,6 +34,7 @@ class Calibrator(SrApplication):
         screenshot = self.screenshot()
         mm_pos: MiniMapPos = mini_map_utils.cal_little_map_pos(screenshot)
         cfg: GameConfig = self.ctx.game_config
+        cfg.mini_map_pos = mm_pos
         cfg.update('mini_map', {
             'x': mm_pos.x,
             'y': mm_pos.y,
@@ -52,7 +53,7 @@ class Calibrator(SrApplication):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送2')
-    @operation_node(name='转向校准')
+    @operation_node(name='转向校准', is_start_node=True)
     def check_turning_rate(self) -> OperationRoundResult:
         """
         检测转向 需要找一个最容易检测到见箭头的位置
@@ -70,7 +71,7 @@ class Calibrator(SrApplication):
             time.sleep(1)
             next_angle = self._get_current_angle()
             if angle is not None:
-                ta = next_angle - angle if next_angle >= angle else next_angle - angle + 360
+                ta = (next_angle - angle) if next_angle >= angle else (next_angle - angle + 360)
                 turn_angle.append(ta)
             angle = next_angle
 
@@ -85,7 +86,7 @@ class Calibrator(SrApplication):
         # cv2.waitKey(0)
         return self.round_success(wait=0.5)
 
-    def _get_current_angle(self):
+    def _get_current_angle(self) -> float:
         self.ctx.controller.move('w')
         time.sleep(1)
         screen = self.screenshot()
@@ -93,3 +94,14 @@ class Calibrator(SrApplication):
         center_arrow_mask, arrow_mask, next_angle = mini_map_utils.analyse_arrow_and_angle(mm)
         log.info('当前角度 %.2f', next_angle)
         return next_angle
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    app = Calibrator(ctx)
+    app.execute()
+
+
+if __name__ == '__main__':
+    __debug()

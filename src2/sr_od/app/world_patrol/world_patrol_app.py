@@ -155,3 +155,14 @@ class WorldPatrolApp(SrApplication):
                 return
 
         self.ctx.world_patrol_record.update_status(AppRunRecord.STATUS_SUCCESS)
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    app = WorldPatrolApp(ctx)
+    app.execute()
+
+
+if __name__ == '__main__':
+    __debug()

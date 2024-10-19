@@ -80,12 +80,9 @@ class MiniMapPos:
 class GameConfig(YamlConfig):
 
     def __init__(self, instance_idx: Optional[int] = None):
-        self.mini_map_pos: Optional[MiniMapPos] = None
         YamlConfig.__init__(self, 'game', instance_idx=instance_idx)
-
-    def _init_after_read_file(self):
         mini_map = self.data['mini_map']
-        self.mini_map_pos = MiniMapPos(mini_map['x'], mini_map['y'], mini_map['r'])
+        self.mini_map_pos: MiniMapPos = MiniMapPos(mini_map['x'], mini_map['y'], mini_map['r'])
 
     @property
     def game_region(self) -> str:

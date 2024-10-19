@@ -451,7 +451,7 @@ def match_screen_in_large_map(ctx: SrContext, screen: MatLike, region: Region) -
     screen_map_rect = get_screen_map_rect(region)
     screen_part = cv2_utils.crop_image_only(screen, screen_map_rect)
     lm_info = ctx.world_patrol_map_data.get_large_map_info(region)
-    result: MatchResultList = ctx.tm.match_image(lm_info.origin, screen_part)
+    result: MatchResultList = cv2_utils.match_template(lm_info.raw, screen_part, 0.7)
 
     return screen_part, result.max
 

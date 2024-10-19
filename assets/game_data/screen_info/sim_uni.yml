@@ -98,7 +98,7 @@ area_list:
   - 115
   text: ''
   lcs_percent: 0.5
-  template_sub_dir: ''
+  template_sub_dir: normal_world
   template_id: ui_icon_10
   template_match_threshold: 0.7
 - area_name: 菜单-结束并结算

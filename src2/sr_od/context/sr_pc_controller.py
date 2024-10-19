@@ -1,6 +1,8 @@
 import time
 
 import ctypes
+import cv2
+from cv2.typing import MatLike
 from typing import Optional, ClassVar
 
 from one_dragon.base.controller.pc_controller_base import PcControllerBase
@@ -30,6 +32,12 @@ class SrPcController(PcControllerBase):
         self.is_moving: bool = False
         self.is_running: bool = False  # 是否在疾跑
         self.start_move_time: float = 0
+
+    def fill_uid_black(self, screen: MatLike) -> MatLike:
+        lt = (30, 1030)
+        rb = (200, 1080)
+        cv2.rectangle(screen, lt, rb, (114, 114, 114), -1)
+        return screen
 
     def esc(self) -> bool:
         self.btn_controller.tap(self.game_config.key_esc)

@@ -73,7 +73,7 @@ def calculate(minimap: MatLike, scale: int = 1):
     d = minimap.shape[0]
 
     # Extract
-    _, _, v = cv2.split(cv2.cvtColor(minimap, cv2.COLOR_BGR2YUV))
+    _, _, v = cv2.split(cv2.cvtColor(minimap, cv2.COLOR_RGB2YUV))
 
     image = cv2.subtract(128, v)
 
