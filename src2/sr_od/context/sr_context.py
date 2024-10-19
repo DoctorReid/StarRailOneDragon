@@ -160,5 +160,8 @@ class SrContext(OneDragonContext):
         else:
             return self.sim_uni_config.get_challenge_config(self.sim_uni_info.world_num)
 
+    def init_for_world_patrol(self) -> None:
+        self.yolo_detector = YoloScreenDetector(world_patrol_model_name=self.one_dragon_config.world_patrol_yolo)
+
     def init_for_sim_uni(self) -> None:
         self.yolo_detector = YoloScreenDetector(sim_uni_model_name=self.one_dragon_config.sim_uni_yolo)

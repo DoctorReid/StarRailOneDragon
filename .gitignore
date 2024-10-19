@@ -18,6 +18,8 @@ update_by_temp_2.bat
 
 # 模型文件 依赖下载
 model/yolo
+assets/models/world_patrol
+assets/models/sim_uni
 
 # 用户配置文件
 config/world_patrol/record.yml

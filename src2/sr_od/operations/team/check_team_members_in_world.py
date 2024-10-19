@@ -60,7 +60,7 @@ class CheckTeamMembersInWorld(SrOperation):
         for i in range(4):
             if self.character_list[i] is not None:
                 continue
-            area = self.ctx.screen_loader.get_area('大世界', ('组队-角色名称-%d' % (i + 1)))
+            area = self.ctx.screen_loader.get_area('大世界', ('队伍-角色名称-%d' % (i + 1)))
 
             part = cv2_utils.crop_image_only(screen, area.rect)
 
@@ -86,7 +86,7 @@ class CheckTeamMembersInWorld(SrOperation):
         for i in range(4):
             if self.character_list[i] is not None:
                 continue
-            area = self.ctx.screen_loader.get_area('大世界', ('组队-角色头像-%d' % (i + 1)))
+            area = self.ctx.screen_loader.get_area('大世界', ('队伍-角色头像-%d' % (i + 1)))
 
             part = cv2_utils.crop_image_only(screen, area.rect)
             source_kps, source_desc = cv2_utils.feature_detect_and_compute(part)
@@ -98,9 +98,10 @@ class CheckTeamMembersInWorld(SrOperation):
                     log.error('%s 角色头像文件缺失', character.cn)
                     continue
 
+                template_kps, template_desc = template.features
                 mr = cv2_utils.feature_match_for_one(source_kps, source_desc,
-                                                     template.kps, template.desc,
-                                                     template.origin.shape[1], template.origin.shape[0])
+                                                     template_kps, template_desc,
+                                                     template.raw.shape[1], template.raw.shape[0])
 
                 if mr is not None:
                     self.character_list[i] = character

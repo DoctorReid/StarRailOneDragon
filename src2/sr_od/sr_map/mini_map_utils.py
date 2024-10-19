@@ -353,7 +353,7 @@ def init_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = 
         return
 
     mm_del_radio = mm_info.raw_del_radio
-    b, g, r = cv2.split(mm_del_radio)
+    r, g, b = cv2.split(mm_del_radio)
 
     l = 45
     u = 70  # 背景色 正常是55~60附近 太亮的时候会到达这个值 或者其它楼层也会达到这个值
@@ -635,7 +635,7 @@ def get_enemy_mask(mm_info: MiniMapInfo, with_radio: bool = False) -> MatLike:
     """
     mm_del_radio = mm_info.raw_del_radio
     # cv2_utils.show_image(mm_del_radio, win_name='get_enemy_mask')
-    b, g, r = cv2.split(mm_del_radio)
+    r, g, b = cv2.split(mm_del_radio)
     b_g = b - g
     lower_color = np.array([45, 45, 80], dtype=np.uint8)
     if not with_radio:  # 不包含雷达的话 只取最红色的部分

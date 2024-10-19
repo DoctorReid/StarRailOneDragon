@@ -152,7 +152,7 @@ def init_battle_ctrl_icon(template_id: str, noise_threshold: int = 0):
         _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
     else:
         mask = np.zeros((raw.shape[0], raw.shape[1]), dtype=np.uint8)
-        b, g, r = cv2.split(raw)
+        r, g, b = cv2.split(raw)
         lower = 170
         mask[np.where(b > lower)] = 255
         mask[np.where(g > lower)] = 255

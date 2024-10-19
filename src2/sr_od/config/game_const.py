@@ -14,6 +14,6 @@ THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP = 0.7  # 特殊点模板在大地图上的阈
 COLOR_WHITE_GRAY = 255  # 地图上道路颜色
 COLOR_MAP_ROAD_GRAY = 0  # 地图上道路颜色
 COLOR_MAP_ROAD_BGR = (60, 60, 60)  # 地图上道路颜色
-COLOR_ARROW_BGR = (255, 200, 0)  # 小箭头颜色
+COLOR_ARROW_BGR = (0, 200, 255)  # 小箭头颜色
 
 OPPOSITE_DIRECTION = {'w': 's', 'a': 'd', 's': 'w', 'd': 'a'}  # 反方向
