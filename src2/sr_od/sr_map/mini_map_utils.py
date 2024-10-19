@@ -639,7 +639,7 @@ def get_enemy_mask(mm_info: MiniMapInfo, with_radio: bool = False) -> MatLike:
     b_g = b - g
     lower_color = np.array([80, 45, 45], dtype=np.uint8)
     if not with_radio:  # 不包含雷达的话 只取最红色的部分
-        lower_color[2] = 170
+        lower_color[0] = 170
     upper_color = np.array([255, 70, 70], dtype=np.uint8)
     enemy_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的敌人图
     enemy_mask_2 = np.zeros(mm_del_radio.shape[:2], dtype=np.uint8)
