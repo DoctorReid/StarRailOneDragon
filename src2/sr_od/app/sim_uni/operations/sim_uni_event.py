@@ -89,7 +89,7 @@ class SimUniEvent(SrOperation):
         """
         screen = self.screenshot()
         self.opt_list = self._get_opt_list(screen)
-        if self.ctx.one_dragon_config.is_debug:
+        if self.ctx.env_config.is_debug:
             title = self._get_event_title(screen)
             if str_utils.find_by_lcs(gt('孤独太空美虫'), title, percent=0.5):
                 pass

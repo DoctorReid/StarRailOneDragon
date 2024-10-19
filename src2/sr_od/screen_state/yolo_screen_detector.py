@@ -4,11 +4,11 @@ from typing import Optional, Tuple
 
 from one_dragon.utils import yolo_config_utils
 from one_dragon.yolo.detect_utils import DetectFrameResult
+from one_dragon.yolo.yolo_utils import SR_MODEL_DOWNLOAD_URL
 from one_dragon.yolo.yolov8_onnx_det import Yolov8Detector
 from sr_od.config.game_const import OPPOSITE_DIRECTION
 
 _EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='sr_yolo_detector', max_workers=1)
-_MODEL_DOWNLOAD_URL = 'https://github.com/DoctorReid/OneDragon-YOLO/releases/download/sr_model'
 
 
 class YoloScreenDetector:
@@ -23,23 +23,51 @@ class YoloScreenDetector:
         self.standard_resolution_h: int = standard_resolution_h
 
         self.sim_uni_yolo: Optional[Yolov8Detector] = None  # 模拟宇宙用的模型
+        self.sim_uni_model_name: str = sim_uni_model_name
         if sim_uni_model_name is not None:
             self.sim_uni_yolo = Yolov8Detector(
-                model_download_url=_MODEL_DOWNLOAD_URL,
+                model_download_url=SR_MODEL_DOWNLOAD_URL,
                 model_parent_dir_path=yolo_config_utils.get_model_category_dir('sim_uni'),
                 model_name=sim_uni_model_name
             )
 
         self.world_patrol_yolo: Optional[Yolov8Detector] = None  # 锄大地用的模型
+        self.world_patrol_model_name: str = world_patrol_model_name
         if world_patrol_model_name is not None:
             self.world_patrol_yolo = Yolov8Detector(
-                model_download_url=_MODEL_DOWNLOAD_URL,
+                model_download_url=SR_MODEL_DOWNLOAD_URL,
                 model_parent_dir_path=yolo_config_utils.get_model_category_dir('world_patrol'),
                 model_name=world_patrol_model_name
             )
 
         self.last_async_future: Optional[concurrent.futures.Future] = None  # 上一次异步回调
         self.last_detect_result: Optional[DetectFrameResult] = None  # 上一次识别结果
+
+    def init_world_patrol_model(self, model_name: str) -> None:
+        """
+        重新初始化模型
+        """
+        if model_name == self.world_patrol_model_name:
+            return
+        self.world_patrol_model_name = model_name
+        self.world_patrol_yolo = Yolov8Detector(
+            model_download_url=SR_MODEL_DOWNLOAD_URL,
+            model_parent_dir_path=yolo_config_utils.get_model_category_dir('world_patrol'),
+            model_name=model_name
+        )
+
+    def init_sim_uni_model(self, model_name: str) -> None:
+        """
+        重新初始化模型
+        """
+        if model_name == self.sim_uni_model_name:
+            return
+        self.sim_uni_model_name = model_name
+        self.sim_uni_yolo = Yolov8Detector(
+            model_download_url=SR_MODEL_DOWNLOAD_URL,
+            model_parent_dir_path=yolo_config_utils.get_model_category_dir('sim_uni'),
+            model_name=model_name
+        )
 
     def detect_should_attack_in_world(self, screen: MatLike, detect_time: float) -> DetectFrameResult:
         """

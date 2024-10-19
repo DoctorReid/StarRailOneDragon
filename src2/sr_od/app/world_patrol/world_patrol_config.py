@@ -19,7 +19,7 @@ class WorldPatrolConfig(YamlConfig):
 
     @property
     def team_num_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'team_num', 0, 'int', 'int')
+        return YamlConfigAdapter(self, 'team_num', 0, 'str', 'int')
 
     @property
     def whitelist_id(self) -> str:

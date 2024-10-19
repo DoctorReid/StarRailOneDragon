@@ -10,6 +10,7 @@ from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBo
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.component.setting_card.yolo_model_card import ModelDownloadSettingCard
 from one_dragon.utils.i18_utils import gt
+from one_dragon.yolo.yolo_utils import SR_MODEL_DOWNLOAD_URL
 from sr_od.context.sr_context import SrContext
 
 
@@ -58,14 +59,14 @@ class SrSettingYoloInterface(VerticalScrollInterface):
         group = SettingCardGroup(gt('模型', 'ui'))
 
         self.flash_classifier_opt = ModelDownloadSettingCard(
-            ctx=self.ctx, sub_dir='flash_classifier', download_url=ZZZ_MODEL_DOWNLOAD_URL,
-            icon=FluentIcon.GLOBE, title='闪光识别')
+            ctx=self.ctx, sub_dir='world_patrol', download_url=SR_MODEL_DOWNLOAD_URL,
+            icon=FluentIcon.GLOBE, title='锄大地')
         self.flash_classifier_opt.value_changed.connect(self._on_flash_classifier_changed)
         group.addSettingCard(self.flash_classifier_opt)
 
         self.hollow_zero_event_opt = ModelDownloadSettingCard(
-            ctx=self.ctx, sub_dir='hollow_zero_event', download_url=ZZZ_MODEL_DOWNLOAD_URL,
-            icon=FluentIcon.GLOBE, title='空洞格子识别')
+            ctx=self.ctx, sub_dir='sim_uni', download_url=SR_MODEL_DOWNLOAD_URL,
+            icon=FluentIcon.GLOBE, title='模拟宇宙')
         self.hollow_zero_event_opt.value_changed.connect(self._on_hollow_zero_event_changed)
         group.addSettingCard(self.hollow_zero_event_opt)
 

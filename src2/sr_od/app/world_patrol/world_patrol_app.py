@@ -57,6 +57,7 @@ class WorldPatrolApp(SrApplication):
         if len(self.route_list) == 0:
             return self.round_success(WorldPatrolApp.STATUS_ALL_ROUTE_FINISHED)
         else:
+            self.ctx.init_for_world_patrol()
             return self.round_success()
 
     @node_from(from_name='加载路线')

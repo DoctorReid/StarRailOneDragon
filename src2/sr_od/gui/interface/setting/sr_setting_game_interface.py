@@ -10,7 +10,7 @@ from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSett
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
-from sr_od.config.game_config import GameRegionEnum
+from sr_od.config.game_config import GameRegionEnum, RunModeEnum
 from sr_od.context.sr_context import SrContext
 
 
@@ -52,6 +52,9 @@ class SrSettingGameInterface(VerticalScrollInterface):
                                                  content='放心不会盗你的号 异地登陆需要验证')
         basic_group.addSettingCard(self.game_password_opt)
 
+        self.run_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='疾跑', options_enum=RunModeEnum)
+        basic_group.addSettingCard(self.run_opt)
+
         self.use_quirky_snacks_opt = SwitchSettingCard(icon=FluentIcon.CAFE, title='只用奇巧零食')
         basic_group.addSettingCard(self.use_quirky_snacks_opt)
 
@@ -77,6 +80,7 @@ class SrSettingGameInterface(VerticalScrollInterface):
         self.game_region_opt.init_with_adapter(self.ctx.game_config.game_region_adapter)
         self.game_account_opt.init_with_adapter(self.ctx.game_config.game_account_adapter)
         self.game_password_opt.init_with_adapter(self.ctx.game_config.game_account_password_adapter)
+        self.run_opt.init_with_adapter(self.ctx.game_config.run_mode_adapter)
         self.use_quirky_snacks_opt.init_with_adapter(self.ctx.game_config.use_quirky_snacks_adapter)
 
         self.game_path_opt.setContent(self.ctx.game_config.game_path)

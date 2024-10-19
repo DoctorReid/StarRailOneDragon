@@ -5,6 +5,7 @@ from one_dragon.gui.view.setting.setting_env_interface import SettingEnvInterfac
 from one_dragon.gui.view.setting.setting_instance_interface import SettingInstanceInterface
 from sr_od.context.sr_context import SrContext
 from sr_od.gui.interface.setting.sr_setting_game_interface import SrSettingGameInterface
+from sr_od.gui.interface.setting.sr_setting_yolo_interface import SrSettingYoloInterface
 
 
 class SrSettingInterface(PivotNavigatorInterface):
@@ -20,5 +21,6 @@ class SrSettingInterface(PivotNavigatorInterface):
         :return:
         """
         self.add_sub_interface(SrSettingGameInterface(ctx=self.ctx))
+        self.add_sub_interface(SrSettingYoloInterface(ctx=self.ctx))
         self.add_sub_interface(SettingEnvInterface(ctx=self.ctx))
         self.add_sub_interface(SettingInstanceInterface(ctx=self.ctx))

@@ -9,7 +9,9 @@ from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK
 from sr_od.config.game_config import GameConfig
+from sr_od.config.yolo_config import YoloConfig
 from sr_od.context.context_pos_info import ContextPosInfo
+from sr_od.context.preheat_context import SrPreheatContext
 from sr_od.context.sr_pc_controller import SrPcController
 from sr_od.screen_state.yolo_screen_detector import YoloScreenDetector
 from sr_od.sr_map.sr_map_data import SrMapData
@@ -111,8 +113,8 @@ class SrContext(OneDragonContext):
         self.is_pc: bool = True
         self.record_coordinate: bool = False  # 记录坐标
 
-        self.world_patrol_map_data: SrMapData = SrMapData()
-        self.world_patrol_route_data: WorldPatrolRouteData = WorldPatrolRouteData(self.world_patrol_map_data)
+        self.map_data: SrMapData = SrMapData()
+        self.world_patrol_route_data: WorldPatrolRouteData = WorldPatrolRouteData(self.map_data)
 
         self.pos_info: ContextPosInfo = ContextPosInfo()
         self.team_info: TeamInfo = TeamInfo()
@@ -124,6 +126,16 @@ class SrContext(OneDragonContext):
         self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
         self.no_technique_recover_consumables: bool = False  # 没有恢复秘技的物品了 为True的时候就不使用秘技了
         self.consumable_used: bool = False  # 是否已经使用过消耗品了
+
+        # 共用配置
+        self.yolo_config: YoloConfig = YoloConfig()
+        self.yolo_detector = YoloScreenDetector(
+            world_patrol_model_name=self.yolo_config.world_patrol,
+            sim_uni_model_name=self.yolo_config.sim_uni,
+            standard_resolution_h=self.project_config.screen_standard_height,
+            standard_resolution_w=self.project_config.screen_standard_width
+        )
+        self.preheat_context = SrPreheatContext(self)
 
         # 实例独有的配置
         self.load_instance_config()
@@ -161,7 +173,8 @@ class SrContext(OneDragonContext):
             return self.sim_uni_config.get_challenge_config(self.sim_uni_info.world_num)
 
     def init_for_world_patrol(self) -> None:
-        self.yolo_detector = YoloScreenDetector(world_patrol_model_name=self.one_dragon_config.world_patrol_yolo)
+        self.preheat_context.preheat_for_world_patrol_async()
+        self.yolo_detector.init_world_patrol_model(self.yolo_config.world_patrol)
 
     def init_for_sim_uni(self) -> None:
-        self.yolo_detector = YoloScreenDetector(sim_uni_model_name=self.one_dragon_config.sim_uni_yolo)
+        self.yolo_detector.init_sim_uni_model(self.yolo_config.sim_uni)

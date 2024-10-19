@@ -49,7 +49,7 @@ def get_planet(ctx: SrContext, screen: MatLike) -> Optional[Planet]:
     # cv2_utils.show_image(white_part, win_name='white_part')
     planet_name_str: str = ctx.ocr.run_ocr_single_line(planet_name_part)
 
-    return ctx.world_patrol_map_data.best_match_planet_by_name(planet_name_str)
+    return ctx.map_data.best_match_planet_by_name(planet_name_str)
 
 
 def get_sp_mask_by_template_match(ctx: SrContext, lm_info: LargeMapInfo,
@@ -185,11 +185,11 @@ def init_large_map(ctx: SrContext, region: Region, raw: MatLike,
 
         cv2.waitKey(0)
 
-        ctx.world_patrol_map_data.save_large_map_image(info.origin, region, 'origin')
-        ctx.world_patrol_map_data.save_large_map_image(info.gray, region, 'gray')
-        ctx.world_patrol_map_data.save_large_map_image(info.mask, region, 'mask')
+        ctx.map_data.save_large_map_image(info.origin, region, 'origin')
+        ctx.map_data.save_large_map_image(info.gray, region, 'gray')
+        ctx.map_data.save_large_map_image(info.mask, region, 'mask')
 
-        dir_path = ctx.world_patrol_map_data.get_large_map_dir_path(region)
+        dir_path = ctx.map_data.get_large_map_dir_path(region)
         file_storage = cv2.FileStorage(os.path.join(dir_path, 'features.xml'), cv2.FILE_STORAGE_WRITE)
         # 保存特征点和描述符
         file_storage.write("keypoints", cv2_utils.feature_keypoints_to_np(info.kps))
@@ -450,7 +450,7 @@ def match_screen_in_large_map(ctx: SrContext, screen: MatLike, region: Region) -
     """
     screen_map_rect = get_screen_map_rect(region)
     screen_part = cv2_utils.crop_image_only(screen, screen_map_rect)
-    lm_info = ctx.world_patrol_map_data.get_large_map_info(region)
+    lm_info = ctx.map_data.get_large_map_info(region)
     result: MatchResultList = cv2_utils.match_template(lm_info.raw, screen_part, 0.7)
 
     return screen_part, result.max

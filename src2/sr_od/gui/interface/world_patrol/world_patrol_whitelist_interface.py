@@ -152,7 +152,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
 
         self.update_display_by_config()
 
-        self.ctx.world_patrol_map_data.load_map_data()
+        self.ctx.map_data.load_map_data()
         self.update_planet_opt()
         self.update_region_opt()
 
@@ -225,8 +225,8 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
         self.planet_btn.clear()
 
         target_idx: int = -1
-        for idx in range(len(self.ctx.world_patrol_map_data.planet_list)):
-            planet = self.ctx.world_patrol_map_data.planet_list[idx]
+        for idx in range(len(self.ctx.map_data.planet_list)):
+            planet = self.ctx.map_data.planet_list[idx]
             if self.chosen_planet is not None and planet.np_id == self.chosen_planet.np_id:
                 target_idx = idx
             self.planet_btn.addItem(text=planet.display_name, icon=None, userData=planet)
@@ -251,7 +251,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
         target_idx: int = -1
         region_list: List[Region] = []
 
-        for region in self.ctx.world_patrol_map_data.region_list:
+        for region in self.ctx.map_data.region_list:
             if self.chosen_planet is not None and region.planet.np_id != self.chosen_planet.np_id:
                 continue
 

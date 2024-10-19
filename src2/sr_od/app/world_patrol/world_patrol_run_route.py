@@ -149,7 +149,7 @@ class WorldPatrolRunRoute(SrOperation):
             self._update_pos_after_op(OperationResult(True, data=next_pos))
             return self.round_success()
         elif route_item.op == operation_const.OP_ENTER_SUB:
-            self.current_region = self.ctx.world_patrol_map_data.get_sub_region_by_cn(self.current_region, route_item.data[0], int(route_item.data[1]))
+            self.current_region = self.ctx.map_data.get_sub_region_by_cn(self.current_region, route_item.data[0], int(route_item.data[1]))
             return self.round_success()
         else:
             return self.round_fail(status='错误的锄大地指令 %s' % route_item.op)
@@ -186,14 +186,14 @@ class WorldPatrolRunRoute(SrOperation):
         :return:
         """
         current_pos = self.current_pos
-        current_lm_info = self.ctx.world_patrol_map_data.get_large_map_info(self.current_region)
+        current_lm_info = self.ctx.map_data.get_large_map_info(self.current_region)
 
         next_pos = Point(route_item.data[0], route_item.data[1])
         next_lm_info = None
         if len(route_item.data) > 2:  # 需要切换层数
-            next_region = self.ctx.world_patrol_map_data.best_match_region_by_name(
+            next_region = self.ctx.map_data.best_match_region_by_name(
                 gt(current_lm_info.region.cn), current_lm_info.region.planet, target_floor=route_item.data[2])
-            next_lm_info = self.ctx.world_patrol_map_data.get_large_map_info(next_region)
+            next_lm_info = self.ctx.map_data.get_large_map_info(next_region)
 
         stop_afterwards = not (
                 next_route_item is not None and
@@ -227,7 +227,7 @@ class WorldPatrolRunRoute(SrOperation):
 
         route_item = self.route.route_list[self.op_idx]
         if len(route_item.data) > 2:
-            self.current_region = self.ctx.world_patrol_map_data.best_match_region_by_name(
+            self.current_region = self.ctx.map_data.best_match_region_by_name(
                 gt(self.current_region.cn), self.current_region.planet, target_floor=route_item.data[2])
 
     def wait(self, wait_type: str, seconds: float) -> SrOperation:

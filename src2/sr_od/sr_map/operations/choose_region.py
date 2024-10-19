@@ -63,7 +63,7 @@ class ChooseRegion(SrOperation):
 
         # 判断当前选择区域是否目标区域
         current_region_name = large_map_utils.get_active_region_name(self.ctx, screen)
-        current_region = self.ctx.world_patrol_map_data.best_match_region_by_name(current_region_name, planet=self.planet)
+        current_region = self.ctx.map_data.best_match_region_by_name(current_region_name, planet=self.planet)
         log.info('当前区域文本 %s 匹配区域名称 %s', current_region_name, current_region.cn if current_region is not None else '')
 
         is_current: bool = (current_region is not None and current_region.pr_id == self.region_to_choose_1.pr_id)
@@ -80,7 +80,7 @@ class ChooseRegion(SrOperation):
 
             # 没有发现目标区域 需要滚动
             with_before_region: bool = False  # 当前区域列表在目标区域之前
-            region_list = self.ctx.world_patrol_map_data.get_region_list_by_planet(self.region_to_choose_1.planet)
+            region_list = self.ctx.map_data.get_region_list_by_planet(self.region_to_choose_1.planet)
             for r in region_list:
                 if r.pr_id in pr_id_set:
                     with_before_region = True
@@ -118,7 +118,7 @@ class ChooseRegion(SrOperation):
         # 通过使用区域列表 在匹配结果中找到最合适的 避免选择到【现实】和【梦境】
         word_2_region_list: dict[str, List[Region]] = {}
         ocr_word_list = list(ocr_map.keys())
-        plan_region_list = self.ctx.world_patrol_map_data.get_region_list_by_planet(self.region_to_choose_1.planet)
+        plan_region_list = self.ctx.map_data.get_region_list_by_planet(self.region_to_choose_1.planet)
         for real_region in plan_region_list:
             match = difflib.get_close_matches(gt(real_region.cn, 'ocr'),
                                               ocr_word_list, n=1, cutoff=confidence)
@@ -228,7 +228,7 @@ class ChooseRegion(SrOperation):
         area = self.ctx.screen_loader.get_area('大地图', '星球名称')
         title_part = cv2_utils.crop_image_only(screen, area.rect)
         ocr_result = self.ctx.ocr.run_ocr_single_line(title_part)
-        ocr_region = self.ctx.world_patrol_map_data.best_match_region_by_name(ocr_result, self.region.planet)
+        ocr_region = self.ctx.map_data.best_match_region_by_name(ocr_result, self.region.planet)
         if ocr_region is None:
             return False
         else:

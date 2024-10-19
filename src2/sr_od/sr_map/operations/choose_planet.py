@@ -51,7 +51,7 @@ class ChoosePlanet(SrOperation):
             target_pos: Optional[MatchResult] = None
             with_planet_before_target: bool = False  # 当前屏幕上是否有目标星球之前的星球
 
-            for planet in self.ctx.world_patrol_map_data.planet_list:
+            for planet in self.ctx.map_data.planet_list:
                 for ocr_planet_mr in ocr_planet_list:
                     if ocr_planet_mr.data == self.planet:
                         target_pos = ocr_planet_mr
@@ -86,12 +86,12 @@ class ChoosePlanet(SrOperation):
         _, mask = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
         part = cv2.bitwise_and(screen, screen, mask=mask)
 
-        words = [p.cn for p in self.ctx.world_patrol_map_data.planet_list]
+        words = [p.cn for p in self.ctx.map_data.planet_list]
         ocr_map = self.ctx.ocr.match_words(part, words, lcs_percent=self.ctx.game_config.planet_lcs_percent)
 
         result_list: List[MatchResult] = []
         for ocr_word, mrl in ocr_map.items():
-            planet = self.ctx.world_patrol_map_data.best_match_planet_by_name(ocr_word)
+            planet = self.ctx.map_data.best_match_planet_by_name(ocr_word)
             if planet is not None:
                 mr = mrl.max
                 mr.data = planet

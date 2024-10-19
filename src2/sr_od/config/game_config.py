@@ -81,7 +81,12 @@ class GameConfig(YamlConfig):
 
     def __init__(self, instance_idx: Optional[int] = None):
         YamlConfig.__init__(self, 'game', instance_idx=instance_idx)
-        mini_map = self.data['mini_map']
+        mini_map = self.data.get('mini_map',
+                                 {
+                                     'x': 139,
+                                     'y': 149,
+                                     'r': 93
+                                 })
         self.mini_map_pos: MiniMapPos = MiniMapPos(mini_map['x'], mini_map['y'], mini_map['r'])
 
     @property

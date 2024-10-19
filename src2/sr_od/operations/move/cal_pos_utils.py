@@ -11,7 +11,7 @@ from typing import List, Optional, Tuple
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
-from one_dragon.utils import cal_utils, cv2_utils, os_utils
+from one_dragon.utils import cal_utils, cv2_utils, os_utils, thread_utils
 from one_dragon.utils.log_utils import log
 from sr_od.context.sr_context import SrContext
 from sr_od.sr_map import mini_map_utils
@@ -282,7 +282,7 @@ def cal_character_pos_by_sp_result(ctx: SrContext,
     :param lm_rect: 圈定的大地图区域 传入后更准确
     :return:
     """
-    lm_sp_map = ctx.world_patrol_map_data.get_sp_type_in_rect(lm_info.region, lm_rect)
+    lm_sp_map = ctx.map_data.get_sp_type_in_rect(lm_info.region, lm_rect)
     if len(lm_sp_map) == 0:
         return None
     mini_map_utils.init_sp_mask_by_feature_match(ctx, mm_info, set(lm_sp_map.keys()))
@@ -409,8 +409,9 @@ def template_match_with_scale_list_parallely(ctx: SrContext,
     """
     future_list: List[Future] = []
     for scale in scale_list:
-        future_list.append(
-            cal_pos_executor.submit(template_match_with_scale, ctx, source, template, template_mask, scale, threshold))
+        f = cal_pos_executor.submit(template_match_with_scale, ctx, source, template, template_mask, scale, threshold)
+        thread_utils.handle_future_result(f)
+        future_list.append(f)
 
     target: Optional[MatchResult] = None
     for future in future_list:
@@ -458,8 +459,9 @@ def template_match_with_scale(ctx: SrContext,
     template_usage[:, :] = template_scale[sy:ey, sx:ex]
     template_mask_usage[:, :] = template_mask_scale[sy:ey, sx:ex]
 
-    result: MatchResultList = ctx.tm.match_image(source, template_usage, mask=template_mask_usage, threshold=threshold,
-                                                 only_best=True, ignore_inf=True)
+    result: MatchResultList = cv2_utils.match_template(source, template_usage,
+                                                       mask=template_mask_usage, threshold=threshold,
+                                                       only_best=True, ignore_inf=True)
     if result.max is not None:
         result.max.x -= sx
         result.max.y -= sy

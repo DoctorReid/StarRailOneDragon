@@ -28,8 +28,8 @@ area_list:
   pc_rect:
   - 1280
   - 240
-  - 1505
-  - 275
+  - 1378
+  - 280
   text: 开拓等级
   lcs_percent: 0.55
   template_sub_dir: ''

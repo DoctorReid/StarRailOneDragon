@@ -294,7 +294,7 @@ class MoveDirectly(SrOperation):
 
         if next_pos is None:
             log.error('无法判断当前人物坐标')
-            if self.ctx.one_dragon_config.is_debug and self.no_pos_times == 0:  # 只记录第一次识别坐标失败的
+            if self.ctx.env_config.is_debug and self.no_pos_times == 0:  # 只记录第一次识别坐标失败的
                 cal_pos_utils.save_as_test_case_async(mm, self.region, verify)
         else:
             if self.ctx.record_coordinate and now_time - self.last_rec_time > 0.5:

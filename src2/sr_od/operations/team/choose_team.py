@@ -76,7 +76,7 @@ class ChooseTeam(SrOperation):
         if screen is None:
             screen = self.screenshot()
 
-        return common_screen_state.in_secondary_ui(screen, self.ctx.ocr, '队伍')
+        return common_screen_state.in_secondary_ui(self.ctx, screen, '队伍')
 
     def get_all_num_pos(self, screen: Optional[MatLike] = None) -> dict[int, Point]:
         """
@@ -88,7 +88,7 @@ class ChooseTeam(SrOperation):
             screen = self.screenshot()
 
         part, _ = cv2_utils.crop_image(screen, ChooseTeam.TEAM_NUM_RECT)
-        mask1 = cv2.inRange(part, (185, 225, 250), (195, 235, 255))
+        mask1 = cv2.inRange(part, (250, 225, 185), (255, 235, 195))
         mask2 = cv2.inRange(part, (135, 135, 135), (165, 165, 165))
         mask = cv2.bitwise_or(mask1, mask2)
         # cv2_utils.show_image(mask1, win_name='mask1')

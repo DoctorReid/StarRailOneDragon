@@ -14,12 +14,12 @@ class YoloConfig(YamlConfig):
         YamlConfig.__init__(self, 'yolo', instance_idx=None)
 
     @property
-    def flash_classifier(self) -> str:
-        return self.get('flash_classifier', _DEFAULT_WORLD_PATROL)
+    def world_patrol(self) -> str:
+        return self.get('world_patrol', _DEFAULT_WORLD_PATROL)
 
-    @flash_classifier.setter
-    def flash_classifier(self, new_value: str) -> None:
-        self.update('flash_classifier', new_value)
+    @world_patrol.setter
+    def world_patrol(self, new_value: str) -> None:
+        self.update('world_patrol', new_value)
 
     @property
     def sim_uni(self) -> str:
@@ -34,7 +34,7 @@ class YoloConfig(YamlConfig):
         是否在使用旧模型
         :return:
         """
-        return self.flash_classifier != _DEFAULT_WORLD_PATROL or self.sim_uni != _DEFAULT_SIM_UNI
+        return self.world_patrol != _DEFAULT_WORLD_PATROL or self.sim_uni != _DEFAULT_SIM_UNI
 
 
 def get_world_patrol_opts() -> List[ConfigItem]:

@@ -31,7 +31,7 @@ def get_phone_menu_item_pos(ctx: SrContext, screen: MatLike, item: PhoneMenuItem
     :return:
     """
     part, _ = cv2_utils.crop_image(screen, MENU_ITEMS_PART)
-    result_list: MatchResultList = ctx.tm.match_template(part, item.template_id, only_best=True)
+    result_list: MatchResultList = ctx.tm.match_template(part, 'phone_menu', item.template_id, only_best=True)
     result: MatchResult = result_list.max
 
     if result is None:

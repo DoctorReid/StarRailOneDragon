@@ -1,7 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
 
-from sr_od.sr_map import mini_map_utils
-
 
 class SrPreheatContext:
 
@@ -23,6 +21,7 @@ class SrPreheatContext:
         :return:
         """
         self.preheat_mm_icon()
+        from sr_od.sr_map import mini_map_utils
         mini_map_utils.preheat()
 
     def preheat_mm_icon(self):
@@ -39,3 +38,5 @@ class SrPreheatContext:
                 t = self.ctx.template_loader.get_template('mm_icon', template_id)
                 if t is None:
                     break
+                _ = t.gray
+                _ = t.features

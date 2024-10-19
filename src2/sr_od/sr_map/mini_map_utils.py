@@ -161,7 +161,7 @@ def init_sp_mask_by_feature_match(ctx: SrContext, mm_info: MiniMapInfo,
                 continue
 
             template_id = '%s_%02d' % (prefix, i)
-            t: TemplateInfo = ctx.template_loader.get_template(template_id)
+            t: TemplateInfo = ctx.template_loader.get_template('mm_icon', template_id)
             if t is None:
                 break
             if sp_types is not None and template_id not in sp_types:
@@ -241,16 +241,16 @@ def is_under_attack(mm: MatLike,
     circle_part = cv2.bitwise_and(mm, mm, mask=circle_mask)
 
     # 提取红色部分
-    lower_color = np.array([0, 0, 200], dtype=np.uint8)
-    upper_color = np.array([100, 100, 255], dtype=np.uint8)
+    lower_color = np.array([200, 0, 0], dtype=np.uint8)
+    upper_color = np.array([255, 100, 100], dtype=np.uint8)
     red = cv2.inRange(circle_part, lower_color, upper_color)
 
     if strict:
         mask = red
     else:
         # 提取橙色部分
-        lower_color = np.array([0, 150, 200], dtype=np.uint8)
-        upper_color = np.array([100, 180, 255], dtype=np.uint8)
+        lower_color = np.array([200, 150, 0], dtype=np.uint8)
+        upper_color = np.array([255, 180, 100], dtype=np.uint8)
         orange = cv2.inRange(circle_part, lower_color, upper_color)
 
         mask = cv2.bitwise_or(red, orange)
@@ -289,7 +289,7 @@ def get_radio_to_del(angle: Optional[float] = None):
     """
     global mini_map_radio_to_del
     if mini_map_radio_to_del is None:
-        path = os.path.join(os_utils.get_path_under_work_dir('images', 'template', 'mini_map', 'mini_map_radio'), 'raw.png')
+        path = os.path.join(os_utils.get_path_under_work_dir('assets', 'template', 'mini_map', 'mini_map_radio'), 'raw.png')
         mini_map_radio_to_del = cv2_utils.read_image(path)
     if angle is not None:
         return cv2_utils.image_rotate(mini_map_radio_to_del, 360 - angle)
@@ -385,8 +385,8 @@ def init_road_mask_for_world_patrol(mm_info: MiniMapInfo, another_floor: bool = 
     if b_g is None:
         b_g = b - g
     # 算敌人的掩码图
-    lower_color = np.array([45, 45, 80], dtype=np.uint8)
-    upper_color = np.array([70, 70, 255], dtype=np.uint8)
+    lower_color = np.array([80, 45, 45], dtype=np.uint8)
+    upper_color = np.array([255, 70, 70], dtype=np.uint8)
     enemy_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的敌人图
     enemy_mask_2 = np.zeros(road_mask_1.shape, dtype=np.uint8)
     enemy_mask_2[(b_g <= 2) | (b_g >= -2)] = 255  # 敌人的雷达图 g 约等于 b
@@ -435,14 +435,14 @@ def get_mini_map_radio_mask(mm: MatLike, angle: float = None, another_floor: boo
     radio_map = cv2.bitwise_and(mm, mm, mask=radio_mask)
     # cv2_utils.show_image(radio_map, win_name='radio_map')
     # 当前层数的
-    lower_color = np.array([70, 70, 45], dtype=np.uint8)
-    upper_color = np.array([130, 130, 65], dtype=np.uint8)
+    lower_color = np.array([45, 70, 70], dtype=np.uint8)
+    upper_color = np.array([65, 130, 130], dtype=np.uint8)
     road_radio_mask_1 = cv2.inRange(radio_map, lower_color, upper_color)
 
     if another_floor:
         # 其他层数的
         lower_color = np.array([70, 70, 70], dtype=np.uint8)
-        upper_color = np.array([130, 130, 85], dtype=np.uint8)
+        upper_color = np.array([85, 130, 130], dtype=np.uint8)
         road_radio_mask_2 = cv2.inRange(radio_map, lower_color, upper_color)
 
         road_radio_mask = cv2.bitwise_or(road_radio_mask_1, road_radio_mask_2)
@@ -521,8 +521,8 @@ def find_one_enemy_pos(mm: Optional[MatLike] = None,
         to_del = get_radio_to_del(angle)
         mm_del_radio = remove_radio(mm, to_del)
 
-    lower_color = np.array([0, 0, 150], dtype=np.uint8)
-    upper_color = np.array([60, 60, 255], dtype=np.uint8)
+    lower_color = np.array([150, 0, 0], dtype=np.uint8)
+    upper_color = np.array([255, 60, 60], dtype=np.uint8)
     red_part = cv2.inRange(mm_del_radio, lower_color, upper_color)
     # cv2_utils.show_image(red_part, win_name='red_part')
 
@@ -612,8 +612,8 @@ def with_enemy_nearby(mm_del_radio: MatLike):
     cy = mm_del_radio.shape[0] // 2
     center_mask[cx-15:cx+15, cy-15:cy+15] = 255
 
-    lower_color = np.array([0, 0, 150], dtype=np.uint8)
-    upper_color = np.array([60, 60, 255], dtype=np.uint8)
+    lower_color = np.array([150, 0, 0], dtype=np.uint8)
+    upper_color = np.array([255, 60, 60], dtype=np.uint8)
     red_part = cv2.inRange(mm_del_radio, lower_color, upper_color)
 
     # 只保留中心点附近的
@@ -637,10 +637,10 @@ def get_enemy_mask(mm_info: MiniMapInfo, with_radio: bool = False) -> MatLike:
     # cv2_utils.show_image(mm_del_radio, win_name='get_enemy_mask')
     r, g, b = cv2.split(mm_del_radio)
     b_g = b - g
-    lower_color = np.array([45, 45, 80], dtype=np.uint8)
+    lower_color = np.array([80, 45, 45], dtype=np.uint8)
     if not with_radio:  # 不包含雷达的话 只取最红色的部分
         lower_color[2] = 170
-    upper_color = np.array([70, 70, 255], dtype=np.uint8)
+    upper_color = np.array([255, 70, 70], dtype=np.uint8)
     enemy_mask_1 = cv2.inRange(mm_del_radio, lower_color, upper_color)  # 这是粗略的敌人图
     enemy_mask_2 = np.zeros(mm_del_radio.shape[:2], dtype=np.uint8)
     enemy_mask_2[(b_g <= 2) | (b_g >= -2)] = 255  # 敌人的雷达图 g 约等于 b
@@ -664,34 +664,3 @@ def with_enemy_nearby_new(mm_info: MiniMapInfo):
             closest_dis = dis
 
     return closest_dis < mm_info.raw.shape[0] // 4  # 半个小地图内
-
-
-def is_under_attack_new(mm_info: MiniMapInfo, danger: bool = False, enemy: bool = False) -> bool:
-    """
-    新的被怪锁定判断
-    :param mm_info: 小地图信息
-    :param danger: 红色告警 被锁定了
-    :param enemy: 小地图上是否有红点在旁边
-    :return:
-    """
-    _, g, r = cv2.split(mm_info.raw_del_radio)
-    red_mask = np.zeros_like(r, dtype=np.uint8)
-    if not danger:
-        red_mask[r > 200] = 255
-    else:
-        red_mask[(r > 200) & (g < 100)] = 255
-    # cv2_utils.show_image(red_mask, win_name='red_mask', wait=0)
-
-    cx = r.shape[1] // 2
-
-    circles = cv2.HoughCircles(red_mask, cv2.HOUGH_GRADIENT, 0.3, 100,
-                               param1=10, param2=10,
-                               minRadius=cx - 10, maxRadius=cx + 10)
-    under = circles is not None
-
-    if not under:
-        return False
-    elif enemy:
-        return with_enemy_nearby_new(mm_info)
-    else:
-        return True

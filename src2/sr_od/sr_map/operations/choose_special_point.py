@@ -29,7 +29,7 @@ class ChooseSpecialPoint(SrOperation):
     def __init__(self, ctx: SrContext, tp: SpecialPoint):
         super().__init__(ctx, 10, op_name=gt('选择传送点 %s') % tp.display_name)
         self.tp: SpecialPoint = tp
-        self.lm_info: LargeMapInfo = self.ctx.world_patrol_map_data.get_large_map_info(self.tp.region)
+        self.lm_info: LargeMapInfo = self.ctx.map_data.get_large_map_info(self.tp.region)
 
     @operation_node(name='画面识别', node_max_retry_times=10, is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
