@@ -127,7 +127,6 @@ class WorldPatrolEnterFight(SrOperation):
 
             fix_attack_direction = self.fix_and_record_direction(attack_direction)
             will_use_tech = (self.technique_fight and not self.ctx.technique_used
-                    and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
                     and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique))
 
             # 这个时间是以黄泉E为基准的 使用秘技的话UseTechnique里有0.2s的等待

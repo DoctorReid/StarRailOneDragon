@@ -124,7 +124,6 @@ class SrContext(OneDragonContext):
 
         # 秘技相关
         self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
-        self.no_technique_recover_consumables: bool = False  # 没有恢复秘技的物品了 为True的时候就不使用秘技了
         self.consumable_used: bool = False  # 是否已经使用过消耗品了
 
         # 共用配置

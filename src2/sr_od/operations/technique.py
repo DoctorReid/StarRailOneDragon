@@ -118,7 +118,7 @@ class UseTechnique(SrOperation):
             point = get_technique_point(self.ctx, screen)
             if point is not None and point > 0:  # 有秘技点 随便用
                 return self.round_success(UseTechnique.STATUS_CAN_USE)
-            elif self.max_consumable_cnt == 0 or self.ctx.no_technique_recover_consumables:  # 没有秘技点又不能用药或者没有药 就不要用了
+            elif self.max_consumable_cnt == 0:  # 没有秘技点又不能用药 就不要用了
                 return self.round_success()
             else:  # 没有秘技点 可能有药 尝试
                 return self.round_success(UseTechnique.STATUS_CAN_USE)
@@ -337,7 +337,6 @@ class FastRecover(SrOperation):
                     return op.round_success(FastRecover.STATUS_USE_CONSUMABLE, data=op_result)
                 else:
                     # 没有使用消耗品的情况 退出对话框后 要尽快识别到在大世界了 方便后续指令 因此不等待
-                    ctx.no_technique_recover_consumables = True  # 设置没有药可以用了
                     return op.round_success(FastRecover.STATUS_NO_USE_CONSUMABLE, data=op_result)
             else:
                 return op.round_retry(result.status, wait=1)
@@ -352,7 +351,6 @@ class FastRecover(SrOperation):
             if quirky_snacks and not op_result.consumable_chosen:  # 理论上只有第1次需要选择 即还没有使用任何消耗品
                 choose = FastRecover.choose_consumable(op, screen)
                 if not choose:
-                    ctx.no_technique_recover_consumables = True
                     result = op.round_by_find_and_click_area(screen, '快速恢复对话框', '取消')
                     if result.is_success:
                         # 没有选择到目标消耗品 因此是没有使用消耗品的情况 退出对话框后 需要尽快识别到在大世界了 方便后续指令 因此不等待

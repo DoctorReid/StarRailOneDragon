@@ -200,7 +200,6 @@ class SimUniEnterFight(SrOperation):
 
             current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
             if (self.technique_fight and not self.ctx.technique_used
-                    and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
                     and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique)):  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx,
                                   max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
