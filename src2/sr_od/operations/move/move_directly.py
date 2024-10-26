@@ -7,6 +7,7 @@ from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.operation_base import OperationResult
+from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cal_utils
 from one_dragon.utils.i18_utils import gt
@@ -94,7 +95,8 @@ class MoveDirectly(SrOperation):
 
         return None
 
-    def _execute_one_round(self) -> OperationRoundResult:
+    @operation_node(name='画面识别', is_start_node=True)
+    def check_screen(self) -> OperationRoundResult:
         now_time = time.time()
 
         if not self.no_battle and now_time - self.last_battle_time > MoveDirectly.fail_after_no_battle:

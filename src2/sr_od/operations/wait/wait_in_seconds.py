@@ -19,6 +19,6 @@ class WaitInSeconds(SrOperation):
         SrOperation.__init__(self, ctx, op_name=gt('等待秒数 %.2f') % seconds)
         self.seconds: float = float(seconds)
 
-    @operation_node(name='等待')
+    @operation_node(name='等待', is_start_node=True)
     def wait_seconds(self) -> OperationRoundResult:
         return self.round_success(wait=self.seconds)

@@ -37,14 +37,14 @@ class MoveInteract(SrOperation):
         self.move_idx: int = 0
 
     @operation_node(name='画面识别', is_start_node=True)
-    def check_screen(self, screen: MatLike) -> OperationRoundResult:
+    def check_screen(self) -> OperationRoundResult:
         """
         在屏幕上找到交互内容进行交互
-        :param screen: 屏幕截图
         :return: 操作结果
         """
         time.sleep(0.5)  # 稍微等待一下 可能交互按钮还没有出来
 
+        screen = self.screenshot()
         word_pos = interact_utils.check_move_interact(self.ctx, screen, self.cn,
                                                       single_line=self.single_line,
                                                       lcs_percent=self.lcs_percent)

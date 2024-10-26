@@ -126,12 +126,15 @@ class WorldPatrolEnterFight(SrOperation):
                 return self._exit_with_last_move(with_alert)
 
             fix_attack_direction = self.fix_and_record_direction(attack_direction)
-            self.ctx.controller.move(direction=fix_attack_direction)
+            will_use_tech = (self.technique_fight and not self.ctx.technique_used
+                    and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
+                    and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique))
+
+            # 这个时间是以黄泉E为基准的 使用秘技的话UseTechnique里有0.2s的等待
+            self.ctx.controller.move(direction=fix_attack_direction, press_time=0.3 if will_use_tech else 0.5)
 
             current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
-            if (self.technique_fight and not self.ctx.technique_used
-                    and not self.ctx.no_technique_recover_consumables  # 之前已经用完药了
-                    and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique)):  # 识别到秘技类型才能使用
+            if will_use_tech:  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx, max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
                                   need_check_available=self.ctx.is_pc and self.first_tech_after_battle,  # 只有战斗结束刚出来的时候可能用不了秘技
                                   trick_snack=self.ctx.game_config.use_quirky_snacks
@@ -252,8 +255,7 @@ class WorldPatrolEnterFight(SrOperation):
                 return self.round_success(None if self.with_battle else WorldPatrolEnterFight.STATUS_ENEMY_NOT_FOUND)
         else:
             move_direction = 's' if self.last_attack_direction is None else game_const.OPPOSITE_DIRECTION[self.last_attack_direction]
-            self.ctx.controller.move(direction=move_direction)
-            time.sleep(0.25)
+            self.ctx.controller.move(direction=move_direction, press_time=0.25)
             self.had_last_move = True
             return self.round_wait()
 

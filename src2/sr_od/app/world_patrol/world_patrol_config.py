@@ -62,7 +62,7 @@ class WorldPatrolConfig(YamlConfig):
         return YamlConfigAdapter(self, 'technique_only', False)
 
     @property
-    def max_consumable_cnt(self) -> bool:
+    def max_consumable_cnt(self) -> int:
         return self.get('max_consumable_cnt', 0)
 
     @max_consumable_cnt.setter
@@ -71,4 +71,4 @@ class WorldPatrolConfig(YamlConfig):
 
     @property
     def max_consumable_cnt_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'max_consumable_cnt', 0, 'int', 'int')
+        return YamlConfigAdapter(self, 'max_consumable_cnt', 0, 'str', 'int')

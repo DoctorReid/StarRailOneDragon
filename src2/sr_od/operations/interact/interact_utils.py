@@ -36,7 +36,7 @@ def get_move_interact_words(ctx: SrContext, screen: MatLike, single_line: bool =
     if single_line:
         area = ctx.screen_loader.get_area('大世界', '移动交互-单行')
     else:
-        area = ctx.screen_loader.get_area('大世界', '移动交互-单行')
+        area = ctx.screen_loader.get_area('大世界', '移动交互-多行')
     part, _ = cv2_utils.crop_image(screen, area.rect)
 
     if single_line:

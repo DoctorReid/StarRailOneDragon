@@ -200,7 +200,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: MOVE_INTERACT
+- area_name: 移动交互-多行
   pc_rect:
   - 900
   - 400
@@ -211,7 +211,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: MOVE_INTERACT_SINGLE_LINE
+- area_name: 移动交互-单行
   pc_rect:
   - 1174
   - 598

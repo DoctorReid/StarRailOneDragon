@@ -203,5 +203,5 @@ class SrPcController(PcControllerBase):
         return True
 
     def use_technique(self) -> bool:
-        self.btn_controller.tap(self.game_config.key_interact)
+        self.btn_controller.tap(self.game_config.key_technique)
         return True

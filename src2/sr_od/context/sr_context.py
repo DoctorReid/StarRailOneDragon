@@ -173,6 +173,7 @@ class SrContext(OneDragonContext):
             return self.sim_uni_config.get_challenge_config(self.sim_uni_info.world_num)
 
     def init_for_world_patrol(self) -> None:
+        self.ocr.init_model()
         self.preheat_context.preheat_for_world_patrol_async()
         self.yolo_detector.init_world_patrol_model(self.yolo_config.world_patrol)
 

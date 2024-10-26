@@ -54,6 +54,6 @@ area_list:
   - 760
   text: ''
   lcs_percent: 0.5
-  template_sub_dir: ''
+  template_sub_dir: consumable
   template_id: quirky_snacks
   template_match_threshold: 0.5

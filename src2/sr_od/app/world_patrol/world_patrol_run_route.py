@@ -251,3 +251,22 @@ class WorldPatrolRunRoute(SrOperation):
         :return:
         """
         return self.round_success()
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.init_for_world_patrol()
+    ctx.start_running()
+
+    from sr_od.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist
+    whitelist = WorldPatrolWhitelist('名单_1')
+    route = ctx.world_patrol_route_data.load_all_route(
+        whitelist=whitelist
+    )
+    op = WorldPatrolRunRoute(ctx, route[0])
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()

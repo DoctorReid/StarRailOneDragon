@@ -1,0 +1,396 @@
+-
+   name: 扑满
+   cate: 普通怪
+   label: 0001-扑满-pm
+-
+   name: 空间站黑塔·可破坏物·箱子
+   cate: 可破坏物
+   label: 0002-空间站黑塔箱子-xz
+-
+   name: 空间站黑塔·可破坏物·罐子
+   cate: 可破坏物
+   label: 0003-空间站黑塔罐子-gz
+-
+   name: 重子
+   cate: 普通怪
+   label: 0004-重子-zz
+-
+   name: 反重子
+   cate: 普通怪
+   label: 0004-重子-zz
+-
+   name: 虚卒·掠夺者
+   cate: 普通怪
+   label: 0005-虚卒-xz
+-
+   name: 虚卒·抹消者
+   cate: 普通怪
+   label: 0005-虚卒-xz
+-
+   name: 虚卒·篡改者
+   cate: 普通怪
+   label: 0005-虚卒-xz
+-
+   name: 虚卒·践踏者
+   cate: 精英怪
+   label: 0006-践踏者-jtz
+-
+   name: 兴风者
+   cate: 精英怪
+   label: 0006-践踏者-jtz
+-
+   name: 外宇宙之炎
+   cate: 精英怪
+   label: 0007-外宇宙之x-wyzzx
+-
+   name: 外宇宙之冰
+   cate: 精英怪
+   label: 0007-外宇宙之x-wyzzx
+-
+   name: 次蛰虫
+   cate: 普通怪
+   label: 0008-蛰虫-zc
+-
+   name: 幼蛰虫
+   cate: 普通怪
+   label: 0008-蛰虫-zc
+-
+   name: 虫群·真蛰虫
+   cate: 精英怪
+   label: 0008-蛰虫-zc
+-
+   name: 雅利洛·可破坏物·木桶
+   cate: 可破坏物
+   label: 0009-雅利洛木桶-mt
+-
+   name: 雅利洛·可破坏物·罐子
+   cate: 可破坏物
+   label: 0010-雅利洛罐子-gz
+-
+   name: 无想面具
+   cate: 普通怪
+   label: 0004-重子-zz
+-
+   name: 霜晶造物
+   cate: 普通怪
+   label: 0011-造物-zw
+-
+   name: 炎华造物
+   cate: 普通怪
+   label: 0011-造物-zw
+-
+   name: 鸣雷造物
+   cate: 普通怪
+   label: 0011-造物-zw
+-
+   name: 巽风造物
+   cate: 普通怪
+   label: 0011-造物-zw
+-
+   name: 虚数织叶者
+   cate: 普通怪
+   label: 0012-虚数织叶者-xszyz
+-
+   name: 自动机兵·战犬
+   cate: 普通怪
+   label: 0013-自动机兵战犬-zq
+-
+   name: 自动机兵·蜘蛛
+   cate: 普通怪
+   label: 0014-自动机兵蜘蛛-zz
+-
+   name: 自动机兵·甲虫
+   cate: 普通怪
+   label: 0015-自动机兵甲虫-jc
+-
+   name: 自动机兵·灰熊
+   cate: 精英怪
+   label: 0016-自动机兵灰熊-hx
+-
+   name: 自动机兵·齿狼
+   cate: 精英怪
+   label: 0017-自动机兵齿狼-cl
+-
+   name: 深寒徘徊者
+   cate: 精英怪
+   label: 0016-自动机兵灰熊-hx
+-
+   name: 炽燃徘徊者
+   cate: 精英怪
+   label: 0017-自动机兵齿狼-cl
+-
+   name: 流浪者
+   cate: 普通怪
+   label: 0018-流浪者-llz
+-
+   name: 永冬灾影
+   cate: 普通怪
+   label: 0019-永冬灾影-ydzy
+-
+   name: 火焚灾影
+   cate: 普通怪
+   label: 0020-火焚灾影-hfzy
+-
+   name: 银鬃近卫
+   cate: 普通怪
+   label: 0021-银鬃士兵-yzsb
+-
+   name: 银鬃射手
+   cate: 普通怪
+   label: 0021-银鬃士兵-yzsb
+-
+   name: 银鬃炮手
+   cate: 普通怪
+   label: 0021-银鬃士兵-yzsb
+-
+   name: 银鬃尉官
+   cate: 精英怪
+   label: 0022-银鬃尉官-yzwg
+-
+   name: 蚕食者之影
+   cate: 精英怪
+   label: 0023-守护者之影-shzzy
+-
+   name: 守护者之影
+   cate: 精英怪
+   label: 0023-守护者之影-shzzy
+-
+   name: 布洛妮娅
+   cate: 精英怪
+   label: 0024-布洛妮娅-blny
+-
+   name: 杰帕德
+   cate: 精英怪
+   label: 0025-杰帕德-jpd
+-
+   name: 史瓦罗
+   cate: 精英怪
+   label: 0026-史瓦罗-swl
+-
+   name: 可可利亚
+   cate: 精英怪
+   label: 0027-可可利亚-kkly
+-
+   name: 基层员工·外勤
+   cate: 普通怪
+   label: 0028-基层员工-jcyg
+-
+   name: 基层员工·安保
+   cate: 普通怪
+   label: 0028-基层员工-jcyg
+-
+   name: 资深员工·组长
+   cate: 精英怪
+   label: 0016-自动机兵灰熊-hx
+-
+   name: 仙舟罗浮·可破坏物·陶罐
+   cate: 可破坏物
+   label: 0029-仙舟罗浮陶罐-tg
+-
+   name: 仙舟罗浮·可破坏物·罐子
+   cate: 可破坏物
+   label: 0030-仙舟罗浮罐子-gz
+-
+   name: 入魔机巧·灯昼龙鱼
+   cate: 普通怪
+   label: 0031-入魔机巧-rmjq
+-
+   name: 入魔机巧·率从狻猊
+   cate: 普通怪
+   label: 0031-入魔机巧-rmjq
+-
+   name: 入魔机巧·浓云金蟾
+   cate: 普通怪
+   label: 0031-入魔机巧-rmjq
+-
+   name: 金人司阍
+   cate: 精英怪
+   label: 0032-金人司阍-jr
+-
+   name: 云骑巡防士兵
+   cate: 普通怪
+   label: 0033-云骑巡防士兵-yq
+-
+   name: 云骑骁卫·彦卿
+   cate: 精英怪
+   label: 0034-云骑骁卫彦卿-yq
+-
+   name: 魔阴身士卒
+   cate: 普通怪
+   label: 0035-魔阴身-mys
+-
+   name: 「药王秘传」器元士
+   cate: 普通怪
+   label: 0035-魔阴身-mys
+-
+   name: 「药王秘传」内丹士
+   cate: 普通怪
+   label: 0035-魔阴身-mys
+-
+   name: 「药王秘传」炼形者
+   cate: 精英怪
+   label: 0036-炼形者-lxz
+-
+   name: 承露天人
+   cate: 精英怪
+   label: 0037-承露天人-cltr
+-
+   name: 丰饶灵兽·奎木
+   cate: 普通怪
+   label: 0038-丰饶灵兽奎木-frls-km
+-
+   name: 丰饶灵兽·娄金
+   cate: 普通怪
+   label: 0039-丰饶灵兽娄金-frls-lj
+-
+   name: 丰饶灵兽·长右
+   cate: 精英怪
+   label: 0040-丰饶灵兽长右-frls-cy
+-
+   name: 丰饶玄鹿
+   cate: 精英怪
+   label: 0041-丰饶玄鹿-frxl
+-
+   name: 魔阴武弁
+   cate: 普通怪
+   label: 0042-武弁-wb
+-
+   name: 幽府武弁
+   cate: 普通怪
+   label: 0042-武弁-wb
+-
+   name: 金人勾魂使
+   cate: 精英怪
+   label: 0043-金人勾魂使-jrghs
+-
+   name: 匹诺康尼·可破坏物·气球
+   cate: 可破坏物
+   label: 0044-匹诺康尼气球-qq
+-
+   name: 匹诺康尼·可破坏物·可乐
+   cate: 可破坏物
+   label: 0045-匹诺康尼可乐-kl
+-
+   name: 惊梦剧团的圆幕先生
+   cate: 普通怪
+   label: 0046-惊梦剧团的圆幕先生-jmjt-ymxs
+-
+   name: 惊梦剧团的十七分热
+   cate: 精英怪
+   label: 0047-惊梦剧团的十七分热-jmjt-sqfr
+-
+   name: 惊梦剧团的气泡埋伏
+   cate: 普通怪
+   label: 0048-惊梦剧团的气泡埋伏-jmjt-qpmf
+-
+   name: 惊梦剧团的弹簧荷官
+   cate: 普通怪
+   label: 0049-惊梦剧团的弹簧荷官-jmjt-thhg
+-
+   name: 惊梦剧团的甜猿泰山
+   cate: 精英怪
+   label: 0050-惊梦剧团的甜猿泰山-jmjt-tyts
+-
+   name: 惊梦剧团的舞鸫假面
+   cate: 普通怪
+   label: 0011-造物-zw
+-
+   name: 惊梦剧团的发条暴徒
+   cate: 普通怪
+   label: 0051-惊梦剧团的发条暴徒-jmjt-ftbt
+-
+   name: 忆域迷因「视线无处不在」
+   cate: 普通怪
+   label: 0004-重子-zz
+-
+   name: 忆域迷因「我心支离破碎」
+   cate: 普通怪
+   label: 0052-我心支离破碎-yymy-wxzlps
+-
+   name: 忆域迷因「何物藏于镜中」
+   cate: 普通怪
+   label: 0053-何物藏于镜中-yymy-hwcyjz
+-
+   name: 忆域迷因「狂怒褪去之壳」
+   cate: 精英怪
+   label: 0054-狂怒褪去之壳-yymy-kltqzk
+-
+   name: 忆域迷因「何物朝向死亡」
+   cate: 精英怪
+   label: 0055-何物朝向死亡-yymy-hwcxsw
+-
+   name: 王下一桶
+   cate: 精英怪
+   label: 0056-王下一桶-wxyt
+-
+   name: 「星核猎手」卡芙卡
+   cate: 精英怪
+   label: 0057-「星核猎手」卡芙卡-kfk
+-
+   name: 「星核猎手」萨姆
+   cate: 精英怪
+   label: 0058-「星核猎手」萨姆-sm
+-
+   name: 「石心十人」诡弈砂金
+   cate: 精英怪
+   label: 0059-「石心十人」诡弈砂金-sj
+-
+   name: 模拟宇宙·下层入口
+   cate: 模拟宇宙下层入口
+   label: 0060-模拟宇宙下层入口-mnyz-xcrk
+-
+   name: 模拟宇宙·事件
+   cate: 模拟宇宙事件
+   label: 0061-模拟宇宙事件-mnyz-sj
+-
+   name: 模拟宇宙·沉浸奖励
+   cate: 模拟宇宙沉浸奖励
+   label: 0062-模拟宇宙沉浸奖励-mnyz-cjjl
+-
+   name: 模拟宇宙·黑塔
+   cate: 模拟宇宙黑塔
+   label: 0063-模拟宇宙黑塔-mnyz-ht
+-
+   name: 模拟宇宙·复活装置
+   cate: 模拟宇宙复活装置
+   label: 0064-模拟宇宙复活装置-mnyz-fhzz
+-
+   name: 模拟宇宙·下载装置
+   cate: 模拟宇宙下载装置
+   label: 0065-模拟宇宙下载装置-mnyz-xzzz
+-
+   name: 模拟宇宙·下层入口-未激活
+   cate: 模拟宇宙下层入口未激活
+   label: 0066-模拟宇宙下层入口未激活-mnyz-xcrkwjh
+-
+   name: 界面提示-被发现
+   cate: 界面提示被发现
+   label: 0067-被发现-bfx
+-
+   name: 界面提示-被锁定
+   cate: 界面提示被锁定
+   label: 0068-被锁定-bsd
+-
+   name: 界面提示-可攻击
+   cate: 界面提示可攻击
+   label: 0069-可攻击-kgj
+-
+   name: 惊梦剧团的幸运贩卖
+   cate: 普通怪
+   label: 0070-惊梦剧团的幸运贩卖-jmjt-xyfm
+-
+   name: 忆域迷因「虚荣永无餍足」
+   cate: 普通怪
+   label: 0071-虚荣永无餍足-yymy-xrywyz
+-
+   name: 「醉于盛会的此刻」
+   cate: 精英怪
+   label: 0072-醉于盛会的此刻-zyshdck
+-
+   name: 「同音共律的来日」
+   cate: 精英怪
+   label: 0073-同音共律的来日-tygldlr
+-
+   name: 「身陷樊笼的往昔」
+   cate: 精英怪
+   label: 0074-身陷樊笼的往昔-sxfldwx

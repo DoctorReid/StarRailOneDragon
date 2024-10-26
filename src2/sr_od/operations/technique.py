@@ -115,7 +115,7 @@ class UseTechnique(SrOperation):
     def _check_technique_point(self) -> OperationRoundResult:
         if self.need_check_point:
             screen = self.screenshot()
-            point = get_technique_point(screen, self.ctx.ocr)
+            point = get_technique_point(self.ctx, screen)
             if point is not None and point > 0:  # 有秘技点 随便用
                 return self.round_success(UseTechnique.STATUS_CAN_USE)
             elif self.max_consumable_cnt == 0 or self.ctx.no_technique_recover_consumables:  # 没有秘技点又不能用药或者没有药 就不要用了
@@ -132,14 +132,14 @@ class UseTechnique(SrOperation):
         if self.need_check_available and not self.op_result.with_dialog:
             # 之前出现过消耗品对话框的话 这里就不需要判断了
             screen = self.screenshot()
-            if not pc_can_use_technique(screen, self.ctx.ocr, self.ctx.game_config.key_technique):
+            if not pc_can_use_technique(self.ctx, screen, self.ctx.game_config.key_technique):
                 return self.round_retry(wait=0.1)
 
         self.ctx.controller.use_technique()
         self.ctx.controller.stop_moving_forward()  # 在使用秘技中停止移动 可以取消停止移动的后摇
         self.op_result.use_tech = True  # 与context的状态分开 ctx的只负责记录开怪位 后续考虑变量改名
         self.ctx.technique_used = True
-        return self.round_success(wait=0.1)
+        return self.round_success(wait=0.2)
 
     @node_from(from_name='使用秘技')
     @operation_node(name='确认')
@@ -156,6 +156,7 @@ class UseTechnique(SrOperation):
             return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
 
         screen = self.screenshot()
+        # cv2_utils.show_image(screen, win_name='technique')
         if common_screen_state.is_normal_in_world(self.ctx, screen):
             # 没有出现消耗品的情况 要尽快返回继续原来的指令 因此不等待
             return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
@@ -227,7 +228,7 @@ class CheckTechniquePoint(SrOperation):
         if not common_screen_state.is_normal_in_world(self.ctx, screen):
             return self.round_retry('未在大世界界面', wait=1)
 
-        digit = get_technique_point(screen, self.ctx.ocr)
+        digit = get_technique_point(self.ctx, screen)
 
         if digit is None:
             return self.round_retry('未检测到数字', wait=0.5)
@@ -389,3 +390,21 @@ class FastRecover(SrOperation):
         """
         result = op.round_by_find_and_click_area(screen, '快速恢复对话框', '奇巧零食')
         return result.is_success
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.start_running()
+    op = UseTechnique(ctx,
+                      ctx.world_patrol_config.max_consumable_cnt,
+                      True,
+                      True,
+                      ctx.game_config.use_quirky_snacks
+                    )
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()

@@ -18,4 +18,4 @@ def is_fast_recover(ctx: SrContext, screen: MatLike) -> bool:
     :param screen: 游戏画面
     :return:
     """
-    return screen_utils.find_area(ctx, screen, '快速恢复对话框', '快速恢复') == FindAreaResultEnum.TRUE
+    return screen_utils.find_area(ctx, screen, '快速恢复对话框', '快速恢复标题') == FindAreaResultEnum.TRUE

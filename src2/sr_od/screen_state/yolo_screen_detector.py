@@ -1,14 +1,27 @@
 import concurrent.futures
+import os
+import re
 from cv2.typing import MatLike
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
-from one_dragon.utils import yolo_config_utils
+from one_dragon.base.config.yaml_operator import YamlOperator
+from one_dragon.utils import yolo_config_utils, os_utils
 from one_dragon.yolo.detect_utils import DetectFrameResult
 from one_dragon.yolo.yolo_utils import SR_MODEL_DOWNLOAD_URL
 from one_dragon.yolo.yolov8_onnx_det import Yolov8Detector
 from sr_od.config.game_const import OPPOSITE_DIRECTION
 
 _EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='sr_yolo_detector', max_workers=1)
+
+
+class DetectInfo:
+
+    def __init__(self, name: str, cate: str, label: str):
+        self.name = name
+        self.cate = cate
+        # 标签去除中文
+        self.label = re.sub(r'[\u4e00-\u9fa5]', '', label).replace('--', '-')
+
 
 
 class YoloScreenDetector:
@@ -42,6 +55,11 @@ class YoloScreenDetector:
 
         self.last_async_future: Optional[concurrent.futures.Future] = None  # 上一次异步回调
         self.last_detect_result: Optional[DetectFrameResult] = None  # 上一次识别结果
+
+        self.detect_info_list: List[DetectInfo] = []  # 所有可识别的信息
+        self.world_patrol_label_list: List[str] = []  # 锄大地时需要识别的标签
+
+        self.read_detect_info()
 
     def init_world_patrol_model(self, model_name: str) -> None:
         """
@@ -86,7 +104,7 @@ class YoloScreenDetector:
 
         if yolo is not None:
             self.last_detect_result = yolo.run(screen, conf=0.85, run_time=detect_time,
-                                               labels=['界面提示被锁定', '界面提示可攻击'])
+                                               labels=self.world_patrol_label_list)
         else:
             self.last_detect_result = DetectFrameResult(raw_image=screen, run_time=detect_time, results=[])
 
@@ -177,3 +195,38 @@ class YoloScreenDetector:
         # 没有告警时候优先向后攻击 因为这是来的方向 向后的话不容易陷入卡死
         target_direction = 's' if max_direction is None else max_direction
         return with_alert, target_direction
+
+    def read_detect_info(self) -> None:
+        """
+        加载识别目标列表
+        """
+        self.detect_info_list = []
+        self.world_patrol_label_list = []
+
+        file_path = os.path.join(
+            os_utils.get_path_under_work_dir('assets', 'game_data'),
+            'detect_info.yml'
+        )
+
+        yaml_data = YamlOperator(file_path)
+        for data_item in yaml_data.data:
+            info = DetectInfo(**data_item)
+            self.detect_info_list.append(info)
+
+            if info.cate in ['界面提示被锁定', '界面提示可攻击']:
+                self.world_patrol_label_list.append(info.label)
+
+
+def __debug():
+    from sr_od.context.sr_context import SrContext
+    ctx = SrContext()
+    ctx.init_for_world_patrol()
+
+    from one_dragon.utils import debug_utils
+    import time
+    screen = debug_utils.get_debug_image('_1729402512838')
+    ctx.yolo_detector.detect_should_attack_in_world(screen, time.time())
+
+
+if __name__ == '__main__':
+    __debug()
