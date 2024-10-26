@@ -712,7 +712,7 @@ def save_as_test_case(mm: MatLike, region: Region, verify: VerifyPosInfo):
     base = os_utils.get_path_under_work_dir('.debug', 'cal_pos_fail',
                                             region.prl_id, now)
 
-    cv2.imwrite(os.path.join(base, 'mm.png'), mm)
+    cv2_utils.save_image(mm, os.path.join(base, 'mm.png'))
 
     with open(os.path.join(base, 'verify.yml'), 'w', encoding='utf-8') as file:
         file.write(verify.yml_str)

@@ -39,6 +39,9 @@ class SrPcController(PcControllerBase):
         cv2.rectangle(screen, lt, rb, (114, 114, 114), -1)
         return screen
 
+    def before_screenshot(self) -> None:
+        self.click(Point(30, 1030))
+
     def esc(self) -> bool:
         self.btn_controller.tap(self.game_config.key_esc)
         return True

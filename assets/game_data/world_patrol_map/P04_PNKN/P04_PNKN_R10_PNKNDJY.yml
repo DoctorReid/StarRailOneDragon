@@ -97,3 +97,11 @@
   lm_pos: [973, 1291]
   tp_pos: [952, 1292]
 
+- uid: "XYZXNZXY"
+  cn: "弦音之形·凝滞虚影"
+  planet_name: "匹诺康尼"
+  region_name: "匹诺康尼大剧院"
+  region_floor: 0
+  template_id: "mm_tp_06"
+  lm_pos: [1118, 980]
+  tp_pos: [1118, 958]

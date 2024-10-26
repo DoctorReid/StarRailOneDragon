@@ -53,7 +53,7 @@ def get_planet(ctx: SrContext, screen: MatLike) -> Optional[Planet]:
 
 
 def get_sp_mask_by_template_match(ctx: SrContext, lm_info: LargeMapInfo,
-                                  template_type: str = 'origin',
+                                  template_type: str = 'raw',
                                   template_list: List = None,
                                   show: bool = False):
     """
@@ -67,7 +67,7 @@ def get_sp_mask_by_template_match(ctx: SrContext, lm_info: LargeMapInfo,
     :return: 特殊点组成的掩码图 特殊点是白色255、特殊点的匹配结果
     """
     sp_match_result = {}
-    source = lm_info.origin if template_type == 'origin' else lm_info.gray
+    source = lm_info.raw if template_type == 'raw' else lm_info.gray
     sp_mask = np.zeros(source.shape[:2], dtype=np.uint8)
     # 找出特殊点位置
     for prefix in ['mm_tp', 'mm_sp', 'mm_boss', 'mm_sub']:
@@ -80,11 +80,11 @@ def get_sp_mask_by_template_match(ctx: SrContext, lm_info: LargeMapInfo,
             ti: TemplateInfo = ctx.template_loader.get_template('mm_icon', template_id)
             if ti is None:
                 break
-            template = ti.get(template_type)
+            template = ti.raw if template_type == 'raw' else ti.gray
             template_mask = ti.mask
 
             # print(template_id)
-            match_result = ctx.tm.match_image(
+            match_result = cv2_utils.match_template(
                 source, template, mask=template_mask,
                 threshold=game_const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP,
                 only_best=False,
@@ -162,18 +162,17 @@ def init_large_map(ctx: SrContext, region: Region, raw: MatLike,
     """
     info = LargeMapInfo()
     info.region = region
-    info.raw = raw
     if expand_arr is None:
         expand_arr = get_expand_arr(raw, ctx.game_config.mini_map_pos, get_screen_map_rect(region))
-    info.origin = expand_raw(raw, expand_arr)
-    info.gray = cv2.cvtColor(info.origin, cv2.COLOR_BGRA2GRAY)
+    info.raw = expand_raw(raw, expand_arr)
+    # info.gray = cv2.cvtColor(info.origin, cv2.COLOR_BGRA2GRAY)
     sp_mask, info.sp_result = get_sp_mask_by_template_match(ctx, info)
-    road_mask = get_large_map_road_mask(info.origin, sp_mask)
+    road_mask = get_large_map_road_mask(info.raw, sp_mask)
     info.mask = merge_all_map_mask(road_mask, sp_mask)
     info.kps, info.desc = cv2_utils.feature_detect_and_compute(info.gray, mask=info.mask)
 
     if save:
-        cv2_utils.show_image(info.origin, win_name='origin')
+        cv2_utils.show_image(info.raw, win_name='raw')
         cv2_utils.show_image(info.gray, win_name='gray')
         cv2_utils.show_image(info.mask, win_name='mask')
         log.info('地图特殊点坐标')
@@ -185,16 +184,9 @@ def init_large_map(ctx: SrContext, region: Region, raw: MatLike,
 
         cv2.waitKey(0)
 
-        ctx.map_data.save_large_map_image(info.origin, region, 'origin')
-        ctx.map_data.save_large_map_image(info.gray, region, 'gray')
+        ctx.map_data.save_large_map_image(info.raw, region, 'raw')
+        # ctx.map_data.save_large_map_image(info.gray, region, 'gray')
         ctx.map_data.save_large_map_image(info.mask, region, 'mask')
-
-        dir_path = ctx.map_data.get_large_map_dir_path(region)
-        file_storage = cv2.FileStorage(os.path.join(dir_path, 'features.xml'), cv2.FILE_STORAGE_WRITE)
-        # 保存特征点和描述符
-        file_storage.write("keypoints", cv2_utils.feature_keypoints_to_np(info.kps))
-        file_storage.write("descriptors", info.desc)
-        file_storage.release()
 
     return info
 

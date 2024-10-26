@@ -279,7 +279,7 @@ class SrMapData:
                                                              region.planet.np_id, region.rl_id))
 
     @staticmethod
-    def get_map_path(region: Region, mt: str = 'origin') -> str:
+    def get_map_path(region: Region, mt: str = 'raw') -> str:
         """
         获取某张地图路径
         :param region: 对应区域
@@ -289,7 +289,7 @@ class SrMapData:
         return os.path.join(SrMapData.get_large_map_dir_path(region), '%s.png' % mt)
 
     @staticmethod
-    def save_large_map_image(image: MatLike, region: Region, mt: str = 'origin'):
+    def save_large_map_image(image: MatLike, region: Region, mt: str = 'raw'):
         """
         保存某张地图
         :param image: 图片
@@ -298,10 +298,10 @@ class SrMapData:
         :return:
         """
         path = SrMapData.get_map_path(region, mt)
-        cv2.imwrite(path, image)
+        cv2_utils.save_image(image, path)
 
     @staticmethod
-    def get_large_map_image(region: Region, mt: str = 'origin') -> MatLike:
+    def get_large_map_image(region: Region, mt: str = 'raw') -> MatLike:
         """
         保存某张地图
         :param region: 区域
