@@ -39,9 +39,9 @@ class SimUniExit(SrOperation):
             battle=True,
             battle_fail=True
         )
-        if state == sim_uni_screen_state.SimUniScreenState.NORMAL_IN_WORLD.value:  # 只有在大世界画面才继续
+        if state == sim_uni_screen_state.ScreenState.NORMAL_IN_WORLD.value:  # 只有在大世界画面才继续
             return self.round_success()
-        elif state == sim_uni_screen_state.SimUniScreenState.BATTLE_FAIL.value:  # 战斗失败
+        elif state == sim_uni_screen_state.ScreenState.BATTLE_FAIL.value:  # 战斗失败
             return self.round_by_find_and_click_area(screen, '模拟宇宙', '点击空白处继续',
                                                      success_wait=2, retry_wait=1)
         else:  # 其他情况 统一交给 battle 处理

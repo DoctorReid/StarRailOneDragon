@@ -11,7 +11,7 @@ from sr_od.context.sr_context import SrContext
 from sr_od.screen_state import common_screen_state, fast_recover_screen_state, battle_screen_state
 
 
-class SimUniScreenState(Enum):
+class ScreenState(Enum):
 
     NORMAL_IN_WORLD: str = '大世界'
     EMPTY_TO_CLOSE: str = '点击空白处关闭'
@@ -25,6 +25,7 @@ class SimUniScreenState(Enum):
     SIM_CURIOS: str = '选择奇物'
     SIM_DROP_CURIOS: str = '丢弃奇物'
     SIM_EVENT: str = '事件'
+    SIM_UNI_REGION: str = '模拟宇宙-区域'
 
 
 def get_level_type(ctx: SrContext, screen: MatLike) -> Optional[SimUniLevelType]:
@@ -85,16 +86,16 @@ def get_sim_uni_screen_state(
     :return:
     """
     if in_world and common_screen_state.is_normal_in_world(ctx, screen):
-        return SimUniScreenState.NORMAL_IN_WORLD.value
+        return ScreenState.NORMAL_IN_WORLD.value
 
     if battle_fail and battle_screen_state.is_battle_fail(ctx, screen):
         return battle_screen_state.ScreenState.BATTLE_FAIL.value
 
     if empty_to_close and is_empty_to_close(ctx, screen):
-        return SimUniScreenState.EMPTY_TO_CLOSE.value
+        return ScreenState.EMPTY_TO_CLOSE.value
 
     if reward and is_sim_uni_get_reward(ctx, screen):
-        return SimUniScreenState.SIM_REWARD.value
+        return ScreenState.SIM_REWARD.value
 
     if fast_recover and fast_recover_screen_state.is_fast_recover(ctx, screen):
         return fast_recover_screen_state.ScreenState.FAST_RECOVER.value
@@ -103,37 +104,37 @@ def get_sim_uni_screen_state(
         return common_screen_state.ScreenState.EXPRESS_SUPPLY.value
 
     titles = common_screen_state.get_ui_titles(ctx, screen, '模拟宇宙', '左上角标题')
-    sim_uni_idx = str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_TYPE_NORMAL.value, titles)
-    gold_idx = str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_TYPE_GOLD.value, titles)  # 不知道是不是游戏bug 游戏内正常的模拟宇宙也会显示这个
+    sim_uni_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles)
+    gold_idx = str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_GOLD.value, titles)  # 不知道是不是游戏bug 游戏内正常的模拟宇宙也会显示这个
 
     if sim_uni_idx is None and gold_idx is None:
         if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
-            return SimUniScreenState.BATTLE.value
+            return battle_screen_state.ScreenState.BATTLE.value
         return None
 
-    if sim_uni and str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_TYPE_NORMAL.value, titles, lcs_percent_threshold=0.51) is not None:
-        return SimUniScreenState.SIM_TYPE_NORMAL.value
+    if sim_uni and str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles, lcs_percent_threshold=0.51) is not None:
+        return ScreenState.SIM_TYPE_NORMAL.value
 
-    if bless and str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
-        return SimUniScreenState.SIM_BLESS.value
+    if bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
+        return ScreenState.SIM_BLESS.value
 
-    if drop_bless and str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_DROP_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
-        return SimUniScreenState.SIM_DROP_BLESS.value
+    if drop_bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_DROP_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
+        return ScreenState.SIM_DROP_BLESS.value
 
-    if upgrade_bless and str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_UPGRADE_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
-        return SimUniScreenState.SIM_UPGRADE_BLESS.value
+    if upgrade_bless and str_utils.find_best_match_by_lcs(ScreenState.SIM_UPGRADE_BLESS.value, titles, lcs_percent_threshold=0.51) is not None:
+        return ScreenState.SIM_UPGRADE_BLESS.value
 
-    if curio and str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_CURIOS.value, titles, lcs_percent_threshold=0.51):
-        return SimUniScreenState.SIM_CURIOS.value
+    if curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_CURIOS.value, titles, lcs_percent_threshold=0.51):
+        return ScreenState.SIM_CURIOS.value
 
-    if drop_curio and str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_DROP_CURIOS.value, titles, lcs_percent_threshold=0.51):
-        return SimUniScreenState.SIM_DROP_CURIOS.value
+    if drop_curio and str_utils.find_best_match_by_lcs(ScreenState.SIM_DROP_CURIOS.value, titles, lcs_percent_threshold=0.51):
+        return ScreenState.SIM_DROP_CURIOS.value
 
-    if event and str_utils.find_best_match_by_lcs(SimUniScreenState.SIM_EVENT.value, titles):
-        return SimUniScreenState.SIM_EVENT.value
+    if event and str_utils.find_best_match_by_lcs(ScreenState.SIM_EVENT.value, titles):
+        return ScreenState.SIM_EVENT.value
 
     if battle:  # 有判断的时候 不在前面的情况 就认为是战斗
-        return SimUniScreenState.BATTLE.value
+        return battle_screen_state.ScreenState.BATTLE.value
 
     return None
 
@@ -165,7 +166,7 @@ def in_sim_uni_choose_bless(ctx: SrContext, screen: MatLike) -> bool:
     :param screen: 游戏画面
     :return:
     """
-    return common_screen_state.in_secondary_ui(ctx, screen, SimUniScreenState.SIM_BLESS.value, lcs_percent=0.55)
+    return common_screen_state.in_secondary_ui(ctx, screen, ScreenState.SIM_BLESS.value, lcs_percent=0.55)
 
 
 def in_sim_uni_choose_curio(ctx: SrContext, screen: MatLike) -> bool:
@@ -175,7 +176,7 @@ def in_sim_uni_choose_curio(ctx: SrContext, screen: MatLike) -> bool:
     :param screen: 游戏画面
     :return:
     """
-    return common_screen_state.in_secondary_ui(ctx, screen, SimUniScreenState.SIM_CURIOS.value, lcs_percent=0.55)
+    return common_screen_state.in_secondary_ui(ctx, screen, ScreenState.SIM_CURIOS.value, lcs_percent=0.55)
 
 
 def in_sim_uni_event(ctx: SrContext, screen: MatLike) -> bool:
@@ -185,4 +186,29 @@ def in_sim_uni_event(ctx: SrContext, screen: MatLike) -> bool:
     :param screen: 游戏画面
     :return:
     """
-    return common_screen_state.in_secondary_ui(ctx, screen, SimUniScreenState.SIM_EVENT.value)
+    return common_screen_state.in_secondary_ui(ctx, screen, ScreenState.SIM_EVENT.value)
+
+
+def get_sim_uni_initial_screen_state(ctx: SrContext, screen: MatLike) -> Optional[str]:
+    """
+    获取模拟宇宙应用开始时的画面
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :return:
+    """
+    if common_screen_state.is_normal_in_world(ctx, screen):
+        level = get_level_type(ctx, screen)
+        if level is not None:
+            return ScreenState.SIM_UNI_REGION.value
+
+        return ScreenState.NORMAL_IN_WORLD.value
+
+    titles = common_screen_state.get_ui_titles(ctx, screen, '模拟宇宙', '左上角标题')
+
+    if str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_EXTEND.value, titles, lcs_percent_threshold=0.5) is not None:
+        return ScreenState.SIM_TYPE_EXTEND.value
+
+    if str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_NORMAL.value, titles, lcs_percent_threshold=0.5) is not None:
+        return ScreenState.SIM_TYPE_NORMAL.value
+
+    return None

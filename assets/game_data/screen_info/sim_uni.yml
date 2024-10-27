@@ -24,7 +24,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: WEEKLY_REWARD_ICON
+- area_name: 每周奖励红点
   pc_rect:
   - 360
   - 950
@@ -32,10 +32,10 @@ area_list:
   - 1000
   text: ''
   lcs_percent: 0.5
-  template_sub_dir: ''
+  template_sub_dir: phone_menu
   template_id: ui_alert
   template_match_threshold: 0.7
-- area_name: WEEKLY_REWARD_CLAIM
+- area_name: 每周奖励-一键领取
   pc_rect:
   - 1425
   - 740

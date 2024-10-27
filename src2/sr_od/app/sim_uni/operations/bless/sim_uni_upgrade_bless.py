@@ -46,7 +46,7 @@ class SimUniUpgradeBless(SrOperation):
 
         state = sim_uni_screen_state.get_sim_uni_screen_state(self.ctx, screen, self.ctx.ocr, upgrade_bless=True)
 
-        if state != sim_uni_screen_state.SimUniScreenState.SIM_UPGRADE_BLESS.value:
+        if state != sim_uni_screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
             return self.round_retry('未在祝福强化页面', wait=1)
 
         num = self._get_left_num(screen)
@@ -124,7 +124,7 @@ class SimUniUpgradeBless(SrOperation):
 
         state = sim_uni_screen_state.get_sim_uni_screen_state(self.ctx, screen, self.ctx.ocr, upgrade_bless=True)
 
-        if state != sim_uni_screen_state.SimUniScreenState.SIM_UPGRADE_BLESS.value:
+        if state != sim_uni_screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
             return self.round_retry('未在祝福强化页面', wait=1)
 
         self.ctx.controller.click(self.upgrade_list[self.upgrade_idx].center)
@@ -168,7 +168,7 @@ class SimUniUpgradeBless(SrOperation):
         state = sim_uni_screen_state.get_sim_uni_screen_state(self.ctx, screen, self.ctx.ocr,
                                                               upgrade_bless=True, empty_to_close=True)
 
-        if state == sim_uni_screen_state.SimUniScreenState.SIM_UPGRADE_BLESS.value:
+        if state == sim_uni_screen_state.ScreenState.SIM_UPGRADE_BLESS.value:
             return self.round_success(SimUniUpgradeBless.STATUS_NO_UPGRADE)
         else:
             self.round_by_click_area('模拟宇宙', '点击空白处关闭')

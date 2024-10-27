@@ -55,7 +55,7 @@ class SimUniDropBless(SrOperation):
 
         if self.first_screen_check and self.skip_first_screen_check:
             self.first_screen_check = False
-            return self.round_success(sim_uni_screen_state.SimUniScreenState.SIM_DROP_CURIOS.value)
+            return self.round_success(sim_uni_screen_state.ScreenState.SIM_DROP_CURIOS.value)
 
         state = sim_uni_screen_state.get_sim_uni_screen_state(self.ctx, screen, self.ctx.ocr, drop_bless=True)
 

@@ -74,7 +74,7 @@ class SimUniChooseCurio(SrOperation):
 
         return None
 
-    @node_from(from_name='确认后画面判断', status=sim_uni_screen_state.SimUniScreenState.SIM_CURIOS.value)
+    @node_from(from_name='确认后画面判断', status=sim_uni_screen_state.ScreenState.SIM_CURIOS.value)
     @operation_node(name='选择奇物', is_start_node=True)
     def _choose_curio(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -196,7 +196,7 @@ class SimUniChooseCurio(SrOperation):
             # 未知情况都先点击一下
             self.round_by_click_area('模拟宇宙', '点击空白处关闭')
             return self.round_retry('未能判断当前页面', wait=1)
-        elif state == sim_uni_screen_state.SimUniScreenState.SIM_CURIOS.value:
+        elif state == sim_uni_screen_state.ScreenState.SIM_CURIOS.value:
             # 还在选奇物的画面 说明上一步没有选择到奇物
             # 只有2个奇物的时候，使用3个奇物的第1个位置 可能会识别到奇物(名字位置重叠) 这时候点击第1个位置是会失败的
             # 所以每次重试 curio_cnt_type-=1 即重试的时候 需要排除调3个奇物的位置 尝试2个奇物的位置
@@ -204,15 +204,15 @@ class SimUniChooseCurio(SrOperation):
             if self.curio_cnt_type <= 0:
                 return self.round_fail("点击确认失败")
             else:
-                return self.round_success(sim_uni_screen_state.SimUniScreenState.SIM_CURIOS.value)
-        elif state in [sim_uni_screen_state.SimUniScreenState.SIM_BLESS.value,
-                       sim_uni_screen_state.SimUniScreenState.SIM_DROP_BLESS.value,
-                       sim_uni_screen_state.SimUniScreenState.SIM_DROP_CURIOS.value]:
+                return self.round_success(sim_uni_screen_state.ScreenState.SIM_CURIOS.value)
+        elif state in [sim_uni_screen_state.ScreenState.SIM_BLESS.value,
+                       sim_uni_screen_state.ScreenState.SIM_DROP_BLESS.value,
+                       sim_uni_screen_state.ScreenState.SIM_DROP_CURIOS.value]:
             return self.round_success(state)
         else:
             return self.round_success(state)
 
-    @node_from(from_name='确认后画面判断', status=sim_uni_screen_state.SimUniScreenState.EMPTY_TO_CLOSE.value)
+    @node_from(from_name='确认后画面判断', status=sim_uni_screen_state.ScreenState.EMPTY_TO_CLOSE.value)
     @operation_node(name='点击空白处继续')
     def _click_empty_to_continue(self) -> OperationRoundResult:
         return self.round_by_click_area('模拟宇宙', '点击空白处关闭',
@@ -257,7 +257,7 @@ class SimUniDropCurio(SrOperation):
 
         if self.first_screen_check and self.skip_first_screen_check:
             self.first_screen_check = False
-            return self.round_success(sim_uni_screen_state.SimUniScreenState.SIM_DROP_CURIOS.value)
+            return self.round_success(sim_uni_screen_state.ScreenState.SIM_DROP_CURIOS.value)
 
         state = sim_uni_screen_state.get_sim_uni_screen_state(self.ctx, screen, drop_curio=True)
 

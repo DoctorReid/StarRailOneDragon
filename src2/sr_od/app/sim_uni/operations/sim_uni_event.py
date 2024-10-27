@@ -79,7 +79,7 @@ class SimUniEvent(SrOperation):
             return self.round_retry('未在事件页面', wait=1)
 
     @node_from(from_name='等待加载')
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.SimUniScreenState.SIM_EVENT.value)
+    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_EVENT.value)
     @operation_node(name='选择选项')
     def _choose_opt_by_priority(self) -> OperationRoundResult:
         """
@@ -279,7 +279,7 @@ class SimUniEvent(SrOperation):
         self.round_by_click_area('模拟宇宙', '点击空白处关闭')
         return None
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.SimUniScreenState.SIM_BLESS.value)
+    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_BLESS.value)
     @operation_node(name='选择祝福')
     def _choose_bless(self) -> OperationRoundResult:
         op = SimUniChooseBless(self.ctx, config=self.config)
@@ -290,7 +290,7 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry(status=op_result.status)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.SimUniScreenState.SIM_DROP_BLESS.value)
+    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_DROP_BLESS.value)
     @operation_node(name='丢弃祝福')
     def _drop_bless(self) -> OperationRoundResult:
         op = SimUniDropBless(self.ctx, config=self.config)
@@ -301,13 +301,13 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry(status=op_result.status)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.SimUniScreenState.SIM_UPGRADE_BLESS.value)
+    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_UPGRADE_BLESS.value)
     @operation_node(name='祝福强化')
     def _upgrade_bless(self) -> OperationRoundResult:
         op = SimUniUpgradeBless(self.ctx)
         return self.round_by_op_result(op.execute())
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.SimUniScreenState.SIM_CURIOS.value)
+    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_CURIOS.value)
     @operation_node(name='选择奇物')
     def _choose_curio(self) -> OperationRoundResult:
         op = SimUniChooseCurio(self.ctx, config=self.config)
@@ -318,7 +318,7 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry(status=op_result.status)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.SimUniScreenState.SIM_DROP_CURIOS.value)
+    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_DROP_CURIOS.value)
     @operation_node(name='丢弃奇物')
     def _drop_curio(self) -> OperationRoundResult:
         op = SimUniDropCurio(self.ctx, config=self.config)
@@ -329,7 +329,7 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry(status=op_result.status)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.SimUniScreenState.EMPTY_TO_CLOSE.value)
+    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.EMPTY_TO_CLOSE.value)
     @operation_node(name='点击空白处关闭')
     def _click_empty_to_continue(self) -> OperationRoundResult:
         return self.round_by_click_area('模拟宇宙', '点击空白处关闭',
