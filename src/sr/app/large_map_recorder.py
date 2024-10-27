@@ -626,7 +626,7 @@ if __name__ == '__main__':
         map_const.P04_R10.pr_id: {'skip_height': 700, 'max_row': 4, 'max_column': 4},  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
     }
 
-    r = map_const.P04_R10
+    r = map_const.P03_R11_F1
     sc = special_condition.get(r.pr_id, None)
     # print(LargeMapRecorder.same_as_last_row(r, _row, _col))
     merge = False
@@ -650,7 +650,7 @@ if __name__ == '__main__':
                            )
 
     ctx.init_all(renew=True)
-    # app.execute()
-    app.do_save()
+    app.execute()
+    # app.do_save()
     # fix_all_after_map_record(r, -5, -11)
 

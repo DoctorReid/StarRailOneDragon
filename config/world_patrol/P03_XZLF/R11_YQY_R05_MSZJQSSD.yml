@@ -1,0 +1,63 @@
+author: ['DoctorReid']
+planet: '仙舟「罗浮」'
+region: '幽囚狱'
+floor: -1
+tp: '迷识之径·侵蚀隧洞'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1338, 1492]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [1352, 1537]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [1346, 1588]
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
+    data: [1314, 1592]
+  - idx: 8
+    op: 'disposable'
+  - idx: 9
+    op: 'move'
+    data: [1269, 1596]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [1264, 1535]
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [1262, 1479]
+  - idx: 14
+    op: 'move'
+    data: [1267, 1394]
+  - idx: 15
+    op: 'move'
+    data: [1266, 1370]
+  - idx: 16
+    op: 'move'
+    data: [1223, 1355]
+  - idx: 17
+    op: 'move'
+    data: [1188, 1370]
+  - idx: 18
+    op: 'disposable'
+  - idx: 19
+    op: 'move'
+    data: [1181, 1395]
+  - idx: 20
+    op: 'patrol'
+  - idx: 21
+    op: 'move'
+    data: [1152, 1374]
+  - idx: 22
+    op: 'patrol'
