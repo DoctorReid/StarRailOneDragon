@@ -12,6 +12,7 @@ from sr_od.operations.menu import phone_menu_const
 from sr_od.operations.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr_od.operations.menu.open_phone_menu import OpenPhoneMenu
 from sr_od.operations.sr_operation import SrOperation
+from sr_od.screen_state import common_screen_state
 
 
 class GuideTransport(SrOperation):
@@ -24,6 +25,15 @@ class GuideTransport(SrOperation):
 
         self.mission: GuideMission = mission
 
+    @operation_node(name='画面识别', is_start_node=True)
+    def check_screen(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        if common_screen_state.in_secondary_ui(self.ctx, screen, '星际和平指南'):
+            return self.round_success('星际和平指南')
+        else:
+            return self.round_success()
+
+    @node_from(from_name='画面识别')
     @operation_node(name='返回大世界', is_start_node=True)
     def back_to_world(self) -> OperationRoundResult:
         op = BackToNormalWorldPlus(self.ctx)
@@ -41,6 +51,7 @@ class GuideTransport(SrOperation):
         op = ClickPhoneMenuItem(self.ctx, phone_menu_const.INTERASTRAL_GUIDE)
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='画面识别', status='星际和平指南')
     @node_from(from_name='选择指南')
     @operation_node(name='选择TAB')
     def choose_tab(self) -> OperationRoundResult:
@@ -58,6 +69,13 @@ class GuideTransport(SrOperation):
     def choose_mission(self) -> OperationRoundResult:
         op = GuideChooseMission(self.ctx, self.mission)
         return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='选择副本')
+    @operation_node(name='等待加载', node_max_retry_times=20)
+    def wait_at_last(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_area(screen, '星际和平指南', '等待加载-' + self.mission.cate.cn,
+                                       retry_wait=1)
 
 
 def __debug():

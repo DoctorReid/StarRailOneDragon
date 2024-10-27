@@ -2,6 +2,7 @@ from typing import List
 
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
 from sr_od.app.sr_application import SrApplication
+from sr_od.app.trailblaze_power.trailblaze_power_app import TrailblazePower
 from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.context.sr_context import SrContext
 
@@ -20,6 +21,7 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
 
     def get_app_list(self) -> List[SrApplication]:
         return [
+            TrailblazePower(self.ctx),
             WorldPatrolApp(self.ctx),
         ]
 

@@ -90,3 +90,91 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 生存索引-体力
+  pc_rect:
+  - 1474
+  - 56
+  - 1518
+  - 78
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 生存索引-沉浸器数量
+  pc_rect:
+  - 1672
+  - 56
+  - 1707
+  - 78
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 等待加载-拟造花萼（金）
+  pc_rect:
+  - 98
+  - 42
+  - 212
+  - 90
+  text: 拟造花萼
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 等待加载-拟造花萼（赤）
+  pc_rect:
+  - 98
+  - 42
+  - 212
+  - 90
+  text: 拟造花萼
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 等待加载-饰品提取
+  pc_rect:
+  - 102
+  - 40
+  - 262
+  - 70
+  text: 位面饰品提取
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 等待加载-凝滞虚影
+  pc_rect:
+  - 98
+  - 42
+  - 212
+  - 90
+  text: 凝滞虚影
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 等待加载-侵蚀隧洞
+  pc_rect:
+  - 98
+  - 42
+  - 212
+  - 90
+  text: 侵蚀隧洞
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 等待加载-历战余响
+  pc_rect:
+  - 98
+  - 42
+  - 212
+  - 90
+  text: 历战余响
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

@@ -1,6 +1,7 @@
 import os
 from typing import List, Optional
 
+from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
@@ -56,7 +57,11 @@ class SrGuideData:
         初始化一个分类
         """
         category_name = category_data.get('category_name', '')
-        category = GuideCategory(tab, category_name, ui_cn=category_data.get('display_name', None))
+        category = GuideCategory(
+            tab, category_name,
+            ui_cn=category_data.get('display_name', None),
+            show_in_power_plan=category_data.get('show_in_power_plan', False)
+        )
 
         self.category_list.append(category)
         self.tab_2_category[tab.unique_id].append(category)
@@ -69,19 +74,14 @@ class SrGuideData:
         """
         初始化一个副本
         """
-        mission_name = mission_data.get('mission_name', '')
-        display_name = mission_data.get('display_name', None)
-        power = mission_data.get('power', 0)
-
-        region_name = mission_data.get('region_name', None)
-
         mission = GuideMission(
             category,
-            mission_name=mission_name,
-            display_name=display_name,
-            power=power,
+            mission_name=mission_data.get('mission_name', ''),
+            display_name=mission_data.get('display_name', None),
+            power=mission_data.get('power', 0),
 
-            region_name=region_name,
+            region_name=mission_data.get('region_name', None),
+            show_in_power_plan=mission_data.get('show_in_power_plan', False),
         )
 
         self.mission_list.append(mission)
@@ -125,6 +125,35 @@ class SrGuideData:
             return None
         else:
             return mission_list[idx]
+
+    def get_mission_by_unique_id(self, unique_id: str) -> Optional[GuideMission]:
+        """
+        根据唯一标识获取对应的副本
+        """
+        for mission in self.mission_list:
+            if mission.unique_id == unique_id:
+                return mission
+
+    def get_category_list_in_power_plan(self) -> List[ConfigItem]:
+        """
+        体力计划里的分类
+        """
+        return [
+            ConfigItem(label=i.ui_cn, value=i)
+            for i in self.category_list
+            if i.show_in_power_plan
+        ]
+
+    def get_mission_list_in_power_plan(self, category: GuideCategory) -> List[ConfigItem]:
+        """
+        体力计划里的副本
+        """
+        return [
+            ConfigItem(label=i.display_name, value=i)
+            for i in self.category_2_mission.get(category.unique_id, [])
+            if i.show_in_power_plan
+        ]
+
 
 
 def __debug():

@@ -16,7 +16,8 @@ class GuideTab:
 
 class GuideCategory:
 
-    def __init__(self, tab: GuideTab, cn: str, ui_cn: Optional[str] = None):
+    def __init__(self, tab: GuideTab, cn: str, ui_cn: Optional[str] = None,
+                 show_in_power_plan: bool = False):
         """
         打开指南页后 左侧显示的分类
         """
@@ -26,6 +27,8 @@ class GuideCategory:
         self.cn: str = cn  # 中文
 
         self.ui_cn: str = cn if ui_cn is None else ui_cn  # 界面展示的中文
+
+        self.show_in_power_plan: bool = show_in_power_plan  # 是否在体力计划中显示
 
     @property
     def unique_id(self) -> str:
@@ -39,7 +42,7 @@ class GuideMission:
                  power: int,
                  display_name: str = None,
                  region_name: str = None,
-                 show_in_tp_plan: bool = True,
+                 show_in_power_plan: bool = False,
                  ):
         """
         打开指南页面后 右侧显示的具体关卡
@@ -55,11 +58,11 @@ class GuideMission:
 
         self.display_name: str = mission_name if display_name is None else display_name  # 界面显示的中文
 
-        self.show_in_tp_plan: bool = show_in_tp_plan  # 是否在开拓力计划中显示
+        self.show_in_power_plan: bool = show_in_power_plan  # 是否在开拓力计划中显示
 
     @property
     def unique_id(self) -> str:
-        return '%s %s' % (self.cate.unique_id, self.mission_name)
+        return '%s %s %s' % (self.cate.unique_id, self.mission_name, self.region_name)
 
 
 

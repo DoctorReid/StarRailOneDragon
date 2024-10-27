@@ -4,6 +4,8 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
+from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
+from sr_od.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
@@ -164,7 +166,11 @@ class SrContext(OneDragonContext):
         self.world_patrol_config: WorldPatrolConfig = WorldPatrolConfig(self.current_instance_idx)
         self.world_patrol_record: WorldPatrolRunRecord = WorldPatrolRunRecord(self.current_instance_idx)
 
+        self.power_config: TrailblazePowerConfig = TrailblazePowerConfig(self.guide_data, self.current_instance_idx)
+        self.power_record: TrailblazePowerRunRecord = TrailblazePowerRunRecord(self.power_config, self.current_instance_idx)
+
         self.sim_uni_config: SimUniConfig = SimUniConfig(self.current_instance_idx)
+
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:

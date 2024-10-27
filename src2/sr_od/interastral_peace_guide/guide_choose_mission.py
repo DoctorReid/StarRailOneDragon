@@ -78,8 +78,9 @@ class GuideChooseMission(SrOperation):
             if region_idx is None:
                 log.error('匹配失败 %s', self.mission.region_name)
                 return None
+            log.info('匹配区域名称 %s', word_list[region_idx])
 
-            # 只保留区域上方的内容
+            # 只保留区域附近的内容
             region_pos = mrl_list[region_idx].max.right_bottom
 
             word_list = []
@@ -88,7 +89,7 @@ class GuideChooseMission(SrOperation):
             for ocr_word, mrl in ocr_result_map.items():
                 mrl2 = MatchResultList(only_best=False)
                 for mr in mrl:
-                    if mr.y < region_pos.y:
+                    if abs(mr.right_bottom.y - region_pos.y) < 50:
                         mrl2.append(mr)
 
                 if len(mrl2) == 0:
@@ -97,11 +98,13 @@ class GuideChooseMission(SrOperation):
                 word_list.append(ocr_word)
                 mrl_list.append(mrl2)
 
+            log.info('过滤后文本 %s', word_list)
 
         mission_idx = str_utils.find_best_match_by_difflib(gt(self.mission.mission_name), word_list, cutoff=0.5)
         if mission_idx is None:
             log.error('匹配失败 %s', self.mission.mission_name)
             return None
+        log.info('匹配副本名称 %s', word_list[mission_idx])
 
         tp_idx = str_utils.find_best_match_by_difflib(gt('传送'), word_list, cutoff=0.5)
         if mission_idx is None:
@@ -114,7 +117,9 @@ class GuideChooseMission(SrOperation):
         # 返回最靠近副本名称的传送
         tp_point = None
         for mr in tp_mrl:
-            if tp_point is None or abs(mr.y - mission_pos.y) < abs(tp_point.y - mission_pos.y):
+            if abs(mr.center.y - mission_pos.y) > 30:  # 太远的就忽略
+                continue
+            if tp_point is None or abs(mr.center.y - mission_pos.y) < abs(tp_point.y - mission_pos.y):
                 tp_point = mr.center
 
         if tp_point is not None:
