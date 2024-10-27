@@ -31,7 +31,7 @@ pyscreeze==1.0.1          # via pyautogui
 pyside6==6.7.2            # via -r requirements-dev-2.txt, pyside6-fluent-widgets
 pyside6-addons==6.7.2     # via pyside6
 pyside6-essentials==6.7.2  # via pyside6, pyside6-addons
-pyside6-fluent-widgets==1.6.0  # via -r requirements-dev-2.txt
+pyside6-fluent-widgets==1.7.0  # via -r requirements-dev-2.txt
 pysidesix-frameless-window==0.4.3  # via pyside6-fluent-widgets
 pytweening==1.2.0         # via pyautogui
 pywin32==306              # via pysidesix-frameless-window
