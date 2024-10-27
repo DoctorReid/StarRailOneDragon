@@ -218,6 +218,7 @@ JADE = Character(id='jade', cn='翡翠', path=CHARACTER_PATH_ERUDITION, combat_t
 YUNLI = Character(id='yunli', cn='云璃', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 FEIXIAO = Character(id='feixiao', cn='飞霄', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 MOZE = Character(id='moze', cn='貊泽', path=CHARACTER_PATH_HUNT, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
+LINGSHA = Character(id='lingsha', cn='灵砂', path=CHARACTER_PATH_ABUNDANCE, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -281,6 +282,7 @@ CHARACTER_LIST: List[Character] = [
     YUNLI,
     FEIXIAO,
     MOZE,
+    LINGSHA,
 ]
 
 
