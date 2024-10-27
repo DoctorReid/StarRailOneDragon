@@ -1,0 +1,92 @@
+screen_id: guide
+screen_name: 星际和平指南
+pc_alt: false
+area_list:
+- area_name: TAB-行动摘要
+  pc_rect:
+  - 300
+  - 158
+  - 1022
+  - 262
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: guide
+  template_id: operation_briefing
+  template_match_threshold: 0.7
+- area_name: TAB-每日实训
+  pc_rect:
+  - 300
+  - 158
+  - 1022
+  - 262
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: guide
+  template_id: daily_training
+  template_match_threshold: 0.7
+- area_name: TAB-生存索引
+  pc_rect:
+  - 300
+  - 158
+  - 1022
+  - 262
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: guide
+  template_id: survival_index
+  template_match_threshold: 0.7
+- area_name: TAB-模拟宇宙
+  pc_rect:
+  - 300
+  - 158
+  - 1022
+  - 262
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: guide
+  template_id: simulated_universe
+  template_match_threshold: 0.7
+- area_name: TAB-逐光捡金
+  pc_rect:
+  - 300
+  - 158
+  - 1022
+  - 262
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: guide
+  template_id: treasures_lightward
+  template_match_threshold: 0.7
+- area_name: TAB-战术训练
+  pc_rect:
+  - 300
+  - 158
+  - 1022
+  - 262
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: guide
+  template_id: strategic_training
+  template_match_threshold: 0.7
+- area_name: 分类列表
+  pc_rect:
+  - 282
+  - 290
+  - 670
+  - 884
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 副本列表
+  pc_rect:
+  - 692
+  - 290
+  - 1662
+  - 886
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

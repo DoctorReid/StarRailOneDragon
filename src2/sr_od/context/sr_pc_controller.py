@@ -40,7 +40,7 @@ class SrPcController(PcControllerBase):
         return screen
 
     def before_screenshot(self) -> None:
-        self.click(Point(30, 1030))
+        self.mouse_move(Point(30, 1030))
 
     def esc(self) -> bool:
         self.btn_controller.tap(self.game_config.key_esc)

@@ -13,6 +13,7 @@ from sr_od.config.yolo_config import YoloConfig
 from sr_od.context.context_pos_info import ContextPosInfo
 from sr_od.context.preheat_context import SrPreheatContext
 from sr_od.context.sr_pc_controller import SrPcController
+from sr_od.interastral_peace_guide.guide_data import SrGuideData
 from sr_od.screen_state.yolo_screen_detector import YoloScreenDetector
 from sr_od.sr_map.sr_map_data import SrMapData
 
@@ -115,6 +116,7 @@ class SrContext(OneDragonContext):
 
         self.map_data: SrMapData = SrMapData()
         self.world_patrol_route_data: WorldPatrolRouteData = WorldPatrolRouteData(self.map_data)
+        self.guide_data: SrGuideData = SrGuideData()
 
         self.pos_info: ContextPosInfo = ContextPosInfo()
         self.team_info: TeamInfo = TeamInfo()

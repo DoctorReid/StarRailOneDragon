@@ -1,0 +1,367 @@
+- tab_name: "行动摘要"
+
+- tab_name: "每日实训"
+
+- tab_name: "生存索引"
+  category_list:
+    - category_name: "饰品提取"
+      mission_list:
+        - mission_name: "蠹役饥肠"
+          display_name: "沉陆海域露莎卡 奇想蕉乐园"
+          power: 40
+
+        - mission_name: "永恒笑剧"
+          display_name: "奔狼的都蓝王朝 劫火莲灯铸炼宫"
+          power: 40
+
+        - mission_name: "伴你入眠"
+          display_name: "无主荒星茨冈尼亚 出云显世与高天神国"
+          power: 40
+
+        - mission_name: "天剑如雨"
+          display_name: "苍穹战线格拉默 梦想之地匹诺康尼"
+          power: 40
+
+        - mission_name: "孽果盘生"
+          display_name: "繁星竞技场 折断的龙骨"
+          power: 40
+
+        - mission_name: "百年冻土"
+          display_name: "筑城者的贝洛伯格 停转的萨尔索图"
+          power: 40
+
+        - mission_name: "温柔话语"
+          display_name: "泛银河商业公司 星体差分机"
+          power: 40
+
+        - mission_name: "浴火钢心"
+          display_name: "盗贼公园塔利亚 生命的翁瓦克"
+          power: 40
+
+        - mission_name: "坚城不倒"
+          display_name: "太空封印站 不老者的仙舟"
+          power: 40
+
+
+    - category_name: "拟造花萼（金）"
+      display_name: "经验信用"
+      mission_list:
+        - mission_name: "回忆之蕾"
+          display_name: "角色经验-匹诺康尼"
+          region_name: '筑梦边境'
+          power: 10
+
+        - mission_name: "以太之蕾"
+          display_name: "光锥经验-匹诺康尼"
+          region_name: '稚子的梦'
+          power: 10
+
+        - mission_name: "珍藏之蕾"
+          display_name: "信用点-匹诺康尼"
+          region_name: '「白日梦」酒店-梦境'
+          power: 10
+
+        - mission_name: "回忆之蕾"
+          display_name: "角色经验-仙舟「罗浮」"
+          region_name: '流云渡'
+          power: 10
+
+        - mission_name: "以太之蕾"
+          display_name: "光锥经验-仙舟「罗浮」"
+          region_name: '太卜司'
+          power: 10
+
+        - mission_name: "珍藏之蕾"
+          display_name: "信用点-仙舟「罗浮」"
+          region_name: '工造司'
+          power: 10
+
+        - mission_name: "回忆之蕾"
+          display_name: "角色经验-雅利洛-VI"
+          region_name: '城郊雪原'
+          power: 10
+
+        - mission_name: "以太之蕾"
+          display_name: "光锥经验-雅利洛-VI"
+          region_name: '边缘通路'
+          power: 10
+
+        - mission_name: "珍藏之蕾"
+          display_name: "信用点-雅利洛-VI"
+          region_name: '大矿区'
+          power: 10
+
+    - category_name: "拟造花萼（赤）"
+      display_name: "光锥行迹"
+      mission_list:
+        - mission_name: "毁灭之蕾"
+          display_name: "毁灭-麟渊境"
+          region_name: '麟渊境'
+          power: 10
+
+        - mission_name: "毁灭之蕾"
+          display_name: "毁灭-收容舱段"
+          region_name: '收容舱段'
+          power: 10
+
+        - mission_name: "存护之蕾"
+          display_name: "存护-克劳克影视乐园"
+          region_name: '克劳克影视乐园'
+          power: 10
+
+        - mission_name: "存护之蕾"
+          display_name: "存护-支援舱段"
+          region_name: '支援舱段'
+          power: 10
+
+        - mission_name: "巡猎之蕾"
+          display_name: "巡猎-苏乐达TM热砂海选会场"
+          region_name: '苏乐达TM热砂海选会场'
+          power: 10
+
+        - mission_name: "巡猎之蕾"
+          display_name: "巡猎-城郊雪原"
+          region_name: '城郊雪原'
+          power: 10
+
+        - mission_name: "丰饶之蕾"
+          display_name: "丰饶-绥园"
+          region_name: '绥园'
+          power: 10
+
+        - mission_name: "丰饶之蕾"
+          display_name: "丰饶-边缘通路"
+          region_name: '边缘通路'
+          power: 10
+
+        - mission_name: "智识之蕾"
+          display_name: "智识-匹诺康尼大剧院"
+          region_name: '匹诺康尼大剧院'
+          power: 10
+
+        - mission_name: "智识之蕾"
+          display_name: "智识-铆钉阵"
+          region_name: '铆钉阵'
+          power: 10
+
+        - mission_name: "同谐之蕾"
+          display_name: "同谐-「白日梦」酒店-梦境"
+          region_name: '「白日梦」酒店-梦境'
+          power: 10
+
+        - mission_name: "同谐之蕾"
+          display_name: "同谐-机械聚落"
+          region_name: '机械聚落'
+          power: 10
+
+        - mission_name: "虚无之蕾"
+          display_name: "虚无-丹鼎司"
+          region_name: '丹鼎司'
+          power: 10
+
+        - mission_name: "虚无之蕾"
+          display_name: "虚无-大矿区"
+          region_name: '大矿区'
+          power: 10
+
+    - category_name: "凝滞虚影"
+      display_name: "角色突破"
+      mission_list:
+        - mission_name: "职司之形"
+          display_name: "物理-职司之形"
+          region_name: "克劳克影视乐园"
+          power: 30
+
+        - mission_name: "幽府之形"
+          display_name: "物理-幽府之形"
+          region_name: "绥园"
+          power: 30
+
+        - mission_name: "锋芒之形"
+          display_name: "物理-锋芒之形"
+          region_name: "大矿区"
+          power: 30
+
+        - mission_name: "嗔怒之形"
+          display_name: "火-嗔怒之形"
+          region_name: "朝露公馆"
+          power: 30
+
+        - mission_name: "燔灼之形"
+          display_name: "火-燔灼之形"
+          region_name: "大矿区"
+          power: 30
+
+        - mission_name: "炎华之形"
+          display_name: "火-炎华之形"
+          region_name: "铁卫禁区"
+          power: 30
+
+        - mission_name: "冰酿之形"
+          display_name: "冰-冰酿之形"
+          region_name: "「白日梦」酒店-梦境"
+          power: 30
+
+        - mission_name: "冰棱之形"
+          display_name: "冰-冰棱之形"
+          region_name: "流云渡"
+          power: 30
+
+        - mission_name: "霜晶之形"
+          display_name: "冰-霜晶之形"
+          region_name: "残响回廊"
+          power: 30
+
+        - mission_name: "机狼之形"
+          display_name: "雷-机狼之形"
+          region_name: "幽囚狱"
+          power: 30
+
+        - mission_name: "震厄之形"
+          display_name: "雷-震厄之形"
+          region_name: "廻星港"
+          power: 30
+
+        - mission_name: "鸣雷之形"
+          display_name: "雷-鸣雷之形"
+          region_name: "廻星港"
+          power: 30
+
+        - mission_name: "今宵之形"
+          display_name: "风-今宵之形"
+          region_name: "匹诺康尼大剧院"
+          power: 30
+
+        - mission_name: "天人之形"
+          display_name: "风-天人之形"
+          region_name: "丹鼎司"
+          power: 30
+
+        - mission_name: "巽风之形"
+          display_name: "风-巽风之形"
+          region_name: "铆钉阵"
+          power: 30
+
+        - mission_name: "焦炙之形"
+          display_name: "量子-焦炙之形"
+          region_name: "筑梦边境"
+          power: 30
+
+        - mission_name: "孽兽之形"
+          display_name: "量子-孽兽之形"
+          region_name: "麟渊境"
+          power: 30
+
+        - mission_name: "空海之形"
+          display_name: "量子-空海之形"
+          region_name: "基座舱段"
+          power: 30
+
+        - mission_name: "弦音之形"
+          display_name: "虚数-弦音之形"
+          region_name: "匹诺康尼大剧院"
+          power: 30
+
+        - mission_name: "偃偶之形"
+          display_name: "虚数-偃偶之形"
+          region_name: "工造司"
+          power: 30
+
+        - mission_name: "幻光之形"
+          display_name: "虚数-幻光之形"
+          region_name: "边缘通路"
+          power: 30
+
+    - category_name: "侵蚀虫洞"
+      display_name: "遗器"
+      mission_list:
+        - mission_name: "迷识之径"
+          display_name: "重盾苦旅的司铎 识海迷坠的学者"
+          region_name: "幽囚狱"
+          power: 40
+
+        - mission_name: "勇骑之径"
+          display_name: "荡除蠹灾的铁骑 风举云飞的勇烈"
+          region_name: "匹诺康尼大剧院"
+          power: 40
+
+        - mission_name: "梦潜之径"
+          display_name: "死水深潜的先驱 机芯戏梦的钟表匠"
+          region_name: "「白日梦」酒店-梦境"
+          power: 40
+
+        - mission_name: "幽冥之径"
+          display_name: "毁烬焚骨的大公 幽锁深牢的系囚"
+          region_name: "绥园"
+          power: 40
+
+        - mission_name: "幽冥之径"
+          display_name: "宝命长存的莳者 骇域漫游的信使"
+          region_name: "丹鼎司"
+          power: 40
+
+        - mission_name: "野焰之径"
+          display_name: "熔岩锻铸的火匠 盗匪荒漠的废土客"
+          region_name: "廻星港"
+          power: 40
+
+        - mission_name: "圣颂之径"
+          display_name: "净庭宗教的圣骑士 激奏雷电的乐队"
+          region_name: "流云渡"
+          power: 40
+
+        - mission_name: "睿治之径"
+          display_name: "戍卫风雪的铁卫 繁星璀璨的天才"
+          region_name: "永冬岭"
+          power: 40
+
+        - mission_name: "漂泊之径"
+          display_name: "云无留迹的过客 野穗伴行的快枪手"
+          region_name: "残响回廊"
+          power: 40
+
+        - mission_name: "迅拳之径"
+          display_name: "街头出身的拳王 流星追迹的怪盗"
+          region_name: "铁卫禁区"
+          power: 40
+
+        - mission_name: "霜风之径"
+          display_name: "密林卧雪的猎人 晨昏交界的翔鹰"
+          region_name: "收容舱段"
+          power: 40
+
+    - category_name: "历战余响"
+      mission_list:
+        - mission_name: "心兽的战场·历战余响"
+          display_name: "心兽的战场"
+          region_name: "竞锋舰"
+          power: 30
+
+        - mission_name: "蛀星的旧靥·历战余响"
+          display_name: "蛀星的旧靥"
+          region_name: "禁闭舱段"
+          power: 30
+
+        - mission_name: "不死的神实·历战余响"
+          display_name: "不死的神实"
+          region_name: "麟渊境"
+          power: 30
+
+        - mission_name: "寒潮的落幕·历战余响"
+          display_name: "寒潮的落幕"
+          region_name: "永冬岭"
+          power: 30
+
+        - mission_name: "毁灭的开端·历战余响"
+          display_name: "毁灭的开端"
+          region_name: "支援舱段"
+          power: 30
+
+- tab_name: "模拟宇宙"
+  category_list:
+    - category_name: "差分宇宙"
+    - category_name: "模拟宇宙"
+
+- tab_name: "逐光捡金"
+
+- tab_name: "战术训练"
