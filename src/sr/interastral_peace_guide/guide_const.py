@@ -164,7 +164,7 @@ class GuideMission:
                 prefix = '物理'
             elif self.tp in [map_const.P02_R05_SP06, map_const.P03_R02_SP05, map_const.P04_R05_SP08]:
                 prefix = '冰'
-            elif self.tp in [map_const.P02_R03_SP04, map_const.P03_R07_SP05]:
+            elif self.tp in [map_const.P02_R03_SP04, map_const.P03_R07_SP05, map_const.P04_R10_SP12]:
                 prefix = '虚数'
             else:
                 prefix = ''
@@ -308,6 +308,7 @@ class GuideMissionEnum(Enum):
     SHAPE_18 = GuideMission(cate=GuideCategoryEnum.SHAPE.value, tp=map_const.P04_R07_SP13, power=30)
     SHAPE_19 = GuideMission(cate=GuideCategoryEnum.SHAPE.value, tp=map_const.P03_R11_SP12, power=30)
     SHAPE_20 = GuideMission(cate=GuideCategoryEnum.SHAPE.value, tp=map_const.P04_R10_SP11, power=30)
+    SHAPE_21 = GuideMission(cate=GuideCategoryEnum.SHAPE.value, tp=map_const.P04_R10_SP12, power=30)
 
     PATH_01 = GuideMission(cate=GuideCategoryEnum.PATH.value, tp=map_const.P02_R04_SP05, power=40)
     PATH_02 = GuideMission(cate=GuideCategoryEnum.PATH.value, tp=map_const.P02_R05_SP07, power=40)

@@ -837,6 +837,7 @@ P04_R10_SP08 = TransportPoint('CMDZLLZYX', '尘梦的赞礼·历战余响', P04_
 P04_R10_SP09 = TransportPoint('ZSZLNZHEC', '智识之蕾·拟造花萼（赤）', P04_R10, 'mm_tp_07', (1022, 383), tp_pos=(1028, 381))
 P04_R10_SP10 = TransportPoint('YQZJQSCD', '勇骑之径·侵蚀隧洞', P04_R10, 'mm_tp_09', (222, 627), tp_pos=(228, 631))
 P04_R10_SP11 = TransportPoint('JXZXNZXY', '今宵之形·凝滞虚影', P04_R10, 'mm_tp_06', (973, 1291), tp_pos=(952, 1292))
+P04_R10_SP12 = TransportPoint('XYZXNZXY', '弦音之形·凝滞虚影', P04_R10, 'mm_tp_06', (1118, 980), tp_pos=(1118, 958))
 
 
 
@@ -900,7 +901,7 @@ REGION_2_SP = {
     P04_R09_SUB_05.pr_id: [P04_R09_SUB_05_SP01, P04_R09_SUB_05_SP02, P04_R09_SUB_05_SP03],
     P04_R09_SUB_06.pr_id: [P04_R09_SUB_06_SP01, P04_R09_SUB_06_SP02, P04_R09_SUB_06_SP03],
     P04_R10.pr_id: [P04_R10_SP01, P04_R10_SP02, P04_R10_SP03, P04_R10_SP04, P04_R10_SP05, P04_R10_SP06, P04_R10_SP07, P04_R10_SP08, P04_R10_SP09,
-                    P04_R10_SP10, P04_R10_SP11],
+                    P04_R10_SP10, P04_R10_SP11, P04_R10_SP12],
 }
 
 def get_sp_by_cn(planet_cn: str, region_cn: str, floor: int, tp_cn: str) -> TransportPoint:
