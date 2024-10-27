@@ -1,67 +1,54 @@
-from PySide6.QtCore import Signal
-from PySide6.QtGui import QIcon, Qt
-from qfluentwidgets import FluentIconBase, SwitchButton, IndicatorPosition
-from typing import Union, Optional
-
-from one_dragon.gui.component.layout_utils import IconSize, Margins
+from dataclasses import dataclass
+from PySide6.QtCore import Signal, Qt
+from qfluentwidgets import SwitchButton, IndicatorPosition
+from typing import Optional
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
 
 
+@dataclass(eq=False)
 class SwitchSettingCard(SettingCardBase):
+    """带切换开关的设置卡片类"""
+
+    title: str
+    on_text_cn: str = "开"
+    off_text_cn: str = "关"
+    adapter: Optional[YamlConfigAdapter] = None
 
     value_changed = Signal(bool)
 
-    def __init__(self, 
-                 title, 
-                icon: Union[str, QIcon, FluentIconBase], 
-                iconSize: IconSize = IconSize(16, 16),
-                margins: Margins = Margins(16, 16, 0, 16),
-                content=None, parent=None,
-                on_text_cn: str = '开', off_text_cn: str = '关',
-                adapter: Optional[YamlConfigAdapter] = None):
-        """
-        复制原 SwitchSettingCard
-        封装了些多语言
-        去除了 OptionsConfigItem
-        :param icon: 左边显示的图标
-        :param title: 左边的标题 中文
-        :param content: 左侧的详细文本 中文
-        :param parent: 组件的parent
-        :param adapter: 配置适配器 自动更新对应配置文件
-        """
-        SettingCardBase.__init__(self,title,icon,iconSize,margins,content, parent=parent)
-        self.adapter: YamlConfigAdapter = adapter
+    def __post_init__(self):
+        # 初始化父类
+        SettingCardBase.__post_init__(self)
 
-        self.on_text_cn: str = on_text_cn
-        self.off_text_cn: str = off_text_cn
-
+        # 创建按钮并设置相关属性
         self.btn = SwitchButton(parent=self, indicatorPos=IndicatorPosition.RIGHT)
-        self.btn._offText = gt(off_text_cn, 'ui')
-        self.btn._onText = gt(on_text_cn, 'ui')
-        self.btn.checkedChanged.connect(self._on_valued_changed)
+        self.btn._offText = gt(self.off_text_cn, "ui")
+        self.btn._onText = gt(self.on_text_cn, "ui")
+        self.btn.checkedChanged.connect(self._on_value_changed)
 
+        # 将按钮添加到布局
         self.hBoxLayout.addWidget(self.btn, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
-    def _on_valued_changed(self, value: bool):
+    def _on_value_changed(self, value: bool):
+        # 更新配置适配器中的值并发出信号
         if self.adapter is not None:
             self.adapter.set_value(value)
         self.value_changed.emit(value)
 
     def init_with_adapter(self, adapter: YamlConfigAdapter) -> None:
-        """
-        初始化值
-        """
+        """使用配置适配器初始化值"""
         self.adapter = adapter
         self.setValue(self.adapter.get_value(), emit_signal=False)
 
     def setValue(self, value: bool, emit_signal: bool = True):
+        """设置开关状态并更新文本"""
         if not emit_signal:
             self.btn.blockSignals(True)
         self.btn.setChecked(value)
         text = self.on_text_cn if value else self.off_text_cn
-        self.btn.setText(gt(text, 'ui'))
+        self.btn.setText(gt(text, "ui"))
         if not emit_signal:
             self.btn.blockSignals(False)

@@ -1,10 +1,11 @@
+from dataclasses import dataclass
 from PySide6.QtCore import Signal, QObject
 from PySide6.QtGui import QIcon, Qt
 from qfluentwidgets import SettingCard, FluentIconBase, PushButton
 from typing import Union, Optional
 
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
-from one_dragon.gui.component.layout_utils import IconSize, Margins
+from one_dragon.gui.component.utils.layout_utils import IconSize, Margins
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
@@ -22,39 +23,29 @@ class KeyEventWorker(QObject):
         """
         self.key_pressed.emit(key)
 
-
+@dataclass(eq=False)
 class KeySettingCard(SettingCardBase):
+
+    title: str
+    adapter: Optional[YamlConfigAdapter] = None
+    value: str = ""
 
     value_changed = Signal(str)
 
-    def __init__(self, title:str,
-                icon: Union[str, QIcon, FluentIconBase]=None,
-                iconSize:IconSize = IconSize(16,16),
-                margins:Margins = Margins(16,16,0,16), value: str = '',
-                content: Optional[str] = None, parent=None,
-                adapter: Optional[YamlConfigAdapter] = None
-                ):
-        """
-        更改按键的
-        :param icon: 左边显示的图标
-        :param title: 左边的标题 中文
-        :parma value: 当前值
-        :param content: 左侧的详细文本 中文
-        :param parent: 组件的parent
-        :param adapter: 配置适配器 自动更新对应配置文件
-        """
-        SettingCardBase.__init__(self,title,icon,iconSize,margins,content, parent)
-        self.adapter: YamlConfigAdapter = adapter
+    def __post_init__(self):
+        SettingCardBase.__post_init__(self)
 
-        self.value: str = value
-        self.btn = PushButton(text=value.upper(), parent=self)
+        # 初始化 PushButton
+        self.btn = PushButton(text=self.value.upper(), parent=self)
         self.btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.btn.clicked.connect(self._on_btn_clicked)
 
-        self.button_listener = None  # 监听
+        # 初始化监听器和键盘事件工作者
+        self.button_listener = None  # 按键监听
         self.key_worker = KeyEventWorker()
         self.key_worker.key_pressed.connect(self._on_key_signal)
 
+        # 布局处理
         self.hBoxLayout.addWidget(self.btn, 1, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
@@ -64,8 +55,10 @@ class KeySettingCard(SettingCardBase):
         :return:
         """
         if self.button_listener is None:
-            self.button_listener = PcButtonListener(self._on_key_press, listen_keyboard=True, listen_mouse=True)
-            self.btn.setText(gt('请按键', 'ui'))
+            self.button_listener = PcButtonListener(
+                self._on_key_press, listen_keyboard=True, listen_mouse=True
+            )
+            self.btn.setText(gt("请按键", "ui"))
             self.button_listener.start()
         else:
             self._stop_listener()
@@ -103,7 +96,7 @@ class KeySettingCard(SettingCardBase):
         :param content: 文本 中文
         :return:
         """
-        SettingCard.setContent(self, gt(content, 'ui'))
+        SettingCard.setContent(self, gt(content, "ui"))
 
     def setValue(self, value: str, emit_signal: bool = True) -> None:
         """

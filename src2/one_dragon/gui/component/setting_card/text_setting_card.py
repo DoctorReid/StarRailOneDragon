@@ -1,48 +1,40 @@
-from PySide6.QtCore import Signal
-from PySide6.QtGui import QIcon, Qt
-from qfluentwidgets import SettingCard, FluentIconBase, LineEdit
-from typing import Union, Optional
-
-from one_dragon.gui.component.layout_utils import IconSize, Margins
+from dataclasses import dataclass
+from PySide6.QtCore import Signal, Qt
+from qfluentwidgets import LineEdit
+from typing import Optional
 from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
 from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils.i18_utils import gt
 
 
+@dataclass(eq=False)
 class TextSettingCard(SettingCardBase):
+    """带文本输入框的设置卡片类"""
+
+    title: str
+    input_placeholder: Optional[str] = None
+    input_max_width: int = 300
+    adapter: Optional[YamlConfigAdapter] = None
 
     value_changed = Signal(str)
 
-    def __init__(self, 
-                 title, 
-                icon: Union[str, QIcon, FluentIconBase], 
-                iconSize: IconSize = IconSize(16, 16),
-                margins: Margins = Margins(16, 16, 0, 16),
-                content=None, parent=None,
-                input_placeholder: str = None, input_max_width: int = 300,
-                adapter: Optional[YamlConfigAdapter] = None):
-        """
-        :param icon: 左边显示的图标
-        :param title: 左边的标题 中文
-        :param content: 左侧的详细文本 中文
-        :param parent: 组件的parent
-        :param input_placeholder: 输入提示
-        :param input_max_width: 输入框的最大长度
-        :param adapter: 配置适配器 自动更新对应配置文件
-        """
-        SettingCardBase.__init__(self, title, icon, iconSize,margins,content, parent)
-        self.adapter: YamlConfigAdapter = adapter
+    def __post_init__(self):
+        # 初始化父类
+        SettingCardBase.__post_init__(self)
 
+        # 创建 LineEdit 控件并设置相关属性
         self.line_edit = LineEdit(self)
-        self.line_edit.setMaximumWidth(input_max_width)
-        self.line_edit.setPlaceholderText(input_placeholder)
+        self.line_edit.setMaximumWidth(self.input_max_width)
+        self.line_edit.setPlaceholderText(self.input_placeholder)
         self.line_edit.setClearButtonEnabled(True)
         self.line_edit.editingFinished.connect(self._on_text_changed)
 
+        # 将输入框添加到布局
         self.hBoxLayout.addWidget(self.line_edit, 1, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addSpacing(16)
 
     def _on_text_changed(self) -> None:
+        """处理文本更改事件"""
         val = self.line_edit.text()
         self.value_changed.emit(val)
 
@@ -50,31 +42,20 @@ class TextSettingCard(SettingCardBase):
             self.adapter.set_value(val)
 
     def init_with_adapter(self, adapter: Optional[YamlConfigAdapter]) -> None:
-        """
-        初始化值
-        """
+        """使用配置适配器初始化值"""
         self.adapter = adapter
 
         if self.adapter is None:
-            self.setValue('', emit_signal=False)
+            self.setValue("", emit_signal=False)
         else:
             self.setValue(self.adapter.get_value(), emit_signal=False)
 
     def setContent(self, content: str) -> None:
-        """
-        更新左侧详细文本
-        :param content: 文本 中文
-        :return:
-        """
-        SettingCard.setContent(self, gt(content, 'ui'))
+        """更新左侧详细文本"""
+        SettingCardBase.setContent(self, gt(content, "ui"))
 
     def setValue(self, value: str, emit_signal: bool = True) -> None:
-        """
-        设置值
-        :param value:
-        :param emit_signal: 是否发送信号
-        :return:
-        """
+        """设置输入框的值"""
         if not emit_signal:
             self.line_edit.blockSignals(True)
         self.line_edit.setText(value)

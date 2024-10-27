@@ -5,7 +5,7 @@ import shutil
 from cv2.typing import MatLike
 from enum import Enum
 from functools import lru_cache
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_operator import YamlOperator
