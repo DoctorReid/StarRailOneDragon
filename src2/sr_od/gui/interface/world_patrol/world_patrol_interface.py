@@ -12,7 +12,7 @@ class WorldPatrolInterface(PivotNavigatorInterface):
     def __init__(self, ctx: SrContext, parent=None):
         self.ctx: SrContext = ctx
         PivotNavigatorInterface.__init__(self, object_name='sr_world_patrol_interface', parent=parent,
-                                         nav_text_cn='锄大地', nav_icon=FluentIcon.MARKET)
+                                         nav_text_cn='锄大地', nav_icon=FluentIcon.ROTATE)
 
     def create_sub_interface(self):
         """

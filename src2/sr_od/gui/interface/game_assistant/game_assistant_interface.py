@@ -10,7 +10,7 @@ class GameAssistantInterface(PivotNavigatorInterface):
     def __init__(self, ctx: SrContext, parent=None):
         self.ctx: SrContext = ctx
         PivotNavigatorInterface.__init__(self, object_name='sr_game_assistant_interface', parent=parent,
-                                         nav_text_cn='游戏助手', nav_icon=FluentIcon.MARKET)
+                                         nav_text_cn='游戏助手', nav_icon=FluentIcon.GAME)
 
     def create_sub_interface(self):
         """

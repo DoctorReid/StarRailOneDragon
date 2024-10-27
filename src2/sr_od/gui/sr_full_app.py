@@ -1,3 +1,5 @@
+from sr_od.gui.interface.one_dragon.sr_one_dragon_interface import SrOneDragonInterface
+
 try:
     import sys
 
@@ -69,7 +71,7 @@ try:
             # 主页
             # self.add_sub_interface(HomeInterface(self.ctx, parent=self))
 
-            # 游戏助手
+            self.add_sub_interface(SrOneDragonInterface(self.ctx, parent=self))
             self.add_sub_interface(WorldPatrolInterface(self.ctx, parent=self))
             self.add_sub_interface(GameAssistantInterface(self.ctx, parent=self))
 
