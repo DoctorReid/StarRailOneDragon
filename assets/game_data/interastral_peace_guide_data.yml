@@ -436,6 +436,21 @@
     - category_name: "差分宇宙"
     - category_name: "模拟宇宙"
       show_in_power_plan: true
+      mission_list:
+        - mission_name: "第三宇宙"
+          show_in_power_plan: true
+          display_name: "沉陆海域露莎卡 奇想蕉乐园"
+          power: 40
+
+        - mission_name: "第三宇宙"
+          show_in_power_plan: true
+          display_name: "沉陆海域露莎卡 奇想蕉乐园"
+          power: 40
+
+        - mission_name: "第三宇宙"
+          show_in_power_plan: true
+          display_name: "沉陆海域露莎卡 奇想蕉乐园"
+          power: 40
 
 - tab_name: "逐光捡金"
 

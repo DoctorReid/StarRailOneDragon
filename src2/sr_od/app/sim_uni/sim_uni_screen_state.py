@@ -26,6 +26,7 @@ class ScreenState(Enum):
     SIM_DROP_CURIOS: str = '丢弃奇物'
     SIM_EVENT: str = '事件'
     SIM_UNI_REGION: str = '模拟宇宙-区域'
+    SIM_PATH: str = '命途'
 
 
 def get_level_type(ctx: SrContext, screen: MatLike) -> Optional[SimUniLevelType]:
@@ -212,3 +213,27 @@ def get_sim_uni_initial_screen_state(ctx: SrContext, screen: MatLike) -> Optiona
         return ScreenState.SIM_TYPE_NORMAL.value
 
     return None
+
+
+def in_sim_uni_secondary_ui(ctx: SrContext, screen: MatLike, title: str = ScreenState.SIM_TYPE_NORMAL.value) -> bool:
+    """
+    判断是否在模拟宇宙的页面
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param title: 标题
+    :return:
+    """
+    return common_screen_state.in_secondary_ui(
+        ctx, screen, title,
+        screen_name='模拟宇宙', area_name='左上角标题'  # 左上角界面名称的位置 事件和选择祝福的框是不一样位置的 这里取了两者的并集
+    )
+
+
+def in_sim_uni_choose_path(ctx: SrContext, screen: MatLike) -> bool:
+    """
+    是否在模拟宇宙-选择命途页面
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :return:
+    """
+    return in_sim_uni_secondary_ui(ctx, screen, ScreenState.SIM_PATH.value)

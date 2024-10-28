@@ -1,13 +1,23 @@
-from typing import Optional, List, ClassVar, Callable
+from typing import Optional, ClassVar, Callable
 
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.app.sim_uni import sim_uni_screen_state
-from sr_od.app.sim_uni.operations.sim_uni_claim_weekly_reward import SimUniClaimWeeklyReward
+from sr_od.app.sim_uni.operations.bless.sim_uni_choose_path import SimUniChoosePath
+from sr_od.app.sim_uni.operations.entry.choose_sim_uni_diff import ChooseSimUniDiff
+from sr_od.app.sim_uni.operations.entry.choose_sim_uni_num import ChooseSimUniNum
+from sr_od.app.sim_uni.operations.entry.sim_uni_start import SimUniStart
+from sr_od.app.sim_uni.operations.entry.sim_uni_claim_weekly_reward import SimUniClaimWeeklyReward
+from sr_od.app.sim_uni.operations.sim_uni_exit import SimUniExit
+from sr_od.app.sim_uni.operations.auto_run.sim_uni_run_world import SimUniRunWorld
+from sr_od.app.sim_uni.sim_uni_const import SimUniWorldEnum, SimUniPath
 from sr_od.app.sr_application import SrApplication
 from sr_od.context.sr_context import SrContext
+from sr_od.interastral_peace_guide.guide_transport import GuideTransport
+from sr_od.operations.back_to_normal_world_plus import BackToNormalWorldPlus
 
 
 class SimUniApp(SrApplication):
@@ -25,94 +35,9 @@ class SimUniApp(SrApplication):
         模拟宇宙应用 需要在大世界中非战斗、非特殊关卡界面中开启
         :param ctx:
         """
-        edges: List[StateOperationEdge] = []
-
-        check_times = StateOperationNode('检查运行次数', self._check_times)
-        check_initial_screen = StateOperationNode('检查初始画面', self._check_initial_screen)
-        edges.append(StateOperationEdge(check_times, check_initial_screen))
-
-        check_reward_before_exit = StateOperationNode('领取每周奖励', op=SimUniClaimWeeklyReward(ctx))
-        edges.append(StateOperationEdge(check_times, check_reward_before_exit, status=SimUniApp.STATUS_ALL_FINISHED))
-
-        back_to_world = StateOperationNode('退出', op=BackToWorld(ctx))  # 无论是否领取成功都退出
-        edges.append(StateOperationEdge(check_reward_before_exit, back_to_world, ignore_status=True))
-        edges.append(StateOperationEdge(check_reward_before_exit, back_to_world, success=False, ignore_status=True))
-
-        open_menu = StateOperationNode('菜单', op=OpenPhoneMenu(ctx))
-        edges.append(StateOperationEdge(check_initial_screen, open_menu, ignore_status=True))
-
-        choose_guide = StateOperationNode('指南', op=ClickPhoneMenuItem(ctx, phone_menu_const.INTERASTRAL_GUIDE))
-        edges.append(StateOperationEdge(open_menu, choose_guide))
-        edges.append(StateOperationEdge(check_initial_screen, choose_guide,
-                                        status=ScreenState.PHONE_MENU.value))  # 在菜单的时候 打开指南
-
-        choose_survival_index = StateOperationNode('指南中选择生存索引', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_2.value))
-        edges.append(StateOperationEdge(choose_guide, choose_survival_index))
-        edges.append(StateOperationEdge(check_initial_screen, choose_survival_index,
-                                        status=ScreenState.GUIDE.value))  # 在指南里 选择生存索引
-
-        choose_in_si = StateOperationNode('生存索引中选择模拟宇宙', self.choose_category_in_survival_index)
-        edges.append(StateOperationEdge(choose_survival_index, choose_in_si))
-        edges.append(StateOperationEdge(check_initial_screen, choose_in_si,
-                                        status=ScreenState.GUIDE_SURVIVAL_INDEX.value))  # 在生存索引 选择模拟宇宙
-
-        choose_sim_category = StateOperationNode('指南中选择模拟宇宙', op=ChooseGuideTab(ctx, GuideTabEnum.TAB_3.value))
-        edges.append(StateOperationEdge(choose_in_si, choose_sim_category, status=self.STATUS_NOT_FOUND_IN_SI))
-
-        choose_in_su = StateOperationNode('模拟宇宙中选择模拟宇宙', self.choose_category_in_sim_uni)
-        edges.append(StateOperationEdge(choose_sim_category, choose_in_su))
-
-        si_transport = StateOperationNode('生存索引中传送', op=ChooseGuideMission(ctx, GuideMissionEnum.SIM_UNI_00.value))
-        edges.append(StateOperationEdge(choose_in_si, si_transport))
-
-        su_transport = StateOperationNode('模拟宇宙中传送', op=ChooseGuideMission(ctx, GuideMissionEnum.SIM_UNI_NORMAL.value))
-        edges.append(StateOperationEdge(choose_in_su, su_transport))
-
-        choose_normal_universe = StateOperationNode('普通宇宙', op=ChooseSimUniCategory(ctx, SimUniTypeEnum.NORMAL))
-        edges.append(StateOperationEdge(si_transport, choose_normal_universe))
-        edges.append(StateOperationEdge(su_transport, choose_normal_universe))
-        edges.append(StateOperationEdge(check_initial_screen, choose_normal_universe,
-                                        status=ScreenState.SIM_TYPE_EXTEND.value))  # 拓展装置 选择模拟宇宙
-
-        choose_universe_num = StateOperationNode('选择世界', self._choose_sim_uni_num)
-        edges.append(StateOperationEdge(choose_normal_universe, choose_universe_num))
-        edges.append(StateOperationEdge(check_initial_screen, choose_universe_num,
-                                        status=ScreenState.SIM_TYPE_NORMAL.value))  # 模拟宇宙 选择世界
-
-        choose_universe_diff = StateOperationNode('选择难度', self._choose_sim_uni_diff)
-        edges.append(StateOperationEdge(choose_universe_num, choose_universe_diff,
-                                        status=ChooseSimUniNum.STATUS_RESTART))
-
-        start_sim = StateOperationNode('开始挑战', op=SimUniStart(ctx))
-        edges.append(StateOperationEdge(choose_universe_diff, start_sim))
-        edges.append(StateOperationEdge(choose_universe_num, start_sim,
-                                        status=ChooseSimUniNum.STATUS_CONTINUE))
-
-        choose_path = StateOperationNode('选择命途', self._choose_path)
-        edges.append(StateOperationEdge(start_sim, choose_path, status=SimUniStart.STATUS_RESTART))
-
-        run_world = StateOperationNode('通关', self._run_world)
-        edges.append(StateOperationEdge(choose_path, run_world))
-        edges.append(StateOperationEdge(start_sim, run_world, status=ChooseSimUniNum.STATUS_CONTINUE))
-
-        # 战斗成功
-        check_times_to_continue = StateOperationNode('继续检查运行次数', self._check_times)
-        edges.append(StateOperationEdge(run_world, check_times_to_continue))
-        edges.append(StateOperationEdge(check_times_to_continue, choose_universe_num))
-        edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniApp.STATUS_ALL_FINISHED))
-        edges.append(StateOperationEdge(check_times_to_continue, check_reward_before_exit, status=SimUniApp.STATUS_EXCEPTION))
-
-        if not ctx.one_dragon_config.is_debug:  # 任何异常错误都退出当前宇宙 调试模式下不退出 直接失败等待处理
-            exception_exit = StateOperationNode('异常退出', self._exception_exit)
-            edges.append(StateOperationEdge(run_world, exception_exit,
-                                            success=False, ignore_status=True))
-            edges.append(StateOperationEdge(exception_exit, check_times_to_continue))
-
-        self.run_record: SimUniRunRecord = ctx.sim_uni_run_record
-        super().__init__(ctx, try_times=5,
-                         op_name=gt(AppDescriptionEnum.SIM_UNIVERSE.value.cn, 'ui'),
-                         edges=edges, specified_start_node=check_times,
-                         run_record=self.run_record)
+        SrApplication.__init__(self, ctx, 'sim_universe',
+                               op_name=gt('模拟宇宙', 'ui'),
+                               run_record=ctx.sim_uni_record)
 
         self.current_uni_num: int = 0  # 当前运行的第几宇宙 启动时会先完成运行中的宇宙
 
@@ -125,18 +50,12 @@ class SimUniApp(SrApplication):
         self.not_found_in_survival_times: int = 0  # 在生存索引中找不到模拟宇宙的次数
         self.all_finished: bool = False
 
-    def preheat(self):
-        """
-        预热
-        - 提前加载需要的模板
-        - 角度匹配用的矩阵
-        :return:
-        """
-        self.ctx.ih.preheat_for_world_patrol()
-        mini_map.preheat()
-
+    @node_from(from_name='自动宇宙')
+    @node_from(from_name='异常退出')
     @operation_node(name='检查运行次数', is_start_node=True)
     def _check_times(self) -> OperationRoundResult:
+        self.ctx.init_for_sim_uni()
+
         if self.specified_uni_num is not None:
             if self.get_reward_cnt < self.max_reward_to_get:
                 return self.round_success()
@@ -147,9 +66,9 @@ class SimUniApp(SrApplication):
         if self.exception_times >= 10:
             return self.round_success(SimUniApp.STATUS_EXCEPTION)
 
-        log.info('本日精英次数 %d 本周精英次数 %d', self.run_record.elite_daily_times, self.run_record.elite_weekly_times)
-        if (self.run_record.elite_daily_times >= self.ctx.sim_uni_config.elite_daily_times
-                or self.run_record.elite_weekly_times >= self.ctx.sim_uni_config.elite_weekly_times):
+        log.info('本日精英次数 %d 本周精英次数 %d', self.ctx.sim_uni_record.elite_daily_times, self.ctx.sim_uni_record.elite_weekly_times)
+        if (self.ctx.sim_uni_record.elite_daily_times >= self.ctx.sim_uni_config.elite_daily_times
+                or self.ctx.sim_uni_record.elite_weekly_times >= self.ctx.sim_uni_config.elite_weekly_times):
             self.all_finished = True
             return self.round_success(SimUniApp.STATUS_ALL_FINISHED)
         else:
@@ -166,28 +85,24 @@ class SimUniApp(SrApplication):
                 return self.round_success(SimUniApp.STATUS_TO_WEEKLY_REWARD)
         return self.round_success(state)
 
-    def _transport(self) -> OperationRoundResult:
-        """
-        点击传送
-        :return:
-        """
-        area_list = [
-            ScreenSimUni.GUIDE_TRANSPORT_1.value,
-            ScreenSimUni.GUIDE_TRANSPORT_2.value
-        ]
-        screen = self.screenshot()
-        for area in area_list:
-            click = self.find_and_click_area(area, screen)
-            if click == Operation.OCR_CLICK_SUCCESS:
-                return self.round_success(wait=3)
+    @node_from(from_name='识别初始画面')
+    @operation_node(name='传送')
+    def transport(self) -> OperationRoundResult:
+        tab = self.ctx.guide_data.best_match_tab_by_name(gt('模拟宇宙'))
+        category = self.ctx.guide_data.best_match_category_by_name(gt('模拟宇宙'), tab)
+        mission = self.ctx.guide_data.best_match_mission_by_name('模拟宇宙', category)
+        op = GuideTransport(self.ctx, mission)
+        return self.round_by_op_result(op.execute())
 
-        return self.round_retry('点击传送失败', wait=1)
-
+    @node_from(from_name='识别初始画面', status=sim_uni_screen_state.ScreenState.SIM_TYPE_NORMAL.value)  # 最开始已经在模拟宇宙入口了
+    @node_from(from_name='传送')
+    @operation_node(name='选择宇宙')
     def _choose_sim_uni_num(self) -> OperationRoundResult:
         if self.specified_uni_num is None:
             world = SimUniWorldEnum[self.ctx.sim_uni_config.weekly_uni_num]
         else:
             world = SimUniWorldEnum['WORLD_%02d' % self.specified_uni_num]
+
         op = ChooseSimUniNum(self.ctx, world.value.idx)
         op_result = op.execute()
         if op_result.success:
@@ -195,21 +110,32 @@ class SimUniApp(SrApplication):
             self.ctx.sim_uni_info.world_num = self.current_uni_num
         else:
             self.ctx.sim_uni_info.world_num = 0
-        return self.round_by_op(op_result)
+        return self.round_by_op_result(op_result)
 
+
+    @node_from(from_name='选择宇宙', status=ChooseSimUniNum.STATUS_RESTART)
+    @operation_node(name='选择难度')
     def _choose_sim_uni_diff(self) -> OperationRoundResult:
         op = ChooseSimUniDiff(self.ctx, self.ctx.sim_uni_config.weekly_uni_diff)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='选择宇宙', status=ChooseSimUniNum.STATUS_CONTINUE)
+    @node_from(from_name='选择难度')
+    @operation_node(name='开始挑战')
+    def start_sim_uni(self) -> OperationRoundResult:
+        op = SimUniStart(self.ctx)
+        return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='开始挑战', status=SimUniStart.STATUS_RESTART)
+    @operation_node(name='选择命途')
     def _choose_path(self) -> OperationRoundResult:
-        """
-        选择命途
-        :return:
-        """
         cfg = self.ctx.sim_uni_config.get_challenge_config(self.current_uni_num)
-        op = ChooseSimUniPath(self.ctx, SimUniPath[cfg.path])
-        return self.round_by_op(op.execute())
+        op = SimUniChoosePath(self.ctx, SimUniPath[cfg.path])
+        return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='开始挑战', status=SimUniStart.STATUS_CONTINUE)
+    @node_from(from_name='选择命途')
+    @operation_node(name='自动宇宙')
     def _run_world(self) -> OperationRoundResult:
         uni_challenge_config = self.ctx.sim_uni_config.get_challenge_config(self.current_uni_num)
         get_reward = self.current_uni_num == self.specified_uni_num  # 只有当前宇宙和开拓力需要的宇宙是同一个 才能拿奖励
@@ -219,76 +145,40 @@ class SimUniApp(SrApplication):
                             max_reward_to_get=self.max_reward_to_get - self.get_reward_cnt if get_reward else 0,
                             get_reward_callback=self._on_sim_uni_get_reward if get_reward else None
                             )
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())
 
     def _on_sim_uni_get_reward(self, use_power: int, user_qty: int):
         self.get_reward_cnt += 1
         if self.get_reward_callback is not None:
             self.get_reward_callback(use_power, user_qty)
 
+    @node_from(from_name='自动宇宙', success=False)
+    @operation_node(name='自动宇宙发生异常')
+    def run_world_fail(self) -> OperationRoundResult:
+        if self.ctx.env_config.is_debug:
+            # 调试模式下不退出 直接失败等待处理
+            return self.round_fail()
+
+        # 任何异常错误都退出当前宇宙
+        return self.round_success()
+
+    @node_from(from_name='自动宇宙发生异常')
+    @operation_node(name='异常退出')
     def _exception_exit(self) -> OperationRoundResult:
         self.exception_times += 1
         op = SimUniExit(self.ctx)
-        return self.round_by_op(op.execute())
-
-    def choose_category_in_survival_index(self) -> OperationRoundResult:
-        """
-        在生存索引中 选择模拟宇宙
-        开启差分宇宙后 就没有这个选项了
-        :return:
-        """
-        screen = self.screenshot()
-
-        area = ScreenGuide.SURVIVAL_INDEX_CATE.value
-        part = cv2_utils.crop_image_only(screen, area.rect)
-
-        target = GuideCategoryEnum.SI_SIM_UNI.value
-        ocr_result_map = self.ctx.ocr.run_ocr(part)
-
-        for k, v in ocr_result_map.items():
-            # 看有没有目标
-            if str_utils.find_by_lcs(gt(target.cn, 'ocr'), k, 0.55):
-                to_click = v.max.center + area.rect.left_top
-                log.info('生存索引中找到 %s 尝试点击', target.cn)
-                if self.ctx.controller.click(to_click):
-                    return self.round_success(wait=0.5)
-
-        self.not_found_in_survival_times += 1
-        if self.not_found_in_survival_times > 1:
-            return self.round_success(status=self.STATUS_NOT_FOUND_IN_SI)
-        else:
-            return self.round_retry(wait=0.5)
-
-    def choose_category_in_sim_uni(self) -> OperationRoundResult:
-        """
-        在指南-模拟宇宙中 选择模拟宇宙
-        开启差分宇宙后 就有这个选项了
-        :return:
-        """
-        screen = self.screenshot()
-
-        area = ScreenGuide.SURVIVAL_INDEX_CATE.value
-        part = cv2_utils.crop_image_only(screen, area.rect)
-
-        target = GuideCategoryEnum.SI_SIM_UNI.value
-        ocr_result_map = self.ctx.ocr.run_ocr(part)
-
-        for k, v in ocr_result_map.items():
-            # 看有没有目标
-            if str_utils.find_by_lcs(gt(target.cn, 'ocr'), k, 0.55):
-                to_click = v.max.center + area.rect.left_top
-                log.info('生存索引中找到 %s 尝试点击', target.cn)
-                if self.ctx.controller.click(to_click):
-                    return self.round_success(wait=0.5)
-
-        self.not_found_in_survival_times += 1
-        if self.not_found_in_survival_times > 1:
-            return self.round_fail(status='找不到模拟宇宙')
-        else:
-            return self.round_retry(wait=0.5)
+        return self.round_by_op_result(op.execute())
 
     @node_from(from_name='识别初始画面', status=STATUS_TO_WEEKLY_REWARD)
     @operation_node(name='领取每周奖励')
     def check_reward_before_exit(self) -> OperationRoundResult:
         op = SimUniClaimWeeklyReward(self.ctx)
+        return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='检查运行次数', status=STATUS_EXCEPTION)
+    @node_from(from_name='领取每周奖励')
+    @node_from(from_name='领取每周奖励', success=False)
+    @operation_node(name='完成后返回')
+    def back_at_last(self) -> OperationRoundResult:
+        op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())

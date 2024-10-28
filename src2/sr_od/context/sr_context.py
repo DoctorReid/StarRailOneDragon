@@ -2,6 +2,7 @@ from typing import Optional, List
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from sr_od.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
@@ -124,7 +125,6 @@ class SrContext(OneDragonContext):
         self.team_info: TeamInfo = TeamInfo()
         self.sim_uni_info = SimUniInfo()
         self.detect_info: DetectInfo = DetectInfo()
-        self.yolo_detector: Optional[YoloScreenDetector] = None
 
         # 秘技相关
         self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
@@ -132,9 +132,9 @@ class SrContext(OneDragonContext):
 
         # 共用配置
         self.yolo_config: YoloConfig = YoloConfig()
-        self.yolo_detector = YoloScreenDetector(
-            world_patrol_model_name=self.yolo_config.world_patrol,
-            sim_uni_model_name=self.yolo_config.sim_uni,
+        self.yolo_detector: YoloScreenDetector = YoloScreenDetector(
+            world_patrol_model_name=None,
+            sim_uni_model_name=None,
             standard_resolution_h=self.project_config.screen_standard_height,
             standard_resolution_w=self.project_config.screen_standard_width
         )
@@ -170,7 +170,7 @@ class SrContext(OneDragonContext):
         self.power_record: TrailblazePowerRunRecord = TrailblazePowerRunRecord(self.power_config, self.current_instance_idx)
 
         self.sim_uni_config: SimUniConfig = SimUniConfig(self.current_instance_idx)
-
+        self.sim_uni_record: SimUniRunRecord = SimUniRunRecord(self.sim_uni_config, self.current_instance_idx)
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:
@@ -185,4 +185,6 @@ class SrContext(OneDragonContext):
         self.yolo_detector.init_world_patrol_model(self.yolo_config.world_patrol)
 
     def init_for_sim_uni(self) -> None:
+        self.ocr.init_model()
+        self.preheat_context.preheat_for_world_patrol_async()  # 与锄大地共用大地图
         self.yolo_detector.init_sim_uni_model(self.yolo_config.sim_uni)

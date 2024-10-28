@@ -15,7 +15,7 @@ from sr_od.config.game_const import STANDARD_CENTER_POS, OPPOSITE_DIRECTION
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.operations.technique import UseTechnique, UseTechniqueResult, FastRecover
-from sr_od.screen_state import common_screen_state
+from sr_od.screen_state import common_screen_state, battle_screen_state, fast_recover_screen_state
 
 
 class SimUniEnterFight(SrOperation):
@@ -98,7 +98,7 @@ class SimUniEnterFight(SrOperation):
 
             round_result = self._try_attack(screen)
             return round_result
-        elif self.current_state == sim_uni_screen_state.ScreenState.BATTLE.value:
+        elif self.current_state == battle_screen_state.ScreenState.BATTLE.value:
             self._update_not_in_world_time()
             round_result = self._handle_not_in_world(screen)
             self._update_not_in_world_time()
@@ -279,14 +279,14 @@ class SimUniEnterFight(SrOperation):
         elif state == sim_uni_screen_state.ScreenState.EMPTY_TO_CLOSE.value:
             self.round_by_click_area('模拟宇宙', '点击空白处关闭')
             return self.round_wait(wait=1)
-        elif state == sim_uni_screen_state.ScreenState.BATTLE_FAIL.value:
+        elif state == battle_screen_state.ScreenState.BATTLE_FAIL.value:
             self.round_by_click_area('模拟宇宙', '点击空白处关闭')
             return self.round_fail(SimUniEnterFight.STATUS_BATTLE_FAIL, wait=5)
-        elif state == sim_uni_screen_state.ScreenState.EXPRESS_SUPPLY.value:
+        elif state == common_screen_state.ScreenState.EXPRESS_SUPPLY.value:
             return self._claim_express_supply()
-        elif state == sim_uni_screen_state.ScreenState.FAST_RECOVER.value:
+        elif state == fast_recover_screen_state.ScreenState.FAST_RECOVER.value:
             return self._fast_recover()
-        elif state == sim_uni_screen_state.ScreenState.BATTLE.value:
+        elif state == battle_screen_state.ScreenState.BATTLE.value:
             return self._in_battle()
         else:
             return self.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)

@@ -2,28 +2,6 @@ screen_id: sim_uni
 screen_name: 模拟宇宙
 pc_alt: true
 area_list:
-- area_name: GUIDE_TRANSPORT_1
-  pc_rect:
-  - 1489
-  - 523
-  - 1616
-  - 566
-  text: 传送
-  lcs_percent: 0.5
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
-- area_name: GUIDE_TRANSPORT_2
-  pc_rect:
-  - 1491
-  - 565
-  - 1616
-  - 609
-  text: 传送
-  lcs_percent: 0.5
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
 - area_name: 每周奖励红点
   pc_rect:
   - 360
@@ -46,7 +24,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: GOING_1
+- area_name: 宇宙入口-进行中-1
   pc_rect:
   - 813
   - 484
@@ -57,7 +35,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: GOING_2
+- area_name: 宇宙入口-进行中-2
   pc_rect:
   - 813
   - 505
@@ -68,7 +46,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: CURRENT_NUM_1
+- area_name: 当前宇宙名称-1
   pc_rect:
   - 805
   - 515
@@ -79,7 +57,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: CURRENT_NUM_2
+- area_name: 当前宇宙名称-2
   pc_rect:
   - 805
   - 546
@@ -178,7 +156,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: BATTLE_FAIL_EXIT
+- area_name: 战斗失败-终止战斗并结算
   pc_rect:
   - 536
   - 961
@@ -189,7 +167,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: BATTLE_FAIL_EXIT_CONFIRM
+- area_name: 战斗失败-确认
   pc_rect:
   - 1003
   - 646
@@ -240,6 +218,72 @@ area_list:
   - 350
   - 100
   text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 入口-重新开始
+  pc_rect:
+  - 1418
+  - 970
+  - 1656
+  - 997
+  text: 重新开始
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 入口-继续
+  pc_rect:
+  - 1573
+  - 968
+  - 1728
+  - 997
+  text: 继续
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 入口-启动模拟宇宙
+  pc_rect:
+  - 1519
+  - 963
+  - 1721
+  - 1002
+  text: 启动模拟宇宙
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 入口-低等级确认
+  pc_rect:
+  - 1005
+  - 647
+  - 1337
+  - 696
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 入口-命途区域
+  pc_rect:
+  - 134
+  - 665
+  - 1788
+  - 708
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 入口-确认命途
+  pc_rect:
+  - 1529
+  - 957
+  - 1869
+  - 1006
+  text: 确认命途
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
