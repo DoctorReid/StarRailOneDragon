@@ -35,7 +35,6 @@ class UseTrailblazePower(SrOperation):
         :param support: 使用支援 传入角色ID
         :param plan_times: 计划挑战次数
         :param on_battle_success: 战斗成功的回调 用于记录、扣体力等
-        :param need_transport: 是否需要传送 如果出现连续两次都要挑战同一个副本 可以不传送
         """
 
         SrOperation.__init__(
@@ -151,7 +150,7 @@ class UseTrailblazePower(SrOperation):
         点击开始挑战后 进入战斗前
         :return:
         """
-        if self.mission.cate == '凝滞虚影':
+        if self.mission.cate.cn == '凝滞虚影':
             op = WaitInWorld(self.ctx, wait_after_success=1)  # 等待怪物苏醒
             op_result = op.execute()
             if not op_result.success:

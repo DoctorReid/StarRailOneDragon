@@ -223,3 +223,26 @@ class TrailblazePowerConfig(YamlConfig):
             return plan_list[0]
 
         return None
+
+    def check_plan_run_times(self) -> None:
+        """
+        检查计划的运行次数 如果都完成了就重置
+        """
+        changed = False
+        while True:
+            plan_list: List[TrailblazePowerPlanItem] = self.plan_list
+            any_incomplete = False
+            for item in plan_list:
+                if item.run_times < item.plan_times:
+                    any_incomplete = True
+                    break
+
+            if any_incomplete:
+                break
+
+            for item in plan_list:
+                item.run_times -= item.plan_times
+            changed = True
+
+        if changed:
+            self.save()

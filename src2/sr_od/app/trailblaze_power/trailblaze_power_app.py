@@ -50,7 +50,7 @@ class TrailblazePower(SrApplication):
         判断下一个是什么副本
         :return:
         """
-        self.ctx.power_config.check_plan_finished()
+        self.ctx.power_config.check_plan_run_times()
         plan: Optional[TrailblazePowerPlanItem] = self.ctx.power_config.next_plan_item
 
         if plan is None:
@@ -114,6 +114,7 @@ class TrailblazePower(SrApplication):
     @node_from(from_name='执行开拓力计划')
     @operation_node(name='执行开拓力计划')
     def execute_plan(self) -> OperationRoundResult:
+        self.ctx.power_config.check_plan_run_times()
         plan: Optional[TrailblazePowerPlanItem] = self.ctx.power_config.next_plan_item
         if plan is None:
             return self.round_success(TrailblazePower.STATUS_NO_PLAN)

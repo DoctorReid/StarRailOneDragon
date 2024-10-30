@@ -399,7 +399,7 @@
           power: 40
 
     - category_name: "历战余响"
-      show_in_power_plan: true
+      show_in_power_plan: false
       mission_list:
         - mission_name: "心兽的战场·历战余响"
           show_in_power_plan: true
