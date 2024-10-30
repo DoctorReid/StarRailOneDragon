@@ -14,14 +14,13 @@ from sr_od.config.game_const import OPPOSITE_DIRECTION
 _EXECUTOR = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='sr_yolo_detector', max_workers=1)
 
 
-class DetectInfo:
+class SrDetectClass:
 
     def __init__(self, name: str, cate: str, label: str):
         self.name = name
         self.cate = cate
         # 标签去除中文
         self.label = re.sub(r'[\u4e00-\u9fa5]', '', label).replace('--', '-')
-
 
 
 class YoloScreenDetector:
@@ -56,7 +55,8 @@ class YoloScreenDetector:
         self.last_async_future: Optional[concurrent.futures.Future] = None  # 上一次异步回调
         self.last_detect_result: Optional[DetectFrameResult] = None  # 上一次识别结果
 
-        self.detect_info_list: List[DetectInfo] = []  # 所有可识别的信息
+        self.detect_info_list: List[SrDetectClass] = []  # 所有可识别的信息
+        self.label_2_class: dict[str, SrDetectClass] = {}
         self.world_patrol_label_list: List[str] = []  # 锄大地时需要识别的标签
 
         self.read_detect_info()
@@ -104,7 +104,7 @@ class YoloScreenDetector:
 
         if yolo is not None:
             self.last_detect_result = yolo.run(screen, conf=0.85, run_time=detect_time,
-                                               labels=self.world_patrol_label_list)
+                                               category_list=['界面提示被锁定', '界面提示可攻击'])
         else:
             self.last_detect_result = DetectFrameResult(raw_image=screen, run_time=detect_time, results=[])
 
@@ -201,6 +201,7 @@ class YoloScreenDetector:
         加载识别目标列表
         """
         self.detect_info_list = []
+        self.label_2_class: dict[str, SrDetectClass] = {}
         self.world_patrol_label_list = []
 
         file_path = os.path.join(
@@ -210,12 +211,21 @@ class YoloScreenDetector:
 
         yaml_data = YamlOperator(file_path)
         for data_item in yaml_data.data:
-            info = DetectInfo(**data_item)
+            info = SrDetectClass(**data_item)
             self.detect_info_list.append(info)
+            self.label_2_class[info.label] = info
 
             if info.cate in ['界面提示被锁定', '界面提示可攻击']:
                 self.world_patrol_label_list.append(info.label)
 
+    def sim_uni_combat_detect(self, screen: MatLike, screenshot_time: float) -> DetectFrameResult:
+        """
+        模拟宇宙中战斗楼层使用的识别
+        :return:
+        """
+        return self.sim_uni_yolo.run(screen, run_time=screenshot_time,
+                                     category_list=['普通怪', '界面提示被锁定', '界面提示可攻击',
+                                                    '模拟宇宙下层入口', '模拟宇宙下层入口未激活'])
 
 def __debug():
     from sr_od.context.sr_context import SrContext
@@ -224,7 +234,7 @@ def __debug():
 
     from one_dragon.utils import debug_utils
     import time
-    screen = debug_utils.get_debug_image('_1729402512838')
+    screen = debug_utils.get_debug_image('1')
     ctx.yolo_detector.detect_should_attack_in_world(screen, time.time())
 
 

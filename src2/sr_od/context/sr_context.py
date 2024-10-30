@@ -2,6 +2,7 @@ from typing import Optional, List
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from sr_od.app.sim_uni.sim_uni_route_data import SimUniRouteData
 from sr_od.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
@@ -119,6 +120,7 @@ class SrContext(OneDragonContext):
 
         self.map_data: SrMapData = SrMapData()
         self.world_patrol_route_data: WorldPatrolRouteData = WorldPatrolRouteData(self.map_data)
+        self.sim_uni_route_data: SimUniRouteData = SimUniRouteData(self.map_data)
         self.guide_data: SrGuideData = SrGuideData()
 
         self.pos_info: ContextPosInfo = ContextPosInfo()

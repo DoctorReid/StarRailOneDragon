@@ -1,4 +1,4 @@
-from typing import List, Optional, Callable, ClassVar
+from typing import Optional, Callable, ClassVar
 
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_edge import node_from
@@ -6,14 +6,24 @@ from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
 from sr_od.app.sim_uni import sim_uni_screen_state
+from sr_od.app.sim_uni.operations.auto_run.reset_sim_uni_level import ResetSimUniLevel
 from sr_od.app.sim_uni.operations.auto_run.sim_uni_wait_level_start import SimUniWaitLevelStart
+from sr_od.app.sim_uni.operations.move_v1.sim_uni_run_combat_route_v1 import SimUniRunCombatRoute
+from sr_od.app.sim_uni.operations.move_v2.sim_uni_run_combat_route_v2 import SimUniRunCombatRouteV2
+from sr_od.app.sim_uni.operations.move_v2.sim_uni_run_elite_route_v2 import SimUniRunEliteRouteV2
+from sr_od.app.sim_uni.operations.move_v2.sim_uni_run_event_route_v2 import SimUniRunEventRouteV2
+from sr_od.app.sim_uni.operations.move_v2.sim_uni_run_respite_route_v2 import SimUniRunRespiteRouteV2
+from sr_od.app.sim_uni.operations.move_v2.sim_uni_run_route_base_v2 import SimUniRunRouteBaseV2
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
-from sr_od.app.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelTypeEnum
+from sr_od.app.sim_uni.sim_uni_const import UNI_NUM_CN, SimUniLevelTypeEnum, SimUniLevelType
+from sr_od.app.sim_uni.sim_uni_route import SimUniRoute
 from sr_od.context.sr_context import SrContext
+from sr_od.operations.move.move_directly import MoveDirectly
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.operations.team.check_team_members_in_world import CheckTeamMembersInWorld
 from sr_od.operations.team.switch_member import SwitchMember
 from sr_od.sr_map import mini_map_utils
+from src.sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 
 
 class SimUniRunLevel(SrOperation):
@@ -39,42 +49,7 @@ class SimUniRunLevel(SrOperation):
             gt('挑战楼层', 'ui')
         )
 
-        edges: List[StateOperationEdge] = []
-
-        wait_start = StateOperationNode('等待加载', self._wait)
-
-        check_members = StateOperationNode('识别组队成员', self._check_members)
-        edges.append(StateOperationEdge(wait_start, check_members))
-
-        switch = StateOperationNode('切换1号位', self._switch_first)
-        edges.append(StateOperationEdge(check_members, switch))
-
-        check_level_type = StateOperationNode('识别楼层类型', self._check_level_type)
-        edges.append(StateOperationEdge(switch, check_level_type, ignore_status=True))  # 1号位切换成功与否都可以继续
-
-        check_route = StateOperationNode('匹配路线', self._check_route)
-        edges.append(StateOperationEdge(check_level_type, check_route))
-
-        route = StateOperationNode('区域', self._route_op)
-        edges.append(StateOperationEdge(check_route, route, ignore_status=True))
-        edges.append(StateOperationEdge(check_route, route, success=False, ignore_status=True))  # 没有设置路线也尝试使用v2算法
-
-        # 部分v1的失败情况 可以使用v2兜底
-        route_v2 = StateOperationNode('区域v2', self._route_op_v2)
-        edges.append(StateOperationEdge(route, route_v2, success=False, status=MoveDirectly.STATUS_NO_POS))
-
-        # 有可能是楼层类型判断错了
-        edges.append(StateOperationEdge(route, check_level_type, success=False, status=SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE))
-        edges.append(StateOperationEdge(route_v2, check_level_type, success=False, status=SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE))
-
-        # 最终还是失败时 部分场景可以尝试重置
-        reset = StateOperationNode('重置', self._reset)
-        edges.append(StateOperationEdge(route, reset, success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND))
-        edges.append(StateOperationEdge(route_v2, reset, success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND))
-        # 之前失败有可能是类型或者路线匹配错了 重进的话完全重新来一遍
-        edges.append(StateOperationEdge(reset, check_level_type))
-
-        super().__init__(ctx, op_name=op_name, edges=edges, specified_start_node=wait_start, op_callback=op_callback)
+        SrOperation.__init__(self, ctx, op_name=op_name, op_callback=op_callback)
 
         self.world_num: int = world_num
         self.level_type: Optional[SimUniLevelType] = None
@@ -120,6 +95,9 @@ class SimUniRunLevel(SrOperation):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='切换1号位')
+    @node_from(from_name='按类型运行路线指令v1', success=False, status=SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE) # 有可能是楼层类型判断错了
+    @node_from(from_name='按类型运行路线指令v2', success=False, status=SimUniRunRouteBaseV2.STATUS_WRONG_LEVEL_TYPE) # 有可能是楼层类型判断错了
+    @node_from(from_name='重置')  # 重置后完全重新来一遍
     @operation_node(name='识别楼层类型')
     def _check_level_type(self) -> OperationRoundResult:
         """
@@ -152,7 +130,7 @@ class SimUniRunLevel(SrOperation):
 
         another_route = False  # 是否匹配到另一条路线
         mm = mini_map_utils.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        target_route = match_best_sim_uni_route(self.world_num, self.level_type, mm)
+        target_route = self.ctx.sim_uni_route_data.match_best_sim_uni_route(self.world_num, self.level_type, mm)
 
         if target_route is None:
             self.route = None
@@ -166,12 +144,14 @@ class SimUniRunLevel(SrOperation):
         else:
             return self.round_success()
 
+    @node_from(from_name='匹配路线')
+    @operation_node(name='按类型运行路线指令v1')
     def _route_op(self, only_v2: bool = False) -> OperationRoundResult:
         """
         获取路线指令
         :return:
         """
-        op: Operation = self._get_route_op(only_v2=only_v2)
+        op: SrOperation = self._get_route_op(only_v2=only_v2)
 
         if op is None:
             return self.round_fail(status='未支持的楼层类型 %s' % self.level_type)
@@ -180,8 +160,11 @@ class SimUniRunLevel(SrOperation):
         if op_result.success and self.level_type == SimUniLevelTypeEnum.BOSS.value:
             return self.round_success(status=SimUniRunLevel.STATUS_BOSS_CLEARED)
         else:
-            return self.round_by_op(op_result)
+            return self.round_by_op_result(op_result)
 
+    @node_from(from_name='匹配路线', success=False)  # 没有设置路线也尝试使用v2算法
+    @node_from(from_name='按类型运行路线指令v1', success=False, status=MoveDirectly.STATUS_NO_POS) # 部分v1的失败情况 可以使用v2兜底
+    @operation_node(name='按类型运行路线指令v2')
     def _route_op_v2(self) -> OperationRoundResult:
         """
         获取路线指令
@@ -189,7 +172,7 @@ class SimUniRunLevel(SrOperation):
         """
         return self._route_op(only_v2=True)
 
-    def _get_route_op(self, only_v2: bool = False) -> Optional[Operation]:
+    def _get_route_op(self, only_v2: bool = False) -> Optional[SrOperation]:
         """
         1. 匹配路线失败时 使用v2算法
         2. 根据匹配路线中的配置 选择使用的算法
@@ -214,6 +197,9 @@ class SimUniRunLevel(SrOperation):
         else:
             return None
 
+    @node_from(from_name='按类型运行路线指令v1', success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND)  # 最终还是失败时 部分场景可以尝试重置
+    @node_from(from_name='按类型运行路线指令v2', success=False, status=MoveToNextLevel.STATUS_ENTRY_NOT_FOUND)  # 最终还是失败时 部分场景可以尝试重置
+    @operation_node(name='重置')
     def _reset(self) -> OperationRoundResult:
         """
         重置再来
@@ -224,4 +210,4 @@ class SimUniRunLevel(SrOperation):
 
         self.reset_times += 1
         op = ResetSimUniLevel(self.ctx)
-        return self.round_by_op(op.execute())
+        return self.round_by_op_result(op.execute())

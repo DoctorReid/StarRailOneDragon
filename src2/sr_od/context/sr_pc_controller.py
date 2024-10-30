@@ -29,6 +29,7 @@ class SrPcController(PcControllerBase):
         self.game_config: GameConfig = game_config
         self.turn_dx: float = self.game_config.get('turn_dx')
         self.run_speed: float = 30
+        self.walk_speed: float = 20
         self.is_moving: bool = False
         self.is_running: bool = False  # 是否在疾跑
         self.start_move_time: float = 0
@@ -166,6 +167,14 @@ class SrPcController(PcControllerBase):
         :return:
         """
         ctypes.windll.user32.mouse_event(PcControllerBase.MOUSEEVENTF_MOVE, int(d), 0)
+
+    def turn_down(self, distance: float):
+        """
+        视角上下移动
+        :param distance: 正往下 负往上
+        :return:
+        """
+        ctypes.windll.user32.mouse_event(PcControllerBase.MOUSEEVENTF_MOVE, 0, int(distance * self.turn_dx))
 
     def cal_move_distance_by_time(self, seconds: float):
         """

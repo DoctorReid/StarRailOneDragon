@@ -2,6 +2,7 @@ from cv2.typing import MatLike
 from enum import Enum
 from typing import Optional, List
 
+from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import cv2_utils, str_utils
@@ -237,3 +238,34 @@ def in_sim_uni_choose_path(ctx: SrContext, screen: MatLike) -> bool:
     :return:
     """
     return in_sim_uni_secondary_ui(ctx, screen, ScreenState.SIM_PATH.value)
+
+
+def match_next_level_entry(ctx: SrContext, screen: MatLike, knn_distance_percent: float=0.6) -> List[MatchResult]:
+    """
+    获取当前画面中的下一层入口
+    MatchResult.data 是对应的类型 SimUniLevelType
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :param knn_distance_percent: 越小要求匹配程度越高
+    :return:
+    """
+    source_kps, source_desc = cv2_utils.feature_detect_and_compute(screen)
+
+    result_list: List[MatchResult] = []
+
+    for enum in SimUniLevelTypeEnum:
+        level_type: SimUniLevelType = enum.value
+        template = ctx.template_loader.get_template('sim_uni', level_type.template_id)
+
+        result = cv2_utils.feature_match_for_one(source_kps, source_desc,
+                                                 template.kps, template.desc,
+                                                 template.origin.shape[1], template.origin.shape[0],
+                                                 knn_distance_percent=knn_distance_percent)
+
+        if result is None:
+            continue
+
+        result.data = level_type
+        result_list.append(result)
+
+    return result_list

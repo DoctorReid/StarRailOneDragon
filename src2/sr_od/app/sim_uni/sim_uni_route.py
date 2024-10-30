@@ -1,12 +1,10 @@
-import os
-import shutil
-from sympy import floor
-from typing import TypedDict, Union, List, Optional, Tuple
-
 import cv2
 import numpy as np
+import os
+import shutil
 import yaml
 from cv2.typing import MatLike
+from typing import List, Optional, Tuple
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.utils import cv2_utils, os_utils
@@ -216,7 +214,7 @@ class SimUniRoute:
         l = len(self.op_list)
         if l == 0:
             return False
-        op = self.op_list[l - 1]['op']
+        op = self.op_list[l - 1].op
         return op == operation_const.OP_MOVE or op == operation_const.OP_SLOW_MOVE
 
     @property
@@ -226,7 +224,7 @@ class SimUniRoute:
         :return:
         """
         for op in self.op_list:
-            if op['op'] == operation_const.OP_PATROL:
+            if op.op == operation_const.OP_PATROL:
                 return False
         return True
 
@@ -268,7 +266,7 @@ class SimUniRoute:
             self.support_world.sort()
 
     @property
-    def last_op(self) -> Optional[SimUniRouteOperation]:
+    def last_op(self) -> Optional[WorldPatrolRouteOperation]:
         if self.op_list is None or len(self.op_list) == 0:
             return None
         else:
@@ -281,9 +279,9 @@ class SimUniRoute:
         :param patrol: 是否追加一个攻击指令
         :return:
         """
-        self.op_list.append(SimUniRouteOperation(op=operation_const.OP_MOVE, data=[pos.x, pos.y]))
+        self.op_list.append(WorldPatrolRouteOperation(op=operation_const.OP_MOVE, data=[pos.x, pos.y]))
         if patrol:
-            self.op_list.append(SimUniRouteOperation(op=operation_const.OP_PATROL))
+            self.op_list.append(WorldPatrolRouteOperation(op=operation_const.OP_PATROL))
 
     def switch_floor(self, floor: int):
         """
@@ -295,10 +293,10 @@ class SimUniRoute:
         if self.op_list is None or len(self.op_list) == 0:
             return
         idx = len(self.op_list) - 1
-        if self.op_list[idx]['op'] not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE]:
+        if self.op_list[idx].op not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE]:
             return
-        self.op_list[idx]['data'] = [
-            self.op_list[idx]['data'][0],
-            self.op_list[idx]['data'][1],
+        self.op_list[idx].data = [
+            self.op_list[idx].data[0],
+            self.op_list[idx].data[1],
             floor
         ]

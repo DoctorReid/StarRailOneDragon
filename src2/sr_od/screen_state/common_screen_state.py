@@ -27,6 +27,19 @@ def is_normal_in_world(ctx: SrContext, screen: MatLike) -> bool:
     return screen_utils.find_area(ctx, screen, '大世界', '角色图标') == FindAreaResultEnum.TRUE
 
 
+def is_mission_in_world(ctx: SrContext, screen: MatLike) -> bool:
+    """
+    是否在副本的大世界画面 看左上角是否退出按钮
+    可以用于
+    - 逐光捡金
+    - 模拟宇宙
+    :param ctx: 上下文
+    :param screen: 游戏画面
+    :return:
+    """
+    return screen_utils.find_area(ctx, screen, '模拟宇宙', '大世界返回按钮') == FindAreaResultEnum.TRUE
+
+
 def is_express_supply(ctx: SrContext, screen: MatLike) -> bool:
     """
     是否在列车补给画面
