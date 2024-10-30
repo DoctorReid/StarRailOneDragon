@@ -106,3 +106,11 @@
   lm_pos: [1809, 954]
   tp_pos: [1793, 965]
 
+- uid: "MSZJQSSD"
+  cn: "迷识之径·侵蚀隧洞"
+  planet_name: "仙舟「罗浮」"
+  region_name: "幽囚狱"
+  region_floor: -1
+  template_id: "mm_tp_09"
+  lm_pos: [1353, 1510]
+  tp_pos: [1349, 1513]
