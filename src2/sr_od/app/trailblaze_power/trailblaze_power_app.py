@@ -7,6 +7,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
+from sr_od.app.div_uni.operations.ornamenet_extraction import ChallengeOrnamentExtraction
 from sr_od.app.sr_application import SrApplication
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr_od.challenge_mission.use_trailblaze_power import UseTrailblazePower
@@ -156,13 +157,12 @@ class TrailblazePower(SrApplication):
             # op.stop_context_after_stop = False
             return self.round_fail('未支持模拟宇宙')
         elif mission.cate.cn == '饰品提取':
-            # op = ChallengeOrnamentExtraction(self.ctx, mission.ornament_extraction,
-            #                                  run_times=run_times,
-            #                                  diff=0,
-            #                                  file_num=plan['team_num'],
-            #                                  support_character=plan['support'] if plan['support'] != 'none' else None,
-            #                                  get_reward_callback=self.on_oe_get_reward)
-            return self.round_fail('未支持饰品提取')
+            op = ChallengeOrnamentExtraction(self.ctx, mission,
+                                             run_times=run_times,
+                                             diff=0,
+                                             file_num=plan.team_num,
+                                             support_character=plan.support if plan.support != 'none' else None,
+                                             get_reward_callback=self.on_oe_get_reward)
         else:
             return self.round_fail('未知副本类型')
 

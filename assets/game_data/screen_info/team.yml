@@ -1,0 +1,70 @@
+screen_id: team
+screen_name: 队伍
+pc_alt: false
+area_list:
+- area_name: 左上角标题-队伍
+  pc_rect:
+  - 99
+  - 37
+  - 214
+  - 59
+  text: 队伍
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: SUPPORT_BTN
+  pc_rect:
+  - 1740
+  - 720
+  - 1830
+  - 750
+  text: 支援
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按钮-关闭
+  pc_rect:
+  - 1834
+  - 39
+  - 1889
+  - 90
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 角色列表
+  pc_rect:
+  - 70
+  - 160
+  - 520
+  - 940
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按钮-入队
+  pc_rect:
+  - 1560
+  - 970
+  - 1840
+  - 1010
+  text: 入队
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: SUPPORT_TITLE
+  pc_rect:
+  - 99
+  - 37
+  - 214
+  - 59
+  text: 支援
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
