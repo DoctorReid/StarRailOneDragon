@@ -13,7 +13,8 @@ from one_dragon.gui.component.setting_card.text_setting_card import TextSettingC
 from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
-from sr_od.app.sim_uni.sim_uni_const import SimUniPath, SimUniBlessLevel, SimUniBlessEnum, SimUniBless
+from sr_od.app.sim_uni.sim_uni_const import SimUniPath, SimUniBlessLevel, SimUniBlessEnum, SimUniCurioEnum, \
+    SimUniLevelTypeEnum, level_type_from_id
 from sr_od.context.sr_context import SrContext
 
 
@@ -122,6 +123,22 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
         self.bless_2_input.textChanged.connect(self.on_bless_2_input_changed)
         layout.addWidget(self.bless_2_input)
 
+        self.curio_opt = PushSettingCard(icon=FluentIcon.GAME, title='奇物优先级', text='修改')
+        self.curio_opt.clicked.connect(self.on_curio_edit_clicked)
+        layout.addWidget(self.curio_opt)
+
+        self.curio_input = PlainTextEdit()
+        self.curio_input.textChanged.connect(self.on_curio_input_changed)
+        layout.addWidget(self.curio_input)
+
+        self.level_type_edit_opt = PushSettingCard(icon=FluentIcon.GAME, title='楼层优先级', text='修改')
+        self.level_type_edit_opt.clicked.connect(self.on_level_type_edit_clicked)
+        layout.addWidget(self.level_type_edit_opt)
+
+        self.level_type_input = PlainTextEdit()
+        self.level_type_input.textChanged.connect(self.on_level_type_input_changed)
+        layout.addWidget(self.level_type_input)
+
         layout.addStretch(1)
 
         return layout
@@ -168,6 +185,34 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
         self.bless_table.setMinimumHeight(600)
         layout.addWidget(self.bless_table)
 
+        self.curio_name_opt = TextSettingCard(icon=FluentIcon.GAME, title='名称搜索')
+        self.curio_name_opt.value_changed.connect(self.update_curio_table)
+        layout.addWidget(self.curio_name_opt)
+
+        self.curio_table = TableWidget()
+        self.curio_table.verticalHeader().hide()
+        self.curio_table.setColumnCount(2)
+        self.curio_table.setColumnWidth(0, 350)
+        self.curio_table.setColumnWidth(1, 50)
+        self.curio_table.setHorizontalHeaderLabels([
+            gt('奇物', 'ui'),
+            gt('添加', 'ui'),
+        ])
+        self.curio_table.setMinimumHeight(600)
+        layout.addWidget(self.curio_table)
+
+        self.level_type_table = TableWidget()
+        self.level_type_table.verticalHeader().hide()
+        self.level_type_table.setColumnCount(2)
+        self.level_type_table.setColumnWidth(0, 350)
+        self.level_type_table.setColumnWidth(1, 50)
+        self.level_type_table.setHorizontalHeaderLabels([
+            gt('楼层类型', 'ui'),
+            gt('添加', 'ui'),
+        ])
+        self.level_type_table.setMinimumHeight(600)
+        layout.addWidget(self.level_type_table)
+
         layout.addStretch(1)
 
         return layout
@@ -185,6 +230,8 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
         self.edit_priority = None
         self.update_display_by_config()
         self.update_bless_table()
+        self.update_curio_table()
+        self.update_level_type_table()
         self.update_priority_input_display()
 
     def update_display_by_config(self) -> None:
@@ -206,6 +253,10 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
         self.bless_1_input.setDisabled(not chosen)
         self.bless_2_opt.setDisabled(not chosen)
         self.bless_2_input.setDisabled(not chosen)
+        self.curio_opt.setDisabled(not chosen)
+        self.curio_input.setDisabled(not chosen)
+        self.level_type_edit_opt.setDisabled(not chosen)
+        self.level_type_input.setDisabled(not chosen)
 
         if chosen:
             self.name_opt.init_with_adapter(self.chosen_config.name_adapter)
@@ -224,6 +275,14 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
             self.bless_2_input.setPlainText('\n'.join([SimUniBlessEnum[i].value.title for i in self.chosen_config.bless_priority_2]))
             self.bless_2_input.blockSignals(False)
 
+            self.curio_input.blockSignals(True)
+            self.curio_input.setPlainText('\n'.join([SimUniCurioEnum[i].value.name for i in self.chosen_config.curio_priority]))
+            self.curio_input.blockSignals(False)
+
+            self.level_type_input.blockSignals(True)
+            self.level_type_input.setPlainText('\n'.join([level_type_from_id(i).type_name for i in self.chosen_config.level_type_priority]))
+            self.level_type_input.blockSignals(False)
+
     def update_bless_table(self, idx: int = None) -> None:
         path: SimUniPath = self.bless_path_opt.currentData()
         level: SimUniBlessLevel = self.bless_level_opt.currentData()
@@ -241,6 +300,43 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
             self.bless_table.setItem(idx, 0, QTableWidgetItem(bless.value.title))
             self.bless_table.setCellWidget(idx, 1, add_btn)
 
+    def update_curio_table(self, value=None) -> None:
+        curio_name = self.curio_name_opt.line_edit.text().strip()
+
+        curio_list = [
+            i
+            for i in SimUniCurioEnum
+            if (
+                   curio_name == ''
+                   or i.value.name.find(curio_name) != -1
+                   or i.value.py.lower().find(curio_name.lower()) != -1
+            )
+        ]
+        self.curio_table.setRowCount(len(curio_list))
+
+        for idx in range(len(curio_list)):
+            curio: SimUniCurioEnum = curio_list[idx]
+            add_btn = ToolButton(FluentIcon.ADD, parent=None)
+            # 按钮的点击事件绑定route.unique_id
+            add_btn.setProperty('curio_name', curio.name)
+            add_btn.clicked.connect(self.on_curio_added)
+
+            self.curio_table.setItem(idx, 0, QTableWidgetItem(curio.value.name))
+            self.curio_table.setCellWidget(idx, 1, add_btn)
+
+    def update_level_type_table(self) -> None:
+        level_enum_list = [i for i in SimUniLevelTypeEnum]
+        self.level_type_table.setRowCount(len(level_enum_list))
+        for idx in range(len(level_enum_list)):
+            level_type: SimUniLevelTypeEnum = level_enum_list[idx]
+            add_btn = ToolButton(FluentIcon.ADD, parent=None)
+            # 按钮的点击事件绑定route.unique_id
+            add_btn.setProperty('level_type_name', level_type.name)
+            add_btn.clicked.connect(self.on_level_type_added)
+
+            self.level_type_table.setItem(idx, 0, QTableWidgetItem(level_type.value.type_name))
+            self.level_type_table.setCellWidget(idx, 1, add_btn)
+
     def update_priority_input_display(self) -> None:
         chosen = self.chosen_config is not None
         self.bless_1_input.setVisible(chosen and self.edit_priority == 'bless_1')
@@ -249,6 +345,15 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
         edit_bless = self.edit_priority in ['bless_1', 'bless_2']
         self.bless_btn_row.setVisible(edit_bless)
         self.bless_table.setVisible(edit_bless)
+
+        self.curio_input.setVisible(chosen and self.edit_priority == 'curio')
+        edit_curio = self.edit_priority == 'curio'
+        self.curio_name_opt.setVisible(edit_curio)
+        self.curio_table.setVisible(edit_curio)
+
+        self.level_type_input.setVisible(chosen and self.edit_priority == 'level_type')
+        edit_level_type = self.edit_priority == 'level_type'
+        self.level_type_table.setVisible(edit_level_type)
 
     def on_config_chosen(self, idx: int) -> None:
         self.chosen_config = self.existed_yml_btn.currentData()
@@ -361,3 +466,94 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
 
             input_component = self.bless_1_input if self.edit_priority == 'bless_1' else self.bless_2_input
             input_component.setPlainText(input_component.toPlainText() + '\n' + bless.value.title)
+
+    def on_curio_edit_clicked(self) -> None:
+        if self.chosen_config is None:
+            return
+
+        if self.edit_priority == 'curio':
+            self.edit_priority = None
+        else:
+            self.edit_priority = 'curio'
+
+        self.update_priority_input_display()
+
+    def on_curio_input_changed(self) -> None:
+        if self.chosen_config is None:
+            return
+
+        curio_enum_list = []
+        curio_title_list = []
+        for curio_enum in SimUniCurioEnum:
+            curio_enum_list.append(curio_enum)
+            curio_title_list.append(curio_enum.value.name)
+
+        input_curio_list = []
+        full_text = self.curio_input.toPlainText()
+        for line_text in full_text.split('\n'):
+            idx = str_utils.find_best_match_by_difflib(line_text, curio_title_list)
+            if idx is not None and idx != -1:
+                input_curio_list.append(curio_enum_list[idx])
+
+        self.chosen_config.curio_priority = [i.name for i in input_curio_list]
+
+        self.curio_input.blockSignals(True)
+        self.curio_input.setPlainText('\n'.join([i.value.name for i in input_curio_list]))
+        self.curio_input.blockSignals(False)
+
+    def on_curio_added(self) -> None:
+        if self.chosen_config is None:
+            return
+
+        if self.edit_priority != 'curio':
+            return
+
+        btn = self.sender()
+        if btn is not None:
+            curio_name = btn.property('curio_name')
+            curio = SimUniCurioEnum[curio_name]
+            self.curio_input.setPlainText(self.curio_input.toPlainText() + '\n' + curio.value.name)
+
+    def on_level_type_edit_clicked(self) -> None:
+        if self.chosen_config is None:
+            return
+        if self.edit_priority == 'level_type':
+            self.edit_priority = None
+        else:
+            self.edit_priority = 'level_type'
+
+        self.update_priority_input_display()
+
+    def on_level_type_input_changed(self) -> None:
+        if self.chosen_config is None:
+            return
+
+        level_type_enum_list = []
+        level_type_title_list = []
+        for level_type_enum in SimUniLevelTypeEnum:
+            level_type_enum_list.append(level_type_enum)
+            level_type_title_list.append(level_type_enum.value.type_name)
+
+        input_level_type_list = []
+        full_text = self.level_type_input.toPlainText()
+        for line_text in full_text.split('\n'):
+            idx = str_utils.find_best_match_by_difflib(line_text, level_type_title_list)
+            if idx is not None and idx != -1:
+                input_level_type_list.append(level_type_enum_list[idx])
+
+        self.chosen_config.level_type_priority = [i.value.type_id for i in input_level_type_list]
+
+        self.level_type_input.blockSignals(True)
+        self.level_type_input.setPlainText('\n'.join([i.value.type_name for i in input_level_type_list]))
+        self.level_type_input.blockSignals(False)
+
+    def on_level_type_added(self) -> None:
+        if self.chosen_config is None:
+            return
+        if self.edit_priority != 'level_type':
+            return
+        btn = self.sender()
+        if btn is not None:
+            level_type_name = btn.property('level_type_name')
+            level_type = SimUniLevelTypeEnum[level_type_name]
+            self.level_type_input.setPlainText(self.level_type_input.toPlainText() + '\n' + level_type.value.type_name)
