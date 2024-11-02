@@ -4,7 +4,7 @@ from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from sr_od.app.sim_uni.sim_uni_route_data import SimUniRouteData
 from sr_od.app.sim_uni.sim_uni_run_record import SimUniRunRecord
-from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
+from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig, SimUniChallengeConfigData
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr_od.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
@@ -171,6 +171,7 @@ class SrContext(OneDragonContext):
         self.power_config: TrailblazePowerConfig = TrailblazePowerConfig(self.guide_data, self.current_instance_idx)
         self.power_record: TrailblazePowerRunRecord = TrailblazePowerRunRecord(self.power_config, self.current_instance_idx)
 
+        self.sim_uni_challenge_config_data: SimUniChallengeConfigData = SimUniChallengeConfigData()
         self.sim_uni_config: SimUniConfig = SimUniConfig(self.current_instance_idx)
         self.sim_uni_record: SimUniRunRecord = SimUniRunRecord(self.sim_uni_config, self.current_instance_idx)
 

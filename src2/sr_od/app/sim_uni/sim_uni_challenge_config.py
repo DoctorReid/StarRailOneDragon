@@ -3,6 +3,7 @@ import shutil
 from typing import List
 
 from one_dragon.base.config.yaml_config import YamlConfig
+from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils import os_utils
 
 _MAX_WITH_SAMPLE = 9
@@ -35,6 +36,10 @@ class SimUniChallengeConfig(YamlConfig):
         self.update('name', new_value)
 
     @property
+    def name_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self,  'name', '')
+
+    @property
     def path(self) -> str:
         """
         返回命途ID SimUniPath.name
@@ -45,6 +50,10 @@ class SimUniChallengeConfig(YamlConfig):
     @path.setter
     def path(self, new_value: str):
         self.update('path', new_value)
+
+    @property
+    def path_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'path', '')
 
     @property
     def bless_priority(self) -> List[str]:
@@ -103,6 +112,10 @@ class SimUniChallengeConfig(YamlConfig):
         self.update('technique_fight', new_value)
 
     @property
+    def technique_fight_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'technique_fight', False)
+
+    @property
     def technique_only(self) -> bool:
         """
         仅秘技开怪
@@ -115,12 +128,20 @@ class SimUniChallengeConfig(YamlConfig):
         self.update('technique_only', new_value)
 
     @property
+    def technique_only_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'technique_only', False)
+
+    @property
     def max_consumable_cnt(self) -> bool:
         return self.get('max_consumable_cnt', 0)
 
     @max_consumable_cnt.setter
     def max_consumable_cnt(self, new_value: int):
         self.update('max_consumable_cnt', new_value)
+
+    @property
+    def max_consumable_cnt_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'max_consumable_cnt', 0)
 
     @property
     def skip_herta(self) -> bool:
@@ -130,8 +151,12 @@ class SimUniChallengeConfig(YamlConfig):
     def skip_herta(self, new_value: bool) -> None:
         self.update('skip_herta', new_value)
 
+    @property
+    def skip_herta_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'skip_herta', False)
 
-class SimUniChallengeAllConfig:
+
+class SimUniChallengeConfigData:
 
     def __init__(self):
         pass

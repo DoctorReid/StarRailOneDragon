@@ -2,7 +2,8 @@ from qfluentwidgets import FluentIcon
 
 from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
 from sr_od.context.sr_context import SrContext
-from sr_od.gui.interface.world_patrol.world_patrol_run_interface import WorldPatrolRunInterface
+from sr_od.gui.interface.sim_uni.sim_uni_challenge_config_interface import SimUniChallengeConfigInterface
+from sr_od.gui.interface.sim_uni.sim_uni_run_interface import SimUniRunInterface
 
 
 class SimUniInterface(PivotNavigatorInterface):
@@ -17,4 +18,5 @@ class SimUniInterface(PivotNavigatorInterface):
         创建下面的子页面
         :return:
         """
-        self.add_sub_interface(WorldPatrolRunInterface(ctx=self.ctx))
+        self.add_sub_interface(SimUniRunInterface(self.ctx))
+        self.add_sub_interface(SimUniChallengeConfigInterface(self.ctx))

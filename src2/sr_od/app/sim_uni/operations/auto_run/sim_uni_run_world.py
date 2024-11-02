@@ -5,6 +5,7 @@ from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from sr_od.app.sim_uni.operations.auto_run.sim_uni_run_level import SimUniRunLevel
 from sr_od.app.sim_uni.operations.sim_uni_enter_fight import SimUniEnterFight
 from sr_od.app.sim_uni.operations.sim_uni_exit import SimUniExit
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig

@@ -8,6 +8,7 @@ from one_dragon.utils.i18_utils import gt
 from sr_od.app.sim_uni import sim_uni_screen_state
 from sr_od.app.sim_uni.operations.auto_run.reset_sim_uni_level import ResetSimUniLevel
 from sr_od.app.sim_uni.operations.auto_run.sim_uni_wait_level_start import SimUniWaitLevelStart
+from sr_od.app.sim_uni.operations.move_v1.move_to_next_level import MoveToNextLevel
 from sr_od.app.sim_uni.operations.move_v1.sim_uni_run_combat_route_v1 import SimUniRunCombatRoute
 from sr_od.app.sim_uni.operations.move_v2.sim_uni_run_combat_route_v2 import SimUniRunCombatRouteV2
 from sr_od.app.sim_uni.operations.move_v2.sim_uni_run_elite_route_v2 import SimUniRunEliteRouteV2
@@ -23,7 +24,6 @@ from sr_od.operations.sr_operation import SrOperation
 from sr_od.operations.team.check_team_members_in_world import CheckTeamMembersInWorld
 from sr_od.operations.team.switch_member import SwitchMember
 from sr_od.sr_map import mini_map_utils
-from src.sr.sim_uni.op.move_in_sim_uni import MoveToNextLevel
 
 
 class SimUniRunLevel(SrOperation):

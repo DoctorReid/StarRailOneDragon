@@ -9,8 +9,8 @@ from one_dragon.gui.component.setting_card.setting_card_base import SettingCardB
 class PushSettingCard(SettingCardBase):
     """带推送按钮的设置卡片类"""
 
-    text: str
-    title: str
+    text: str = ""
+    title: str = ""
     value: str = ""
 
     # 定义信号
