@@ -6,40 +6,40 @@ tp: '巽风之形·凝滞虚影'
 route:
   - idx: 1
     op: 'move'
-    data: [611, 466]
+    data: [617, 469]
   - idx: 2
     op: 'disposable'
   - idx: 3
     op: 'move'
-    data: [631, 450]
+    data: [637, 453]
   - idx: 4
     op: 'move'
-    data: [681, 459]
+    data: [687, 462]
   - idx: 5
     op: 'disposable'
   - idx: 6
     op: 'move'
-    data: [702, 412]
+    data: [708, 415]
   - idx: 7
     op: 'move'
-    data: [732, 417]
+    data: [738, 420]
   - idx: 8
     op: 'patrol'
   - idx: 9
     op: 'move'
-    data: [732, 479]
+    data: [738, 482]
   - idx: 10
     op: 'patrol'
   - idx: 11
     op: 'move'
-    data: [733, 515]
+    data: [739, 518]
   - idx: 12
     op: 'patrol'
   - idx: 13
     op: 'move'
-    data: [726, 555]
+    data: [732, 558]
   - idx: 14
     op: 'move'
-    data: [666, 557]
+    data: [672, 560]
   - idx: 15
     op: 'disposable'

@@ -1,13 +1,11 @@
 import time
-from typing import List, Optional
 
 import cv2
 import numpy as np
 from cv2.typing import MatLike
+from typing import List, Optional
 
-from one_dragon.base.controller.pc_game_window import PcGameWindow
 from one_dragon.base.geometry.point import Point
-from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -168,6 +166,8 @@ class LargeMapRecorder(SrApplication):
             if self.max_column is not None and self.col > self.max_column:
                 break
 
+    @node_from(from_name='截图')
+    @operation_node(name='保存')
     def do_save(self) -> OperationRoundResult:
         # 检测几个楼层是否大小一致
         shape = None
@@ -574,7 +574,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     }
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
-    region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet, target_floor=0)
+    region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet)
 
     log.info('当前录制 %s', region.pr_id)
     sc = special_conditions.get(region.pr_id, {})
@@ -601,9 +601,9 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     elif run_mode == 'save':
         app.do_save()
     elif run_mode == 'fix':
-        app.fix_all_after_map_record(region, 0, 0)
+        app.fix_all_after_map_record(region, 6, 3)
 
 
 
 if __name__ == '__main__':
-    __debug('匹诺康尼', '匹诺康尼大剧院', 'save')
+    __debug('雅利洛-VI', '铆钉镇', 'fix')

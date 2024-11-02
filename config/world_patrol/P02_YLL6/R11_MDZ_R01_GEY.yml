@@ -6,28 +6,28 @@ tp: '孤儿院'
 route:
   - idx: 1
     op: 'move'
-    data: [596, 195]
+    data: [602, 198]
   - idx: 2
     op: 'move'
-    data: [632, 184]
+    data: [638, 187]
   - idx: 3
     op: 'move'
-    data: [679, 192]
+    data: [685, 195]
   - idx: 4
     op: 'patrol'
   - idx: 5
     op: 'move'
-    data: [677, 226]
+    data: [683, 229]
   - idx: 6
     op: 'move'
-    data: [701, 278]
+    data: [707, 281]
   - idx: 7
     op: 'move'
-    data: [677, 269]
+    data: [683, 272]
   - idx: 8
     op: 'disposable'
   - idx: 9
     op: 'move'
-    data: [651, 317]
+    data: [657, 320]
   - idx: 10
     op: 'disposable'

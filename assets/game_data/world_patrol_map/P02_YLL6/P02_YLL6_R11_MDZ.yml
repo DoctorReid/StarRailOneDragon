@@ -4,8 +4,8 @@
   region_name: "铆钉镇"
   region_floor: 1
   template_id: "mm_tp_03"
-  lm_pos: [600, 211]
-  tp_pos: [603, 225]
+  lm_pos: [606, 214]
+  tp_pos: [609, 228]
 
 - uid: "FQSJ"
   cn: "废弃市集"
@@ -13,8 +13,8 @@
   region_name: "铆钉镇"
   region_floor: 1
   template_id: "mm_tp_03"
-  lm_pos: [465, 374]
-  tp_pos: [474, 363]
+  lm_pos: [471, 377]
+  tp_pos: [480, 366]
 
 - uid: "RK"
   cn: "入口"
@@ -22,8 +22,8 @@
   region_name: "铆钉镇"
   region_floor: 1
   template_id: "mm_tp_03"
-  lm_pos: [613, 675]
-  tp_pos: [601, 663]
+  lm_pos: [619, 678]
+  tp_pos: [607, 666]
 
 - uid: "XFZX"
   cn: "巽风之形·凝滞虚影"
@@ -31,8 +31,8 @@
   region_name: "铆钉镇"
   region_floor: 1
   template_id: "mm_tp_06"
-  lm_pos: [580, 374]
-  tp_pos: [582, 400]
+  lm_pos: [586, 377]
+  tp_pos: [588, 403]
 
 - uid: "ZSZL"
   cn: "智识之蕾·拟造花萼（赤）"
@@ -40,8 +40,8 @@
   region_name: "铆钉镇"
   region_floor: 1
   template_id: "mm_tp_07"
-  lm_pos: [609, 608]
-  tp_pos: [610, 616]
+  lm_pos: [615, 611]
+  tp_pos: [616, 619]
 
 - uid: "JWQSYC"
   cn: "旧武器试验场"
@@ -49,8 +49,8 @@
   region_name: "铆钉镇"
   region_floor: 1
   template_id: "mm_sp_02"
-  lm_pos: [767, 244]
-  tp_pos: [767, 244]
+  lm_pos: [773, 247]
+  tp_pos: [773, 247]
 
 - uid: "PYZ"
   cn: "磐岩镇"
@@ -58,6 +58,6 @@
   region_name: "铆钉镇"
   region_floor: 1
   template_id: "mm_sp_02"
-  lm_pos: [597, 698]
-  tp_pos: [597, 698]
+  lm_pos: [606, 701]
+  tp_pos: [606, 701]
 

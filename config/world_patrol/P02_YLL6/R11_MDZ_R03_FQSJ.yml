@@ -8,31 +8,31 @@ route:
     op: 'disposable'
   - idx: 2
     op: 'move'
-    data: [446, 375]
+    data: [452, 378]
   - idx: 3
     op: 'move'
-    data: [453, 399]
+    data: [459, 402]
   - idx: 4
     op: 'disposable'
   - idx: 5
     op: 'move'
-    data: [426, 399]
+    data: [432, 402]
   - idx: 6
     op: 'move'
-    data: [410, 419]
+    data: [416, 422]
   - idx: 7
     op: 'move'
-    data: [411, 468]
+    data: [417, 471]
   - idx: 8
     op: 'move'
-    data: [432, 486]
+    data: [438, 489]
   - idx: 9
     op: 'patrol'
   - idx: 10
     op: 'move'
-    data: [480, 525]
+    data: [486, 528]
   - idx: 11
     op: 'move'
-    data: [487, 547]
+    data: [493, 550]
   - idx: 12
     op: 'patrol'
