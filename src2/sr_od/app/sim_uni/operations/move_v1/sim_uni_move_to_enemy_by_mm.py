@@ -3,6 +3,7 @@ import time
 from typing import ClassVar, List, Optional
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cal_utils
 from one_dragon.utils.i18_utils import gt
@@ -33,10 +34,7 @@ class SimUniMoveToEnemyByMiniMap(SrOperation):
         :param no_attack: 不主动发起攻击
         :param stop_after_arrival: 到达后停止 如果明确知道到达后会发起攻击 则可以不停止
         """
-        super().__init__(ctx,
-                         op_name=gt('向红点移动', 'ui'),
-                         timeout_seconds=60
-                         )
+        SrOperation.__init__(self, ctx, op_name=gt('向红点移动', 'ui'))
 
         self.current_pos: Point = Point(0, 0)
         """当前距离 默认是远点"""
@@ -56,6 +54,7 @@ class SimUniMoveToEnemyByMiniMap(SrOperation):
         self.stop_after_arrival: bool = stop_after_arrival
         """到达后停止"""
 
+    @operation_node(name='移动', is_start_node=True, timeout_seconds=60)
     def _execute_one_round(self) -> OperationRoundResult:
         stuck = self.move_in_stuck()  # 先尝试脱困 再进行移动
         if stuck is not None:  # 只有脱困失败的时候会有返回结果

@@ -149,6 +149,9 @@ class StartFightForElite(SrOperation):
         # 可能存在没有攻击类的角色 此时也需要兜底返回
         return self.round_success()
 
+    @node_from(from_name='检测秘技点')
+    @node_from(from_name='使用秘技')
+    @operation_node(name='切换角色')
     def _switch_member(self) -> OperationRoundResult:
         """
         切换角色
@@ -161,6 +164,8 @@ class StartFightForElite(SrOperation):
                           skip_resurrection_check=self.skip_resurrection_check)
         return self.round_by_op_result(op.execute())
 
+    @node_from(from_name='切换角色')
+    @operation_node(name='使用秘技')
     def _use_technique(self) -> OperationRoundResult:
         """
         使用秘技
@@ -183,6 +188,8 @@ class StartFightForElite(SrOperation):
             wait_time = 1.5
         return self.round_by_op_result(op_result, wait=wait_time)
 
+    @node_from(from_name='切换角色', status=STATUS_DONE)
+    @operation_node(name='攻击')
     def _attack(self) -> OperationRoundResult:
         """
         发起攻击
