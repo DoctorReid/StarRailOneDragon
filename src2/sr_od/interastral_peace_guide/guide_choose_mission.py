@@ -121,10 +121,16 @@ class GuideChooseMission(SrOperation):
         # 返回最靠近副本名称的传送
         tp_point = None
         for mr in tp_mrl:
-            if self.mission.mission_name != '模拟宇宙' and abs(mr.center.y - mission_pos.y) > 30:  # 太远的就忽略
-                continue
-            if self.mission.mission_name == '模拟宇宙' and abs(mr.center.y - region_pos.y) > 30:  # 太远的就忽略
-                continue
+            if self.mission.mission_name == '模拟宇宙':
+                if abs(mr.center.y - region_pos.y) > 30:  # 模拟宇宙用下面的首通奖励来匹配 太远的就忽略
+                    continue
+            elif self.mission.cate.cn == '历战余响':
+                if abs(mr.center.y - mission_pos.y) > 150:  # 历战余响距离较远
+                    continue
+            else:
+                if abs(mr.center.y - mission_pos.y) > 30:  # 普通副本
+                    continue
+
             if tp_point is None or abs(mr.center.y - mission_pos.y) < abs(tp_point.y - mission_pos.y):
                 tp_point = mr.center
 

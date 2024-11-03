@@ -12,6 +12,7 @@ from sr_od.app.sr_application import SrApplication
 from sr_od.app.trailblaze_power.trailblaze_power_app import TrailblazePowerApp
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr_od.context.sr_context import SrContext
+from sr_od.interastral_peace_guide.guide_check_power import GuideCheckPower, GuidePowerResult
 from sr_od.interastral_peace_guide.guide_def import GuideMission
 
 
@@ -40,6 +41,16 @@ class EchoOfWarApp(SrApplication):
         return self.round_success(status=TrailblazePowerApp.STATUS_WITH_PLAN)
 
     @node_from(from_name='检查当前需要挑战的关卡')
+    @operation_node(name='检查体力')
+    def check_power(self) -> OperationRoundResult:
+        op = GuideCheckPower(self.ctx)
+        op_result = op.execute()
+        if op_result.success:
+            power: GuidePowerResult = op_result.data
+            self.power = power.power
+        return self.round_by_op_result(op_result)
+
+    @node_from(from_name='检查体力')
     @operation_node(name='挑战')
     def _use_power(self) -> OperationRoundResult:
         config = self.ctx.echo_of_war_config

@@ -162,7 +162,7 @@ area_list:
   - 400
   - 1020
   - 440
-  text: 标题
+  text: 提示
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
@@ -173,7 +173,7 @@ area_list:
   - 507
   - 1394
   - 551
-  text: 本周内获取「历战回响」奖励的次数已耗尽，无法获得挑战奖励。是否继续挑战？
+  text: 本周内获取「历战余响」奖励的次数已耗尽，无法获得挑战奖励。是否继续挑战？
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

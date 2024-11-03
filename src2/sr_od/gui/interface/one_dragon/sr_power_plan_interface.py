@@ -13,7 +13,7 @@ from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPl
 from sr_od.config.character_const import CHARACTER_LIST
 from sr_od.config.team_config import TeamNumEnum
 from sr_od.context.sr_context import SrContext
-from sr_od.interastral_peace_guide.guide_def import GuideMission, GuideCategory
+from sr_od.interastral_peace_guide.guide_def import GuideMission
 
 
 class PowerPlanCard(MultiLineSettingCard):

@@ -95,3 +95,24 @@ class EchoOfWarConfig(YamlConfig):
         self.plan_list[idx] = new_plan
 
         self.save()
+
+    def save(self) -> None:
+        """
+        保存
+        """
+        data = {}
+
+        data['plan_list'] = [
+            {
+                'mission_id': i.mission_id,
+                'team_num': i.team_num,
+                'support': i.support,
+                'plan_times': i.plan_times,
+                'run_times': i.run_times,
+                'diff': i.diff
+            }
+            for i in self.plan_list
+        ]
+
+        self.data = data
+        YamlConfig.save(self)

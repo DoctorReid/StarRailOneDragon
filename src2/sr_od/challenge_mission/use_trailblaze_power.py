@@ -1,9 +1,11 @@
+from PIL.ImageChops import screen
 from typing import Optional, Callable, ClassVar
 
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from sr_od.challenge_mission.choose_challenge_times import ChooseChallengeTimes
 from sr_od.challenge_mission.choose_support_in_team import ChooseSupportInTeam
 from sr_od.challenge_mission.click_challenge import ClickChallenge
@@ -71,6 +73,7 @@ class UseTrailblazePower(SrOperation):
         :return:
         """
         self.current_challenge_times = self._get_current_challenge_times()
+        log.info('本次挑战次数 %d', self.current_challenge_times)
         if self.current_challenge_times > 1:
             op = ChooseChallengeTimes(self.ctx, self.current_challenge_times)
             return self.round_by_op_result(op.execute())
@@ -117,7 +120,7 @@ class UseTrailblazePower(SrOperation):
             return self.round_by_find_and_click_area(screen, '挑战副本', '阵亡弹框-取消',
                                                      retry_wait=1)
 
-        return self.round_retry('无对话框', wait=0.5)
+        return self.round_retry('无对话框', wait=0.3)
 
     @node_from(from_name='点击挑战后确认', success=False, status='无对话框')
     @operation_node(name='选择配队')
@@ -150,6 +153,13 @@ class UseTrailblazePower(SrOperation):
         点击开始挑战后 进入战斗前
         :return:
         """
+        screen = self.screenshot()
+        # 有阵亡角色
+        result2 = self.round_by_find_area(screen, '挑战副本', '阵亡弹框-标题')
+        if result2.is_success:
+            return self.round_by_find_and_click_area(screen, '挑战副本', '阵亡弹框-取消',
+                                                     success_wait=1, retry_wait=1)
+
         if self.mission.cate.cn == '凝滞虚影':
             op = WaitInWorld(self.ctx, wait_after_success=1)  # 等待怪物苏醒
             op_result = op.execute()
@@ -163,6 +173,7 @@ class UseTrailblazePower(SrOperation):
 
     @node_from(from_name='开始挑战后')
     @node_from(from_name='再来一次后确认')
+    @node_from(from_name='再来一次后确认', success=False, status='无对话框')
     @operation_node(name='等待战斗结果', timeout_seconds=600)
     def _wait_battle_result(self) -> OperationRoundResult:
         """
@@ -177,12 +188,13 @@ class UseTrailblazePower(SrOperation):
 
         if state == battle_screen_state.ScreenState.BATTLE_FAIL.value:
             self.battle_fail_times += 1
-            return self.round_success(state)
+            return self.round_success(state, wait=1)  # 稍微等待 让按键可按
         elif state == battle_screen_state.ScreenState.BATTLE_SUCCESS.value:
             self.finish_times += self.current_challenge_times
+            log.info('挑战成功，当前完成次数 %d', self.finish_times)
             if self.on_battle_success is not None:
                 self.on_battle_success(self.current_challenge_times, self.mission.power * self.current_challenge_times)
-            return self.round_success(state)
+            return self.round_success(state, wait=1)  # 稍微等待 让按键可按
         else:
             return self.round_wait('等待战斗结束', wait=1)
 
@@ -225,6 +237,7 @@ class UseTrailblazePower(SrOperation):
 
         return self.round_retry('无对话框', wait=0.5)
 
+    @node_from(from_name='开始挑战后', status='阵亡弹框-取消')
     @node_from(from_name='再来一次后确认', status='阵亡弹框-取消')
     @operation_node(name='阵亡传送恢复')
     def tp_to_recover(self) -> OperationRoundResult:

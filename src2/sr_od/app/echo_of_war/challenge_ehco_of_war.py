@@ -31,13 +31,13 @@ class ChallengeEchoOfWar(SrOperation):
         这里不关注有没有剩余次数 由调用方控制
         这里就算没有剩余次数也会进行挑战的
         """
-        super().__init__(ctx,
-                         op_name='%s %s %s %d' % (
-                             gt('历战回响', 'ui'),
-                             mission.display_name,
-                             gt('次数', 'ui'),
-                             plan_times
-                         ))
+        SrOperation.__init__(self, ctx,
+                             op_name='%s %s %s %d' % (
+                                 gt('历战余响', 'ui'),
+                                 mission.display_name,
+                                 gt('次数', 'ui'),
+                                 plan_times
+                             ))
 
         self.mission: GuideMission = mission
         self.team_num: int = team_num
@@ -209,17 +209,17 @@ class ChallengeEchoOfWar(SrOperation):
             return self.round_by_find_and_click_area(screen, '挑战副本', '开拓力弹框-取消',
                                                      success_wait=1, retry_wait=1)
 
-        # 有阵亡角色
-        result2 = self.round_by_find_area(screen, '挑战副本', '阵亡弹框-标题')
-        if result2.is_success:
-            return self.round_by_find_and_click_area(screen, '挑战副本', '阵亡弹框-取消',
-                                                     success_wait=1, retry_wait=1)
-
         # 挑战次数用完
         result3 = self.round_by_find_area(screen, '挑战副本', '提示弹框-标题')
         result4 = self.round_by_find_area(screen, '挑战副本', '提示弹框-次数用完')
         if result3.is_success and result4.is_success:
             return self.round_by_find_and_click_area(screen, '挑战副本', '提示弹框-取消',
+                                                     success_wait=1, retry_wait=1)
+
+        # 有阵亡角色
+        result2 = self.round_by_find_area(screen, '挑战副本', '阵亡弹框-标题')
+        if result2.is_success:
+            return self.round_by_find_and_click_area(screen, '挑战副本', '阵亡弹框-取消',
                                                      success_wait=1, retry_wait=1)
 
     @node_from(from_name='体力不足')
