@@ -7,6 +7,7 @@ from one_dragon.base.screen import screen_utils
 from one_dragon.base.screen.screen_utils import FindAreaResultEnum
 from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from one_dragon.utils.log_utils import log
 from sr_od.app.sim_uni.sim_uni_const import SimUniLevelType, SimUniLevelTypeEnum
 from sr_od.context.sr_context import SrContext
 from sr_od.screen_state import common_screen_state, fast_recover_screen_state, battle_screen_state
@@ -28,6 +29,7 @@ class ScreenState(Enum):
     SIM_EVENT: str = '事件'
     SIM_UNI_REGION: str = '模拟宇宙-区域'
     SIM_PATH: str = '命途'
+    GUIDE: str = '星际和平指南'
 
 
 def get_level_type(ctx: SrContext, screen: MatLike) -> Optional[SimUniLevelType]:
@@ -205,6 +207,9 @@ def get_sim_uni_initial_screen_state(ctx: SrContext, screen: MatLike) -> Optiona
 
         return ScreenState.NORMAL_IN_WORLD.value
 
+    if common_screen_state.in_secondary_ui(ctx, screen, '星际和平指南'):
+        return ScreenState.GUIDE.value
+
     titles = common_screen_state.get_ui_titles(ctx, screen, '模拟宇宙', '左上角标题')
 
     if str_utils.find_best_match_by_lcs(ScreenState.SIM_TYPE_EXTEND.value, titles, lcs_percent_threshold=0.5) is not None:
@@ -240,7 +245,7 @@ def in_sim_uni_choose_path(ctx: SrContext, screen: MatLike) -> bool:
     return in_sim_uni_secondary_ui(ctx, screen, ScreenState.SIM_PATH.value)
 
 
-def match_next_level_entry(ctx: SrContext, screen: MatLike, knn_distance_percent: float=0.6) -> List[MatchResult]:
+def match_next_level_entry(ctx: SrContext, screen: MatLike, knn_distance_percent: float=0.7) -> List[MatchResult]:
     """
     获取当前画面中的下一层入口
     MatchResult.data 是对应的类型 SimUniLevelType
@@ -256,15 +261,18 @@ def match_next_level_entry(ctx: SrContext, screen: MatLike, knn_distance_percent
     for enum in SimUniLevelTypeEnum:
         level_type: SimUniLevelType = enum.value
         template = ctx.template_loader.get_template('sim_uni', level_type.template_id)
+        kps, desc = template.features
 
-        result = cv2_utils.feature_match_for_one(source_kps, source_desc,
-                                                 template.kps, template.desc,
-                                                 template.origin.shape[1], template.origin.shape[0],
-                                                 knn_distance_percent=knn_distance_percent)
+        result = cv2_utils.feature_match_for_one(
+            source_kps, source_desc, kps, desc,
+            template_width=template.raw.shape[1], template_height=template.raw.shape[0],
+            knn_distance_percent=knn_distance_percent
+        )
 
         if result is None:
             continue
 
+        log.info('图标识别到入口 %s', level_type.type_name)
         result.data = level_type
         result_list.append(result)
 

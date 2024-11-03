@@ -71,8 +71,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
         screen = self.screenshot()
         mm = mini_map_utils.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
         mm_info: MiniMapInfo = mini_map_utils.analyse_mini_map(mm)
-        mrl = self.ctx.tm.match_template(mm_info.raw_del_radio, template_id='mm_sp_herta', template_sub_dir='sim_uni',
-                                         threshold=0.7)
+        mrl = self.ctx.tm.match_template(mm_info.raw_del_radio, 'sim_uni', 'mm_sp_herta', threshold=0.7)
         if mrl.max is not None:
             self.mm_icon_pos = mrl.max.center
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_MM_EVENT)
@@ -125,7 +124,7 @@ class SimUniRunRespiteRouteV2(SimUniRunRouteBaseV2):
         elif self.event_handled:  # 已经交互过事件了
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_HAD_EVENT)
         else:
-            if self.ctx.one_dragon_config.is_debug:
+            if self.ctx.env_config.is_debug:
                 if self.nothing_times == 1:
                     self.save_screenshot()
                 cv2_utils.show_image(detect_utils.draw_detections(frame_result), win_name='respite_detect_screen')

@@ -101,7 +101,7 @@ class SimUniChallengeConfigInterface(VerticalScrollInterface):
         layout.addWidget(self.tech_only_opt)
 
         self.max_consumable_cnt_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='单次最多消耗品个数',
-                                                      options_list=[ConfigItem(str(i)) for i in range(6)])
+                                                      options_list=[ConfigItem(str(i), value=i) for i in range(6)])
         layout.addWidget(self.max_consumable_cnt_opt)
 
         self.skip_herta_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='跳过黑塔')

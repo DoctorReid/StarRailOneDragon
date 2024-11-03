@@ -1,0 +1,33 @@
+bless_priority:
+- BLESS_00_003
+- BLESS_09_007
+- BLESS_09_008
+- BLESS_09_009
+- BLESS_09_010
+- BLESS_09_011
+- BLESS_09_012
+- BLESS_09_000
+bless_priority_2:
+- BLESS_03_011
+- BLESS_05_014
+- BLESS_05_017
+- BLESS_06_020
+curio_priority:
+- CURIO_037
+- CURIO_009
+- CURIO_019
+- CURIO_011
+- CURIO_024
+- CURIO_049
+- CURIO_018
+level_type_priority:
+- combat
+- transaction
+- event
+- encounter
+max_consumable_cnt: 0
+name: "\u667A\u8BC6"
+path: ERUDITION
+technique_fight: false
+technique_only: false
+skip_herta: false

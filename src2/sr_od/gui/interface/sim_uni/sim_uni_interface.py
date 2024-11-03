@@ -4,6 +4,7 @@ from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigat
 from sr_od.context.sr_context import SrContext
 from sr_od.gui.interface.sim_uni.sim_uni_challenge_config_interface import SimUniChallengeConfigInterface
 from sr_od.gui.interface.sim_uni.sim_uni_run_interface import SimUniRunInterface
+from sr_od.gui.interface.sim_uni.sim_uni_setting_interface import SimUniSettingInterface
 
 
 class SimUniInterface(PivotNavigatorInterface):
@@ -19,4 +20,5 @@ class SimUniInterface(PivotNavigatorInterface):
         :return:
         """
         self.add_sub_interface(SimUniRunInterface(self.ctx))
+        self.add_sub_interface(SimUniSettingInterface(self.ctx))
         self.add_sub_interface(SimUniChallengeConfigInterface(self.ctx))

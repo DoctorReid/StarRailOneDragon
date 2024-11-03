@@ -44,7 +44,7 @@ class SimUniRunWorld(SrOperation):
         self.last_members: List[Character] = []  # 上一次识别的配队
         self.skip_check_members: bool = False  # 是否可跳过配队检测 当连续两次检测配队都一样之后 就可以跳过了
 
-    @node_from(from_name='挑战楼层', status=SimUniRunLevel.STATUS_BOSS_CLEARED)
+    @node_from(from_name='挑战楼层')
     @operation_node(name='挑战楼层', is_start_node=True)
     def _run_level(self) -> OperationRoundResult:
         if self.ctx.team_info.same_as_current(self.last_members):
@@ -57,7 +57,7 @@ class SimUniRunWorld(SrOperation):
         self.last_members = self.ctx.team_info.character_list  # 每次运行后 保存上一次识别的结果
         return self.round_by_op_result(op_result)
 
-    @node_from(from_name='挑战楼层')
+    @node_from(from_name='挑战楼层', status=SimUniRunLevel.STATUS_BOSS_CLEARED)
     @operation_node(name='结束')
     def _finish(self) -> OperationRoundResult:
         return self.round_success(status=SimUniRunWorld.STATUS_SUCCESS)
@@ -112,3 +112,18 @@ class SimUniRunWorld(SrOperation):
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '模拟宇宙', '点击空白处继续',
                                                  success_wait=1, retry_wait=1)
+
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.sim_uni_info.world_num = 8
+    ctx.init_for_sim_uni()
+    ctx.start_running()
+    op = SimUniRunWorld(ctx, world_num=8)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()

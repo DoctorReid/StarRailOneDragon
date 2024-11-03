@@ -437,19 +437,42 @@
     - category_name: "模拟宇宙"
       show_in_power_plan: true
       mission_list:
-        - mission_name: "第三宇宙"
-          show_in_power_plan: true
-          display_name: "沉陆海域露莎卡 奇想蕉乐园"
-          power: 40
+        - mission_name: "模拟宇宙"
+          region_name: "首通奖励"
 
         - mission_name: "第三宇宙"
+          display_name: "太空封印站 不老者的仙舟"
           show_in_power_plan: true
-          display_name: "沉陆海域露莎卡 奇想蕉乐园"
           power: 40
 
-        - mission_name: "第三宇宙"
+        - mission_name: "第四宇宙"
+          display_name: "盗贼公园塔利亚 生命的翁瓦克"
           show_in_power_plan: true
-          display_name: "沉陆海域露莎卡 奇想蕉乐园"
+          power: 40
+
+        - mission_name: "第五宇宙"
+          display_name: "泛银河商业公司 星体差分机"
+          show_in_power_plan: true
+          power: 40
+
+        - mission_name: "第六宇宙"
+          display_name: "泛银河商业公司 星体差分机"
+          show_in_power_plan: true
+          power: 40
+
+        - mission_name: "第七宇宙"
+          display_name: "繁星竞技场 折断的龙骨"
+          show_in_power_plan: true
+          power: 40
+
+        - mission_name: "第八宇宙"
+          display_name: "苍穹战线格拉默 梦想之地匹诺康尼"
+          show_in_power_plan: true
+          power: 40
+
+        - mission_name: "第九宇宙"
+          display_name: "无主荒星茨冈尼亚 出云显世与高天神国"
+          show_in_power_plan: true
           power: 40
 
 - tab_name: "逐光捡金"

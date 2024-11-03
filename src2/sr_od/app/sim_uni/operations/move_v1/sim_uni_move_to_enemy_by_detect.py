@@ -52,8 +52,7 @@ class SimUniMoveToEnemyByDetect(SrOperation):
 
         # 被怪锁定了
         mm = mini_map_utils.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info = mini_map_utils.analyse_mini_map(mm)
-        if mini_map_utils.is_under_attack(mm_info):
+        if mini_map_utils.is_under_attack(mm):
             return self.enter_battle(True)
 
         # 移动2秒后 如果丢失了目标 停下来
@@ -96,7 +95,7 @@ class SimUniMoveToEnemyByDetect(SrOperation):
             elif result.detect_class.class_category in ['界面提示被锁定', '界面提示可攻击']:
                 can_attack = True
 
-        if self.ctx.one_dragon_config.is_debug:
+        if self.ctx.env_config.is_debug:
             cv2_utils.show_image(detect_utils.draw_detections(frame_result), win_name='SimUniMoveToEnemyByDetect')
             if len(frame_result.results) > 3 and random.random() < 0.5:
                 self.save_screenshot()

@@ -84,8 +84,8 @@ class SimUniUpgradeBless(SrOperation):
         :return: 可强化的祝福列表 每个元素对应碎片数量的识别结果 MatchResult.data=升级祝福需要的碎片
         """
         part = cv2_utils.crop_image_only(screen, SimUniUpgradeBless.BLESS_RECT)
-        money_icon_mrl = self.ctx.tm.match_template(part, 'store_money', template_sub_dir='sim_uni',
-                                                    ignore_template_mask=True,   threshold=0.65, only_best=False)
+        money_icon_mrl = self.ctx.tm.match_template(part, 'sim_uni', 'store_money',
+                                                    ignore_template_mask=True, threshold=0.65, only_best=False)
 
         total_num: int = 0  # 当前累计使用的碎片数量
         # cv2_utils.show_image(part, money_icon_mrl, win_name='all')

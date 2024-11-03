@@ -83,13 +83,17 @@ class GuideChooseMission(SrOperation):
             # 只保留区域附近的内容
             region_pos = mrl_list[region_idx].max.right_bottom
 
+            mission_region_distance = 50
+            if self.mission.mission_name == '模拟宇宙':
+                mission_region_distance = 350
+
             word_list = []
             mrl_list = []
 
             for ocr_word, mrl in ocr_result_map.items():
                 mrl2 = MatchResultList(only_best=False)
                 for mr in mrl:
-                    if abs(mr.right_bottom.y - region_pos.y) < 50:
+                    if region_pos.y- mr.right_bottom.y < mission_region_distance:
                         mrl2.append(mr)
 
                 if len(mrl2) == 0:
@@ -117,7 +121,9 @@ class GuideChooseMission(SrOperation):
         # 返回最靠近副本名称的传送
         tp_point = None
         for mr in tp_mrl:
-            if abs(mr.center.y - mission_pos.y) > 30:  # 太远的就忽略
+            if self.mission.mission_name != '模拟宇宙' and abs(mr.center.y - mission_pos.y) > 30:  # 太远的就忽略
+                continue
+            if self.mission.mission_name == '模拟宇宙' and abs(mr.center.y - region_pos.y) > 30:  # 太远的就忽略
                 continue
             if tp_point is None or abs(mr.center.y - mission_pos.y) < abs(tp_point.y - mission_pos.y):
                 tp_point = mr.center

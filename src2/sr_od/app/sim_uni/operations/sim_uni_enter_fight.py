@@ -1,7 +1,7 @@
 import time
 
 from cv2.typing import MatLike
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, List
 
 from one_dragon.base.operation.operation_base import OperationResult
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -11,6 +11,7 @@ from sr_od.app.sim_uni import sim_uni_screen_state
 from sr_od.app.sim_uni.operations.bless.sim_uni_choose_bless import SimUniChooseBless
 from sr_od.app.sim_uni.operations.curio.sim_uni_choose_curio import SimUniChooseCurio
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig
+from sr_od.config import game_const
 from sr_od.config.game_const import STANDARD_CENTER_POS, OPPOSITE_DIRECTION
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.sr_operation import SrOperation
@@ -62,7 +63,8 @@ class SimUniEnterFight(SrOperation):
         self.last_no_alert_time: float = now  # 上次没有警报时间
         self.last_not_in_world_time: float = now  # 上次在战斗的时间
         self.attack_times: int = 0  # 攻击次数
-        self.last_attack_direction: Optional[str] = None  # 上一次攻击方向
+        self.last_attack_direction: str = 's'  # 上一次攻击方向
+        self.attack_direction_history: List[str] = []  # 攻击方向的历史记录
         self.with_battle: bool = False  # 是否有进入战斗
 
         self.first_screen_check: bool = True  # 是否第一次检查画面状态
@@ -195,12 +197,15 @@ class SimUniEnterFight(SrOperation):
                 # 长时间没有离开大世界画面 可能是小地图背景色污染
                 return self._exit_with_last_move()
 
-            self.ctx.controller.move(direction=attack_direction)
-            self.last_attack_direction = attack_direction
+            fix_attack_direction = self.fix_and_record_direction(attack_direction)
+            will_use_tech = (self.technique_fight and not self.ctx.technique_used
+                    and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique))
+
+            # 这个时间是以黄泉E为基准的 使用秘技的话UseTechnique里有0.2s的等待
+            self.ctx.controller.move(direction=fix_attack_direction, press_time=0.3 if will_use_tech else 0.5)
 
             current_use_tech = False  # 当前这轮使用了秘技 ctx中的状态会在攻击秘技使用后重置
-            if (self.technique_fight and not self.ctx.technique_used
-                    and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique)):  # 识别到秘技类型才能使用
+            if will_use_tech:  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx,
                                   max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
                                   trick_snack=self.ctx.game_config.use_quirky_snacks
@@ -231,7 +236,7 @@ class SimUniEnterFight(SrOperation):
         direction_cnt: int = 0   # 负数往左 正数往右
         if frame_result is not None:
             for result in frame_result.results:
-                if result.detect_class.class_cate in ['界面提示被锁定', '界面提示可攻击']:
+                if result.detect_class.class_category in ['界面提示被锁定', '界面提示可攻击']:
                     if result.x1 < STANDARD_CENTER_POS.x:
                         direction_cnt -= 1
                     else:
@@ -355,3 +360,35 @@ class SimUniEnterFight(SrOperation):
     def after_operation_done(self, result: OperationResult):
         SrOperation.after_operation_done(self, result)
         self.ctx.controller.stop_moving_forward()
+
+    def fix_and_record_direction(self, attack_direction: str) -> str:
+        """
+        修正攻击方向 同时记录
+        - 目前攻击有左右判定 但远程怪不靠近的情况下 可能会导致角色一直在左右攻击
+        :return:
+        """
+        if self.ctx.controller.is_moving and self.attack_times == 0:
+            # 目前是直接攻击再松开w 这样避免停止移动带来的后摇 因此第一下攻击一定是在按着w的情况下进行的 攻击方向会固定为前方
+            self.last_attack_direction = 'w'
+        else:
+            last_idx = len(self.attack_direction_history) - 1
+            ad_count = 0  # 左右攻击的计数
+            ws_count = 0  # 前后攻击的计数
+            last_ws = None  # 上一次前后攻击的方向
+            to_count = 8
+            for _ in range(to_count):
+                if last_idx < 0:
+                    break
+                if self.attack_direction_history[last_idx] in ['a', 'd']:
+                    ad_count += 1
+                else:
+                    ws_count += 1
+                    last_ws = self.attack_direction_history[last_idx]
+
+            if ad_count >= to_count - 1 and ws_count <= 1:
+                self.last_attack_direction = game_const.OPPOSITE_DIRECTION.get(last_ws, 's')
+            else:
+                self.last_attack_direction = attack_direction
+
+        self.attack_direction_history.append(self.last_attack_direction)
+        return self.last_attack_direction

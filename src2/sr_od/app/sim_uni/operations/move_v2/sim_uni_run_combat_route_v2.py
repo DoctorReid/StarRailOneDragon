@@ -95,7 +95,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
         if pos is None:
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_NO_RED)
         else:
-            if self.ctx.one_dragon_config.is_debug:  # 红点已经比较成熟 调试时强制使用yolo
+            if self.ctx.env_config.is_debug:  # 红点已经比较成熟 调试时强制使用yolo
                 return self.round_success(status=SimUniRunRouteBaseV2.STATUS_NO_RED)
             self.previous_angle = cal_utils.get_angle_by_pts(Point(0, 0), pos)  # 记录有目标的方向
             log.debug(f'根据红点记录角度 {self.previous_angle}')
@@ -183,7 +183,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
         elif len(entry_angles) > 0 and len(inactive_entry_angles) == 0:  # 只有激活了的下层入口
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_ENTRY)
         else:
-            if self.ctx.one_dragon_config.is_debug:
+            if self.ctx.env_config.is_debug:
                 if self.nothing_times == 1:
                     self.save_screenshot()
             return self.round_success(SimUniRunRouteBaseV2.STATUS_NOTHING)

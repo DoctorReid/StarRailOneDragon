@@ -1,0 +1,40 @@
+name: 欢愉
+path: ELATION
+bless_priority:
+  - BLESS_00_003
+  - BLESS_07_003
+  - BLESS_07_002
+  - BLESS_07_008
+  - BLESS_07_007
+  - BLESS_07_018
+  - BLESS_07_015
+  - BLESS_07_013
+  - BLESS_07_022
+  - BLESS_07_017
+  - BLESS_07_024
+  - BLESS_07_014
+  - BLESS_07_010
+  - BLESS_07_000
+bless_priority_2:
+  - BLESS_03_011
+  - BLESS_05_014
+  - BLESS_05_017
+  - BLESS_06_020
+level_type_priority:
+  - combat
+  - transaction
+  - event
+  - encounter
+curio_priority:
+  - CURIO_031
+  - CURIO_009
+  - CURIO_019
+  - CURIO_021
+  - CURIO_011
+  - CURIO_024
+  - CURIO_049
+  - CURIO_018
+technique_fight: false
+technique_only: false
+max_consumable_cnt: 0
+skip_herta: false

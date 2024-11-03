@@ -15,7 +15,10 @@ class SimUniChallengeConfig(YamlConfig):
         """
         模拟宇宙挑战配置 全局的 无需跟账号挂钩
         """
-        YamlConfig.__init__(self, '%02d' % idx, sub_dir=['sim_uni', 'challenge_config'], sample=idx <= _MAX_WITH_SAMPLE,
+        YamlConfig.__init__(self, '%02d' % idx,
+                            sub_dir=['sim_uni', 'challenge_config'],
+                            sample=idx <= _MAX_WITH_SAMPLE,
+                            copy_from_sample=idx <= _MAX_WITH_SAMPLE,
                             is_mock=is_mock)
 
         self.idx = idx
@@ -174,7 +177,7 @@ class SimUniChallengeConfigData:
             if file.endswith('_sample.yml'):
                 continue
 
-            idx = int(file[:-4])
+            idx = int(file[:2])
             if idx <= _MAX_WITH_SAMPLE:
                 continue
 
@@ -214,4 +217,8 @@ class SimUniChallengeConfigData:
 
         shutil.copy2(from_file, to_file)
 
-        return SimUniChallengeConfig(idx)
+        config = SimUniChallengeConfig(idx)
+        config._sample = False
+        config.file_path = config._get_yaml_file_path()
+
+        return config

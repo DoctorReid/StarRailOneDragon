@@ -5,6 +5,7 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
+from sr_od.app.sim_uni.sim_uni_const import SimUniWorldEnum
 from sr_od.interastral_peace_guide.guide_def import GuideTab, GuideCategory, GuideMission
 
 
@@ -153,7 +154,6 @@ class SrGuideData:
             for i in self.category_2_mission.get(category.unique_id, [])
             if i.show_in_power_plan
         ]
-
 
 
 def __debug():

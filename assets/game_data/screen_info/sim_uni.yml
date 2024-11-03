@@ -222,13 +222,13 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 入口-重新开始
+- area_name: 入口-下载初始角色
   pc_rect:
   - 1418
   - 970
   - 1656
   - 997
-  text: 重新开始
+  text: 下载初始角色
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

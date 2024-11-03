@@ -92,24 +92,14 @@ class UseTechnique(SrOperation):
         """
         SrOperation.__init__(self, ctx, op_name=gt('施放秘技', 'ui'))
 
+        self.no_dialog_times: int = 0  # 没有出现快速恢复对话框的次数
         self.max_consumable_cnt: int = max_consumable_cnt  # 最多使用的消耗品个数
         self.trick_snack: bool = trick_snack  # 只使用奇巧零食
 
         self.need_check_available: bool = need_check_available  # 是否需要检查秘技是否可用
         self.need_check_point: bool = need_check_point  # 是否检测剩余秘技点再使用
 
-    def handle_init(self) -> Optional[OperationRoundResult]:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        可以返回初始化后判断的结果
-        - 成功时跳过本指令
-        - 失败时立刻返回失败
-        - 不返回时正常运行本指令
-        """
         self.op_result: UseTechniqueResult = UseTechniqueResult()  # 最后返回的结果
-
-        return None
 
     @operation_node(name='检测秘技点', is_start_node=True)
     def _check_technique_point(self) -> OperationRoundResult:
@@ -152,7 +142,7 @@ class UseTechnique(SrOperation):
             self.ctx.technique_used = False
 
         if self.op_result.with_dialog and self.op_result.use_consumable_times > 0:
-            # 之前出现过对话框 且已经用 过消耗品了 那这次就不需要判断了
+            # 之前出现过对话框 且已经用过消耗品了 那这次就不需要判断了
             return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
 
         screen = self.screenshot()
@@ -161,18 +151,24 @@ class UseTechnique(SrOperation):
             # 没有出现消耗品的情况 要尽快返回继续原来的指令 因此不等待
             return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
 
+        # 不在大世界的情况 可以慢一点判断
         result = self.round_by_find_area(screen, '快速恢复对话框', '快速恢复标题')
-        if not result.is_success:  # 没有出现对话框的话 认为进入了战斗
-            return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
+        if not result.is_success:
+            self.no_dialog_times += 1
+            if self.no_dialog_times > 3:  # 没有出现对话框的话 认为进入了战斗
+                return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
+            else:
+                return self.round_wait(wait=0.5)
+        else:
+            self.no_dialog_times = 0
+            self.op_result.use_tech = False  # 出现了对话框 那么之前使用秘技没有成功
+            self.ctx.technique_used = False
 
-        self.op_result.use_tech = False  # 出现了对话框 那么之前使用秘技没有成功
-        self.ctx.technique_used = False
-
-        return FastRecover.handle_consumable_dialog(
-            self, self.ctx, screen, self.op_result,
-            max_consumable_cnt=self.max_consumable_cnt,
-            quirky_snacks=self.trick_snack
-        )
+            return FastRecover.handle_consumable_dialog(
+                self, self.ctx, screen, self.op_result,
+                max_consumable_cnt=self.max_consumable_cnt,
+                quirky_snacks=self.trick_snack
+            )
 
     @node_from(from_name='确认', status='使用了消耗品')
     @operation_node(name='等待大世界使用秘技', node_max_retry_times=20)

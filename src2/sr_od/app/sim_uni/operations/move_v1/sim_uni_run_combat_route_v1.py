@@ -29,6 +29,9 @@ class SimUniRunCombatRoute(SrOperation):
         self.route: Optional[SimUniRoute] = route
         self.current_pos: Optional[Point] = None
         self.config: Optional[SimUniChallengeConfig] = config
+        if config is None:
+            ctx.sim_uni_info.world_num = world_num
+            self.config = ctx.sim_uni_challenge_config
 
         SrOperation.__init__(self, ctx,
                              op_name='%s %s' % (

@@ -247,5 +247,5 @@ class SimUniRunRouteBaseV2(SrOperation):
         :param screen: 游戏画面
         :return:
         """
-        level_type = sim_uni_screen_state.get_level_type(screen, self.ctx.ocr)
+        level_type = sim_uni_screen_state.get_level_type(self.ctx, screen)
         return level_type is not None and self.level_type.type_id == level_type.type_id

@@ -1,0 +1,46 @@
+name: 虚无
+path: NIHILITY
+bless_priority:
+  - BLESS_00_003
+  - BLESS_03_002
+  - BLESS_03_004
+  - BLESS_03_003
+  - BLESS_03_007
+  - BLESS_03_009
+  - BLESS_03_008
+  - BLESS_03_012
+  - BLESS_03_015
+  - BLESS_03_011
+  - BLESS_03_019
+  - BLESS_03_021
+  - BLESS_03_022
+  - BLESS_03_014
+  - BLESS_03_016
+  - BLESS_03_013
+  - BLESS_03_010
+  - BLESS_03_000
+bless_priority_2:
+  - BLESS_06_020
+  - BLESS_05_021
+  - BLESS_05_020
+  - BLESS_04_017
+  - BLESS_08_013
+  - BLESS_08_023
+  - BLESS_08_022
+level_type_priority:
+  - combat
+  - transaction
+  - event
+  - encounter
+curio_priority:
+  - CURIO_035
+  - CURIO_009
+  - CURIO_019
+  - CURIO_011
+  - CURIO_024
+  - CURIO_049
+  - CURIO_018
+technique_fight: false
+technique_only: false
+max_consumable_cnt: 0
+skip_herta: false

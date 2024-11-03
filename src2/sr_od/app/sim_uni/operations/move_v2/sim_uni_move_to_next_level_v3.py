@@ -41,6 +41,7 @@ class MoveToNextLevelV3(SrOperation):
         self.move_times: int = 0  # 累计的移动次数
         self.start_move_time: float = 0  # 开始移动的时间
         self.interacted: bool = False  # 是否已经尝试过交互
+        self.interact_time: float = 0  # 交互的时间
         self.detect_fail_times: int = 0  # YOLO识别失败的次数
 
         # 是否出现过交互词
@@ -72,12 +73,12 @@ class MoveToNextLevelV3(SrOperation):
         """
         screen = self.screenshot()
 
-        frame_result = self.ctx.yolo_detector.sim_uni_yolo.detect(screen)
+        frame_result = self.ctx.yolo_detector.sim_uni_yolo.run(screen)
 
         entry_angles: List[float] = []
         for result in frame_result.results:
             delta_angle = sim_uni_move_utils.delta_angle_to_detected_object(result)
-            if result.detect_class.class_cate == '模拟宇宙下层入口':
+            if result.detect_class.class_category == '模拟宇宙下层入口':
                 entry_angles.append(delta_angle)
 
         if len(entry_angles) > 0:
@@ -193,17 +194,20 @@ class MoveToNextLevelV3(SrOperation):
         :return:
         """
         now = time.time()
-
-        # 出现过交互词 且消失了 就可以无脑交互了
-        need_ocr: bool = True # 现在OCR速度快 可以保持使用
-
         screen = self.screenshot()
 
         in_world = common_screen_state.is_normal_in_world(self.ctx, screen)
 
-        if not in_world:
-            # 如果已经不在大世界画了 就认为成功了
-            return self.round_success()
+        if self.interacted:  # 交互之后 只识别当前画面是不是不在大世界
+            if now - self.interact_time > 1:  # 交互之后超过1秒 而且画面还没有变化的话 就放弃这次的交互
+                self.interacted = False
+                return self.round_retry(status='交互后无反应')
+
+            if not in_world:
+                # 如果已经不在大世界画了 就认为成功了
+                return self.round_success()
+            else:
+                return self.round_wait(wait=0.02)
 
         if self.ctx.controller.is_moving:
             if now - self.start_move_time > MoveToNextLevel.MOVE_TIME:
@@ -213,7 +217,7 @@ class MoveToNextLevelV3(SrOperation):
                 if self.move_times >= 4:  # 正常情况不会连续移动这么多次都没有到下层入口 尝试脱困
                     self.ctx.controller.move(self.get_rid_direction, 1)
                     self.get_rid_direction = game_const.OPPOSITE_DIRECTION[self.get_rid_direction]
-            elif need_ocr:
+            else:
                 interact = self.try_interact(screen)
                 if interact is not None:
                     return interact
@@ -242,6 +246,7 @@ class MoveToNextLevelV3(SrOperation):
             self.ctx.controller.interact(interact_type=SrPcController.MOVE_INTERACT_TYPE)
             log.debug('尝试交互进入下一层')
             self.interacted = True
+            self.interact_time = time.time()
             self.ctx.controller.stop_moving_forward()
             return self.round_wait(wait=0.1)
         else:

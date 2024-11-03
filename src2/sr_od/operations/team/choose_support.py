@@ -142,7 +142,7 @@ class ChooseSupport(SrOperation):
                 character_pos = cv2_utils.feature_match_for_one(
                     source_kps, source_desc,
                     template.kps, template.desc,
-                    template.origin.shape[1], template.origin.shape[0],
+                    template.raw.shape[1], template.raw.shape[0],
                     knn_distance_percent=0.5
                 )
 

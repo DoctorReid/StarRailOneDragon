@@ -54,7 +54,10 @@ class SimUniRunLevel(SrOperation):
         self.world_num: int = world_num
         self.level_type: Optional[SimUniLevelType] = None
         self.route: Optional[SimUniRoute] = None
-        self.config: Optional[SimUniChallengeConfig] = config
+        self.config: SimUniChallengeConfig = config
+        if config is None:
+            ctx.sim_uni_info.world_num = world_num
+            self.config = ctx.sim_uni_challenge_config
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
         self.reset_times: int = 0  # 重置次数
@@ -106,7 +109,7 @@ class SimUniRunLevel(SrOperation):
         """
         screen = self.screenshot()
 
-        self.level_type = sim_uni_screen_state.get_level_type(screen, self.ctx.ocr)
+        self.level_type = sim_uni_screen_state.get_level_type(self.ctx, screen)
 
         if self.level_type is None:
             return self.round_retry('匹配楼层类型失败', wait=1)
@@ -134,7 +137,7 @@ class SimUniRunLevel(SrOperation):
 
         if target_route is None:
             self.route = None
-            return self.round_retry('匹配路线失败', wait=1)
+            return self.round_retry('匹配路线失败', wait=0.25)
         elif self.route is None or self.route.uid != target_route.uid:
             self.route = target_route
             another_route = True
@@ -211,3 +214,16 @@ class SimUniRunLevel(SrOperation):
         self.reset_times += 1
         op = ResetSimUniLevel(self.ctx)
         return self.round_by_op_result(op.execute())
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.init_for_sim_uni()
+    ctx.start_running()
+    op = SimUniRunLevel(ctx, world_num=8)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()

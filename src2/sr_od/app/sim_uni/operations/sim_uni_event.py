@@ -32,9 +32,9 @@ class SimUniEventOption:
 class SimUniEvent(SrOperation):
 
     STATUS_NO_OPT: ClassVar[str] = '无选项'
-    STATUS_CHOOSE_OPT_CONFIRM: ClassVar[str] = '需确认'
-    STATUS_CHOOSE_OPT_NO_CONFIRM: ClassVar[str] = '无需确认'
-    STATUS_CONFIRM_SUCCESS: ClassVar[str] = '确认成功'
+    STATUS_CHOOSE_OPT_CONFIRM: ClassVar[str] = '需确定'
+    STATUS_CHOOSE_OPT_NO_CONFIRM: ClassVar[str] = '无需确定'
+    STATUS_CONFIRM_SUCCESS: ClassVar[str] = '确定成功'
 
     OPT_RECT: ClassVar[Rect] = Rect(1335, 204, 1826, 886)  # 选项所在的地方
     EMPTY_POS: ClassVar[Point] = Point(778, 880)
@@ -49,22 +49,9 @@ class SimUniEvent(SrOperation):
         SrOperation.__init__(self, ctx, op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('事件', 'ui')))
 
         self.opt_list: List[SimUniEventOption] = []
+        self.chosen_opt_set: set[str] = set()  # 已经选择过的选项名称
         self.config: Optional[SimUniChallengeConfig] = ctx.sim_uni_challenge_config if config is None else config
         self.skip_first_screen_check: bool = skip_first_screen_check
-
-    def handle_init(self) -> Optional[OperationRoundResult]:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        可以返回初始化后判断的结果
-        - 成功时跳过本指令
-        - 失败时立刻返回失败
-        - 不返回时正常运行本指令
-        """
-        self.opt_list = []
-        self.chosen_opt_set: set[str] = set()  # 已经选择过的选项名称
-
-        return None
 
     @operation_node(name='等待加载', is_start_node=True)
     def _wait(self) -> OperationRoundResult:
@@ -79,7 +66,7 @@ class SimUniEvent(SrOperation):
             return self.round_retry('未在事件页面', wait=1)
 
     @node_from(from_name='等待加载')
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_EVENT.value)
+    @node_from(from_name='确定后判断', status=sim_uni_screen_state.ScreenState.SIM_EVENT.value)
     @operation_node(name='选择选项')
     def _choose_opt_by_priority(self) -> OperationRoundResult:
         """
@@ -114,12 +101,12 @@ class SimUniEvent(SrOperation):
 
     def _get_confirm_opt_list(self, screen: MatLike) -> List[SimUniEventOption]:
         """
-        获取当前需要确认的选项
+        获取当前需要确定的选项
         :param screen:
         :return:
         """
         part, _ = cv2_utils.crop_image(screen, SimUniEvent.OPT_RECT)
-        match_result_list = self.ctx.tm.match_template(part, 'event_option_icon', template_sub_dir='sim_uni',
+        match_result_list = self.ctx.tm.match_template(part, 'sim_uni', 'event_option_icon',
                                                        threshold=0.7, only_best=False)
 
         opt_list = []
@@ -138,14 +125,14 @@ class SimUniEvent(SrOperation):
             # cv2_utils.show_image(confirm_part, wait=0)
 
             opt = SimUniEventOption(title, title_rect, confirm_rect)
-            log.info('识别需确认选项 %s', opt.title)
+            log.info('识别需确定选项 %s', opt.title)
             opt_list.append(opt)
 
         return opt_list
 
     def _get_no_confirm_opt_list(self, screen: MatLike) -> List[SimUniEventOption]:
         """
-        获取当前不需要确认的选项
+        获取当前不需要确定的选项
         :param screen:
         :return:
         """
@@ -158,7 +145,7 @@ class SimUniEvent(SrOperation):
         ]
 
         for template_id in template_id_list:
-            match_result_list = self.ctx.tm.match_template(part, template_id, template_sub_dir='sim_uni',
+            match_result_list = self.ctx.tm.match_template(part, 'sim_uni', template_id,
                                                            threshold=0.7, only_best=False)
 
             for mr in match_result_list:
@@ -176,21 +163,20 @@ class SimUniEvent(SrOperation):
         return opt_list
 
     @node_from(from_name='选择选项', status=STATUS_CHOOSE_OPT_CONFIRM)
-    @node_from(from_name='选择选项', status=STATUS_CHOOSE_OPT_CONFIRM)
     @node_from(from_name='选择离开')
-    @operation_node(name='确认')
+    @operation_node(name='确定')
     def _confirm(self):
         screen = self.screenshot()
-        fake_area = ScreenArea(pc_rect=self.chosen_opt.confirm_rect, area_name='选项确认')
+        fake_area = ScreenArea(pc_rect=self.chosen_opt.confirm_rect, area_name='选项确定')
 
-        result = self.round_by_ocr_and_click(screen, '确认', area=fake_area)
+        result = self.round_by_ocr_and_click(screen, '确定', area=fake_area)
 
         if result.is_success:
             return self.round_success(SimUniEvent.STATUS_CONFIRM_SUCCESS, wait=2)
         elif result.status.startswith('找不到'):
             return self.round_success('无效选项')
         else:
-            return self.round_success('点击确认失败', wait=0.25)
+            return self.round_success('点击确定失败', wait=0.25)
 
     def _do_choose_opt(self, idx: int) -> OperationRoundResult:
         """
@@ -211,7 +197,7 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry('点击选项失败', wait=0.5)
 
-    @node_from(from_name='确认', status='无效选项')
+    @node_from(from_name='确定', status='无效选项')
     @operation_node(name='选择离开')
     def _choose_leave(self):
         """
@@ -237,8 +223,9 @@ class SimUniEvent(SrOperation):
 
         return self._do_choose_opt(idx)
 
-    @node_from(from_name='确认', status=STATUS_CONFIRM_SUCCESS)
-    @node_from(from_name='选择', status=STATUS_NO_OPT)
+    @node_from(from_name='确定', status=STATUS_CONFIRM_SUCCESS)
+    @node_from(from_name='选择选项', status=STATUS_NO_OPT)
+    @node_from(from_name='选择选项', status=STATUS_CHOOSE_OPT_NO_CONFIRM)
     @node_from(from_name='选择祝福')
     @node_from(from_name='丢弃祝福')
     @node_from(from_name='祝福强化')
@@ -246,10 +233,10 @@ class SimUniEvent(SrOperation):
     @node_from(from_name='丢弃奇物')
     @node_from(from_name='点击空白处关闭')
     @node_from(from_name='战斗')
-    @operation_node(name='确认后判断')
+    @operation_node(name='确定后判断')
     def _check_after_confirm(self) -> OperationRoundResult:
         """
-        确认后判断下一步动作
+        确定后判断下一步动作
         :return:
         """
         screen = self.screenshot()
@@ -279,7 +266,7 @@ class SimUniEvent(SrOperation):
         self.round_by_click_area('模拟宇宙', '点击空白处关闭')
         return None
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_BLESS.value)
+    @node_from(from_name='确定后判断', status=sim_uni_screen_state.ScreenState.SIM_BLESS.value)
     @operation_node(name='选择祝福')
     def _choose_bless(self) -> OperationRoundResult:
         op = SimUniChooseBless(self.ctx, config=self.config)
@@ -290,7 +277,7 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry(status=op_result.status)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_DROP_BLESS.value)
+    @node_from(from_name='确定后判断', status=sim_uni_screen_state.ScreenState.SIM_DROP_BLESS.value)
     @operation_node(name='丢弃祝福')
     def _drop_bless(self) -> OperationRoundResult:
         op = SimUniDropBless(self.ctx, config=self.config)
@@ -301,13 +288,13 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry(status=op_result.status)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_UPGRADE_BLESS.value)
+    @node_from(from_name='确定后判断', status=sim_uni_screen_state.ScreenState.SIM_UPGRADE_BLESS.value)
     @operation_node(name='祝福强化')
     def _upgrade_bless(self) -> OperationRoundResult:
         op = SimUniUpgradeBless(self.ctx)
         return self.round_by_op_result(op.execute())
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_CURIOS.value)
+    @node_from(from_name='确定后判断', status=sim_uni_screen_state.ScreenState.SIM_CURIOS.value)
     @operation_node(name='选择奇物')
     def _choose_curio(self) -> OperationRoundResult:
         op = SimUniChooseCurio(self.ctx, config=self.config)
@@ -318,7 +305,7 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry(status=op_result.status)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.SIM_DROP_CURIOS.value)
+    @node_from(from_name='确定后判断', status=sim_uni_screen_state.ScreenState.SIM_DROP_CURIOS.value)
     @operation_node(name='丢弃奇物')
     def _drop_curio(self) -> OperationRoundResult:
         op = SimUniDropCurio(self.ctx, config=self.config)
@@ -329,13 +316,13 @@ class SimUniEvent(SrOperation):
         else:
             return self.round_retry(status=op_result.status)
 
-    @node_from(from_name='确认后判断', status=sim_uni_screen_state.ScreenState.EMPTY_TO_CLOSE.value)
+    @node_from(from_name='确定后判断', status=sim_uni_screen_state.ScreenState.EMPTY_TO_CLOSE.value)
     @operation_node(name='点击空白处关闭')
     def _click_empty_to_continue(self) -> OperationRoundResult:
         return self.round_by_click_area('模拟宇宙', '点击空白处关闭',
                                         success_wait=2, retry_wait=1)
 
-    @node_from(from_name='确认后判断', status=battle_screen_state.ScreenState.BATTLE.value)
+    @node_from(from_name='确定后判断', status=battle_screen_state.ScreenState.BATTLE.value)
     @operation_node(name='战斗')
     def _battle(self) -> OperationRoundResult:
         # op = SimUniEnterFight(self.ctx,
@@ -358,3 +345,17 @@ class SimUniEvent(SrOperation):
         area = self.ctx.screen_loader.get_area('模拟宇宙', '事件标题')
         part = cv2_utils.crop_image_only(screen, area.rect)
         return self.ctx.ocr.run_ocr_single_line(part)
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.sim_uni_info.world_num = 8
+    ctx.init_for_sim_uni()
+    ctx.start_running()
+    op = SimUniEvent(ctx)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()

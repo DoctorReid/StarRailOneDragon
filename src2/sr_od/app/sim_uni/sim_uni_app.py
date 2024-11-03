@@ -83,6 +83,7 @@ class SimUniApp(SrApplication):
         if state == sim_uni_screen_state.ScreenState.SIM_TYPE_NORMAL.value:
             if self.all_finished:
                 return self.round_success(SimUniApp.STATUS_TO_WEEKLY_REWARD)
+
         return self.round_success(state)
 
     @node_from(from_name='识别初始画面')
@@ -182,3 +183,16 @@ class SimUniApp(SrApplication):
     def back_at_last(self) -> OperationRoundResult:
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.init_for_sim_uni()
+    ctx.start_running()
+    op = SimUniApp(ctx)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()

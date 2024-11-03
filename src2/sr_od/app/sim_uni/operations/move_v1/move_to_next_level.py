@@ -92,7 +92,7 @@ class MoveToNextLevel(SrOperation):
         if self.route is None:  # 不是使用配置路线时 不需要先转向
             return self.round_success()
         if self.current_pos is None or self.next_pos is None:
-            if self.ctx.one_dragon_config.is_debug:
+            if self.ctx.env_config.is_debug:
                 return self.round_fail('未配置下层入口')
             else:
                 return self.round_success()
@@ -100,7 +100,7 @@ class MoveToNextLevel(SrOperation):
 
         if not common_screen_state.is_normal_in_world(self.ctx, screen):
             log.error('找下层入口时进入战斗 请反馈给作者 %s', self.route.display_name)
-            if self.ctx.one_dragon_config.is_debug:
+            if self.ctx.env_config.is_debug:
                 return self.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
             op = SimUniEnterFight(self.ctx, self.config)
             op_result = op.execute()
@@ -128,7 +128,7 @@ class MoveToNextLevel(SrOperation):
                 return self.round_success()
             else:
                 log.error('找下层入口时进入战斗 请反馈给作者 %s', '第九宇宙' if self.route is None else self.route.display_name)
-                if self.ctx.one_dragon_config.is_debug:
+                if self.ctx.env_config.is_debug:
                     return self.round_fail(MoveToNextLevel.STATUS_ENCOUNTER_FIGHT)
                 op = SimUniEnterFight(self.ctx, self.config)
                 op_result = op.execute()

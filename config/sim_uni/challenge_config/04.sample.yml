@@ -1,0 +1,40 @@
+name: 丰饶
+path: ABUNDANCE
+bless_priority:
+  - BLESS_00_003
+  - BLESS_04_004
+  - BLESS_04_003
+  - BLESS_04_007
+  - BLESS_04_009
+  - BLESS_04_008
+  - BLESS_04_015
+  - BLESS_04_016
+  - BLESS_04_014
+  - BLESS_04_013
+  - BLESS_04_024
+  - BLESS_04_023
+  - BLESS_04_011
+  - BLESS_04_000
+bless_priority_2:
+  - BLESS_03_011
+  - BLESS_05_014
+  - BLESS_05_017
+  - BLESS_06_020
+level_type_priority:
+  - combat
+  - transaction
+  - event
+  - encounter
+curio_priority:
+  - CURIO_036
+  - CURIO_009
+  - CURIO_019
+  - CURIO_021
+  - CURIO_011
+  - CURIO_024
+  - CURIO_049
+  - CURIO_018
+technique_fight: false
+technique_only: false
+max_consumable_cnt: 0
+skip_herta: false

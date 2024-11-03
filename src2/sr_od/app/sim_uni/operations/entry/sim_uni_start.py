@@ -1,7 +1,6 @@
 from cv2.typing import MatLike
 from typing import ClassVar
 
-from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -33,9 +32,9 @@ class SimUniStart(SrOperation):
         if not sim_uni_screen_state.in_sim_uni_secondary_ui(self.ctx, screen):
             return self.round_retry('未在模拟宇宙页面', wait=1)
 
-        result = self.round_by_find_and_click_area(screen, '模拟宇宙', '入口-重新开始')
+        result = self.round_by_find_and_click_area(screen, '模拟宇宙', '入口-下载初始角色')
         if result.is_success:
-            return self.round_success(status=SimUniStart.STATUS_RESTART, wait=2)
+            return self.round_success(status=result.status, wait=2)
 
         result = self.round_by_find_and_click_area(screen, '模拟宇宙', '入口-继续')
         if result.is_success:
@@ -43,8 +42,8 @@ class SimUniStart(SrOperation):
 
         return self.round_retry('点击开始失败', wait=1)
 
-    @node_from(from_name='开始', status='入口-继续')
-    @operation_node(name='启动')
+    @node_from(from_name='开始', status='入口-下载初始角色')
+    @operation_node(name='启动模拟宇宙')
     def _start(self) -> OperationRoundResult:
         """
         启动模拟宇宙
@@ -54,7 +53,7 @@ class SimUniStart(SrOperation):
         return self.round_by_find_and_click_area(screen, '模拟宇宙', '入口-启动模拟宇宙',
                                                  success_wait=2, retry_wait=1)
 
-    @node_from(from_name='启动')
+    @node_from(from_name='启动模拟宇宙')
     @operation_node(name='确认')
     def _confirm(self) -> OperationRoundResult:
         """
@@ -63,7 +62,7 @@ class SimUniStart(SrOperation):
         """
         screen: MatLike = self.screenshot()
 
-        if sim_uni_screen_state.in_sim_uni_choose_path(screen, self.ctx.ocr):
+        if sim_uni_screen_state.in_sim_uni_choose_path(self.ctx, screen):
             return self.round_success()
 
         return self.round_by_find_and_click_area(screen, '模拟宇宙', '入口-低等级确认',
@@ -73,4 +72,9 @@ class SimUniStart(SrOperation):
     @node_from(from_name='确认', success=False)  # 不一定有对话框确认
     @operation_node(name='完成')
     def finish(self) -> OperationRoundResult:
+        return self.round_success(SimUniStart.STATUS_RESTART)
+
+    @node_from(from_name='开始', status='入口-继续')
+    @operation_node(name='继续-完成')
+    def continue_finish(self) -> OperationRoundResult:
         return self.round_success(SimUniStart.STATUS_CONTINUE)

@@ -40,7 +40,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBaseV2):
         self.had_reward: bool = False  # 已经拿过沉浸奖励了
         self.max_reward_to_get: int = max_reward_to_get  # 最多获取多少次奖励
         self.get_reward_callback: Optional[Callable[[int, int], None]] = get_reward_callback  # 获取奖励后的回调
-        
+
     @operation_node(name='区域开始前', is_start_node=True)
     def before_route(self) -> OperationRoundResult:
         """
@@ -122,7 +122,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBaseV2):
 
         return self.round_success()
 
-    @node_from(from_name='向红点移动', status=SimUniRunRouteBaseV2.STATUS_HAD_FIGHT)
+    @node_from(from_name='识别小地图红点', status=SimUniRunRouteBaseV2.STATUS_HAD_FIGHT)
     @node_from(from_name='战斗后处理')
     @node_from(from_name='无红点处理') # 没红点时 识别沉浸奖励装置
     @node_from(from_name='识别移动超时脱困')
@@ -133,7 +133,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBaseV2):
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_NO_NEED_REWARD)
 
         # 调试时候强制走到沉浸奖励
-        if not self.ctx.one_dragon_config.is_debug and self.max_reward_to_get == 0:
+        if not self.ctx.env_config.is_debug and self.max_reward_to_get == 0:
             log.debug('不需要领取沉浸奖励')
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_NO_NEED_REWARD)
 
@@ -151,7 +151,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBaseV2):
         if detected:
             return self.round_success(status=SimUniRunRouteBaseV2.STATUS_WITH_DETECT_REWARD)
         else:
-            if self.ctx.one_dragon_config.is_debug:
+            if self.ctx.env_config.is_debug:
                 if self.nothing_times == 1:
                     self.save_screenshot()
                 cv2_utils.show_image(detect_utils.draw_detections(frame_result), win_name='SimUniRunEliteRouteV2')
@@ -193,6 +193,7 @@ class SimUniRunEliteRouteV2(SimUniRunRouteBaseV2):
         领取沉浸奖励
         :return:
         """
+        self.had_fight = True  # 能交互沉浸奖励的话 说明精英怪已经死了
         self.had_reward = True
         self.detect_move_timeout_times = 0
         op = SimUniReward(self.ctx, self.max_reward_to_get, self.get_reward_callback)
