@@ -7,10 +7,12 @@ from one_dragon.gui.component.column_widget import ColumnWidget
 from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.gui.component.log_display_card import LogDisplayCard
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
 from one_dragon.gui.component.setting_card.yolo_model_card import ModelDownloadSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.yolo.yolo_utils import SR_MODEL_DOWNLOAD_URL
+from sr_od.config.yolo_config import get_world_patrol_opts, get_sim_uni_opts
 from sr_od.context.sr_context import SrContext
 
 
@@ -58,17 +60,23 @@ class SrSettingYoloInterface(VerticalScrollInterface):
     def _init_model_group(self) -> SettingCardGroup:
         group = SettingCardGroup(gt('模型', 'ui'))
 
-        self.flash_classifier_opt = ModelDownloadSettingCard(
+        self.world_patrol_model_opt = ModelDownloadSettingCard(
             ctx=self.ctx, sub_dir='world_patrol', download_url=SR_MODEL_DOWNLOAD_URL,
             icon=FluentIcon.GLOBE, title='锄大地')
-        self.flash_classifier_opt.value_changed.connect(self._on_flash_classifier_changed)
-        group.addSettingCard(self.flash_classifier_opt)
+        self.world_patrol_model_opt.value_changed.connect(self.on_world_patrol_model_changed)
+        group.addSettingCard(self.world_patrol_model_opt)
 
-        self.hollow_zero_event_opt = ModelDownloadSettingCard(
+        self.world_patrol_gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='锄大地-GPU运算')
+        group.addSettingCard(self.world_patrol_gpu_opt)
+
+        self.sim_uni_model_opt = ModelDownloadSettingCard(
             ctx=self.ctx, sub_dir='sim_uni', download_url=SR_MODEL_DOWNLOAD_URL,
             icon=FluentIcon.GLOBE, title='模拟宇宙')
-        self.hollow_zero_event_opt.value_changed.connect(self._on_hollow_zero_event_changed)
-        group.addSettingCard(self.hollow_zero_event_opt)
+        self.sim_uni_model_opt.value_changed.connect(self._on_sim_uni_model_changed)
+        group.addSettingCard(self.sim_uni_model_opt)
+
+        self.sim_uni_gpu_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='模拟宇宙-GPU运算')
+        group.addSettingCard(self.sim_uni_gpu_opt)
 
         return group
 
@@ -81,8 +89,11 @@ class SrSettingYoloInterface(VerticalScrollInterface):
 
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
-        self._init_flash_classifier_opts()
-        self._init_hollow_zero_event_opts()
+        self._init_world_patrol_opts()
+        self._init_sim_uni_model_opts()
+
+        self.world_patrol_gpu_opt.init_with_adapter(self.ctx.yolo_config.world_patrol_gpu_adapter)
+        self.sim_uni_gpu_opt.init_with_adapter(self.ctx.yolo_config.sim_uni_gpu_adapter)
 
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:
@@ -96,28 +107,19 @@ class SrSettingYoloInterface(VerticalScrollInterface):
         VerticalScrollInterface.on_interface_hidden(self)
         self.log_card.set_update_log(False)
 
-    def _init_flash_classifier_opts(self) -> None:
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.flash_classifier_opt.value_changed.disconnect(self._on_flash_classifier_changed)
-        except Exception:
-            pass
-        self.flash_classifier_opt.set_options_by_list(get_flash_classifier_opts())
-        self.flash_classifier_opt.setValue(self.ctx.yolo_config.flash_classifier)
-        self.flash_classifier_opt.check_and_update_display()
+    def _init_world_patrol_opts(self) -> None:
+        self.world_patrol_model_opt.blockSignals(True)
+        self.world_patrol_model_opt.set_options_by_list(get_world_patrol_opts())
+        self.world_patrol_model_opt.setValue(self.ctx.yolo_config.world_patrol)
+        self.world_patrol_model_opt.check_and_update_display()
+        self.world_patrol_model_opt.blockSignals(False)
 
-        self.flash_classifier_opt.value_changed.connect(self._on_flash_classifier_changed)
-
-    def _init_hollow_zero_event_opts(self) -> None:
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.hollow_zero_event_opt.value_changed.disconnect(self._on_hollow_zero_event_changed)
-        except Exception:
-            pass
-        self.hollow_zero_event_opt.set_options_by_list(get_hollow_zero_event_opts())
-        self.hollow_zero_event_opt.setValue(self.ctx.yolo_config.hollow_zero_event)
-        self.hollow_zero_event_opt.check_and_update_display()
-        self.hollow_zero_event_opt.value_changed.connect(self._on_hollow_zero_event_changed)
+    def _init_sim_uni_model_opts(self) -> None:
+        self.sim_uni_model_opt.blockSignals(True)
+        self.sim_uni_model_opt.set_options_by_list(get_sim_uni_opts())
+        self.sim_uni_model_opt.setValue(self.ctx.yolo_config.sim_uni)
+        self.sim_uni_model_opt.check_and_update_display()
+        self.sim_uni_model_opt.blockSignals(False)
 
     def _on_proxy_type_changed(self, index: int, value: str) -> None:
         """
@@ -146,10 +148,10 @@ class SrSettingYoloInterface(VerticalScrollInterface):
         """
         self.ctx.git_service.is_proxy_set = False
 
-    def _on_flash_classifier_changed(self, index: int, value: str) -> None:
-        self.ctx.yolo_config.flash_classifier = value
-        self.flash_classifier_opt.check_and_update_display()
+    def on_world_patrol_model_changed(self, index: int, value: str) -> None:
+        self.ctx.yolo_config.world_patrol = value
+        self.world_patrol_model_opt.check_and_update_display()
 
-    def _on_hollow_zero_event_changed(self, index: int, value: str) -> None:
-        self.ctx.yolo_config.hollow_zero_event = value
-        self.hollow_zero_event_opt.check_and_update_display()
+    def _on_sim_uni_model_changed(self, index: int, value: str) -> None:
+        self.ctx.yolo_config.sim_uni = value
+        self.sim_uni_model_opt.check_and_update_display()

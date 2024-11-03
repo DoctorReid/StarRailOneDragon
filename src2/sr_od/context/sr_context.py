@@ -190,9 +190,15 @@ class SrContext(OneDragonContext):
     def init_for_world_patrol(self) -> None:
         self.ocr.init_model()
         self.preheat_context.preheat_for_world_patrol_async()
-        self.yolo_detector.init_world_patrol_model(self.yolo_config.world_patrol)
+        self.yolo_detector.init_world_patrol_model(
+            model_name=self.yolo_config.world_patrol,
+            gpu=self.yolo_config.world_patrol_gpu
+        )
 
     def init_for_sim_uni(self) -> None:
         self.ocr.init_model()
         self.preheat_context.preheat_for_world_patrol_async()  # 与锄大地共用大地图
-        self.yolo_detector.init_sim_uni_model(self.yolo_config.sim_uni)
+        self.yolo_detector.init_sim_uni_model(
+            model_name=self.yolo_config.sim_uni,
+            gpu=self.yolo_config.sim_uni_gpu
+        )

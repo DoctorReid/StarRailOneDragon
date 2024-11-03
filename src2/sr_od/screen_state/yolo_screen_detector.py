@@ -61,7 +61,7 @@ class YoloScreenDetector:
 
         self.read_detect_info()
 
-    def init_world_patrol_model(self, model_name: str) -> None:
+    def init_world_patrol_model(self, model_name: str, gpu: bool = False) -> None:
         """
         重新初始化模型
         """
@@ -71,10 +71,11 @@ class YoloScreenDetector:
         self.world_patrol_yolo = Yolov8Detector(
             model_download_url=SR_MODEL_DOWNLOAD_URL,
             model_parent_dir_path=yolo_config_utils.get_model_category_dir('world_patrol'),
-            model_name=model_name
+            model_name=model_name,
+            gpu=gpu
         )
 
-    def init_sim_uni_model(self, model_name: str) -> None:
+    def init_sim_uni_model(self, model_name: str, gpu: bool = False) -> None:
         """
         重新初始化模型
         """
@@ -84,7 +85,8 @@ class YoloScreenDetector:
         self.sim_uni_yolo = Yolov8Detector(
             model_download_url=SR_MODEL_DOWNLOAD_URL,
             model_parent_dir_path=yolo_config_utils.get_model_category_dir('sim_uni'),
-            model_name=model_name
+            model_name=model_name,
+            gpu=gpu
         )
 
     def detect_should_attack_in_world(self, screen: MatLike, detect_time: float) -> DetectFrameResult:
