@@ -11,8 +11,8 @@ class TrailblazePowerPlanItem:
     def __init__(self, mission_id: str, team_num: int, support: str, plan_times: int,
                  run_times: int = 0, diff: int = 0):
         self.mission_id: str = mission_id  # 关卡id - 新
-        self.team_num: int = team_num  # 使用配队
-        self.support: str = support  # 支援角色 空就是没有
+        self.team_num: int = team_num  # 使用配队 0代表游戏内当前配队
+        self.support: str = support  # 支援角色 'none'或者None就是没有
         self.plan_times: int = plan_times  # 计划通关次数
         self.run_times: int = run_times  # 已经通关次数
         self.diff: int = diff  # 难度 0代表自动最高
@@ -31,23 +31,6 @@ class TrailblazePowerConfig(YamlConfig):
         self.plan_list: List[TrailblazePowerPlanItem] = []
 
         self.init_plan_list()
-
-    def check_plan_finished(self):
-        """
-        检测计划是否都执行完了
-        执行完的话 所有执行次数置为0 重新开始下一轮
-        :return:
-        """
-        plan_list: List[TrailblazePowerPlanItem] = self.plan_list
-        for item in plan_list:
-            if item.run_times < item.plan_times:
-                return
-
-        # 全部都执行完了
-        for item in plan_list:
-            item.run_times = 0
-
-        self.plan_list = plan_list
 
     def init_plan_list(self) -> None:
         """

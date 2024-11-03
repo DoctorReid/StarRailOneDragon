@@ -2,6 +2,8 @@ from typing import Optional, List
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from sr_od.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
+from sr_od.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr_od.app.sim_uni.sim_uni_route_data import SimUniRouteData
 from sr_od.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig, SimUniChallengeConfigData
@@ -170,6 +172,9 @@ class SrContext(OneDragonContext):
 
         self.power_config: TrailblazePowerConfig = TrailblazePowerConfig(self.guide_data, self.current_instance_idx)
         self.power_record: TrailblazePowerRunRecord = TrailblazePowerRunRecord(self.power_config, self.current_instance_idx)
+
+        self.echo_of_war_config: EchoOfWarConfig = EchoOfWarConfig(self.guide_data, self.current_instance_idx)
+        self.echo_of_war_run_record: EchoOfWarRunRecord = EchoOfWarRunRecord(self.current_instance_idx)
 
         self.sim_uni_challenge_config_data: SimUniChallengeConfigData = SimUniChallengeConfigData()
         self.sim_uni_config: SimUniConfig = SimUniConfig(self.current_instance_idx)

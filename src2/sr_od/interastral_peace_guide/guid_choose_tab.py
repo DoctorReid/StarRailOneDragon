@@ -1,5 +1,3 @@
-import time
-
 from cv2.typing import MatLike
 
 from one_dragon.base.operation.operation_node import operation_node
@@ -26,7 +24,7 @@ class GuideChooseTab(SrOperation):
         self.target: GuideTab = target  # 需要选择的TAB
 
     @operation_node(name='选择', node_max_retry_times=5, is_start_node=True)
-    def _execute_one_round(self) -> OperationRoundResult:
+    def choose(self) -> OperationRoundResult:
         screen: MatLike = self.screenshot()
 
         if not common_screen_state.in_secondary_ui(self.ctx, screen, '星际和平指南'):

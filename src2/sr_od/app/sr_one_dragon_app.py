@@ -1,8 +1,10 @@
 from typing import List
 
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
+from sr_od.app.echo_of_war.echo_of_war_app import EchoOfWarApp
+from sr_od.app.sim_uni.sim_uni_app import SimUniApp
 from sr_od.app.sr_application import SrApplication
-from sr_od.app.trailblaze_power.trailblaze_power_app import TrailblazePower
+from sr_od.app.trailblaze_power.trailblaze_power_app import TrailblazePowerApp
 from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.context.sr_context import SrContext
 
@@ -21,8 +23,10 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
 
     def get_app_list(self) -> List[SrApplication]:
         return [
-            TrailblazePower(self.ctx),
+            EchoOfWarApp(self.ctx),
+            TrailblazePowerApp(self.ctx),
             WorldPatrolApp(self.ctx),
+            SimUniApp(self.ctx),
         ]
 
 

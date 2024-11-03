@@ -7,12 +7,8 @@ from sr_od.interastral_peace_guide.guid_choose_tab import GuideChooseTab
 from sr_od.interastral_peace_guide.guide_choose_category import GuideChooseCategory
 from sr_od.interastral_peace_guide.guide_choose_mission import GuideChooseMission
 from sr_od.interastral_peace_guide.guide_def import GuideMission
-from sr_od.operations.back_to_normal_world_plus import BackToNormalWorldPlus
-from sr_od.operations.menu import phone_menu_const
-from sr_od.operations.menu.click_phone_menu_item import ClickPhoneMenuItem
-from sr_od.operations.menu.open_phone_menu import OpenPhoneMenu
+from sr_od.interastral_peace_guide.open_guide import GuideOpen
 from sr_od.operations.sr_operation import SrOperation
-from sr_od.screen_state import common_screen_state
 
 
 class GuideTransport(SrOperation):
@@ -25,34 +21,12 @@ class GuideTransport(SrOperation):
 
         self.mission: GuideMission = mission
 
-    @operation_node(name='画面识别', is_start_node=True)
-    def check_screen(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        if common_screen_state.in_secondary_ui(self.ctx, screen, '星际和平指南'):
-            return self.round_success('星际和平指南')
-        else:
-            return self.round_success()
-
-    @node_from(from_name='画面识别')
-    @operation_node(name='返回大世界', is_start_node=True)
-    def back_to_world(self) -> OperationRoundResult:
-        op = BackToNormalWorldPlus(self.ctx)
+    @operation_node(name='打开指南', is_start_node=True)
+    def open_guide(self) -> OperationRoundResult:
+        op = GuideOpen(self.ctx)
         return self.round_by_op_result(op.execute())
 
-    @node_from(from_name='返回大世界')
-    @operation_node(name='打开菜单')
-    def open_menu(self) -> OperationRoundResult:
-        op = OpenPhoneMenu(self.ctx)
-        return self.round_by_op_result(op.execute())
-
-    @node_from(from_name='打开菜单')
-    @operation_node(name='选择指南')
-    def choose_guide(self) -> OperationRoundResult:
-        op = ClickPhoneMenuItem(self.ctx, phone_menu_const.INTERASTRAL_GUIDE)
-        return self.round_by_op_result(op.execute())
-
-    @node_from(from_name='画面识别', status='星际和平指南')
-    @node_from(from_name='选择指南')
+    @node_from(from_name='打开指南')
     @operation_node(name='选择TAB')
     def choose_tab(self) -> OperationRoundResult:
         op = GuideChooseTab(self.ctx, self.mission.cate.tab)

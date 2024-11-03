@@ -1,10 +1,8 @@
-from cv2.typing import MatLike
-from typing import ClassVar, Optional, Tuple
+from typing import ClassVar, Optional
 
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.app.div_uni.operations.ornamenet_extraction import ChallengeOrnamentExtraction
@@ -12,15 +10,12 @@ from sr_od.app.sr_application import SrApplication
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr_od.challenge_mission.use_trailblaze_power import UseTrailblazePower
 from sr_od.context.sr_context import SrContext
-from sr_od.interastral_peace_guide.guid_choose_tab import GuideChooseTab
+from sr_od.interastral_peace_guide.guide_check_power import GuideCheckPower, GuidePowerResult
 from sr_od.interastral_peace_guide.guide_def import GuideMission
 from sr_od.operations.back_to_normal_world_plus import BackToNormalWorldPlus
-from sr_od.operations.menu import phone_menu_const
-from sr_od.operations.menu.click_phone_menu_item import ClickPhoneMenuItem
-from sr_od.operations.menu.open_phone_menu import OpenPhoneMenu
 
 
-class TrailblazePower(SrApplication):
+class TrailblazePowerApp(SrApplication):
 
     STATUS_NORMAL_TASK: ClassVar[str] = '普通副本'
     STATUS_SIM_UNI_TASK: ClassVar[str] = '模拟宇宙'
@@ -39,13 +34,7 @@ class TrailblazePower(SrApplication):
         self.power: int = 0  # 剩余开拓力
         self.qty: int = 0  # 沉浸器数量
 
-    @operation_node(name='返回大世界', is_start_node=True)
-    def back_at_first(self) -> OperationRoundResult:
-        op = BackToNormalWorldPlus(self.ctx)
-        return self.round_by_op_result(op.execute())
-
-    @node_from(from_name='返回大世界')
-    @operation_node(name='检查当前需要挑战的关卡')
+    @operation_node(name='检查当前需要挑战的关卡', is_start_node=True)
     def check_task(self) -> OperationRoundResult:
         """
         判断下一个是什么副本
@@ -55,81 +44,40 @@ class TrailblazePower(SrApplication):
         plan: Optional[TrailblazePowerPlanItem] = self.ctx.power_config.next_plan_item
 
         if plan is None:
-            return self.round_success(status=TrailblazePower.STATUS_NO_PLAN)
+            return self.round_success(status=TrailblazePowerApp.STATUS_NO_PLAN)
 
-        return self.round_success(status=TrailblazePower.STATUS_WITH_PLAN)
+        return self.round_success(status=TrailblazePowerApp.STATUS_WITH_PLAN)
 
     @node_from(from_name='检查当前需要挑战的关卡', status=STATUS_WITH_PLAN)
-    @operation_node(name='打开菜单')
-    def open_menu(self) -> OperationRoundResult:
-        op = OpenPhoneMenu(self.ctx)
-        return self.round_by_op_result(op.execute())
+    @operation_node(name='打开指南检查体力')
+    def open_guide(self) -> OperationRoundResult:
+        op = GuideCheckPower(self.ctx)
+        op_result = op.execute()
+        if op_result.success:
+            power_result: GuidePowerResult = op_result.data
+            self.power = power_result.power
+            self.qty = power_result.qty
+        return self.round_by_op_result(op_result)
 
-    @node_from(from_name='打开菜单')
-    @operation_node(name='选择指南')
-    def choose_guide(self) -> OperationRoundResult:
-        op = ClickPhoneMenuItem(self.ctx, phone_menu_const.INTERASTRAL_GUIDE)
-        return self.round_by_op_result(op.execute())
-
-    @node_from(from_name='选择指南')
-    @operation_node(name='选择生存索引')
-    def choose_guide_tab(self) -> OperationRoundResult:
-        tab = self.ctx.guide_data.best_match_tab_by_name(gt('生存索引'))
-        op = GuideChooseTab(self.ctx, tab)
-        return self.round_by_op_result(op.execute())
-
-    @node_from(from_name='选择生存索引')
-    @operation_node(name='识别开拓力和沉浸器数量')
-    def check_power(self) -> OperationRoundResult:
-        screen = self.screenshot()
-        x, y = self._get_power_and_qty(screen)
-
-        if x is None or y is None:
-            return self.round_retry('检测开拓力和沉浸器数量失败', wait=1)
-
-        log.info('检测当前体力 %d 沉浸器数量 %d', x, y)
-        self.power = x
-        self.qty = y
-
-        return self.round_success()
-
-    def _get_power_and_qty(self, screen: MatLike) -> Tuple[int, int]:
-        """
-        获取开拓力和沉浸器数量
-        :param screen: 屏幕截图
-        :return:
-        """
-        area1 = self.ctx.screen_loader.get_area('星际和平指南', '生存索引-体力')
-        part = cv2_utils.crop_image_only(screen, area1.rect)
-        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
-        power = str_utils.get_positive_digits(ocr_result, err=None)
-
-        area2 = self.ctx.screen_loader.get_area('星际和平指南', '生存索引-沉浸器数量')
-        part = cv2_utils.crop_image_only(screen, area2.rect)
-        ocr_result = self.ctx.ocr.run_ocr_single_line(part)
-        qty = str_utils.get_positive_digits(ocr_result, err=None)
-
-        return power, qty
-
-    @node_from(from_name='识别开拓力和沉浸器数量')
+    @node_from(from_name='打开指南检查体力')
     @node_from(from_name='执行开拓力计划')
     @operation_node(name='执行开拓力计划')
     def execute_plan(self) -> OperationRoundResult:
         self.ctx.power_config.check_plan_run_times()
         plan: Optional[TrailblazePowerPlanItem] = self.ctx.power_config.next_plan_item
         if plan is None:
-            return self.round_success(TrailblazePower.STATUS_NO_PLAN)
+            return self.round_success(TrailblazePowerApp.STATUS_NO_PLAN)
 
         mission: Optional[GuideMission] = self.ctx.guide_data.get_mission_by_unique_id(plan.mission_id)
         if mission is None:
-            return self.round_success(TrailblazePower.STATUS_NO_PLAN)
+            return self.round_success(TrailblazePowerApp.STATUS_NO_PLAN)
 
         can_run_times: int = self.power // mission.power
         if mission.cate.cn in ['模拟宇宙', '饰品提取']:  # 模拟宇宙相关的增加沉浸器数量
             can_run_times += self.qty
 
         if can_run_times == 0:
-            return self.round_success(TrailblazePower.STATUS_NO_ENOUGH_POWER)
+            return self.round_success(TrailblazePowerApp.STATUS_NO_ENOUGH_POWER)
 
         if can_run_times + plan.run_times > plan.plan_times:
             run_times = plan.plan_times - plan.run_times
@@ -138,7 +86,7 @@ class TrailblazePower(SrApplication):
 
         log.info(f'准备挑战 {mission.mission_name} 次数 {run_times}')
         if run_times == 0:
-            return self.round_success(TrailblazePower.STATUS_PLAN_FINISHED)
+            return self.round_success(TrailblazePowerApp.STATUS_PLAN_FINISHED)
 
         # TODO 刷之前需要更新模拟宇宙的记录
         # self.ctx.sim_uni_run_record.check_and_update_status()
