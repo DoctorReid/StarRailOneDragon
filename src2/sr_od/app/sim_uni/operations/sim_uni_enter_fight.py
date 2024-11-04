@@ -232,7 +232,7 @@ class SimUniEnterFight(SrOperation):
         往之前识别的可攻击方向移动
         :return:
         """
-        frame_result = self.ctx.yolo_detector.sim_uni_yolo.last_detect_result
+        frame_result = self.ctx.yolo_detector.last_detect_result
         direction_cnt: int = 0   # 负数往左 正数往右
         if frame_result is not None:
             for result in frame_result.results:

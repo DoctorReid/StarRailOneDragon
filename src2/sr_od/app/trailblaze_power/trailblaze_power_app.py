@@ -6,6 +6,8 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.app.div_uni.operations.ornamenet_extraction import ChallengeOrnamentExtraction
+from sr_od.app.sim_uni.sim_uni_app import SimUniApp
+from sr_od.app.sim_uni.sim_uni_const import SimUniWorldEnum
 from sr_od.app.sr_application import SrApplication
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr_od.challenge_mission.use_trailblaze_power import UseTrailblazePower
@@ -88,22 +90,30 @@ class TrailblazePowerApp(SrApplication):
         if run_times == 0:
             return self.round_success(TrailblazePowerApp.STATUS_PLAN_FINISHED)
 
-        # TODO 刷之前需要更新模拟宇宙的记录
-        # self.ctx.sim_uni_run_record.check_and_update_status()
+        self.ctx.sim_uni_record.check_and_update_status()
+        self.last_mission = mission
 
         if mission.cate.cn not in ['模拟宇宙', '饰品提取']:
             op = UseTrailblazePower(self.ctx, mission, plan.team_num, run_times,
                                     support=plan.support if plan.support != 'none' else None,
                                     on_battle_success=self._on_normal_task_success)
         elif mission.cate.cn == '模拟宇宙':
-            # op = SimUniApp(self.ctx,
-            #                specified_uni_num=mission.sim_world.idx,
-            #                max_reward_to_get=run_times,
-            #                get_reward_callback=self._on_sim_uni_get_reward
-            #                )
-            # op.init_context_before_start = False
-            # op.stop_context_after_stop = False
-            return self.round_fail('未支持模拟宇宙')
+            sim_num = 0
+            for i in SimUniWorldEnum:
+                if i.value.name == mission.mission_name:
+                    sim_num = i.value.idx
+
+            if sim_num == 0:
+                return self.round_fail('未支持模拟宇宙 %s', mission.mission_name)
+
+            op = SimUniApp(self.ctx,
+                           specified_uni_num=sim_num,
+                           max_reward_to_get=run_times,
+                           get_reward_callback=self._on_sim_uni_get_reward
+                           )
+            op.init_context_before_start = False
+            op.stop_context_after_stop = False
+            return self.round_by_op_result(op.execute())
         elif mission.cate.cn == '饰品提取':
             op = ChallengeOrnamentExtraction(self.ctx, mission,
                                              run_times=run_times,
@@ -114,7 +124,6 @@ class TrailblazePowerApp(SrApplication):
         else:
             return self.round_fail('未知副本类型')
 
-        self.last_mission = mission
         return self.round_by_op_result(op.execute())
 
     def _on_normal_task_success(self, finished_times: int, use_power: int):

@@ -1,3 +1,4 @@
+import cv2
 from cv2.typing import MatLike
 from typing import Callable, Optional, ClassVar
 
@@ -5,6 +6,7 @@ from one_dragon.base.geometry.rectangle import Rect
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
+from one_dragon.utils import cv2_utils, str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.app.sim_uni import sim_uni_screen_state
@@ -73,8 +75,9 @@ class SimUniReward(SrOperation):
         for rect in [SimUniReward.QTY_RECT, SimUniReward.POWER_NUM_RECT]:  # 优先使用沉浸器
             part = cv2_utils.crop_image_only(screen, rect)
             black_part = cv2_utils.color_in_range(part, [0, 0, 0], [80, 80, 80])
+            to_ocr = cv2.bitwise_and(part, part, cv2_utils.dilate(black_part, 5))
             # cv2_utils.show_image(black_part, win_name='black_part', wait=0)
-            ocr_result = self.ctx.ocr.run_ocr_single_line(black_part)
+            ocr_result = self.ctx.ocr.run_ocr_single_line(to_ocr)
             digit = str_utils.get_positive_digits(ocr_result, err=0)
             if digit > 0:
                 return rect
