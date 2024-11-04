@@ -4,6 +4,7 @@ from one_dragon.base.operation.application_base import Application
 from one_dragon.base.operation.application_run_record import AppRunRecord
 from one_dragon.base.operation.operation_base import OperationResult
 from sr_od.context.sr_context import SrContext
+from sr_od.operations.enter_game.open_and_enter_game import OpenAndEnterGame
 
 
 class SrApplication(Application):
@@ -21,7 +22,7 @@ class SrApplication(Application):
                  retry_in_od: bool = False
                  ):
         self.ctx: SrContext = ctx
-        op_to_enter_game = None
+        op_to_enter_game = OpenAndEnterGame(self.ctx)
         Application.__init__(self,
                              ctx=ctx, app_id=app_id,
                              node_max_retry_times=node_max_retry_times,

@@ -35,7 +35,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: POWER_BTN
+- area_name: 按键-返回登录
   pc_rect:
   - 1834
   - 951
@@ -141,6 +141,17 @@ area_list:
   - 1063
   - 962
   text: 点击空白处关闭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按键-返回登录确认
+  pc_rect:
+  - 1004
+  - 645
+  - 1324
+  - 705
+  text: 确认
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

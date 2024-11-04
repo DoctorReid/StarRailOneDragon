@@ -3,6 +3,7 @@ from typing import Optional, Callable
 from one_dragon.base.operation.operation import Operation
 from one_dragon.base.operation.operation_base import OperationResult
 from sr_od.context.sr_context import SrContext
+from sr_od.operations.enter_game.open_and_enter_game import OpenAndEnterGame
 
 
 class SrOperation(Operation):
@@ -15,7 +16,7 @@ class SrOperation(Operation):
                  need_check_game_win: bool = True
                  ):
         self.ctx: SrContext = ctx
-        op_to_enter_game = None
+        op_to_enter_game = OpenAndEnterGame(self.ctx)
         Operation.__init__(self,
                            ctx=ctx,
                            node_max_retry_times=node_max_retry_times,

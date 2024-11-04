@@ -9,14 +9,16 @@ from sr_od.app.sr_application import SrApplication
 from sr_od.app.trailblaze_power.trailblaze_power_app import TrailblazePowerApp
 from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.context.sr_context import SrContext
+from sr_od.operations.enter_game.open_and_enter_game import OpenAndEnterGame
+from sr_od.operations.enter_game.switch_account import SwitchAccount
 
 
 class SrOneDragonApp(OneDragonApp, SrApplication):
 
     def __init__(self, ctx: SrContext):
         app_id = 'sr_one_dragon'
-        op_to_enter_game = None
-        op_to_switch_account = None
+        op_to_enter_game = OpenAndEnterGame(self.ctx)
+        op_to_switch_account = SwitchAccount(self.ctx)
 
         SrApplication.__init__(self, ctx, app_id)
         OneDragonApp.__init__(self, ctx, app_id,
