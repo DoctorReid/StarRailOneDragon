@@ -16,7 +16,7 @@ class SrOperation(Operation):
                  need_check_game_win: bool = True
                  ):
         self.ctx: SrContext = ctx
-        op_to_enter_game = OpenAndEnterGame(self.ctx)
+        op_to_enter_game = OpenAndEnterGame(ctx)
         Operation.__init__(self,
                            ctx=ctx,
                            node_max_retry_times=node_max_retry_times,

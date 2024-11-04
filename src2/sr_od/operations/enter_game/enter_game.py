@@ -39,20 +39,27 @@ class EnterGame(SrOperation):
         if self.force_login and not self.already_login:
             result = self.round_by_find_area(screen, '进入游戏', '文本-点击进入')
             if result.is_success:
-                self.round_by_click_area('进入游戏', '按钮-登出')
-                return self.round_wait(result.status, wait=1)
+                result2 = self.round_by_find_and_click_area(screen, '进入游戏', '按钮-登出确定')
+                if result2.is_success:
+                    return self.round_wait(result2.status, wait=2)
 
-            result = self.round_by_find_and_click_area(screen, '进入游戏', '按钮-登出')
-            if result.is_success:
-                return self.round_wait(result.status, wait=5)
+                result2 = self.round_by_find_and_click_area(screen, '进入游戏', '按钮-登出')
+                if result2.is_success:
+                    return self.round_wait(result2.status, wait=1)
+
+                return self.round_retry(result2.status, wait=1)
         else:
-            result = self.round_by_find_and_click_area(screen, '进入游戏', '点击进入游戏')
+            result = self.round_by_find_and_click_area(screen, '进入游戏', '文本-点击进入')
             if result.is_success:
                 return self.round_success(result.status, wait=5)
 
         result = self.round_by_find_and_click_area(screen, '进入游戏', '国服-账号密码')
         if result.is_success:
             return self.round_success(result.status, wait=1)
+
+        result = self.round_by_find_and_click_area(screen, '进入游戏', '文本-开始游戏')
+        if result.is_success:
+            return self.round_wait(result.status, wait=1)
 
         return self.round_retry(wait=1)
 
@@ -91,3 +98,16 @@ class EnterGame(SrOperation):
     def wait_game(self) -> OperationRoundResult:
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.start_running()
+    app = EnterGame(ctx, switch=True)
+    app.execute()
+
+
+if __name__ == '__main__':
+    __debug()

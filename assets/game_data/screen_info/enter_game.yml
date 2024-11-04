@@ -4,10 +4,10 @@ pc_alt: false
 area_list:
 - area_name: 按钮-登出
   pc_rect:
-  - 1803
-  - 290
-  - 1851
-  - 316
+  - 1800
+  - 386
+  - 1862
+  - 414
   text: 登出
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -79,7 +79,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: SERVER_START_GAME
+- area_name: 文本-开始游戏
   pc_rect:
   - 863
   - 808

@@ -22,7 +22,7 @@ class SrApplication(Application):
                  retry_in_od: bool = False
                  ):
         self.ctx: SrContext = ctx
-        op_to_enter_game = OpenAndEnterGame(self.ctx)
+        op_to_enter_game = OpenAndEnterGame(ctx)
         Application.__init__(self,
                              ctx=ctx, app_id=app_id,
                              node_max_retry_times=node_max_retry_times,

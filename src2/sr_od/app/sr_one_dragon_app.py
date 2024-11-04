@@ -17,8 +17,8 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
 
     def __init__(self, ctx: SrContext):
         app_id = 'sr_one_dragon'
-        op_to_enter_game = OpenAndEnterGame(self.ctx)
-        op_to_switch_account = SwitchAccount(self.ctx)
+        op_to_enter_game = OpenAndEnterGame(ctx)
+        op_to_switch_account = SwitchAccount(ctx)
 
         SrApplication.__init__(self, ctx, app_id)
         OneDragonApp.__init__(self, ctx, app_id,

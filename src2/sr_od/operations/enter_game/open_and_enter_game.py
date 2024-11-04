@@ -52,6 +52,6 @@ class OpenAndEnterGame(Operation):
     @node_from(from_name='等待游戏打开')
     @operation_node(name='进入游戏')
     def enter_game(self) -> OperationRoundResult:
-        from zzz_od.operation.enter_game.enter_game import EnterGame
+        from sr_od.operations.enter_game.enter_game import EnterGame
         op = EnterGame(self.ctx)
         return self.round_by_op_result(op.execute())
