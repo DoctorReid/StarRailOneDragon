@@ -1,6 +1,7 @@
 from typing import List
 
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
+from sr_od.app.assignments.assignments_app import AssignmentsApp
 from sr_od.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr_od.app.sim_uni.sim_uni_app import SimUniApp
 from sr_od.app.sr_application import SrApplication
@@ -23,6 +24,7 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
 
     def get_app_list(self) -> List[SrApplication]:
         return [
+            AssignmentsApp(self.ctx),
             EchoOfWarApp(self.ctx),
             TrailblazePowerApp(self.ctx),
             WorldPatrolApp(self.ctx),

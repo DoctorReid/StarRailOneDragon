@@ -46,7 +46,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: ASSIGNMENTS_CATEGORY_RECT
+- area_name: 委托-任务列表
   pc_rect:
   - 320
   - 190
@@ -57,7 +57,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: ASSIGNMENTS_CLAIM_ALL
+- area_name: 委托-一键领取
   pc_rect:
   - 370
   - 886
@@ -68,7 +68,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: ASSIGNMENTS_CLAIM
+- area_name: 委托-领取
   pc_rect:
   - 1400
   - 880
@@ -79,7 +79,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: ASSIGNMENTS_SEND_AGAIN
+- area_name: 委托-再次派遣
   pc_rect:
   - 1037
   - 927
@@ -90,7 +90,7 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: ASSIGNMENTS_CLICK_EMPTY
+- area_name: 委托-点击空白区域继续
   pc_rect:
   - 857
   - 928

@@ -2,6 +2,7 @@ from typing import Optional, List
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
+from sr_od.app.assignments.assignments_run_record import AssignmentsRunRecord
 from sr_od.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr_od.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr_od.app.sim_uni.sim_uni_route_data import SimUniRouteData
@@ -179,6 +180,8 @@ class SrContext(OneDragonContext):
         self.sim_uni_challenge_config_data: SimUniChallengeConfigData = SimUniChallengeConfigData()
         self.sim_uni_config: SimUniConfig = SimUniConfig(self.current_instance_idx)
         self.sim_uni_record: SimUniRunRecord = SimUniRunRecord(self.sim_uni_config, self.current_instance_idx)
+
+        self.assignments_run_record: AssignmentsRunRecord = AssignmentsRunRecord(self.current_instance_idx)
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:
