@@ -101,3 +101,47 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+- area_name: 无名勋礼-奖励-一键领取
+  pc_rect:
+  - 1270
+  - 890
+  - 1530
+  - 950
+  text: 一键领取
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 无名勋礼-奖励-取消
+  pc_rect:
+  - 620
+  - 970
+  - 790
+  - 1010
+  text: 取消
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 无名勋礼-任务-一键领取
+  pc_rect:
+  - 1520
+  - 890
+  - 1810
+  - 950
+  text: 一键领取
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 无名勋礼-点击空白处关闭
+  pc_rect:
+  - 864
+  - 929
+  - 1063
+  - 962
+  text: 点击空白处关闭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
