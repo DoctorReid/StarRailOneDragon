@@ -59,7 +59,7 @@ def get_phone_menu_item_pos_at_right(ctx: SrContext, screen: MatLike, item: Phon
     :return:
     """
     part, _ = cv2_utils.crop_image(screen, MENU_ITEMS_AT_RIGHT_PART)
-    result_list: MatchResultList = ctx.tm.match_template(part, item.template_id, only_best=True)
+    result_list: MatchResultList = ctx.tm.match_template(part, 'phone_menu', item.template_id, only_best=True)
     result: MatchResult = result_list.max
 
     if result is None:
@@ -88,7 +88,7 @@ def get_phone_menu_ellipsis_pos(ctx: SrContext, screen: MatLike, alert: bool = F
     area = ctx.screen_loader.get_area('菜单', '更多按钮')
     part = cv2_utils.crop_image_only(screen, area.rect)
     # cv2_utils.show_image(part, win_name='ELLIPSIS_PART')
-    result_list: MatchResultList = ctx.tm.match_template(part, 'ui_ellipsis', only_best=True, threshold=0.3)
+    result_list: MatchResultList = ctx.tm.match_template(part, 'phone_menu', 'ui_ellipsis', only_best=True, threshold=0.3)
     result: MatchResult = result_list.max
 
     if result is None:
@@ -161,7 +161,7 @@ def get_alert_pos(ctx: SrContext, screen: MatLike, rect: Rect) -> MatchResultLis
     """
     part, _ = cv2_utils.crop_image(screen, rect)
     # cv2_utils.show_image(part, win_name='get_alert_pos')
-    return ctx.tm.match_template(part, 'ui_alert', threshold=0.7)
+    return ctx.tm.match_template(part, 'phone_menu', 'ui_alert', threshold=0.7)
 
 
 def get_nameless_honor_tab_pos(ctx: SrContext, screen: MatLike, tab: int, alert: bool = False) -> Optional[MatchResult]:  # TODO 下个版本再测试红点
@@ -174,7 +174,7 @@ def get_nameless_honor_tab_pos(ctx: SrContext, screen: MatLike, tab: int, alert:
     :return: tab的位置
     """
     part, _ = cv2_utils.crop_image(screen, NAMELESS_HONOR_TAB_PART)
-    result_list = ctx.tm.match_template(part, 'nameless_honor_%d' % tab, only_best=True)
+    result_list = ctx.tm.match_template(part, 'phone_menu', 'nameless_honor_%d' % tab, only_best=True)
 
     result: MatchResult = result_list.max
 
@@ -229,7 +229,7 @@ def get_training_reward_claim_btn_pos(ctx: SrContext, screen: MatLike) -> Option
     """
     part, _ = cv2_utils.crop_image(screen, GUIDE_TRAINING_REWARD_CLAIM_RECT)
 
-    result_list: MatchResultList = ctx.tm.match_template(part, 'training_reward_gift', ignore_template_mask=True)
+    result_list: MatchResultList = ctx.tm.match_template(part, 'phone_menu', 'training_reward_gift', ignore_template_mask=True)
 
     if len(result_list) == 0:
         return None

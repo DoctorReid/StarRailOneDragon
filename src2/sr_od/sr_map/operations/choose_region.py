@@ -246,8 +246,7 @@ class ChooseRegion(SrOperation):
             sm_offset_y = self.region.enter_lm_pos.y - offset.y
             sp_rect = Rect(sm_offset_x - 100, sm_offset_y - 100, sm_offset_x + 100, sm_offset_y + 100)
             crop_screen_map, sp_rect = cv2_utils.crop_image(screen_part, sp_rect)
-            result: MatchResultList = self.ctx.tm.match_template(crop_screen_map,
-                                                                 self.region.enter_template_id,
+            result: MatchResultList = self.ctx.tm.match_template(crop_screen_map, 'mm_icon', self.region.enter_template_id,
                                                                  threshold=game_const.THRESHOLD_SP_TEMPLATE_IN_LARGE_MAP)
 
             if result.max is not None:
