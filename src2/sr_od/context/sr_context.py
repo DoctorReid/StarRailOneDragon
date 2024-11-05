@@ -3,6 +3,7 @@ from typing import Optional, List
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from sr_od.app.assignments.assignments_run_record import AssignmentsRunRecord
+from sr_od.app.claim_email.email_run_record import EmailRunRecord
 from sr_od.app.daily_training.daily_training_run_record import DailyTrainingRunRecord
 from sr_od.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr_od.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
@@ -186,6 +187,7 @@ class SrContext(OneDragonContext):
         self.assignments_run_record: AssignmentsRunRecord = AssignmentsRunRecord(self.current_instance_idx)
         self.nameless_honor_run_record: NamelessHonorRunRecord = NamelessHonorRunRecord(self.current_instance_idx)
         self.daily_training_run_record: DailyTrainingRunRecord = DailyTrainingRunRecord(self.current_instance_idx)
+        self.email_run_record: EmailRunRecord = EmailRunRecord(self.current_instance_idx)
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:
