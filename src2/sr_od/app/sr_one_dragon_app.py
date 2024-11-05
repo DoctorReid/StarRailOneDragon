@@ -2,6 +2,7 @@ from typing import List
 
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
 from sr_od.app.assignments.assignments_app import AssignmentsApp
+from sr_od.app.daily_training.daily_training_app import DailyTrainingApp
 from sr_od.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr_od.app.nameless_honor.nameless_honor_app import NamelessHonorApp
 from sr_od.app.sim_uni.sim_uni_app import SimUniApp
@@ -32,6 +33,7 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
             TrailblazePowerApp(self.ctx),
             WorldPatrolApp(self.ctx),
             SimUniApp(self.ctx),
+            DailyTrainingApp(self.ctx),
             NamelessHonorApp(self.ctx),
         ]
 

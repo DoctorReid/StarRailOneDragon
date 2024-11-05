@@ -205,7 +205,7 @@ def get_training_activity_claim_btn_pos(ctx: SrContext, screen: MatLike):
     upper_color = np.array([30, 30, 30], dtype=np.uint8)
     black_part = cv2.inRange(part, lower_color, upper_color)
     # cv2_utils.show_image(black_part, 'get_nameless_honor_tab_pos')
-    to_cor = cv2.bitwise_and(part, part, mask=black_part)
+    to_cor = cv2.bitwise_and(part, part, mask=cv2_utils.dilate(black_part, 5))
 
     ocr_map = ctx.ocr.match_words(to_cor, words=['领取'], lcs_percent=0.3)
 

@@ -3,13 +3,14 @@ from typing import Optional, List
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from sr_od.app.assignments.assignments_run_record import AssignmentsRunRecord
+from sr_od.app.daily_training.daily_training_run_record import DailyTrainingRunRecord
 from sr_od.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr_od.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr_od.app.nameless_honor.nameless_honor_run_record import NamelessHonorRunRecord
-from sr_od.app.sim_uni.sim_uni_route_data import SimUniRouteData
-from sr_od.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig, SimUniChallengeConfigData
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
+from sr_od.app.sim_uni.sim_uni_route_data import SimUniRouteData
+from sr_od.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr_od.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
@@ -184,6 +185,7 @@ class SrContext(OneDragonContext):
 
         self.assignments_run_record: AssignmentsRunRecord = AssignmentsRunRecord(self.current_instance_idx)
         self.nameless_honor_run_record: NamelessHonorRunRecord = NamelessHonorRunRecord(self.current_instance_idx)
+        self.daily_training_run_record: DailyTrainingRunRecord = DailyTrainingRunRecord(self.current_instance_idx)
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:
