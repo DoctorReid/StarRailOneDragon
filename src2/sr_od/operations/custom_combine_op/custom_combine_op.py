@@ -194,7 +194,7 @@ class CustomCombineOp(SrOperation):
         item = SynthesizeItemEnum[item_id.upper()].value
         return Synthesize(self.ctx, item, num)
 
-    @node_from(from_name='执行指令')
+    @node_from(from_name='执行指令', status=STATUS_ALL_DONE)
     @operation_node(name='结束后返回')
     def back_at_last(self) -> OperationRoundResult:
         """

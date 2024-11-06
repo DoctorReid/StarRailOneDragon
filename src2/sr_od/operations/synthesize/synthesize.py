@@ -6,6 +6,7 @@ from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
 from one_dragon.utils import cv2_utils
+from one_dragon.utils.i18_utils import gt
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr_od.operations.menu import phone_menu_const
@@ -25,46 +26,10 @@ class Synthesize(SrOperation):
         :param item: 要合成的物品
         :param num: 要合成的数量 0为最大值。当前只支持最大值
         """
-        SrOperation.__init__(self, ctx, try_times=5,
-                         op_name='%s %s' % (gt('合成', 'ui'), ''))
+        SrOperation.__init__(self, ctx, op_name='%s %s' % (gt('合成', 'ui'), ''))
 
         self.item: SynthesizeItem = item  # 要合成的物品
         self.num: int = num  # 要合成的数量 0为最大值
-
-    def add_edges_and_nodes(self) -> None:
-        """
-        初始化前 添加边和节点 由子类实行
-        :return:
-        """
-        check_screen = StateOperationNode('识别画面', self.check_screen)
-
-        first_to_world = StateOperationNode('返回大世界', op=BackToNormalWorldPlus(self.ctx))
-        self.add_edge(check_screen, first_to_world)
-
-        open_menu = StateOperationNode('打开菜单', op=OpenPhoneMenu(self.ctx))
-        self.add_edge(first_to_world, open_menu)
-
-        choose_synthesize = StateOperationNode('选择合成', op=ClickPhoneMenuItem(self.ctx, phone_menu_const.SYNTHESIZE))
-        self.add_edge(open_menu, choose_synthesize)
-
-        choose_category = StateOperationNode('选择合成类别', self.choose_category)
-        self.add_edge(choose_synthesize, choose_category)
-        self.add_edge(check_screen, choose_category, status=ScreenSynthesize.TITLE.value.status)
-
-        choose_item = StateOperationNode('选择合成物品', self.choose_item)
-        self.add_edge(choose_category, choose_item)
-
-        choose_num = StateOperationNode('选择数量', self.choose_num)
-        self.add_edge(choose_item, choose_num)
-
-        click_synthesize = StateOperationNode('点击合成', self.click_synthesize)
-        self.add_edge(choose_num, click_synthesize)
-
-        click_confirm = StateOperationNode('点击确认', self.click_confirm)
-        self.add_edge(click_synthesize, click_confirm)
-
-        click_empty = StateOperationNode('点击空白处关闭', self.click_empty)
-        self.add_edge(click_confirm, click_empty)
 
     @node_from(from_name='画面识别')
     @operation_node(name='开始前返回')
@@ -146,7 +111,7 @@ class Synthesize(SrOperation):
         area = self.ctx.screen_loader.get_area('合成', '物品列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
 
-        mrl = self.ctx.tm.match_template(part, self.item.template_id, template_sub_dir='synthesize')
+        mrl = self.ctx.tm.match_template(part, 'synthesize', self.item.template_id)
 
         if mrl.max is None:
             return None

@@ -50,8 +50,7 @@ class BuyStoreItem(SrOperation):
         area = self.ctx.screen_loader.get_area('商店', '商品列表')
         part = cv2_utils.crop_image_only(screen, area.rect)
 
-        mrl = self.ctx.tm.match_template(part, template_id=self.item.template_id, template_sub_dir='store',
-                                         ignore_template_mask=True)
+        mrl = self.ctx.tm.match_template(part, 'store', self.item.template_id, ignore_template_mask=True)
         if mrl.max is None:
             return None
         else:
