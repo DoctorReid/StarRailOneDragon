@@ -3,6 +3,7 @@ from typing import Optional, List
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
 from one_dragon.utils import i18_utils
 from sr_od.app.assignments.assignments_run_record import AssignmentsRunRecord
+from sr_od.app.buy_xianzhou_parcel.buy_xianzhou_parcel_run_record import BuyXianZhouParcelRunRecord
 from sr_od.app.claim_email.email_run_record import EmailRunRecord
 from sr_od.app.daily_training.daily_training_run_record import DailyTrainingRunRecord
 from sr_od.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
@@ -12,8 +13,10 @@ from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig, Si
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
 from sr_od.app.sim_uni.sim_uni_route_data import SimUniRouteData
 from sr_od.app.sim_uni.sim_uni_run_record import SimUniRunRecord
+from sr_od.app.support_character.support_character_run_record import SupportCharacterRunRecord
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr_od.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
+from sr_od.app.trick_snack.trick_snack_record import TrickSnackRunRecord
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
@@ -188,6 +191,9 @@ class SrContext(OneDragonContext):
         self.nameless_honor_run_record: NamelessHonorRunRecord = NamelessHonorRunRecord(self.current_instance_idx)
         self.daily_training_run_record: DailyTrainingRunRecord = DailyTrainingRunRecord(self.current_instance_idx)
         self.email_run_record: EmailRunRecord = EmailRunRecord(self.current_instance_idx)
+        self.buy_xz_parcel_run_record: BuyXianZhouParcelRunRecord = BuyXianZhouParcelRunRecord(self.current_instance_idx)
+        self.trick_snack_run_record: TrickSnackRunRecord = TrickSnackRunRecord(self.current_instance_idx)
+        self.support_character_run_record: SupportCharacterRunRecord = SupportCharacterRunRecord(self.current_instance_idx)
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:

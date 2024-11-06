@@ -2,13 +2,16 @@ from typing import List
 
 from one_dragon.base.operation.one_dragon_app import OneDragonApp
 from sr_od.app.assignments.assignments_app import AssignmentsApp
+from sr_od.app.buy_xianzhou_parcel.buy_xianzhou_parcel_app import BuyXianzhouParcelApp
 from sr_od.app.claim_email.email_app import EmailApp
 from sr_od.app.daily_training.daily_training_app import DailyTrainingApp
 from sr_od.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr_od.app.nameless_honor.nameless_honor_app import NamelessHonorApp
 from sr_od.app.sim_uni.sim_uni_app import SimUniApp
 from sr_od.app.sr_application import SrApplication
+from sr_od.app.support_character.support_character_app import SupportCharacterApp
 from sr_od.app.trailblaze_power.trailblaze_power_app import TrailblazePowerApp
+from sr_od.app.trick_snack.trick_snack_app import TrickSnackApp
 from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.enter_game.open_and_enter_game import OpenAndEnterGame
@@ -35,6 +38,9 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
             WorldPatrolApp(self.ctx),
             SimUniApp(self.ctx),
             EmailApp(self.ctx),
+            BuyXianzhouParcelApp(self.ctx),
+            TrickSnackApp(self.ctx),
+            SupportCharacterApp(self.ctx),
             DailyTrainingApp(self.ctx),
             NamelessHonorApp(self.ctx),
         ]

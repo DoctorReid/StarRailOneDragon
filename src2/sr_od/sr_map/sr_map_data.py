@@ -168,6 +168,17 @@ class SrMapData:
         else:
             return to_check_region_list[idx]
 
+    def region_with_another_floor(self, region: Region, floor: int) -> Optional[Region]:
+        """
+        获取区域的另一个楼层
+        :param region: 区域
+        :param floor: 目标楼层
+        :return:
+        """
+        for r in self.region_list:
+            if r.pr_id == region.pr_id and r.floor == floor:
+                return r
+
     def get_sub_region_by_cn(self, region: Region, cn: str, floor: int = 0) -> Optional[Region]:
         """
         根据子区域的中文 获取对应常量

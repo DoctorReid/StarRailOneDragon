@@ -1,0 +1,81 @@
+screen_id: store
+screen_name: 商店
+pc_alt: false
+area_list:
+- area_name: 商品列表
+  pc_rect:
+  - 290
+  - 110
+  - 1790
+  - 817
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按钮-购买最大值
+  pc_rect:
+  - 1400
+  - 600
+  - 1500
+  - 660
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: store
+  template_id: store_buy_max
+  template_match_threshold: 0.7
+- area_name: BUY_DIALOG_ADD_BTN
+  pc_rect:
+  - 1330
+  - 600
+  - 1430
+  - 660
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: store
+  template_id: store_buy_add
+  template_match_threshold: 0.7
+- area_name: 购买-已售罄
+  pc_rect:
+  - 830
+  - 659
+  - 1110
+  - 692
+  text: 已售罄
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 购买-兑换材料不足
+  pc_rect:
+  - 830
+  - 659
+  - 1110
+  - 692
+  text: 兑换材料不足
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按钮-购买取消
+  pc_rect:
+  - 592
+  - 714
+  - 909
+  - 769
+  text: 取消
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按钮-购买确认
+  pc_rect:
+  - 1011
+  - 714
+  - 1324
+  - 769
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7

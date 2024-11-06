@@ -5,14 +5,16 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.context.sr_context import SrContext
+from sr_od.operations.back_to_normal_world_plus import BackToNormalWorldPlus
 from sr_od.operations.sr_operation import SrOperation
+from sr_od.screen_state import common_screen_state
 
 
 class OpenPhoneMenu(SrOperation):
 
     """
-    打开菜单 = 看到开拓等级
-    看不到的情况只需要不停按 ESC 即可
+    打开菜单 = 看到开拓等级 看不到的情况只需要不停按 ESC 即可
+    使用 BackToNormalWorldPlus 确保任何情况都能打开
     """
 
     def __init__(self, ctx: SrContext):
@@ -25,7 +27,11 @@ class OpenPhoneMenu(SrOperation):
         result = self.round_by_find_area(screen, '菜单', '开拓等级')
         if result.is_success:
             return self.round_success()
-        else:
+
+        if common_screen_state.is_normal_in_world(self.ctx, screen):
             self.ctx.controller.esc()
             log.info('尝试打开菜单')
             return self.round_retry(status='未在菜单画面', wait=2)
+        else:
+            op = BackToNormalWorldPlus(self.ctx)
+            return self.round_retry(op.execute().status)

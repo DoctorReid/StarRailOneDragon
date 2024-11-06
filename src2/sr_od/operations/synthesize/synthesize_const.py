@@ -1,9 +1,7 @@
 from enum import Enum
 
-from one_dragon.base.geometry.rectangle import Rect
-from one_dragon.base.screen.screen_area import ScreenArea
-from one_dragon.base.screen.screen_info import ScreenInfo
-from sr_od.context.sr_context import SrContext
+from basic import Rect
+from sr.screen_area import ScreenArea
 
 
 class ScreenSynthesize(Enum):
@@ -26,20 +24,29 @@ class ScreenSynthesize(Enum):
     SYNTHESIZE_EMPTY_TO_CLOSE = ScreenArea(pc_rect=Rect(868, 930, 1053, 960), text='点击空白处关闭')
 
 
+class SynthesizeCategory:
 
-if __name__ == '__main__':
-    ctx = SrContext()
+    def __init__(self, name: str, area: ScreenArea):
+        self.name: str = name
+        self.area: ScreenArea = area
 
-    screen = ScreenInfo(create_new=True)
-    screen.screen_id = 'synthesize'
-    screen.screen_name = '合成'
-    screen.pc_alt = False
 
-    area_list = []
-    for area_enum in ScreenSynthesize:
-        area = area_enum.value
-        area.area_name = area_enum.name
-        area_list.append(area)
+class SynthesizeCategoryEnum(Enum):
 
-    screen.area_list = area_list
-    screen.save()
+    CONSUMABLE = SynthesizeCategory('消耗品合成', ScreenSynthesize.CATEGORY_1_BTN.value)
+    MATERIAL_SYNTHESIS = SynthesizeCategory('材料合成', ScreenSynthesize.CATEGORY_2_BTN.value)
+    MATERIAL_EXCHANGE = SynthesizeCategory('材料置换', ScreenSynthesize.CATEGORY_3_BTN.value)
+    RELIC_CRAFTING = SynthesizeCategory('遗器合成', ScreenSynthesize.CATEGORY_4_BTN.value)
+
+
+class SynthesizeItem:
+
+    def __init__(self, category: str, name: str, template_id: str):
+        self.category: str = category
+        self.name: str = name
+        self.template_id: str = template_id
+
+
+class SynthesizeItemEnum(Enum):
+
+    TRICK_SNACK = SynthesizeItem('消耗品合成', '奇巧零食', 'trick_snack')

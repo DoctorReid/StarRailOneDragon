@@ -1,0 +1,136 @@
+screen_id: synthesize
+screen_name: 合成
+pc_alt: false
+area_list:
+- area_name: 标题-合成
+  pc_rect:
+  - 100
+  - 38
+  - 223
+  - 65
+  text: 合成
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 标题-合成分类
+  pc_rect:
+  - 100
+  - 65
+  - 228
+  - 93
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 分类-消耗品合成
+  pc_rect:
+  - 780
+  - 40
+  - 850
+  - 85
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: CATEGORY_2_BTN
+  pc_rect:
+  - 880
+  - 40
+  - 950
+  - 85
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: CATEGORY_3_BTN
+  pc_rect:
+  - 970
+  - 40
+  - 1040
+  - 85
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: CATEGORY_4_BTN
+  pc_rect:
+  - 1060
+  - 40
+  - 1130
+  - 85
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 物品列表
+  pc_rect:
+  - 74
+  - 100
+  - 507
+  - 994
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 合成所需材料不足
+  pc_rect:
+  - 1080
+  - 849
+  - 1289
+  - 894
+  text: 合成所需材料不足
+  lcs_percent: 0.55
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按钮-最大值
+  pc_rect:
+  - 1445
+  - 870
+  - 1445
+  - 870
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按钮-合成
+  pc_rect:
+  - 1015
+  - 963
+  - 1347
+  - 1005
+  text: 合成
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 按钮-合成确认
+  pc_rect:
+  - 1008
+  - 672
+  - 1327
+  - 728
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+- area_name: 点击空白处关闭
+  pc_rect:
+  - 868
+  - 930
+  - 1053
+  - 960
+  text: 点击空白处关闭
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
