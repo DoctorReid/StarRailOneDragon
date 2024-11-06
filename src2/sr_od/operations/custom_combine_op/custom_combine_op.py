@@ -12,6 +12,7 @@ from sr_od.operations.click_point import ClickPoint
 from sr_od.operations.custom_combine_op.custom_combine_op_config import CustomCombineOpConfig, CustomCombineOpItem
 from sr_od.operations.custom_combine_op.custom_combine_op_const import OpEnum, OpWaitTypeEnum, OpInteractTypeEnum
 from sr_od.operations.interact.move_interact import MoveInteract
+from sr_od.operations.interact.talk_interact import TalkInteract
 from sr_od.operations.move.move_directly import MoveDirectly
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.operations.store.buy_store_item import BuyStoreItem
@@ -21,7 +22,6 @@ from sr_od.operations.synthesize.synthesize_const import SynthesizeItemEnum
 from sr_od.operations.wait.wait_in_seconds import WaitInSeconds
 from sr_od.operations.wait.wait_in_world import WaitInWorld
 from sr_od.sr_map.operations.transport_by_map import TransportByMap
-from src.sr.operation.unit.interact import TalkInteract
 
 
 class CustomCombineOp(SrOperation):

@@ -4,7 +4,6 @@ from sr_od.app.sr_one_dragon_app import SrOneDragonApp
 from sr_od.context.sr_context import SrContext
 
 
-
 class SrOneDragonRunInterface(OneDragonRunInterface):
 
     def __init__(self, ctx: SrContext, parent=None):
@@ -13,7 +12,7 @@ class SrOneDragonRunInterface(OneDragonRunInterface):
             self,
             ctx=ctx,
             parent=parent,
-            help_url='https://one-dragon.org/zzz/zh/docs/feat_one_dragon.html'
+            help_url='https://one-dragon.org/sr/zh/docs/feat_one_dragon.html'
         )
 
     def get_one_dragon_app(self) -> OneDragonApp:
