@@ -1,3 +1,5 @@
+import time
+
 from cv2.typing import MatLike
 from typing import ClassVar, Optional
 
@@ -126,6 +128,7 @@ class UseTechnique(SrOperation):
                 return self.round_retry(wait=0.1)
 
         self.ctx.controller.use_technique()
+        self.ctx.last_use_tech_time = time.time()  # 记录秘技的使用时间
         self.ctx.controller.stop_moving_forward()  # 在使用秘技中停止移动 可以取消停止移动的后摇
         self.op_result.use_tech = True  # 与context的状态分开 ctx的只负责记录开怪位 后续考虑变量改名
         self.ctx.technique_used = True
@@ -152,6 +155,10 @@ class UseTechnique(SrOperation):
             return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
 
         # 不在大世界的情况 可以慢一点判断
+
+        # 不在大世界 要么进入了战斗 要么是出现了快恢复对话框 都可以认为秘技已经生效
+        # 可以将上次使用时间设置为0
+        self.ctx.last_use_tech_time = 0
         result = self.round_by_find_area(screen, '快速恢复对话框', '快速恢复标题')
         if not result.is_success:
             self.no_dialog_times += 1

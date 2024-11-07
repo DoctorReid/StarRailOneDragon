@@ -1,3 +1,5 @@
+import time
+
 from typing import Optional, List
 
 from one_dragon.base.operation.one_dragon_context import OneDragonContext
@@ -20,7 +22,7 @@ from sr_od.app.trick_snack.trick_snack_record import TrickSnackRunRecord
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
-from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK
+from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, FEIXIAO
 from sr_od.config.game_config import GameConfig
 from sr_od.config.yolo_config import YoloConfig
 from sr_od.context.context_pos_info import ContextPosInfo
@@ -97,6 +99,15 @@ class TeamInfo:
                     return False
             return True
 
+    @property
+    def is_first_feixiao(self) -> bool:
+        return (
+                self.character_list is not None
+                and len(self.character_list) > 0
+                and self.character_list[0] is not None
+                and self.character_list[0].id == FEIXIAO.id
+        )
+
 
 class SimUniInfo:
 
@@ -139,7 +150,8 @@ class SrContext(OneDragonContext):
 
         # 秘技相关
         self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
-        self.consumable_used: bool = False  # 是否已经使用过消耗品了
+        self.last_use_tech_time: float = 0  # 上一次使用秘技的时间
+        self.feixiao_tech_duration: float = 5  # 飞霄秘技的持续时间
 
         # 共用配置
         self.yolo_config: YoloConfig = YoloConfig()
@@ -217,3 +229,27 @@ class SrContext(OneDragonContext):
             model_name=self.yolo_config.sim_uni,
             gpu=self.yolo_config.sim_uni_gpu
         )
+
+    @property
+    def is_fx_world_patrol_tech(self) -> bool:
+        """
+        锄大地场景 是否飞霄使用秘技
+        :return:
+        """
+        return self.team_info.is_first_feixiao and self.world_patrol_config.technique_fight
+
+    @property
+    def fx_had_used_tech(self) -> bool:
+        """
+        飞霄使用了秘技 = 上一次使用秘技到现在还没有超出持续时间
+        :return:
+        """
+        return self.team_info.is_first_feixiao and time.time() - self.last_use_tech_time <= self.feixiao_tech_duration
+
+    @property
+    def world_patrol_fx_should_use_tech(self) -> bool:
+        """
+        锄大地场景  飞霄是否该继续使用秘技了
+        :return:
+        """
+        return self.is_fx_world_patrol_tech and time.time() - self.last_use_tech_time > self.feixiao_tech_duration

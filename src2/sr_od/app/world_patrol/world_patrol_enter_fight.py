@@ -126,8 +126,15 @@ class WorldPatrolEnterFight(SrOperation):
                 return self._exit_with_last_move(with_alert)
 
             fix_attack_direction = self.fix_and_record_direction(attack_direction)
-            will_use_tech = (self.technique_fight and not self.ctx.technique_used
-                    and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique))
+            # 判断是否需要使用秘技
+            if not self.technique_fight:  # 没有开启秘技
+                will_use_tech = False
+            elif self.ctx.technique_used:  # 之前已经使用秘技了
+                will_use_tech = False
+            elif self.ctx.is_fx_world_patrol_tech:  # 飞霄特判 在攻击指令中不使用秘技
+                will_use_tech = False
+            else:  # 能识别到角色才使用秘技
+                will_use_tech = self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique
 
             # 这个时间是以黄泉E为基准的 使用秘技的话UseTechnique里有0.2s的等待
             self.ctx.controller.move(direction=fix_attack_direction, press_time=0.3 if will_use_tech else 0.5)
@@ -190,6 +197,7 @@ class WorldPatrolEnterFight(SrOperation):
         统一处理不在大世界的情况
         :return:
         """
+        self.ctx.last_use_tech_time = 0
         state = world_patrol_screen_state.get_world_patrol_screen_state(
             self.ctx, screen,
             in_world=False, battle=True, battle_fail=True,

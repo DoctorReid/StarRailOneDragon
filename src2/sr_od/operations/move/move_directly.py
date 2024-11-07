@@ -19,6 +19,7 @@ from sr_od.operations.move import cal_pos_utils
 from sr_od.operations.move.cal_pos_utils import VerifyPosInfo
 from sr_od.operations.move.get_rid_of_stuck import GetRidOfStuck
 from sr_od.operations.sr_operation import SrOperation
+from sr_od.operations.technique import UseTechnique
 from sr_od.screen_state import common_screen_state, battle_screen_state
 from sr_od.sr_map import mini_map_utils, large_map_utils
 from sr_od.sr_map.large_map_info import LargeMapInfo
@@ -56,7 +57,7 @@ class MoveDirectly(SrOperation):
         3. 由于第2点，移动途中不应该有任何移动外转向，避免计算坐标被舍弃
         4. 移动途中可能被怪物锁定而停下来
         """
-        super().__init__(ctx, op_name=gt('移动 %s -> %s') % (start, target), op_callback=op_callback)
+        SrOperation.__init__(self, ctx, op_name=gt('移动 %s -> %s') % (start, target), op_callback=op_callback)
         self.lm_info: LargeMapInfo = lm_info
         self.next_lm_info: LargeMapInfo = next_lm_info
         self.region: Region = lm_info.region
@@ -120,22 +121,9 @@ class MoveDirectly(SrOperation):
         :return:
         """
         self.ctx.controller.stop_moving_forward()
-        if self.stop_move_time is None:
-            self.stop_move_time = now_time + (1 if self.run_mode != RunModeEnum.OFF.value.value else 0)
+        self.ctx.last_use_tech_time = 0  # 不在大世界的情况 都认为是秘技生效了 所以重置时间
         log.info('移动中被袭击')
-        fight = self.get_fight_op(in_world=False)
-        fight_start_time = now_time
-        fight_result = fight.execute()
-        fight_end_time = time.time()
-        if not fight_result.success:
-            return self.round_fail(status=fight_result.status, data=fight_result.data)
-        else:
-            self.last_battle_exit_with_alert = fight_result.status == WorldPatrolEnterFight.STATUS_EXIT_WITH_ALERT
-
-        self.last_battle_time = fight_end_time
-        self.last_rec_time += fight_end_time - fight_start_time  # 战斗可能很久 更改记录时间
-        self.ctx.pos_info.pos_first_cal_pos_after_fight = True
-        return self.round_wait()
+        return self.do_attack(False)
 
     def get_fight_op(self, in_world: bool = True) -> SrOperation:
         """
@@ -156,6 +144,17 @@ class MoveDirectly(SrOperation):
         在大世界中 进行处理
         :return:
         """
+        if self.ctx.world_patrol_fx_should_use_tech:
+            # 特殊处理飞霄逻辑 使用秘技
+            op = UseTechnique(
+                self.ctx,
+                max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
+                need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
+                trick_snack=self.ctx.game_config.use_quirky_snacks
+            )
+            op.execute()
+            return self.round_wait('飞霄使用秘技')
+
         # 先异步识别是否需要攻击
         if (not self.no_battle  # 如果外层调用保证没有战斗 跳过识别
             and not self.last_battle_exit_with_alert  # 如果上一次的战斗指令是有告警地退出，说明人物卡住了，先移动，不识别攻击
@@ -226,11 +225,18 @@ class MoveDirectly(SrOperation):
         if not self.ctx.yolo_detector.should_attack_in_world_last_result(now_time):
             return None
 
+        return self.do_attack(True)
+
+    def do_attack(self, in_world: bool) -> OperationRoundResult:
+        """
+        实施攻击
+        :return:
+        """
         # 停止移动的指令交给了 WorldPatrolEnterFight 这样可以通过攻击或者十方秘技来取消停止移动造成的后摇
         if self.stop_move_time is None:
             self.stop_move_time = time.time() + (1 if self.run_mode != RunModeEnum.OFF.value.value else 0)
 
-        fight = self.get_fight_op(in_world=True)
+        fight = self.get_fight_op(in_world=in_world)
         fight_start_time = time.time()
         op_result = fight.execute()
         if not op_result.success:

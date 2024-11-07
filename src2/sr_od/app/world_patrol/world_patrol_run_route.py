@@ -1,3 +1,4 @@
+from operator import truediv
 from typing import ClassVar
 
 from one_dragon.base.geometry.point import Point
@@ -122,10 +123,22 @@ class WorldPatrolRunRoute(SrOperation):
         if self.op_idx >= len(self.route.route_list):
             return self.round_success(WorldPatrolRunRoute.STATUS_ALL_DONE)
 
+        if self.ctx.is_fx_world_patrol_tech:
+            return self.run_op_for_feixiao()
+        else:
+            return self.run_op_for_normal()
+
+    def run_op_for_normal(self) -> OperationRoundResult:
+        """
+        普通锄大地的逻辑
+        :return:
+        """
         op = None
         route_item = self.route.route_list[self.op_idx]
-        next_route_item = self.route.route_list[self.op_idx + 1] if self.op_idx + 1 < len(
-            self.route.route_list) else None
+        if self.op_idx + 1 < len(self.route.route_list):
+            next_route_item = self.route.route_list[self.op_idx + 1]
+        else:
+            next_route_item = None
 
         if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
@@ -172,6 +185,75 @@ class WorldPatrolRunRoute(SrOperation):
         #         record_times = 1
         #     op2 = RecordCoordinate(self.ctx, self.current_region, self.current_pos, record_times=record_times)
         #     op2.execute()
+
+        if op is not None:
+            return self.round_by_op_result(op.execute())
+        else:
+            return self.round_fail('指令错误 %d', self.op_idx)
+
+    def run_op_for_feixiao(self) -> OperationRoundResult:
+        """
+        飞霄锄大地的逻辑
+        :return:
+        """
+        route_item = self.route.route_list[self.op_idx]
+        if self.op_idx + 1 < len(self.route.route_list):
+            next_route_item = self.route.route_list[self.op_idx + 1]
+        else:
+            next_route_item = None
+
+        # 当前是否应该攻击
+        should_attack: bool = True
+        for i in range(self.op_idx, len(self.route.route_list)):
+            item = self.route.route_list[i]
+            if item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+                # 需要找下一个不是移动的指令
+                continue
+            elif item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
+                # 如果下一个不是移动的指令 是攻击类的 则当前不需要攻击
+                should_attack = False
+                break
+            elif item.op in [operation_const.OP_INTERACT, operation_const.OP_CATAPULT]:
+                # 如果下一个不是移动的指令 是交互类的 则当前可以攻击了
+                should_attack = True
+                break
+            else:
+                # 剩下的类型 其实都是交互后才会出现的 这些也归到可以攻击
+                should_attack = True
+                break
+
+        op = None
+        if should_attack:
+            op = WorldPatrolEnterFight(self.ctx,
+                                       technique_fight=self.ctx.world_patrol_config.technique_fight,
+                                       technique_only=self.ctx.world_patrol_config.technique_only,
+                                       first_state=common_screen_state.ScreenState.NORMAL_IN_WORLD.value)
+            # 由于是中途插入的指令 需要特殊处理下标
+            op_result = op.execute()
+            if op_result.success:
+                self.op_idx -= 1
+            return self.round_by_op_result(op_result)
+        elif route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+            op = self.move(route_item, next_route_item)
+        elif route_item.op == operation_const.OP_PATROL:
+            return self.round_success()
+        elif route_item.op == operation_const.OP_DISPOSABLE:
+            return self.round_success()
+        elif route_item.op == operation_const.OP_INTERACT:
+            op = MoveInteract(self.ctx, route_item.data)
+        elif route_item.op == operation_const.OP_CATAPULT:
+            op = Catapult(self.ctx)
+        elif route_item.op == operation_const.OP_WAIT:
+            op = self.wait(route_item.data[0], float(route_item.data[1]))
+        elif route_item.op == operation_const.OP_UPDATE_POS:
+            next_pos = Point(route_item.data[0], route_item.data[1])
+            self._update_pos_after_op(OperationResult(True, data=next_pos))
+            return self.round_success()
+        elif route_item.op == operation_const.OP_ENTER_SUB:
+            self.current_region = self.ctx.map_data.get_sub_region_by_cn(self.current_region, route_item.data[0], int(route_item.data[1]))
+            return self.round_success()
+        else:
+            return self.round_fail(status='错误的锄大地指令 %s' % route_item.op)
 
         if op is not None:
             return self.round_by_op_result(op.execute())
@@ -242,14 +324,19 @@ class WorldPatrolRunRoute(SrOperation):
         elif wait_type == operation_const.WAIT_TYPE_SECONDS:
             return WaitInSeconds(self.ctx, seconds)
 
-
     @node_from(from_name='执行路线指令', status=STATUS_ALL_DONE)
-    @operation_node(name='结束')
-    def _finish(self) -> OperationRoundResult:
+    @operation_node(name='执行路线指令完毕')
+    def finish(self) -> OperationRoundResult:
         """
         路线执行完毕
         :return:
         """
+        if self.ctx.is_fx_world_patrol_tech:  # 飞霄需要在结束时候攻击
+            op = WorldPatrolEnterFight(self.ctx,
+                                       technique_fight=self.ctx.world_patrol_config.technique_fight,
+                                       technique_only=self.ctx.world_patrol_config.technique_only,
+                                       first_state=common_screen_state.ScreenState.NORMAL_IN_WORLD.value)
+            return self.round_by_op_result(op.execute())
         return self.round_success()
 
 
