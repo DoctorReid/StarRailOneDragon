@@ -70,6 +70,7 @@ class MoveDirectly(SrOperation):
         self.stop_afterwards = stop_afterwards  # 最后是否停止前进
         self.last_no_pos_time = 0  # 上一次算不到坐标的时间 目前算坐标太快了 可能地图还在缩放中途就已经失败 所以稍微隔点时间再记录算不到坐标
         self.stop_move_time: Optional[float] = None  # 停止移动的时间
+        self.last_move_stuck_time: float = 0  # 上一次脱困结束的时间
 
         self.run_mode = RunModeEnum.OFF.value.value if no_run else self.ctx.game_config.run_mode
         self.no_battle: bool = no_battle  # 本次移动是否保证没有战斗
@@ -191,6 +192,8 @@ class MoveDirectly(SrOperation):
         判断是否被困且进行移动
         :return: 如果被困次数过多就返回失败
         """
+        if time.time() - self.last_move_stuck_time < 1:  # 上一次尝试脱困后 过一会再尝试下一次脱困
+            return None
         if len(self.pos) == 0 or self.no_pos_times > 0:  # 识别不到坐标的时候也不要乱走了
             return None
 
@@ -207,6 +210,7 @@ class MoveDirectly(SrOperation):
             stuck_op_result = get_rid_of_stuck.execute()
             if stuck_op_result.success:
                 self.last_rec_time += stuck_op_result.data
+            self.last_move_stuck_time = time.time()
         else:
             self.stuck_times = 0
 
