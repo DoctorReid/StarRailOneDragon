@@ -14,7 +14,7 @@ from sr_od.screen_state import common_screen_state
 
 class CheckTeamMembersInWorld(SrOperation):
 
-    def __init__(self, ctx: SrContext):
+    def __init__(self, ctx: SrContext, character_list: Optional[List[Character]] = None):
         """
         需要在大世界 右侧显示4名角色头像时使用
         获取组队角色
@@ -22,20 +22,7 @@ class CheckTeamMembersInWorld(SrOperation):
         """
         SrOperation.__init__(self, ctx, op_name=gt('组队角色判断', 'ui'))
 
-        self.character_list: List[Character] = []
-
-    def handle_init(self) -> Optional[OperationRoundResult]:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        可以返回初始化后判断的结果
-        - 成功时跳过本指令
-        - 失败时立刻返回失败
-        - 不返回时正常运行本指令
-        """
-        self.character_list = [None, None, None, None]
-
-        return None
+        self.character_list: List[Character] = [None, None, None, None] if character_list is None else character_list
 
     @operation_node(name='画面识别', node_max_retry_times=5, is_start_node=True)
     def check_screen(self) -> OperationRoundResult:

@@ -68,16 +68,6 @@ class WorldPatrolRunRoute(SrOperation):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送')
-    @operation_node(name='检测组队')
-    def _check_members(self) -> OperationRoundResult:
-        """
-        检测队员
-        :return:
-        """
-        op = CheckTeamMembersInWorld(self.ctx)
-        return self.round_by_op_result(op.execute())
-
-    @node_from(from_name='检测组队')
     @operation_node(name='切换1号位')
     def switch_first(self) -> OperationRoundResult:
         """
@@ -88,6 +78,16 @@ class WorldPatrolRunRoute(SrOperation):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='切换1号位')
+    @operation_node(name='检测组队')
+    def _check_members(self) -> OperationRoundResult:
+        """
+        检测队员
+        :return:
+        """
+        op = CheckTeamMembersInWorld(self.ctx)
+        return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='检测组队')
     @operation_node(name='使用秘技')
     def _use_tech(self) -> OperationRoundResult:
         """

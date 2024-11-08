@@ -22,6 +22,18 @@ class WorldPatrolConfig(YamlConfig):
         return YamlConfigAdapter(self, 'team_num', 0, 'str', 'int')
 
     @property
+    def character_1(self) -> str:
+        return self.get('character_1', 'none')
+
+    @character_1.setter
+    def character_1(self, new_value: str):
+        self.update('character_1', new_value)
+
+    @property
+    def character_1_adapter(self) -> YamlConfigAdapter:
+        return YamlConfigAdapter(self, 'character_1', 'none')
+
+    @property
     def whitelist_id(self) -> str:
         return self.get('whitelist_id', '')
 
