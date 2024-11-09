@@ -96,15 +96,44 @@ class WorldPatrolRouteData:
         """
         return os_utils.get_path_under_work_dir('config', 'world_patrol', planet.np_id)
 
-    def create_new_route(self, tp: SpecialPoint) -> WorldPatrolRoute:
+
+    def get_new_route_path(self, tp: SpecialPoint) -> str:
         """
-        根据传送点 创建一条路线
-        :param tp:
-        :return:
+        获取新路线的文件路径
         """
         existed_route_list = self.load_all_route(target_region=tp.region)
         max_route_idx: int = 0
         for route in existed_route_list:
             max_route_idx = max(max_route_idx, route.route_num)
 
-        WorldPatrolRoute()
+        planet_dir = self.get_planet_route_dir(tp.planet)
+        route_filename = f'{tp.region.r_id}_R{(max_route_idx + 1):02d}_${tp.id}.yml'
+        route_path = os.path.join(planet_dir, route_filename)
+        return route_path
+
+    def create_new_route(self, tp: SpecialPoint, author: str) -> WorldPatrolRoute:
+        """
+        根据传送点 创建一条路线
+        :param tp:
+        :return:
+        """
+        route_path = self.get_new_route_path(tp)
+        return WorldPatrolRoute(tp, {
+            'author': [author],
+            'route': []
+        }, route_path)
+
+    def save_route(self, route: WorldPatrolRoute, author: str):
+        """
+        保存路线
+        """
+        planet_dir = self.get_planet_route_dir(route.tp.planet)
+        route_filename = f'{route.tp.region.r_id}_R{route.route_num:02d}_${route.tp.id}.yml'
+        route_path = os.path.join(planet_dir, route_filename)
+
+        if route.yml_file_path != route_path:
+            route.delete()
+            route.yml_file_path = self.get_new_route_path(route.tp)
+            route.init_route_num()
+
+        route.save()

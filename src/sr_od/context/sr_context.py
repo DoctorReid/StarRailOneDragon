@@ -151,7 +151,7 @@ class SrContext(OneDragonContext):
         # 秘技相关
         self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
         self.last_use_tech_time: float = 0  # 上一次使用秘技的时间
-        self.feixiao_tech_duration: float = 5  # 飞霄秘技的持续时间
+        self.feixiao_tech_duration: float = 20  # 飞霄秘技的持续时间
 
         # 共用配置
         self.yolo_config: YoloConfig = YoloConfig()
@@ -229,6 +229,17 @@ class SrContext(OneDragonContext):
             model_name=self.yolo_config.sim_uni,
             gpu=self.yolo_config.sim_uni_gpu
         )
+
+    def check_and_update_speed(self, world_patrol: bool) -> None:
+        """
+        根据当前1号位 判断移动速度
+        """
+        if world_patrol and self.is_fx_world_patrol_tech:
+            self.controller.run_speed = 40
+            self.controller.walk_speed = 30
+        else:
+            self.controller.run_speed = 30
+            self.controller.walk_speed = 20
 
     @property
     def is_fx_world_patrol_tech(self) -> bool:

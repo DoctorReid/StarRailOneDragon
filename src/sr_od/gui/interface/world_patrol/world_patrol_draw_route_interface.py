@@ -1,9 +1,10 @@
 import time
 
+import yaml
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from cv2.typing import MatLike
-from qfluentwidgets import PushButton, PlainTextEdit, SettingCardGroup, FluentIcon
+from qfluentwidgets import PushButton, PlainTextEdit, SettingCardGroup, FluentIcon, LineEdit
 from sympy.codegen.ast import continue_
 from typing import Optional, List, Tuple
 
@@ -18,13 +19,17 @@ from one_dragon.gui.component.interface.vertical_scroll_interface import Vertica
 from one_dragon.gui.component.label.click_image_label import ClickImageLabel, ImageScaleEnum
 from one_dragon.gui.component.row_widget import RowWidget
 from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
 from sr_od.app.world_patrol import world_patrol_route_draw_utils
+from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute
 from sr_od.app.world_patrol.world_patrol_route_draw_utils import can_change_tp
-from sr_od.app.world_patrol.world_patrol_whitelist_config import create_new_whitelist
+from sr_od.app.world_patrol.world_patrol_whitelist_config import create_new_whitelist, WorldPatrolWhitelist
+from sr_od.config import operation_const
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.move import cal_pos_utils
+from sr_od.operations.move.cal_pos_utils import VerifyPosInfo
 from sr_od.sr_map import mini_map_utils, large_map_utils
 from sr_od.sr_map.sr_map_def import Planet, Region, SpecialPoint
 
@@ -61,12 +66,14 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
 
         # 将 QVBoxLayouts 加入 QHBoxLayout
         horizontal_layout.addLayout(self.get_left_layout())
+        horizontal_layout.addSpacing(5)
         horizontal_layout.addLayout(self.get_middle_layout())
+        horizontal_layout.addSpacing(5)
         horizontal_layout.addLayout(self.get_right_layout())
         horizontal_layout.addStretch(1)
 
         # 确保 QHBoxLayout 可以伸缩
-        horizontal_layout.setSpacing(10)
+        horizontal_layout.setSpacing(0)
         horizontal_layout.setContentsMargins(0, 0, 0, 0)
 
         # 设置伸缩因子，让 QHBoxLayout 占据空间
@@ -139,17 +146,31 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         self.cancel_btn.clicked.connect(self.on_cancel_clicked)
         save_btn_row.add_widget(self.cancel_btn)
 
-        self.back_btn = PushButton(text=gt('回退 -'))
-        self.back_btn.clicked.connect(self.on_back_clicked)
-        save_btn_row.add_widget(self.back_btn)
-
         save_btn_row.add_stretch(1)
         layout.addWidget(save_btn_row)
+
+        # 运行行
+        run_row = RowWidget()
+
+        self.run_btn = PushButton(text=gt('测试运行'))
+        self.run_btn.clicked.connect(self.on_run_clicked)
+        run_row.add_widget(self.run_btn)
+
+        self.update_by_text_btn = PushButton(text=gt('按文本更新'))
+        self.update_by_text_btn.clicked.connect(self.on_update_by_text_clicked)
+        run_row.add_widget(self.update_by_text_btn)
+
+        self.back_btn = PushButton(text=gt('回退 -'))
+        self.back_btn.clicked.connect(self.on_back_clicked)
+        run_row.add_widget(self.back_btn)
+
+        run_row.add_stretch(1)
+        layout.addWidget(run_row)
 
         # 位置相关的按钮行
         pos_row = RowWidget()
 
-        self.cal_move_btn = PushButton(text=gt('截图移动 Q'))
+        self.cal_move_btn = PushButton(text=gt('截图移动 F6'))
         self.cal_move_btn.clicked.connect(self.on_cal_move_clicked)
         pos_row.add_widget(self.cal_move_btn)
 
@@ -164,6 +185,69 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         pos_row.add_stretch(1)
         layout.addWidget(pos_row)
 
+        # 战斗行
+        battle_row = RowWidget()
+
+        self.battle_btn = PushButton(text=gt('战斗'))
+        self.battle_btn.clicked.connect(self.on_battle_clicked)
+        battle_row.add_widget(self.battle_btn)
+
+        self.cal_battle_btn = PushButton(text=gt('截图战斗 F7'))
+        self.cal_battle_btn.clicked.connect(self.on_cal_battle_clicked)
+        battle_row.add_widget(self.cal_battle_btn)
+
+        battle_row.add_stretch(1)
+        layout.addWidget(battle_row)
+
+        # 破坏物行
+        disposable_row = RowWidget()
+
+        self.disposable_btn = PushButton(text=gt('可破坏物'))
+        self.disposable_btn.clicked.connect(self.on_disposable_clicked)
+        disposable_row.add_widget(self.disposable_btn)
+
+        self.cal_disposable_btn = PushButton(text=gt('截图可破坏物 F8'))
+        self.cal_disposable_btn.clicked.connect(self.on_cal_disposable_clicked)
+        disposable_row.add_widget(self.cal_disposable_btn)
+
+        disposable_row.add_stretch(1)
+        layout.addWidget(disposable_row)
+
+        # 交互行
+        interact_row = RowWidget()
+
+        self.interact_text = LineEdit()
+        self.interact_text.setPlaceholderText(gt('交互文本'))
+        interact_row.add_widget(self.interact_text)
+
+        self.interact_btn = PushButton(text=gt('交互'))
+        self.interact_btn.clicked.connect(self.on_interact_clicked)
+        interact_row.add_widget(self.interact_btn)
+
+        interact_row.add_stretch(1)
+        layout.addWidget(interact_row)
+
+        # 等待行
+        wait_row = RowWidget()
+
+        self.wait_type_opt = ComboBox()
+        self.wait_type_opt.set_items([
+            ConfigItem('等待大世界', operation_const.WAIT_TYPE_IN_WORLD),
+            ConfigItem('等待秒数', operation_const.WAIT_TYPE_IN_WORLD),
+        ], operation_const.WAIT_TYPE_IN_WORLD)
+        wait_row.add_widget(self.wait_type_opt)
+
+        self.wait_seconds_text = LineEdit()
+        self.wait_seconds_text.setPlaceholderText(gt('最长等待秒数'))
+        wait_row.add_widget(self.wait_seconds_text)
+
+        self.wait_btn = PushButton(text=gt('等待'))
+        self.wait_btn.clicked.connect(self.on_wait_clicked)
+        wait_row.add_widget(self.wait_btn)
+
+        wait_row.add_stretch(1)
+        layout.addWidget(wait_row)
+
         layout.addStretch(1)
 
         return layout
@@ -174,7 +258,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(SettingCardGroup('路线指令'))
         self.route_text = PlainTextEdit()
         self.route_text.setMinimumWidth(200)
-        self.route_text.setMinimumHeight(700)
+        self.route_text.setMinimumHeight(500)
         layout.addWidget(self.route_text)
 
         layout.addStretch(1)
@@ -230,6 +314,9 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         self.save_btn.setDisabled(not chosen)
         self.delete_btn.setDisabled(not chosen)
         self.cancel_btn.setDisabled(not chosen)
+
+        self.run_btn.setDisabled(not chosen)
+        self.update_by_text_btn.setDisabled(not chosen)
         self.back_btn.setDisabled(not chosen)
 
         can_change_tp = world_patrol_route_draw_utils.can_change_tp(self.chosen_route)
@@ -237,8 +324,22 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         self.region_without_level_opt.setDisabled(not can_change_tp)
         self.tp_opt.setDisabled(not can_change_tp)
 
+        self.cal_move_btn.setDisabled(not chosen)
         self.slow_move_btn.setDisabled(not chosen)
         self.update_pos_btn.setDisabled(not chosen)
+
+        self.battle_btn.setDisabled(not chosen)
+        self.cal_battle_btn.setDisabled(not chosen)
+
+        self.disposable_btn.setDisabled(not chosen)
+        self.cal_disposable_btn.setDisabled(not chosen)
+
+        self.interact_text.setDisabled(not chosen)
+        self.interact_btn.setDisabled(not chosen)
+
+        self.wait_type_opt.setDisabled(not chosen)
+        self.wait_seconds_text.setDisabled(not chosen)
+        self.wait_btn.setDisabled(not chosen)
 
         self.route_text.setDisabled(not chosen)
         self.update_large_map_image()
@@ -407,15 +508,17 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         self.update_display_by_route()
 
     def on_create_clicked(self) -> None:
-        if self.chosen_route is not None:
+        if self.chosen_route is not None or self.chosen_tp is None:
             return
 
-        self.chosen_route = create_new_whitelist()
+        self.chosen_route = self.ctx.world_patrol_route_data.create_new_route(self.chosen_tp, 'DoctorReid')
         self.update_display_by_route()
 
     def on_save_clicked(self) -> None:
         if self.chosen_route is None:
             return
+
+        self.ctx.world_patrol_route_data.save_route(self.chosen_route, 'DoctorReid')
 
     def on_delete_clicked(self):
         if self.chosen_route is None:
@@ -492,10 +595,25 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
 
     def on_key_press(self, event: ContextEventItem) -> None:
         key: str = event.data
+        if self.chosen_route is None:
+            return
         if key == '-':
             self.on_back_clicked()
-        elif key == 'q':
+        elif key == 'f6':
             self.on_cal_move_clicked()
+        elif key == 'f7':
+            self.on_cal_battle_clicked()
+        elif key == 'f8':
+            self.on_cal_disposable_clicked()
+
+    def on_run_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
+
+        whitelist = WorldPatrolWhitelist('draw_route', is_mock=True)
+        whitelist.list = [self.chosen_route.unique_id]
+        app = WorldPatrolApp(self.ctx, whitelist=whitelist, ignore_record=True)
+        app.execute()
 
     def on_back_clicked(self) -> None:
         if self.chosen_route is None:
@@ -522,7 +640,10 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         if self.chosen_route is None:
             return
 
-        next_region, next_pos = self.cal_pos_by_screenshot()
+        next_region, next_pos = world_patrol_route_draw_utils.cal_pos_by_screenshot(self.ctx, self.chosen_route)
+
+        if next_pos is None:
+            return
 
         self.chosen_region_with_level = next_region
         world_patrol_route_draw_utils.add_move(self.ctx, self.chosen_route,
@@ -530,49 +651,79 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
                                                self.get_region_level())
         self.update_display_by_route()
 
-    def cal_pos_by_screenshot(self) -> Tuple[Optional[Region], Optional[Point]]:
-        region, last_pos = world_patrol_route_draw_utils.get_last_pos(self.ctx, self.chosen_route)
-        lm_info = self.ctx.map_data.get_large_map_info(region)
-        next_region = region
+    def on_battle_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
 
-        if not self.ctx.controller.game_win.is_win_active:
-            self.ctx.controller.active_window()
-            time.sleep(1)
-        screen = self.ctx.controller.screenshot(True)
-        mm = mini_map_utils.cut_mini_map(screen, self.ctx.game_config.mini_map_pos)
-        mm_info = mini_map_utils.analyse_mini_map(mm)
+        world_patrol_route_draw_utils.add_patrol(self.chosen_route)
+        self.update_display_by_route()
 
-        next_pos: Optional[MatchResult] = None
+    def on_cal_battle_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
 
-        for move_time in range(1, 10):
-            move_distance = self.ctx.controller.cal_move_distance_by_time(move_time)
-            possible_pos = (last_pos.x, last_pos.y, move_distance)
-            lm_rect = large_map_utils.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
+        next_region, next_pos = world_patrol_route_draw_utils.cal_pos_by_screenshot(self.ctx, self.chosen_route)
 
-            next_pos = cal_pos_utils.cal_character_pos(
-                self.ctx, lm_info, mm_info,
-                lm_rect=lm_rect, retry_without_rect=False,
-                running=self.ctx.controller.is_moving,
-                real_move_time=move_time)
+        if next_pos is None:
+            return
 
-            if next_pos is None and region.floor != 0:
-                region_list = self.ctx.map_data.get_region_with_all_floor(region)
-                for another_floor_region in region_list:
-                    if another_floor_region.floor == region.floor:
-                        continue
+        world_patrol_route_draw_utils.add_move(self.ctx, self.chosen_route,
+                                               next_pos.x, next_pos.y,
+                                               self.get_region_level())
+        world_patrol_route_draw_utils.add_patrol(self.chosen_route)
+        self.update_display_by_route()
 
-                    next_lm_info = self.ctx.map_data.get_large_map_info(another_floor_region)
-                    next_pos = cal_pos_utils.cal_character_pos(
-                        self.ctx, next_lm_info, mm_info,
-                        lm_rect=lm_rect, retry_without_rect=False,
-                        running=self.ctx.controller.is_moving,
-                        real_move_time=move_time)
+    def on_disposable_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
 
-                    if next_pos is not None:
-                        next_region = another_floor_region
-                        break
+        world_patrol_route_draw_utils.add_disposable(self.chosen_route)
+        self.update_display_by_route()
 
-            if next_pos is not None:
-                break
+    def on_cal_disposable_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
 
-        return next_region, next_pos
+        next_region, next_pos = world_patrol_route_draw_utils.cal_pos_by_screenshot(self.ctx, self.chosen_route)
+
+        if next_pos is None:
+            return
+
+        world_patrol_route_draw_utils.add_move(self.ctx, self.chosen_route,
+                                               next_pos.x, next_pos.y,
+                                               self.get_region_level())
+        world_patrol_route_draw_utils.add_disposable(self.chosen_route)
+        self.update_display_by_route()
+
+    def on_interact_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
+
+        interact_word = self.interact_text.text()
+        if interact_word is None or len(interact_word) == 0:
+            return
+
+        world_patrol_route_draw_utils.add_interact(self.chosen_route, interact_word)
+        self.update_display_by_route()
+
+    def on_wait_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
+
+        world_patrol_route_draw_utils.add_wait(
+            self.chosen_route,
+            self.wait_type_opt.currentData(),
+            str_utils.get_positive_digits(self.wait_seconds_text.text(), 10)
+        )
+        self.update_display_by_route()
+
+    def on_update_by_text_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
+
+        route_text = self.route_text.toPlainText()
+        # 将文本转化成dict
+        route_dict = yaml.load(route_text, Loader=yaml.FullLoader)
+        self.chosen_route.init_from_yaml_data(route_dict)
+
+        self.update_display_by_route()

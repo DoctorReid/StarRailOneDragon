@@ -50,7 +50,7 @@ class WorldPatrolApp(SrApplication):
 
         self.route_list = self.ctx.world_patrol_route_data.load_all_route(
             whitelist=whitelist,
-            finished=self.ctx.world_patrol_record.finished
+            finished=[] if self.ignore_record else self.ctx.world_patrol_record.finished
         )
         self.current_route_idx = 0
 

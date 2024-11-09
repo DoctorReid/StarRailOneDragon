@@ -197,49 +197,12 @@ class WorldPatrolRoute:
         else:
             self.route_list = new_route_list
 
-    def add_patrol(self):
-        """
-        增加攻击指令
-        :return:
-        """
-        to_add = WorldPatrolRouteOperation(op=operation_const.OP_PATROL)
-        self.route_list.append(to_add)
-        self.init_idx()
-
-    def add_disposable(self):
-        """
-        增加攻击可破坏物指令
-        :return:
-        """
-        to_add = WorldPatrolRouteOperation(op=operation_const.OP_DISPOSABLE)
-        self.route_list.append(to_add)
-        self.init_idx()
-
-    def add_interact(self, interact_text: str):
-        """
-        增加交互指令
-        :param interact_text: 交互文本
-        :return:
-        """
-        to_add = WorldPatrolRouteOperation(op=operation_const.OP_INTERACT, data=interact_text)
-        self.route_list.append(to_add)
-        self.init_idx()
-
     def add_catapult(self):
         """
         增加交互指令
         :return:
         """
         to_add = WorldPatrolRouteOperation(op=operation_const.OP_CATAPULT)
-        self.route_list.append(to_add)
-        self.init_idx()
-
-    def add_wait(self, wait_type: str, wait_timeout: int):
-        """
-        增加等待指令
-        :return:
-        """
-        to_add = WorldPatrolRouteOperation(op=operation_const.OP_WAIT, data=[wait_type, wait_timeout])
         self.route_list.append(to_add)
         self.init_idx()
 

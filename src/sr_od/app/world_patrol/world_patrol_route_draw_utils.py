@@ -1,10 +1,16 @@
+import time
+
 import cv2
-from typing import Tuple
+from typing import Tuple, Optional
 
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.matcher.match_result import MatchResult
 from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute, WorldPatrolRouteOperation
 from sr_od.config import operation_const
 from sr_od.context.sr_context import SrContext
+from sr_od.operations.move import cal_pos_utils
+from sr_od.operations.move.cal_pos_utils import VerifyPosInfo
+from sr_od.sr_map import mini_map_utils, large_map_utils
 from sr_od.sr_map.sr_map_def import Region
 
 
@@ -38,6 +44,65 @@ def get_last_pos(ctx: SrContext, route: WorldPatrolRoute) -> Tuple[Region, Point
             pos = None
 
     return region, pos
+
+
+def cal_pos_by_screenshot(ctx: SrContext, route: WorldPatrolRoute, debug: bool = False) -> Tuple[Optional[Region], Optional[Point]]:
+    region, last_pos = get_last_pos(ctx, route)
+    lm_info = ctx.map_data.get_large_map_info(region)
+    next_region = region
+
+    if not ctx.controller.game_win.is_win_active:
+        ctx.controller.active_window()
+        time.sleep(1)
+    screen = ctx.controller.screenshot(True)
+    mm = mini_map_utils.cut_mini_map(screen, ctx.game_config.mini_map_pos)
+    mm_info = mini_map_utils.analyse_mini_map(mm)
+
+    next_pos: Optional[MatchResult] = None
+
+    for move_time in range(1, 10):
+        move_distance = ctx.controller.cal_move_distance_by_time(move_time)
+        possible_pos = (last_pos.x, last_pos.y, move_distance)
+        lm_rect = large_map_utils.get_large_map_rect_by_pos(lm_info.gray.shape, mm.shape[:2], possible_pos)
+
+        verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance)
+
+        next_pos = cal_pos_utils.cal_character_pos(
+            ctx, lm_info, mm_info,
+            lm_rect=lm_rect, retry_without_rect=False,
+            running=True,
+            real_move_time=move_time,
+            verify=verify,
+            show=debug
+        )
+
+        if next_pos is None and region.floor != 0:
+            region_list = ctx.map_data.get_region_with_all_floor(region)
+            for another_floor_region in region_list:
+                if another_floor_region.floor == region.floor:
+                    continue
+
+                next_lm_info = ctx.map_data.get_large_map_info(another_floor_region)
+                next_pos = cal_pos_utils.cal_character_pos(
+                    ctx, next_lm_info, mm_info,
+                    lm_rect=lm_rect, retry_without_rect=False,
+                    running=True,
+                    real_move_time=move_time,
+                    verify=verify,
+                    show=debug
+                )
+
+                if next_pos is not None:
+                    next_region = another_floor_region
+                    break
+
+        if next_pos is not None:
+            break
+
+    if next_pos is not None:
+        return next_region, next_pos.center
+    else:
+        return None, None
 
 
 def get_route_image(ctx: SrContext, route: WorldPatrolRoute):
@@ -149,3 +214,56 @@ def mark_last_move_as_update(route: WorldPatrolRoute):
     idx = len(route.route_list) - 1
     if route.route_list[idx].op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
         route.route_list[idx].op = operation_const.OP_UPDATE_POS
+
+
+def add_patrol(route: WorldPatrolRoute):
+    """
+    增加攻击指令
+    :return:
+    """
+    to_add = WorldPatrolRouteOperation(op=operation_const.OP_PATROL)
+    route.route_list.append(to_add)
+    route.init_idx()
+
+def add_disposable(route: WorldPatrolRoute):
+    """
+    增加攻击可破坏物指令
+    :return:
+    """
+    to_add = WorldPatrolRouteOperation(op=operation_const.OP_DISPOSABLE)
+    route.route_list.append(to_add)
+    route.init_idx()
+
+
+def add_interact(route: WorldPatrolRoute, interact_text: str):
+    """
+    增加交互指令
+    :param interact_text: 交互文本
+    :return:
+    """
+    to_add = WorldPatrolRouteOperation(op=operation_const.OP_INTERACT, data=interact_text)
+    route.route_list.append(to_add)
+    route.init_idx()
+
+def add_wait(route: WorldPatrolRoute, wait_type: str, wait_timeout: int):
+    """
+    增加等待指令
+    :return:
+    """
+    to_add = WorldPatrolRouteOperation(op=operation_const.OP_WAIT, data=[wait_type, wait_timeout])
+    route.route_list.append(to_add)
+    route.init_idx()
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    tp = ctx.map_data.best_match_sp_by_all_name('空间站黑塔', '主控舱段', '监察域', 0)
+    chosen_route = ctx.world_patrol_route_data.create_new_route(tp, '')
+    cal_pos_by_screenshot(ctx, chosen_route, debug=True)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    __debug()

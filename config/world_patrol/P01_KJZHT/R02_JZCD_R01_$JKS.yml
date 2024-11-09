@@ -10,8 +10,8 @@ route:
   - idx: 2
     op: 'disposable'
   - idx: 3
-    op: 'move'
-    data: [641, 140]
+    op: 'slow_move'
+    data: [643, 163]
   - idx: 4
     op: 'move'
     data: [641, 248]
