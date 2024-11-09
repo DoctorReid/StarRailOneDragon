@@ -6,7 +6,7 @@ from one_dragon.utils import os_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.sr_map.sr_map_data import SrMapData
-from sr_od.sr_map.sr_map_def import Planet, Region
+from sr_od.sr_map.sr_map_def import Planet, Region, SpecialPoint
 from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute
 from sr_od.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist
 
@@ -95,3 +95,16 @@ class WorldPatrolRouteData:
         :return:
         """
         return os_utils.get_path_under_work_dir('config', 'world_patrol', planet.np_id)
+
+    def create_new_route(self, tp: SpecialPoint) -> WorldPatrolRoute:
+        """
+        根据传送点 创建一条路线
+        :param tp:
+        :return:
+        """
+        existed_route_list = self.load_all_route(target_region=tp.region)
+        max_route_idx: int = 0
+        for route in existed_route_list:
+            max_route_idx = max(max_route_idx, route.route_num)
+
+        WorldPatrolRoute()

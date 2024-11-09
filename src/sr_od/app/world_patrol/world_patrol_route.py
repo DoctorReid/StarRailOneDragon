@@ -70,6 +70,9 @@ class WorldPatrolRoute:
         """
         # 获取路径 self.yml_file_path 的文件名
         route_id = os.path.basename(self.yml_file_path)
+        if route_id == '':  # 新建路线的时候
+            self.route_num = 1
+            return
         route_id = route_id[:-4]
 
         idx = -1
@@ -184,53 +187,6 @@ class WorldPatrolRoute:
 
         return cfg
 
-    @property
-    def last_pos(self) -> Tuple[Region, Point]:
-        """
-        返回最后一个点的坐标
-        :return:
-        """
-        region = self.tp.region
-        pos = self.tp.tp_pos
-        if self.route_list is None or len(self.route_list) == 0:
-            return region, pos
-        for op in self.route_list:
-            if op.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
-                pos = Point(op.data[0], op.data[1])
-                if len(op.data) > 2:
-                    region = map_const.region_with_another_floor(region, op.data[2])
-            elif op.op == operation_const.OP_ENTER_SUB:
-                region = map_const.get_sub_region_by_cn(op.data[0], region, int(op.data[1]))
-                pos = None
-
-        return region, pos
-
-    def add_move(self, x: int, y: int, floor: int):
-        """
-        在最后添加一个移动的指令
-        :param x: 横坐标
-        :param y: 纵坐标
-        :param floor: 楼层
-        :return:
-        """
-        last_region, last_pos = self.last_pos
-
-        if last_region.floor == floor:
-            to_add = WorldPatrolRouteOperation(op=operation_const.OP_MOVE, data=(x, y))
-        else:
-            to_add = WorldPatrolRouteOperation(op=operation_const.OP_MOVE, data=(x, y, floor))
-
-        self.route_list.append(to_add)
-        self.init_idx()
-
-    def pop_last(self):
-        """
-        取消最后一个指令
-        :return:
-        """
-        if len(self.route_list) > 0:
-            self.route_list.pop()
-
     def reset(self, new_route_list: Optional[List] = None):
         """
         重置所有指令
@@ -286,32 +242,6 @@ class WorldPatrolRoute:
         to_add = WorldPatrolRouteOperation(op=operation_const.OP_WAIT, data=[wait_type, wait_timeout])
         self.route_list.append(to_add)
         self.init_idx()
-
-    def mark_last_as_update(self):
-        """
-        将最后一个指令变更为更新位置
-        :return:
-        """
-        idx = len(self.route_list) - 1
-        if self.route_list[idx].op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
-            self.route_list[idx].op = operation_const.OP_UPDATE_POS
-
-    def switch_slow_move(self):
-        """
-        将最后一个移动标记成慢走 或从慢走标记成可疾跑
-        :return:
-        """
-        if self.empty_op:
-            return
-
-        last_op = self.route_list[len(self.route_list) - 1]
-        if last_op.op not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
-            return
-
-        if last_op.op == operation_const.OP_MOVE:
-            last_op.op = operation_const.OP_SLOW_MOVE
-        else:
-            last_op.op = operation_const.OP_MOVE
 
     def switch_floor(self, new_floor: int):
         """

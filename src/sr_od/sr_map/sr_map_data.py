@@ -179,6 +179,14 @@ class SrMapData:
             if r.pr_id == region.pr_id and r.floor == floor:
                 return r
 
+    def get_region_with_all_floor(self, region: Region) -> List[Region]:
+        """
+        获取区域对应的全部楼层
+        :param region:
+        :return:
+        """
+        return [r for r in self.region_list if r.pr_id == region.pr_id]
+
     def get_sub_region_by_cn(self, region: Region, cn: str, floor: int = 0) -> Optional[Region]:
         """
         根据子区域的中文 获取对应常量

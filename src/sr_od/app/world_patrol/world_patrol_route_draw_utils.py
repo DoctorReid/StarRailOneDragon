@@ -1,20 +1,55 @@
-def draw_route_in_image(ctx: SrContext, region: Region, route: WorldPatrolRoute):
+import cv2
+from typing import Tuple
+
+from one_dragon.base.geometry.point import Point
+from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute, WorldPatrolRouteOperation
+from sr_od.config import operation_const
+from sr_od.context.sr_context import SrContext
+from sr_od.sr_map.sr_map_def import Region
+
+
+def can_change_tp(route: WorldPatrolRoute) -> bool:
     """
-    画一个
-    :param ctx:
-    :param region: 区域
+    当前是否允许修改传送点
+    :param route:
+    :return:
+    """
+    return route is None or route.empty_op
+
+
+def get_last_pos(ctx: SrContext, route: WorldPatrolRoute) -> Tuple[Region, Point]:
+    """
+    获取路线的最后一个点
+    :param ctx: 上下文
+    :param route: 路线
+    :return:
+    """
+    region = route.tp.region
+    pos = route.tp.tp_pos
+    if route.route_list is None or len(route.route_list) == 0:
+        return region, pos
+    for op in route.route_list:
+        if op.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_UPDATE_POS]:
+            pos = Point(op.data[0], op.data[1])
+            if len(op.data) > 2:
+                region = ctx.map_data.region_with_another_floor(region, op.data[2])
+        elif op.op == operation_const.OP_ENTER_SUB:
+            region = ctx.map_data.get_sub_region_by_cn(region, op.data[0], int(op.data[1]))
+            pos = None
+
+    return region, pos
+
+
+def get_route_image(ctx: SrContext, route: WorldPatrolRoute):
+    """
+    获取路线的图片
+    :param ctx: 上下文
     :param route: 路线 在传送点还没有选的时候 可能为空
     :return:
     """
-    last_region = region
+    last_region, _ = get_last_pos(ctx, route)
 
-    if route is not None:
-        last_region, _ = route.last_pos
-
-    display_image = ctx.ih.get_large_map(last_region).origin.copy()
-
-    if route is None:
-        return display_image
+    display_image = ctx.map_data.get_large_map_info(last_region).raw.copy()
 
     last_point = None
     if route.tp is not None:
@@ -51,7 +86,66 @@ def draw_route_in_image(ctx: SrContext, region: Region, route: WorldPatrolRoute)
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA)
             last_point = pos
         elif route_item.op == operation_const.OP_ENTER_SUB:
-            last_region = get_sub_region_by_cn(cn=route_item.data[0], region=region, floor=int(route_item.data[1]))
-            display_image = ctx.ih.get_large_map(last_region).origin.copy()
+            last_region = ctx.map_data.get_sub_region_by_cn(cn=route_item.data[0], region=last_region, floor=int(route_item.data[1]))
+            display_image = ctx.map_data.get_large_map_info(last_region).raw.copy()
 
     return display_image
+
+
+def add_move(ctx: SrContext, route: WorldPatrolRoute, x: int, y: int, floor: int):
+    """
+    在最后添加一个移动的指令
+    :param x: 横坐标
+    :param y: 纵坐标
+    :param floor: 楼层
+    :return:
+    """
+    last_region, last_pos = get_last_pos(ctx, route)
+
+    if last_region.floor == floor:
+        to_add = WorldPatrolRouteOperation(op=operation_const.OP_MOVE, data=(x, y))
+    else:
+        to_add = WorldPatrolRouteOperation(op=operation_const.OP_MOVE, data=(x, y, floor))
+
+    route.route_list.append(to_add)
+    route.init_idx()
+
+
+def pop_last(route: WorldPatrolRoute):
+    """
+    取消最后一个指令
+    :return:
+    """
+    if len(route.route_list) > 0:
+        route.route_list.pop()
+
+
+def mark_last_move_as_slow(route: WorldPatrolRoute):
+    """
+    将最后一个移动标记成慢走 或从慢走标记成可疾跑
+    :return:
+    """
+    if route.empty_op:
+        return
+
+    last_op = route.route_list[len(route.route_list) - 1]
+    if last_op.op not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+        return
+
+    if last_op.op == operation_const.OP_MOVE:
+        last_op.op = operation_const.OP_SLOW_MOVE
+    else:
+        last_op.op = operation_const.OP_MOVE
+
+
+def mark_last_move_as_update(route: WorldPatrolRoute):
+    """
+    将最后一个指令变更为更新位置
+    :return:
+    """
+    if route.empty_op:
+        return
+
+    idx = len(route.route_list) - 1
+    if route.route_list[idx].op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+        route.route_list[idx].op = operation_const.OP_UPDATE_POS
