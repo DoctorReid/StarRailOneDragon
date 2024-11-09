@@ -296,7 +296,11 @@ class MoveDirectly(SrOperation):
         # 正确移动时 人物不应该偏离直线太远
         # 攻击后 可能因为攻击产生了位移 允许远一点
         # 脱困移动时 会向左右移动 允许远一点
-        max_line_distance = 40 if self.ctx.pos_info.pos_first_cal_pos_after_fight or self.stuck_times > 0 else 20
+        if self.ctx.pos_info.pos_first_cal_pos_after_fight or self.stuck_times > 0:
+            max_line_distance = self.ctx.controller.walk_speed * 2
+        else:
+            max_line_distance = self.ctx.controller.walk_speed
+
         verify = VerifyPosInfo(last_pos=last_pos, max_distance=move_distance,
                                line_p1=self.start_pos, line_p2=self.target,
                                max_line_distance=max_line_distance
