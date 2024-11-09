@@ -1,6 +1,6 @@
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
+from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
 from one_dragon.gui.view.setting.setting_env_interface import SettingEnvInterface
 from one_dragon.gui.view.setting.setting_instance_interface import SettingInstanceInterface
 from sr_od.context.sr_context import SrContext

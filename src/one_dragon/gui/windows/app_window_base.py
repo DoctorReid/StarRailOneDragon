@@ -4,20 +4,22 @@ from PySide6.QtGui import QIcon
 from qfluentwidgets import NavigationItemPosition, SplashScreen
 from typing import Optional
 
+from phosdeiz.gui.windows.window import PhosWindow
+
 from one_dragon.envs.project_config import ProjectConfig
-from one_dragon.gui.app.one_dragon_window import OneDragonWindow
-from one_dragon.gui.component.interface.base_interface import BaseInterface
+from one_dragon.gui.widgets.base_interface import BaseInterface
 from one_dragon.utils import os_utils
 
 
-class FluentWindowBase(OneDragonWindow):
+class AppWindowBase(PhosWindow):
 
     def __init__(self,
                  win_title: str,
                  project_config: ProjectConfig,
                  app_icon: Optional[str] = None,
                  parent=None):
-        OneDragonWindow.__init__(self, project_config=project_config, parent=parent)
+        PhosWindow.__init__(self, parent=parent)
+        self.project_config: ProjectConfig = project_config
         self._last_stack_idx: int = 0
         
         # 设置窗口标题

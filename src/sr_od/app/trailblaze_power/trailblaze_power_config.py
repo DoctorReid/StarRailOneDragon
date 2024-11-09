@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 from sr_od.interastral_peace_guide.guide_data import SrGuideData
 from sr_od.interastral_peace_guide.guide_def import GuideMission, GuideCategory
 

@@ -1,6 +1,6 @@
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.component.interface.pivot_navi_interface import PivotNavigatorInterface
+from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
 from sr_od.context.sr_context import SrContext
 from sr_od.gui.interface.world_patrol.world_patrol_draw_route_interface import WorldPatrolDrawRouteInterface
 from sr_od.gui.interface.world_patrol.world_patrol_run_interface import WorldPatrolRunInterface

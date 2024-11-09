@@ -3,10 +3,10 @@ from numpy.core.defchararray import title
 from qfluentwidgets import FluentIcon, SettingCardGroup
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from phosdeiz.gui.widgets import Column
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from sr_od.app.sim_uni.sim_uni_const import SimUniWorldEnum
 from sr_od.context.sr_context import SrContext
 
@@ -25,7 +25,7 @@ class SimUniSettingInterface(VerticalScrollInterface):
         )
 
     def get_content_widget(self) -> QWidget:
-        content_widget = ColumnWidget()
+        content_widget = Column()
 
         self.weekly_sim_uni_num_opt = ComboBoxSettingCard(icon=FluentIcon.GAME, title='模拟宇宙')
         content_widget.add_widget(self.weekly_sim_uni_num_opt)

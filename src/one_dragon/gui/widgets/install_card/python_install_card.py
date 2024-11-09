@@ -4,19 +4,18 @@ from qfluentwidgets import FluentIcon, FluentThemeColor
 from typing import Optional, Tuple
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.envs.env_config import DEFAULT_GIT_PATH
-from one_dragon.gui.install_card.wtih_existed_install_card import WithExistedInstallCard
+from one_dragon.gui.widgets.install_card.wtih_existed_install_card import WithExistedInstallCard
 from one_dragon.utils.i18_utils import gt
 
 
-class GitInstallCard(WithExistedInstallCard):
+class PythonInstallCard(WithExistedInstallCard):
 
     def __init__(self, ctx: OneDragonEnvContext):
         WithExistedInstallCard.__init__(
             self,
             ctx=ctx,
-            title_cn='Git',
-            install_method=ctx.git_service.install_default_git
+            title_cn='Python虚拟环境',
+            install_method=ctx.python_service.install_default_python_venv,
         )
 
     def get_existed_os_path(self) -> Optional[str]:
@@ -24,7 +23,7 @@ class GitInstallCard(WithExistedInstallCard):
         获取系统环境变量中的路径，由子类自行实现
         :return:
         """
-        return self.ctx.git_service.get_os_git_path()
+        return self.ctx.python_service.get_os_python_path()
 
     def on_existed_chosen(self, file_path: str) -> None:
         """
@@ -32,8 +31,8 @@ class GitInstallCard(WithExistedInstallCard):
         :param file_path: 本地文件的路径
         :return:
         """
-        self.ctx.env_config.git_path = file_path
-        super().on_existed_chosen(file_path)
+        self.ctx.env_config.python_path = file_path
+        self.check_and_update_display()
 
     def after_progress_done(self, success: bool, msg: str) -> None:
         """
@@ -43,7 +42,6 @@ class GitInstallCard(WithExistedInstallCard):
         :return:
         """
         if success:
-            self.ctx.env_config.git_path = DEFAULT_GIT_PATH
             self.check_and_update_display()
         else:
             self.update_display(FluentIcon.INFO.icon(color=FluentThemeColor.RED.value), gt(msg, 'ui'))
@@ -53,21 +51,28 @@ class GitInstallCard(WithExistedInstallCard):
         获取需要显示的状态，由子类自行实现
         :return: 显示的图标、文本
         """
-        git_path = self.ctx.env_config.git_path
+        python_path = self.ctx.env_config.python_path
 
-        if git_path == '':
+        if python_path == '':
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('未安装。可选择你自己的git.exe，或到安装器中默认安装', 'ui')
-        elif not os.path.exists(git_path):
+            msg = gt('未安装。可选择你自己的虚拟环境的python.exe，或默认安装。', 'ui')
+        elif not os.path.exists(python_path):
             icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-            msg = gt('文件不存在', 'ui')
+            msg = gt('文件不存在', 'ui') + ' ' + python_path
+        elif not self.ctx.python_service.is_virtual_python():
+            icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
+            msg = gt('非虚拟环境', 'ui') + ' ' + python_path
         else:
-            git_version = self.ctx.git_service.get_git_version()
-            if git_version is None:
+            python_version = self.ctx.python_service.get_python_version()
+            if python_version is None:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.RED.value)
-                msg = gt('无法获取Git版本', 'ui') + ' ' + git_path
+                msg = gt('无法获取Python版本', 'ui') + ' ' + python_path
+            elif python_version != self.ctx.project_config.python_version:
+                icon = FluentIcon.INFO.icon(color=FluentThemeColor.GOLD.value)
+                msg = (f"{gt('当前版本', 'ui')}: {python_version}; {gt('建议版本', 'ui')}: {self.ctx.project_config.python_version}"
+                       + ' ' + python_path)
             else:
                 icon = FluentIcon.INFO.icon(color=FluentThemeColor.DEFAULT_BLUE.value)
-                msg = f"{gt('已安装', 'ui')}" + ' ' + git_path
+                msg = f"{gt('已安装', 'ui')}" + ' ' + python_path
 
         return icon, msg

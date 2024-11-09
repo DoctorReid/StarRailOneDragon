@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 from qfluentwidgets import FluentIconBase, SingleDirectionScrollArea
 from typing import Union, Optional
 
-from one_dragon.gui.component.interface.base_interface import BaseInterface
+from one_dragon.gui.widgets.base_interface import BaseInterface
 
 
 class VerticalScrollInterface(BaseInterface):

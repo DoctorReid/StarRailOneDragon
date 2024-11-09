@@ -2,12 +2,12 @@ import os
 from PySide6.QtWidgets import QWidget, QFileDialog
 from qfluentwidgets import SettingCardGroup, FluentIcon, PushSettingCard
 
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.key_setting_card import KeySettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from phosdeiz.gui.widgets import Column
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.config.game_config import GameRegionEnum, RunModeEnum, TypeInputWay
@@ -27,7 +27,7 @@ class SrSettingGameInterface(VerticalScrollInterface):
         )
 
     def get_content_widget(self) -> QWidget:
-        content_widget = ColumnWidget()
+        content_widget = Column()
 
         content_widget.add_widget(self._get_basic_group())
         content_widget.add_widget(self._get_key_group())

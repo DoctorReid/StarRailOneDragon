@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget
 from typing import Optional
 
-from one_dragon.gui.component.row_widget import RowWidget
+from phosdeiz.gui.widgets import Row
 from one_dragon.gui.view.app_run_interface import AppRunInterface
 from sr_od.app.calibrator import Calibrator
 from sr_od.app.sr_application import SrApplication
@@ -25,7 +25,7 @@ class CalibratorRunInterface(AppRunInterface):
         )
 
     def get_widget_at_top(self) -> QWidget:
-        content = RowWidget()
+        content = Row()
 
         return content
 

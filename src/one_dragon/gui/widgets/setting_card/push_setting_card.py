@@ -2,19 +2,19 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QPushButton
 from dataclasses import dataclass
 
-from one_dragon.gui.component.setting_card.setting_card_base import SettingCardBase
+from one_dragon.gui.widgets.setting_card.setting_card_base import SettingCardBase
 
 
 @dataclass(eq=False)
 class PushSettingCard(SettingCardBase):
     """带推送按钮的设置卡片类"""
 
-    text: str = ""
-    title: str = ""
+    title: str
     value: str = ""
 
     # 定义信号
     clicked = Signal()
+    text: str = ''
 
     def __post_init__(self):
         # 初始化父类的属性和布局

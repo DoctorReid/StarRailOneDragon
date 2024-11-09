@@ -4,11 +4,10 @@ from qfluentwidgets import PrimaryPushButton, FluentIcon, CaptionLabel, LineEdit
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiLineSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
+from phosdeiz.gui.widgets import Column, ComboBox
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr_od.config.character_const import CHARACTER_LIST
 from sr_od.config.team_config import TeamNumEnum
@@ -206,7 +205,7 @@ class PowerPlanInterface(VerticalScrollInterface):
         )
 
     def get_content_widget(self) -> QWidget:
-        self.content_widget = ColumnWidget()
+        self.content_widget = Column()
 
         self.loop_opt = SwitchSettingCard(icon=FluentIcon.SYNC, title='循环执行', content='开启时 会循环执行到体力用尽')
         self.content_widget.add_widget(self.loop_opt)

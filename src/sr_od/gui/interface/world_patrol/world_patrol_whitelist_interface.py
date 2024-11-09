@@ -2,10 +2,10 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetIte
 from qfluentwidgets import ComboBox, PushButton, TableWidget, ToolButton, FluentIcon
 from typing import Optional, List
 
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.row_widget import RowWidget
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.text_setting_card import TextSettingCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from phosdeiz.gui.widgets import Row
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from sr_od.context.sr_context import SrContext
 from sr_od.sr_map.sr_map_def import Planet, Region
@@ -60,7 +60,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
         layout = QVBoxLayout()
 
         # 按键行
-        btn_row = RowWidget()
+        btn_row = Row()
         layout.addWidget(btn_row)
 
         self.existed_yml_btn = ComboBox()
@@ -82,7 +82,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
         btn_row.add_stretch(1)
 
         # 选择路线行
-        route_row = RowWidget()
+        route_row = Row()
         layout.addWidget(route_row)
 
         self.planet_btn = ComboBox()
@@ -100,7 +100,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
         route_row.add_stretch(1)
 
         # 增加按钮行
-        add_row = RowWidget()
+        add_row = Row()
         layout.addWidget(add_row)
 
         self.add_planet_btn = PushButton(text=gt('添加星球', 'ui'))

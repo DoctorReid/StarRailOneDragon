@@ -2,10 +2,10 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.component.setting_card.switch_setting_card import SwitchSettingCard
+from phosdeiz.gui.widgets import Column
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from sr_od.app.world_patrol.world_patrol_whitelist_config import load_all_whitelist_list, WorldPatrolWhitelist
 from sr_od.config.character_const import CHARACTER_LIST
 from sr_od.context.sr_context import SrContext
@@ -24,7 +24,7 @@ class WorldPatrolSettingInterface(VerticalScrollInterface):
         )
 
     def get_content_widget(self) -> QWidget:
-        content_widget = ColumnWidget()
+        content_widget = Column()
 
         self.team_num_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='使用配队',
                                                 content='0代表使用当前配队',

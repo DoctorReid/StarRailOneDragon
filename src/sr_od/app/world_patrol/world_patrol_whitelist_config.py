@@ -4,7 +4,7 @@ from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.gui.component.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils import os_utils
 
 

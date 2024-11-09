@@ -4,11 +4,10 @@ from qfluentwidgets import CaptionLabel, FluentIcon, LineEdit
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.component.column_widget import ColumnWidget
-from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.setting_card.multi_push_setting_card import MultiLineSettingCard
+from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
+from phosdeiz.gui.widgets import Column, ComboBox
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr_od.config.character_const import CHARACTER_LIST
 from sr_od.config.team_config import TeamNumEnum
@@ -183,7 +182,7 @@ class EchoOfWarSettingInterface(VerticalScrollInterface):
         )
 
     def get_content_widget(self) -> QWidget:
-        self.content_widget = ColumnWidget()
+        self.content_widget = Column()
 
         self.card_list: List[EchoOfWarPlanCard] = []
 

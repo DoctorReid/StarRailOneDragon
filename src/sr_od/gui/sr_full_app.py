@@ -1,34 +1,34 @@
-from sr_od.gui.interface.one_dragon.sr_one_dragon_interface import SrOneDragonInterface
-from sr_od.gui.interface.sim_uni.sim_uni_interface import SimUniInterface
-
 try:
     import sys
 
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
-    from one_dragon.gui.view.like_interface import LikeInterface
-    from sr_od.gui.interface.setting.sr_setting_interface import SrSettingInterface
-    from sr_od.gui.interface.world_patrol.world_patrol_interface import WorldPatrolInterface
-    from sr_od.gui.interface.game_assistant.game_assistant_interface import GameAssistantInterface
+
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
-    from one_dragon.gui.app.fluent_window_base import FluentWindowBase
-    from one_dragon.gui.common.od_style_sheet import OniStyleSheet
     from one_dragon.gui.view.code_interface import CodeInterface
     from one_dragon.gui.view.context_event_signal import ContextEventSignal
+    from one_dragon.gui.view.like_interface import LikeInterface
+    from one_dragon.gui.windows.app_window_base import AppWindowBase
     from one_dragon.utils.i18_utils import gt
+    from phosdeiz.gui.services import PhosStyleSheet
     from sr_od.context.sr_context import SrContext
     from sr_od.gui.interface.devtools.sr_devtools_interface import SrDevtoolsInterface
+    from sr_od.gui.interface.game_assistant.game_assistant_interface import GameAssistantInterface
+    from sr_od.gui.interface.one_dragon.sr_one_dragon_interface import SrOneDragonInterface
+    from sr_od.gui.interface.setting.sr_setting_interface import SrSettingInterface
+    from sr_od.gui.interface.sim_uni.sim_uni_interface import SimUniInterface
+    from sr_od.gui.interface.world_patrol.world_patrol_interface import WorldPatrolInterface
 
     _init_error = None
 
 
     # 定义应用程序的主窗口类
-    class AppWindow(FluentWindowBase):
+    class AppWindow(AppWindowBase):
 
         def __init__(self, ctx: SrContext, parent=None):
             """初始化主窗口类，设置窗口标题和图标"""
             self.ctx: SrContext = ctx
-            FluentWindowBase.__init__(
+            AppWindowBase.__init__(
                 self,
                 win_title='%s %s' % (
                 gt(ctx.project_config.project_name, 'ui'), ctx.one_dragon_config.current_active_instance.name),
@@ -60,11 +60,11 @@ try:
             self.navigationInterface.setContentsMargins(0, 0, 0, 0)
 
             # 配置样式
-            OniStyleSheet.APP_WINDOW.apply(self)
-            OniStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-            OniStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-            OniStyleSheet.AREA_WIDGET.apply(self.areaWidget)
-            OniStyleSheet.TITLE_BAR.apply(self.titleBar)
+            PhosStyleSheet.APP_WINDOW.apply(self)
+            PhosStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
+            PhosStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+            PhosStyleSheet.AREA_WIDGET.apply(self.areaWidget)
+            PhosStyleSheet.TITLE_BAR.apply(self.titleBar)
 
         def create_sub_interface(self):
             """创建和添加各个子界面"""

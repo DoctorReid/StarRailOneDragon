@@ -1,36 +1,26 @@
-import time
-
 import yaml
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
-from cv2.typing import MatLike
 from qfluentwidgets import PushButton, PlainTextEdit, SettingCardGroup, FluentIcon, LineEdit
-from sympy.codegen.ast import continue_
-from typing import Optional, List, Tuple
+from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.base.geometry.point import Point
-from one_dragon.base.matcher.match_result import MatchResult
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
-from one_dragon.gui.component.combo_box import ComboBox
-from one_dragon.gui.component.cv2_image import Cv2Image
-from one_dragon.gui.component.interface.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.component.label.click_image_label import ClickImageLabel, ImageScaleEnum
-from one_dragon.gui.component.row_widget import RowWidget
-from one_dragon.gui.component.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.click_image_label import ImageScaleEnum, ClickImageLabel
+from one_dragon.gui.widgets.cv2_image import Cv2Image
+from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
+from phosdeiz.gui.widgets import ComboBox
+from phosdeiz.gui.widgets import Row
 from sr_od.app.world_patrol import world_patrol_route_draw_utils
 from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute
-from sr_od.app.world_patrol.world_patrol_route_draw_utils import can_change_tp
-from sr_od.app.world_patrol.world_patrol_whitelist_config import create_new_whitelist, WorldPatrolWhitelist
+from sr_od.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist
 from sr_od.config import operation_const
 from sr_od.context.sr_context import SrContext
-from sr_od.operations.move import cal_pos_utils
-from sr_od.operations.move.cal_pos_utils import VerifyPosInfo
-from sr_od.sr_map import mini_map_utils, large_map_utils
 from sr_od.sr_map.sr_map_def import Planet, Region, SpecialPoint
 
 
@@ -85,7 +75,8 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout = QVBoxLayout()
 
         # 区域行
-        region_row = RowWidget()
+        region_row = Row()
+        Row()
 
         self.planet_btn = ComboBox()
         self.planet_btn.setPlaceholderText(gt('选择星球', 'ui'))
@@ -106,7 +97,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(region_row)
 
         # 传送点行
-        tp_row = RowWidget()
+        tp_row = Row()
 
         self.tp_opt = ComboBox()
         self.tp_opt.setPlaceholderText(gt('选择传送点', 'ui'))
@@ -117,7 +108,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(tp_row)
 
         # 路线行
-        route_row = RowWidget()
+        route_row = Row()
 
         self.existed_route_opt = ComboBox()
         self.existed_route_opt.setPlaceholderText(gt('选择路线', 'ui'))
@@ -128,7 +119,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(route_row)
 
         # 保存按钮行
-        save_btn_row = RowWidget()
+        save_btn_row = Row()
 
         self.create_btn = PushButton(text=gt('新建', 'ui'))
         self.create_btn.clicked.connect(self.on_create_clicked)
@@ -150,7 +141,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(save_btn_row)
 
         # 运行行
-        run_row = RowWidget()
+        run_row = Row()
 
         self.run_btn = PushButton(text=gt('测试运行'))
         self.run_btn.clicked.connect(self.on_run_clicked)
@@ -168,7 +159,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(run_row)
 
         # 位置相关的按钮行
-        pos_row = RowWidget()
+        pos_row = Row()
 
         self.cal_move_btn = PushButton(text=gt('截图移动 F6'))
         self.cal_move_btn.clicked.connect(self.on_cal_move_clicked)
@@ -186,7 +177,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(pos_row)
 
         # 战斗行
-        battle_row = RowWidget()
+        battle_row = Row()
 
         self.battle_btn = PushButton(text=gt('战斗'))
         self.battle_btn.clicked.connect(self.on_battle_clicked)
@@ -200,7 +191,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(battle_row)
 
         # 破坏物行
-        disposable_row = RowWidget()
+        disposable_row = Row()
 
         self.disposable_btn = PushButton(text=gt('可破坏物'))
         self.disposable_btn.clicked.connect(self.on_disposable_clicked)
@@ -214,7 +205,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(disposable_row)
 
         # 交互行
-        interact_row = RowWidget()
+        interact_row = Row()
 
         self.interact_text = LineEdit()
         self.interact_text.setPlaceholderText(gt('交互文本'))
@@ -228,7 +219,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         layout.addWidget(interact_row)
 
         # 等待行
-        wait_row = RowWidget()
+        wait_row = Row()
 
         self.wait_type_opt = ComboBox()
         self.wait_type_opt.set_items([
