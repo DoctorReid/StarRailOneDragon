@@ -164,7 +164,9 @@ class GitService:
         if progress_callback is not None:
             progress_callback(-1, msg)
         repo_url = self.get_git_repository(for_clone=True)
-        result = cmd_utils.run_command([self.env_config.git_path, 'clone', '-b', self.project_config.project_git_branch,
+        result = cmd_utils.run_command([self.env_config.git_path, 'clone',
+                                        '--depth', '10',
+                                        '-b', self.project_config.project_git_branch,
                                         repo_url, temp_folder])
         if result is None:
             return False, '克隆仓库失败'

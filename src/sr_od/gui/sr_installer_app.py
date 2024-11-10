@@ -18,7 +18,7 @@ class SrInstallerWindow(InstallerWindowBase):
             ctx=ctx,
             win_title=win_title,
             parent=parent,
-            app_icon='zzz_logo.ico'
+            app_icon='installer_app.ico'
         )
 
     def create_sub_interface(self):
