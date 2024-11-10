@@ -21,7 +21,7 @@ class Calibrator(SrApplication):
     def __init__(self, ctx: SrContext):
         SrApplication.__init__(self, ctx, 'calibrator', op_name='校准')
 
-    @operation_node(name='传送1', is_start_node=False)
+    @operation_node(name='传送1', is_start_node=True)
     def tp1(self) -> OperationRoundResult:
         sp = self.ctx.map_data.best_match_sp_by_all_name('空间站黑塔', '基座舱段', '接待中心')
         op = TransportByMap(self.ctx, sp)
@@ -53,7 +53,7 @@ class Calibrator(SrApplication):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='传送2')
-    @operation_node(name='转向校准', is_start_node=True)
+    @operation_node(name='转向校准')
     def check_turning_rate(self) -> OperationRoundResult:
         """
         检测转向 需要找一个最容易检测到见箭头的位置
