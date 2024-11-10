@@ -1,9 +1,0 @@
-#NavigationInterface {
-    background: transparent;
-    background-color: rgb(255,255,255)
-}
-
-QScrollArea, #scrollWidget {
-    border: none;
-    background-color: transparent;
-}
