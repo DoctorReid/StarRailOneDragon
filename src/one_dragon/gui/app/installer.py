@@ -6,9 +6,9 @@ from typing import Optional
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
 from one_dragon.gui.widgets.base_interface import BaseInterface
+from one_dragon.gui.windows.app_window_base import AppWindowBase
 from one_dragon.utils import os_utils
 from phosdeiz.gui.services import PhosStyleSheet
-from zzz_od.gui.windows import AppWindowBase
 
 
 class InstallerWindowBase(AppWindowBase):
