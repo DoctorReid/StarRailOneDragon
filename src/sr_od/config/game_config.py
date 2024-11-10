@@ -152,6 +152,14 @@ class GameConfig(YamlConfig):
                                  'int', 'int')
 
     @property
+    def turn_dx(self) -> float:
+        return self.get('turn_dx', 0)
+
+    @turn_dx.setter
+    def turn_dx(self, new_value: float):
+        self.update('turn_dx', new_value)
+
+    @property
     def lang(self) -> str:
         """
         游戏语言

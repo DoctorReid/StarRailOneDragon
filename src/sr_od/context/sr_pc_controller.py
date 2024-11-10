@@ -27,7 +27,7 @@ class SrPcController(PcControllerBase):
                                   standard_height=standard_height)
 
         self.game_config: GameConfig = game_config
-        self.turn_dx: float = self.game_config.get('turn_dx')
+        self.turn_dx: float = self.game_config.turn_dx
         self.run_speed: float = 30
         self.walk_speed: float = 20
         self.is_moving: bool = False

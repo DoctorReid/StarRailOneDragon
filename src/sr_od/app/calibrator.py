@@ -80,8 +80,8 @@ class Calibrator(SrApplication):
         ans = float(turn_distance / avg_turn_angle)
         log.info('每度移动距离 %.4f', ans)
         gc: GameConfig = self.ctx.game_config
-        gc.update('turn_dx', ans)
-        gc.save()
+        gc.turn_dx = ans
+        self.ctx.controller.turn_dx = ans
         log.info('[转向校准] 完成')
         # cv2.waitKey(0)
         return self.round_success(wait=0.5)
