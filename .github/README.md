@@ -1,42 +1,54 @@
 # Honkai Star Rail - One Dragon
-__崩坏：星穹铁道 - 一条龙__ - 基于图像识别的自动游戏脚本，适用于PC端。
 
-本脚本的终极目标是可以让你在日常```忘掉```这个游戏，做到完全的托管。
+__崩坏：星穹铁道 - 一条龙__
 
-目前支持`锄大地`、`体力刷本`、`逐光捡金`、`模拟宇宙`等日常功能。下载、运行及使用方式，见 [wiki](https://github.com/DoctorReid/StarRailAutoProxy/wiki)。
+基于图像识别的全自动小助手，用于 Windows PC端。
 
-如果喜欢本项目，可右上角送作者一个```Star```。QQ群```743525216```。
+如果觉得项目对你有帮助，不妨在右上角点个Star
 
-## 项目进度
+![应用展示](./wiki/sr_app.png)
+<div align="center">
+    <div>
+        <img alt="platform" src="https://img.shields.io/badge/platform-Windows-blueviolet">
+        <img alt="commit" src="https://img.shields.io/github/commit-activity/m/DoctorReid/StarRailOneDragon?color=blue">
+    </div>
+    <div>
+        <img alt="stars" src="https://img.shields.io/github/stars/DoctorReid/StarRailOneDragon?style=social">
+        <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/DoctorReid/StarRailOneDragon/total?style=social">
+    </div>
+    <br>
+</div>
 
-- [锄大地](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%94%84%E5%A4%A7%E5%9C%B0) `2.4 已完成` (不包含3D地图) 支持`黄泉`秘技
-- [日常](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%97%A5%E5%B8%B8) `已完成`
-- [模拟宇宙](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E6%A8%A1%E6%8B%9F%E5%AE%87%E5%AE%99) `已完成` 支持`第九宇宙` 支持`黄泉`秘技
-- [逐光捡金](https://github.com/DoctorReid/StarRailOneDragon/wiki/%E5%8A%9F%E8%83%BD_%E9%80%90%E5%85%89%E6%8D%A1%E9%87%91) `已完成`
+## 支持功能
 
-![APP主页](https://github.com/DoctorReid/StarRailOneDragon/blob/main/.github/wiki/app.png)
+- **每日锄地：** 基于小地图识别坐标，支持黄泉秘技
+- **模拟宇宙：** 每周100精英怪，支持第九宇宙、黄泉秘技
+- **日常清理：** 刷本、领奖励、合成零食等
+
+## 快速开始
+
+点击这里看看[如何安装和使用吧](https://one-dragon.org/sr/zh/quickstart.html)
 
 ## 免责声明
-本软件是一个外部工具旨在自动化崩坏星轨的游戏玩法。它被设计成仅通过现有用户界面与游戏交互,并遵守相关法律法规。该软件包旨在提供简化和用户通过功能与游戏交互,并且它不打算以任何方式破坏游戏平衡或提供任何不公平的优势。该软件包不会以任何方式修改任何游戏文件或游戏代码。
 
-This software is open source, free of charge and for learning and exchange purposes only. The developer team has the final right to interpret this project. All problems arising from the use of this software are not related to this project and the developer team. If you encounter a merchant using this software to practice on your behalf and charging for it, it may be the cost of equipment and time, etc. The problems and consequences arising from this software have nothing to do with it.
+- 本项目仅供学习交流使用。
 
-本软件开源、免费，仅供学习交流使用。开发者团队拥有本项目的最终解释权。使用本软件产生的所有问题与本项目与开发者团队无关。若您遇到商家使用本软件进行代练并收费，可能是设备与时间等费用，产生的问题及后果与本软件无关。
+- 开发者团队拥有本项目的最终解释权。
 
+- 使用本项目产生的所有问题与本项目与及开发者团队无关。
 
-请注意，根据MiHoYo的 [崩坏:星穹铁道的公平游戏宣言]([https://hsr.hoyoverse.com/en-us/news/111244](https://sr.mihoyo.com/news/111246?nav=news&type=notice)):
+- 若您遇到商家使用本软件进行代练并收费，产生的任何问题及后果与本软件无关。
 
-    "严禁使用外挂、加速器、脚本或其他破坏游戏公平性的第三方工具。"
-    "一经发现，米哈游（下亦称“我们”）将视违规严重程度及违规次数，采取扣除违规收益、冻结游戏账号、永久封禁游戏账号等措施。"
+## 贡献/参与者
+
+感谢所有参与到开发的朋友们~
+
+![Contributors](https://contrib.rocks/image?repo=DoctorReid/StarRailOneDragon)
 
 ## 赞助
 
-如果喜欢本项目，可以为作者的边牧赞助一点狗粮~
+如果喜欢本项目，可以为本站点赞助点维护费用~
 
-感谢 [小伙伴们的支持](https://github.com/DoctorReid/OneDragon-Thanks)
+感谢 [小伙伴们的赞赏](https://github.com/DoctorReid/OneDragon-Thanks)
 
-![赞助](./wiki/sponsor.png)
-
-（趁机宣传我的边牧~）
-
-![边牧](./wiki/my_dog.png)
+![微信赞赏](./wiki/sponsor.png)
