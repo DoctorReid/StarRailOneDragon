@@ -136,7 +136,7 @@ class GameConfig(YamlConfig):
         疾跑模式
         :return:
         """
-        return self.get('run_mode', RunModeEnum.OFF.value.value)
+        return self.get('run_mode', RunModeEnum.BTN.value.value)
 
     @run_mode.setter
     def run_mode(self, new_value: int):
@@ -148,7 +148,7 @@ class GameConfig(YamlConfig):
 
     @property
     def run_mode_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'run_mode', RunModeEnum.OFF.value.value,
+        return YamlConfigAdapter(self, 'run_mode', RunModeEnum.BTN.value.value,
                                  'int', 'int')
 
     @property
