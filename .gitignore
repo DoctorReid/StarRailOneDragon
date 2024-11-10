@@ -2,8 +2,8 @@
 .idea
 __pycache__
 out/
-/build
-/dist
+deploy/build
+deploy/dist
 *.spec
 
 # 测试文件
