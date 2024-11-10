@@ -4,7 +4,6 @@ __pycache__
 out/
 deploy/build
 deploy/dist
-*.spec
 
 # 测试文件
 sr-od-test/

@@ -47,7 +47,7 @@ pyinstaller "OneDragon Installer.spec"
 生成spec文件
 
 ```shell
-pyinstaller --onefile --windowed --uac-admin --icon="../assets/ui/full_app.ico" ../src/sr_od/gui/sr_full_launcher.py -n "OneDragon Launcher"
+pyinstaller --onefile --uac-admin --icon="../assets/ui/full_app.ico" ../src/sr_od/gui/sr_full_launcher.py -n "OneDragon Launcher"
 ```
 
 spec打包
@@ -60,7 +60,7 @@ pyinstaller "OneDragon Launcher.spec"
 生成spec文件
 
 ```shell
-pyinstaller --onefile --windowed --uac-admin --icon="../assets/ui/scheduler_app.ico" ../src/sr_od/gui/sr_scheduler_launcher.py -n "OneDragon Scheduler"
+pyinstaller --onefile --uac-admin --icon="../assets/ui/scheduler_app.ico" ../src/sr_od/gui/sr_scheduler_launcher.py -n "OneDragon Scheduler"
 ```
 
 spec打包
