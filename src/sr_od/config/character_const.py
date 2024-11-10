@@ -218,6 +218,8 @@ YUNLI = Character(id='yunli', cn='云璃', path=CHARACTER_PATH_DESTRUCTION, comb
 FEIXIAO = Character(id='feixiao', cn='飞霄', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 MOZE = Character(id='moze', cn='貊泽', path=CHARACTER_PATH_HUNT, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
 LINGSHA = Character(id='lingsha', cn='灵砂', path=CHARACTER_PATH_ABUNDANCE, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
+JIAOQIU = Character(id='jiaoqiu', cn='椒丘', path=CHARACTER_PATH_NIHILITY, combat_type=FIRE, level=5, technique_type=TECHNIQUE_AREA)
+RAPPA = Character(id='rappa', cn='乱破', path=CHARACTER_PATH_ERUDITION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 
 CHARACTER_LIST: List[Character] = [
     ARLAN,
@@ -281,6 +283,8 @@ CHARACTER_LIST: List[Character] = [
     FEIXIAO,
     MOZE,
     LINGSHA,
+    JIAOQIU,
+    RAPPA,
 ]
 
 
