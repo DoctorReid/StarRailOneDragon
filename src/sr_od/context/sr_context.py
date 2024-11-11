@@ -184,6 +184,12 @@ class SrContext(OneDragonContext):
     def load_instance_config(self) -> None:
         OneDragonContext.load_instance_config(self)
 
+        # 切换实例后 所有信息都需要重置
+        self.pos_info: ContextPosInfo = ContextPosInfo()
+        self.team_info: TeamInfo = TeamInfo()
+        self.sim_uni_info = SimUniInfo()
+        self.detect_info: DetectInfo = DetectInfo()
+
         self.game_config: GameConfig = GameConfig(self.current_instance_idx)
 
         self.world_patrol_config: WorldPatrolConfig = WorldPatrolConfig(self.current_instance_idx)
