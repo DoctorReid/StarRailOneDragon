@@ -169,7 +169,6 @@ def init_large_map(ctx: SrContext, region: Region, raw: MatLike,
     sp_mask, info.sp_result = get_sp_mask_by_template_match(ctx, info)
     road_mask = get_large_map_road_mask(info.raw, sp_mask)
     info.mask = merge_all_map_mask(road_mask, sp_mask)
-    info.kps, info.desc = cv2_utils.feature_detect_and_compute(info.gray, mask=info.mask)
 
     if save:
         cv2_utils.show_image(info.raw, win_name='raw')

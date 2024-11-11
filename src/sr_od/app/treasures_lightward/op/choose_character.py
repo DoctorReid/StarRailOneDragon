@@ -58,9 +58,10 @@ class TlChooseCharacter(Operation):
             return None
 
         source_kps, source_desc = cv2_utils.feature_detect_and_compute(part)
+        template_kps, template_desc = template.features
         character_pos = cv2_utils.feature_match_for_one(
             source_kps, source_desc,
-            template.kps, template.desc,
+            template_kps, template_desc,
             template.origin.shape[1], template.origin.shape[0],
             knn_distance_percent=0.4
         )

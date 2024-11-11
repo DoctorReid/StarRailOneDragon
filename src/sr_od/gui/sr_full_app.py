@@ -128,6 +128,9 @@ if __name__ == '__main__':
     # 加载配置
     _ctx.init_by_config()
 
+    # 异步加载OCR
+    _ctx.async_init_ocr()
+
     # 设置主题
     setTheme(Theme[_ctx.env_config.theme.upper()])
 

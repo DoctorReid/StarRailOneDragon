@@ -138,10 +138,11 @@ class ChooseSupport(SrOperation):
                 avatar_part = cv2_utils.crop_image_only(screen, avatar_rect)
                 # cv2_utils.show_image(avatar_part, wait=0)
                 source_kps, source_desc = cv2_utils.feature_detect_and_compute(avatar_part)
+                template_kps, template_desc = template.features
 
                 character_pos = cv2_utils.feature_match_for_one(
                     source_kps, source_desc,
-                    template.kps, template.desc,
+                    template_kps, template_desc,
                     template.raw.shape[1], template.raw.shape[0],
                     knn_distance_percent=0.5
                 )

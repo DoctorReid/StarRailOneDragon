@@ -4,7 +4,6 @@
 #
 #    pip-compile --annotation-style=line --index-url=https://pypi.tuna.tsinghua.edu.cn/simple --output-file=requirements-prod.txt requirements-dev.txt
 #
---index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 certifi==2024.8.30        # via requests
 charset-normalizer==3.4.0  # via requests

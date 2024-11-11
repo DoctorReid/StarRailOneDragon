@@ -185,9 +185,10 @@ class ChooseTeamInForgottenHall(Operation):
                 log.error('找不到属性模板 %s', t.id)
                 continue
 
+            template_kps, template_desc = template.features
             pos = cv2_utils.feature_match_for_one(
                 source_kps, source_desc,
-                template.kps, template.desc,
+                template_kps, template_desc,
                 template.origin.shape[1], template.origin.shape[0],
                 source_mask=mask,
                 knn_distance_percent=0.7)

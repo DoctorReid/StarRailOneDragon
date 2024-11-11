@@ -1,11 +1,13 @@
 import time
 
+import os
 from cv2.typing import MatLike
 from typing import List
 
 from one_dragon.base.matcher.match_result import MatchResult, MatchResultList
 from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
+from one_dragon.utils import os_utils
 from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
@@ -20,14 +22,17 @@ class OnnxOcrMatcher(OcrMatcher):
     def __init__(self):
         OcrMatcher.__init__(self)
         self._model = None
+        self._loading: bool = False
 
     def init_model(self) -> bool:
         log.info('正在加载OCR模型')
+        while self._loading:
+            time.sleep(1)
+            return True
+        self._loading = True
 
         if self._model is None:
             from onnxocr.onnx_paddleocr import ONNXPaddleOcr
-            from one_dragon.utils import os_utils
-            import os
             models_dir = os_utils.get_path_under_work_dir('assets', 'models', 'onnx_ocr')
 
             try:
@@ -39,11 +44,16 @@ class OnnxOcrMatcher(OcrMatcher):
                     rec_char_dict_path=os.path.join(models_dir, 'ppocr_keys_v1.txt'),
                     vis_font_path=os.path.join(models_dir, 'simfang.tt'),
                 )
+                self._loading = False
+                log.info('加载OCR模型完毕')
                 return True
             except Exception:
                 log.error('OCR模型加载出错', exc_info=True)
+                self._loading = False
                 return False
 
+        log.info('加载OCR模型完毕')
+        self._loading = False
         return True
 
     def run_ocr_single_line(self, image: MatLike, threshold: float = None, strict_one_line: bool = True) -> str:
