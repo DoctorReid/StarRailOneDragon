@@ -40,7 +40,7 @@ class AssignmentsApp(SrApplication):
     @operation_node(name='点击委托')
     def _click_assignment(self) -> OperationRoundResult:
         screen: MatLike = self.screenshot()
-        result: MatchResult = phone_menu_utils.get_phone_menu_item_pos(self.ctx, screen, phone_menu_const.ASSIGNMENTS, alert=True)
+        result: MatchResult = phone_menu_utils.get_phone_menu_item_pos(self.ctx, screen, phone_menu_const.ASSIGNMENTS, alert=False)
         if result is None:
             return self.round_success(AssignmentsApp.STATUS_NO_ALERT)
         else:
@@ -48,7 +48,14 @@ class AssignmentsApp(SrApplication):
             return self.round_success(AssignmentsApp.STATUS_WITH_ALERT, wait=2)
 
     @node_from(from_name='点击委托', status=STATUS_WITH_ALERT)
-    @node_from(from_name='点击红点')  # 红点之后 回到一键委托
+    @operation_node(name='选择专属材料')
+    def choose_tab(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        area = self.ctx.screen_loader.get_area('画面-委托', 'TAB列表')
+        return self.round_by_ocr_and_click(screen, target_cn='专属材料', area=area,
+                                           success_wait=1, retry_wait=1)
+
+    @node_from(from_name='选择专属材料')
     @operation_node(name='一键领取')
     def _claim_all(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -61,12 +68,11 @@ class AssignmentsApp(SrApplication):
 
     @node_from(from_name='一键领取')
     @operation_node(name='再次派遣')
-    def _send(self) -> OperationRoundResult:
+    def assign_again(self) -> OperationRoundResult:
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '菜单', '委托-再次派遣',
                                                  success_wait=1, retry_wait=1)
 
-    @node_from(from_name='点击委托', status=STATUS_NO_ALL_CLAIM)  # 可能有活动 导致没有一键领取
     @node_from(from_name='点击空白')
     @operation_node(name='领取')
     def _claim(self) -> OperationRoundResult:
@@ -86,23 +92,9 @@ class AssignmentsApp(SrApplication):
         return self.round_by_find_and_click_area(screen, '菜单', '委托-点击空白区域继续',
                                                  success_wait=1, retry_wait=1)
 
-    @node_from(from_name='领取', status=STATUS_NO_CLAIM)  # 活动的领取完了 找红点到普通委托
-    @operation_node(name='点击红点')
-    def _click_alert_category(self):
-        screen = self.screenshot()
-        area = self.ctx.screen_loader.get_area('菜单', '委托-任务列表')
-        category_part = cv2_utils.crop_image_only(screen, area.rect)
-        result_list: MatchResultList = self.ctx.tm.match_template(category_part, 'phone_menu', 'ui_alert')
-
-        if len(result_list) > 0:  # 有红点
-            self.ctx.controller.click(area.rect.left_top + result_list.max.center)
-            return self.round_success(wait=1)
-
-        return self.round_retry('无红点')
-
     @node_from(from_name='再次派遣')
     @node_from(from_name='点击委托', status=STATUS_NO_ALERT)
-    @node_from(from_name='点击红点', success=False)
+    @node_from(from_name='一键领取', status=STATUS_NO_ALL_CLAIM)
     @operation_node(name='完成后返回大世界')
     def back_at_last(self) -> OperationRoundResult:
         op = BackToNormalWorldPlus(self.ctx)
