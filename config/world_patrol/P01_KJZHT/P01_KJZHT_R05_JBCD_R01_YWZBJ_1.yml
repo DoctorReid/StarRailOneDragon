@@ -1,0 +1,50 @@
+author: ['DoctorReid']
+planet: '空间站黑塔'
+region: '禁闭舱段'
+floor: 2
+tp: '药物制备间'
+route:
+  - idx: 1
+    op: 'move'
+    data: [501, 831]
+  - idx: 2
+    op: 'move'
+    data: [446, 808]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
+    data: [399, 767]
+  - idx: 5
+    op: 'move'
+    data: [428, 725]
+  - idx: 6
+    op: 'move'
+    data: [392, 700]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [332, 596]
+  - idx: 9
+    op: 'disposable'
+  - idx: 10
+    op: 'move'
+    data: [350, 556]
+  - idx: 11
+    op: 'disposable'
+  - idx: 12
+    op: 'move'
+    data: [352, 486]
+  - idx: 13
+    op: 'patrol'
+  - idx: 14
+    op: 'move'
+    data: [348, 434]
+  - idx: 15
+    op: 'patrol'
+  - idx: 16
+    op: 'move'
+    data: [388, 359]
+  - idx: 17
+    op: 'disposable'

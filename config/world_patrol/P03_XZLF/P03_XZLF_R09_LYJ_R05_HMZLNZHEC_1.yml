@@ -4,15 +4,22 @@ region: '鳞渊境'
 floor: 0
 tp: '毁灭之蕾·拟造花萼（赤）'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [882, 671]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [843, 638]
-  - op: 'move'
+  - idx: 3
+    op: 'move'
     data: [793, 602]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [698, 586]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
     data: [692, 549]
-  - op: 'patrol'
+  - idx: 7
+    op: 'patrol'

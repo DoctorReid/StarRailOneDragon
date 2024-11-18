@@ -39,7 +39,8 @@ class WorldPatrolRoute:
         self.is_new: bool = False  # 新否新路线未保存
 
         self.yml_file_path: str = yml_file_path
-        self.route_num: int = 0
+        self.route_num_in_region: int = 0
+        self.route_num_in_tp: int = 0
         self.init_from_yaml_data(route_data)
         self.init_route_num()
 
@@ -68,26 +69,13 @@ class WorldPatrolRoute:
         初始化显示名称
         :return:
         """
-        # 获取路径 self.yml_file_path 的文件名
-        route_id = os.path.basename(self.yml_file_path)
-        if route_id == '':  # 新建路线的时候
-            self.route_num = 1
+        if self.yml_file_path == '':  # 绘制路线页面 未新建时候的路径
             return
-        route_id = route_id[:-4]
+        route_id = self.unique_id
+        id_arr = route_id.split('_')
 
-        idx = -1
-        idx_cnt = 0
-        # 统计字符串中含有多少个'_'字符,
-        # idx = {字符数} - 1
-        # 不需要分层的路线, idx_cnt = 2, 反之 idx_cnt=3
-        while True:
-            idx = route_id.find('_', idx + 1)
-            if idx == -1:
-                break
-            idx_cnt += 1
-        idx = route_id.rfind('_')
-
-        self.route_num: int = 1 if idx_cnt == 3 else int(route_id[idx+1:])
+        self.route_num_in_tp = 1 if len(id_arr[-1]) > 1 else int(id_arr[-1])
+        self.route_num_in_region = int(id_arr[4][1:])
 
     @property
     def display_name(self):
@@ -99,7 +87,7 @@ class WorldPatrolRoute:
             gt(self.tp.planet.cn, 'ui'),
             gt(self.tp.region.cn, 'ui'),
             gt(self.tp.cn, 'ui'),
-            self.route_num
+            self.route_num_in_region
         )
 
     @property
@@ -108,12 +96,7 @@ class WorldPatrolRoute:
         唯一标识 用于各种配置中保存
         :return:
         """
-        return '%s_%s_%s_%02d' % (
-            self.tp.planet.np_id,
-            self.tp.region.r_id,
-            self.tp.id,
-            self.route_num
-        )
+        return os.path.basename(self.yml_file_path)[:-4]
 
     def save(self):
         """

@@ -4,13 +4,19 @@ region: '克劳克影视乐园'
 floor: 2
 tp: '仓鼠球乐园'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [699, 474]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [727, 554]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 3
+    op: 'patrol'
+  - idx: 4
+    op: 'move'
     data: [667, 564]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
     data: [659, 535]
-  - op: 'patrol'
+  - idx: 6
+    op: 'patrol'

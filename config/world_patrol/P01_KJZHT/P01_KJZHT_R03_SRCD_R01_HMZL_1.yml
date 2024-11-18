@@ -4,24 +4,36 @@ region: '收容舱段'
 floor: 1
 tp: '毁灭之蕾·拟造花萼（赤）'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [323, 340]
-  - op: 'disposable'
-  - op: 'move'
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
     data: [315, 418]
-  - op: 'move'
+  - idx: 4
+    op: 'move'
     data: [312, 450, -1]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
     data: [256, 440]
-  - op: 'move'
+  - idx: 7
+    op: 'move'
     data: [254, 326]
-  - op: 'move'
+  - idx: 8
+    op: 'move'
     data: [224, 325]
-  - op: 'move'
+  - idx: 9
+    op: 'move'
     data: [218, 380]
-  - op: 'move'
+  - idx: 10
+    op: 'move'
     data: [204, 379]
-  - op: 'move'
+  - idx: 11
+    op: 'move'
     data: [204, 413]
-  - op: 'patrol'
+  - idx: 12
+    op: 'patrol'

@@ -4,9 +4,13 @@ region: '残响回廊'
 floor: 0
 tp: '作战指挥室'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [470, 916]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
     data: [472, 952]
-  - op: 'patrol'
+  - idx: 4
+    op: 'patrol'

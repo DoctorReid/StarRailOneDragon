@@ -2,7 +2,7 @@ author: ['DoctorReid']
 planet: '仙舟「罗浮」'
 region: '幽囚狱'
 floor: -1
-tp: '阴含域·其二'
+tp: '阴寒域·其二'
 route:
   - idx: 1
     op: 'move'

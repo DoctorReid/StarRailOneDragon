@@ -4,16 +4,24 @@ region: '克劳克影视乐园'
 floor: 2
 tp: '哈努帮派基地'
 route:
-  - op: 'move'
+  - idx: 1
+    op: 'move'
     data: [649, 1509]
-  - op: 'move'
+  - idx: 2
+    op: 'move'
     data: [661, 1531]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 3
+    op: 'patrol'
+  - idx: 4
+    op: 'move'
     data: [680, 1547]
-  - op: 'move'
+  - idx: 5
+    op: 'move'
     data: [646, 1576]
-  - op: 'patrol'
-  - op: 'move'
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
     data: [649, 1615]
-  - op: 'disposable'
+  - idx: 8
+    op: 'disposable'

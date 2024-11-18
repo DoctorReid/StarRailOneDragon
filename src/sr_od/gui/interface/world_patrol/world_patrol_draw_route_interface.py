@@ -2,6 +2,7 @@ import yaml
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import PushButton, PlainTextEdit, SettingCardGroup, FluentIcon, LineEdit
+from scipy.constants import value
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
@@ -10,6 +11,7 @@ from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnu
 from one_dragon.gui.widgets.click_image_label import ImageScaleEnum, ClickImageLabel
 from one_dragon.gui.widgets.cv2_image import Cv2Image
 from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
@@ -73,6 +75,10 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
 
     def get_left_layout(self) -> QVBoxLayout:
         layout = QVBoxLayout()
+
+        self.personal_opt = SwitchSettingCard(icon=FluentIcon.PEOPLE, title='仅个人使用')
+        self.personal_opt.setValue(True)
+        layout.addWidget(self.personal_opt)
 
         # 区域行
         region_row = Row()
@@ -446,9 +452,12 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         region = self.chosen_region_without_level
         if self.chosen_region_with_level is not None:
             region = self.chosen_region_with_level
+        personal = self.personal_opt.btn.checked
         route_list = self.ctx.world_patrol_route_data.load_all_route(
             target_planet=self.chosen_planet,
-            target_region=region
+            target_region=region,
+            include_public=not personal,
+            include_personal=personal,
         )
 
         config_list = []
