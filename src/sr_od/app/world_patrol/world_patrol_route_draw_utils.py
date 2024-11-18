@@ -112,47 +112,56 @@ def get_route_image(ctx: SrContext, route: WorldPatrolRoute):
     :param route: 路线 在传送点还没有选的时候 可能为空
     :return:
     """
-    last_region, _ = get_last_pos(ctx, route)
+    to_display_region, _ = get_last_pos(ctx, route)
+    current_region = route.tp.region
 
-    display_image = ctx.map_data.get_large_map_info(last_region).raw.copy()
+    display_image = ctx.map_data.get_large_map_info(to_display_region).raw.copy()
 
     last_point = None
     if route.tp is not None:
         last_point = route.tp.tp_pos.tuple()
-        cv2.circle(display_image, route.tp.lm_pos.tuple(), 15, color=(100, 255, 100), thickness=2)
-        cv2.circle(display_image, route.tp.tp_pos.tuple(), 5, color=(0, 255, 0), thickness=2)
+        if current_region.pr_id == to_display_region.pr_id:  # 只画出最后一个区域的地图
+            cv2.circle(display_image, route.tp.lm_pos.tuple(), 15, color=(100, 255, 100), thickness=2)
+            cv2.circle(display_image, route.tp.tp_pos.tuple(), 5, color=(0, 255, 0), thickness=2)
     for route_item in route.route_list:
         if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             pos = route_item.data
-            cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
-            if last_point is not None:
-                cv2.line(display_image, last_point[:2], pos[:2],
-                         color=(255, 0, 0) if route_item.op == operation_const.OP_MOVE else (255, 255, 0),
-                         thickness=2)
-            cv2.putText(display_image, str(route_item.idx), (pos[0] - 5, pos[1] - 13),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA)
+            if current_region.pr_id == to_display_region.pr_id:
+                cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
+                if last_point is not None:
+                    cv2.line(display_image, last_point[:2], pos[:2],
+                             color=(255, 0, 0) if route_item.op == operation_const.OP_MOVE else (255, 255, 0),
+                             thickness=2)
+                cv2.putText(display_image, str(route_item.idx), (pos[0] - 5, pos[1] - 13),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA)
             last_point = pos
         elif route_item.op == operation_const.OP_PATROL:
-            if last_point is not None:
-                cv2.circle(display_image, last_point[:2], 10, color=(0, 255, 255), thickness=2)
+            if current_region.pr_id == to_display_region.pr_id:
+                if last_point is not None:
+                    cv2.circle(display_image, last_point[:2], 10, color=(0, 255, 255), thickness=2)
         elif route_item.op == operation_const.OP_DISPOSABLE:
-            if last_point is not None:
-                cv2.circle(display_image, last_point[:2], 10, color=(67, 34, 49), thickness=2)
+            if current_region.pr_id == to_display_region.pr_id:
+                if last_point is not None:
+                    cv2.circle(display_image, last_point[:2], 10, color=(67, 34, 49), thickness=2)
         elif route_item.op == operation_const.OP_INTERACT or route_item.op == operation_const.OP_CATAPULT:
-            if last_point is not None:
-                cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
+            if current_region.pr_id == to_display_region.pr_id:
+                if last_point is not None:
+                    cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
         elif route_item.op == operation_const.OP_WAIT:
-            if last_point is not None:
-                cv2.circle(display_image, last_point[:2], 14, color=(255, 255, 255), thickness=2)
+            if current_region.pr_id == to_display_region.pr_id:
+                if last_point is not None:
+                    cv2.circle(display_image, last_point[:2], 14, color=(255, 255, 255), thickness=2)
         elif route_item.op == operation_const.OP_UPDATE_POS:
             pos = route_item.data
-            cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
-            cv2.putText(display_image, str(route_item.idx), (pos[0] - 5, pos[1] - 13),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA)
+            if current_region.pr_id == to_display_region.pr_id:
+                cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
+                cv2.putText(display_image, str(route_item.idx), (pos[0] - 5, pos[1] - 13),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1, cv2.LINE_AA)
             last_point = pos
+            if len(pos) > 2:
+                current_region = ctx.map_data.region_with_another_floor(current_region, int(pos[2]))
         elif route_item.op == operation_const.OP_ENTER_SUB:
-            last_region = ctx.map_data.get_sub_region_by_cn(cn=route_item.data[0], region=last_region, floor=int(route_item.data[1]))
-            display_image = ctx.map_data.get_large_map_info(last_region).raw.copy()
+            current_region = ctx.map_data.get_sub_region_by_cn(cn=route_item.data[0], region=current_region, floor=int(route_item.data[1]))
 
     return display_image
 
@@ -253,6 +262,16 @@ def add_wait(route: WorldPatrolRoute, wait_type: str, wait_timeout: int):
     to_add = WorldPatrolRouteOperation(op=operation_const.OP_WAIT, data=[wait_type, wait_timeout])
     route.route_list.append(to_add)
     route.init_idx()
+
+
+def add_sub_region(route: WorldPatrolRoute, region: Region):
+    """
+    增加切换子区域的指令
+    :param route: 路线
+    :param region: 子区域
+    :return:
+    """
+    route.route_list.append(WorldPatrolRouteOperation(op=operation_const.OP_ENTER_SUB, data=[region.cn, str(region.floor)]))
 
 
 def __debug():

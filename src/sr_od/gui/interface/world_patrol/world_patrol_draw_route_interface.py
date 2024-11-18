@@ -89,7 +89,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         region_row.add_widget(self.region_without_level_opt)
 
         self.region_level_opt = ComboBox()
-        self.region_level_opt.setPlaceholderText(gt('选择区域楼层', 'ui'))
+        self.region_level_opt.setPlaceholderText(gt('切换子区域或楼层', 'ui'))
         self.region_level_opt.currentIndexChanged.connect(self.on_region_level_selected)
         region_row.add_widget(self.region_level_opt)
 
@@ -301,6 +301,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         """
         chosen = self.chosen_route is not None
 
+        self.existed_route_opt.setDisabled(chosen)
         self.create_btn.setDisabled(chosen)
         self.save_btn.setDisabled(not chosen)
         self.delete_btn.setDisabled(not chosen)
@@ -363,6 +364,9 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
             if self.chosen_planet is not None and region.planet.np_id != self.chosen_planet.np_id:
                 continue
 
+            if region.parent is not None:  # 不显示子区域
+                continue
+
             # 多个楼层只选择一个
             existed = False
             for existed_region in region_list:
@@ -376,6 +380,14 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
 
         if self.chosen_region_without_level is None:
             self.chosen_region_without_level = region_list[0]
+        else:
+            for r in region_list:
+                if r.pr_id == self.chosen_region_without_level.pr_id:
+                    self.chosen_region_without_level = r
+                    break
+                if self.chosen_region_without_level.parent is not None and r.pr_id == self.chosen_region_without_level.parent.pr_id:
+                    self.chosen_region_without_level = r
+                    break
 
         self.region_without_level_opt.set_items(
             [ConfigItem(gt(r.cn), r) for r in region_list],
@@ -383,17 +395,23 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         )
 
     def update_region_with_level_opt(self) -> None:
-        region_list = self.ctx.map_data.get_region_with_all_floor(self.chosen_region_without_level)
-        config_list = [ConfigItem(str(r.floor), r) for r in region_list]
+        config_list = []
+        for r in self.ctx.map_data.planet_2_region.get(self.chosen_planet.np_id, []):
+            if (
+                    r.pr_id == self.chosen_region_without_level.pr_id
+                    or (r.parent is not None and r.parent.pr_id == self.chosen_region_without_level.pr_id)
+            ):
+             config_list.append(ConfigItem(r.display_name, r))
 
         if self.chosen_route is not None:
             region, _ = world_patrol_route_draw_utils.get_last_pos(self.ctx, self.chosen_route)
             self.chosen_region_with_level = self.ctx.map_data.region_with_another_floor(
                 self.chosen_region_without_level, region.floor)
         elif self.chosen_region_with_level is None or self.chosen_region_with_level.pr_id != self.chosen_region_without_level.pr_id:
-            self.chosen_region_with_level = region_list[0]
+            self.chosen_region_with_level = config_list[0].value
 
         self.region_level_opt.set_items(config_list, self.chosen_region_with_level)
+        self.region_level_opt.setVisible(len(config_list) > 1)
 
     def update_tp_opt(self) -> None:
         if self.chosen_region_without_level is not None or self.chosen_region_with_level is not None:
@@ -422,6 +440,9 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         更新路线选项
         :return:
         """
+        if self.chosen_route is not None:  # 已经选择了路线
+            return
+
         region = self.chosen_region_without_level
         if self.chosen_region_with_level is not None:
             region = self.chosen_region_with_level
@@ -478,24 +499,21 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
     def on_route_selected(self, idx: int) -> None:
         self.chosen_route = self.existed_route_opt.itemData(idx)
         
-        if self.chosen_planet is None:
-            planet = self.chosen_route.tp.region.planet
-            self.chosen_planet = planet
-            self.update_planet_opt()
-            self.chosen_planet = self.planet_btn.currentData()
+        planet = self.chosen_route.tp.region.planet
+        self.chosen_planet = planet
+        self.update_planet_opt()
+        self.chosen_planet = self.planet_btn.currentData()
 
-        if self.chosen_region_without_level is None:
-            region = self.chosen_route.tp.region
-            self.chosen_region_without_level = region
-            self.update_region_without_level_opt()
-            self.chosen_region_without_level = self.region_without_level_opt.currentData()
+        region = self.chosen_route.tp.region
+        self.chosen_region_without_level = region
+        self.update_region_without_level_opt()
+        self.chosen_region_without_level = self.region_without_level_opt.currentData()
 
-        if self.chosen_region_with_level is None:
-            region, _ = world_patrol_route_draw_utils.get_last_pos(self.ctx, self.chosen_route)
-            self.chosen_region_with_level = region
-            self.update_region_with_level_opt()
-            self.chosen_region_with_level = self.region_level_opt.currentData()
-        
+        region, _ = world_patrol_route_draw_utils.get_last_pos(self.ctx, self.chosen_route)
+        self.chosen_region_with_level = region
+        self.update_region_with_level_opt()
+        self.chosen_region_with_level = self.region_level_opt.currentData()
+
         self.update_display_by_route()
 
     def on_create_clicked(self) -> None:
@@ -542,10 +560,15 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
 
     def on_region_level_selected(self, idx: int) -> None:
         self.chosen_region_with_level = self.region_level_opt.itemData(idx)
-        self.update_tp_opt()
-        self.update_existed_route_opt()
-        self.update_large_map_image()
-        self.update_large_map_image()
+        if self.chosen_route is not None:
+            last_region, _ = world_patrol_route_draw_utils.get_last_pos(self.ctx, self.chosen_route)
+            if last_region.pr_id != self.chosen_region_with_level.pr_id:  # 切换了区域
+                world_patrol_route_draw_utils.add_sub_region(self.chosen_route, self.chosen_region_with_level)
+            self.update_display_by_route()
+        else:
+            self.update_tp_opt()
+            self.update_existed_route_opt()
+            self.update_large_map_image()
 
     def on_tp_changed(self, idx: int) -> None:
         self.chosen_tp = self.tp_opt.currentData()

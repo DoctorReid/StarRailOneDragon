@@ -226,9 +226,6 @@ class WorldPatrolRoute:
             new_floor
         )
 
-    def enter_sub_region(self, sub_region_cn: str, floor: int):
-        self.route_list.append(WorldPatrolRouteOperation(op=operation_const.OP_ENTER_SUB, data=[sub_region_cn, str(floor)]))
-
     @property
     def empty_op(self) -> bool:
         """

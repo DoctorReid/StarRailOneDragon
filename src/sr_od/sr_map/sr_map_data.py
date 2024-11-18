@@ -197,7 +197,14 @@ class SrMapData:
         """
         same_planet_region_list = self.planet_2_region.get(region.planet.np_id, [])
         for r in same_planet_region_list:
-            if r.parent is not None and r.parent == region and r.cn == cn and r.floor == floor:
+            # 进入子区域
+            if r.parent is not None and r.parent.pr_id == region.pr_id and r.cn == cn and r.floor == floor:
+                return r
+            # 换了楼层
+            if r.pr_id == region.pr_id and r.floor == floor:
+                return r
+            # 回到主区域
+            if region.parent is not None and region.parent.pr_id == r.pr_id and region.parent.cn == cn and region.parent.floor == floor:
                 return r
         return None
 
