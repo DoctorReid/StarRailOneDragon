@@ -6,10 +6,11 @@ from one_dragon.base.operation.application_run_record import AppRunRecord
 
 class WorldPatrolRunRecord(AppRunRecord):
 
-    def __init__(self, instance_idx: Optional[int] = None):
+    def __init__(self, instance_idx: Optional[int] = None, game_refresh_hour_offset: int = 0):
         self.finished: List[str] = []
         self.time_cost: dict[str, List] = {}
-        AppRunRecord.__init__(self, 'world_patrol', instance_idx=instance_idx)
+        AppRunRecord.__init__(self, 'world_patrol', instance_idx=instance_idx,
+                              game_refresh_hour_offset=game_refresh_hour_offset)
         self.finished = self.get('finished', [])
         self.time_cost = self.get('time_cost', {})
 

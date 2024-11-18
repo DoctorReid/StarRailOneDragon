@@ -6,9 +6,10 @@ from one_dragon.utils import os_utils
 
 class EchoOfWarRunRecord(AppRunRecord):
 
-    def __init__(self, instance_idx: Optional[int] = None):
+    def __init__(self, instance_idx: Optional[int] = None, game_refresh_hour_offset: int = 0):
         AppRunRecord.__init__(self, 'echo_of_war', instance_idx=instance_idx,
-                              record_period=AppRunRecordPeriod.WEEKLY)
+                              record_period=AppRunRecordPeriod.WEEKLY,
+                              game_refresh_hour_offset=game_refresh_hour_offset)
 
     def reset_record(self):
         """

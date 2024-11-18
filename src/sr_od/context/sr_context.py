@@ -191,27 +191,28 @@ class SrContext(OneDragonContext):
         self.detect_info: DetectInfo = DetectInfo()
 
         self.game_config: GameConfig = GameConfig(self.current_instance_idx)
+        game_refresh_hour_offset = self.game_config.game_refresh_hour_offset
 
         self.world_patrol_config: WorldPatrolConfig = WorldPatrolConfig(self.current_instance_idx)
-        self.world_patrol_record: WorldPatrolRunRecord = WorldPatrolRunRecord(self.current_instance_idx)
+        self.world_patrol_record: WorldPatrolRunRecord = WorldPatrolRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 
         self.power_config: TrailblazePowerConfig = TrailblazePowerConfig(self.guide_data, self.current_instance_idx)
-        self.power_record: TrailblazePowerRunRecord = TrailblazePowerRunRecord(self.power_config, self.current_instance_idx)
+        self.power_record: TrailblazePowerRunRecord = TrailblazePowerRunRecord(self.power_config, self.current_instance_idx, game_refresh_hour_offset)
 
         self.echo_of_war_config: EchoOfWarConfig = EchoOfWarConfig(self.guide_data, self.current_instance_idx)
-        self.echo_of_war_run_record: EchoOfWarRunRecord = EchoOfWarRunRecord(self.current_instance_idx)
+        self.echo_of_war_run_record: EchoOfWarRunRecord = EchoOfWarRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 
         self.sim_uni_challenge_config_data: SimUniChallengeConfigData = SimUniChallengeConfigData()
         self.sim_uni_config: SimUniConfig = SimUniConfig(self.current_instance_idx)
-        self.sim_uni_record: SimUniRunRecord = SimUniRunRecord(self.sim_uni_config, self.current_instance_idx)
+        self.sim_uni_record: SimUniRunRecord = SimUniRunRecord(self.sim_uni_config, self.current_instance_idx, game_refresh_hour_offset)
 
-        self.assignments_run_record: AssignmentsRunRecord = AssignmentsRunRecord(self.current_instance_idx)
-        self.nameless_honor_run_record: NamelessHonorRunRecord = NamelessHonorRunRecord(self.current_instance_idx)
-        self.daily_training_run_record: DailyTrainingRunRecord = DailyTrainingRunRecord(self.current_instance_idx)
-        self.email_run_record: EmailRunRecord = EmailRunRecord(self.current_instance_idx)
-        self.buy_xz_parcel_run_record: BuyXianZhouParcelRunRecord = BuyXianZhouParcelRunRecord(self.current_instance_idx)
-        self.trick_snack_run_record: TrickSnackRunRecord = TrickSnackRunRecord(self.current_instance_idx)
-        self.support_character_run_record: SupportCharacterRunRecord = SupportCharacterRunRecord(self.current_instance_idx)
+        self.assignments_run_record: AssignmentsRunRecord = AssignmentsRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.nameless_honor_run_record: NamelessHonorRunRecord = NamelessHonorRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.daily_training_run_record: DailyTrainingRunRecord = DailyTrainingRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.email_run_record: EmailRunRecord = EmailRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.buy_xz_parcel_run_record: BuyXianZhouParcelRunRecord = BuyXianZhouParcelRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.trick_snack_run_record: TrickSnackRunRecord = TrickSnackRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.support_character_run_record: SupportCharacterRunRecord = SupportCharacterRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:

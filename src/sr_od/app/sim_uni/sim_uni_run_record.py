@@ -7,8 +7,9 @@ from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
 
 class SimUniRunRecord(AppRunRecord):
 
-    def __init__(self, config: SimUniConfig, instance_idx: Optional[int] = None):
-        AppRunRecord.__init__(self, 'sim_universe', instance_idx=instance_idx)
+    def __init__(self, config: SimUniConfig, instance_idx: Optional[int] = None, game_refresh_hour_offset: int = 0):
+        AppRunRecord.__init__(self, 'sim_universe', instance_idx=instance_idx,
+                              game_refresh_hour_offset=game_refresh_hour_offset)
         self.config = config
 
     @property
