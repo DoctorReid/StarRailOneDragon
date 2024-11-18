@@ -203,7 +203,7 @@ class WorldPatrolRunRoute(SrOperation):
             next_route_item = None
 
         # 当前是否应该攻击
-        should_attack: bool = True
+        should_attack: bool = False
         for i in range(self.op_idx, len(self.route.route_list)):
             item = self.route.route_list[i]
             if item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
