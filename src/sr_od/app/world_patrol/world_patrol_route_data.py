@@ -178,17 +178,20 @@ class WorldPatrolRouteData:
             'route': []
         }, route_path)
 
-    def save_route(self, route: WorldPatrolRoute, author: str):
+    def save_route(self, route: WorldPatrolRoute, author: str, personal: bool = True):
         """
         保存路线
         """
-        planet_dir = self.get_planet_route_dir(route.tp.planet)
+        if personal:
+            planet_dir = self.get_personal_route_dir()
+        else:
+            planet_dir = self.get_planet_route_dir(route.tp.planet)
         route_filename = f'{route.tp.planet.np_id}_{route.tp.region.r_id}_R{route.route_num_in_region:02d}_{route.tp.id}_{route.route_num_in_tp}.yml'
         route_path = os.path.join(planet_dir, route_filename)
 
         if route.yml_file_path != route_path:
             route.delete()
-            route.yml_file_path = self.get_new_route_path(route.tp)
+            route.yml_file_path = self.get_new_route_path(route.tp, personal=personal)
             route.init_route_num()
 
         route.save()

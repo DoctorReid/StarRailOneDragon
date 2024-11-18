@@ -529,14 +529,17 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         if self.chosen_route is not None or self.chosen_tp is None:
             return
 
-        self.chosen_route = self.ctx.world_patrol_route_data.create_new_route(self.chosen_tp, 'DoctorReid')
+        self.chosen_route = self.ctx.world_patrol_route_data.create_new_route(self.chosen_tp, 'DoctorReid',
+                                                                              personal=self.personal_opt.btn.checked)
         self.update_display_by_route()
 
     def on_save_clicked(self) -> None:
         if self.chosen_route is None:
             return
 
-        self.ctx.world_patrol_route_data.save_route(self.chosen_route, 'DoctorReid')
+        self.ctx.world_patrol_route_data.save_route(self.chosen_route, 'DoctorReid',
+                                                    personal=self.personal_opt.btn.checked)
+        self.update_existed_route_opt()
 
     def on_delete_clicked(self):
         if self.chosen_route is None:
