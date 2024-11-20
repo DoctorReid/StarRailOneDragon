@@ -11,6 +11,7 @@ from one_dragon.utils.log_utils import log
 from sr_od.app.world_patrol.world_patrol_enter_fight import WorldPatrolEnterFight
 from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute
 from sr_od.config import operation_const
+from sr_od.config.character_const import get_character_by_id
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.interact.catapult import Catapult
 from sr_od.operations.interact.move_interact import MoveInteract
@@ -37,7 +38,7 @@ class WorldPatrolRunRoute(SrOperation):
         """
         self.route: WorldPatrolRoute = route
 
-        self.feixiao_attack: bool = False  # 飞霄是否进行了攻击
+        self.feixiao_attack: bool = True  # 飞霄是否进行了攻击 路线开始的时候不需要攻击 因此设置为已经攻击
 
         SrOperation.__init__(self, ctx, op_name='%s %s' % (gt('锄地路线', 'ui'), self.route.display_name))
 
@@ -86,7 +87,11 @@ class WorldPatrolRunRoute(SrOperation):
         检测队员
         :return:
         """
-        op = CheckTeamMembersInWorld(self.ctx)
+        c1 = None
+        c1_id = self.ctx.world_patrol_config.character_1
+        if c1_id != 'none':
+            c1 = get_character_by_id(c1_id)
+        op = CheckTeamMembersInWorld(self.ctx, [c1, None, None, None])
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='检测组队')
@@ -236,8 +241,8 @@ class WorldPatrolRunRoute(SrOperation):
             # 由于是中途插入的指令 需要特殊处理下标
             op_result = op.execute()
             if op_result.success:
-                self.op_idx -= 1
                 self.feixiao_attack = True
+            self.op_idx -= 1
             return self.round_by_op_result(op_result)
         elif route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
