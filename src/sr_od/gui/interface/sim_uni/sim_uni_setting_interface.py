@@ -67,9 +67,9 @@ class SimUniSettingInterface(VerticalScrollInterface):
         self.weekly_sim_uni_num_opt.set_options_by_list(sim_uni_num_opts)
         self.weekly_sim_uni_num_opt.init_with_adapter(self.ctx.sim_uni_config.weekly_uni_num_adapter)
 
-        diff_opts = [ConfigItem(label='默认难道', value=0)]
+        diff_opts = [ConfigItem(label='默认难度', value=0)]
         for i in SimUniWorldEnum:
-            if i.value.idx == self.ctx.sim_uni_config.weekly_uni_num:
+            if i.name == self.ctx.sim_uni_config.weekly_uni_num:
                 for j in range(1, i.value.max_diff + 1):
                     diff_opts.append(ConfigItem(label=str(j), value=j))
         self.weekly_sim_uni_diff_opt.set_options_by_list(diff_opts)

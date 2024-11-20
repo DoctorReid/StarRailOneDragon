@@ -21,6 +21,34 @@ class SimUniConfig(YamlConfig):
         return SimUniChallengeConfig(int(self.get(key, '05')))
 
     @property
+    def sim_uni_03(self) -> str:
+        return self.get('sim_uni_03', '05')
+
+    @property
+    def sim_uni_04(self) -> str:
+        return self.get('sim_uni_04', '05')
+
+    @property
+    def sim_uni_05(self) -> str:
+        return self.get('sim_uni_05', '05')
+
+    @property
+    def sim_uni_06(self) -> str:
+        return self.get('sim_uni_06', '05')
+
+    @property
+    def sim_uni_07(self) -> str:
+        return self.get('sim_uni_07', '05')
+
+    @property
+    def sim_uni_08(self) -> str:
+        return self.get('sim_uni_08', '05')
+
+    @property
+    def sim_uni_09(self) -> str:
+        return self.get('sim_uni_09', '05')
+
+    @property
     def weekly_uni_num(self) -> str:
         """
         每周挑战的第几宇宙设置
