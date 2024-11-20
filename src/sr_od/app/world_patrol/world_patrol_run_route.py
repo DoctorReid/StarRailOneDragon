@@ -37,6 +37,8 @@ class WorldPatrolRunRoute(SrOperation):
         """
         self.route: WorldPatrolRoute = route
 
+        self.feixiao_attack: bool = False  # 飞霄是否进行了攻击
+
         SrOperation.__init__(self, ctx, op_name='%s %s' % (gt('锄地路线', 'ui'), self.route.display_name))
 
     def handle_init(self):
@@ -209,7 +211,7 @@ class WorldPatrolRunRoute(SrOperation):
             if item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
                 # 需要找下一个不是移动的指令
                 continue
-            elif item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
+            elif item.op in [operation_const.OP_PATROL, item.op == operation_const.OP_DISPOSABLE]:
                 # 如果下一个不是移动的指令 是攻击类的 则当前不需要攻击
                 should_attack = False
                 break
@@ -222,6 +224,9 @@ class WorldPatrolRunRoute(SrOperation):
                 should_attack = True
                 break
 
+        if self.feixiao_attack:
+            should_attack = False
+
         op = None
         if should_attack:
             op = WorldPatrolEnterFight(self.ctx,
@@ -232,10 +237,12 @@ class WorldPatrolRunRoute(SrOperation):
             op_result = op.execute()
             if op_result.success:
                 self.op_idx -= 1
+                self.feixiao_attack = True
             return self.round_by_op_result(op_result)
         elif route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
         elif route_item.op == operation_const.OP_PATROL:
+            self.feixiao_attack = False  # 经过怪物点后 需要把攻击重置
             return self.round_success()
         elif route_item.op == operation_const.OP_DISPOSABLE:
             return self.round_success()
