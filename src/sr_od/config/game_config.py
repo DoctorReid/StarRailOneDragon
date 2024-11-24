@@ -291,10 +291,6 @@ class GameConfig(YamlConfig):
         self.update('key_open_map', new_value)
 
     @property
-    def key_open_map_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'key_open_map', 'm')
-
-    @property
     def key_esc(self) -> str:
         return self.get('key_esc', 'esc')
 

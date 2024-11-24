@@ -73,6 +73,9 @@ class SrSettingGameInterface(VerticalScrollInterface):
         self.key_technique_opt = KeySettingCard(icon=FluentIcon.GAME, title='秘技')
         key_group.addSettingCard(self.key_technique_opt)
 
+        self.key_open_map_opt = KeySettingCard(icon=FluentIcon.GAME, title='地图')
+        key_group.addSettingCard(self.key_open_map_opt)
+
         self.key_esc_opt = KeySettingCard(icon=FluentIcon.GAME, title='返回')
         key_group.addSettingCard(self.key_esc_opt)
 
@@ -92,6 +95,7 @@ class SrSettingGameInterface(VerticalScrollInterface):
 
         self.key_interact_opt.init_with_adapter(self.ctx.game_config.key_interact_adapter)
         self.key_technique_opt.init_with_adapter(self.ctx.game_config.key_technique_adapter)
+        self.key_open_map_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_open_map'))
         self.key_esc_opt.init_with_adapter(self.ctx.game_config.key_esc_adapter)
 
     def _on_game_path_clicked(self) -> None:
