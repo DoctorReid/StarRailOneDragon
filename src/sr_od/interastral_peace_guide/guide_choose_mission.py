@@ -49,7 +49,7 @@ class GuideChooseMission(SrOperation):
             drag_to = drag_from + Point(0, -200)
             self.ctx.controller.drag_to(drag_to, drag_from)
 
-            return self.round_retry(wait=1)
+            return self.round_retry(wait=2)
         else:
             self.ctx.controller.click(tp_point)
             return self.round_success()
