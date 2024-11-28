@@ -98,9 +98,14 @@ class BackToNormalWorldPlus(SrOperation):
             if result.is_success:
                 return self.round_wait(result.status, wait=1)
 
+        # 战斗结束后 出现的退出关卡
+        result = self.round_by_find_and_click_area(screen, '战斗画面', '退出关卡按钮')
+        if result.is_success:
+            return self.round_wait(result.status, wait=2)
+
         # 其他情况 - 均点击右上角触发返回上一级
-        self.round_by_click_area('菜单', '右上角返回')
-        return self.round_wait(wait=1)
+        result = self.round_by_click_area('菜单', '右上角返回')
+        return self.round_wait(result.status, wait=1)
 
     def sim_uni_exit(self) -> OperationRoundResult:
         op = SimUniExit(self.ctx)
