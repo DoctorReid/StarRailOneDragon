@@ -1,0 +1,142 @@
+screen_id: bag_relic
+screen_name: 背包-遗器
+pc_alt: false
+area_list:
+- area_name: 一级标题-背包
+  id_mark: true
+  pc_rect:
+  - 98
+  - 36
+  - 155
+  - 65
+  text: 背包
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 二级标题-遗器
+  id_mark: true
+  pc_rect:
+  - 98
+  - 62
+  - 218
+  - 100
+  text: 遗器
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: TAB-光锥
+  id_mark: false
+  pc_rect:
+  - 645
+  - 25
+  - 725
+  - 106
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-光锥
+- area_name: TAB-遗器
+  id_mark: false
+  pc_rect:
+  - 740
+  - 25
+  - 820
+  - 106
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-遗器
+- area_name: TAB-其他材料
+  id_mark: false
+  pc_rect:
+  - 835
+  - 25
+  - 915
+  - 106
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-其他材料
+- area_name: TAB-消耗品
+  id_mark: false
+  pc_rect:
+  - 930
+  - 25
+  - 1010
+  - 106
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-消耗品
+- area_name: TAB-任务
+  id_mark: false
+  pc_rect:
+  - 1025
+  - 25
+  - 1105
+  - 106
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-任务
+- area_name: TAB-贵重物
+  id_mark: false
+  pc_rect:
+  - 1120
+  - 25
+  - 1200
+  - 106
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-贵重物
+- area_name: TAB-随宠
+  id_mark: false
+  pc_rect:
+  - 1215
+  - 25
+  - 1295
+  - 106
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-随宠
+- area_name: 按钮-分解
+  id_mark: false
+  pc_rect:
+  - 1196
+  - 968
+  - 1338
+  - 1012
+  text: 分解
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-遗器分解

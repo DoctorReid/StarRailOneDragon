@@ -237,6 +237,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             del_btn.clicked.connect(self._on_row_delete_clicked)
 
             id_check = CheckBox()
+            id_check.setChecked(area_item.id_mark)
             id_check.setProperty('area_name', area_item.area_name)
             id_check.stateChanged.connect(self.on_area_id_check_changed)
 
@@ -246,8 +247,9 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             self.area_table.setItem(idx, 3, QTableWidgetItem(area_item.text))
             self.area_table.setItem(idx, 4, QTableWidgetItem(str(area_item.lcs_percent)))
             self.area_table.setItem(idx, 5, QTableWidgetItem(area_item.template_id_display_text))
-            self.area_table.setItem(idx, 6, QTableWidgetItem(area_item.goto_list_display_text))
+            self.area_table.setItem(idx, 6, QTableWidgetItem(str(area_item.template_match_threshold)))
             self.area_table.setCellWidget(idx, 7, id_check)
+            self.area_table.setItem(idx, 8, QTableWidgetItem(area_item.goto_list_display_text))
 
 
         add_btn = ToolButton(FluentIcon.ADD, parent=None)

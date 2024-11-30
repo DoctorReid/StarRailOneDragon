@@ -16,6 +16,7 @@ class ScreenArea:
                  template_match_threshold: float = 0.7,
                  pc_alt: bool = False,
                  id_mark: bool = False,
+                 goto_list: List[str] = None
                  ):
         self.area_name: str = area_name
         self.pc_rect: Rect = pc_rect
@@ -26,7 +27,7 @@ class ScreenArea:
         self.template_match_threshold: float = template_match_threshold
         self.pc_alt: bool = pc_alt  # PC端需要使用ALT后才能点击
         self.id_mark: bool = id_mark  # 是否用于画面的唯一标识
-        self.goto_list: List[str] = []  # 交互后 可能会跳转的画面名称列表
+        self.goto_list: List[str] = [] if goto_list is None else goto_list # 交互后 可能会跳转的画面名称列表
 
     @property
     def rect(self) -> Rect:

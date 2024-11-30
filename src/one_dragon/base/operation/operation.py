@@ -784,7 +784,7 @@ class Operation(OperationBase):
         current_screen_name = screen_utils.get_match_screen_name(self.ctx, screen)
         if current_screen_name is None:
             return self.round_retry('未能识别当前画面', wait=retry_wait, wait_round_time=retry_wait_round)
-        self.ctx.screen_loader.current_screen_name = current_screen_name
+        self.ctx.screen_loader.update_current_screen_name(current_screen_name)
         if current_screen_name == screen_name:
             return self.round_success(current_screen_name, wait=success_wait, wait_round_time=success_wait_round)
 
@@ -794,6 +794,7 @@ class Operation(OperationBase):
 
         result = self.round_by_find_and_click_area(screen, current_screen_name, route.node_list[0].from_area)
         if result.is_success:
+            self.ctx.screen_loader.update_current_screen_name(route.node_list[0].to_screen)
             return self.round_wait(result.status, wait=retry_wait, wait_round_time=retry_wait_round)
         else:
             return self.round_retry(result.status, wait=retry_wait, wait_round_time=retry_wait_round)

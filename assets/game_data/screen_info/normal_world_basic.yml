@@ -1,0 +1,44 @@
+screen_id: normal_world_basic
+screen_name: 大世界-普通
+pc_alt: true
+area_list:
+- area_name: 右上图标-角色详情
+  id_mark: true
+  pc_rect:
+  - 1800
+  - 0
+  - 1900
+  - 90
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: normal_world
+  template_id: ui_icon_01
+  template_match_threshold: 0.4
+  goto_list: []
+- area_name: 右上图标-旅游事记
+  id_mark: true
+  pc_rect:
+  - 1300
+  - 0
+  - 1400
+  - 90
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: normal_world
+  template_id: ui_icon_07
+  template_match_threshold: 0.4
+  goto_list: []
+- area_name: 右上图标-背包
+  id_mark: false
+  pc_rect:
+  - 1630
+  - 0
+  - 1730
+  - 90
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: normal_world
+  template_id: ui_icon_03
+  template_match_threshold: 0.7
+  goto_list:
+  - 背包-养成材料

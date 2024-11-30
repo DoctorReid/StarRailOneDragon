@@ -120,8 +120,12 @@ def get_match_screen_name(ctx: OneDragonContext, screen: MatLike) -> str:
     :param screen: 游戏截图
     :return: 画面名字
     """
+    bfs_list = []
     if ctx.screen_loader.current_screen_name is not None:  # 如果有记录上次所在画面 则从这个画面开始搜索
-        bfs_list = [ctx.screen_loader.current_screen_name]
+        bfs_list.append(ctx.screen_loader.current_screen_name)
+    if ctx.screen_loader.last_screen_name is not None:
+        bfs_list.append(ctx.screen_loader.last_screen_name)
+    if len(bfs_list) > 0:
         bfs_idx = 0
         while bfs_idx < len(bfs_list):
             current_screen_name = bfs_list[bfs_idx]

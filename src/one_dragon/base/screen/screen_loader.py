@@ -3,6 +3,7 @@ from typing import Optional
 
 from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_info import ScreenInfo
+from one_dragon.utils.log_utils import log
 
 
 class ScreenRouteNode:
@@ -48,6 +49,7 @@ class ScreenContext:
         self.screen_route_map: dict[str, dict[str, ScreenRoute]] = {}
 
         self.load_all()
+        self.last_screen_name: Optional[str] = None  # 上一个画面名字
         self.current_screen_name: Optional[str] = None  # 当前的画面名字
 
     def load_all(self) -> None:
@@ -108,8 +110,15 @@ class ScreenContext:
             for area in screen_info.area_list:
                 if area.goto_list is None or len(area.goto_list) == 0:
                     continue
+                from_screen_route = self.screen_route_map[screen_info.screen_name]
+                if from_screen_route is None:
+                    log.error('画面路径没有初始化 %s', screen_info.screen_name)
+                    continue
                 for goto_screen_name in area.goto_list:
-                    self.screen_route_map[screen_info.screen_name][goto_screen_name].node_list.append(
+                    if goto_screen_name not in from_screen_route:
+                        log.error('画面路径 %s -> %s 无法找到目标画面', screen_info.screen_name, goto_screen_name)
+                        continue
+                    from_screen_route[goto_screen_name].node_list.append(
                         ScreenRouteNode(
                             from_screen=screen_info.screen_name,
                             from_area=area.area_name,
@@ -122,6 +131,8 @@ class ScreenContext:
         for k in range(screen_len):
             screen_k = self.screen_info_list[k]
             for i in range(screen_len):
+                if i == k:
+                    continue
                 screen_i = self.screen_info_list[i]
 
                 route_ik: ScreenRoute = self.screen_route_map[screen_i.screen_name][screen_k.screen_name]
@@ -129,6 +140,8 @@ class ScreenContext:
                     continue
 
                 for j in range(screen_len):
+                    if k == j or i == j:
+                        continue
                     screen_j = self.screen_info_list[j]
 
                     route_kj: ScreenRoute = self.screen_route_map[screen_k.screen_name][screen_j.screen_name]
@@ -157,3 +170,10 @@ class ScreenContext:
         if from_route is None:
             return None
         return from_route.get(to_screen, None)
+
+    def update_current_screen_name(self, screen_name: str) -> None:
+        """
+        更新当前的画面名字
+        """
+        self.last_screen_name = self.current_screen_name
+        self.current_screen_name = screen_name

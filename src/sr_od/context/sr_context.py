@@ -11,6 +11,7 @@ from sr_od.app.daily_training.daily_training_run_record import DailyTrainingRunR
 from sr_od.app.echo_of_war.echo_of_war_config import EchoOfWarConfig
 from sr_od.app.echo_of_war.echo_of_war_run_record import EchoOfWarRunRecord
 from sr_od.app.nameless_honor.nameless_honor_run_record import NamelessHonorRunRecord
+from sr_od.app.relic_salvage.relic_salvage_run_record import RelicSalvageRunRecord
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig, SimUniChallengeConfigData
 from sr_od.app.sim_uni.sim_uni_config import SimUniConfig
 from sr_od.app.sim_uni.sim_uni_route_data import SimUniRouteData
@@ -208,6 +209,7 @@ class SrContext(OneDragonContext):
 
         self.assignments_run_record: AssignmentsRunRecord = AssignmentsRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.nameless_honor_run_record: NamelessHonorRunRecord = NamelessHonorRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+        self.relic_salvage_run_record: RelicSalvageRunRecord = RelicSalvageRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.daily_training_run_record: DailyTrainingRunRecord = DailyTrainingRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.email_run_record: EmailRunRecord = EmailRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.buy_xz_parcel_run_record: BuyXianZhouParcelRunRecord = BuyXianZhouParcelRunRecord(self.current_instance_idx, game_refresh_hour_offset)
