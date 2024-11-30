@@ -3,6 +3,7 @@ screen_name: 画面-委托
 pc_alt: false
 area_list:
 - area_name: 领取后按钮
+  id_mark: false
   pc_rect:
   - 516
   - 886
@@ -14,22 +15,12 @@ area_list:
   template_id: ''
   template_match_threshold: 0.7
 - area_name: TAB列表
+  id_mark: false
   pc_rect:
   - 310
   - 188
   - 1196
   - 284
-  text: ''
-  lcs_percent: 0.5
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
-- area_name: ''
-  pc_rect:
-  - 0
-  - 0
-  - 0
-  - 0
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''

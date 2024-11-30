@@ -137,3 +137,17 @@ class ScreenInfo(YamlOperator):
         """
         self.file_path = self.get_yml_file_path(old=False)  # screen_id 有修改 更新路径
         YamlOperator.delete(self)
+
+    def update_area_id_mark(self, area_name: str, id_mark: bool) -> None:
+        """
+        更新某个区域是否画面的唯一标识
+        :param area_name: 区域名称
+        :param id_mark: 是否画面的唯一标识
+        :return:
+        """
+        if self.area_list is None:
+            return
+        for area in self.area_list:
+            if area.area_name == area_name:
+                area.id_mark = id_mark
+                break
