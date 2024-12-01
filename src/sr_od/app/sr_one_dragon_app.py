@@ -7,6 +7,7 @@ from sr_od.app.claim_email.email_app import EmailApp
 from sr_od.app.daily_training.daily_training_app import DailyTrainingApp
 from sr_od.app.echo_of_war.echo_of_war_app import EchoOfWarApp
 from sr_od.app.nameless_honor.nameless_honor_app import NamelessHonorApp
+from sr_od.app.relic_salvage.relic_salvage_app import RelicSalvageApp
 from sr_od.app.sim_uni.sim_uni_app import SimUniApp
 from sr_od.app.sr_application import SrApplication
 from sr_od.app.support_character.support_character_app import SupportCharacterApp
@@ -37,6 +38,7 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
             TrailblazePowerApp(self.ctx),
             WorldPatrolApp(self.ctx),
             SimUniApp(self.ctx),
+            RelicSalvageApp(self.ctx),
             EmailApp(self.ctx),
             BuyXianzhouParcelApp(self.ctx),
             TrickSnackApp(self.ctx),

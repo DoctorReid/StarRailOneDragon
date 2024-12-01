@@ -1,4 +1,4 @@
-screen_id: bag_relic_savlage
+screen_id: bag_relic_salvage
 screen_name: 背包-遗器分解
 pc_alt: false
 area_list:
@@ -29,7 +29,7 @@ area_list:
   template_match_threshold: 0.7
   goto_list: []
 - area_name: 按钮-快速选择
-  id_mark: false
+  id_mark: true
   pc_rect:
   - 950
   - 958
@@ -49,6 +49,19 @@ area_list:
   - 1716
   - 1010
   text: 分解
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 按钮-分解确认
+  id_mark: false
+  pc_rect:
+  - 1006
+  - 794
+  - 1328
+  - 846
+  text: 确认
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

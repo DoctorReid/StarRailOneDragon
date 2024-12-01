@@ -1,0 +1,69 @@
+screen_id: bag_relic_salvage_filter
+screen_name: 背包-遗器分解-快速选择
+pc_alt: false
+area_list:
+- area_name: 快速选择
+  id_mark: true
+  pc_rect:
+  - 430
+  - 296
+  - 582
+  - 350
+  text: 快速选择
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 4星及以下
+  id_mark: false
+  pc_rect:
+  - 466
+  - 594
+  - 626
+  - 642
+  text: 4星及以下
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 5星及以下
+  id_mark: false
+  pc_rect:
+  - 970
+  - 598
+  - 1168
+  - 638
+  text: 5星及以下
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 全选已弃置
+  id_mark: false
+  pc_rect:
+  - 464
+  - 422
+  - 634
+  - 460
+  text: 全选已弃置
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 按钮-确认
+  id_mark: false
+  pc_rect:
+  - 1008
+  - 734
+  - 1326
+  - 788
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []

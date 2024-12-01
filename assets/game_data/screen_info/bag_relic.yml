@@ -127,7 +127,7 @@ area_list:
   goto_list:
   - 背包-随宠
 - area_name: 按钮-分解
-  id_mark: false
+  id_mark: true
   pc_rect:
   - 1196
   - 968

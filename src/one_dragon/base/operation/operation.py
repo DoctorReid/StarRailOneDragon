@@ -604,6 +604,7 @@ class Operation(OperationBase):
         """
         click = screen_utils.find_and_click_area(ctx=self.ctx, screen=screen, screen_name=screen_name, area_name=area_name)
         if click == OcrClickResultEnum.OCR_CLICK_SUCCESS:
+            self.update_screen_after_operation(screen_name, area_name)
             return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         elif click == OcrClickResultEnum.OCR_CLICK_NOT_FOUND:
             return self.round_retry(status=f'未找到 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
@@ -663,6 +664,7 @@ class Operation(OperationBase):
             to_click = area.center
         click = self.ctx.controller.click(pos=to_click, pc_alt=area.pc_alt)
         if click:
+            self.update_screen_after_operation(screen_name, area_name)
             return self.round_success(status=area_name, wait=success_wait, wait_round_time=success_wait_round)
         else:
             return self.round_retry(status=f'点击失败 {area_name}', wait=retry_wait, wait_round_time=retry_wait_round)
@@ -798,3 +800,11 @@ class Operation(OperationBase):
             return self.round_wait(result.status, wait=retry_wait, wait_round_time=retry_wait_round)
         else:
             return self.round_retry(result.status, wait=retry_wait, wait_round_time=retry_wait_round)
+
+    def update_screen_after_operation(self, screen_name: str, area_name: str) -> None:
+        """
+        点击某个区域后 尝试更新当前画面
+        """
+        area = self.ctx.screen_loader.get_area(screen_name, area_name)
+        if area.goto_list is not None and len(area.goto_list) > 0:
+            self.ctx.screen_loader.update_current_screen_name(area.goto_list[0])
