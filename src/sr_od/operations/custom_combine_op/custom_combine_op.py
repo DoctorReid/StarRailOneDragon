@@ -28,7 +28,7 @@ class CustomCombineOp(SrOperation):
 
     STATUS_ALL_DONE: ClassVar[str] = '全部完成'
 
-    def __init__(self, ctx: SrContext, config_name: str):
+    def __init__(self, ctx: SrContext, config_name: str, no_battle: bool = False):
         """
         按配置文件执行对应的指令
         最后会返回大世界
@@ -37,6 +37,7 @@ class CustomCombineOp(SrOperation):
         """
         self.config: CustomCombineOpConfig = CustomCombineOpConfig(config_name)
         self.op_idx: int = 0  # 当前指定的指令下标
+        self.no_battle: bool = no_battle
 
         SrOperation.__init__(self, ctx, op_name=gt(self.config.config_name, 'ui'))
 
@@ -145,6 +146,7 @@ class CustomCombineOp(SrOperation):
         return MoveDirectly(self.ctx, current_lm_info, next_lm_info=next_lm_info,
                             target=next_pos, start=current_pos,
                             stop_afterwards=not dont_stop_afterwards, no_run=no_run,
+                            no_battle=self.no_battle,
                             technique_fight=self.ctx.world_patrol_config.technique_fight,
                             technique_only=self.ctx.world_patrol_config.technique_only
                             )
@@ -209,7 +211,7 @@ def __debug_op():
     ctx = SrContext()
     ctx.start_running()
 
-    op = CustomCombineOp(ctx, 'buy_trick_snack')
+    op = CustomCombineOp(ctx, 'buy_trick_snack', no_battle=True)
     op.execute()
 
 

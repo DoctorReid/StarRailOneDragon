@@ -16,7 +16,7 @@ area_list:
   template_match_threshold: 0.4
   goto_list: []
 - area_name: 右上图标-旅游事记
-  id_mark: true
+  id_mark: false
   pc_rect:
   - 1300
   - 0
@@ -29,7 +29,7 @@ area_list:
   template_match_threshold: 0.4
   goto_list: []
 - area_name: 右上图标-背包
-  id_mark: false
+  id_mark: true
   pc_rect:
   - 1630
   - 0

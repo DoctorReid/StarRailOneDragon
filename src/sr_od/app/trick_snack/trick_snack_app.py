@@ -14,5 +14,5 @@ class TrickSnackApp(SrApplication):
 
     @operation_node(name='执行自定义指令', is_start_node=True)
     def run_op(self) -> OperationRoundResult:
-        op = CustomCombineOp(self.ctx, 'buy_trick_snack')
+        op = CustomCombineOp(self.ctx, 'buy_trick_snack', no_battle=True)
         return self.round_by_op_result(op.execute())
