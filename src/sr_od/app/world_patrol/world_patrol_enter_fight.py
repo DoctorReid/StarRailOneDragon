@@ -205,8 +205,11 @@ class WorldPatrolEnterFight(SrOperation):
         log.debug('当前画面 %s', state)
 
         if state == battle_screen_state.ScreenState.BATTLE_FAIL.value:
-            common_screen_state.click_empty_to_close(self.ctx)
-            return self.round_fail(WorldPatrolEnterFight.STATUS_BATTLE_FAIL, wait=5)
+            result = self.round_by_find_and_click_area(screen, '大世界-战斗失败', '点击空白区域继续')
+            if result.is_success:
+                return self.round_fail(WorldPatrolEnterFight.STATUS_BATTLE_FAIL, wait=5)
+            else:
+                return self.round_retry(result.status, wait=1)
         elif state == common_screen_state.ScreenState.EXPRESS_SUPPLY.value:
             return self._claim_express_supply()
         elif state == fast_recover_screen_state.ScreenState.FAST_RECOVER.value:

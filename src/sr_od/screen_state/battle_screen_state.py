@@ -21,7 +21,11 @@ def is_battle_fail(ctx: SrContext, screen: MatLike) -> bool:
     :param screen: 游戏画面
     :return:
     """
-    return screen_utils.find_area(ctx, screen, '战斗画面', '战斗失败') == FindAreaResultEnum.TRUE
+    return (
+            screen_utils.find_area(ctx, screen, '战斗画面', '战斗失败-有奖励') == FindAreaResultEnum.TRUE
+            or screen_utils.find_area(ctx, screen, '战斗画面', '战斗失败-双倍奖励') == FindAreaResultEnum.TRUE
+            or screen_utils.find_area(ctx, screen, '战斗画面', '战斗失败-无奖励') == FindAreaResultEnum.TRUE
+    )
 
 
 def get_tp_battle_screen_state(

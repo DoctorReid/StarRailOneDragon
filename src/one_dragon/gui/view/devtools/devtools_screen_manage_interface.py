@@ -545,5 +545,7 @@ class DevtoolsScreenManageInterface(VerticalScrollInterface):
             return
         btn: CheckBox = self.sender()
         if btn is not None:
-            area_name = btn.property('area_name')
-            self.chosen_screen.update_area_id_mark(area_name, btn.isChecked())
+            row_idx = self.area_table.indexAt(btn.pos()).row()
+            if row_idx < 0 or row_idx >= len(self.chosen_screen.area_list):
+                return
+            self.chosen_screen.area_list[row_idx].id_mark = btn.isChecked()
