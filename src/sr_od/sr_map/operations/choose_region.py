@@ -56,9 +56,8 @@ class ChooseRegion(SrOperation):
     def _choose_region(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        result = self.round_by_find_and_click_area(screen, '大地图', '传送按钮')
+        result = self.round_by_find_and_click_area(screen, '大地图', '按钮-传送')
         if result.is_success:
-            # 右侧出现的传送 先取消掉
             return self.round_wait(wait=1)
 
         # 判断当前选择区域是否目标区域

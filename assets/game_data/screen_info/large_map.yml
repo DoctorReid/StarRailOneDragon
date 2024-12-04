@@ -3,61 +3,72 @@ screen_name: 大地图
 pc_alt: false
 area_list:
 - area_name: 子区域-返回
+  id_mark: false
   pc_rect:
-  - 1675
-  - 110
-  - 1838
-  - 150
+  - 1702
+  - 116
+  - 1830
+  - 158
   text: 返回
-  lcs_percent: 0.5
+  lcs_percent: 1.0
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 主区域缩放-减号
+  id_mark: false
   pc_rect:
-  - 623
-  - 986
-  - 623
-  - 986
+  - 534
+  - 968
+  - 570
+  - 1000
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 主区域缩放-加号
+  id_mark: false
   pc_rect:
-  - 999
-  - 984
-  - 999
-  - 984
+  - 914
+  - 970
+  - 938
+  - 1002
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 子区域缩放-减号
+  id_mark: false
   pc_rect:
-  - 819
-  - 987
-  - 819
-  - 987
+  - 804
+  - 970
+  - 838
+  - 1002
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 子区域缩放-加号
+  id_mark: false
   pc_rect:
-  - 1194
-  - 984
-  - 1194
-  - 984
+  - 1178
+  - 970
+  - 1206
+  - 1002
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 星球名称
+  id_mark: false
   pc_rect:
   - 100
   - 60
@@ -68,18 +79,22 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 星轨航图
+  id_mark: false
   pc_rect:
   - 1580
   - 120
   - 1750
-  - 160
+  - 200
   text: 星轨航图
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 区域列表
+  id_mark: false
   pc_rect:
   - 1480
   - 200
@@ -90,7 +105,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
-- area_name: 传送按钮
+  goto_list: []
+- area_name: 按钮-传送
+  id_mark: false
   pc_rect:
   - 1500
   - 950
@@ -101,7 +118,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 楼层列表
+  id_mark: false
   pc_rect:
   - 30
   - 580
@@ -112,3 +131,56 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
+- area_name: 图标-开拓力
+  id_mark: false
+  pc_rect:
+  - 1585
+  - 30
+  - 1660
+  - 106
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: screen_large_map
+  template_id: tp_icon
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 标题-导航
+  id_mark: true
+  pc_rect:
+  - 100
+  - 32
+  - 150
+  - 68
+  text: 导航
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 子区域-关闭
+  id_mark: false
+  pc_rect:
+  - 1830
+  - 32
+  - 1890
+  - 98
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 当前选择区域名称
+  id_mark: false
+  pc_rect:
+  - 1484
+  - 138
+  - 1746
+  - 216
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []

@@ -26,9 +26,19 @@ class OpenMap(SrOperation):
             return self.round_wait(wait=2)
 
         # 二级地图中 需要返回
-        result = self.round_by_find_and_click_area(screen, '大地图', '子区域-返回')
-        if result.is_success:
-            return self.round_wait(result.status, wait=1)
+        r1 = self.round_by_find_area(screen, '大地图', '标题-导航')
+        if r1.is_success:
+            # 在导航 但是没有开拓力的图标 说明在子区域中 需要返回
+            r2 = self.round_by_find_area(screen, '大地图', '图标-开拓力')
+            if not r2.is_success:
+                # 如果是当前所在的子区域 会显示返回
+                result = self.round_by_find_and_click_area(screen, '大地图', '子区域-返回')
+                if result.is_success:
+                    return self.round_wait(result.status, wait=1)
+                else:
+                    # 如果不是当前所在的子区域 则不会显示返回
+                    result = self.round_by_click_area('大地图', '子区域-关闭')
+                    return self.round_wait(result.status, wait=1)
 
         planet = large_map_utils.get_planet(self.ctx, screen)
         log.info('当前大地图所处星球 %s', planet)

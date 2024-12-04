@@ -1,0 +1,8 @@
+sub_dir: screen_large_map
+template_id: tp_icon
+template_name: 图标-开拓力
+template_shape: rectangle
+auto_mask: true
+point_list:
+- 1595, 46
+- 1634, 86

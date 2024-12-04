@@ -111,7 +111,7 @@ class GuideChooseMission(SrOperation):
         log.info('匹配副本名称 %s', word_list[mission_idx])
 
         tp_idx = str_utils.find_best_match_by_difflib(gt('传送'), word_list, cutoff=0.5)
-        if mission_idx is None:
+        if tp_idx is None:
             log.error('匹配失败 传送')
             return None
 
