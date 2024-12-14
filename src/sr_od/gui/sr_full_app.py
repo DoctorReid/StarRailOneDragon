@@ -1,9 +1,9 @@
 try:
     import sys
 
+    from PySide6.QtCore import QThread, Signal
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
-
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
     from one_dragon.gui.view.code_interface import CodeInterface
     from one_dragon.gui.view.context_event_signal import ContextEventSignal
@@ -20,6 +20,20 @@ try:
     from sr_od.gui.interface.world_patrol.world_patrol_interface import WorldPatrolInterface
 
     _init_error = None
+
+
+    class CheckVersionRunner(QThread):
+
+        get = Signal(str)
+
+        def __init__(self, ctx: SrContext, parent=None):
+            super().__init__(parent)
+            self.ctx = ctx
+
+        def run(self):
+            ver = self.ctx.git_service.get_current_version()
+            if ver is not None:
+                self.get.emit(ver)
 
 
     # 定义应用程序的主窗口类
@@ -40,6 +54,10 @@ try:
             self.ctx.listen_event(ContextInstanceEventEnum.instance_active.value, self._on_instance_active_event)
             self._context_event_signal: ContextEventSignal = ContextEventSignal()
             self._context_event_signal.instance_changed.connect(self._on_instance_active_signal)
+
+            self._check_version_runner = CheckVersionRunner(self.ctx)
+            self._check_version_runner.get.connect(self._update_version)
+            self._check_version_runner.start()
 
         # 继承初始化函数
         def init_window(self):
@@ -107,6 +125,14 @@ try:
                     self.ctx.one_dragon_config.current_active_instance.name
                 )
             )
+
+        def _update_version(self, ver: str) -> None:
+            """
+            更新版本显示
+            @param ver:
+            @return:
+            """
+            self.titleBar.setVersion(ver)
 
 # 调用Windows错误弹窗
 except Exception as e:
