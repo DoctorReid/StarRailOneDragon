@@ -215,7 +215,7 @@ class SimUniRunRouteBaseV2(SrOperation):
             return self.round_by_op_result(op_result)
 
         # 看上一帧识别结果
-        frame_result = self.ctx.yolo_detector.sim_uni_yolo.last_detect_result
+        frame_result = self.ctx.yolo_detector.last_detect_result
         min_x = self.ctx.project_config.screen_standard_width
         max_x = 0
         for r in frame_result.results:
