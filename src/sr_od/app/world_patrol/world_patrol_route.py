@@ -39,6 +39,7 @@ class WorldPatrolRoute:
         self.is_new: bool = False  # 新否新路线未保存
 
         self.yml_file_path: str = yml_file_path
+        self.is_personal: bool = yml_file_path.find('personal') != -1
         self.route_num_in_region: int = 0
         self.route_num_in_tp: int = 0
         self.init_from_yaml_data(route_data)
@@ -73,6 +74,8 @@ class WorldPatrolRoute:
             return
         route_id = self.unique_id
         id_arr = route_id.split('_')
+        if self.is_personal:
+            id_arr.pop(0)
 
         self.route_num_in_tp = 1 if len(id_arr[-1]) > 1 else int(id_arr[-1])
         self.route_num_in_region = int(id_arr[4][1:])
@@ -83,12 +86,16 @@ class WorldPatrolRoute:
         用于前端显示路线名称
         :return:
         """
-        return '%s_%s_%s_%02d' % (
+        old_name = '%s_%s_%s_%02d' % (
             gt(self.tp.planet.cn, 'ui'),
             gt(self.tp.region.cn, 'ui'),
             gt(self.tp.cn, 'ui'),
             self.route_num_in_region
         )
+        if self.is_personal:
+            return f'个人_{old_name}'
+        else:
+            return old_name
 
     @property
     def unique_id(self) -> str:
@@ -96,7 +103,10 @@ class WorldPatrolRoute:
         唯一标识 用于各种配置中保存
         :return:
         """
-        return os.path.basename(self.yml_file_path)[:-4]
+        if self.is_personal:
+            return f'personal_{os.path.basename(self.yml_file_path)[:-4]}'
+        else:
+            return os.path.basename(self.yml_file_path)[:-4]
 
     def save(self):
         """

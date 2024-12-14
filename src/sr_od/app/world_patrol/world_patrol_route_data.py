@@ -37,9 +37,15 @@ class WorldPatrolRouteData:
 
         route_list: List[WorldPatrolRoute] = []
 
-        if include_public:
-            for planet in self.map_data.planet_list:
-                planet_dir = self.get_planet_route_dir(planet)
+        for planet in self.map_data.planet_list:
+            for is_public in [True, False]:
+                is_personal = not is_public
+                if is_public and not include_public:
+                    continue
+                if is_personal and not include_personal:
+                    continue
+
+                planet_dir = self.get_planet_route_dir(planet, personal=is_personal)
 
                 for route_filename in os.listdir(planet_dir):
                     if not route_filename.endswith('.yml'):
@@ -53,21 +59,6 @@ class WorldPatrolRouteData:
                                                          whitelist=whitelist)
                     if route is not None:
                         route_list.append(route)
-
-        if include_personal:
-            personal_dir = self.get_personal_route_dir()
-            for route_filename in os.listdir(personal_dir):
-                if not route_filename.endswith('.yml'):
-                    continue
-
-                route_path = os.path.join(personal_dir, route_filename)
-                route = self.load_route_by_yaml_path(route_path,
-                                                     target_planet=target_planet,
-                                                     target_region=target_region,
-                                                     finished_unique_id=finished_unique_id,
-                                                     whitelist=whitelist)
-                if route is not None:
-                    route_list.append(route)
 
         log.info('最终加载 %d 条线路 过滤已完成 %d 条 使用名单 %s',
                  len(route_list), len(finished_unique_id), 'None' if whitelist is None else whitelist.name)
@@ -130,13 +121,17 @@ class WorldPatrolRouteData:
         return route
 
     @staticmethod
-    def get_planet_route_dir(planet: Planet) -> str:
+    def get_planet_route_dir(planet: Planet, personal: bool = False) -> str:
         """
         获取星球的路线文件夹目录
         :param planet:
+        :param personal: 是否私人配置
         :return:
         """
-        return os_utils.get_path_under_work_dir('config', 'world_patrol', planet.np_id)
+        if personal:
+            return os_utils.get_path_under_work_dir('config', 'world_patrol', 'personal', planet.np_id)
+        else:
+            return os_utils.get_path_under_work_dir('config', 'world_patrol', planet.np_id)
 
     @staticmethod
     def get_personal_route_dir() -> str:
@@ -161,7 +156,7 @@ class WorldPatrolRouteData:
             if route.tp.unique_id == tp.unique_id:
                 max_route_idx_in_tp = max(max_route_idx_in_tp, route.route_num_in_tp)
 
-        planet_dir = self.get_planet_route_dir(tp.planet)
+        planet_dir = self.get_planet_route_dir(tp.planet, personal)
         route_filename = f'{tp.planet.np_id}_{tp.region.r_id}_R{(max_route_idx_in_region + 1):02d}_{tp.id}_{max_route_idx_in_tp + 1}.yml'
         route_path = os.path.join(planet_dir, route_filename)
         return route_path
@@ -182,10 +177,7 @@ class WorldPatrolRouteData:
         """
         保存路线
         """
-        if personal:
-            planet_dir = self.get_personal_route_dir()
-        else:
-            planet_dir = self.get_planet_route_dir(route.tp.planet)
+        planet_dir = self.get_planet_route_dir(route.tp.planet, personal=personal)
         route_filename = f'{route.tp.planet.np_id}_{route.tp.region.r_id}_R{route.route_num_in_region:02d}_{route.tp.id}_{route.route_num_in_tp}.yml'
         route_path = os.path.join(planet_dir, route_filename)
 

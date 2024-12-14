@@ -95,6 +95,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
 
         self.route_btn = ComboBox()
         self.route_btn.setPlaceholderText(gt('选择路线', 'ui'))
+        self.route_btn.currentIndexChanged.connect(self.on_choose_route)
         route_row.add_widget(self.route_btn)
 
         route_row.add_stretch(1)
@@ -281,11 +282,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
         更新路线选项
         :return:
         """
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.route_btn.currentIndexChanged.disconnect(self.on_choose_route)
-        except Exception:
-            pass
+        self.route_btn.blockSignals(True)
 
         self.route_btn.clear()
 
@@ -303,7 +300,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
 
         self.route_btn.setCurrentIndex(target_idx)
 
-        self.route_btn.currentIndexChanged.connect(self.on_choose_route)
+        self.route_btn.blockSignals(False)
 
     def update_route_table(self) -> None:
         """
