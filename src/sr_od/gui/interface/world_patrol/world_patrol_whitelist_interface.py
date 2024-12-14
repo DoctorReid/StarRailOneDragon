@@ -65,6 +65,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
 
         self.existed_yml_btn = ComboBox()
         self.existed_yml_btn.setPlaceholderText(gt('选择已有', 'ui'))
+        self.existed_yml_btn.currentIndexChanged.connect(self.on_choose_existed)
         btn_row.add_widget(self.existed_yml_btn)
 
         self.create_btn = PushButton(text=gt('新建', 'ui'))
@@ -87,10 +88,12 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
 
         self.planet_btn = ComboBox()
         self.planet_btn.setPlaceholderText(gt('选择星球', 'ui'))
+        self.planet_btn.currentIndexChanged.connect(self.on_choose_planet)
         route_row.add_widget(self.planet_btn)
 
         self.region_btn = ComboBox()
         self.region_btn.setPlaceholderText(gt('选择区域', 'ui'))
+        self.region_btn.currentIndexChanged.connect(self.on_choose_region)
         route_row.add_widget(self.region_btn)
 
         self.route_btn = ComboBox()
@@ -134,11 +137,13 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
 
         self.route_table = TableWidget()
         self.route_table.verticalHeader().hide()
-        self.route_table.setColumnCount(2)
+        self.route_table.setColumnCount(3)
         self.route_table.setColumnWidth(0, 350)
         self.route_table.setColumnWidth(1, 50)
+        self.route_table.setColumnWidth(2, 50)
         self.route_table.setHorizontalHeaderLabels([
             gt('路线', 'ui'),
+            gt('移动', 'ui'),
             gt('删除', 'ui'),
         ])
         self.route_table.setMinimumHeight(600)
@@ -190,12 +195,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
         更新已有列表选项
         :return:
         """
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.existed_yml_btn.currentIndexChanged.disconnect(self.on_choose_existed)
-        except Exception:
-            pass
-
+        self.existed_yml_btn.blockSignals(True)
         self.existed_yml_btn.clear()
 
         config_name_list = load_all_whitelist_list()
@@ -210,18 +210,14 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
         self.existed_yml_btn.setCurrentIndex(target_idx)
 
         self.existed_yml_btn.setDisabled(self.chosen_config is not None)
-        self.existed_yml_btn.currentIndexChanged.connect(self.on_choose_existed)
+        self.existed_yml_btn.blockSignals(False)
 
     def update_planet_opt(self) -> None:
         """
         更新星球选项
         :return:
         """
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.planet_btn.currentIndexChanged.disconnect(self.on_choose_planet)
-        except Exception:
-            pass
+        self.planet_btn.blockSignals(True)
 
         self.planet_btn.clear()
 
@@ -233,20 +229,14 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
             self.planet_btn.addItem(text=planet.display_name, icon=None, userData=planet)
 
         self.planet_btn.setCurrentIndex(target_idx)
-
-        self.planet_btn.currentIndexChanged.connect(self.on_choose_planet)
+        self.planet_btn.blockSignals(False)
 
     def update_region_opt(self) -> None:
         """
         更新区域选项
         :return:
         """
-        try:
-            # 更新之前 先取消原来的监听 防止触发事件
-            self.region_btn.currentIndexChanged.disconnect(self.on_choose_region)
-        except Exception:
-            pass
-
+        self.region_btn.blockSignals(True)
         self.region_btn.clear()
 
         target_idx: int = -1
@@ -274,8 +264,7 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
             self.region_btn.addItem(text=region.display_name, icon=None, userData=region)
 
         self.region_btn.setCurrentIndex(target_idx)
-
-        self.region_btn.currentIndexChanged.connect(self.on_choose_region)
+        self.region_btn.blockSignals(False)
 
     def update_route_opt(self) -> None:
         """
@@ -318,17 +307,24 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
 
         route_list = self.ctx.world_patrol_route_data.load_all_route(whitelist=fake_config)
         route_cnt = len(route_list)
+        if route_cnt != len(self.chosen_config.list):  # 可能有过期非法的id
+            self.chosen_config.list = [route.unique_id for route in route_list]
         self.route_table.setRowCount(route_cnt)
 
         for idx in range(route_cnt):
             route = route_list[idx]
+            up_btn = ToolButton(FluentIcon.UP, parent=None)
+            up_btn.setProperty('route_id', route.unique_id)
+            up_btn.clicked.connect(self.on_row_up_clicked)
+
             del_btn = ToolButton(FluentIcon.DELETE, parent=None)
             # 按钮的点击事件绑定route.unique_id
             del_btn.setProperty('route_id', route.unique_id)
             del_btn.clicked.connect(self.on_row_delete_clicked)
 
             self.route_table.setItem(idx, 0, QTableWidgetItem(route.display_name))
-            self.route_table.setCellWidget(idx, 1, del_btn)
+            self.route_table.setCellWidget(idx, 1, up_btn)
+            self.route_table.setCellWidget(idx, 2, del_btn)
 
     def on_choose_existed(self, idx: int) -> None:
         self.chosen_config = self.existed_yml_btn.itemData(idx)
@@ -365,6 +361,29 @@ class WorldPatrolWhitelistInterface(VerticalScrollInterface):
 
     def on_choose_route(self, idx: int) -> None:
         self.chosen_route = self.route_btn.itemData(idx)
+
+    def on_row_up_clicked(self) -> None:
+        """
+        将路线向上移动
+        """
+        if self.chosen_config is None:
+            return
+
+        btn = self.sender()
+        if btn is not None:
+            # 当前行号
+            row_idx = self.route_table.indexAt(btn.pos()).row()
+            if row_idx == 0:
+                return
+
+            current_list = self.chosen_config.list
+            tmp = current_list[row_idx - 1]
+            current_list[row_idx - 1] = current_list[row_idx]
+            current_list[row_idx] = tmp
+            self.chosen_config.list = current_list
+            self.chosen_config.save()
+
+            self.update_route_table()
 
     def on_row_delete_clicked(self) -> None:
         """

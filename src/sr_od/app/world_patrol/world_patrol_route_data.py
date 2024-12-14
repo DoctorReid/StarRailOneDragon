@@ -8,7 +8,7 @@ from one_dragon.utils.log_utils import log
 from sr_od.sr_map.sr_map_data import SrMapData
 from sr_od.sr_map.sr_map_def import Planet, Region, SpecialPoint
 from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute
-from sr_od.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist
+from sr_od.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist, WorldPatrolWhiteListType
 
 
 class WorldPatrolRouteData:
@@ -63,7 +63,17 @@ class WorldPatrolRouteData:
         log.info('最终加载 %d 条线路 过滤已完成 %d 条 使用名单 %s',
                  len(route_list), len(finished_unique_id), 'None' if whitelist is None else whitelist.name)
 
-        return route_list
+        # 白名单的情况下 按照白名单的顺序返回
+        if whitelist is not None and whitelist.type == WorldPatrolWhiteListType.WHITE.value.value:
+            sorted_route_list = []
+            for target_route_id in whitelist.list:
+                for route in route_list:
+                    if route.unique_id == target_route_id:
+                        sorted_route_list.append(route)
+                        break
+            return sorted_route_list
+        else:
+            return route_list
 
     def load_route_by_yaml_path(self, yaml_path: str,
                                 target_planet: Optional[Planet] = None,
