@@ -164,7 +164,7 @@ BLADE = Character(id='blade', cn='刃', path=CHARACTER_PATH_DESTRUCTION, combat_
 BRONYA = Character(id='bronya', cn='布洛妮娅', path=CHARACTER_PATH_HARMONY, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
 CAELUM_DESTRUCTION = Character(id='caelum_destruction', cn='男主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
 CAELUM_PRESERVATION = Character(id='caelum_preservation', cn='男主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
-CAELUM_HARMONY = Character(id='caelum_harmony', cn='女主同谐', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF)
+CAELUM_HARMONY = Character(id='caelum_harmony', cn='男主同谐', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF)
 CLARA = Character(id='clara', cn='卡拉拉', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_ATTACK)
 DANHENG = Character(id='danheng', cn='丹恒', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=4, technique_type=TECHNIQUE_BUFF)
 DANHENGIMBIBITORLUNAE = Character(id='danhengimbibitorlunae', cn='丹恒·饮月', path=CHARACTER_PATH_DESTRUCTION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
@@ -220,6 +220,7 @@ MOZE = Character(id='moze', cn='貊泽', path=CHARACTER_PATH_HUNT, combat_type=L
 LINGSHA = Character(id='lingsha', cn='灵砂', path=CHARACTER_PATH_ABUNDANCE, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
 JIAOQIU = Character(id='jiaoqiu', cn='椒丘', path=CHARACTER_PATH_NIHILITY, combat_type=FIRE, level=5, technique_type=TECHNIQUE_AREA)
 RAPPA = Character(id='rappa', cn='乱破', path=CHARACTER_PATH_ERUDITION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+SUNDAY = Character(id='sunday', cn='星期日', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 
 CHARACTER_LIST: List[Character] = [
     ARLAN,
@@ -285,6 +286,7 @@ CHARACTER_LIST: List[Character] = [
     LINGSHA,
     JIAOQIU,
     RAPPA,
+    SUNDAY,
 ]
 
 
