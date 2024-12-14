@@ -1,0 +1,43 @@
+screen_id: enter_game_logout_dialog
+screen_name: 进入游戏-退出登陆
+pc_alt: false
+area_list:
+- area_name: 标题-退出登录
+  id_mark: true
+  pc_rect:
+  - 890
+  - 380
+  - 1018
+  - 442
+  text: 退出登录
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 按钮-退出并保留登陆记录
+  id_mark: false
+  pc_rect:
+  - 690
+  - 558
+  - 714
+  - 584
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 按钮-退出
+  id_mark: false
+  pc_rect:
+  - 962
+  - 650
+  - 1218
+  - 710
+  text: 退出
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []

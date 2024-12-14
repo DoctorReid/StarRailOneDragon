@@ -3,6 +3,7 @@ screen_name: 进入游戏
 pc_alt: false
 area_list:
 - area_name: 按钮-登出
+  id_mark: false
   pc_rect:
   - 1800
   - 386
@@ -13,7 +14,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 按钮-登出确定
+  id_mark: false
   pc_rect:
   - 970
   - 542
@@ -24,7 +27,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 国服-账号输入区域
+  id_mark: false
   pc_rect:
   - 688
   - 414
@@ -35,7 +40,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 国服-密码输入区域
+  id_mark: false
   pc_rect:
   - 699
   - 509
@@ -46,29 +53,35 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 国服-同意按钮
+  id_mark: false
   pc_rect:
   - 683
-  - 579
+  - 595
   - 707
-  - 599
+  - 615
   text: ''
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 国服-账号密码
+  id_mark: false
   pc_rect:
   - 853
   - 737
   - 984
-  - 769
+  - 800
   text: 账号密码
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 国服-账号密码进入游戏
+  id_mark: false
   pc_rect:
   - 688
   - 641
@@ -79,7 +92,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 文本-开始游戏
+  id_mark: false
   pc_rect:
   - 863
   - 808
@@ -90,7 +105,9 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
 - area_name: 文本-点击进入
+  id_mark: false
   pc_rect:
   - 900
   - 993
@@ -101,3 +118,4 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []

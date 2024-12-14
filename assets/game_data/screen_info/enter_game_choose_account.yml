@@ -1,0 +1,30 @@
+screen_id: enter_game_choose_account
+screen_name: 进入游戏-选择账号
+pc_alt: false
+area_list:
+- area_name: 按钮-进入游戏
+  id_mark: true
+  pc_rect:
+  - 686
+  - 598
+  - 1234
+  - 662
+  text: 进入游戏
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 按钮-登陆其他账号
+  id_mark: true
+  pc_rect:
+  - 846
+  - 676
+  - 1054
+  - 726
+  text: 登陆其他账号
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []

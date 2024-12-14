@@ -32,6 +32,7 @@ class EnterGame(SrOperation):
         self.use_clipboard: bool = self.ctx.game_config.type_input_way == TypeInputWay.CLIPBOARD.value.value  # 使用剪切板输入
 
     @node_from(from_name='国服-输入账号密码')
+    @node_from(from_name='登陆其他账号')
     @operation_node(name='画面识别', node_max_retry_times=60, is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -42,6 +43,10 @@ class EnterGame(SrOperation):
                 result2 = self.round_by_find_and_click_area(screen, '进入游戏', '按钮-登出确定')
                 if result2.is_success:
                     return self.round_wait(result2.status, wait=2)
+
+                result2 = self.round_by_find_area(screen, '进入游戏-退出登陆', '标题-退出登录')
+                if result2.is_success:
+                    return self.round_success(result2.status)
 
                 result2 = self.round_by_find_and_click_area(screen, '进入游戏', '按钮-登出')
                 if result2.is_success:
@@ -98,6 +103,21 @@ class EnterGame(SrOperation):
     def wait_game(self) -> OperationRoundResult:
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())
+
+    @node_from(from_name='画面识别', status='标题-退出登录')
+    @operation_node(name='退出并保留登陆记录')
+    def logout_with_account_kept(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        self.round_by_click_area('进入游戏-退出登陆', '按钮-退出并保留登陆记录', success_wait=1)
+        return self.round_by_find_and_click_area(screen, '进入游戏-退出登陆', '按钮-退出',
+                                                 success_wait=1, retry_wait=1)
+
+    @node_from(from_name='退出并保留登陆记录')
+    @operation_node(name='登陆其他账号')
+    def choose_other_account(self) -> OperationRoundResult:
+        screen = self.screenshot()
+        return self.round_by_find_and_click_area(screen, '进入游戏-选择账号', '按钮-登陆其他账号',
+                                                 success_wait=1, retry_wait=1)
 
 
 def __debug():
