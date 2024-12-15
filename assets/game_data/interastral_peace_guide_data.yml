@@ -407,6 +407,12 @@
           region_name: "竞锋舰"
           power: 30
 
+        - mission_name: "尘梦的赞礼·历战余响"
+          show_in_power_plan: true
+          display_name: "尘梦的赞礼"
+          region_name: "匹诺康尼大剧院"
+          power: 30
+
         - mission_name: "蛀星的旧靥·历战余响"
           show_in_power_plan: true
           display_name: "蛀星的旧靥"
