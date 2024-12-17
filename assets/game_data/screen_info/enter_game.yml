@@ -86,7 +86,7 @@ area_list:
   - 688
   - 641
   - 1226
-  - 693
+  - 713
   text: 进入游戏
   lcs_percent: 0.5
   template_sub_dir: ''
@@ -114,6 +114,45 @@ area_list:
   - 1017
   - 1030
   text: 点击进入
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 文本-同意-旧
+  id_mark: false
+  pc_rect:
+  - 714
+  - 572
+  - 762
+  - 600
+  text: 同意
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 国服-同意按钮-旧
+  id_mark: false
+  pc_rect:
+  - 686
+  - 574
+  - 702
+  - 596
+  text: ''
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 文本-同意-新
+  id_mark: false
+  pc_rect:
+  - 714
+  - 590
+  - 760
+  - 630
+  text: 同意
   lcs_percent: 0.5
   template_sub_dir: ''
   template_id: ''

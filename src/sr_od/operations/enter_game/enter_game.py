@@ -53,6 +53,10 @@ class EnterGame(SrOperation):
                     return self.round_wait(result2.status, wait=1)
 
                 return self.round_retry(result2.status, wait=1)
+            else:
+                result2 = self.round_by_find_and_click_area(screen, '进入游戏-选择账号', '按钮-登陆其他账号')
+                if result2.is_success:
+                    return self.round_wait(result2.status, wait=1)
         else:
             result = self.round_by_find_and_click_area(screen, '进入游戏', '文本-点击进入')
             if result.is_success:
@@ -74,6 +78,7 @@ class EnterGame(SrOperation):
         if self.ctx.game_config.game_account == '' or self.ctx.game_config.game_account_password == '':
             return self.round_fail('未配置账号密码')
 
+        screen = self.screenshot()
         self.round_by_click_area('进入游戏', '国服-账号输入区域')
         time.sleep(0.5)
         if self.use_clipboard:
@@ -90,7 +95,13 @@ class EnterGame(SrOperation):
             self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.game_account_password)
         time.sleep(1.5)
 
-        self.round_by_click_area('进入游戏', '国服-同意按钮')
+        result = self.round_by_find_area(screen, '进入游戏', '文本-同意-旧')
+        if result.is_success:
+            self.round_by_click_area('进入游戏', '国服-同意按钮-旧')
+
+        result = self.round_by_find_area(screen, '进入游戏', '文本-同意-新')
+        if result.is_success:
+            self.round_by_click_area('进入游戏', '国服-同意按钮')
         time.sleep(0.5)
 
         screen = self.screenshot()
