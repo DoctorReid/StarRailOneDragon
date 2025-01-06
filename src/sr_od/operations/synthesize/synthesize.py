@@ -13,7 +13,7 @@ from sr_od.operations.menu import phone_menu_const
 from sr_od.operations.menu.click_phone_menu_item import ClickPhoneMenuItem
 from sr_od.operations.menu.open_phone_menu import OpenPhoneMenu
 from sr_od.operations.sr_operation import SrOperation
-from sr_od.operations.synthesize.synthesize_const import SynthesizeItem
+from sr_od.operations.synthesize.synthesize_const import SynthesizeItem, SynthesizeItemEnum
 
 
 class Synthesize(SrOperation):
@@ -93,11 +93,11 @@ class Synthesize(SrOperation):
         result = self.get_item_pos(screen)
 
         if result is None:
-            area = self.ctx.screen_loader.get_area('')
+            area = self.ctx.screen_loader.get_area('合成', '物品列表')
             drag_from = area.center
-            drag_to = drag_from + Point(0, -100)
+            drag_to = drag_from + Point(0, -300)
             self.ctx.controller.drag_to(start=drag_from, end=drag_to)
-            return self.round_retry(f'未找到{self.item.name}', wait=0.5)
+            return self.round_retry(f'未找到{self.item.name}', wait=2)
         else:
             self.ctx.controller.click(result.center)
             return self.round_success(wait=0.5)
@@ -170,3 +170,17 @@ class Synthesize(SrOperation):
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '合成', '点击空白处关闭',
                                                  success_wait=1, retry_wait=1)
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.ocr.init_model()
+    ctx.start_running()
+
+    op = Synthesize(ctx, SynthesizeItemEnum.TRICK_SNACK.value, 0)
+    op.execute()
+
+
+if __name__ == '__main__':
+    __debug()
