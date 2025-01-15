@@ -110,9 +110,11 @@ class GuideChooseMission(SrOperation):
             return None
         log.info('匹配副本名称 %s', word_list[mission_idx])
 
-        tp_idx = str_utils.find_best_match_by_difflib(gt('传送'), word_list, cutoff=0.5)
+        tp_idx = str_utils.find_best_match_by_difflib(gt('传送'), word_list, cutoff=0.5)  # 模拟宇宙
         if tp_idx is None:
-            log.error('匹配失败 传送')
+            tp_idx = str_utils.find_best_match_by_difflib(gt('进入'), word_list, cutoff=0.5)  # 普通副本
+        if tp_idx is None:
+            log.error('匹配失败 传送/进入')
             return None
 
         mission_pos = mrl_list[mission_idx].max.center

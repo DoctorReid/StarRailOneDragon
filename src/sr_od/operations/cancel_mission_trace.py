@@ -49,7 +49,7 @@ class CancelMissionTrace(SrOperation):
             self.ctx.pos_info.pos_cancel_mission_trace = True
             return self.round_success()
 
-        return self.round_by_find_and_click_area(screen, '任务', '停止追踪',
+        return self.round_by_find_and_click_area(screen, '任务', '按钮-停止追踪',
                                                  success_wait=1, retry_wait=1)
 
     @node_from(from_name='取消追踪')

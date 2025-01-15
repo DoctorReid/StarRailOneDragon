@@ -2,25 +2,29 @@ screen_id: mission
 screen_name: 任务
 pc_alt: false
 area_list:
-- area_name: 开始追踪
+- area_name: 按钮-停止追踪
+  id_mark: false
   pc_rect:
-  - 1495
-  - 965
-  - 1820
-  - 1005
-  text: 开始追踪
-  lcs_percent: 0.55
-  template_sub_dir: ''
-  template_id: ''
-  template_match_threshold: 0.7
-- area_name: 停止追踪
-  pc_rect:
-  - 1495
-  - 965
-  - 1820
-  - 1005
+  - 1118
+  - 954
+  - 1420
+  - 1008
   text: 停止追踪
   lcs_percent: 0.55
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  goto_list: []
+- area_name: 按钮-开始追踪
+  id_mark: false
+  pc_rect:
+  - 1488
+  - 960
+  - 1822
+  - 1006
+  text: 开始追踪
+  lcs_percent: 0.55
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []

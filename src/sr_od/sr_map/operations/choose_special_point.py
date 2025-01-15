@@ -81,14 +81,14 @@ class ChooseSpecialPoint(SrOperation):
         :param screen: 屏幕截图
         :return: 是否点击传送
         """
-        tp_btn_area = self.ctx.screen_loader.get_area('大地图', '按钮-传送')
-        tp_btn_part = cv2_utils.crop_image_only(screen, tp_btn_area.rect)
+        area = self.ctx.screen_loader.get_area('大地图', '按钮-传送')
+        tp_btn_part, _ = cv2_utils.crop_image(screen, area.rect)
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
         tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'])
         if len(tp_btn_ocr) > 0:
             # 看看是否目标传送点
-            tp_name_area = self.ctx.screen_loader.get_area('大地图', '当前选择区域名称')
-            tp_name_part = cv2_utils.crop_image_only(screen, tp_name_area.rect)
+            tp_name_area = self.ctx.screen_loader.get_area('大地图', '文本-传送点名称')
+            tp_name_part, _ = cv2_utils.crop_image(screen, tp_name_area.rect)
             current_lang: str = self.ctx.game_config.lang
             tp_name_str: Optional[str] = None
             if current_lang == GameLanguageEnum.CN.value.value:
@@ -108,7 +108,7 @@ class ChooseSpecialPoint(SrOperation):
                     str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True,
                                           percent=self.ctx.game_config.special_point_lcs_percent)):
                 # 点击传送
-                to_click = tp_btn_area.left_top
+                to_click = area.center
                 for r in tp_btn_ocr.values():
                     to_click = to_click + r.max.center
                     break
