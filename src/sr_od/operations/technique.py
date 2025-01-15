@@ -74,12 +74,14 @@ class UseTechniqueResult:
 class UseTechnique(SrOperation):
 
     STATUS_CAN_USE: ClassVar[str] = '可使用秘技'
+    STATUS_CONTINUE_USE: ClassVar[str] = '继续使用秘技'
 
     def __init__(self, ctx: SrContext,
                  max_consumable_cnt: int = 0,
                  need_check_available: bool = False,
                  need_check_point: bool = False,
-                 trick_snack: bool = False
+                 trick_snack: bool = False,
+                 exit_after_use: bool = False,
                  ):
         """
         需在大世界页面中使用
@@ -91,18 +93,21 @@ class UseTechnique(SrOperation):
         :param need_check_available: 是否需要检查秘技是否可用 普通大世界战斗后 会有一段时间才能使用秘技
         :param need_check_point: 是否检测剩余秘技点再使用。如果没有秘技点 又不能用消耗品 那就不使用了。目前OCR较慢 不建议开启
         :param trick_snack: 只使用奇巧零食
+        :param exit_after_use: 当能使用秘技的情况下 一定要使用了秘技再退出
         """
         SrOperation.__init__(self, ctx, op_name=gt('施放秘技', 'ui'))
 
         self.no_dialog_times: int = 0  # 没有出现快速恢复对话框的次数
         self.max_consumable_cnt: int = max_consumable_cnt  # 最多使用的消耗品个数
         self.trick_snack: bool = trick_snack  # 只使用奇巧零食
+        self.exit_after_use: bool = exit_after_use  # 当能使用秘技的情况下 一定要使用了秘技再退出
 
         self.need_check_available: bool = need_check_available  # 是否需要检查秘技是否可用
         self.need_check_point: bool = need_check_point  # 是否检测剩余秘技点再使用
 
         self.op_result: UseTechniqueResult = UseTechniqueResult()  # 最后返回的结果
 
+    @node_from(from_name='等待大世界继续', status=STATUS_CONTINUE_USE)
     @operation_node(name='检测秘技点', is_start_node=True)
     def _check_technique_point(self) -> OperationRoundResult:
         if self.need_check_point:
@@ -118,7 +123,6 @@ class UseTechnique(SrOperation):
             return self.round_success(UseTechnique.STATUS_CAN_USE)
 
     @node_from(from_name='检测秘技点', status=STATUS_CAN_USE)
-    @node_from(from_name='等待大世界使用秘技')
     @operation_node(name='使用秘技')
     def _use(self) -> OperationRoundResult:
         if self.need_check_available and not self.op_result.with_dialog:
@@ -144,10 +148,6 @@ class UseTechnique(SrOperation):
         if self.ctx.team_info.is_attack_technique:  # 攻击类的 使用完就取消标记
             self.ctx.technique_used = False
 
-        if self.op_result.with_dialog and self.op_result.use_consumable_times > 0:
-            # 之前出现过对话框 且已经用过消耗品了 那这次就不需要判断了
-            return self.round_success(FastRecover.STATUS_NO_NEED_CONSUMABLE, data=self.op_result)
-
         screen = self.screenshot()
         # cv2_utils.show_image(screen, win_name='technique')
         if common_screen_state.is_normal_in_world(self.ctx, screen):
@@ -169,6 +169,7 @@ class UseTechnique(SrOperation):
         else:
             self.no_dialog_times = 0
             self.op_result.use_tech = False  # 出现了对话框 那么之前使用秘技没有成功
+            self.op_result.with_dialog = True
             self.ctx.technique_used = False
 
             return FastRecover.handle_consumable_dialog(
@@ -178,25 +179,8 @@ class UseTechnique(SrOperation):
             )
 
     @node_from(from_name='确认', status='使用了消耗品')
-    @operation_node(name='等待大世界使用秘技', node_max_retry_times=20)
-    def _wait_in_world_to_use(self):
-        """
-        使用后判断是否在大世界
-        这里需要足够快的判断 方便后续的指令进行 因此尽量等待少的时间
-        :return:
-        """
-        # 没有出现过对话框 那么直接返回即可
-        if not self.op_result.with_dialog:
-            return self.round_success(data=self.op_result)
-
-        screen = self.screenshot()
-        if common_screen_state.is_normal_in_world(self.ctx, screen):
-            return self.round_success(data=self.op_result)
-        else:
-            return self.round_retry(status='未在大世界画面', wait=0.1)
-
     @node_from(from_name='确认', status='没使用消耗品')
-    @operation_node(name='等待大世界使用秘技', node_max_retry_times=20)
+    @operation_node(name='等待大世界继续', node_max_retry_times=20)
     def _wait_in_world_to_other(self):
         """
         使用后判断是否在大世界
@@ -209,7 +193,17 @@ class UseTechnique(SrOperation):
 
         screen = self.screenshot()
         if common_screen_state.is_normal_in_world(self.ctx, screen):
-            return self.round_success(data=self.op_result)
+            if self.exit_after_use:  # 要求使用了秘技才能退出
+                if self.op_result.use_tech:  # 已经使用了秘技 可以退出
+                    return self.round_success(data=self.op_result)
+                elif self.op_result.with_dialog and self.op_result.use_consumable_times > 0:
+                    # 使用了消耗品 重新尝试使用秘技
+                    self.op_result: UseTechniqueResult = UseTechniqueResult()
+                    return self.round_success(status=UseTechnique.STATUS_CONTINUE_USE)
+                else:  # 没法使用消耗品 只能退出
+                    return self.round_success(data=self.op_result)
+            else:
+                return self.round_success(data=self.op_result)
         else:
             return self.round_retry(status='未在大世界画面', wait=0.1)
 
@@ -260,19 +254,7 @@ class FastRecover(SrOperation):
 
         self.max_consumable_cnt: int = max_consumable_cnt  # 最多使用的消耗品个数
         self.quirky_snacks: bool = quirky_snacks  # 只使用奇巧零食
-
-    def handle_init(self) -> Optional[OperationRoundResult]:
-        """
-        执行前的初始化 由子类实现
-        注意初始化要全面 方便一个指令重复使用
-        可以返回初始化后判断的结果
-        - 成功时跳过本指令
-        - 失败时立刻返回失败
-        - 不返回时正常运行本指令
-        """
         self.op_result: UseTechniqueResult = UseTechniqueResult()
-
-        return None
 
     @operation_node(name='使用消耗品', is_start_node=True)
     def use(self) -> OperationRoundResult:
@@ -402,7 +384,8 @@ def __debug():
                       ctx.world_patrol_config.max_consumable_cnt,
                       True,
                       True,
-                      ctx.game_config.use_quirky_snacks
+                      ctx.game_config.use_quirky_snacks,
+                      exit_after_use=True,
                     )
     op.execute()
 

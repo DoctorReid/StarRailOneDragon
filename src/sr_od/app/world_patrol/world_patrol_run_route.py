@@ -216,7 +216,7 @@ class WorldPatrolRunRoute(SrOperation):
             if item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
                 # 需要找下一个不是移动的指令
                 continue
-            elif item.op in [operation_const.OP_PATROL, item.op == operation_const.OP_DISPOSABLE]:
+            elif item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
                 # 如果下一个不是移动的指令 是攻击类的 则当前不需要攻击
                 should_attack = False
                 break
