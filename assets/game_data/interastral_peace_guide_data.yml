@@ -198,6 +198,12 @@
           region_name: '大矿区'
           power: 10
 
+        - mission_name: "记忆之蕾"
+          show_in_power_plan: true
+          display_name: "记忆-「纷争荒墟」悬锋城"
+          region_name: '「纷争荒墟」悬锋城'
+          power: 10
+
     - category_name: "凝滞虚影"
       display_name: "角色突破"
       show_in_power_plan: true
@@ -332,6 +338,12 @@
       display_name: "遗器"
       show_in_power_plan: true
       mission_list:
+        - mission_name: "弦歌之径"
+          show_in_power_plan: true
+          display_name: "凯歌祝捷的英豪 哀歌覆国的诗人"
+          region_name: "「浴血战端」悬锋城"
+          power: 40
+
         - mission_name: "迷识之径"
           show_in_power_plan: true
           display_name: "重盾苦旅的司铎 识海迷坠的学者"
