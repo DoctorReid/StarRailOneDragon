@@ -208,7 +208,7 @@ class SimUniEnterFight(SrOperation):
             if will_use_tech:  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx,
                                   max_consumable_cnt=0 if self.config is None else self.config.max_consumable_cnt,
-                                  trick_snack=self.ctx.game_config.use_quirky_snacks
+                                  trick_snack=self.ctx.game_config.use_quirky_snacks,
                                   )
                 op_result = op.execute()
                 if op_result.success:

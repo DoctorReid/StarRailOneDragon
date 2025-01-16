@@ -143,7 +143,7 @@ class WorldPatrolEnterFight(SrOperation):
             if will_use_tech:  # 识别到秘技类型才能使用
                 op = UseTechnique(self.ctx, max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
                                   need_check_available=self.ctx.is_pc and self.first_tech_after_battle,  # 只有战斗结束刚出来的时候可能用不了秘技
-                                  trick_snack=self.ctx.game_config.use_quirky_snacks
+                                  trick_snack=self.ctx.game_config.use_quirky_snacks,
                                   )
                 op_result = op.execute()
                 if op_result.success:

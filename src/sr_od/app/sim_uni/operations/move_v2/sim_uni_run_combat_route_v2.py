@@ -57,7 +57,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
             op = UseTechnique(self.ctx,
                               max_consumable_cnt=self.ctx.sim_uni_challenge_config.max_consumable_cnt,
                               need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
-                              trick_snack=self.ctx.game_config.use_quirky_snacks
+                              trick_snack=self.ctx.game_config.use_quirky_snacks,
                               )
             return self.round_by_op_result(op.execute())
 

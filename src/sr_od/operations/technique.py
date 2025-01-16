@@ -81,7 +81,7 @@ class UseTechnique(SrOperation):
                  need_check_available: bool = False,
                  need_check_point: bool = False,
                  trick_snack: bool = False,
-                 exit_after_use: bool = False,
+                 exit_after_use: bool = True,
                  ):
         """
         需在大世界页面中使用
@@ -344,6 +344,7 @@ class FastRecover(SrOperation):
                         return op.round_retry(result.status, wait=1)
                 else:
                     op_result.consumable_chosen = True
+                    time.sleep(0.5)
 
             result = op.round_by_find_and_click_area(screen, '快速恢复对话框', '确认')
             if result.is_success:
@@ -385,7 +386,6 @@ def __debug():
                       True,
                       True,
                       ctx.game_config.use_quirky_snacks,
-                      exit_after_use=True,
                     )
     op.execute()
 
