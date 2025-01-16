@@ -26,6 +26,7 @@ CHARACTER_PATH_ABUNDANCE = CharacterPath(id='abundance', cn='丰饶')
 CHARACTER_PATH_NIHILITY = CharacterPath(id='nihility', cn='虚无')
 CHARACTER_PATH_ERUDITION = CharacterPath(id='erudition', cn='智识')
 CHARACTER_PATH_HARMONY = CharacterPath(id='harmony', cn='同谐')
+CHARACTER_PATH_REMEMBRANCE = CharacterPath(id='remembrance', cn='记忆')
 
 CHARACTER_PATH_LIST: List[CharacterPath] = [
     CHARACTER_PATH_DESTRUCTION,
@@ -35,6 +36,7 @@ CHARACTER_PATH_LIST: List[CharacterPath] = [
     CHARACTER_PATH_NIHILITY,
     CHARACTER_PATH_ERUDITION,
     CHARACTER_PATH_HARMONY,
+    CHARACTER_PATH_REMEMBRANCE,
 ]
 
 ATTACK_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_DESTRUCTION, CHARACTER_PATH_HUNT, CHARACTER_PATH_ERUDITION]
@@ -43,7 +45,7 @@ ATTACK_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_DESTRUCTION, CHARACTER_P
 SURVIVAL_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_PRESERVATION, CHARACTER_PATH_ABUNDANCE]
 """生存命途"""
 
-SUPPORT_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_NIHILITY, CHARACTER_PATH_HARMONY]
+SUPPORT_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_NIHILITY, CHARACTER_PATH_HARMONY, CHARACTER_PATH_REMEMBRANCE]
 """辅助命途"""
 
 
@@ -193,6 +195,7 @@ SILVERWOLF = Character(id='silverwolf', cn='银狼', path=CHARACTER_PATH_NIHILIT
 STELLE_DESTRUCTION = Character(id='stelle_destruction', cn='女主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
 STELLE_PRESERVATION = Character(id='stelle_preservation', cn='女主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
 STELLE_HARMONY = Character(id='stelle_harmony', cn='女主同谐', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF)
+STELLE_REMEMBRANCE = Character(id='stelle_remembrance', cn='女主记忆', path=CHARACTER_PATH_REMEMBRANCE, combat_type=ICE, level=4, technique_type=TECHNIQUE_AREA)
 SUSHANG = Character(id='sushang', cn='素裳', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
 TINGYUN = Character(id='tingyun', cn='停云', path=CHARACTER_PATH_HARMONY, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_BUFF)
 TOPAZNUMBY = Character(id='topaznumby', cn='托帕&账账', path=CHARACTER_PATH_HUNT, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
@@ -221,6 +224,8 @@ LINGSHA = Character(id='lingsha', cn='灵砂', path=CHARACTER_PATH_ABUNDANCE, co
 JIAOQIU = Character(id='jiaoqiu', cn='椒丘', path=CHARACTER_PATH_NIHILITY, combat_type=FIRE, level=5, technique_type=TECHNIQUE_AREA)
 RAPPA = Character(id='rappa', cn='乱破', path=CHARACTER_PATH_ERUDITION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 SUNDAY = Character(id='sunday', cn='星期日', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
+FUGUE = Character(id='fugue', cn='忘归人', path=CHARACTER_PATH_HARMONY, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
+THE_HERTA = Character(id='the_herta', cn='大黑塔', path=CHARACTER_PATH_ERUDITION, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
 
 CHARACTER_LIST: List[Character] = [
     ARLAN,
@@ -259,6 +264,7 @@ CHARACTER_LIST: List[Character] = [
     STELLE_DESTRUCTION,
     STELLE_PRESERVATION,
     STELLE_HARMONY,
+    STELLE_REMEMBRANCE,
     SUSHANG,
     TINGYUN,
     TOPAZNUMBY,
@@ -287,6 +293,8 @@ CHARACTER_LIST: List[Character] = [
     JIAOQIU,
     RAPPA,
     SUNDAY,
+    FUGUE,
+    THE_HERTA,
 ]
 
 

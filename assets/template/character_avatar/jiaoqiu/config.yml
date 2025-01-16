@@ -4,5 +4,5 @@ template_name: 角色头像-焦丘
 template_shape: rectangle
 auto_mask: true
 point_list:
-- 39, 118
-- 153, 226
+- 46, 228
+- 160, 336
