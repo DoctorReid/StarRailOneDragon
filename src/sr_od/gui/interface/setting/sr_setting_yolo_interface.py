@@ -101,11 +101,11 @@ class SrSettingYoloInterface(VerticalScrollInterface):
 
         self.personal_proxy_input.setValue(self.ctx.env_config.personal_proxy)
 
-        self.log_card.set_update_log(True)
+        self.log_card.start()
 
     def on_interface_hidden(self) -> None:
         VerticalScrollInterface.on_interface_hidden(self)
-        self.log_card.set_update_log(False)
+        self.log_card.stop()
 
     def _init_world_patrol_opts(self) -> None:
         self.world_patrol_model_opt.blockSignals(True)

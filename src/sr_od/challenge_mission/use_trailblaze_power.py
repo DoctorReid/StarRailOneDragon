@@ -160,11 +160,13 @@ class UseTrailblazePower(SrOperation):
             return self.round_by_find_and_click_area(screen, '挑战副本', '阵亡弹框-取消',
                                                      success_wait=1, retry_wait=1)
 
+
         if self.mission.cate.cn == '凝滞虚影':
-            op = WaitInWorld(self.ctx, wait_after_success=1)  # 等待怪物苏醒
+            op = WaitInWorld(self.ctx, wait=5, wait_after_success=1)  # 等待怪物苏醒
             op_result = op.execute()
             if not op_result.success:
-                return self.round_fail('未在大世界画面')
+                # 使用指南传送后 凝滞虚影会直接进入战斗 不需要平A
+                return self.round_success('未在大世界画面')
             self.ctx.controller.move('w', press_time=1)
             self.ctx.controller.initiate_attack()
             return self.round_success(wait=1)
