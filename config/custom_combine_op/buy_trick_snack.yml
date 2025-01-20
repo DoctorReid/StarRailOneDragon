@@ -21,15 +21,15 @@ ops:
   - op: 'interact'
     data: ['talk', '都有些什么好东西']
   - op: 'wait'
-    data: ['seconds', '0.5']
+    data: ['seconds', '1']
   - op: 'click'
-    data: [ '100', '100' ]
+    data: [ '960', '980' ]
   - op: 'wait'
-    data: ['seconds', '0.5']
+    data: ['seconds', '1']
   - op: 'click'
-    data: [ '100', '100' ]
+    data: [ '960', '980' ]
   - op: 'wait'
-    data: ['seconds', '0.5']
+    data: ['seconds', '1']
   - op: 'buy_store_item'
     data: ['gaseous_liquid', '0']
     allow_fail: true
