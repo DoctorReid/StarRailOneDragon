@@ -54,6 +54,7 @@ def show_image(img: MatLike,
     :param destroy_after: 显示后销毁窗口
     :return:
     """
+    # cv2.startWindowThread()
     to_show = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
     if rects is not None:
@@ -66,6 +67,8 @@ def show_image(img: MatLike,
     cv2.imshow(win_name, to_show)
     if wait is not None:
         cv2.waitKey(wait)
+    else:
+        cv2.waitKey(1)
     if destroy_after:
         cv2.destroyWindow(win_name)
 

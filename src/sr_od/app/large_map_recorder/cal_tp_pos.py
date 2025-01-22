@@ -34,21 +34,30 @@ if __name__ == '__main__':
     ctx = SrContext()
     ctx.init_by_config()
 
-    planet_name: str = '匹诺康尼'
-    region_name: str = '匹诺康尼大剧院'
-    floor: int = 0
+    planet_name: str = '翁法罗斯'
+    region_name: str = '「浴血战端」悬锋城'
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
-    region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet, target_floor=floor)
+    region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet)
 
     sp_name_list = [
-        '弦音之形·凝滞虚影'
+        '铸魂仪门',
+        '琢石区',
+        '纷争正殿',
+        '征伐行道',
+        '掘石场',
     ]
     img_list = [
-        '_1729929534459',
+        '_1737532255561',
+        '_1737532263194',
+        '_1737532272078',
+        '_1737532280861',
+        '_1737532508556',
     ]
     for i in range(len(sp_name_list)):
         sp = ctx.map_data.best_match_sp_by_name(region, gt(sp_name_list[i]))
+        if sp is None:
+            log.error(f'找不到 {sp_name_list[i]}')
         cal_one(sp, debug_image=img_list[i], show=True)
         # cal_one(sp_list[i])
     cv2.destroyAllWindows()

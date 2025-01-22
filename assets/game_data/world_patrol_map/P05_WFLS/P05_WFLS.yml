@@ -4,5 +4,20 @@
   floors: [1, 2]
 
 - num: 2
+  uid: "YXZDXFC"
+  cn: "「浴血战端」悬锋城"
+  floors: [-1, 1, 2, 3]
+
+- num: 3
+  uid: "FZHXXFC"
+  cn: "「纷争荒墟」悬锋城"
+  floors: [-1, 1, 2, 3]
+
+- num: 4
+  uid: "FZHX"
+  cn: "「命运重渊」雅努萨波利斯"
+  floors: [1, 2]
+
+- num: 5
   uid: "CSWX"
   cn: "创世涡心"

@@ -15,7 +15,7 @@ from sr_od.config import game_const
 from sr_od.config.game_config import MiniMapPos
 from sr_od.context.sr_context import SrContext
 from sr_od.sr_map.large_map_info import LargeMapInfo
-from sr_od.sr_map.sr_map_def import Planet, Region
+from sr_od.sr_map.sr_map_def import Planet, Region, SpecialPoint
 
 CUT_MAP_RECT = Rect(200, 190, 1300, 930)  # 主区域 在屏幕上截取大地图的区域
 SUB_CUT_MAP_RECT = Rect(200, 190, 1600, 955)  # 子区域 在屏幕上截取大地图的区域
@@ -171,19 +171,27 @@ def init_large_map(ctx: SrContext, region: Region, raw: MatLike,
 
     if save:
         cv2_utils.show_image(info.raw, win_name='raw')
-        cv2_utils.show_image(info.gray, win_name='gray')
         cv2_utils.show_image(info.mask, win_name='mask')
         log.info('地图特殊点坐标')
         i: int = 0
         for k, v in info.sp_result.items():
             for vs in v:
-                log.info("SP%02d = TransportPoint('', '', , '%s', %s)", i+1, k, vs.center)
+                sp_info = (
+                        '- uid: ""\n'
+                        + '  cn: ""\n'
+                        + f'  planet_name: "{region.planet.cn}"\n'
+                        + f'  region_name: "{region.cn}"\n'
+                        + f'  region_floor: {region.floor}\n'
+                        + f'  template_id: "{k}"\n'
+                        + f'  lm_pos: [{vs.center.x}, {vs.center.y}]\n'
+                )
+
+                print(sp_info)
                 i += 1
 
         cv2.waitKey(0)
 
         ctx.map_data.save_large_map_image(info.raw, region, 'raw')
-        # ctx.map_data.save_large_map_image(info.gray, region, 'gray')
         ctx.map_data.save_large_map_image(info.mask, region, 'mask')
 
     return info
