@@ -498,7 +498,7 @@ def cut_template_with_mask(sub_dir: str, template_id: str) -> None:
 
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_18', noise_threshold=30)
-    init_sp_with_background('mm_sp_21')
+    init_sp_with_background('mm_sp_22')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
