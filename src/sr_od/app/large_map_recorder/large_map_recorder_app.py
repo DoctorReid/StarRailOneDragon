@@ -103,7 +103,7 @@ class LargeMapRecorder(SrApplication):
     @node_from(from_name='选择区域')
     @operation_node(name='截图')
     def do_screenshot(self) -> OperationRoundResult:
-        if self.current_region_idx > len(self.region_list):
+        if self.current_region_idx >= len(self.region_list):
             return self.round_success()
 
         self.current_region = self.region_list[self.current_region_idx]
@@ -205,8 +205,7 @@ class LargeMapRecorder(SrApplication):
         row = self.row if self.max_row is None else self.max_row
         col = self.col if self.max_column is None else self.max_column
 
-        # self.overlap_width_median = self.get_overlap_width_median()
-        self.overlap_width_median = [0, 0, 786, 786, 1018]
+        self.overlap_width_median = self.get_overlap_width_median()
         self.overlap_height_median = self.get_overlap_height_median()
         for region in self.region_list:
             self.merge_region_screenshot(region, row, col)
@@ -449,13 +448,14 @@ class LargeMapRecorder(SrApplication):
         if self.max_column is not None:
             # 如果已经指定了最大列数 则除了最后一列的其他列 与前一列的重叠宽度一致
             all_col_width = []
-            for col in range(2, max_col):
-                for width in overlap_width_list[col]:
-                    all_col_width.append(width)
-            all_col_width_median = int(np.median(all_col_width))
-            for col in range(2, max_col):
-                log.info('%02d列 与前重叠宽度中位数 %d', col, all_col_width_median)
-                overlap_width_median.append(all_col_width_median)
+            if max_col >= 2:
+                for col in range(2, max_col):
+                    for width in overlap_width_list[col]:
+                        all_col_width.append(width)
+                all_col_width_median = int(np.median(all_col_width))
+                for col in range(2, max_col):
+                    log.info('%02d列 与前重叠宽度中位数 %d', col, all_col_width_median)
+                    overlap_width_median.append(all_col_width_median)
             for col in range(max_col, max_col + 1):
                 width_median = int(np.median(overlap_width_list[col]))
                 log.info('%02d列 与前重叠宽度中位数 %d', col, width_median)
@@ -501,13 +501,14 @@ class LargeMapRecorder(SrApplication):
         if self.max_row is not None:
             # 如果已经指定了最大行数 则除了最后一行的其他行 与前一行的重叠高度一致
             all_row_height = []
-            for row in range(2, max_row):
-                for height in overlap_height_list[row]:
-                    all_row_height.append(height)
-            all_row_height_median = int(np.median(all_row_height))
-            for row in range(2, max_row):
-                log.info('%02d行 与前重叠高度中位数 %d', row, all_row_height_median)
-                overlap_height_median.append(all_row_height_median)
+            if max_row >= 2:
+                for row in range(2, max_row):
+                    for height in overlap_height_list[row]:
+                        all_row_height.append(height)
+                all_row_height_median = int(np.median(all_row_height))
+                for row in range(2, max_row):
+                    log.info('%02d行 与前重叠高度中位数 %d', row, all_row_height_median)
+                    overlap_height_median.append(all_row_height_median)
             for row in range(max_row, max_row + 1):
                 height_median = int(np.median(overlap_height_list[row]))
                 log.info('%02d行 与前重叠高度中位数 %d', row, height_median)
@@ -722,7 +723,8 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         # map_const.P03_R11_F1.pr_id: {'max_row': 7, 'max_column': 6},  # 罗浮仙舟 - 幽囚狱 右边有较多空白
         # 'P04_PNKN_R10_PNKNDJY': {'skip_height': 700, 'max_row': 4, 'max_column': 4},  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
         'P05_WFLS_R02_YXZDXFC': {'max_column': 4, 'max_row': 11, 'drag_times_to_left_top': 6,
-                                 'cols_to_cal_overlap_height': [1]}
+                                 'cols_to_cal_overlap_height': [1]},
+        'P05_WFLS_R04_FZHX': { 'max_row': 8, 'max_column': 1, }
     }
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
@@ -760,4 +762,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「浴血战端」悬锋城', 'save')
+    __debug('翁法罗斯', '「命运重渊」雅努萨波利斯', 'save')

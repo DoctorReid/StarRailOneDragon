@@ -1,0 +1,60 @@
+- uid: "JSXS"
+  cn: "觐神狭室"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [626, 331]
+  tp_pos: [610, 319]
+
+- uid: "CMCF"
+  cn: "长梦宸扉"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [654, 863]
+  tp_pos: [611, 867]
+
+- uid: "JYAD"
+  cn: "噤语黯地"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [637, 1423]
+  tp_pos: [610, 1418]
+
+- uid: "MYHT"
+  cn: "命运荒途"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [402, 1879]
+  tp_pos: [396, 1852]
+
+- uid: "RMSL"
+  cn: "扰梦石陵"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [793, 2040]
+  tp_pos: [808, 2047]
+
+- uid: "BRMJDXS"
+  cn: "「永恒圣城」奥赫玛"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 2
+  template_id: "mm_sp_02"
+  lm_pos: [364, 1856]
+
+- uid: "MYCYDYJQSZ"
+  cn: "「命运重渊」的衣匠前哨站"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 2
+  template_id: "mm_sp_20"
+  lm_pos: [522, 901]

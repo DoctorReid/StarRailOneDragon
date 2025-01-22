@@ -25,7 +25,7 @@ def cal_one(tp: SpecialPoint, debug_image: str, show: bool = False):
         result = cal_pos_utils.cal_character_pos_by_gray(ctx, lm_info, mm_info, lm_rect=lm_rect,
                                                          scale_list=cal_pos_utils.get_mini_map_scale_list(False))
 
-    log.info('%s 传送落地坐标 %s 使用缩放 %.2f', tp.display_name, result.center, result.template_scale)
+    log.info('%s 传送落地坐标 tp_pos: [%d, %d] 使用缩放 %.2f', tp.display_name, result.center.x, result.center.y, result.template_scale)
     if show:
         cv2_utils.show_overlap(lm_info.raw, mm, result.x, result.y, template_scale=result.template_scale, wait=0)
 
@@ -35,24 +35,24 @@ if __name__ == '__main__':
     ctx.init_by_config()
 
     planet_name: str = '翁法罗斯'
-    region_name: str = '「浴血战端」悬锋城'
+    region_name: str = '「命运重渊」雅努萨波利斯'
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
     region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet)
 
     sp_name_list = [
-        '铸魂仪门',
-        '琢石区',
-        '纷争正殿',
-        '征伐行道',
-        '掘石场',
+        '觐神狭室',
+        '长梦宸扉',
+        '噤语黯地',
+        '命运荒途',
+        '扰梦石陵',
     ]
     img_list = [
-        '_1737532255561',
-        '_1737532263194',
-        '_1737532272078',
-        '_1737532280861',
-        '_1737532508556',
+        '_1737534091914',
+        '_1737534100265',
+        '_1737534106682',
+        '_1737534115349',
+        '_1737534122249',
     ]
     for i in range(len(sp_name_list)):
         sp = ctx.map_data.best_match_sp_by_name(region, gt(sp_name_list[i]))
