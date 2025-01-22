@@ -498,7 +498,7 @@ def cut_template_with_mask(sub_dir: str, template_id: str) -> None:
 
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_18', noise_threshold=30)
-    init_sp_with_background('mm_sp_22')
+    # init_sp_with_background('mm_sp_22')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
@@ -519,5 +519,5 @@ if __name__ == '__main__':
     # init_store_icon('store_money', sub_dir='sim_uni')
     # generate_sponsor_png()
     # remove_alpha('parcel', template_sub_dir='store')
-    # cut_template_with_mask('mm_icon', 'mm_sp_20')
+    cut_template_with_mask('mm_icon', 'mm_sp_20')
     cv2.destroyAllWindows()
