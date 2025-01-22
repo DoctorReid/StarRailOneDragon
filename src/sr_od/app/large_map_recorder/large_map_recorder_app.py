@@ -1,4 +1,5 @@
 import time
+from concurrent.futures import Future, ThreadPoolExecutor
 
 import cv2
 import numpy as np
@@ -9,7 +10,7 @@ from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
-from one_dragon.utils import debug_utils, cv2_utils
+from one_dragon.utils import debug_utils, cv2_utils, cal_utils
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.app.sim_uni.sim_uni_const import SimUniLevelTypeEnum
@@ -25,6 +26,21 @@ from sr_od.sr_map.sr_map_def import Region
 
 _FLOOR_LIST = [-4, -3, -2, -1, 0, 1, 2, 3]
 
+_EXECUTOR = ThreadPoolExecutor(thread_name_prefix='sr_large_map_recorder', max_workers=32)
+
+class OverlapResultWrapper:
+
+    def __init__(self, region: Region,
+                 future: Future[int],
+                 row: Optional[int] = None,
+                 col: Optional[int] = None
+                 ):
+        self.region: Region = region
+        self.future: Future[int] = future
+        self.row: int = row
+        self.col: int = col
+
+
 
 class LargeMapRecorder(SrApplication):
     """
@@ -39,6 +55,7 @@ class LargeMapRecorder(SrApplication):
                  drag_distance_to_next_col: int = 300,
                  drag_distance_to_next_row: int = 300,
                  drag_times_to_left_top: int = 3,
+                 drag_times_to_left: int = 2,
                  floor_list_to_record: Optional[List[int]] = None,
                  row_list_to_record: Optional[List[int]] = None,
                  rows_to_cal_overlap_width: List[int] = None,
@@ -63,10 +80,13 @@ class LargeMapRecorder(SrApplication):
         self.floor_list_to_record: Optional[List[int]] = floor_list_to_record  # 需要重新录制的楼层
         self.max_row: int = max_row  # 最多录制的行数 不传入时自动判断
         self.max_column: int = max_column  # 最多录制的列数 不传入时自动判断
+        self.drag_times_to_left: int = drag_times_to_left  # 切换行时 拖到到最左边的次数
         self.drag_times_to_left_top: int = drag_times_to_left_top  # 切换楼层时 拖动到左上角次数
 
         self.region_list: List[Region] = []
         for floor in _FLOOR_LIST:
+            if self.floor_list_to_record is not None and floor not in self.floor_list_to_record:
+                continue
             current_region = self.ctx.map_data.best_match_region_by_name(
                 gt(self.region.cn),
                 planet=self.region.planet,
@@ -77,8 +97,8 @@ class LargeMapRecorder(SrApplication):
         self.current_region_idx: int = 0
         self.current_region: Optional[Region] = None
 
-        self.overlap_width_median: List[int] = []  # 截图重叠的宽度
-        self.overlap_height_median: List[int] = []  # 截图重叠的高度
+        self.overlap_width_mode: List[int] = []  # 截图重叠的宽度
+        self.overlap_height_mode: List[int] = []  # 截图重叠的高度
 
         self.rows_to_cal_overlap_width: List[int] = rows_to_cal_overlap_width  # 计算每列的重叠宽度时 只考虑哪些行
         self.cols_to_cal_overlap_height: List[int] = cols_to_cal_overlap_height  # 计算每行的重叠高度时 只考虑哪些列
@@ -107,9 +127,6 @@ class LargeMapRecorder(SrApplication):
             return self.round_success()
 
         self.current_region = self.region_list[self.current_region_idx]
-        if self.floor_list_to_record is not None and self.current_region.floor not in self.floor_list_to_record:
-            self.current_region_idx += 1
-            return self.round_wait()
 
         op = ChooseFloor(self.ctx, self.current_region.floor)
         op_result = op.execute()
@@ -205,10 +222,14 @@ class LargeMapRecorder(SrApplication):
         row = self.row if self.max_row is None else self.max_row
         col = self.col if self.max_column is None else self.max_column
 
-        self.overlap_width_median = self.get_overlap_width_median()
-        self.overlap_height_median = self.get_overlap_height_median()
+        # self.overlap_width_mode = self.get_overlap_width_mode()
+        self.overlap_width_mode = [0, 0, 786, 786, 786, 786, 786, 786, 786, 786, 786, 937]
         for region in self.region_list:
-            self.merge_region_screenshot(region, row, col)
+            self.merge_screenshot_into_rows(region, row, col, show=self.debug)
+        # self.overlap_height_mode = self.get_overlap_height_mode()
+        self.overlap_height_mode = [0, 0, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, -1]
+        for region in self.region_list:
+            self.merge_screenshot_into_one(region, row, show=self.debug)
 
         return self.round_success()
 
@@ -233,16 +254,9 @@ class LargeMapRecorder(SrApplication):
 
         # cv2.waitKey(0)
 
-        for l in _FLOOR_LIST:
-            target_region = self.ctx.map_data.best_match_region_by_name(
-                gt(self.region.cn),
-                planet=self.region.planet,
-                target_floor=l
-            )
-            if target_region is None:
-                continue
-            raw = self.ctx.map_data.get_large_map_image(target_region, 'raw')
-            large_map_utils.init_large_map(self.ctx, target_region, raw,
+        for region in self.region_list:
+            raw = self.ctx.map_data.get_large_map_image(region, 'raw')
+            large_map_utils.init_large_map(self.ctx, region, raw,
                                            expand_arr=[lp, rp, tp, bp], save=True)
 
         return self.round_success()
@@ -290,7 +304,9 @@ class LargeMapRecorder(SrApplication):
         """
         center = game_const.STANDARD_CENTER_POS
         right = Point(center.x + center.x - 1, center.y)
-        for _ in range(2):
+        for _ in range(self.drag_times_to_left):
+            if not self.ctx.is_context_running:
+                break
             self.ctx.controller.drag_to(end=right, start=center, duration=1)  # 往左拉到尽头
             time.sleep(1)
         self.col = 1
@@ -318,6 +334,7 @@ class LargeMapRecorder(SrApplication):
     @staticmethod
     def concat_vertically_by_list(img_list: List[MatLike], show: bool = False) -> MatLike:
         merge: MatLike = img_list[0]
+
         for i in range(1, len(img_list)):
             log.info('垂直合并 准备处理 %02d行', i)
             prev_img = img_list[i - 1]
@@ -363,7 +380,7 @@ class LargeMapRecorder(SrApplication):
                     continue
                 return r.y + prev_part.shape[0]
 
-        raise Exception('获取重叠高度失败')
+        return -1
 
     @staticmethod
     def concat_horizontally_by_list(img_list: List[MatLike], show: bool = False) -> MatLike:
@@ -410,13 +427,23 @@ class LargeMapRecorder(SrApplication):
                 if r is None:
                     continue
                 return r.x + prev_part.shape[1]
-        raise Exception('获取重叠宽度失败')
+        return -1
 
     @staticmethod
     def region_part_image_name(region: Region, row: int, col: int):
+        """
+        每个格子的图片的名称
+        """
         return '%s_%02d_%02d' % (region.prl_id, row, col)
 
-    def get_overlap_width_median(self) -> List[int]:
+    @staticmethod
+    def region_row_image_name(region: Region, row: int):
+        """
+        合并后的每行图片的名称
+        """
+        return '%s_row_%02d' % (region.prl_id, row)
+
+    def get_overlap_width_mode(self) -> List[int]:
         """
         根据截图 计算各列重叠的宽度
         """
@@ -427,24 +454,47 @@ class LargeMapRecorder(SrApplication):
         for i in range(max_col + 1):
             overlap_width_list.append([-1, -1])
 
+        result_list: List[OverlapResultWrapper] = []
+
         # 先求出每列的重叠宽度
         for region in self.region_list:
             for row in range(1, max_row + 1):
                 if self.rows_to_cal_overlap_width is not None and row not in self.rows_to_cal_overlap_width:
                     continue
-                last_col_img = None
+                cur_col_img = None
                 for col in range(1, max_col + 1):
+                    last_col_img = cur_col_img
                     cur_col_img = debug_utils.get_debug_image(LargeMapRecorder.region_part_image_name(region, row, col))
 
                     if last_col_img is not None:
-                        overlap_width = LargeMapRecorder.get_overlap_width(last_col_img, cur_col_img, show=self.debug)
-                        log.info('%d层 %02d行 %02d列 与前重叠宽度 %d', region.floor, row, col, overlap_width)
+                        f = _EXECUTOR.submit(LargeMapRecorder.get_overlap_width, last_col_img, cur_col_img, 200, False)
+                        result_list.append(
+                            OverlapResultWrapper(
+                                region=region,
+                                row=row,
+                                col=col,
+                                future=f
+                            )
+                        )
 
-                        overlap_width_list[col].append(overlap_width)
+        for result in result_list:
+            region = result.region
+            row = result.row
+            col = result.col
+            cur_col_img = debug_utils.get_debug_image(LargeMapRecorder.region_part_image_name(region, row, col))
+            overlap_width = result.future.result()
+            log.info('%d层 %02d行 %02d列 与前重叠宽度 %d', region.floor, row, col, overlap_width)
+            if overlap_width == -1:
+                log.info('获取失败 忽略')
+                continue
+            if overlap_width == cur_col_img.shape[1]:
+                # 大概率是空白图 所以才和前一张完全一致 这种情况下忽略
+                log.info('与图片宽度一致 忽略')
+                continue
 
-                    last_col_img = cur_col_img
+            overlap_width_list[col].append(overlap_width)
 
-        overlap_width_median: List[int] = [0, 0]
+        overlap_width_mode: List[int] = [0, 0]
         if self.max_column is not None:
             # 如果已经指定了最大列数 则除了最后一列的其他列 与前一列的重叠宽度一致
             all_col_width = []
@@ -452,24 +502,24 @@ class LargeMapRecorder(SrApplication):
                 for col in range(2, max_col):
                     for width in overlap_width_list[col]:
                         all_col_width.append(width)
-                all_col_width_median = int(np.median(all_col_width))
+                all_col_width_mode = int(cal_utils.get_mode_in_list(all_col_width))
                 for col in range(2, max_col):
-                    log.info('%02d列 与前重叠宽度中位数 %d', col, all_col_width_median)
-                    overlap_width_median.append(all_col_width_median)
+                    log.info('%02d列 与前重叠宽度众数 %d', col, all_col_width_mode)
+                    overlap_width_mode.append(all_col_width_mode)
             for col in range(max_col, max_col + 1):
-                width_median = int(np.median(overlap_width_list[col]))
-                log.info('%02d列 与前重叠宽度中位数 %d', col, width_median)
-                overlap_width_median.append(width_median)
+                width_mode = int(cal_utils.get_mode_in_list(overlap_width_list[col]))
+                log.info('%02d列 与前重叠宽度众数 %d', col, width_mode)
+                overlap_width_mode.append(width_mode)
         else:
             for col in range(2, max_col + 1):
-                width_median = int(np.median(overlap_width_list[col]))
-                log.info('%02d列 与前重叠宽度中位数 %d', col, width_median)
-                overlap_width_median.append(width_median)
+                width_mode = int(cal_utils.get_mode_in_list(overlap_width_list[col]))
+                log.info('%02d列 与前重叠宽度众数 %d', col, width_mode)
+                overlap_width_mode.append(width_mode)
 
-        log.info('重叠宽度中位数 %s', overlap_width_median)
-        return overlap_width_median
+        log.info('重叠宽度众数 %s', overlap_width_mode)
+        return overlap_width_mode
 
-    def get_overlap_height_median(self) -> List[int]:
+    def get_overlap_height_mode(self) -> List[int]:
         """
         根据截图 计算各行重叠的高度
         """
@@ -480,24 +530,67 @@ class LargeMapRecorder(SrApplication):
         for i in range(max_row + 1):
             overlap_height_list.append([-1, -1])
 
-        # 先求出每行的重叠高度
+        result_list: List[OverlapResultWrapper] = []
+
+        # 按给子 求出每行的重叠高度
         for region in self.region_list:
             for col in range(1, max_col + 1):
                 if self.cols_to_cal_overlap_height is not None and col not in self.cols_to_cal_overlap_height:
                     continue
-                last_row_img = None
+                cur_row_img = None
                 for row in range(1, max_row + 1):
+                    last_row_img = cur_row_img
                     cur_row_img = debug_utils.get_debug_image(LargeMapRecorder.region_part_image_name(region, row, col))
 
                     if last_row_img is not None:
-                        overlap_height = LargeMapRecorder.get_overlap_height(last_row_img, cur_row_img, show=self.debug)
-                        log.info('%d层 %02d行 %02d列 与前重叠高度 %d', region.floor, row, col, overlap_height)
+                        f = _EXECUTOR.submit(LargeMapRecorder.get_overlap_height, last_row_img, cur_row_img, 150, False)
+                        result_list.append(
+                            OverlapResultWrapper(
+                                region=region,
+                                row=row,
+                                col=col,
+                                future=f
+                            )
+                        )
 
-                        overlap_height_list[row].append(overlap_height)
+        for result in result_list:
+            region = result.region
+            row = result.row
+            col = result.col
+            cur_row_img = debug_utils.get_debug_image(LargeMapRecorder.region_part_image_name(region, row, col))
+            overlap_height = result.future.result()
+            log.info('%d层 %02d行 %02d列 与前重叠高度 %d', region.floor, row, col, overlap_height)
+            if overlap_height == -1:
+                log.info('获取失败 忽略')
+                continue
+            if overlap_height == cur_row_img.shape[0]:
+                # 大概率是空白图 所以才和前一张完全一致 这种情况下忽略
+                log.info('与图片高度一致 忽略')
+                continue
 
-                    last_row_img = cur_row_img
+            overlap_height_list[row].append(overlap_height)
 
-        overlap_height_median: List[int] = [0, 0]
+        # 按行 求出每行的重叠高度
+        for region in self.region_list:
+            cur_row_img = None
+            for row in range(1, max_row + 1):
+                last_row_img = cur_row_img
+                cur_row_img = debug_utils.get_debug_image(LargeMapRecorder.region_row_image_name(region, row))
+
+                if last_row_img is not None:
+                    overlap_height = LargeMapRecorder.get_overlap_height(last_row_img, cur_row_img, show=self.debug)
+                    log.info('%d层 %02d行 与前重叠高度 %d', region.floor, row, overlap_height)
+                    if overlap_height == -1:
+                        log.info('获取失败 忽略')
+                        continue
+                    if overlap_height == cur_row_img.shape[0]:
+                        # 大概率是空白图 所以才和前一张完全一致 这种情况下忽略
+                        log.info('与图片高度一致 忽略')
+                        continue
+
+                    overlap_height_list[row].append(overlap_height)
+
+        overlap_height_mode: List[int] = [0, 0]
         if self.max_row is not None:
             # 如果已经指定了最大行数 则除了最后一行的其他行 与前一行的重叠高度一致
             all_row_height = []
@@ -505,24 +598,27 @@ class LargeMapRecorder(SrApplication):
                 for row in range(2, max_row):
                     for height in overlap_height_list[row]:
                         all_row_height.append(height)
-                all_row_height_median = int(np.median(all_row_height))
+                all_row_height_mode = int(cal_utils.get_mode_in_list(all_row_height))
                 for row in range(2, max_row):
-                    log.info('%02d行 与前重叠高度中位数 %d', row, all_row_height_median)
-                    overlap_height_median.append(all_row_height_median)
+                    log.info('%02d行 与前重叠高度众数 %d', row, all_row_height_mode)
+                    overlap_height_mode.append(all_row_height_mode)
             for row in range(max_row, max_row + 1):
-                height_median = int(np.median(overlap_height_list[row]))
-                log.info('%02d行 与前重叠高度中位数 %d', row, height_median)
-                overlap_height_median.append(height_median)
+                height_mode = int(cal_utils.get_mode_in_list(overlap_height_list[row]))
+                log.info('%02d行 与前重叠高度众数 %d', row, height_mode)
+                overlap_height_mode.append(height_mode)
         else:
             for row in range(2, max_row + 1):
-                height_median = int(np.median(overlap_height_list[row]))
-                log.info('%02d行 与前重叠高度中位数 %d', row, height_median)
-                overlap_height_median.append(height_median)
+                height_mode = int(cal_utils.get_mode_in_list(overlap_height_list[row]))
+                log.info('%02d行 与前重叠高度众数 %d', row, height_mode)
+                overlap_height_mode.append(height_mode)
 
-        log.info('重叠宽度中位数 %s', overlap_height_median)
-        return overlap_height_median
+        log.info('重叠高度度众数 %s', overlap_height_mode)
+        return overlap_height_mode
 
-    def merge_region_screenshot(self, region: Region, max_row: int, max_col: int, show=False):
+    def merge_screenshot_into_rows(self, region: Region, max_row: int, max_col: int, show=False):
+        """
+        将每行的截图进行合并
+        """
         img_list: List[List[Optional[MatLike]]] = [[]]
         for row in range(1, max_row + 1):
             img_list.append([None])  # 每一行的第0列 都置为空
@@ -530,30 +626,45 @@ class LargeMapRecorder(SrApplication):
                 img = debug_utils.get_debug_image(LargeMapRecorder.region_part_image_name(region, row, col))
                 img_list[row].append(img)
 
-        # 按重叠宽度的中位数对每行图片进行合并
+        # 按重叠宽度的众数对每行图片进行合并
         row_image_list: List[MatLike] = []
         for row in range(1, max_row + 1):
             merge = img_list[row][1]
             for col in range(2, max_col + 1):
-                overlap_w = self.overlap_width_median[col]
+                overlap_w = self.overlap_width_mode[col]
                 extra_part = img_list[row][col][:, overlap_w + 1:]
                 # 水平拼接两张图像
                 merge = cv2.hconcat([merge, extra_part])
 
             log.info('%d层 %02d行 合并后size为 %s', region.floor, row, merge.shape)
-            debug_utils.save_debug_image(merge, '%s_row_%02d' % (region.prl_id, row))
+            debug_utils.save_debug_image(merge, LargeMapRecorder.region_row_image_name(region, row))
             row_image_list.append(merge)
             if show:
                 cv2_utils.show_image(merge, win_name='row_%02d' % row)
 
-        # 进行垂直合并
-        final_merge = LargeMapRecorder.concat_vertically_by_list(row_image_list, show=show)
+    def merge_screenshot_into_one(self, region: Region, max_row: int, show=False):
+        """
+        合并成最终一张图片
+        """
+        row_image_list = [None]
+        for row in range(1, max_row + 1):
+            img = debug_utils.get_debug_image(LargeMapRecorder.region_row_image_name(region, row))
+            row_image_list.append(img)
 
-        log.info('%d层 最终合并后size为 %s', region.floor, final_merge.shape)
+        # 按重叠高度的众数对多行图片进行合并
+        merge = row_image_list[1]
+        for i in range(2, max_row + 1):
+            overlap_h = self.overlap_height_mode[i]
+            row_image = row_image_list[i]
+            extra_part = row_image[overlap_h + 1:, :]
+            # 垂直拼接两张图像
+            merge = cv2.vconcat([merge, extra_part])
+
+        log.info('%d层 最终合并后size为 %s', region.floor, merge.shape)
         if show:
-            cv2_utils.show_image(final_merge, win_name='final_merge', wait=0)
+            cv2_utils.show_image(merge, win_name='final_merge', wait=0)
 
-        self.ctx.map_data.save_large_map_image(final_merge, region, 'raw')
+        self.ctx.map_data.save_large_map_image(merge, region, 'raw')
 
     @staticmethod
     def same_as_last_row(region: Region, row: int, max_col: int) -> bool:
@@ -581,7 +692,6 @@ class LargeMapRecorder(SrApplication):
         """
         self.fix_world_patrol_route_after_map_record(region, dx, dy)
         self.fix_sim_uni_route_after_map_record(region, dx, dy)
-
 
     def fix_world_patrol_route_after_map_record(self, region: Region, dx: int, dy: int):
         """
@@ -676,6 +786,7 @@ class LargeMapRecorder(SrApplication):
         """
         self.col = 1
         last_map_part = None
+        overlap_width: List[int] = [-1, -1]
         while True:
             if not self.ctx.is_context_running:
                 break
@@ -685,12 +796,17 @@ class LargeMapRecorder(SrApplication):
             screen_map_rect = large_map_utils.get_screen_map_rect(self.region)
             map_part = cv2_utils.crop_image_only(screen, screen_map_rect)
 
-            if last_map_part is not None and cv2_utils.is_same_image(last_map_part, map_part, threshold=0.9):
-                log.info(f'已经到达最右端 列数为{self.col - 1}')
-                break
+            if last_map_part is not None:
+                overlap_width.append(LargeMapRecorder.get_overlap_width(last_map_part, map_part))
+
+                if cv2_utils.is_same_image(last_map_part, map_part, threshold=0.9):
+                    log.info(f'已经到达最右端 列数为{self.col - 1}')
+                    break
 
             last_map_part = map_part
             self.drag_to_next_col()
+
+        log.info('重叠宽度 %s', overlap_width)
 
     def drag_to_get_max_row(self) -> None:
         """
@@ -699,6 +815,7 @@ class LargeMapRecorder(SrApplication):
         """
         self.row = 1
         last_map_part = None
+        overlap_height_list: List[int] = [-1, -1]
         while True:
             if not self.ctx.is_context_running:
                 break
@@ -708,12 +825,15 @@ class LargeMapRecorder(SrApplication):
             screen_map_rect = large_map_utils.get_screen_map_rect(self.region)
             map_part = cv2_utils.crop_image_only(screen, screen_map_rect)
 
-            if last_map_part is not None and cv2_utils.is_same_image(last_map_part, map_part, threshold=0.9):
-                log.info(f'已经到达最下端 行数为{self.row - 1}')
-                break
+            if last_map_part is not None:
+                overlap_height_list.append(LargeMapRecorder.get_overlap_height(last_map_part, map_part))
+                if cv2_utils.is_same_image(last_map_part, map_part, threshold=0.9):
+                    log.info(f'已经到达最下端 行数为{self.row - 1}')
+                    break
 
             last_map_part = map_part
             self.drag_to_next_row()
+        log.info('重叠高度 %s', overlap_height_list)
 
 
 def __debug(planet_name, region_name, run_mode: str = 'all'):
@@ -724,6 +844,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         # 'P04_PNKN_R10_PNKNDJY': {'skip_height': 700, 'max_row': 4, 'max_column': 4},  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
         'P05_WFLS_R02_YXZDXFC': {'max_column': 4, 'max_row': 11, 'drag_times_to_left_top': 6,
                                  'cols_to_cal_overlap_height': [1]},
+        'P05_WFLS_R03_FZHXXFC': { 'max_row': 13, 'max_column': 11, 'drag_times_to_left': 4, 'drag_times_to_left_top': 10,},
         'P05_WFLS_R04_FZHX': { 'max_row': 8, 'max_column': 1, }
     }
 
@@ -734,6 +855,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     sc = special_conditions.get(region.pr_id, {})
     sc['ctx'] = ctx
     sc['region'] = region
+    # sc['floor_list_to_record'] = [1]
     # sc['row_list_to_record'] = [2, 3]
 
     app = LargeMapRecorder(**sc)
@@ -758,8 +880,13 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         ctx.start_running()
         app.drag_to_get_max_row()
         ctx.stop_running()
-
+    elif run_mode == 'test_drag_to_left':  # 测试需要几次拉到最左边
+        ctx.start_running()
+        app.back_to_left()
+        ctx.stop_running()
+    else:
+        pass
 
 
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「命运重渊」雅努萨波利斯', 'save')
+    __debug('翁法罗斯', '「纷争荒墟」悬锋城', 'merge')

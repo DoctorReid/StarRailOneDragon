@@ -1,0 +1,119 @@
+- uid: "ZHAK"
+  cn: "逐魂隘口"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: -1
+  template_id: "mm_tp_03"
+  lm_pos: [526, 3921]
+  tp_pos: [524, 3957]
+
+- uid: "ZHTY"
+  cn: "铸魂颓垣"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [2722, 1050]
+  tp_pos: [2763, 1069]
+
+- uid: "ZSJD"
+  cn: "琢石寂地"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [3097, 1087]
+  tp_pos: [3113, 1071]
+
+- uid: "ZGCJ"
+  cn: "止戈残间"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1722, 1959]
+  tp_pos: [1711, 1962]
+
+- uid: "JYZLNZHEC"
+  cn: "记忆之蕾·拟造花萼（赤）"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 1
+  template_id: "mm_tp_07"
+  lm_pos: [3540, 1460]
+  tp_pos: [3614, 1399]
+
+- uid: "FZHXDYJQSZ"
+  cn: "「纷争荒墟」的衣匠前哨站"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 1
+  template_id: "mm_sp_20"
+  lm_pos: [1771, 1982]
+
+- uid: "ZGLSZS1"
+  cn: "扎格列斯之手1"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 1
+  template_id: "mm_sp_22"
+  lm_pos: [3057, 979]
+
+- uid: "ZGLSZS2"
+  cn: "扎格列斯之手2"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 1
+  template_id: "mm_sp_22"
+  lm_pos: [3113, 1696]
+
+- uid: "XFDJC"
+  cn: "悬锋斗技场"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [2302, 1233]
+  tp_pos: [2310, 1202]
+
+- uid: "ZFMD"
+  cn: "征伐陌地"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [2430, 1797]
+  tp_pos: [2445, 1817]
+
+- uid: "CSJZ"
+  cn: "采石旧址"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [3115, 1882]
+  tp_pos: [3085, 1868]
+
+- uid: "YXZDXFC"
+  cn: "「浴血战端」悬锋城"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 2
+  template_id: "mm_sp_02"
+  lm_pos: [2309, 2245]
+
+- uid: "DYSK1"
+  cn: "祷言神龛1"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 2
+  template_id: "mm_sp_21"
+  lm_pos: [2274, 2022]
+
+- uid: "DYSK2"
+  cn: "祷言神龛2"
+  planet_name: "翁法罗斯"
+  region_name: "「纷争荒墟」悬锋城"
+  region_floor: 2
+  template_id: "mm_sp_21"
+  lm_pos: [2046, 2058]

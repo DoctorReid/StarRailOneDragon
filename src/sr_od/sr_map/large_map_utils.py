@@ -170,9 +170,9 @@ def init_large_map(ctx: SrContext, region: Region, raw: MatLike,
     info.mask = merge_all_map_mask(road_mask, sp_mask)
 
     if save:
-        cv2_utils.show_image(info.raw, win_name='raw')
-        cv2_utils.show_image(info.mask, win_name='mask')
-        log.info('地图特殊点坐标')
+        # cv2_utils.show_image(info.raw, win_name='raw')
+        # cv2_utils.show_image(info.mask, win_name='mask')
+        log.info('%2d层 地图特殊点坐标', region.floor)
         i: int = 0
         for k, v in info.sp_result.items():
             for vs in v:
@@ -189,7 +189,7 @@ def init_large_map(ctx: SrContext, region: Region, raw: MatLike,
                 print(sp_info)
                 i += 1
 
-        cv2.waitKey(0)
+        # cv2.waitKey(0)
 
         ctx.map_data.save_large_map_image(info.raw, region, 'raw')
         ctx.map_data.save_large_map_image(info.mask, region, 'mask')
