@@ -1,0 +1,107 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「浴血战端」悬锋城'
+floor: 1
+tp: '弦歌之径·侵蚀隧洞'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1162, 1001]
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
+    data: [1222, 1000]
+  - idx: 4
+    op: 'wait'
+    data: ['seconds', '4']
+  - idx: 5
+    op: 'move'
+    data: [1242, 1024]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [1303, 1051]
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
+    data: [1324, 1041]
+  - idx: 10
+    op: 'disposable'
+  - idx: 11
+    op: 'move'
+    data: [1190, 986]
+  - idx: 12
+    op: 'move'
+    data: [1211, 890]
+  - idx: 13
+    op: 'disposable'
+  - idx: 14
+    op: 'move'
+    data: [1245, 865]
+  - idx: 15
+    op: 'move'
+    data: [1207, 784]
+  - idx: 16
+    op: 'patrol'
+  - idx: 17
+    op: 'move'
+    data: [1172, 733]
+  - idx: 18
+    op: 'move'
+    data: [1140, 721]
+  - idx: 19
+    op: 'disposable'
+  - idx: 20
+    op: 'move'
+    data: [1189, 686]
+  - idx: 21
+    op: 'move'
+    data: [1176, 625]
+  - idx: 22
+    op: 'disposable'
+  - idx: 23
+    op: 'move'
+    data: [1225, 616]
+  - idx: 24
+    op: 'move'
+    data: [1217, 528]
+  - idx: 25
+    op: 'move'
+    data: [1100, 518]
+  - idx: 26
+    op: 'disposable'
+  - idx: 27
+    op: 'move'
+    data: [1096, 553]
+  - idx: 28
+    op: 'disposable'
+  - idx: 29
+    op: 'move'
+    data: [1122, 561]
+  - idx: 30
+    op: 'move'
+    data: [1144, 583, 2]
+  - idx: 31
+    op: 'move'
+    data: [1163, 596]
+  - idx: 32
+    op: 'disposable'
+  - idx: 33
+    op: 'move'
+    data: [1194, 596]
+  - idx: 34
+    op: 'patrol'
+  - idx: 35
+    op: 'move'
+    data: [1199, 564]
+  - idx: 36
+    op: 'move'
+    data: [1219, 517]
+  - idx: 37
+    op: 'move'
+    data: [1234, 464]
+  - idx: 38
+    op: 'patrol'
