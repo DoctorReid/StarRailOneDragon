@@ -79,25 +79,26 @@ def cal_pos_by_screenshot(ctx: SrContext, route: WorldPatrolRoute, debug: bool =
             show=debug
         )
 
-        if next_pos is None and region.floor != 0:
-            region_list = ctx.map_data.get_region_with_all_floor(region)
-            for another_floor_region in region_list:
-                if another_floor_region.floor == region.floor:
-                    continue
-
-                next_lm_info = ctx.map_data.get_large_map_info(another_floor_region)
-                next_pos = cal_pos_utils.cal_character_pos(
-                    ctx, next_lm_info, mm_info,
-                    lm_rect=lm_rect, retry_without_rect=False,
-                    running=True,
-                    real_move_time=move_time,
-                    verify=verify,
-                    show=debug
-                )
-
-                if next_pos is not None:
-                    next_region = another_floor_region
-                    break
+        # 暂时不计算其他楼层 会乱飞
+        # if next_pos is None and region.floor != 0:
+        #     region_list = ctx.map_data.get_region_with_all_floor(region)
+        #     for another_floor_region in region_list:
+        #         if another_floor_region.floor == region.floor:
+        #             continue
+        #
+        #         next_lm_info = ctx.map_data.get_large_map_info(another_floor_region)
+        #         next_pos = cal_pos_utils.cal_character_pos(
+        #             ctx, next_lm_info, mm_info,
+        #             lm_rect=lm_rect, retry_without_rect=False,
+        #             running=True,
+        #             real_move_time=move_time,
+        #             verify=verify,
+        #             show=debug
+        #         )
+        #
+        #         if next_pos is not None:
+        #             next_region = another_floor_region
+        #             break
 
         if next_pos is not None:
             break

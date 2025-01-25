@@ -1,0 +1,58 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「浴血战端」悬锋城'
+floor: 2
+tp: '掘石场'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1113, 1744]
+  - idx: 2
+    op: 'move'
+    data: [1125, 1711]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
+    data: [1116, 1676]
+  - idx: 5
+    op: 'move'
+    data: [1116, 1602]
+  - idx: 6
+    op: 'move'
+    data: [1124, 1515]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [986, 1502]
+  - idx: 9
+    op: 'move'
+    data: [991, 1582]
+  - idx: 10
+    op: 'move'
+    data: [996, 1614]
+  - idx: 11
+    op: 'move'
+    data: [997, 1649]
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [996, 1700]
+  - idx: 14
+    op: 'move'
+    data: [961, 1702]
+  - idx: 15
+    op: 'move'
+    data: [929, 1704]
+  - idx: 16
+    op: 'move'
+    data: [894, 1695]
+  - idx: 17
+    op: 'patrol'
+  - idx: 18
+    op: 'move'
+    data: [826, 1697]
+  - idx: 19
+    op: 'patrol'
