@@ -1,0 +1,101 @@
+author: []
+planet: '翁法罗斯'
+region: '「浴血战端」悬锋城'
+floor: 1
+tp: '纷争正殿'
+route:
+  - idx: 1
+    op: 'ban_tech'
+  - idx: 2
+    op: 'move'
+    data: [448, 1860]
+  - idx: 3
+    op: 'wait'
+    data: ['seconds', '3']
+  - idx: 4
+    op: 'move'
+    data: [440, 1897]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [449, 1915]
+  - idx: 7
+    op: 'move'
+    data: [450, 1998]
+  - idx: 8
+    op: 'wait'
+    data: ['seconds', '4']
+  - idx: 9
+    op: 'no_pos_move'
+    data: [0, 426, 21]
+  - idx: 10
+    op: 'update_pos'
+    data: [450, 2398]
+  - idx: 11
+    op: 'no_pos_move'
+    data: [62, 0, 3]
+  - idx: 12
+    op: 'update_pos'
+    data: [512, 2398]
+  - idx: 13
+    op: 'slow_move'
+    data: [520, 2419]
+  - idx: 14
+    op: 'interact'
+    data: '操作浮台'
+  - idx: 15
+    op: 'wait'
+    data: ['in_world', '5']
+  - idx: 16
+    op: 'wait'
+    data: ['seconds', '10']
+  - idx: 17
+    op: 'move'
+    data: [530, 2370]
+  - idx: 18
+    op: 'slow_move'
+    data: [530, 2432]
+  - idx: 19
+    op: 'interact'
+    data: '下降'
+  - idx: 20
+    op: 'wait'
+    data: ['seconds', '10']
+  - idx: 21
+    op: 'no_pos_move'
+    data: [0, 26, 1]
+  - idx: 22
+    op: 'update_pos'
+    data: [530, 2458, -1]
+  - idx: 23
+    op: 'allow_tech'
+  - idx: 24
+    op: 'move'
+    data: [531, 2521]
+  - idx: 25
+    op: 'move'
+    data: [530, 2566]
+  - idx: 26
+    op: 'move'
+    data: [472, 2567]
+  - idx: 27
+    op: 'patrol'
+  - idx: 28
+    op: 'move'
+    data: [530, 2576]
+  - idx: 29
+    op: 'move'
+    data: [522, 2626]
+  - idx: 30
+    op: 'disposable'
+  - idx: 31
+    op: 'move'
+    data: [554, 2685]
+  - idx: 32
+    op: 'patrol'
+  - idx: 33
+    op: 'move'
+    data: [444, 2683]
+  - idx: 34
+    op: 'patrol'

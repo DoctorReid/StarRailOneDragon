@@ -175,6 +175,10 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         self.slow_move_btn.clicked.connect(self.on_slow_move_clicked)
         pos_row.add_widget(self.slow_move_btn)
 
+        self.no_pos_move_btn = PushButton(text=gt('模拟按键移动'))
+        self.no_pos_move_btn.clicked.connect(self.on_no_pos_move_clicked)
+        pos_row.add_widget(self.no_pos_move_btn)
+
         self.update_pos_btn = PushButton(text=gt('更新位置'))
         self.update_pos_btn.clicked.connect(self.on_update_pos_clicked)
         pos_row.add_widget(self.update_pos_btn)
@@ -230,7 +234,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         self.wait_type_opt = ComboBox()
         self.wait_type_opt.set_items([
             ConfigItem('等待大世界', operation_const.WAIT_TYPE_IN_WORLD),
-            ConfigItem('等待秒数', operation_const.WAIT_TYPE_IN_WORLD),
+            ConfigItem('等待秒数', operation_const.WAIT_TYPE_SECONDS),
         ], operation_const.WAIT_TYPE_IN_WORLD)
         wait_row.add_widget(self.wait_type_opt)
 
@@ -245,6 +249,20 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         wait_row.add_stretch(1)
         layout.addWidget(wait_row)
 
+        # 秘技行
+        tech_row = Row()
+
+        self.ban_tech_btn = PushButton(text=gt('禁用秘技'))
+        self.ban_tech_btn.clicked.connect(self.on_ban_tech_clicked)
+        tech_row.add_widget(self.ban_tech_btn)
+
+        self.allow_tech_btn = PushButton(text=gt('允许秘技'))
+        self.allow_tech_btn.clicked.connect(self.on_allow_tech_clicked)
+        tech_row.add_widget(self.allow_tech_btn)
+
+        tech_row.add_stretch(1)
+        layout.addWidget(tech_row)
+
         layout.addStretch(1)
 
         return layout
@@ -254,6 +272,7 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
 
         layout.addWidget(SettingCardGroup('路线指令'))
         self.route_text = PlainTextEdit()
+        self.route_text.textChanged
         self.route_text.setMinimumWidth(200)
         self.route_text.setMinimumHeight(500)
         layout.addWidget(self.route_text)
@@ -655,6 +674,13 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         world_patrol_route_draw_utils.mark_last_move_as_slow(self.chosen_route)
         self.update_display_by_route()
 
+    def on_no_pos_move_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
+
+        world_patrol_route_draw_utils.mark_last_move_as_no_pos(self.ctx, self.chosen_route)
+        self.update_display_by_route()
+
     def on_update_pos_clicked(self) -> None:
         if self.chosen_route is None:
             return
@@ -753,3 +779,16 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         self.chosen_route.init_from_yaml_data(route_dict)
 
         self.update_display_by_route()
+
+    def on_ban_tech_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
+
+        world_patrol_route_draw_utils.add_ban_tech(self.chosen_route)
+        self.update_display_by_route()
+
+    def on_allow_tech_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
+
+        world_patrol_route_draw_utils.add_allow_tech(self.chosen_route)

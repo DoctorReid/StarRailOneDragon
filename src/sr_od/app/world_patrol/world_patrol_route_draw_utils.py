@@ -5,6 +5,8 @@ from typing import Tuple, Optional
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.matcher.match_result import MatchResult
+from one_dragon.utils import cal_utils
+from one_dragon.utils.log_utils import log
 from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute, WorldPatrolRouteOperation
 from sr_od.config import operation_const
 from sr_od.context.sr_context import SrContext
@@ -48,6 +50,7 @@ def get_last_pos(ctx: SrContext, route: WorldPatrolRoute) -> Tuple[Region, Point
 
 def cal_pos_by_screenshot(ctx: SrContext, route: WorldPatrolRoute, debug: bool = False) -> Tuple[Optional[Region], Optional[Point]]:
     region, last_pos = get_last_pos(ctx, route)
+    log.info(f'使用上一个坐标 %s', last_pos)
     lm_info = ctx.map_data.get_large_map_info(region)
     next_region = region
 
@@ -124,8 +127,11 @@ def get_route_image(ctx: SrContext, route: WorldPatrolRoute):
             cv2.circle(display_image, route.tp.lm_pos.tuple(), 15, color=(100, 255, 100), thickness=2)
             cv2.circle(display_image, route.tp.tp_pos.tuple(), 5, color=(0, 255, 0), thickness=2)
     for route_item in route.route_list:
-        if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
-            pos = route_item.data
+        if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE]:
+            if route_item.op == operation_const.OP_NO_POS_MOVE:
+                pos = [route_item.data[0] + last_point[0], route_item.data[1] + last_point[1]]
+            else:
+                pos = route_item.data
             if current_region.pr_id == to_display_region.pr_id:
                 cv2.circle(display_image, pos[:2], 5, color=(0, 0, 255), thickness=-1)
                 if last_point is not None:
@@ -162,6 +168,8 @@ def get_route_image(ctx: SrContext, route: WorldPatrolRoute):
                 current_region = ctx.map_data.region_with_another_floor(current_region, int(pos[2]))
         elif route_item.op == operation_const.OP_ENTER_SUB:
             current_region = ctx.map_data.get_sub_region_by_cn(cn=route_item.data[0], region=current_region, floor=int(route_item.data[1]))
+        elif route_item.op in [operation_const.OP_BAN_TECH, operation_const.OP_ALLOW_TECH]:
+            pass
 
     return display_image
 
@@ -211,6 +219,33 @@ def mark_last_move_as_slow(route: WorldPatrolRoute):
     else:
         last_op.op = operation_const.OP_MOVE
 
+
+def mark_last_move_as_no_pos(ctx: SrContext, route: WorldPatrolRoute) -> None:
+    """
+    将最后一个移动标记成模拟按键移动
+    """
+    if route.empty_op:
+        return
+
+    last_op = route.route_list[-1]
+    if last_op.op not in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+        return
+
+    last_op = route.route_list.pop()
+    _, last_pos = get_last_pos(ctx, route)
+    if last_pos is None:
+        route.route_list.append(last_op)
+        return
+
+    x = last_op.data[0] - last_pos.x
+    y = last_op.data[1] - last_pos.y
+    move_time = cal_utils.distance_between(Point(0, 0), Point(x, y)) // ctx.controller.walk_speed
+    new_op = WorldPatrolRouteOperation(op=operation_const.OP_NO_POS_MOVE, data=[x, y, move_time])
+    route.route_list.append(new_op)
+
+    route.route_list.append(last_op)
+    mark_last_move_as_update(route)
+    route.init_idx()
 
 def mark_last_move_as_update(route: WorldPatrolRoute):
     """
@@ -272,6 +307,26 @@ def add_sub_region(route: WorldPatrolRoute, region: Region):
     :return:
     """
     route.route_list.append(WorldPatrolRouteOperation(op=operation_const.OP_ENTER_SUB, data=[region.cn, str(region.floor)]))
+
+
+def add_ban_tech(route: WorldPatrolRoute):
+    """
+    增加禁止使用技能指令
+    :return:
+    """
+    to_add = WorldPatrolRouteOperation(op=operation_const.OP_BAN_TECH)
+    route.route_list.append(to_add)
+    route.init_idx()
+
+
+def add_allow_tech(route: WorldPatrolRoute):
+    """
+    增加允许使用技能指令
+    :return:
+    """
+    to_add = WorldPatrolRouteOperation(op=operation_const.OP_ALLOW_TECH)
+    route.route_list.append(to_add)
+    route.init_idx()
 
 
 def __debug():

@@ -154,6 +154,7 @@ class SrContext(OneDragonContext):
         self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
         self.last_use_tech_time: float = 0  # 上一次使用秘技的时间
         self.feixiao_tech_duration: float = 20  # 飞霄秘技的持续时间
+        self.ban_technique: bool = False  # 禁用秘技 部分路线中途可能需要模拟按键 这时候不能有秘技影响移动速度
 
         # 共用配置
         self.yolo_config: YoloConfig = YoloConfig()
@@ -259,6 +260,8 @@ class SrContext(OneDragonContext):
         锄大地场景 是否飞霄使用秘技
         :return:
         """
+        if self.ban_technique:
+            return False
         return self.team_info.is_first_feixiao and self.world_patrol_config.technique_fight
 
     @property
@@ -267,12 +270,16 @@ class SrContext(OneDragonContext):
         飞霄使用了秘技 = 上一次使用秘技到现在还没有超出持续时间
         :return:
         """
+        if self.ban_technique:
+            return True
         return self.team_info.is_first_feixiao and time.time() - self.last_use_tech_time <= self.feixiao_tech_duration
 
     @property
     def world_patrol_fx_should_use_tech(self) -> bool:
         """
-        锄大地场景  飞霄是否该继续使用秘技了
+        锄大地场景 飞霄是否该继续使用秘技了
         :return:
         """
+        if self.ban_technique:
+            return False
         return self.is_fx_world_patrol_tech and time.time() - self.last_use_tech_time > self.feixiao_tech_duration

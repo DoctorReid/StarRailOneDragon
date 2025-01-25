@@ -9,13 +9,14 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.app.world_patrol.world_patrol_enter_fight import WorldPatrolEnterFight
-from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute
+from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute, WorldPatrolRouteOperation
 from sr_od.config import operation_const
 from sr_od.config.character_const import get_character_by_id
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.interact.catapult import Catapult
 from sr_od.operations.interact.move_interact import MoveInteract
 from sr_od.operations.move.move_directly import MoveDirectly
+from sr_od.operations.move.move_without_pos import MoveWithoutPos
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.operations.team.check_team_members_in_world import CheckTeamMembersInWorld
 from sr_od.operations.team.switch_member import SwitchMember
@@ -63,6 +64,8 @@ class WorldPatrolRunRoute(SrOperation):
         log.info('准备执行线路 %s', self.route.display_name)
         log.info('感谢以下人员提供本路线 %s', self.route.author_list)
 
+        self.ctx.ban_technique = False  # 每条路线开始前 重置
+
         return None
 
     @operation_node(name='传送', is_start_node=True)
@@ -104,6 +107,11 @@ class WorldPatrolRunRoute(SrOperation):
         if (not self.ctx.world_patrol_config.technique_fight
                 or not self.ctx.team_info.is_buff_technique
                 or self.ctx.technique_used):
+            return self.round_success()
+
+        if self.ctx.is_fx_world_patrol_tech:
+            # 部分路线开头需要模拟按键移动 不能改变移动速度
+            # 飞霄在移动中判断使用秘技即可
             return self.round_success()
 
         op = UseTechnique(self.ctx,
@@ -149,6 +157,8 @@ class WorldPatrolRunRoute(SrOperation):
 
         if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
+        elif route_item.op == operation_const.OP_NO_POS_MOVE:
+            op = self.no_pos_move(route_item)
         elif route_item.op == operation_const.OP_PATROL:
             op = WorldPatrolEnterFight(self.ctx,
                                        technique_fight=self.ctx.world_patrol_config.technique_fight,
@@ -170,6 +180,12 @@ class WorldPatrolRunRoute(SrOperation):
             return self.round_success()
         elif route_item.op == operation_const.OP_ENTER_SUB:
             self.current_region = self.ctx.map_data.get_sub_region_by_cn(self.current_region, route_item.data[0], int(route_item.data[1]))
+            return self.round_success()
+        elif route_item.op == operation_const.OP_BAN_TECH:
+            self.ctx.ban_technique = True
+            return self.round_success()
+        elif route_item.op == operation_const.OP_ALLOW_TECH:
+            self.ctx.ban_technique = False
             return self.round_success()
         else:
             return self.round_fail(status='错误的锄大地指令 %s' % route_item.op)
@@ -213,7 +229,9 @@ class WorldPatrolRunRoute(SrOperation):
         should_attack: bool = False
         for i in range(self.op_idx, len(self.route.route_list)):
             item = self.route.route_list[i]
-            if item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+            if item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE,
+                           operation_const.OP_UPDATE_POS,
+                           operation_const.OP_BAN_TECH, operation_const.OP_ALLOW_TECH]:
                 # 需要找下一个不是移动的指令
                 continue
             elif item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE]:
@@ -246,6 +264,8 @@ class WorldPatrolRunRoute(SrOperation):
             return self.round_by_op_result(op_result)
         elif route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
+        elif route_item.op == operation_const.OP_NO_POS_MOVE:
+            op = self.no_pos_move(route_item)
         elif route_item.op == operation_const.OP_PATROL:
             self.feixiao_attack = False  # 经过怪物点后 需要把攻击重置
             return self.round_success()
@@ -263,6 +283,12 @@ class WorldPatrolRunRoute(SrOperation):
             return self.round_success()
         elif route_item.op == operation_const.OP_ENTER_SUB:
             self.current_region = self.ctx.map_data.get_sub_region_by_cn(self.current_region, route_item.data[0], int(route_item.data[1]))
+            return self.round_success()
+        elif route_item.op == operation_const.OP_BAN_TECH:
+            self.ctx.ban_technique = True
+            return self.round_success()
+        elif route_item.op == operation_const.OP_ALLOW_TECH:
+            self.ctx.ban_technique = False
             return self.round_success()
         else:
             return self.round_fail(status='错误的锄大地指令 %s' % route_item.op)
@@ -307,6 +333,13 @@ class WorldPatrolRunRoute(SrOperation):
                             technique_fight=self.ctx.world_patrol_config.technique_fight,
                             technique_only=self.ctx.world_patrol_config.technique_only,
                             op_callback=self._update_pos_after_op)
+
+    def no_pos_move(self, route_item: WorldPatrolRouteOperation) -> SrOperation:
+        start = Point(0, 0)
+        target = Point(route_item.data[0], route_item.data[1])
+        move_time = route_item.data[2]
+
+        return MoveWithoutPos(self.ctx, start, target, move_time=move_time)
 
     def _update_pos_after_op(self, op_result: OperationResult):
         """
@@ -359,7 +392,7 @@ def __debug():
     ctx.start_running()
 
     from sr_od.app.world_patrol.world_patrol_whitelist_config import WorldPatrolWhitelist
-    whitelist = WorldPatrolWhitelist('名单_1')
+    whitelist = WorldPatrolWhitelist('名单_3')  # 单条测试
     route = ctx.world_patrol_route_data.load_all_route(
         whitelist=whitelist
     )

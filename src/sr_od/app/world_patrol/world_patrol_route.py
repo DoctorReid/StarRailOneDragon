@@ -158,7 +158,7 @@ class WorldPatrolRoute:
         for route_item in self.route_list:
             cfg += f"  - idx: {route_item.idx}\n"
             if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE,
-                                    operation_const.OP_UPDATE_POS]:
+                                 operation_const.OP_UPDATE_POS]:
                 cfg += "    op: '%s'\n" % route_item.op
                 pos = route_item.data
                 if len(pos) > 2 and pos[2] != last_floor:
@@ -166,6 +166,9 @@ class WorldPatrolRoute:
                     last_floor = pos[2]
                 else:
                     cfg += "    data: [%d, %d]\n" % (pos[0], pos[1])
+            elif route_item.op == operation_const.OP_NO_POS_MOVE:
+                cfg += "    op: '%s'\n" % route_item.op
+                cfg += "    data: [%d, %d, %d]\n" % (route_item.data[0], route_item.data[1], route_item.data[2])
             elif route_item.op in [operation_const.OP_PATROL, operation_const.OP_DISPOSABLE, operation_const.OP_CATAPULT]:
                 cfg += "    op: '%s'\n" % route_item.op
             elif route_item.op == operation_const.OP_INTERACT:
@@ -177,6 +180,8 @@ class WorldPatrolRoute:
             elif route_item.op == operation_const.OP_ENTER_SUB:
                 cfg += "    op: '%s'\n" % route_item.op
                 cfg += "    data: ['%s', '%s']\n" % (route_item.data[0], route_item.data[1])
+            elif route_item.op in [operation_const.OP_ALLOW_TECH, operation_const.OP_BAN_TECH]:
+                cfg += "    op: '%s'\n" % route_item.op
 
         return cfg
 
