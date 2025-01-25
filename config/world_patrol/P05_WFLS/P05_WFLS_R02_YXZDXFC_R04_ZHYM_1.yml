@@ -1,0 +1,42 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「浴血战端」悬锋城'
+floor: 1
+tp: '铸魂仪门'
+route:
+  - idx: 1
+    op: 'move'
+    data: [845, 872]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [995, 908]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [1030, 923]
+  - idx: 6
+    op: 'move'
+    data: [1034, 889]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [1035, 794]
+  - idx: 9
+    op: 'move'
+    data: [1032, 734]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [1055, 741]
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [1082, 759]
+  - idx: 14
+    op: 'patrol'
