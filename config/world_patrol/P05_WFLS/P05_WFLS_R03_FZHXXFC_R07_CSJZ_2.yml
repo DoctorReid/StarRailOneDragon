@@ -1,0 +1,87 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「纷争荒墟」悬锋城'
+floor: 2
+tp: '采石旧址'
+route:
+  - idx: 1
+    op: 'move'
+    data: [3086, 1762]
+  - idx: 2
+    op: 'move'
+    data: [3089, 1702, 1]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
+    data: [3124, 1713]
+  - idx: 5
+    op: 'move'
+    data: [3219, 1707]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [3223, 1820]
+  - idx: 8
+    op: 'move'
+    data: [3273, 1825]
+  - idx: 9
+    op: 'move'
+    data: [3300, 1825, 2]
+  - idx: 10
+    op: 'move'
+    data: [3355, 1823]
+  - idx: 11
+    op: 'move'
+    data: [3349, 1769]
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [3361, 1832]
+  - idx: 14
+    op: 'move'
+    data: [3301, 1835]
+  - idx: 15
+    op: 'move'
+    data: [3266, 1824, 1]
+  - idx: 16
+    op: 'move'
+    data: [3205, 1829]
+  - idx: 17
+    op: 'move'
+    data: [3170, 1828]
+  - idx: 18
+    op: 'disposable'
+  - idx: 19
+    op: 'move'
+    data: [3178, 1884]
+  - idx: 20
+    op: 'patrol'
+  - idx: 21
+    op: 'move'
+    data: [3175, 1835]
+  - idx: 22
+    op: 'move'
+    data: [3210, 1830]
+  - idx: 23
+    op: 'move'
+    data: [3214, 1654]
+  - idx: 24
+    op: 'move'
+    data: [3158, 1650]
+  - idx: 25
+    op: 'move'
+    data: [3102, 1649, 2]
+  - idx: 26
+    op: 'move'
+    data: [3099, 1614]
+  - idx: 27
+    op: 'move'
+    data: [3068, 1612]
+  - idx: 28
+    op: 'move'
+    data: [3069, 1647]
+  - idx: 29
+    op: 'patrol'
