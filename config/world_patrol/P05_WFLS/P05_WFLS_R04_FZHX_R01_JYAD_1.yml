@@ -1,0 +1,36 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「命运重渊」雅努萨波利斯'
+floor: 2
+tp: '噤语黯地'
+route:
+  - idx: 1
+    op: 'move'
+    data: [531, 1412]
+  - idx: 2
+    op: 'move'
+    data: [535, 1394]
+  - idx: 3
+    op: 'move'
+    data: [535, 1394]
+  - idx: 4
+    op: 'patrol'
+  - idx: 5
+    op: 'move'
+    data: [570, 1419]
+  - idx: 6
+    op: 'move'
+    data: [635, 1407]
+  - idx: 7
+    op: 'move'
+    data: [700, 1404]
+  - idx: 8
+    op: 'move'
+    data: [825, 1406]
+  - idx: 9
+    op: 'disposable'
+  - idx: 10
+    op: 'move'
+    data: [845, 1436]
+  - idx: 11
+    op: 'patrol'
