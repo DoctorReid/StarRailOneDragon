@@ -12,7 +12,7 @@ route:
     data: [2392, 1774]
   - idx: 3
     op: 'wait'
-    data: ['in_world', '4']
+    data: ['seconds', '4']
   - idx: 4
     op: 'move'
     data: [2390, 1734]
