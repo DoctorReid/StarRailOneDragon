@@ -1,0 +1,60 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「纷争荒墟」悬锋城'
+floor: 1
+tp: '铸魂颓垣'
+route:
+  - idx: 1
+    op: 'move'
+    data: [2785, 1051]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [2893, 1099]
+  - idx: 4
+    op: 'move'
+    data: [2928, 1115]
+  - idx: 5
+    op: 'move'
+    data: [2943, 1120]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [3026, 1154]
+  - idx: 8
+    op: 'move'
+    data: [3016, 1181]
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
+    data: [3016, 1216]
+  - idx: 11
+    op: 'move'
+    data: [2984, 1251]
+  - idx: 12
+    op: 'move'
+    data: [2949, 1286]
+  - idx: 13
+    op: 'move'
+    data: [2948, 1284, -1]
+  - idx: 14
+    op: 'move'
+    data: [2886, 1286]
+  - idx: 15
+    op: 'move'
+    data: [2809, 1291]
+  - idx: 16
+    op: 'patrol'
+  - idx: 17
+    op: 'move'
+    data: [2733, 1279]
+  - idx: 18
+    op: 'disposable'
+  - idx: 19
+    op: 'move'
+    data: [2677, 1218]
+  - idx: 20
+    op: 'patrol'
