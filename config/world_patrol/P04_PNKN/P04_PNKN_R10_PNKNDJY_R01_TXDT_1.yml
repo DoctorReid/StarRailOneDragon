@@ -19,47 +19,55 @@ route:
     data: [932, 706]
   - idx: 6
     op: 'move'
-    data: [973, 668]
+    data: [1009, 799]
   - idx: 7
-    op: 'disposable'
+    op: 'patrol'
   - idx: 8
     op: 'move'
-    data: [996, 644]
+    data: [944, 695]
   - idx: 9
-    op: 'patrol'
+    op: 'move'
+    data: [973, 668]
   - idx: 10
-    op: 'move'
-    data: [1081, 601]
-  - idx: 11
     op: 'disposable'
-  - idx: 12
+  - idx: 11
     op: 'move'
-    data: [1078, 558]
+    data: [996, 644]
+  - idx: 12
+    op: 'patrol'
   - idx: 13
     op: 'move'
-    data: [1066, 513]
+    data: [1081, 601]
   - idx: 14
-    op: 'patrol'
+    op: 'disposable'
   - idx: 15
     op: 'move'
-    data: [1021, 487]
+    data: [1078, 558]
   - idx: 16
-    op: 'patrol'
-  - idx: 17
     op: 'move'
-    data: [1055, 480]
+    data: [1066, 513]
+  - idx: 17
+    op: 'patrol'
   - idx: 18
     op: 'move'
-    data: [1056, 450]
+    data: [1021, 487]
   - idx: 19
-    op: 'disposable'
+    op: 'patrol'
   - idx: 20
     op: 'move'
-    data: [1146, 454]
+    data: [1055, 480]
   - idx: 21
-    op: 'patrol'
+    op: 'move'
+    data: [1056, 450]
   - idx: 22
+    op: 'disposable'
+  - idx: 23
+    op: 'move'
+    data: [1146, 454]
+  - idx: 24
+    op: 'patrol'
+  - idx: 25
     op: 'move'
     data: [1207, 389]
-  - idx: 23
+  - idx: 26
     op: 'patrol'
