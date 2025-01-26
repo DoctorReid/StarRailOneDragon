@@ -79,6 +79,9 @@ class SrSettingGameInterface(VerticalScrollInterface):
         self.key_esc_opt = KeySettingCard(icon=FluentIcon.GAME, title='返回')
         key_group.addSettingCard(self.key_esc_opt)
 
+        self.key_gameplay_interaction_opt = KeySettingCard(icon=FluentIcon.GAME, title='玩法交互')
+        key_group.addSettingCard(self.key_gameplay_interaction_opt)
+
         return key_group
 
     def on_interface_shown(self) -> None:
@@ -93,13 +96,14 @@ class SrSettingGameInterface(VerticalScrollInterface):
 
         self.game_path_opt.setContent(self.ctx.game_config.game_path)
 
-        self.key_interact_opt.init_with_adapter(self.ctx.game_config.key_interact_adapter)
-        self.key_technique_opt.init_with_adapter(self.ctx.game_config.key_technique_adapter)
+        self.key_interact_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_interact'))
+        self.key_technique_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_technique'))
         self.key_open_map_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_open_map'))
-        self.key_esc_opt.init_with_adapter(self.ctx.game_config.key_esc_adapter)
+        self.key_esc_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_esc'))
+        self.key_gameplay_interaction_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_gameplay_interaction'))
 
     def _on_game_path_clicked(self) -> None:
-        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的 ZenlessZoneZero.exe'), filter="Exe (*.exe)")
+        file_path, _ = QFileDialog.getOpenFileName(self, gt('选择你的 StarRail/launcher.exe'), filter="Exe (*.exe)")
         if file_path is not None and file_path.endswith('.exe'):
             log.info('选择路径 %s', file_path)
             self._on_game_path_chosen(os.path.normpath(file_path))

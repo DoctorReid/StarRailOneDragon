@@ -271,10 +271,6 @@ class GameConfig(YamlConfig):
         self.update('key_technique', new_value)
 
     @property
-    def key_technique_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'key_technique', 'e')
-
-    @property
     def key_open_map(self) -> str:
         """
         秘技按钮
@@ -299,8 +295,12 @@ class GameConfig(YamlConfig):
         self.update('key_esc', new_value)
 
     @property
-    def key_esc_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'key_esc', 'esc')
+    def key_gameplay_interaction(self) -> str:
+        return self.get('key_gameplay_interaction', 'space')
+
+    @key_gameplay_interaction.setter
+    def key_gameplay_interaction(self, new_value):
+        self.update('key_gameplay_interaction', new_value)
 
     @property
     def use_quirky_snacks(self) -> bool:

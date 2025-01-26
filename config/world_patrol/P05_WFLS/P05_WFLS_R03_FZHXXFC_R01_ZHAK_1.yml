@@ -1,0 +1,159 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「纷争荒墟」悬锋城'
+floor: -1
+tp: '逐魂隘口'
+route:
+  - idx: 1
+    op: 'move'
+    data: [550, 3921]
+  - idx: 2
+    op: 'move'
+    data: [580, 3938]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
+    data: [522, 3868]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [556, 3846]
+  - idx: 7
+    op: 'move'
+    data: [573, 3780]
+  - idx: 8
+    op: 'move'
+    data: [630, 3735]
+  - idx: 9
+    op: 'move'
+    data: [665, 3719]
+  - idx: 10
+    op: 'move'
+    data: [689, 3717]
+  - idx: 11
+    op: 'patrol'
+  - idx: 12
+    op: 'move'
+    data: [713, 3742]
+  - idx: 13
+    op: 'disposable'
+  - idx: 14
+    op: 'move'
+    data: [724, 3707]
+  - idx: 15
+    op: 'move'
+    data: [786, 3714]
+  - idx: 16
+    op: 'wait'
+    data: ['in_world', '4']
+  - idx: 17
+    op: 'move'
+    data: [836, 3711]
+  - idx: 18
+    op: 'move'
+    data: [870, 3683]
+  - idx: 19
+    op: 'disposable'
+  - idx: 20
+    op: 'move'
+    data: [870, 3748]
+  - idx: 21
+    op: 'gameplay_interact'
+    data: ['4']
+  - idx: 22
+    op: 'move'
+    data: [871, 3802]
+  - idx: 23
+    op: 'move'
+    data: [851, 3837]
+  - idx: 24
+    op: 'patrol'
+  - idx: 25
+    op: 'move'
+    data: [900, 3841]
+  - idx: 26
+    op: 'disposable'
+  - idx: 27
+    op: 'move'
+    data: [915, 3820]
+  - idx: 28
+    op: 'move'
+    data: [978, 3819]
+  - idx: 29
+    op: 'move'
+    data: [990, 3765]
+  - idx: 30
+    op: 'patrol'
+  - idx: 31
+    op: 'move'
+    data: [1018, 3796]
+  - idx: 32
+    op: 'move'
+    data: [1050, 3792]
+  - idx: 33
+    op: 'disposable'
+  - idx: 34
+    op: 'move'
+    data: [1044, 3762]
+  - idx: 35
+    op: 'move'
+    data: [1076, 3746]
+  - idx: 36
+    op: 'move'
+    data: [1101, 3699]
+  - idx: 37
+    op: 'disposable'
+  - idx: 38
+    op: 'move'
+    data: [1077, 3701]
+  - idx: 39
+    op: 'disposable'
+  - idx: 40
+    op: 'move'
+    data: [1042, 3709]
+  - idx: 41
+    op: 'move'
+    data: [1012, 3676]
+  - idx: 42
+    op: 'gameplay_interact'
+    data: ['4']
+  - idx: 43
+    op: 'move'
+    data: [953, 3648]
+  - idx: 44
+    op: 'wait'
+    data: ['in_world', '1']
+  - idx: 45
+    op: 'move'
+    data: [997, 3673]
+  - idx: 46
+    op: 'move'
+    data: [1008, 3638]
+  - idx: 47
+    op: 'move'
+    data: [992, 3627]
+  - idx: 48
+    op: 'move'
+    data: [980, 3600]
+  - idx: 49
+    op: 'disposable'
+  - idx: 50
+    op: 'move'
+    data: [947, 3604]
+  - idx: 51
+    op: 'move'
+    data: [941, 3576]
+  - idx: 52
+    op: 'disposable'
+  - idx: 53
+    op: 'move'
+    data: [884, 3586]
+  - idx: 54
+    op: 'disposable'
+  - idx: 55
+    op: 'move'
+    data: [879, 3618]
+  - idx: 56
+    op: 'patrol'

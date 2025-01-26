@@ -263,6 +263,20 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
         tech_row.add_stretch(1)
         layout.addWidget(tech_row)
 
+        # 玩法交互行
+        gameplay_interaction_row = Row()
+
+        self.gameplay_interact_seconds = LineEdit()
+        self.gameplay_interact_seconds.setPlaceholderText('按键秒数')
+        gameplay_interaction_row.add_widget(self.gameplay_interact_seconds)
+
+        self.gameplay_interact_btn = PushButton(text=gt('玩法交互'))
+        self.gameplay_interact_btn.clicked.connect(self.on_gameplay_interact_clicked)
+        gameplay_interaction_row.add_widget(self.gameplay_interact_btn)
+
+        gameplay_interaction_row.add_stretch(1)
+        layout.addWidget(gameplay_interaction_row)
+
         layout.addStretch(1)
 
         return layout
@@ -792,3 +806,12 @@ class WorldPatrolDrawRouteInterface(VerticalScrollInterface):
             return
 
         world_patrol_route_draw_utils.add_allow_tech(self.chosen_route)
+
+    def on_gameplay_interact_clicked(self) -> None:
+        if self.chosen_route is None:
+            return
+
+        seconds = str_utils.get_positive_digits(self.gameplay_interact_seconds.text(), 0)
+        world_patrol_route_draw_utils.add_gameplay_interact(self.chosen_route, seconds)
+
+        self.update_display_by_route()

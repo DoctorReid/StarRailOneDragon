@@ -174,6 +174,9 @@ class WorldPatrolRoute:
             elif route_item.op == operation_const.OP_INTERACT:
                 cfg += "    op: '%s'\n" % route_item.op
                 cfg += "    data: '%s'\n" % route_item.data
+            elif route_item.op == operation_const.OP_GAMEPLAY_INTERACT:
+                cfg += "    op: '%s'\n" % route_item.op
+                cfg += "    data: ['%s']\n" % route_item.data[0]
             elif route_item.op == operation_const.OP_WAIT:
                 cfg += "    op: '%s'\n" % route_item.op
                 cfg += "    data: ['%s', '%s']\n" % (route_item.data[0], route_item.data[1])

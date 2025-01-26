@@ -150,7 +150,7 @@ def get_route_image(ctx: SrContext, route: WorldPatrolRoute):
             if current_region.pr_id == to_display_region.pr_id:
                 if last_point is not None:
                     cv2.circle(display_image, last_point[:2], 10, color=(67, 34, 49), thickness=2)
-        elif route_item.op == operation_const.OP_INTERACT or route_item.op == operation_const.OP_CATAPULT:
+        elif route_item.op in [operation_const.OP_INTERACT, operation_const.OP_CATAPULT, operation_const.OP_GAMEPLAY_INTERACT]:
             if current_region.pr_id == to_display_region.pr_id:
                 if last_point is not None:
                     cv2.circle(display_image, last_point[:2], 12, color=(255, 0, 255), thickness=2)
@@ -326,6 +326,17 @@ def add_allow_tech(route: WorldPatrolRoute):
     :return:
     """
     to_add = WorldPatrolRouteOperation(op=operation_const.OP_ALLOW_TECH)
+    route.route_list.append(to_add)
+    route.init_idx()
+
+
+def add_gameplay_interact(route: WorldPatrolRoute, seconds: int):
+    """
+    增加玩法交互指令
+    :param seconds: 持续秒数
+    :return:
+    """
+    to_add = WorldPatrolRouteOperation(op=operation_const.OP_GAMEPLAY_INTERACT, data=[seconds])
     route.route_list.append(to_add)
     route.init_idx()
 

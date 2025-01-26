@@ -14,6 +14,7 @@ from sr_od.config import operation_const
 from sr_od.config.character_const import get_character_by_id
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.interact.catapult import Catapult
+from sr_od.operations.interact.gameplay_interact import GameplayInteract
 from sr_od.operations.interact.move_interact import MoveInteract
 from sr_od.operations.move.move_directly import MoveDirectly
 from sr_od.operations.move.move_without_pos import MoveWithoutPos
@@ -187,6 +188,8 @@ class WorldPatrolRunRoute(SrOperation):
         elif route_item.op == operation_const.OP_ALLOW_TECH:
             self.ctx.ban_technique = False
             return self.round_success()
+        elif route_item.op == operation_const.OP_GAMEPLAY_INTERACT:
+            op = GameplayInteract(self.ctx, int(route_item.data[0]))
         else:
             return self.round_fail(status='错误的锄大地指令 %s' % route_item.op)
 
@@ -238,8 +241,9 @@ class WorldPatrolRunRoute(SrOperation):
                 # 如果下一个不是移动的指令 是攻击类的 则当前不需要攻击
                 should_attack = False
                 break
-            elif item.op in [operation_const.OP_INTERACT, operation_const.OP_CATAPULT]:
-                # 如果下一个不是移动的指令 是交互类的 则当前可以攻击了
+            elif item.op in [operation_const.OP_INTERACT, operation_const.OP_CATAPULT,
+                             operation_const.OP_GAMEPLAY_INTERACT]:
+                # 如果下一个不是移动的指令 是交互类的 这类通常都会触发传送 则当前可以攻击了
                 should_attack = True
                 break
             else:
@@ -290,6 +294,8 @@ class WorldPatrolRunRoute(SrOperation):
         elif route_item.op == operation_const.OP_ALLOW_TECH:
             self.ctx.ban_technique = False
             return self.round_success()
+        elif route_item.op == operation_const.OP_GAMEPLAY_INTERACT:
+            op = GameplayInteract(self.ctx, int(route_item.data[0]))
         else:
             return self.round_fail(status='错误的锄大地指令 %s' % route_item.op)
 
