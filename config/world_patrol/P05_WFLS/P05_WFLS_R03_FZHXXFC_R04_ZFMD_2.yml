@@ -1,0 +1,57 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「纷争荒墟」悬锋城'
+floor: 2
+tp: '征伐陌地'
+route:
+  - idx: 1
+    op: 'move'
+    data: [2373, 1833]
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
+    data: [2278, 1853]
+  - idx: 4
+    op: 'move'
+    data: [2266, 1852]
+  - idx: 5
+    op: 'move'
+    data: [2244, 1826]
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
+    data: [2216, 1805]
+  - idx: 8
+    op: 'disposable'
+  - idx: 9
+    op: 'move'
+    data: [2174, 1859]
+  - idx: 10
+    op: 'move'
+    data: [2195, 1888]
+  - idx: 11
+    op: 'disposable'
+  - idx: 12
+    op: 'move'
+    data: [2172, 1908]
+  - idx: 13
+    op: 'move'
+    data: [2117, 1914]
+  - idx: 14
+    op: 'move'
+    data: [2053, 1914]
+  - idx: 15
+    op: 'move'
+    data: [2025, 1907]
+  - idx: 16
+    op: 'disposable'
+  - idx: 17
+    op: 'move'
+    data: [1990, 1913]
+  - idx: 18
+    op: 'move'
+    data: [1978, 1911]
+  - idx: 19
+    op: 'patrol'
