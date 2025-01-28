@@ -1,0 +1,20 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「纷争荒墟」悬锋城'
+floor: 1
+tp: '琢石寂地'
+route:
+  - idx: 10
+    op: 'move'
+    data: [3094, 1064]
+  - idx: 11
+    op: 'move'
+    data: [3082, 988]
+  - idx: 12
+    op: 'move'
+    data: [3053, 907]
+  - idx: 13
+    op: 'move'
+    data: [3018, 895]
+  - idx: 14
+    op: 'patrol'

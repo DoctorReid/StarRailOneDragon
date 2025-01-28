@@ -10,6 +10,7 @@ OP_UPDATE_POS = 'update_pos'
 OP_ENTER_SUB = 'enter_sub'
 OP_BAN_TECH = 'ban_tech'
 OP_ALLOW_TECH = 'allow_tech'
+OP_GAMEPLAY_INTERACT = 'gameplay_interact'
 
 # 等待类型
 WAIT_TYPE_IN_WORLD = 'in_world'

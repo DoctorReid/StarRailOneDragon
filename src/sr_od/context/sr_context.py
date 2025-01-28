@@ -159,8 +159,6 @@ class SrContext(OneDragonContext):
         # 共用配置
         self.yolo_config: YoloConfig = YoloConfig()
         self.yolo_detector: YoloScreenDetector = YoloScreenDetector(
-            world_patrol_model_name=None,
-            sim_uni_model_name=None,
             standard_resolution_h=self.project_config.screen_standard_height,
             standard_resolution_w=self.project_config.screen_standard_width
         )

@@ -54,7 +54,6 @@ def show_image(img: MatLike,
     :param destroy_after: 显示后销毁窗口
     :return:
     """
-    # cv2.startWindowThread()
     to_show = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
     if rects is not None:

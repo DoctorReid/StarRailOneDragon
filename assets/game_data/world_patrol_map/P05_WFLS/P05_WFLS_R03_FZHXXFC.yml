@@ -4,8 +4,8 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: -1
   template_id: "mm_tp_03"
-  lm_pos: [526, 3921]
-  tp_pos: [524, 3957]
+  lm_pos: [526, 3928]
+  tp_pos: [524, 3964]
 
 - uid: "ZHTY"
   cn: "铸魂颓垣"
@@ -13,8 +13,8 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 1
   template_id: "mm_tp_03"
-  lm_pos: [2722, 1050]
-  tp_pos: [2763, 1069]
+  lm_pos: [2720, 1046]
+  tp_pos: [2761, 1065]
 
 - uid: "ZSJD"
   cn: "琢石寂地"
@@ -22,8 +22,8 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 1
   template_id: "mm_tp_03"
-  lm_pos: [3097, 1087]
-  tp_pos: [3113, 1071]
+  lm_pos: [3090, 1087]
+  tp_pos: [3106, 1071]
 
 - uid: "ZGCJ"
   cn: "止戈残间"
@@ -31,8 +31,8 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 1
   template_id: "mm_tp_03"
-  lm_pos: [1722, 1959]
-  tp_pos: [1711, 1962]
+  lm_pos: [1722, 1965]
+  tp_pos: [1732, 1995]
 
 - uid: "JYZLNZHEC"
   cn: "记忆之蕾·拟造花萼（赤）"
@@ -40,8 +40,8 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 1
   template_id: "mm_tp_07"
-  lm_pos: [3540, 1460]
-  tp_pos: [3614, 1399]
+  lm_pos: [3533, 1463]
+  tp_pos: [3534, 1466]
 
 - uid: "FZHXDYJQSZ"
   cn: "「纷争荒墟」的衣匠前哨站"
@@ -49,7 +49,7 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 1
   template_id: "mm_sp_20"
-  lm_pos: [1771, 1982]
+  lm_pos: [1771, 1988]
 
 - uid: "ZGLSZS1"
   cn: "扎格列斯之手1"
@@ -57,7 +57,7 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 1
   template_id: "mm_sp_22"
-  lm_pos: [3057, 979]
+  lm_pos: [3054, 979]
 
 - uid: "ZGLSZS2"
   cn: "扎格列斯之手2"
@@ -65,7 +65,7 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 1
   template_id: "mm_sp_22"
-  lm_pos: [3113, 1696]
+  lm_pos: [3112, 1702]
 
 - uid: "XFDJC"
   cn: "悬锋斗技场"
@@ -82,8 +82,8 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 2
   template_id: "mm_tp_03"
-  lm_pos: [2430, 1797]
-  tp_pos: [2445, 1817]
+  lm_pos: [2430, 1803]
+  tp_pos: [2445, 1823]
 
 - uid: "CSJZ"
   cn: "采石旧址"
@@ -91,8 +91,8 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 2
   template_id: "mm_tp_03"
-  lm_pos: [3115, 1882]
-  tp_pos: [3085, 1868]
+  lm_pos: [3114, 1888]
+  tp_pos: [3084, 1874]
 
 - uid: "YXZDXFC"
   cn: "「浴血战端」悬锋城"
@@ -100,7 +100,7 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 2
   template_id: "mm_sp_02"
-  lm_pos: [2309, 2245]
+  lm_pos: [2309, 2254]
 
 - uid: "DYSK1"
   cn: "祷言神龛1"
@@ -108,7 +108,7 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 2
   template_id: "mm_sp_21"
-  lm_pos: [2274, 2022]
+  lm_pos: [2274, 2030]
 
 - uid: "DYSK2"
   cn: "祷言神龛2"
@@ -116,4 +116,4 @@
   region_name: "「纷争荒墟」悬锋城"
   region_floor: 2
   template_id: "mm_sp_21"
-  lm_pos: [2046, 2058]
+  lm_pos: [2046, 2067]

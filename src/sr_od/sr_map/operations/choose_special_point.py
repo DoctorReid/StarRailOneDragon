@@ -103,10 +103,10 @@ class ChooseSpecialPoint(SrOperation):
                         tp_name_str += ' ' + k
 
             log.info('当前选择传送点名称 %s', tp_name_str)
-            # cv2_utils.show_image(gold_part, win_name='gold_part')
+            lcs_percent = 0.5 if self.tp.planet.cn == '翁法罗斯' else self.ctx.game_config.special_point_lcs_percent
             if (tp_name_str is not None and
                     str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True,
-                                          percent=self.ctx.game_config.special_point_lcs_percent)):
+                                          percent=lcs_percent)):
                 # 点击传送
                 to_click = area.center
                 for r in tp_btn_ocr.values():

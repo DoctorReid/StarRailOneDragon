@@ -217,3 +217,9 @@ class SrPcController(PcControllerBase):
     def use_technique(self) -> bool:
         self.btn_controller.tap(self.game_config.key_technique)
         return True
+
+    def gameplay_interact(self, press_time: float = 0):
+        if press_time > 0:
+            self.btn_controller.press(self.game_config.key_gameplay_interaction, press_time)
+        else:
+            self.btn_controller.tap(self.game_config.key_gameplay_interaction)

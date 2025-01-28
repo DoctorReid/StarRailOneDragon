@@ -40,7 +40,7 @@ class YoloScreenDetector:
             self.sim_uni_yolo = Yolov8Detector(
                 model_download_url=SR_MODEL_DOWNLOAD_URL,
                 model_parent_dir_path=yolo_config_utils.get_model_category_dir('sim_uni'),
-                model_name=sim_uni_model_name
+                model_name=sim_uni_model_name,
             )
 
         self.world_patrol_yolo: Optional[Yolov8Detector] = None  # 锄大地用的模型

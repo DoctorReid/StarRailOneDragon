@@ -1,0 +1,120 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「纷争荒墟」悬锋城'
+floor: 2
+tp: '采石旧址'
+route:
+  - idx: 1
+    op: 'move'
+    data: [3054, 1876]
+  - idx: 2
+    op: 'move'
+    data: [3058, 1786]
+  - idx: 3
+    op: 'move'
+    data: [3037, 1766]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [3020, 1790]
+  - idx: 6
+    op: 'move'
+    data: [3031, 1863]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [3034, 1892]
+  - idx: 9
+    op: 'move'
+    data: [3058, 1921]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [3023, 1943]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [2988, 1920]
+  - idx: 14
+    op: 'move'
+    data: [2953, 1918]
+  - idx: 15
+    op: 'wait'
+    data: ['seconds', '4']
+  - idx: 16
+    op: 'move'
+    data: [2921, 1922]
+  - idx: 17
+    op: 'move'
+    data: [2896, 1922]
+  - idx: 18
+    op: 'move'
+    data: [2873, 1905]
+  - idx: 19
+    op: 'patrol'
+  - idx: 20
+    op: 'move'
+    data: [2898, 1921]
+  - idx: 21
+    op: 'no_pos_move'
+    data: [-212, -1, 10]
+  - idx: 22
+    op: 'update_pos'
+    data: [2686, 1920]
+  - idx: 23
+    op: 'move'
+    data: [2676, 1920]
+  - idx: 24
+    op: 'wait'
+    data: ['seconds', '4']
+  - idx: 25
+    op: 'move'
+    data: [2590, 1922]
+  - idx: 26
+    op: 'move'
+    data: [2578, 1920]
+  - idx: 27
+    op: 'wait'
+    data: ['seconds', '4']
+  - idx: 28
+    op: 'move'
+    data: [2544, 1918]
+  - idx: 29
+    op: 'move'
+    data: [2544, 1830]
+  - idx: 30
+    op: 'move'
+    data: [2538, 1814]
+  - idx: 31
+    op: 'disposable'
+  - idx: 32
+    op: 'move'
+    data: [2506, 1818, 3]
+  - idx: 33
+    op: 'move'
+    data: [2471, 1821]
+  - idx: 34
+    op: 'move'
+    data: [2457, 1879]
+  - idx: 35
+    op: 'move'
+    data: [2424, 1864]
+  - idx: 36
+    op: 'patrol'
+  - idx: 37
+    op: 'move'
+    data: [2416, 1829]
+  - idx: 38
+    op: 'patrol'
+  - idx: 39
+    op: 'move'
+    data: [2381, 1824]
+  - idx: 40
+    op: 'move'
+    data: [2366, 1824]
+  - idx: 41
+    op: 'patrol'

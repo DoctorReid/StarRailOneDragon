@@ -1,0 +1,53 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「纷争荒墟」悬锋城'
+floor: 1
+tp: '记忆之蕾·拟造花萼（赤）'
+route:
+  - idx: 1
+    op: 'move'
+    data: [3538, 1499]
+  - idx: 2
+    op: 'wait'
+    data: ['seconds', '4']
+  - idx: 3
+    op: 'move'
+    data: [3518, 1544]
+  - idx: 4
+    op: 'move'
+    data: [3570, 1550]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [3602, 1661]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [3581, 1690]
+  - idx: 9
+    op: 'move'
+    data: [3608, 1713]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [3485, 1715]
+  - idx: 12
+    op: 'wait'
+    data: ['seconds', '4']
+  - idx: 13
+    op: 'move'
+    data: [3452, 1718]
+  - idx: 14
+    op: 'move'
+    data: [3452, 1813]
+  - idx: 15
+    op: 'move'
+    data: [3417, 1815]
+  - idx: 16
+    op: 'move'
+    data: [3415, 1879]
+  - idx: 17
+    op: 'patrol'

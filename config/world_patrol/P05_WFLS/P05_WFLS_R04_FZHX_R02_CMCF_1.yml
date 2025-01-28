@@ -1,0 +1,37 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「命运重渊」雅努萨波利斯'
+floor: 2
+tp: '长梦宸扉'
+route:
+  - idx: 1
+    op: 'move'
+    data: [571, 859]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [477, 880]
+  - idx: 4
+    op: 'move'
+    data: [434, 880, 1]
+  - idx: 5
+    op: 'move'
+    data: [399, 874]
+  - idx: 6
+    op: 'move'
+    data: [398, 830]
+  - idx: 7
+    op: 'move'
+    data: [450, 820]
+  - idx: 8
+    op: 'move'
+    data: [473, 819]
+  - idx: 9
+    op: 'move'
+    data: [487, 821]
+  - idx: 10
+    op: 'move'
+    data: [479, 852]
+  - idx: 11
+    op: 'patrol'

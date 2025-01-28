@@ -1,6 +1,6 @@
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget
-from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout
+from qfluentwidgets import FluentIcon, SettingCardGroup, setTheme, Theme, VBoxLayout, PushButton, HyperlinkButton
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
@@ -85,6 +85,10 @@ class SettingEnvInterface(VerticalScrollInterface):
         code_group.addSettingCard(self.auto_update_opt)
 
         self.pip_source_opt = ComboBoxSettingCard(icon=FluentIcon.GLOBE, title='Pip源', options_enum=PipSourceEnum)
+        self.pip_choose_best_btn = PushButton('自动测速选择', self)
+        self.pip_choose_best_btn.clicked.connect(self.on_pip_choose_best_clicked)
+        self.pip_source_opt.hBoxLayout.addWidget(self.pip_choose_best_btn, 0, Qt.AlignmentFlag.AlignRight)
+        self.pip_source_opt.hBoxLayout.addSpacing(16)
         code_group.addSettingCard(self.pip_source_opt)
 
         return code_group
@@ -105,6 +109,25 @@ class SettingEnvInterface(VerticalScrollInterface):
         )
         self.personal_proxy_input.value_changed.connect(self._on_personal_proxy_changed)
         web_group.addSettingCard(self.personal_proxy_input)
+
+        self.gh_proxy_url_opt = TextSettingCard(
+            icon=FluentIcon.GLOBE, title='免费代理', content='网络代理中选择 免费代理 后生效'
+        )
+        web_group.addSettingCard(self.gh_proxy_url_opt)
+
+        self.auto_fetch_gh_proxy_url_opt = SwitchSettingCard(
+            icon=FluentIcon.SYNC, title='自动获取免费代理地址', content='获取失败时 可前往 https://ghproxy.link/ 查看自行更新'
+        )
+        self.fetch_gh_proxy_url_btn = PushButton('获取', self)
+        self.fetch_gh_proxy_url_btn.clicked.connect(self.on_fetch_gh_proxy_url_clicked)
+        self.auto_fetch_gh_proxy_url_opt.hBoxLayout.addWidget(self.fetch_gh_proxy_url_btn, 0, Qt.AlignmentFlag.AlignRight)
+        self.auto_fetch_gh_proxy_url_opt.hBoxLayout.addSpacing(16)
+
+        self.goto_gh_proxy_link_btn = HyperlinkButton('https://ghproxy.link', '前往', self)
+        self.auto_fetch_gh_proxy_url_opt.hBoxLayout.addWidget(self.goto_gh_proxy_link_btn, 0, Qt.AlignmentFlag.AlignRight)
+        self.auto_fetch_gh_proxy_url_opt.hBoxLayout.addSpacing(16)
+
+        web_group.addSettingCard(self.auto_fetch_gh_proxy_url_opt)
 
         return web_group
 
@@ -164,13 +187,16 @@ class SettingEnvInterface(VerticalScrollInterface):
 
         self.force_update_opt.setValue(self.ctx.env_config.force_update)
         self.auto_update_opt.setValue(self.ctx.env_config.auto_update)
-        self.pip_source_opt.init_with_adapter(self.ctx.env_config.pip_source_adapter)
+        self.pip_source_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('pip_source'))
 
         proxy_type = get_config_item_from_enum(ProxyTypeEnum, self.ctx.env_config.proxy_type)
         if proxy_type is not None:
             self.proxy_type_opt.setValue(proxy_type.value)
 
         self.personal_proxy_input.setValue(self.ctx.env_config.personal_proxy)
+
+        self.gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('gh_proxy_url'))
+        self.auto_fetch_gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('auto_fetch_gh_proxy_url'))
 
     def _on_theme_changed(self, index: int, value: str) -> None:
         """
@@ -265,3 +291,11 @@ class SettingEnvInterface(VerticalScrollInterface):
 
     def _on_key_debug_changed(self, value: str) -> None:
         self.ctx.env_config.key_debug = value
+
+    def on_fetch_gh_proxy_url_clicked(self) -> None:
+        self.ctx.gh_proxy_service.update_proxy_url()
+        self.gh_proxy_url_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('gh_proxy_url'))
+
+    def on_pip_choose_best_clicked(self) -> None:
+        self.ctx.python_service.choose_best_pip_source()
+        self.pip_source_opt.init_with_adapter(self.ctx.env_config.get_prop_adapter('pip_source'))
