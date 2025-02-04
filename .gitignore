@@ -13,6 +13,8 @@ sr-od-test/
 .log
 .temp
 .debug
+*.exe
+env.bat
 update_by_temp_2.bat
 
 # 模型文件 依赖下载

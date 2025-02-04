@@ -42,7 +42,7 @@ class ChooseSimUniDiff(SrOperation):
         screen: MatLike = self.screenshot()
 
         if not common_screen_state.in_secondary_ui(
-                screen, self.ctx.ocr,
+                self.ctx, screen,
                 sim_uni_screen_state.ScreenState.SIM_TYPE_NORMAL.value):
             return self.round_retry('未在模拟宇宙页面', wait=1)
 
