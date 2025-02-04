@@ -20,6 +20,7 @@ from sr_od.app.sim_uni.sim_uni_run_record import SimUniRunRecord
 from sr_od.app.support_character.support_character_run_record import SupportCharacterRunRecord
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerConfig
 from sr_od.app.trailblaze_power.trailblaze_power_run_record import TrailblazePowerRunRecord
+from sr_od.app.trick_snack.trick_snack_config import TrickSnackConfig
 from sr_od.app.trick_snack.trick_snack_record import TrickSnackRunRecord
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
@@ -212,11 +213,13 @@ class SrContext(OneDragonContext):
         self.daily_training_run_record: DailyTrainingRunRecord = DailyTrainingRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.email_run_record: EmailRunRecord = EmailRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.buy_xz_parcel_run_record: BuyXianZhouParcelRunRecord = BuyXianZhouParcelRunRecord(self.current_instance_idx, game_refresh_hour_offset)
-        self.trick_snack_run_record: TrickSnackRunRecord = TrickSnackRunRecord(self.current_instance_idx, game_refresh_hour_offset)
         self.support_character_run_record: SupportCharacterRunRecord = SupportCharacterRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 
         self.relic_salvage_config: RelicSalvageConfig = RelicSalvageConfig(self.current_instance_idx)
         self.relic_salvage_run_record: RelicSalvageRunRecord = RelicSalvageRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+
+        self.trick_snack_config: TrickSnackConfig = TrickSnackConfig(self.current_instance_idx)
+        self.trick_snack_run_record: TrickSnackRunRecord = TrickSnackRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 
     @property
     def sim_uni_challenge_config(self) -> Optional[SimUniChallengeConfig]:

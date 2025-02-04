@@ -1,0 +1,6 @@
+name: '合成奇巧零食'
+ops:
+  - op: 'back_to_world_plus'
+    data: []
+  - op: 'synthesize'
+    data: ['consumable', 'trick_snack', '0']

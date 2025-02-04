@@ -26,6 +26,7 @@ class SrOdSettingInterface(VerticalScrollInterface):
         content_widget = Column()
 
         content_widget.add_widget(self.get_relic_salvage_group())
+        content_widget.add_widget(self.get_trick_snack_group())
         content_widget.add_stretch(1)
 
         return content_widget
@@ -42,8 +43,22 @@ class SrOdSettingInterface(VerticalScrollInterface):
 
         return group
 
+    def get_trick_snack_group(self) -> QWidget:
+        group = SettingCardGroup(gt('奇巧零食'))
+
+        self.route_yll6_xzq_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='雅利洛-VI 行政区 罗纳德')
+        group.addSettingCard(self.route_yll6_xzq_opt)
+
+        self.route_xzlf_xchzs_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='仙舟「罗浮」 星槎海中枢 货全')
+        group.addSettingCard(self.route_xzlf_xchzs_opt)
+
+        return group
+
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
         self.relic_salvage_level_opt.init_with_adapter(self.ctx.relic_salvage_config.get_prop_adapter('salvage_level'))
         self.relic_salvage_abandon_opt.init_with_adapter(self.ctx.relic_salvage_config.get_prop_adapter('salvage_abandon'))
+
+        self.route_yll6_xzq_opt.init_with_adapter(self.ctx.trick_snack_config.get_prop_adapter('route_yll6_xzq'))
+        self.route_xzlf_xchzs_opt.init_with_adapter(self.ctx.trick_snack_config.get_prop_adapter('route_xzlf_xchzs'))
