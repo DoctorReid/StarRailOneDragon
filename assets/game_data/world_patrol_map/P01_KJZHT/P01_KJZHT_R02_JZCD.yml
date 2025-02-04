@@ -4,8 +4,8 @@
   region_name: "基座舱段"
   region_floor: 0
   template_id: "mm_tp_03"
-  lm_pos: [635, 143]
-  tp_pos: [642, 133]
+  lm_pos: [641, 197]
+  tp_pos: [648, 187]
 
 - uid: "JDZX"
   cn: "接待中心"
@@ -13,8 +13,8 @@
   region_name: "基座舱段"
   region_floor: 0
   template_id: "mm_tp_03"
-  lm_pos: [493, 500]
-  tp_pos: [503, 496]
+  lm_pos: [499, 554]
+  tp_pos: [509, 550]
 
 - uid: "KHZX"
   cn: "空海之形·凝滞虚影"
@@ -22,8 +22,8 @@
   region_name: "基座舱段"
   region_floor: 0
   template_id: "mm_tp_06"
-  lm_pos: [540, 938]
-  tp_pos: [554, 923]
+  lm_pos: [545, 992]
+  tp_pos: [560, 977]
 
 - uid: "TKDT"
   cn: "太空电梯"
@@ -31,6 +31,6 @@
   region_name: "基座舱段"
   region_floor: 0
   template_id: "mm_sp_02"
-  lm_pos: [556, 986]
-  tp_pos: [556, 986]
+  lm_pos: [562, 1040]
+  tp_pos: [562, 1040]
 

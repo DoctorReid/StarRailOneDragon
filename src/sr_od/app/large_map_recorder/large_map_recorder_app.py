@@ -226,12 +226,12 @@ class LargeMapRecorder(SrApplication):
         row = self.row if self.max_row is None else self.max_row
         col = self.col if self.max_column is None else self.max_column
 
-        # self.overlap_width_mode = self.get_overlap_width_mode()
-        self.overlap_width_mode = [0, 0, 786, 786, 786, 786, 786, 786, 786, 786, 786, 937]
+        self.overlap_width_mode = self.get_overlap_width_mode()
+        # self.overlap_width_mode = [0, 0, 786, 786, 786, 786, 786, 786, 786, 786, 786, 937]
         for region in self.region_list:
             self.merge_screenshot_into_rows(region, row, col, show=self.debug)
-        # self.overlap_height_mode = self.get_overlap_height_mode()
-        self.overlap_height_mode = [0, 0, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, -1]
+        self.overlap_height_mode = self.get_overlap_height_mode()
+        # self.overlap_height_mode = [0, 0, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, -1]
         for region in self.region_list:
             self.merge_screenshot_into_one(region, row, show=self.debug)
 
@@ -493,17 +493,17 @@ class LargeMapRecorder(SrApplication):
                 for col in range(2, max_col):
                     for width in overlap_width_list[col]:
                         all_col_width.append(width)
-                all_col_width_mode = int(cal_utils.get_mode_in_list(all_col_width))
+                all_col_width_mode = int(cal_utils.get_mode_in_list(all_col_width, ignored_set={-1}, empty_return=0))
                 for col in range(2, max_col):
                     log.info('%02d列 与前重叠宽度众数 %d', col, all_col_width_mode)
                     overlap_width_mode.append(all_col_width_mode)
             for col in range(max_col, max_col + 1):
-                width_mode = int(cal_utils.get_mode_in_list(overlap_width_list[col]))
+                width_mode = int(cal_utils.get_mode_in_list(overlap_width_list[col], ignored_set={-1}, empty_return=0))
                 log.info('%02d列 与前重叠宽度众数 %d', col, width_mode)
                 overlap_width_mode.append(width_mode)
         else:
             for col in range(2, max_col + 1):
-                width_mode = int(cal_utils.get_mode_in_list(overlap_width_list[col]))
+                width_mode = int(cal_utils.get_mode_in_list(overlap_width_list[col], ignored_set={-1}, empty_return=0))
                 log.info('%02d列 与前重叠宽度众数 %d', col, width_mode)
                 overlap_width_mode.append(width_mode)
 
@@ -604,17 +604,17 @@ class LargeMapRecorder(SrApplication):
                 for row in range(2, max_row):
                     for height in overlap_height_list[row]:
                         all_row_height.append(height)
-                all_row_height_mode = int(cal_utils.get_mode_in_list(all_row_height))
+                all_row_height_mode = int(cal_utils.get_mode_in_list(all_row_height, ignored_set={-1}, empty_return=0))
                 for row in range(2, max_row):
                     log.info('%02d行 与前重叠高度众数 %d', row, all_row_height_mode)
                     overlap_height_mode.append(all_row_height_mode)
             for row in range(max_row, max_row + 1):
-                height_mode = int(cal_utils.get_mode_in_list(overlap_height_list[row]))
+                height_mode = int(cal_utils.get_mode_in_list(overlap_height_list[row], ignored_set={-1}, empty_return=0))
                 log.info('%02d行 与前重叠高度众数 %d', row, height_mode)
                 overlap_height_mode.append(height_mode)
         else:
             for row in range(2, max_row + 1):
-                height_mode = int(cal_utils.get_mode_in_list(overlap_height_list[row]))
+                height_mode = int(cal_utils.get_mode_in_list(overlap_height_list[row], ignored_set={-1}, empty_return=0))
                 log.info('%02d行 与前重叠高度众数 %d', row, height_mode)
                 overlap_height_mode.append(height_mode)
 
@@ -766,7 +766,7 @@ class LargeMapRecorder(SrApplication):
                 level_type = level_type_enum.value
                 if level_type.route_id != level_type.type_id:
                     continue
-                route_list = get_sim_uni_route_list(level_type)
+                route_list = self.ctx.sim_uni_route_data.get_route_list(level_type)
                 for route in route_list:
                     if route.region != floor_region:
                         continue
@@ -915,19 +915,21 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     ctx = SrContext()
 
     special_conditions = {
+        '空间站黑塔 基座舱段': {'max_column': 1, 'max_row': 3},
         # map_const.P03_R11_F1.pr_id: {'max_row': 7, 'max_column': 6},  # 罗浮仙舟 - 幽囚狱 右边有较多空白
         # 'P04_PNKN_R10_PNKNDJY': {'skip_height': 700, 'max_row': 4, 'max_column': 4},  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
-        'P05_WFLS_R02_YXZDXFC': {'max_column': 4, 'max_row': 11, 'drag_times_to_left_top': 6,
+        '翁法罗斯 「浴血战端」悬锋城': {'max_column': 4, 'max_row': 11, 'drag_times_to_left_top': 6,
                                  'cols_to_cal_overlap_height': [1]},
-        'P05_WFLS_R03_FZHXXFC': { 'max_row': 13, 'max_column': 11, 'drag_times_to_left': 6, 'drag_times_to_left_top': 10,},
-        'P05_WFLS_R04_FZHX': { 'max_row': 8, 'max_column': 1, }
+        '翁法罗斯 「纷争荒墟」悬锋城': { 'max_row': 13, 'max_column': 11, 'drag_times_to_left': 6, 'drag_times_to_left_top': 10,},
+        '翁法罗斯 「命运重渊」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, }
     }
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
     region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet)
 
-    log.info('当前录制 %s', region.pr_id)
-    sc = special_conditions.get(region.pr_id, {})
+    key = f'{region.planet.cn} {region.cn}'
+    log.info('当前录制 %s', key)
+    sc = special_conditions.get(key, {})
     sc['ctx'] = ctx
     sc['region'] = region
     # sc['floor_list_to_record'] = [-1]
@@ -964,7 +966,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     elif run_mode == 'save':
         app.do_save()
     elif run_mode == 'fix':
-        app.fix_all_after_map_record(region, 0, 13)
+        app.fix_all_after_map_record(region, +6, +54)
     elif run_mode == 'find_max_col':
         ctx.start_running()
         app.drag_to_get_max_column()
@@ -982,4 +984,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「纷争荒墟」悬锋城', 'save')
+    __debug('空间站黑塔', '基座舱段', 'fix')
