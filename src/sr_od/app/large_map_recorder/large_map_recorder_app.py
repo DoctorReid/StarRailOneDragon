@@ -124,6 +124,17 @@ class LargeMapRecorder(SrApplication):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='选择区域')
+    @operation_node(name='识别最大行列数')
+    def detect_max_row_col(self) -> OperationRoundResult:
+        self.back_to_left_top()
+        self.drag_to_get_max_column()
+        self.back_to_left_top()
+        self.drag_to_get_max_row()
+        self.back_to_left_top()
+
+        return self.round_success()
+
+    @node_from(from_name='识别最大行列数')
     @operation_node(name='截图')
     def do_screenshot(self) -> OperationRoundResult:
         if self.current_region_idx >= len(self.region_list):
@@ -815,6 +826,8 @@ class LargeMapRecorder(SrApplication):
             self.drag_to_next_col()
 
         log.info('重叠宽度 %s', overlap_width)
+        self.max_column = self.col - 1
+        self.col = 1
 
     def drag_to_get_max_row(self) -> None:
         """
@@ -841,7 +854,10 @@ class LargeMapRecorder(SrApplication):
 
             last_map_part = map_part
             self.drag_to_next_row()
+
         log.info('重叠高度 %s', overlap_height_list)
+        self.max_row = self.row - 1
+        self.row = 1
 
     @staticmethod
     def get_part_image_path(region: Region, row: int, col: int) -> str:
@@ -984,4 +1000,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('空间站黑塔', '基座舱段', 'fix')
+    __debug('空间站黑塔', '支援舱段', 'fix')

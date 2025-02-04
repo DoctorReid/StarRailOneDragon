@@ -30,6 +30,8 @@ class ChooseSpecialPoint(SrOperation):
         self.tp: SpecialPoint = tp
         self.lm_info: LargeMapInfo = self.ctx.map_data.get_large_map_info(self.tp.region)
 
+        self.click_sp_in_last_round: bool = False  # 上一轮点击了特殊点
+
     @operation_node(name='画面识别', node_max_retry_times=10, is_start_node=True)
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
@@ -47,6 +49,7 @@ class ChooseSpecialPoint(SrOperation):
         # 目标点中文 不是传送 或者不是目标传送点 点击一下地图空白位置
         self.ctx.controller.click(large_map_utils.EMPTY_MAP_POS)
         time.sleep(0.5)
+        self.click_sp_in_last_round = False
 
         screen_part, offset = large_map_utils.match_screen_in_large_map(self.ctx, screen, self.tp.region)
         if offset is None:
@@ -67,6 +70,7 @@ class ChooseSpecialPoint(SrOperation):
                 to_click = target.center + screen_map_rect.left_top
                 self.ctx.controller.click(to_click)
                 time.sleep(0.5)
+            self.click_sp_in_last_round = True
 
         if dx != 0 or dy != 0:
             large_map_utils.drag_in_large_map(self.ctx, dx, dy)
@@ -86,6 +90,7 @@ class ChooseSpecialPoint(SrOperation):
         # cv2_utils.show_image(tp_btn_part, win_name='tp_btn_part')
         tp_btn_ocr = self.ctx.ocr.match_words(tp_btn_part, ['传送'])
         if len(tp_btn_ocr) > 0:
+            do_tp: bool = False  # 进行传送
             # 看看是否目标传送点
             tp_name_area = self.ctx.screen_loader.get_area('大地图', '文本-传送点名称')
             tp_name_part, _ = cv2_utils.crop_image(screen, tp_name_area.rect)
@@ -107,12 +112,19 @@ class ChooseSpecialPoint(SrOperation):
             if (tp_name_str is not None and
                     str_utils.find_by_lcs(gt(self.tp.cn, 'ocr'), tp_name_str, ignore_case=True,
                                           percent=lcs_percent)):
+                do_tp = True
+
+            if self.click_sp_in_last_round:
+                do_tp = True
+
+            if do_tp:
                 # 点击传送
                 to_click = area.center
                 for r in tp_btn_ocr.values():
                     to_click = to_click + r.max.center
                     break
                 return self.ctx.controller.click(to_click)
+
         return False
 
     def get_tp_pos(self, screen_part: MatLike, offset: MatchResult):
