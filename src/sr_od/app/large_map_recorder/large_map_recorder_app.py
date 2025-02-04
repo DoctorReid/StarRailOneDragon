@@ -784,9 +784,9 @@ class LargeMapRecorder(SrApplication):
 
                     if route.op_list is not None and len(route.op_list) > 0:
                         for route_item in route.op_list:
-                            if route_item['op'] in to_fix_op:
-                                route_item['data'][0] += dx
-                                route_item['data'][1] += dy
+                            if route_item.op in to_fix_op:
+                                route_item.data[0] += dx
+                                route_item.data[1] += dy
 
                     if route.start_pos is not None:
                         route.start_pos += Point(dx, dy)
@@ -982,7 +982,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     elif run_mode == 'save':
         app.do_save()
     elif run_mode == 'fix':
-        app.fix_all_after_map_record(region, +6, +54)
+        app.fix_all_after_map_record(region, +8, +12)
     elif run_mode == 'find_max_col':
         ctx.start_running()
         app.drag_to_get_max_column()
@@ -1000,4 +1000,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('空间站黑塔', '支援舱段', 'fix')
+    __debug('雅利洛-VI', '大矿区', 'fix')

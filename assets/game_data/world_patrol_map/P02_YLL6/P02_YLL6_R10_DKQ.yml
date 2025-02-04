@@ -4,8 +4,8 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_tp_03"
-  lm_pos: [333, 166]
-  tp_pos: [344, 179]
+  lm_pos: [341, 178]
+  tp_pos: [352, 191]
 
 - uid: "LLZBNS"
   cn: "流浪者避难所"
@@ -13,8 +13,8 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_tp_03"
-  lm_pos: [778, 349]
-  tp_pos: [769, 334]
+  lm_pos: [786, 360]
+  tp_pos: [777, 346]
 
 - uid: "FKD"
   cn: "俯瞰点"
@@ -22,8 +22,8 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_tp_03"
-  lm_pos: [565, 641]
-  tp_pos: [575, 634]
+  lm_pos: [573, 652]
+  tp_pos: [583, 646]
 
 - uid: "ZKD"
   cn: "主矿道"
@@ -31,8 +31,8 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_tp_03"
-  lm_pos: [530, 757]
-  tp_pos: [525, 747]
+  lm_pos: [537, 769]
+  tp_pos: [533, 759]
 
 - uid: "FMZX"
   cn: "锋芒之形·凝滞虚影"
@@ -40,8 +40,8 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_tp_06"
-  lm_pos: [561, 536]
-  tp_pos: [560, 558]
+  lm_pos: [569, 548]
+  tp_pos: [568, 570]
 
 - uid: "FZZX"
   cn: "燔灼之形·凝滞虚影"
@@ -49,8 +49,8 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_tp_06"
-  lm_pos: [836, 630]
-  tp_pos: [836, 650]
+  lm_pos: [844, 641]
+  tp_pos: [844, 641]
 
 - uid: "XWZL"
   cn: "虚无之蕾·拟造花萼（赤）"
@@ -58,8 +58,8 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_tp_07"
-  lm_pos: [295, 243]
-  tp_pos: [307, 242]
+  lm_pos: [303, 254]
+  tp_pos: [303, 254]
 
 - uid: "CZZL"
   cn: "藏珍之蕾·拟造花萼（金）"
@@ -67,8 +67,8 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_tp_08"
-  lm_pos: [554, 686]
-  tp_pos: [557, 691]
+  lm_pos: [562, 697]
+  tp_pos: [565, 703]
 
 - uid: "PYZ"
   cn: "磐岩镇"
@@ -76,6 +76,6 @@
   region_name: "大矿区"
   region_floor: 0
   template_id: "mm_sp_02"
-  lm_pos: [351, 144]
-  tp_pos: [351, 144]
+  lm_pos: [359, 156]
+  tp_pos: [359, 156]
 

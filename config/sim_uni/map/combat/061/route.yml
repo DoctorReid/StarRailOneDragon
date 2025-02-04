@@ -3,10 +3,10 @@ planet: '雅利洛-VI'
 region: '大矿区'
 floor: 0
 algo: 2
-start_pos: [551, 320]
+start_pos: [559, 332]
 next_pos_list:
-  - [476, 302]
+  - [484, 314]
 op_list:
   - op: 'move'
-    data: [497, 318]
+    data: [505, 330]
   - op: 'patrol'

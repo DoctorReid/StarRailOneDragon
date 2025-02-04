@@ -6,36 +6,36 @@ tp: '锋芒之形·凝滞虚影'
 route:
   - idx: 1
     op: 'move'
-    data: [513, 531]
+    data: [521, 543]
   - idx: 2
     op: 'move'
-    data: [438, 545]
+    data: [446, 557]
   - idx: 3
     op: 'patrol'
   - idx: 4
     op: 'move'
-    data: [382, 519]
+    data: [390, 531]
   - idx: 5
     op: 'move'
-    data: [392, 501]
+    data: [400, 513]
   - idx: 6
     op: 'disposable'
   - idx: 7
     op: 'move'
-    data: [382, 519]
+    data: [390, 531]
   - idx: 8
     op: 'move'
-    data: [434, 526]
+    data: [442, 538]
   - idx: 9
     op: 'move'
-    data: [443, 491]
+    data: [451, 503]
   - idx: 10
     op: 'patrol'
   - idx: 11
     op: 'move'
-    data: [446, 462]
+    data: [454, 474]
   - idx: 12
     op: 'move'
-    data: [486, 440]
+    data: [494, 452]
   - idx: 13
     op: 'patrol'

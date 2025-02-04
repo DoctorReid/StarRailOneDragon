@@ -2,21 +2,22 @@ support_world: [3, 5, 6, 7, 8]
 planet: '雅利洛-VI'
 region: '大矿区'
 floor: 0
-start_pos: [845, 630]
+algo: 1
+start_pos: [853, 642]
 next_pos_list:
-  - [759, 552]
-  - [778, 547]
+  - [767, 564]
+  - [786, 559]
 op_list:
   - op: 'move'
-    data: [810, 668]
+    data: [818, 680]
   - op: 'move'
-    data: [769, 709]
+    data: [777, 721]
   - op: 'patrol'
   - op: 'move'
-    data: [737, 692]
+    data: [745, 704]
   - op: 'move'
-    data: [758, 655]
+    data: [766, 667]
   - op: 'patrol'
   - op: 'move'
-    data: [774, 577]
+    data: [782, 589]
   - op: 'patrol'

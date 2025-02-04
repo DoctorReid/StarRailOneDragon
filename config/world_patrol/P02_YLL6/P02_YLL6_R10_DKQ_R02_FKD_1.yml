@@ -6,85 +6,85 @@ tp: '俯瞰点'
 route:
   - idx: 1
     op: 'move'
-    data: [616, 657]
+    data: [624, 669]
   - idx: 2
     op: 'move'
-    data: [679, 642]
+    data: [687, 654]
   - idx: 3
     op: 'move'
-    data: [694, 574]
+    data: [702, 586]
   - idx: 4
     op: 'patrol'
   - idx: 5
     op: 'move'
-    data: [770, 565]
+    data: [778, 577]
   - idx: 6
     op: 'move'
-    data: [781, 617]
+    data: [789, 629]
   - idx: 7
     op: 'disposable'
   - idx: 8
     op: 'move'
-    data: [768, 638]
+    data: [776, 650]
   - idx: 9
     op: 'move'
-    data: [732, 688]
+    data: [740, 700]
   - idx: 10
     op: 'move'
-    data: [781, 709]
+    data: [789, 721]
   - idx: 11
     op: 'disposable'
   - idx: 12
     op: 'move'
-    data: [732, 688]
+    data: [740, 700]
   - idx: 13
     op: 'move'
-    data: [706, 705]
+    data: [714, 717]
   - idx: 14
     op: 'move'
-    data: [687, 709]
+    data: [695, 721]
   - idx: 15
     op: 'patrol'
   - idx: 16
     op: 'move'
-    data: [642, 742]
+    data: [650, 754]
   - idx: 17
     op: 'patrol'
   - idx: 18
     op: 'move'
-    data: [596, 735]
+    data: [604, 747]
   - idx: 19
     op: 'move'
-    data: [555, 720]
+    data: [563, 732]
   - idx: 20
     op: 'move'
-    data: [531, 744]
+    data: [539, 756]
   - idx: 21
     op: 'move'
-    data: [487, 723]
+    data: [495, 735]
   - idx: 22
     op: 'disposable'
   - idx: 23
     op: 'move'
-    data: [397, 682]
+    data: [405, 694]
   - idx: 24
     op: 'patrol'
   - idx: 25
     op: 'move'
-    data: [376, 622]
+    data: [384, 634]
   - idx: 26
     op: 'patrol'
   - idx: 27
     op: 'move'
-    data: [413, 611]
+    data: [421, 623]
   - idx: 28
     op: 'move'
-    data: [467, 665]
+    data: [475, 677]
   - idx: 29
     op: 'move'
-    data: [497, 662]
+    data: [505, 674]
   - idx: 30
     op: 'move'
-    data: [521, 628]
+    data: [529, 640]
   - idx: 31
     op: 'patrol'
