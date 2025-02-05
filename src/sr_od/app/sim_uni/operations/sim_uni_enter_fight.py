@@ -204,7 +204,7 @@ class SimUniEnterFight(SrOperation):
                 return self._exit_with_last_move()
 
             fix_attack_direction = self.fix_and_record_direction(attack_direction)
-            will_use_tech = (self.technique_fight and not self.ctx.technique_used
+            will_use_tech = (self.technique_fight and not self.ctx.tech_used_in_lasting
                     and (self.ctx.team_info.is_buff_technique or self.ctx.team_info.is_attack_technique))
 
             # 这个时间是以黄泉E为基准的 使用秘技的话UseTechnique里有0.2s的等待

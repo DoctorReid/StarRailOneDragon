@@ -47,7 +47,7 @@ class ChooseRegion(SrOperation):
 
         planet = large_map_utils.get_planet(self.ctx, screen)
         if planet is None or planet != self.planet:
-            return self.round_wait('未在星球 %s' % self.planet.cn)
+            return self.round_retry('未在星球 %s' % self.planet.cn, wait=1)
         else:
             return self.round_success()
 

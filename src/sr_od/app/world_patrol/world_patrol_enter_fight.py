@@ -129,7 +129,7 @@ class WorldPatrolEnterFight(SrOperation):
             # 判断是否需要使用秘技
             if not self.technique_fight:  # 没有开启秘技
                 will_use_tech = False
-            elif self.ctx.technique_used:  # 之前已经使用秘技了
+            elif self.ctx.tech_used_in_lasting:  # 之前已经使用秘技了
                 will_use_tech = False
             elif self.ctx.is_fx_world_patrol_tech:  # 飞霄特判 在攻击指令中不使用秘技
                 will_use_tech = False

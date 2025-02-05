@@ -53,7 +53,7 @@ class SimUniRunCombatRouteV2(SimUniRunRouteBaseV2):
 
         if (self.ctx.sim_uni_challenge_config.technique_fight
                 and self.ctx.team_info.is_buff_technique
-                and not self.ctx.technique_used):
+                and not self.ctx.tech_used_in_lasting):
             op = UseTechnique(self.ctx,
                               max_consumable_cnt=self.ctx.sim_uni_challenge_config.max_consumable_cnt,
                               need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断

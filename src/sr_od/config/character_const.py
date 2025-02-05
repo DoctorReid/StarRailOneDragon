@@ -125,7 +125,8 @@ TECHNIQUE_BUFF_ATTACK_DISAPPEAR = CharacterTechniqueType(id='buff_attack', remar
 
 class Character:
 
-    def __init__(self, id: str, cn: str, path: CharacterPath, combat_type: CharacterCombatType, level: int, technique_type: CharacterTechniqueType):
+    def __init__(self, id: str, cn: str, path: CharacterPath, combat_type: CharacterCombatType, level: int, technique_type: CharacterTechniqueType,
+                 buff_lasting_seconds: float = 20):
         """
         角色秘技类型
         :param id: 角色唯一标识
@@ -148,6 +149,7 @@ class Character:
         """星级"""
         self.technique_type: CharacterTechniqueType = technique_type
         """秘技类型"""
+        self.buff_lasting_seconds: float = buff_lasting_seconds  # BUFF持续时间
 
     def __lt__(self, other):
         return self.level > other.level \
@@ -205,7 +207,8 @@ YANQING = Character(id='yanqing', cn='彦卿', path=CHARACTER_PATH_HUNT, combat_
 YUKONG = Character(id='yukong', cn='驭空', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
 ARGENTI = Character(id='argenti', cn='银枝', path=CHARACTER_PATH_ERUDITION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 HANYA = Character(id='hanya', cn='寒鸦', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
-RUANMEI = Character(id='ruanmei', cn='院·梅', path=CHARACTER_PATH_HARMONY, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
+RUANMEI = Character(id='ruanmei', cn='院·梅', path=CHARACTER_PATH_HARMONY, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF,
+                    buff_lasting_seconds=999)
 XUEYI = Character(id='xueyi', cn='雪衣', path=CHARACTER_PATH_DESTRUCTION, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_ATTACK)
 DRRATIO = Character(id='drratio', cn='真理医生', path=CHARACTER_PATH_HUNT, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 MISHA = Character(id='misha', cn='米沙', path=CHARACTER_PATH_DESTRUCTION, combat_type=ICE, level=4, technique_type=TECHNIQUE_AREA)
@@ -216,10 +219,12 @@ ACHERON = Character(id='acheron', cn='黄泉', path=CHARACTER_PATH_NIHILITY, com
 AVENTURINE = Character(id='aventurine', cn='砂金', path=CHARACTER_PATH_PRESERVATION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 ROBIN = Character(id='robin', cn='知更鸟', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_AREA)
 BOOTHILL = Character(id='boothill', cn='波提欧', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF)
-FIREFLY = Character(id='firefly', cn='流萤', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK_DISAPPEAR)
+FIREFLY = Character(id='firefly', cn='流萤', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK_DISAPPEAR,
+                    buff_lasting_seconds=5)
 JADE = Character(id='jade', cn='翡翠', path=CHARACTER_PATH_ERUDITION, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 YUNLI = Character(id='yunli', cn='云璃', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
-FEIXIAO = Character(id='feixiao', cn='飞霄', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF_ATTACK_DISAPPEAR)
+FEIXIAO = Character(id='feixiao', cn='飞霄', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF_ATTACK_DISAPPEAR,
+                    buff_lasting_seconds=20)
 MOZE = Character(id='moze', cn='貊泽', path=CHARACTER_PATH_HUNT, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
 LINGSHA = Character(id='lingsha', cn='灵砂', path=CHARACTER_PATH_ABUNDANCE, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
 JIAOQIU = Character(id='jiaoqiu', cn='椒丘', path=CHARACTER_PATH_NIHILITY, combat_type=FIRE, level=5, technique_type=TECHNIQUE_AREA)

@@ -226,6 +226,8 @@ class MoveDirectly(SrOperation):
         """
         if self.no_battle:  # 外层调用保证没有战斗 跳过后续检测
             return None
+        if self.ctx.is_fx_world_patrol_tech:  # 飞霄情况下 只会在特定条件下攻击 跳过这个检测
+            return None
         if not self.ctx.yolo_detector.should_attack_in_world_last_result(now_time):
             return None
 

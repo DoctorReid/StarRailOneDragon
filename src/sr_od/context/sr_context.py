@@ -130,6 +130,18 @@ class TeamInfo:
                 and self.character_list[0].id == FEIXIAO.id
         )
 
+    def get_buff_lasting_seconds(self, num: int) -> float:
+        """
+        获取BUFF持续时间
+        :param num: 第几个角色 从1开始
+        """
+        if self.character_list is None:  # 随便设一个默认值兜底
+            return 20
+        idx = num - 1
+        if idx < 0 or idx >= len(self.character_list) or self.character_list[idx] is None:
+            return 20
+        return self.character_list[idx].buff_lasting_seconds
+
 
 class SimUniInfo:
 
@@ -173,7 +185,6 @@ class SrContext(OneDragonContext):
         # 秘技相关
         self.technique_used: bool = False  # 新一轮战斗前是否已经使用秘技了
         self.last_use_tech_time: float = 0  # 上一次使用秘技的时间
-        self.feixiao_tech_duration: float = 20  # 飞霄秘技的持续时间
         self.ban_technique: bool = False  # 禁用秘技 部分路线中途可能需要模拟按键 这时候不能有秘技影响移动速度
 
         # 共用配置
@@ -275,6 +286,13 @@ class SrContext(OneDragonContext):
             self.controller.walk_speed = 20
 
     @property
+    def tech_used_in_lasting(self) -> bool:
+        """
+        考虑BUFF持续时间 判断是否使用了秘技
+        """
+        return self.technique_used and time.time() - self.last_use_tech_time <= self.team_info.get_buff_lasting_seconds(1)
+
+    @property
     def is_fx_world_patrol_tech(self) -> bool:
         """
         锄大地场景 是否飞霄使用秘技
@@ -292,7 +310,7 @@ class SrContext(OneDragonContext):
         """
         if self.ban_technique:
             return True
-        return self.team_info.is_first_feixiao and time.time() - self.last_use_tech_time <= self.feixiao_tech_duration
+        return self.team_info.is_first_feixiao and time.time() - self.last_use_tech_time <= self.team_info.get_buff_lasting_seconds(1)
 
     @property
     def world_patrol_fx_should_use_tech(self) -> bool:
@@ -302,4 +320,4 @@ class SrContext(OneDragonContext):
         """
         if self.ban_technique:
             return False
-        return self.is_fx_world_patrol_tech and time.time() - self.last_use_tech_time > self.feixiao_tech_duration
+        return self.is_fx_world_patrol_tech and time.time() - self.last_use_tech_time > self.team_info.get_buff_lasting_seconds(1)

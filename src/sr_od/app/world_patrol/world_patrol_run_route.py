@@ -1,4 +1,3 @@
-from operator import truediv
 from typing import ClassVar
 
 from one_dragon.base.geometry.point import Point
@@ -135,7 +134,7 @@ class WorldPatrolRunRoute(SrOperation):
         should_use_tech: bool = False
         if (self.ctx.world_patrol_config.technique_fight
                 and self.ctx.team_info.is_buff_technique
-                and not self.ctx.technique_used):
+                and not self.ctx.tech_used_in_lasting):
             for i in range(self.op_idx, len(self.route.route_list)):
                 item = self.route.route_list[i]
                 if item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE,
@@ -277,7 +276,7 @@ class WorldPatrolRunRoute(SrOperation):
         elif route_item.op == operation_const.OP_NO_POS_MOVE:
             op = self.no_pos_move(route_item)
         elif route_item.op == operation_const.OP_PATROL:
-            self.feixiao_attack = False  # 经过怪物点后 需要把攻击重置
+            self.feixiao_attack = False  # 经过怪物点后 因为携带了怪物 即后续需要攻击 所以需要把已经攻击的标志重置
             return self.round_success()
         elif route_item.op == operation_const.OP_DISPOSABLE:
             return self.round_success()
