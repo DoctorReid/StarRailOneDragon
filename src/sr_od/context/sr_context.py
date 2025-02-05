@@ -25,7 +25,8 @@ from sr_od.app.trick_snack.trick_snack_record import TrickSnackRunRecord
 from sr_od.app.world_patrol.world_patrol_config import WorldPatrolConfig
 from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
-from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, FEIXIAO
+from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, FEIXIAO, \
+    TECHNIQUE_BUFF_ATTACK_DISAPPEAR
 from sr_od.config.game_config import GameConfig
 from sr_od.config.yolo_config import YoloConfig
 from sr_od.context.context_pos_info import ContextPosInfo
@@ -73,7 +74,25 @@ class TeamInfo:
             return False
         if self.character_list[self.current_active] is None:
             return False
-        return self.character_list[self.current_active].technique_type in [TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK]
+        return self.character_list[self.current_active].technique_type in [
+            TECHNIQUE_BUFF,
+            TECHNIQUE_BUFF_ATTACK,
+            TECHNIQUE_BUFF_ATTACK_DISAPPEAR,
+        ]
+
+    @property
+    def is_buff_attack_disappear_technique(self) -> bool:
+        """
+        当前角色使用的秘技是否buff攻击后重置
+        :return:
+        """
+        if self.character_list is None or len(self.character_list) == 0:
+            return False
+        if self.current_active < 0 or self.current_active >= len(self.character_list):
+            return False
+        if self.character_list[self.current_active] is None:
+            return False
+        return self.character_list[self.current_active].technique_type  == TECHNIQUE_BUFF_ATTACK_DISAPPEAR
 
     def update_character_list(self, new_character_list: List[Character]):
         self.character_list = new_character_list

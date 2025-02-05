@@ -10,25 +10,28 @@ route:
   - idx: 2
     op: 'disposable'
   - idx: 3
+    op: 'move'
+    data: [647, 190]
+  - idx: 4
     op: 'slow_move'
     data: [649, 217]
-  - idx: 4
+  - idx: 5
     op: 'move'
     data: [647, 302]
-  - idx: 5
-    op: 'patrol'
   - idx: 6
+    op: 'patrol'
+  - idx: 7
     op: 'move'
     data: [664, 333]
-  - idx: 7
-    op: 'disposable'
   - idx: 8
+    op: 'disposable'
+  - idx: 9
     op: 'move'
     data: [633, 380]
-  - idx: 9
-    op: 'disposable'
   - idx: 10
+    op: 'disposable'
+  - idx: 11
     op: 'move'
     data: [597, 425]
-  - idx: 11
+  - idx: 12
     op: 'disposable'

@@ -6,7 +6,7 @@ from one_dragon.base.operation.operation_round_result import OperationRoundResul
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.config.character_const import Character, TECHNIQUE_BUFF, TECHNIQUE_AREA, TECHNIQUE_ATTACK, \
-    is_attack_character, TECHNIQUE_BUFF_ATTACK, SILVERWOLF
+    is_attack_character, TECHNIQUE_BUFF_ATTACK, SILVERWOLF, TECHNIQUE_BUFF_ATTACK_DISAPPEAR
 from sr_od.context.sr_context import SrContext
 from sr_od.operations.sr_operation import SrOperation
 from sr_od.operations.team.check_team_members_in_world import CheckTeamMembersInWorld
@@ -112,13 +112,13 @@ class StartFightForElite(SrOperation):
         for i in range(4):  # 优先使用普通BUFF 无冲突可叠加的
             if self.character_list[i] is None:
                 continue
-            if self.character_list[i].technique_type.id == TECHNIQUE_BUFF.id:
+            if self.character_list[i].technique_type == TECHNIQUE_BUFF:
                 self.technique_order.append(i)
 
         for i in range(4):  # 使用结界类 只能一个
             if self.character_list[i] is None:
                 continue
-            if self.character_list[i].technique_type.id == TECHNIQUE_AREA.id:
+            if self.character_list[i].technique_type == TECHNIQUE_AREA:
                 self.technique_order.append(i)
                 break
 
@@ -128,7 +128,7 @@ class StartFightForElite(SrOperation):
                 continue
             if not is_attack_character(self.character_list[i].id):
                 continue
-            if self.character_list[i].technique_type.id in [TECHNIQUE_ATTACK.id, TECHNIQUE_BUFF_ATTACK.id]:
+            if self.character_list[i].technique_type in [TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK, TECHNIQUE_BUFF_ATTACK_DISAPPEAR]:
                 self.technique_order.append(i)
                 return self.round_success()
 
@@ -142,7 +142,7 @@ class StartFightForElite(SrOperation):
         for i in range(4):  # 普通角色 攻击类
             if self.character_list[i] is None:
                 continue
-            if self.character_list[i].technique_type.id in [TECHNIQUE_ATTACK.id, TECHNIQUE_BUFF_ATTACK.id]:
+            if self.character_list[i].technique_type in [TECHNIQUE_ATTACK, TECHNIQUE_BUFF_ATTACK, TECHNIQUE_BUFF_ATTACK_DISAPPEAR]:
                 self.technique_order.append(i)
                 return self.round_success()
 

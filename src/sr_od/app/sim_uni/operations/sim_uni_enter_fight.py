@@ -108,7 +108,7 @@ class SimUniEnterFight(SrOperation):
         else:
             return self.round_retry(SimUniEnterFight.STATUS_STATE_UNKNOWN, wait=1)
 
-    def _update_not_in_world_time(self):
+    def _update_not_in_world_time(self, delta: float = None):
         """
         不在移动画面的情况
         更新一些统计时间
@@ -117,11 +117,17 @@ class SimUniEnterFight(SrOperation):
         if self.had_last_move:
             # 不是结束前移动触发的选择祝福 才能重置时间
             return
-        now = time.time()
-        log.debug(f'更新不在大世界的时间 {now:.4f}')
-        self.last_not_in_world_time = now
-        self.last_alert_time = now
-        self.last_no_alert_time = now
+        if delta is None:
+            now = time.time()
+            self.last_not_in_world_time = now
+            self.last_alert_time = now
+            self.last_no_alert_time = now
+        else:
+            self.last_not_in_world_time += delta
+            self.last_alert_time += delta
+            self.last_no_alert_time += delta
+
+        log.debug(f'更新不在大世界的时间 {self.last_not_in_world_time:.4f}')
 
     def _in_battle(self) -> Optional[OperationRoundResult]:
         """
@@ -218,7 +224,8 @@ class SimUniEnterFight(SrOperation):
                             (current_use_tech and self.ctx.team_info.is_buff_technique)  # 使用BUFF类秘技的时间不应该在计算内
                             or result_data.with_dialog  # 使用消耗品的时间不应该在计算内
                     ):
-                        self._update_not_in_world_time()
+                        after_buff_time = time.time()
+                        self._update_not_in_world_time(after_buff_time - now_time)
 
             if self.technique_fight and self.technique_only and current_use_tech:
                 # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击
@@ -257,6 +264,8 @@ class SimUniEnterFight(SrOperation):
         self.ctx.controller.initiate_attack()
         self.attack_times += 1
         self.ctx.controller.stop_moving_forward()  # 攻击之后再停止移动 避免停止移动的后摇
+        if self.ctx.team_info.is_buff_attack_disappear_technique:
+            self.ctx.technique_used = False
         return self.round_wait(wait_round_time=0.5)
 
     def _handle_not_in_world(self, screen: MatLike) -> OperationRoundResult:

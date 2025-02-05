@@ -154,7 +154,8 @@ class WorldPatrolEnterFight(SrOperation):
                             (current_use_tech and self.ctx.team_info.is_buff_technique)  # 使用BUFF类秘技的时间不应该在计算内
                             or op_result_data.with_dialog  # 使用消耗品的时间不应该在计算内
                     ):
-                        self._update_not_in_world_time()
+                        after_buff_time = time.time()
+                        self._update_not_in_world_time(after_buff_time - now_time)
 
             if self.technique_fight and self.technique_only and current_use_tech:
                 # 仅秘技开怪情况下 用了秘技就不进行攻击了 用不了秘技只可能是没秘技点了 这时候可以攻击
@@ -172,18 +173,24 @@ class WorldPatrolEnterFight(SrOperation):
         self.ctx.controller.initiate_attack()
         self.attack_times += 1
         self.ctx.controller.stop_moving_forward()  # 攻击之后再停止移动 避免停止移动的后摇
+        if self.ctx.team_info.is_buff_attack_disappear_technique:
+            self.ctx.technique_used = False
         return self.round_wait(wait=0.5)
 
-    def _update_not_in_world_time(self):
+    def _update_not_in_world_time(self, delta: float = None):
         """
         不在移动画面的情况
         更新一些统计时间
         :return:
         """
-        now = time.time()
-        log.debug(f'更新不在大世界的时间 {now:.4f}')
-        self.last_not_in_world_time = now
-        self.last_alert_time = now
+        if delta is None:
+            now = time.time()
+            self.last_not_in_world_time = now
+            self.last_alert_time = now
+        else:
+            self.last_not_in_world_time += delta
+            self.last_alert_time += delta
+        log.debug(f'更新不在大世界的时间 {self.last_not_in_world_time:.4f}')
 
     def handle_resume(self) -> None:
         """

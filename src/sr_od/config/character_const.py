@@ -120,6 +120,7 @@ TECHNIQUE_BUFF = CharacterTechniqueType(id='buff', remark='BUFF类')
 TECHNIQUE_AREA = CharacterTechniqueType(id='buff_area', remark='领域')
 TECHNIQUE_BUFF_ATTACK = CharacterTechniqueType(id='buff_attack', remark='需攻击触发BUFF类')
 TECHNIQUE_ATTACK = CharacterTechniqueType(id='attack', remark='攻击类')
+TECHNIQUE_BUFF_ATTACK_DISAPPEAR = CharacterTechniqueType(id='buff_attack', remark='需攻击触发BUFF类 攻击后消失')
 
 
 class Character:
@@ -215,10 +216,10 @@ ACHERON = Character(id='acheron', cn='黄泉', path=CHARACTER_PATH_NIHILITY, com
 AVENTURINE = Character(id='aventurine', cn='砂金', path=CHARACTER_PATH_PRESERVATION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 ROBIN = Character(id='robin', cn='知更鸟', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_AREA)
 BOOTHILL = Character(id='boothill', cn='波提欧', path=CHARACTER_PATH_HUNT, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF)
-FIREFLY = Character(id='firefly', cn='流萤', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+FIREFLY = Character(id='firefly', cn='流萤', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK_DISAPPEAR)
 JADE = Character(id='jade', cn='翡翠', path=CHARACTER_PATH_ERUDITION, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 YUNLI = Character(id='yunli', cn='云璃', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
-FEIXIAO = Character(id='feixiao', cn='飞霄', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+FEIXIAO = Character(id='feixiao', cn='飞霄', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF_ATTACK_DISAPPEAR)
 MOZE = Character(id='moze', cn='貊泽', path=CHARACTER_PATH_HUNT, combat_type=LIGHTNING, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
 LINGSHA = Character(id='lingsha', cn='灵砂', path=CHARACTER_PATH_ABUNDANCE, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
 JIAOQIU = Character(id='jiaoqiu', cn='椒丘', path=CHARACTER_PATH_NIHILITY, combat_type=FIRE, level=5, technique_type=TECHNIQUE_AREA)
