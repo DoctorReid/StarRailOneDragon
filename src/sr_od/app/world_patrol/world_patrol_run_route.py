@@ -99,31 +99,6 @@ class WorldPatrolRunRoute(SrOperation):
         return self.round_by_op_result(op.execute())
 
     @node_from(from_name='检测组队')
-    @operation_node(name='使用秘技')
-    def _use_tech(self) -> OperationRoundResult:
-        """
-        如果是秘技开怪 且是上buff类的 就在路线运行前上buff
-        :return:
-        """
-        if (not self.ctx.world_patrol_config.technique_fight
-                or not self.ctx.team_info.is_buff_technique
-                or self.ctx.technique_used):
-            return self.round_success()
-
-        if self.ctx.is_fx_world_patrol_tech:
-            # 部分路线开头需要模拟按键移动 不能改变移动速度
-            # 飞霄在移动中判断使用秘技即可
-            return self.round_success()
-
-        op = UseTechnique(self.ctx,
-                          max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
-                          need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
-                          trick_snack=self.ctx.game_config.use_quirky_snacks
-                          )
-
-        return self.round_by_op_result(op.execute())
-
-    @node_from(from_name='使用秘技')
     @node_from(from_name='执行路线指令')
     @operation_node(name='执行路线指令')
     def _next_op(self) -> OperationRoundResult:
@@ -156,7 +131,38 @@ class WorldPatrolRunRoute(SrOperation):
         else:
             next_route_item = None
 
-        if route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
+        # 判断是否需要用buff
+        should_use_tech: bool = False
+        if (self.ctx.world_patrol_config.technique_fight
+                and self.ctx.team_info.is_buff_technique
+                and not self.ctx.technique_used):
+            for i in range(self.op_idx, len(self.route.route_list)):
+                item = self.route.route_list[i]
+                if item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE, operation_const.OP_NO_POS_MOVE,
+                               operation_const.OP_UPDATE_POS,
+                               operation_const.OP_BAN_TECH, operation_const.OP_ALLOW_TECH]:
+                    # 需要找下一个不是移动的指令
+                    continue
+                elif item.op in [operation_const.OP_PATROL, ]:
+                    # 如果下一个不是移动的指令 是攻击攻击怪物类的 则需要使用buff
+                    should_use_tech = True
+                    break
+                else:
+                    # 剩下的类型 都不需要使用buff
+                    should_use_tech = False
+                    break
+
+        if should_use_tech:
+            op = UseTechnique(self.ctx,
+                              max_consumable_cnt=self.ctx.world_patrol_config.max_consumable_cnt,
+                              need_check_point=True,  # 检查秘技点是否足够 可以在没有或者不能用药的情况加快判断
+                              trick_snack=self.ctx.game_config.use_quirky_snacks
+                              )
+            # 由于是中途插入的指令 需要特殊处理下标
+            op_result = op.execute()
+            self.op_idx -= 1
+            return self.round_by_op_result(op_result)
+        elif route_item.op in [operation_const.OP_MOVE, operation_const.OP_SLOW_MOVE]:
             op = self.move(route_item, next_route_item)
         elif route_item.op == operation_const.OP_NO_POS_MOVE:
             op = self.no_pos_move(route_item)
