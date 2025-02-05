@@ -70,6 +70,8 @@ class UseTechniqueResult:
         self.consumable_chosen: bool = consumable_chosen
         """是否已经选择了消耗品"""
 
+        self.no_target_consumable_times: int = 0  # 没有目标消耗品的次数
+
 
 class UseTechnique(SrOperation):
 
@@ -336,6 +338,11 @@ class FastRecover(SrOperation):
             if quirky_snacks and not op_result.consumable_chosen:  # 理论上只有第1次需要选择 即还没有使用任何消耗品
                 choose = FastRecover.choose_consumable(op, screen)
                 if not choose:
+                    op_result.no_target_consumable_times += 1
+                    # 当消耗品种类多的时候 奇巧零食可能比较慢才出现 因此稍微重试一下
+                    if op_result.no_target_consumable_times < 3:
+                        return op.round_wait('未匹配到奇巧零食', wait=1)
+
                     result = op.round_by_find_and_click_area(screen, '快速恢复对话框', '取消')
                     if result.is_success:
                         # 没有选择到目标消耗品 因此是没有使用消耗品的情况 退出对话框后 需要尽快识别到在大世界了 方便后续指令 因此不等待
