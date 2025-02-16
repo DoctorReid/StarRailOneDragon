@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Optional
 
+from one_dragon.base.config.basic_game_config import BasicGameConfig
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.base.geometry.point import Point
 from one_dragon_qt.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 
@@ -77,16 +77,10 @@ class MiniMapPos:
         return Point((self.rx - self.lx) // 2, (self.ry - self.ly) // 2)
 
 
-class TypeInputWay(Enum):
-
-    INPUT = ConfigItem('键盘输入', 'input', desc='需确保使用时没有启用输入法')
-    CLIPBOARD = ConfigItem('剪贴板', 'clipboard', desc='出现剪切板失败时 切换到输入法')
-
-
-class GameConfig(YamlConfig):
+class GameConfig(BasicGameConfig):
 
     def __init__(self, instance_idx: Optional[int] = None):
-        YamlConfig.__init__(self, 'game', instance_idx=instance_idx)
+        BasicGameConfig.__init__(self, instance_idx=instance_idx)
         self.mini_map_pos: MiniMapPos = MiniMapPos(139, 149, 93)
 
     @property
@@ -247,15 +241,3 @@ class GameConfig(YamlConfig):
         游戏窗口名称 只有区服有关
         """
         return '崩坏：星穹铁道'
-
-    @property
-    def type_input_way(self) -> str:
-        return self.get('type_input_way', TypeInputWay.CLIPBOARD.value.value)
-
-    @type_input_way.setter
-    def type_input_way(self, new_value: str):
-        self.update('type_input_way', new_value)
-
-    @property
-    def type_input_way_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'type_input_way', TypeInputWay.CLIPBOARD.value.value)
