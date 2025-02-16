@@ -66,8 +66,6 @@ def show_image(img: MatLike,
     cv2.imshow(win_name, to_show)
     if wait is not None:
         cv2.waitKey(wait)
-    else:
-        cv2.waitKey(1)
     if destroy_after:
         cv2.destroyWindow(win_name)
 

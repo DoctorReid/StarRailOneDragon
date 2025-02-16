@@ -4,7 +4,7 @@ from typing import Optional
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_config import YamlConfig
 from one_dragon.base.geometry.point import Point
-from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon_qt.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 
 
 class GameRegionEnum(Enum):
@@ -87,48 +87,7 @@ class GameConfig(YamlConfig):
 
     def __init__(self, instance_idx: Optional[int] = None):
         YamlConfig.__init__(self, 'game', instance_idx=instance_idx)
-        mini_map = self.data.get('mini_map',
-                                 {
-                                     'x': 139,
-                                     'y': 149,
-                                     'r': 93
-                                 })
-        self.mini_map_pos: MiniMapPos = MiniMapPos(mini_map['x'], mini_map['y'], mini_map['r'])
-
-    @property
-    def game_region(self) -> str:
-        """
-        游戏区服
-        :return:
-        """
-        return self.get('game_region', GameRegionEnum.CN.value.value)
-
-    @game_region.setter
-    def game_region(self, new_value: str):
-        """
-        更新游戏区服
-        :return:
-        """
-        self.update('game_region', new_value)
-
-    @property
-    def game_region_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'game_region', GameRegionEnum.CN.value.value)
-
-    @property
-    def game_refresh_hour_offset(self) -> int:
-        region = self.game_region
-        if region == GameRegionEnum.CN.value.value:
-            return 4
-        elif region == GameRegionEnum.ASIA.value.value:
-            return 4
-        elif region == GameRegionEnum.HKMOTW.value.value:
-            return 4
-        elif region == GameRegionEnum.AMERICA.value.value:
-            return -9
-        elif region == GameRegionEnum.EUROPE.value.value:
-            return -3
-        return 4
+        self.mini_map_pos: MiniMapPos = MiniMapPos(139, 149, 93)
 
     @property
     def run_mode(self) -> int:
@@ -179,22 +138,6 @@ class GameConfig(YamlConfig):
         return YamlConfigAdapter(self, 'lang', GameLanguageEnum.CN.value.value)
 
     @property
-    def game_path(self) -> str:
-        """
-        游戏路径
-        :return:
-        """
-        return self.get('game_path', '')
-
-    @game_path.setter
-    def game_path(self, new_value: str):
-        """
-        更新游戏路径
-        :return:
-        """
-        self.update('game_path', new_value)
-
-    @property
     def planet_lcs_percent(self):
         return PLANET_LCS_PERCENT[self.lang]
 
@@ -209,30 +152,6 @@ class GameConfig(YamlConfig):
     @property
     def character_name_lcs_percent(self):
         return CHARACTER_NAME_LCS_PERCENT[self.lang]
-
-    @property
-    def game_account(self) -> str:
-        return self.get('game_account', '')
-
-    @game_account.setter
-    def game_account(self, new_value: str):
-        self.update('game_account', new_value)
-
-    @property
-    def game_account_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'game_account', '')
-
-    @property
-    def game_account_password(self):
-        return self.get('game_account_password', '')
-
-    @game_account_password.setter
-    def game_account_password(self, new_value: str):
-        self.update('game_account_password', new_value)
-
-    @property
-    def game_account_password_adapter(self) -> YamlConfigAdapter:
-        return YamlConfigAdapter(self, 'game_account_password', '')
 
     @property
     def key_interact(self) -> str:

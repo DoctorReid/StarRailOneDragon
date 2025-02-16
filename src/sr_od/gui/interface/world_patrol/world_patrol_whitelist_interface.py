@@ -2,10 +2,10 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetIte
 from qfluentwidgets import ComboBox, PushButton, TableWidget, ToolButton, FluentIcon
 from typing import Optional, List
 
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
-from phosdeiz.gui.widgets import Row
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.row import Row
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from sr_od.context.sr_context import SrContext
 from sr_od.sr_map.sr_map_def import Planet, Region

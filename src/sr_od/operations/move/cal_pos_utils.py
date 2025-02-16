@@ -22,7 +22,44 @@ from sr_od.sr_map.sr_map_def import Region
 cal_pos_executor = concurrent.futures.ThreadPoolExecutor(thread_name_prefix='sr_od_cal_pos')
 
 
-def get_mini_map_scale_list(running: bool, real_move_time: float = 0):
+def get_mini_map_scale_list(running: bool, real_move_time: float = 0, is_debug: bool = False):
+    """
+    :param running: 是否在移动
+    :param real_move_time: 真正按住移动的时间
+    :return:
+    """
+    if is_debug:
+        return get_mini_map_scale_list_new(running, real_move_time)
+    else:
+        return get_mini_map_scale_list_old(running, real_move_time)
+
+
+def get_mini_map_scale_list_new(running: bool, real_move_time: float = 0):
+    """
+    :param running: 是否在移动
+    :param real_move_time: 真正按住移动的时间
+    :return:
+    """
+    max_scale = 1.25
+    min_scale = 1.00
+    if running:
+        # 每0.6秒最小缩放比例增加 0.05
+        min_scale = round(min_scale + 0.05 * math.floor(real_move_time // 0.6), 2)
+        if min_scale > max_scale:
+            min_scale = max_scale
+    else:
+        # 不移动的时候可以尝试所有缩放比例 因为这时候没有效率的要求
+        pass
+
+    scale_list = [min_scale]
+    while min_scale < max_scale:
+        min_scale = round(min_scale + 0.01, 2)
+        scale_list.append(min_scale)
+
+    return scale_list
+
+
+def get_mini_map_scale_list_old(running: bool, real_move_time: float = 0):
     """
     :param running: 是否在移动
     :param real_move_time: 真正按住移动的时间
@@ -130,7 +167,7 @@ def cal_character_pos(ctx: SrContext,
     # 匹配结果 是缩放后的 offset 和宽高
     result: Optional[MatchResult] = None
 
-    scale_list = get_mini_map_scale_list(running, real_move_time)
+    scale_list = get_mini_map_scale_list(running, real_move_time, is_debug=ctx.env_config.is_debug)
     r1 = None
     r2 = None
     r3 = None
@@ -493,7 +530,7 @@ def sim_uni_cal_pos(
     # 匹配结果 是缩放后的 offset 和宽高
     result: Optional[MatchResult] = None
 
-    scale_list = get_mini_map_scale_list(running, real_move_time)
+    scale_list = get_mini_map_scale_list(running, real_move_time, is_debug=ctx.env_config.is_debug)
     r1 = None
     r2 = None
     r3 = None

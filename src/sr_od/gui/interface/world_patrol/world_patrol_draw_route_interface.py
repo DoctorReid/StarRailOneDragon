@@ -8,15 +8,15 @@ from typing import Optional, List
 from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.operation.context_event_bus import ContextEventItem
 from one_dragon.base.operation.one_dragon_context import ContextKeyboardEventEnum
-from one_dragon.gui.widgets.click_image_label import ImageScaleEnum, ClickImageLabel
-from one_dragon.gui.widgets.cv2_image import Cv2Image
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.click_image_label import ImageScaleEnum, ClickImageLabel
+from one_dragon_qt.widgets.cv2_image import Cv2Image
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
-from phosdeiz.gui.widgets import ComboBox
-from phosdeiz.gui.widgets import Row
+from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.row import Row
 from sr_od.app.world_patrol import world_patrol_route_draw_utils
 from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.app.world_patrol.world_patrol_route import WorldPatrolRoute

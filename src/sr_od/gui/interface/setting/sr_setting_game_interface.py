@@ -2,12 +2,12 @@ import os
 from PySide6.QtWidgets import QWidget, QFileDialog
 from qfluentwidgets import SettingCardGroup, FluentIcon, PushSettingCard
 
-from phosdeiz.gui.widgets import Column
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.key_setting_card import KeySettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.key_setting_card import KeySettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.utils.log_utils import log
 from sr_od.config.game_config import GameRegionEnum, RunModeEnum, TypeInputWay
@@ -87,14 +87,14 @@ class SrSettingGameInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
 
-        self.game_region_opt.init_with_adapter(self.ctx.game_config.game_region_adapter)
-        self.game_account_opt.init_with_adapter(self.ctx.game_config.game_account_adapter)
-        self.game_password_opt.init_with_adapter(self.ctx.game_config.game_account_password_adapter)
+        self.game_region_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('game_region'))
+        self.game_account_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('account'))
+        self.game_password_opt.init_with_adapter(self.ctx.game_account_config.get_prop_adapter('password'))
         self.input_way_opt.init_with_adapter(self.ctx.game_config.type_input_way_adapter)
         self.run_opt.init_with_adapter(self.ctx.game_config.run_mode_adapter)
         self.use_quirky_snacks_opt.init_with_adapter(self.ctx.game_config.use_quirky_snacks_adapter)
 
-        self.game_path_opt.setContent(self.ctx.game_config.game_path)
+        self.game_path_opt.setContent(self.ctx.game_account_config.game_path)
 
         self.key_interact_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_interact'))
         self.key_technique_opt.init_with_adapter(self.ctx.game_config.get_prop_adapter('key_technique'))

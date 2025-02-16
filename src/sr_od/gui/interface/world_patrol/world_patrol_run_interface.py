@@ -3,8 +3,8 @@ from qfluentwidgets import HyperlinkCard, FluentIcon
 from typing import Optional
 
 from one_dragon.base.operation.application_base import Application
-from phosdeiz.gui.widgets import Column
-from one_dragon.gui.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.view.app_run_interface import AppRunInterface
 from sr_od.app.sr_application import SrApplication
 from sr_od.app.world_patrol.world_patrol_app import WorldPatrolApp
 from sr_od.context.sr_context import SrContext

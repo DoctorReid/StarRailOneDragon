@@ -3,13 +3,13 @@ from qfluentwidgets import SettingCardGroup, FluentIcon
 
 from one_dragon.base.config.config_item import get_config_item_from_enum
 from one_dragon.envs.env_config import ProxyTypeEnum
-from phosdeiz.gui.widgets import Column
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.widgets.log_display_card import LogDisplayCard
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
-from one_dragon.gui.widgets.setting_card.yolo_model_card import ModelDownloadSettingCard
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.log_display_card import LogDisplayCard
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.widgets.setting_card.yolo_model_card import ModelDownloadSettingCard
 from one_dragon.utils.i18_utils import gt
 from one_dragon.yolo.yolo_utils import SR_MODEL_DOWNLOAD_URL
 from sr_od.config.yolo_config import get_world_patrol_opts, get_sim_uni_opts

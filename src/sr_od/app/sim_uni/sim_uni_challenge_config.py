@@ -3,7 +3,7 @@ import shutil
 from typing import List
 
 from one_dragon.base.config.yaml_config import YamlConfig
-from one_dragon.gui.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
+from one_dragon_qt.widgets.setting_card.yaml_config_adapter import YamlConfigAdapter
 from one_dragon.utils import os_utils
 
 _MAX_WITH_SAMPLE = 9

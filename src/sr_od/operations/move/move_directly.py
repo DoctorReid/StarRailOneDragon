@@ -15,7 +15,7 @@ from one_dragon.utils.log_utils import log
 from sr_od.app.world_patrol.world_patrol_enter_fight import WorldPatrolEnterFight
 from sr_od.config.game_config import RunModeEnum
 from sr_od.context.sr_context import SrContext
-from sr_od.operations.move import cal_pos_utils
+from sr_od.operations.move import cal_pos_utils, record_pos_utils
 from sr_od.operations.move.cal_pos_utils import VerifyPosInfo
 from sr_od.operations.move.get_rid_of_stuck import GetRidOfStuck
 from sr_od.operations.sr_operation import SrOperation
@@ -316,7 +316,7 @@ class MoveDirectly(SrOperation):
                 cal_pos_utils.save_as_test_case_async(mm, self.region, verify)
         else:
             if self.ctx.record_coordinate and now_time - self.last_rec_time > 0.5:
-                # RecordCoordinate.save(self.region, mm, next_pos)
+                record_pos_utils.save_sample(self.region, mm, next_pos)
                 pass
         return next_pos.center if next_pos is not None else None, mm_info
 

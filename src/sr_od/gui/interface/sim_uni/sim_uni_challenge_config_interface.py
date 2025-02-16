@@ -3,13 +3,13 @@ from qfluentwidgets import PushButton, FluentIcon, TableWidget, ToolButton, Plai
 from typing import Optional, List
 
 from one_dragon.base.config.config_item import ConfigItem
-from phosdeiz.gui.widgets import ComboBox
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
-from phosdeiz.gui.widgets import Row
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.push_setting_card import PushSettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
-from one_dragon.gui.widgets.setting_card.text_setting_card import TextSettingCard
+from one_dragon_qt.widgets.combo_box import ComboBox
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.row import Row
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.push_setting_card import PushSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.setting_card.text_setting_card import TextSettingCard
 from one_dragon.utils import str_utils
 from one_dragon.utils.i18_utils import gt
 from sr_od.app.sim_uni.sim_uni_challenge_config import SimUniChallengeConfig

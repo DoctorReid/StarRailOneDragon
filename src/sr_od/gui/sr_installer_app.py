@@ -4,10 +4,10 @@ from PySide6.QtWidgets import QApplication
 from qfluentwidgets import NavigationItemPosition, Theme, setTheme
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon.gui.app.installer import InstallerWindowBase
-from one_dragon.gui.view.code_interface import CodeInterface
-from one_dragon.gui.view.install_interface import InstallerInterface
-from one_dragon.gui.view.installer_setting_interface import InstallerSettingInterface
+from one_dragon_qt.app.installer import InstallerWindowBase
+from one_dragon_qt.view.code_interface import CodeInterface
+from one_dragon_qt.view.install_interface import InstallerInterface
+from one_dragon_qt.view.installer_setting_interface import InstallerSettingInterface
 from one_dragon.utils.i18_utils import gt
 
 

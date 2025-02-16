@@ -1,6 +1,6 @@
 from qfluentwidgets import FluentIcon
 
-from one_dragon.gui.widgets.pivot_navi_interface import PivotNavigatorInterface
+from one_dragon_qt.widgets.pivot_navi_interface import PivotNavigatorInterface
 from sr_od.context.sr_context import SrContext
 from sr_od.gui.interface.sim_uni.sim_uni_challenge_config_interface import SimUniChallengeConfigInterface
 from sr_od.gui.interface.sim_uni.sim_uni_run_interface import SimUniRunInterface

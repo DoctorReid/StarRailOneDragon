@@ -4,10 +4,12 @@ from qfluentwidgets import CaptionLabel, FluentIcon, LineEdit
 from typing import List
 
 from one_dragon.base.config.config_item import ConfigItem
-from one_dragon.gui.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.editable_combo_box import EditableComboBox
+from one_dragon_qt.widgets.setting_card.multi_push_setting_card import MultiLineSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 from one_dragon.utils.i18_utils import gt
-from phosdeiz.gui.widgets import Column, ComboBox
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.combo_box import ComboBox
 from sr_od.app.trailblaze_power.trailblaze_power_config import TrailblazePowerPlanItem
 from sr_od.config.character_const import CHARACTER_LIST
 from sr_od.config.team_config import TeamNumEnum
@@ -31,7 +33,7 @@ class EchoOfWarPlanCard(MultiLineSettingCard):
         self.team_opt = ComboBox()
         self.team_opt.currentIndexChanged.connect(self.on_team_changed)
 
-        self.character_combo_box = ComboBox()
+        self.character_combo_box = EditableComboBox()
         self.character_combo_box.currentIndexChanged.connect(self.on_character_changed)
 
         run_times_label = CaptionLabel(text='已运行次数')

@@ -75,24 +75,24 @@ class EnterGame(SrOperation):
     @node_from(from_name='画面识别', status='国服-账号密码')
     @operation_node(name='国服-输入账号密码')
     def input_account_password(self) -> OperationRoundResult:
-        if self.ctx.game_config.game_account == '' or self.ctx.game_config.game_account_password == '':
+        if self.ctx.game_account_config.account == '' or self.ctx.game_account_config.password == '':
             return self.round_fail('未配置账号密码')
 
         screen = self.screenshot()
         self.round_by_click_area('进入游戏', '国服-账号输入区域')
         time.sleep(0.5)
         if self.use_clipboard:
-            PcClipboard.copy_and_paste(self.ctx.game_config.game_account)
+            PcClipboard.copy_and_paste(self.ctx.game_account_config.account)
         else:
-            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.game_account)
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_account_config.account)
         time.sleep(1.5)
 
         self.round_by_click_area('进入游戏', '国服-密码输入区域')
         time.sleep(0.5)
         if self.use_clipboard:
-            PcClipboard.copy_and_paste(self.ctx.game_config.game_account_password)
+            PcClipboard.copy_and_paste(self.ctx.game_account_config.password)
         else:
-            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_config.game_account_password)
+            self.ctx.controller.keyboard_controller.keyboard.type(self.ctx.game_account_config.password)
         time.sleep(1.5)
 
         result = self.round_by_find_area(screen, '进入游戏', '文本-同意-旧')

@@ -5,12 +5,12 @@ try:
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
-    from one_dragon.gui.view.code_interface import CodeInterface
-    from one_dragon.gui.view.context_event_signal import ContextEventSignal
-    from one_dragon.gui.view.like_interface import LikeInterface
-    from one_dragon.gui.windows.app_window_base import AppWindowBase
+    from one_dragon_qt.view.code_interface import CodeInterface
+    from one_dragon_qt.view.context_event_signal import ContextEventSignal
+    from one_dragon_qt.view.like_interface import LikeInterface
+    from one_dragon_qt.windows.app_window_base import AppWindowBase
     from one_dragon.utils.i18_utils import gt
-    from phosdeiz.gui.services import PhosStyleSheet
+    from one_dragon_qt.services.styles_manager import OdQtStyleSheet
     from sr_od.context.sr_context import SrContext
     from sr_od.gui.interface.devtools.sr_devtools_interface import SrDevtoolsInterface
     from sr_od.gui.interface.game_assistant.game_assistant_interface import GameAssistantInterface
@@ -78,11 +78,11 @@ try:
             self.navigationInterface.setContentsMargins(0, 0, 0, 0)
 
             # 配置样式
-            PhosStyleSheet.APP_WINDOW.apply(self)
-            PhosStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
-            PhosStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
-            PhosStyleSheet.AREA_WIDGET.apply(self.areaWidget)
-            PhosStyleSheet.TITLE_BAR.apply(self.titleBar)
+            OdQtStyleSheet.APP_WINDOW.apply(self)
+            OdQtStyleSheet.NAVIGATION_INTERFACE.apply(self.navigationInterface)
+            OdQtStyleSheet.STACKED_WIDGET.apply(self.stackedWidget)
+            OdQtStyleSheet.AREA_WIDGET.apply(self.areaWidget)
+            OdQtStyleSheet.TITLE_BAR.apply(self.titleBar)
 
         def create_sub_interface(self):
             """创建和添加各个子界面"""
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     _ctx.async_init_ocr()
 
     # 设置主题
-    setTheme(Theme[_ctx.env_config.theme.upper()])
+    setTheme(Theme[_ctx.custom_config.theme.upper()])
 
     # 创建并显示主窗口
     w = AppWindow(_ctx)

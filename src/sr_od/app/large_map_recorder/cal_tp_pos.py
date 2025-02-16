@@ -23,7 +23,7 @@ def cal_one(tp: SpecialPoint, debug_image: str, show: bool = False):
     result = cal_pos_utils.cal_character_pos_by_sp_result(ctx, lm_info, mm_info, lm_rect=lm_rect)
     if result is None:
         result = cal_pos_utils.cal_character_pos_by_gray(ctx, lm_info, mm_info, lm_rect=lm_rect,
-                                                         scale_list=cal_pos_utils.get_mini_map_scale_list(False))
+                                                         scale_list=cal_pos_utils.get_mini_map_scale_list(False, is_debug=True))
 
     log.info('%s 传送落地坐标 tp_pos: [%d, %d] 使用缩放 %.2f', tp.display_name, result.center.x, result.center.y, result.template_scale)
     if show:

@@ -2,10 +2,11 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import FluentIcon
 
 from one_dragon.base.config.config_item import ConfigItem
-from phosdeiz.gui.widgets import Column
-from one_dragon.gui.widgets.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon.gui.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
-from one_dragon.gui.widgets.setting_card.switch_setting_card import SwitchSettingCard
+from one_dragon_qt.widgets.column import Column
+from one_dragon_qt.widgets.setting_card.editable_combo_box_setting_card import EditableComboBoxSettingCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
+from one_dragon_qt.widgets.setting_card.combo_box_setting_card import ComboBoxSettingCard
+from one_dragon_qt.widgets.setting_card.switch_setting_card import SwitchSettingCard
 from sr_od.app.world_patrol.world_patrol_whitelist_config import load_all_whitelist_list, WorldPatrolWhitelist
 from sr_od.config.character_const import CHARACTER_LIST
 from sr_od.context.sr_context import SrContext
@@ -31,8 +32,8 @@ class WorldPatrolSettingInterface(VerticalScrollInterface):
                                                 options_list=[ConfigItem(str(i)) for i in range(10)])
         content_widget.add_widget(self.team_num_opt)
 
-        self.character_1_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='1号位角色',
-                                                   content='手动指定1号位角色可以避免识别错误')
+        self.character_1_opt = EditableComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='1号位角色',
+                                                           content='手动指定1号位角色可以避免识别错误')
         content_widget.add_widget(self.character_1_opt)
 
         self.whitelist_id_opt = ComboBoxSettingCard(icon=FluentIcon.PEOPLE, title='路线名单')

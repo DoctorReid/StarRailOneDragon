@@ -1,8 +1,7 @@
 import math
-from collections import Counter
-
 from random import random
-from typing import List, Union, Any
+
+from typing import List, Union
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.geometry.rectangle import Rect
@@ -169,25 +168,3 @@ def random_in_range(r: Union[List[float], float]) -> float:
         return r[0]
     else:
         return r[0] + (r[1] - r[0]) * random()
-
-
-def get_mode_in_list(arr: List[Any], ignored_set: set[Any] = None, empty_return: Any = None) -> Any:
-    """
-    获取一个数组中出现最多的元素
-    :param arr: 输入的数组
-    :return: 出现次数最多的元素
-    """
-    if arr is None:
-        return empty_return  # 如果数组为空，返回None
-
-    if ignored_set is not None:
-        arr = [item for item in arr if item not in ignored_set]
-
-    if len(arr) == 0:
-        return empty_return
-
-    # 使用Counter统计每个元素的出现次数
-    counter = Counter(arr)
-
-    # 返回出现次数最多的元素
-    return counter.most_common(1)[0][0]

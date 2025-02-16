@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QWidget
 from typing import Optional
 
-from phosdeiz.gui.widgets import Row
-from one_dragon.gui.view.app_run_interface import AppRunInterface
+from one_dragon_qt.view.app_run_interface import AppRunInterface
+from one_dragon_qt.widgets.row import Row
 from sr_od.app.calibrator import Calibrator
 from sr_od.app.sr_application import SrApplication
 from sr_od.context.sr_context import SrContext
