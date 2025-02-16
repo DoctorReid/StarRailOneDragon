@@ -39,13 +39,13 @@ CHARACTER_PATH_LIST: List[CharacterPath] = [
     CHARACTER_PATH_REMEMBRANCE,
 ]
 
-ATTACK_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_DESTRUCTION, CHARACTER_PATH_HUNT, CHARACTER_PATH_ERUDITION]
+ATTACK_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_DESTRUCTION, CHARACTER_PATH_HUNT, CHARACTER_PATH_ERUDITION, CHARACTER_PATH_REMEMBRANCE]
 """输出命途"""
 
 SURVIVAL_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_PRESERVATION, CHARACTER_PATH_ABUNDANCE]
 """生存命途"""
 
-SUPPORT_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_NIHILITY, CHARACTER_PATH_HARMONY, CHARACTER_PATH_REMEMBRANCE]
+SUPPORT_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_NIHILITY, CHARACTER_PATH_HARMONY]
 """辅助命途"""
 
 
@@ -170,6 +170,7 @@ BRONYA = Character(id='bronya', cn='布洛妮娅', path=CHARACTER_PATH_HARMONY, 
 CAELUM_DESTRUCTION = Character(id='caelum_destruction', cn='男主毁灭', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_BUFF)
 CAELUM_PRESERVATION = Character(id='caelum_preservation', cn='男主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
 CAELUM_HARMONY = Character(id='caelum_harmony', cn='男主同谐', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF)
+CAELUM_REMEMBRANCE = Character(id='caelum_remembrance', cn='男主记忆', path=CHARACTER_PATH_REMEMBRANCE, combat_type=ICE, level=4, technique_type=TECHNIQUE_AREA)
 CLARA = Character(id='clara', cn='卡拉拉', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_ATTACK)
 DANHENG = Character(id='danheng', cn='丹恒', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=4, technique_type=TECHNIQUE_BUFF)
 DANHENGIMBIBITORLUNAE = Character(id='danhengimbibitorlunae', cn='丹恒·饮月', path=CHARACTER_PATH_DESTRUCTION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
@@ -232,6 +233,7 @@ RAPPA = Character(id='rappa', cn='乱破', path=CHARACTER_PATH_ERUDITION, combat
 SUNDAY = Character(id='sunday', cn='星期日', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 FUGUE = Character(id='fugue', cn='忘归人', path=CHARACTER_PATH_HARMONY, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
 THE_HERTA = Character(id='the_herta', cn='大黑塔', path=CHARACTER_PATH_ERUDITION, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
+AGLAEA = Character(id='aglaea', cn='阿格莱雅', path=CHARACTER_PATH_REMEMBRANCE, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
 
 CHARACTER_LIST: List[Character] = [
     ARLAN,
@@ -242,6 +244,7 @@ CHARACTER_LIST: List[Character] = [
     CAELUM_DESTRUCTION,
     CAELUM_PRESERVATION,
     CAELUM_HARMONY,
+    CAELUM_REMEMBRANCE,
     CLARA,
     DANHENG,
     DANHENGIMBIBITORLUNAE,
@@ -301,6 +304,7 @@ CHARACTER_LIST: List[Character] = [
     SUNDAY,
     FUGUE,
     THE_HERTA,
+    AGLAEA,
 ]
 
 
