@@ -30,7 +30,7 @@ class WorldPatrolRunInterface(AppRunInterface):
         content = Column()
 
         self.help_opt = HyperlinkCard(icon=FluentIcon.HELP, title='使用说明', text='前往', content='先看说明 再使用与提问',
-                                      url='https://one-dragon.org/sr/zh/docs/feat_world_patrol.html')
+                                      url='https://onedragon-anything.github.io/sr/zh/docs/feat_world_patrol.html')
         content.add_widget(self.help_opt)
 
         return content
