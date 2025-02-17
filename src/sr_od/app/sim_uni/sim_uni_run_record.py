@@ -39,7 +39,7 @@ class SimUniRunRecord(AppRunRecord):
         """
         AppRunRecord.reset_record(self)
         current_dt = self.get_current_dt()
-        if os_utils.get_money_dt(current_dt) != os_utils.get_money_dt(self.dt):
+        if os_utils.get_monday_dt(current_dt) != os_utils.get_monday_dt(self.dt):
             self.weekly_times = 0
             self.elite_weekly_times = 0
         self.daily_times = 0
