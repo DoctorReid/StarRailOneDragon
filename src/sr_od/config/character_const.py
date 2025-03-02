@@ -171,7 +171,7 @@ CAELUM_DESTRUCTION = Character(id='caelum_destruction', cn='男主毁灭', path=
 CAELUM_PRESERVATION = Character(id='caelum_preservation', cn='男主存护', path=CHARACTER_PATH_PRESERVATION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_BUFF)
 CAELUM_HARMONY = Character(id='caelum_harmony', cn='男主同谐', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF)
 CAELUM_REMEMBRANCE = Character(id='caelum_remembrance', cn='男主记忆', path=CHARACTER_PATH_REMEMBRANCE, combat_type=ICE, level=4, technique_type=TECHNIQUE_AREA)
-CLARA = Character(id='clara', cn='卡拉拉', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_ATTACK)
+CLARA = Character(id='clara', cn='克拉拉', path=CHARACTER_PATH_DESTRUCTION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_ATTACK)
 DANHENG = Character(id='danheng', cn='丹恒', path=CHARACTER_PATH_HUNT, combat_type=WIND, level=4, technique_type=TECHNIQUE_BUFF)
 DANHENGIMBIBITORLUNAE = Character(id='danhengimbibitorlunae', cn='丹恒·饮月', path=CHARACTER_PATH_DESTRUCTION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 FUXUAN = Character(id='fuxuan', cn='符玄', path=CHARACTER_PATH_PRESERVATION, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF)
@@ -180,7 +180,7 @@ GUINAIFEN = Character(id='guinaifen', cn='桂乃芬', path=CHARACTER_PATH_NIHILI
 HERTA = Character(id='herta', cn='黑塔', path=CHARACTER_PATH_ERUDITION, combat_type=ICE, level=4, technique_type=TECHNIQUE_BUFF)
 HIMEKO = Character(id='himeko', cn='姬子', path=CHARACTER_PATH_ERUDITION, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
 HOOK = Character(id='hook', cn='虎克', path=CHARACTER_PATH_DESTRUCTION, combat_type=FIRE, level=4, technique_type=TECHNIQUE_ATTACK)
-HUOHUO = Character(id='huohuo', cn='霍霍', path=CHARACTER_PATH_ABUNDANCE, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
+HUOHUO = Character(id='huohuo', cn='藿藿', path=CHARACTER_PATH_ABUNDANCE, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
 JINGLIU = Character(id='jingliu', cn='镜流', path=CHARACTER_PATH_DESTRUCTION, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 JINGYUAN = Character(id='jingyuan', cn='景元', path=CHARACTER_PATH_ERUDITION, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_BUFF)
 KAFKA = Character(id='kafka', cn='卡芙卡', path=CHARACTER_PATH_NIHILITY, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
@@ -208,14 +208,14 @@ YANQING = Character(id='yanqing', cn='彦卿', path=CHARACTER_PATH_HUNT, combat_
 YUKONG = Character(id='yukong', cn='驭空', path=CHARACTER_PATH_HARMONY, combat_type=IMAGINARY, level=4, technique_type=TECHNIQUE_BUFF_ATTACK)
 ARGENTI = Character(id='argenti', cn='银枝', path=CHARACTER_PATH_ERUDITION, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 HANYA = Character(id='hanya', cn='寒鸦', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=4, technique_type=TECHNIQUE_ATTACK)
-RUANMEI = Character(id='ruanmei', cn='院·梅', path=CHARACTER_PATH_HARMONY, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF,
+RUANMEI = Character(id='ruanmei', cn='阮·梅', path=CHARACTER_PATH_HARMONY, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF,
                     buff_lasting_seconds=999)
 XUEYI = Character(id='xueyi', cn='雪衣', path=CHARACTER_PATH_DESTRUCTION, combat_type=QUANTUM, level=4, technique_type=TECHNIQUE_ATTACK)
 DRRATIO = Character(id='drratio', cn='真理医生', path=CHARACTER_PATH_HUNT, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 MISHA = Character(id='misha', cn='米沙', path=CHARACTER_PATH_DESTRUCTION, combat_type=ICE, level=4, technique_type=TECHNIQUE_AREA)
 BLACKSWAN = Character(id='blackswan', cn='黑天鹅', path=CHARACTER_PATH_NIHILITY, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
 SPARKLE = Character(id='sparkle', cn='花火', path=CHARACTER_PATH_HARMONY, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF)
-GALLAGHER = Character(id='gallagher', cn='拉加赫', path=CHARACTER_PATH_ABUNDANCE, combat_type=FIRE, level=4, technique_type=TECHNIQUE_ATTACK)
+GALLAGHER = Character(id='gallagher', cn='加拉赫', path=CHARACTER_PATH_ABUNDANCE, combat_type=FIRE, level=4, technique_type=TECHNIQUE_ATTACK)
 ACHERON = Character(id='acheron', cn='黄泉', path=CHARACTER_PATH_NIHILITY, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
 AVENTURINE = Character(id='aventurine', cn='砂金', path=CHARACTER_PATH_PRESERVATION, combat_type=IMAGINARY, level=5, technique_type=TECHNIQUE_BUFF)
 ROBIN = Character(id='robin', cn='知更鸟', path=CHARACTER_PATH_HARMONY, combat_type=PHYSICAL, level=5, technique_type=TECHNIQUE_AREA)
@@ -234,6 +234,7 @@ SUNDAY = Character(id='sunday', cn='星期日', path=CHARACTER_PATH_HARMONY, com
 FUGUE = Character(id='fugue', cn='忘归人', path=CHARACTER_PATH_HARMONY, combat_type=FIRE, level=5, technique_type=TECHNIQUE_BUFF)
 THE_HERTA = Character(id='the_herta', cn='大黑塔', path=CHARACTER_PATH_ERUDITION, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
 AGLAEA = Character(id='aglaea', cn='阿格莱雅', path=CHARACTER_PATH_REMEMBRANCE, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
+TRIBBIE = Character(id='tribbie', cn='缇宝', path=CHARACTER_PATH_HARMONY, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF)
 
 CHARACTER_LIST: List[Character] = [
     ARLAN,
@@ -305,6 +306,7 @@ CHARACTER_LIST: List[Character] = [
     FUGUE,
     THE_HERTA,
     AGLAEA,
+    TRIBBIE,
 ]
 
 
