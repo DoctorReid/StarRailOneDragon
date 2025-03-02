@@ -40,13 +40,14 @@ def get_mini_map_scale_list_new(running: bool, real_move_time: float = 0):
     :param real_move_time: 真正按住移动的时间
     :return:
     """
-    max_scale = 1.25
+    max_scale = 1.35
+    old_max_scale = 1.25
     min_scale = 1.00
     if running:
         # 每0.6秒最小缩放比例增加 0.05
         min_scale = round(min_scale + 0.05 * math.floor(real_move_time // 0.6), 2)
-        if min_scale > max_scale:
-            min_scale = max_scale
+        if min_scale > old_max_scale:
+            min_scale = old_max_scale
     else:
         # 不移动的时候可以尝试所有缩放比例 因为这时候没有效率的要求
         pass
