@@ -75,7 +75,6 @@ class EnterGame(SrOperation):
                 result_confirm = self.round_by_find_and_click_area(screen2, '进入游戏', '提示-确认')
                 if result_confirm.is_success:
                     # 如果检测到了“提示-确认”并点击
-                    # 这里也可以用 round_fail 或者 round_retry
                     return self.round_retry("检测到提示错误代码，点击确认，尝试重新登录")
 
                 # 若没有确认提示，就继续原先流程
