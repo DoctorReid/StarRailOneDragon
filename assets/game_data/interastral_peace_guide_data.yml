@@ -7,6 +7,11 @@
     - category_name: "饰品提取"
       show_in_power_plan: true
       mission_list:
+        - mission_name: "纷争不休"
+          show_in_power_plan: true
+          display_name: "谧宁拾骨地 渊思寂虑的巨树"
+          power: 40
+
         - mission_name: "蠹役饥肠"
           show_in_power_plan: true
           display_name: "沉陆海域露莎卡 奇想蕉乐园"
@@ -56,6 +61,24 @@
       display_name: "经验信用"
       show_in_power_plan: true
       mission_list:
+        - mission_name: "回忆之蕾"
+          show_in_power_plan: true
+          display_name: "角色经验-翁法罗斯"
+          region_name: '「神谕圣地」雅努萨波利斯'
+          power: 10
+
+        - mission_name: "以太之蕾"
+          show_in_power_plan: true
+          display_name: "光锥经验-翁法罗斯"
+          region_name: '「纷争荒墟」悬锋城'
+          power: 10
+
+        - mission_name: "珍藏之蕾"
+          show_in_power_plan: true
+          display_name: "信用点-翁法罗斯"
+          region_name: '「呓语密林」神悟树庭'
+          power: 10
+
         - mission_name: "回忆之蕾"
           show_in_power_plan: true
           display_name: "角色经验-匹诺康尼"
@@ -296,6 +319,12 @@
           show_in_power_plan: true
           display_name: "风-巽风之形"
           region_name: "铆钉阵"
+          power: 30
+
+        - mission_name: "凛月之形"
+          show_in_power_plan: true
+          display_name: "量子-凛月之形"
+          region_name: "「呓语密林」神悟树庭"
           power: 30
 
         - mission_name: "焦炙之形"
