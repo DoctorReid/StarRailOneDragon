@@ -23,7 +23,7 @@ class GuideChooseMission(SrOperation):
     def __init__(self, ctx: SrContext, mission: GuideMission):
         SrOperation.__init__(self, ctx,
                              op_name='%s %s' % (
-                                 gt('指南', 'ui'),
+                                 gt('指南选择副本', 'ui'),
                                  gt(mission.mission_name, 'ui')
                              ))
         self.mission: GuideMission = mission
@@ -80,9 +80,10 @@ class GuideChooseMission(SrOperation):
                 return None
             log.info('匹配区域名称 %s', word_list[region_idx])
 
-            # 只保留区域附近的内容
+            # 区域通常不会重复 取max即可
             region_pos = mrl_list[region_idx].max.right_bottom
 
+            # 只保留区域上方一定距离的文本
             mission_region_distance = 50
             if self.mission.mission_name == '模拟宇宙':
                 mission_region_distance = 350
@@ -93,7 +94,7 @@ class GuideChooseMission(SrOperation):
             for ocr_word, mrl in ocr_result_map.items():
                 mrl2 = MatchResultList(only_best=False)
                 for mr in mrl:
-                    if region_pos.y- mr.right_bottom.y < mission_region_distance:
+                    if 0 < region_pos.y - mr.right_bottom.y < mission_region_distance:
                         mrl2.append(mr)
 
                 if len(mrl2) == 0:
@@ -149,8 +150,8 @@ def __debug():
     ctx.start_running()
 
     tab = ctx.guide_data.best_match_tab_by_name('生存索引')
-    category = ctx.guide_data.best_match_category_by_name('拟造花萼（金）', tab)
-    mission = ctx.guide_data.best_match_mission_by_name('回忆之蕾', category, '城郊雪原')
+    category = ctx.guide_data.best_match_category_by_name('拟造花萼（赤）', tab)
+    mission = ctx.guide_data.best_match_mission_by_name('同谐之蕾', category, '「白日梦」酒店-梦境')
 
     op = GuideChooseMission(ctx, mission)
     op.execute()
