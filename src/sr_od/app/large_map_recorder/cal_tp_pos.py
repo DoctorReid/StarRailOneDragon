@@ -35,16 +35,28 @@ if __name__ == '__main__':
     ctx.init_by_config()
 
     planet_name: str = '翁法罗斯'
-    region_name: str = '「命运重渊」雅努萨波利斯'
+    region_name: str = '「神谕圣地」雅努萨波利斯'
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
     region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet)
 
     sp_name_list = [
-        '役轮之形·凝滞虚影',
+        '预言书库',
+        '觐神祭台',
+        '秘思暗廊',
+        '命运宸扉',
+        '拜谒步道',
+        '门径终处',
+        '回忆之蕾·拟造花萼（金）',
     ]
     img_list = [
-        '_1741608857702',
+        '_1741795931144',
+        '_1741795940876',
+        '_1741795946391',
+        '_1741795952025',
+        '_1741795957409',
+        '_1741795963209',
+        '_1741795968726',
     ]
     for i in range(len(sp_name_list)):
         sp = ctx.map_data.best_match_sp_by_name(region, gt(sp_name_list[i]))

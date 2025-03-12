@@ -944,8 +944,9 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         # 'P04_PNKN_R10_PNKNDJY': {'skip_height': 700, 'max_row': 4, 'max_column': 4},  # 匹诺康尼 - 匹诺康尼大剧院 上下方有大量空白 skip_hegiht=700 下方报错需要手动保存
         '翁法罗斯 「浴血战端」悬锋城': {'max_column': 4, 'max_row': 11, 'drag_times_to_left_top': 6,
                                  'cols_to_cal_overlap_height': [1]},
+        '翁法罗斯 「神谕圣地」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, 'drag_times_to_left_top': 6},
         '翁法罗斯 「纷争荒墟」悬锋城': { 'max_row': 13, 'max_column': 11, 'drag_times_to_left': 6, 'drag_times_to_left_top': 10,},
-        '翁法罗斯 「命运重渊」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, 'drag_times_to_left_top': 6}
+        '翁法罗斯 「命运重渊」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, 'drag_times_to_left_top': 6},
     }
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
@@ -956,7 +957,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     sc = special_conditions.get(key, {})
     sc['ctx'] = ctx
     sc['region'] = region
-    # sc['floor_list_to_record'] = [1]
+    # sc['floor_list_to_record'] = [-3]
     # sc['row_list_to_record'] = [13]
     # sc['col_list_to_record'] = [1, 2, 3]
     # sc['drag_times_to_left_top'] = 0  # 手动拖到左上会快一点
@@ -974,15 +975,10 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         app.open_map()
         app.choose_planet()
 
-        for row in range(1, sc['max_row'] + 1):
-            app.row_list_to_record = [row]
-            app.row = 1  # 下标从1开始
-            app.col = 1
-            app.current_region_idx = 0
-            app.choose_region()
-            app.do_screenshot()
+        app.current_region_idx = 0
+        app.choose_region()
+        app.do_screenshot()
 
-        app.merge_screenshot()
         ctx.stop_running()
     elif run_mode == 'merge':
         # app.debug = True
@@ -1008,4 +1004,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「命运重渊」雅努萨波利斯', 'all')
+    __debug('翁法罗斯', '「神谕圣地」雅努萨波利斯', 'save')
