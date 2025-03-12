@@ -1,11 +1,20 @@
+- uid: "YLZYNZXY"
+  cn: "役轮之形·凝滞虚影"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 1
+  template_id: "mm_tp_06"
+  lm_pos: [716, 1086]
+  tp_pos: [716, 1105]
+
 - uid: "JSXS"
   cn: "觐神狭室"
   planet_name: "翁法罗斯"
   region_name: "「命运重渊」雅努萨波利斯"
   region_floor: 2
   template_id: "mm_tp_03"
-  lm_pos: [626, 331]
-  tp_pos: [610, 319]
+  lm_pos: [626, 556]
+  tp_pos: [610, 544]
 
 - uid: "CMCF"
   cn: "长梦宸扉"
@@ -13,8 +22,8 @@
   region_name: "「命运重渊」雅努萨波利斯"
   region_floor: 2
   template_id: "mm_tp_03"
-  lm_pos: [654, 863]
-  tp_pos: [611, 867]
+  lm_pos: [654, 1090]
+  tp_pos: [611, 1094]
 
 - uid: "JYAD"
   cn: "噤语黯地"
@@ -22,8 +31,8 @@
   region_name: "「命运重渊」雅努萨波利斯"
   region_floor: 2
   template_id: "mm_tp_03"
-  lm_pos: [637, 1423]
-  tp_pos: [610, 1418]
+  lm_pos: [637, 1650]
+  tp_pos: [610, 1645]
 
 - uid: "MYHT"
   cn: "命运荒途"
@@ -31,8 +40,8 @@
   region_name: "「命运重渊」雅努萨波利斯"
   region_floor: 2
   template_id: "mm_tp_03"
-  lm_pos: [402, 1879]
-  tp_pos: [396, 1852]
+  lm_pos: [402, 2108]
+  tp_pos: [396, 2081]
 
 - uid: "RMSL"
   cn: "扰梦石陵"
@@ -40,8 +49,16 @@
   region_name: "「命运重渊」雅努萨波利斯"
   region_floor: 2
   template_id: "mm_tp_03"
-  lm_pos: [793, 2040]
-  tp_pos: [808, 2047]
+  lm_pos: [793, 2268]
+  tp_pos: [808, 2275]
+
+- uid: "SYSDYNSBLS"
+  cn: "「神谕圣地」雅努萨波利斯"
+  planet_name: "翁法罗斯"
+  region_name: "「命运重渊」雅努萨波利斯"
+  region_floor: 2
+  template_id: "mm_sp_02"
+  lm_pos: [593, 328]
 
 - uid: "BRMJDXS"
   cn: "「永恒圣城」奥赫玛"
@@ -49,7 +66,7 @@
   region_name: "「命运重渊」雅努萨波利斯"
   region_floor: 2
   template_id: "mm_sp_02"
-  lm_pos: [364, 1856]
+  lm_pos: [364, 2085]
 
 - uid: "MYCYDYJQSZ"
   cn: "「命运重渊」的衣匠前哨站"
@@ -57,4 +74,4 @@
   region_name: "「命运重渊」雅努萨波利斯"
   region_floor: 2
   template_id: "mm_sp_20"
-  lm_pos: [522, 901]
+  lm_pos: [522, 1129]

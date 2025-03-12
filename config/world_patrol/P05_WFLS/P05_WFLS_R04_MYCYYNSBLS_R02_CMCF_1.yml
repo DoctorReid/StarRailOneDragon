@@ -6,32 +6,26 @@ tp: '长梦宸扉'
 route:
   - idx: 1
     op: 'move'
-    data: [571, 859]
+    data: [571, 1090]
   - idx: 2
     op: 'disposable'
   - idx: 3
     op: 'move'
-    data: [477, 880]
+    data: [477, 1111]
   - idx: 4
     op: 'move'
-    data: [434, 880, 1]
+    data: [434, 1111, 1]
   - idx: 5
     op: 'move'
-    data: [399, 874]
+    data: [399, 1105]
   - idx: 6
     op: 'move'
-    data: [398, 830]
+    data: [403, 1068]
   - idx: 7
     op: 'move'
-    data: [450, 820]
+    data: [480, 1063]
   - idx: 8
     op: 'move'
-    data: [473, 819]
+    data: [482, 1086]
   - idx: 9
-    op: 'move'
-    data: [487, 821]
-  - idx: 10
-    op: 'move'
-    data: [479, 852]
-  - idx: 11
     op: 'patrol'

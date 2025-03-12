@@ -6,31 +6,34 @@ tp: '噤语黯地'
 route:
   - idx: 1
     op: 'move'
-    data: [531, 1412]
+    data: [531, 1643]
   - idx: 2
     op: 'move'
-    data: [535, 1394]
+    data: [535, 1625]
   - idx: 3
     op: 'move'
-    data: [535, 1394]
+    data: [535, 1625]
   - idx: 4
     op: 'patrol'
   - idx: 5
     op: 'move'
-    data: [570, 1419]
+    data: [570, 1650]
   - idx: 6
     op: 'move'
-    data: [635, 1407]
+    data: [635, 1638]
   - idx: 7
     op: 'move'
-    data: [700, 1404]
+    data: [700, 1635]
   - idx: 8
     op: 'move'
-    data: [825, 1406]
+    data: [825, 1637]
   - idx: 9
     op: 'disposable'
   - idx: 10
     op: 'move'
-    data: [845, 1436]
+    data: [845, 1667]
   - idx: 11
+    op: 'move'
+    data: [857, 1656]
+  - idx: 12
     op: 'patrol'

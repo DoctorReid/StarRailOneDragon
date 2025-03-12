@@ -95,8 +95,12 @@ class LargeMapRecorder(SrApplication):
                 planet=self.region.planet,
                 target_floor=floor
             )
-            if current_region is not None:
-                self.region_list.append(current_region)
+            if current_region is None:
+                continue
+            if current_region.pr_id != self.region.pr_id:
+                continue
+            self.region_list.append(current_region)
+
         self.current_region_idx: int = 0
         self.current_region: Optional[Region] = None
 
@@ -126,11 +130,13 @@ class LargeMapRecorder(SrApplication):
     @node_from(from_name='选择区域')
     @operation_node(name='识别最大行列数')
     def detect_max_row_col(self) -> OperationRoundResult:
-        self.back_to_left_top()
-        self.drag_to_get_max_column()
-        self.back_to_left_top()
-        self.drag_to_get_max_row()
-        self.back_to_left_top()
+        if self.max_column is None:
+            self.back_to_left_top()
+            self.drag_to_get_max_column()
+
+        if self.max_row is None:
+            self.back_to_left_top()
+            self.drag_to_get_max_row()
 
         return self.round_success()
 
@@ -317,6 +323,8 @@ class LargeMapRecorder(SrApplication):
         """
         回到正左方
         """
+        if self.max_column <= 1:
+            return
         center = game_const.STANDARD_CENTER_POS
         right = Point(center.x + center.x - 10, center.y)
         for _ in range(self.drag_times_to_left):
@@ -937,7 +945,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         '翁法罗斯 「浴血战端」悬锋城': {'max_column': 4, 'max_row': 11, 'drag_times_to_left_top': 6,
                                  'cols_to_cal_overlap_height': [1]},
         '翁法罗斯 「纷争荒墟」悬锋城': { 'max_row': 13, 'max_column': 11, 'drag_times_to_left': 6, 'drag_times_to_left_top': 10,},
-        '翁法罗斯 「命运重渊」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, }
+        '翁法罗斯 「命运重渊」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, 'drag_times_to_left_top': 6}
     }
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
@@ -948,7 +956,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     sc = special_conditions.get(key, {})
     sc['ctx'] = ctx
     sc['region'] = region
-    # sc['floor_list_to_record'] = [-1]
+    # sc['floor_list_to_record'] = [1]
     # sc['row_list_to_record'] = [13]
     # sc['col_list_to_record'] = [1, 2, 3]
     # sc['drag_times_to_left_top'] = 0  # 手动拖到左上会快一点
@@ -982,7 +990,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     elif run_mode == 'save':
         app.do_save()
     elif run_mode == 'fix':
-        app.fix_all_after_map_record(region, +8, +12)
+        app.fix_all_after_map_record(region, 0, +231)
     elif run_mode == 'find_max_col':
         ctx.start_running()
         app.drag_to_get_max_column()
@@ -1000,4 +1008,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('雅利洛-VI', '大矿区', 'fix')
+    __debug('翁法罗斯', '「命运重渊」雅努萨波利斯', 'all')
