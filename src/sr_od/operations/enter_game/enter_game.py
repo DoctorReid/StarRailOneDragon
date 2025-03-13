@@ -37,6 +37,12 @@ class EnterGame(SrOperation):
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
 
+        # 判断“错误提示-重新启动”
+        result_restart = self.round_by_find_and_click_area(screen, '进入游戏', '错误提示-重新启动')
+        if result_restart.is_success:
+            # 点击到“重新启动”，说明需要检查本地网络连接情况。
+            return self.round_fail("获取全局分发错误，登录失败，请检查网络设置并重新启动脚本")
+
         if self.force_login and not self.already_login:
             result = self.round_by_find_area(screen, '进入游戏', '文本-点击进入')
             if result.is_success:
@@ -60,6 +66,17 @@ class EnterGame(SrOperation):
         else:
             result = self.round_by_find_and_click_area(screen, '进入游戏', '文本-点击进入')
             if result.is_success:
+                # 如果成功点击了“点击进入”，先等待11秒（网络连接检测时间10秒，多1秒确保提示弹出）
+                time.sleep(11)
+
+                # 再次截图，检查是否弹出“提示-确认”
+                screen2 = self.screenshot()
+                result_confirm = self.round_by_find_and_click_area(screen2, '进入游戏', '提示-确认')
+                if result_confirm.is_success:
+                    # 如果检测到了“提示-确认”并点击
+                    return self.round_retry("检测到提示错误代码，点击确认，尝试重新登录")
+
+                # 若没有确认提示，就继续原先流程
                 return self.round_success(result.status, wait=5)
 
         result = self.round_by_find_and_click_area(screen, '进入游戏', '国服-账号密码')
