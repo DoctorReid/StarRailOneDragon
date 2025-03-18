@@ -74,6 +74,7 @@ class GuideChooseMission(SrOperation):
             mrl_list.append(mrl)
 
         if self.mission.region_name is not None:
+            # 有限制区域时 只保留区域附近一定距离的文本
             region_idx = str_utils.find_best_match_by_difflib(gt(self.mission.region_name), word_list, cutoff=0.5)
             if region_idx is None:
                 log.error('匹配失败 %s', self.mission.region_name)
@@ -81,12 +82,7 @@ class GuideChooseMission(SrOperation):
             log.info('匹配区域名称 %s', word_list[region_idx])
 
             # 区域通常不会重复 取max即可
-            region_pos = mrl_list[region_idx].max.right_bottom
-
-            # 只保留区域上方一定距离的文本
-            mission_region_distance = 50
-            if self.mission.mission_name == '模拟宇宙':
-                mission_region_distance = 350
+            region_right_bottom_pos = mrl_list[region_idx].max.right_bottom
 
             word_list = []
             mrl_list = []
@@ -94,8 +90,18 @@ class GuideChooseMission(SrOperation):
             for ocr_word, mrl in ocr_result_map.items():
                 mrl2 = MatchResultList(only_best=False)
                 for mr in mrl:
-                    if 0 < region_pos.y - mr.right_bottom.y < mission_region_distance:
-                        mrl2.append(mr)
+                    if self.mission.mission_name == '模拟宇宙':
+                        # 取区域上方350距离内的 (模拟宇宙的标题) 和 下方全部内容 (传送)
+                        if region_right_bottom_pos.y - mr.right_bottom.y < 350:
+                            mrl2.append(mr)
+                    elif self.mission.cate.cn == '历战余响':
+                        # 取区域上方50距离内的 (副本名称) 和 下方全部内容 (进入)
+                        if region_right_bottom_pos.y - mr.right_bottom.y < 50:
+                            mrl2.append(mr)
+                    else:
+                        # 普通副本 取区域上方的内容 (副本名称、进入)
+                        if 0 < region_right_bottom_pos.y - mr.right_bottom.y < 50:
+                            mrl2.append(mr)
 
                 if len(mrl2) == 0:
                     continue
@@ -125,7 +131,7 @@ class GuideChooseMission(SrOperation):
         tp_point = None
         for mr in tp_mrl:
             if self.mission.mission_name == '模拟宇宙':
-                if abs(mr.center.y - region_pos.y) > 30:  # 模拟宇宙用下面的首通奖励来匹配 太远的就忽略
+                if abs(mr.center.y - region_right_bottom_pos.y) > 30:  # 模拟宇宙用下面的首通奖励来匹配 太远的就忽略
                     continue
             elif self.mission.cate.cn == '历战余响':
                 if abs(mr.center.y - mission_pos.y) > 150:  # 历战余响距离较远
