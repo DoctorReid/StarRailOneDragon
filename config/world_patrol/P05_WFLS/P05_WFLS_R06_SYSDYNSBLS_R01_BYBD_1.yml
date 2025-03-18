@@ -1,0 +1,67 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「神谕圣地」雅努萨波利斯'
+floor: 1
+tp: '拜谒步道'
+route:
+  - idx: 1
+    op: 'move'
+    data: [564, 1563]
+  - idx: 2
+    op: 'slow_move'
+    data: [560, 1510]
+  - idx: 3
+    op: 'interact'
+    data: '下降'
+  - idx: 4
+    op: 'wait'
+    data: ['seconds', '10']
+  - idx: 5
+    op: 'move'
+    data: [558, 1482, -2]
+  - idx: 6
+    op: 'move'
+    data: [568, 1447]
+  - idx: 7
+    op: 'move'
+    data: [568, 1426]
+  - idx: 8
+    op: 'disposable'
+  - idx: 9
+    op: 'move'
+    data: [603, 1433]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [677, 1431]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [666, 1448]
+  - idx: 14
+    op: 'move'
+    data: [665, 1477]
+  - idx: 15
+    op: 'patrol'
+  - idx: 16
+    op: 'move'
+    data: [674, 1454]
+  - idx: 17
+    op: 'move'
+    data: [674, 1432]
+  - idx: 18
+    op: 'move'
+    data: [556, 1432]
+  - idx: 19
+    op: 'move'
+    data: [568, 1397]
+  - idx: 20
+    op: 'move'
+    data: [569, 1332]
+  - idx: 21
+    op: 'move'
+    data: [572, 1304]
+  - idx: 22
+    op: 'patrol'
