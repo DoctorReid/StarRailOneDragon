@@ -1,0 +1,86 @@
+- uid: "YAZG"
+  cn: "友爱之馆"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [682, 1033]
+  tp_pos: [699, 1025]
+
+- uid: "QZJT"
+  cn: "求知静庭"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [797, 1397]
+  tp_pos: [748, 1390]
+
+- uid: "JWXJ"
+  cn: "经纬小径"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [668, 2569]
+  tp_pos: [655, 2581]
+
+- uid: "LYZXNZXY"
+  cn: "凛月之形·凝滞虚影"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 1
+  template_id: "mm_tp_06"
+  lm_pos: [1064, 1240]
+  tp_pos: [1083, 1246]
+
+- uid: "YHSCAHM"
+  cn: "「永恒圣城」奥赫玛"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [661, 2598]
+
+- uid: "SWSTDYSQSZ"
+  cn: "「神悟树庭」的衣匠前哨站"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 1
+  template_id: "mm_sp_20"
+  lm_pos: [650, 916]
+
+- uid: "CZZLNZHEJ"
+  cn: "藏珍之蕾·拟造花萼（金）"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 2
+  template_id: "mm_tp_08"
+  lm_pos: [1265, 1146]
+  tp_pos: [1258, 1140]
+
+- uid: "ZGLSZS"
+  cn: "扎格列斯之手"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 2
+  template_id: "mm_sp_22"
+  lm_pos: [1335, 707]
+
+- uid: "XSGX"
+  cn: "献身拱心"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [791, 875]
+  tp_pos: [720, 879]
+
+- uid: "QMWZ"
+  cn: "启蒙王座"
+  planet_name: "翁法罗斯"
+  region_name: "「呓语密林」神悟树庭"
+  region_floor: 4
+  template_id: "mm_tp_03"
+  lm_pos: [914, 890]
+  tp_pos: [903, 921]

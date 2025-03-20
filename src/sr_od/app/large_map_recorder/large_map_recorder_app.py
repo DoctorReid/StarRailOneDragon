@@ -25,7 +25,7 @@ from sr_od.sr_map.operations.choose_region import ChooseRegion
 from sr_od.sr_map.operations.open_map import OpenMap
 from sr_od.sr_map.sr_map_def import Region
 
-_FLOOR_LIST = [-4, -3, -2, -1, 0, 1, 2, 3]
+_FLOOR_LIST = [-4, -3, -2, -1, 0, 1, 2, 3, 4]
 
 _EXECUTOR = ThreadPoolExecutor(thread_name_prefix='sr_large_map_recorder', max_workers=32)
 
@@ -62,6 +62,8 @@ class LargeMapRecorder(SrApplication):
                  col_list_to_record: Optional[List[int]] = None,
                  rows_to_cal_overlap_width: List[int] = None,
                  cols_to_cal_overlap_height: List[int] = None,
+                 overlap_width_mode: list[int] = None,
+                 overlap_height_mode: list[int] = None,
                  debug: bool = False,
                  ):
         SrApplication.__init__(self, ctx, 'large_map_recorder', op_name='大地图录制 %s' % region.cn)
@@ -104,8 +106,8 @@ class LargeMapRecorder(SrApplication):
         self.current_region_idx: int = 0
         self.current_region: Optional[Region] = None
 
-        self.overlap_width_mode: List[int] = []  # 截图重叠的宽度
-        self.overlap_height_mode: List[int] = []  # 截图重叠的高度
+        self.overlap_width_mode: List[int] = overlap_width_mode  # 截图重叠的宽度
+        self.overlap_height_mode: List[int] = overlap_height_mode  # 截图重叠的高度
 
         self.rows_to_cal_overlap_width: List[int] = rows_to_cal_overlap_width  # 计算每列的重叠宽度时 只考虑哪些行
         self.cols_to_cal_overlap_height: List[int] = cols_to_cal_overlap_height  # 计算每行的重叠高度时 只考虑哪些列
@@ -243,12 +245,13 @@ class LargeMapRecorder(SrApplication):
         row = self.row if self.max_row is None else self.max_row
         col = self.col if self.max_column is None else self.max_column
 
-        self.overlap_width_mode = self.get_overlap_width_mode()
-        # self.overlap_width_mode = [0, 0, 786, 786, 786, 786, 786, 786, 786, 786, 786, 937]
+        if self.overlap_width_mode is None:
+            self.overlap_width_mode = self.get_overlap_width_mode()
         for region in self.region_list:
             self.merge_screenshot_into_rows(region, row, col, show=self.debug)
-        self.overlap_height_mode = self.get_overlap_height_mode()
-        # self.overlap_height_mode = [0, 0, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, 423, -1]
+
+        if self.overlap_height_mode is None:
+            self.overlap_height_mode = self.get_overlap_height_mode()
         for region in self.region_list:
             self.merge_screenshot_into_one(region, row, show=self.debug)
 
@@ -690,6 +693,7 @@ class LargeMapRecorder(SrApplication):
         log.info('%d层 最终合并后size为 %s', region.floor, merge.shape)
         if show:
             cv2_utils.show_image(merge, win_name='final_merge', wait=0)
+        LargeMapRecorder.save_floor_image(region, merge)
 
         self.ctx.map_data.save_large_map_image(merge, region, 'raw')
 
@@ -935,6 +939,24 @@ class LargeMapRecorder(SrApplication):
         path = LargeMapRecorder.get_merge_image_path(region, row)
         cv2_utils.save_image(image, path)
 
+    @staticmethod
+    def get_floor_image_path(region: Region) -> str:
+        """
+        地图格子的图片路径
+        """
+        return os.path.join(
+            os_utils.get_path_under_work_dir('.debug', 'world_patrol', region.pr_id, 'floor'),
+            f'{region.pr_id}_merge_{region.l_str}.png'
+        )
+
+    @staticmethod
+    def save_floor_image(region: Region, image: MatLike) -> None:
+        """
+        地图格子的图片
+        """
+        path = LargeMapRecorder.get_floor_image_path(region)
+        cv2_utils.save_image(image, path)
+
 def __debug(planet_name, region_name, run_mode: str = 'all'):
     ctx = SrContext()
 
@@ -947,6 +969,10 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         '翁法罗斯 「神谕圣地」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, 'drag_times_to_left_top': 6},
         '翁法罗斯 「纷争荒墟」悬锋城': { 'max_row': 13, 'max_column': 11, 'drag_times_to_left': 6, 'drag_times_to_left_top': 10,},
         '翁法罗斯 「命运重渊」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, 'drag_times_to_left_top': 6},
+        '翁法罗斯 「呓语密林」神悟树庭': { 'max_row': 9, 'max_column': 3, 'drag_times_to_left_top': 6,
+                                         'overlap_height_mode': [0, 0, 426, 426, 426, 426, 426, 426, 426, 713],
+                                         'overlap_width_mode': [0, 0, 786, 983],
+                                         },
     }
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
@@ -957,8 +983,8 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     sc = special_conditions.get(key, {})
     sc['ctx'] = ctx
     sc['region'] = region
-    # sc['floor_list_to_record'] = [-3]
-    # sc['row_list_to_record'] = [13]
+    # sc['floor_list_to_record'] = [4]
+    # sc['row_list_to_record'] = [2]
     # sc['col_list_to_record'] = [1, 2, 3]
     # sc['drag_times_to_left_top'] = 0  # 手动拖到左上会快一点
     # sc['drag_times_to_left'] = 0  # 只录一行时可以使用
@@ -1004,4 +1030,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「神谕圣地」雅努萨波利斯', 'save')
+    __debug('翁法罗斯', '「呓语密林」神悟树庭', 'save')
