@@ -1,0 +1,28 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「呓语密林」神悟树庭'
+floor: 3
+tp: '献身拱心'
+route:
+  - idx: 1
+    op: 'move'
+    data: [782, 866]
+  - idx: 2
+    op: 'move'
+    data: [815, 830]
+  - idx: 3
+    op: 'disposable'
+  - idx: 4
+    op: 'move'
+    data: [803, 705]
+  - idx: 5
+    op: 'wait'
+    data: ['seconds', '5']
+  - idx: 6
+    op: 'move'
+    data: [803, 672]
+  - idx: 7
+    op: 'move'
+    data: [836, 617]
+  - idx: 8
+    op: 'patrol'
