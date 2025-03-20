@@ -1,0 +1,40 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「呓语密林」神悟树庭'
+floor: 2
+tp: '藏珍之蕾·拟造花萼（金）'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1219, 1150]
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
+    data: [1160, 1198]
+  - idx: 4
+    op: 'move'
+    data: [1109, 1212]
+  - idx: 5
+    op: 'disposable'
+  - idx: 6
+    op: 'move'
+    data: [1125, 1260]
+  - idx: 7
+    op: 'move'
+    data: [1099, 1265]
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
+    data: [1044, 1313]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [1109, 1356]
+  - idx: 12
+    op: 'move'
+    data: [1144, 1357]
+  - idx: 13
+    op: 'patrol'

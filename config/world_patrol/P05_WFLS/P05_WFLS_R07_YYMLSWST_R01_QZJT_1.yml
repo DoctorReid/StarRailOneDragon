@@ -1,0 +1,33 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「呓语密林」神悟树庭'
+floor: 1
+tp: '求知静庭'
+route:
+  - idx: 1
+    op: 'move'
+    data: [714, 1359]
+  - idx: 2
+    op: 'move'
+    data: [644, 1358]
+  - idx: 3
+    op: 'move'
+    data: [619, 1337]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [584, 1330]
+  - idx: 6
+    op: 'move'
+    data: [549, 1310]
+  - idx: 7
+    op: 'move'
+    data: [490, 1296]
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
+    data: [431, 1252]
+  - idx: 10
+    op: 'patrol'

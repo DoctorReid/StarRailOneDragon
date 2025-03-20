@@ -1,0 +1,17 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「呓语密林」神悟树庭'
+floor: 1
+tp: '凛月之形·凝滞虚影'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1011, 1252]
+  - idx: 2
+    op: 'move'
+    data: [997, 1266]
+  - idx: 3
+    op: 'move'
+    data: [1032, 1303]
+  - idx: 4
+    op: 'disposable'

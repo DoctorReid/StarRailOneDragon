@@ -1,0 +1,71 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「呓语密林」神悟树庭'
+floor: 2
+tp: '藏珍之蕾·拟造花萼（金）'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1254, 1110]
+  - idx: 2
+    op: 'move'
+    data: [1280, 1059]
+  - idx: 3
+    op: 'interact'
+    data: '跨入密径'
+  - idx: 4
+    op: 'wait'
+    data: ['seconds', '7']
+  - idx: 5
+    op: 'gameplay_interact'
+    data: ['1']
+  - idx: 6
+    op: 'wait'
+    data: ['in_world', '4']
+  - idx: 7
+    op: 'update_pos'
+    data: [1298, 858]
+  - idx: 8
+    op: 'move'
+    data: [1300, 784]
+  - idx: 9
+    op: 'move'
+    data: [1325, 723]
+  - idx: 10
+    op: 'disposable'
+  - idx: 11
+    op: 'move'
+    data: [1325, 702]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [1285, 657]
+  - idx: 14
+    op: 'move'
+    data: [1302, 622]
+  - idx: 15
+    op: 'patrol'
+  - idx: 16
+    op: 'move'
+    data: [1352, 587]
+  - idx: 17
+    op: 'disposable'
+  - idx: 18
+    op: 'move'
+    data: [1372, 576]
+  - idx: 19
+    op: 'patrol'
+  - idx: 20
+    op: 'move'
+    data: [1343, 578]
+  - idx: 21
+    op: 'move'
+    data: [1344, 558]
+  - idx: 22
+    op: 'patrol'
+  - idx: 23
+    op: 'move'
+    data: [1351, 493]
+  - idx: 24
+    op: 'patrol'
