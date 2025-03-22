@@ -158,3 +158,29 @@ area_list:
   template_id: ''
   template_match_threshold: 0.7
   goto_list: []
+- area_name: 提示-确认
+  id_mark: false
+  pc_rect:
+  - 948
+  - 649
+  - 1007
+  - 693
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 错误提示-重新启动
+  id_mark: false
+  pc_rect:
+  - 1133
+  - 708
+  - 1230
+  - 754
+  text: 重新启动
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
