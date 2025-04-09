@@ -3,14 +3,14 @@ from qfluentwidgets import ProgressBar, IndeterminateProgressBar, SettingCardGro
     FluentIcon
 
 from one_dragon.base.operation.one_dragon_env_context import OneDragonEnvContext
-from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
-from one_dragon_qt.widgets.log_display_card import LogDisplayCard
+from one_dragon.utils.i18_utils import gt
 from one_dragon_qt.widgets.install_card.all_install_card import AllInstallCard
 from one_dragon_qt.widgets.install_card.code_install_card import CodeInstallCard
 from one_dragon_qt.widgets.install_card.git_install_card import GitInstallCard
 from one_dragon_qt.widgets.install_card.python_install_card import PythonInstallCard
 from one_dragon_qt.widgets.install_card.venv_install_card import VenvInstallCard
-from one_dragon.utils.i18_utils import gt
+from one_dragon_qt.widgets.log_display_card import LogDisplayCard
+from one_dragon_qt.widgets.vertical_scroll_interface import VerticalScrollInterface
 
 
 class InstallerInterface(VerticalScrollInterface):
