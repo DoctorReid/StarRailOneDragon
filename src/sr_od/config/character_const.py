@@ -235,6 +235,7 @@ FUGUE = Character(id='fugue', cn='忘归人', path=CHARACTER_PATH_HARMONY, comba
 THE_HERTA = Character(id='the_herta', cn='大黑塔', path=CHARACTER_PATH_ERUDITION, combat_type=ICE, level=5, technique_type=TECHNIQUE_BUFF)
 AGLAEA = Character(id='aglaea', cn='阿格莱雅', path=CHARACTER_PATH_REMEMBRANCE, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
 TRIBBIE = Character(id='tribbie', cn='缇宝', path=CHARACTER_PATH_HARMONY, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF)
+CASORICE = Character(id='casorice', cn='遐蝶', path=CHARACTER_PATH_REMEMBRANCE, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -308,6 +309,7 @@ CHARACTER_LIST: List[Character] = [
     THE_HERTA,
     AGLAEA,
     TRIBBIE,
+    CASORICE,
 ]
 
 
