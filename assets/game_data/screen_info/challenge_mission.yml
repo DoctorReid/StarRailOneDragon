@@ -3,28 +3,35 @@ screen_name: 挑战副本
 pc_alt: false
 area_list:
 - area_name: 次数加
+  id_mark: false
   pc_rect:
   - 1800
-  - 870
+  - 830
   - 1900
-  - 930
+  - 910
   text: ''
   lcs_percent: 0.5
   template_sub_dir: challenge_mission
   template_id: battle_times_plus
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 次数减
+  id_mark: false
   pc_rect:
   - 1190
-  - 870
+  - 830
   - 1300
-  - 930
+  - 910
   text: ''
   lcs_percent: 0.5
   template_sub_dir: challenge_mission
   template_id: battle_times_minus
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 队伍标题
+  id_mark: false
   pc_rect:
   - 99
   - 37
@@ -35,7 +42,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 支援按钮
+  id_mark: false
   pc_rect:
   - 1740
   - 720
@@ -46,7 +56,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 支援角色列表
+  id_mark: false
   pc_rect:
   - 70
   - 160
@@ -57,7 +70,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 支援入队按钮
+  id_mark: false
   pc_rect:
   - 1560
   - 970
@@ -68,7 +84,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 挑战按钮
+  id_mark: false
   pc_rect:
   - 1370
   - 958
@@ -79,7 +98,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 开拓力弹框-标题
+  id_mark: false
   pc_rect:
   - 870
   - 336
@@ -90,7 +112,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 开拓力弹框-确认
+  id_mark: false
   pc_rect:
   - 1000
   - 650
@@ -101,7 +126,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 开拓力弹框-取消
+  id_mark: false
   pc_rect:
   - 590
   - 707
@@ -112,7 +140,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 阵亡弹框-标题
+  id_mark: false
   pc_rect:
   - 910
   - 400
@@ -123,7 +154,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 阵亡弹框-确认
+  id_mark: false
   pc_rect:
   - 1000
   - 650
@@ -134,7 +168,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 阵亡弹框-取消
+  id_mark: false
   pc_rect:
   - 600
   - 650
@@ -145,7 +182,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 开始挑战按钮
+  id_mark: false
   pc_rect:
   - 1518
   - 962
@@ -156,7 +196,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 提示弹框-标题
+  id_mark: false
   pc_rect:
   - 910
   - 400
@@ -167,7 +210,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 提示弹框-次数用完
+  id_mark: false
   pc_rect:
   - 521
   - 507
@@ -178,7 +224,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 提示弹框-确认
+  id_mark: false
   pc_rect:
   - 1000
   - 650
@@ -189,7 +238,10 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
 - area_name: 提示弹框-取消
+  id_mark: false
   pc_rect:
   - 600
   - 650
@@ -200,3 +252,5 @@ area_list:
   template_sub_dir: ''
   template_id: ''
   template_match_threshold: 0.7
+  color_range: null
+  goto_list: []
