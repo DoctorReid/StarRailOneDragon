@@ -52,6 +52,9 @@ class SrOdSettingInterface(VerticalScrollInterface):
         self.route_xzlf_xchzs_opt = SwitchSettingCard(icon=FluentIcon.GAME, title='仙舟「罗浮」 星槎海中枢 货全')
         group.addSettingCard(self.route_xzlf_xchzs_opt)
 
+        self.synthesize_trick_snack = SwitchSettingCard(icon=FluentIcon.GAME, title='自动合成零食（消耗全部材料）')
+        group.addSettingCard(self.synthesize_trick_snack)
+
         return group
 
     def on_interface_shown(self) -> None:
@@ -62,3 +65,4 @@ class SrOdSettingInterface(VerticalScrollInterface):
 
         self.route_yll6_xzq_opt.init_with_adapter(self.ctx.trick_snack_config.get_prop_adapter('route_yll6_xzq'))
         self.route_xzlf_xchzs_opt.init_with_adapter(self.ctx.trick_snack_config.get_prop_adapter('route_xzlf_xchzs'))
+        self.synthesize_trick_snack.init_with_adapter(self.ctx.trick_snack_config.get_prop_adapter('synthesize_trick_snack'))
