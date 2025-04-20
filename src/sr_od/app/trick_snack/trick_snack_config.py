@@ -24,3 +24,11 @@ class TrickSnackConfig(YamlConfig):
     @route_xzlf_xchzs.setter
     def route_xzlf_xchzs(self, new_value: bool) -> None:
         self.update('route_xzlf_xchzs', new_value)
+
+    @property
+    def synthesize_trick_snack(self) -> bool:
+        return self.get('synthesize_trick_snack', True)
+
+    @synthesize_trick_snack.setter
+    def synthesize_trick_snack(self, new_value: bool) -> None:
+        self.update('synthesize_trick_snack', new_value)
