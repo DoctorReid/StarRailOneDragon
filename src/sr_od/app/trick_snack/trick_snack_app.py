@@ -33,6 +33,9 @@ class TrickSnackApp(SrApplication):
     @node_from(from_name='购买路线2')
     @operation_node(name='合成')
     def synthesize_trick_snack(self) -> OperationRoundResult:
+        if not self.ctx.trick_snack_config.synthesize_trick_snack:
+            return self.round_success('合成功能未启用')
+
         op = CustomCombineOp(self.ctx, 'synthesize_trick_snack', no_battle=True)
         return self.round_by_op_result(op.execute())
 
