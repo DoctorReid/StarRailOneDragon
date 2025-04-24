@@ -5,7 +5,6 @@ from one_dragon.base.config.config_item import ConfigItem
 from one_dragon.base.config.yaml_operator import YamlOperator
 from one_dragon.utils import os_utils, str_utils
 from one_dragon.utils.i18_utils import gt
-from sr_od.app.sim_uni.sim_uni_const import SimUniWorldEnum
 from sr_od.interastral_peace_guide.guide_def import GuideTab, GuideCategory, GuideMission
 
 
@@ -61,7 +60,8 @@ class SrGuideData:
         category = GuideCategory(
             tab, category_name,
             ui_cn=category_data.get('display_name', None),
-            show_in_power_plan=category_data.get('show_in_power_plan', False)
+            show_in_power_plan=category_data.get('show_in_power_plan', False),
+            remark_in_game=category_data.get('remark_in_game', None),
         )
 
         self.category_list.append(category)

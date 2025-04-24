@@ -17,7 +17,8 @@ class GuideTab:
 class GuideCategory:
 
     def __init__(self, tab: GuideTab, cn: str, ui_cn: Optional[str] = None,
-                 show_in_power_plan: bool = False):
+                 show_in_power_plan: bool = False,
+                 remark_in_game: Optional[str] = None):
         """
         打开指南页后 左侧显示的分类
         """
@@ -29,6 +30,8 @@ class GuideCategory:
         self.ui_cn: str = cn if ui_cn is None else ui_cn  # 界面展示的中文
 
         self.show_in_power_plan: bool = show_in_power_plan  # 是否在体力计划中显示
+
+        self.remark_in_game: str = remark_in_game  # 游戏中 名称下方的备注
 
     @property
     def unique_id(self) -> str:

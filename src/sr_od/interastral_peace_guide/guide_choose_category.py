@@ -41,6 +41,11 @@ class GuideChooseCategory(SrOperation):
         screen = self.screenshot()
         area = self.ctx.screen_loader.get_area('星际和平指南', '分类列表')
 
+        # 下方的小文本可以区分花萼金/赤
+        result = self.round_by_ocr_and_click(screen, self.target.remark_in_game, area=area)
+        if result.is_success:
+            return self.round_success(result.status, wait=1)
+
         result = self.round_by_ocr_and_click(screen, self.target.cn, area=area)
         if result.is_success:
             return self.round_success(result.status, wait=1)

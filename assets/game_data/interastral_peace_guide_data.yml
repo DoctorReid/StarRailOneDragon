@@ -5,6 +5,7 @@
 - tab_name: "生存索引"
   category_list:
     - category_name: "饰品提取"
+      remark_in_game: "位面饰品"
       show_in_power_plan: true
       mission_list:
         - mission_name: "纷争不休"
@@ -59,6 +60,7 @@
 
     - category_name: "拟造花萼（金）"
       display_name: "经验信用"
+      remark_in_game: "经验材料/信用点"
       show_in_power_plan: true
       mission_list:
         - mission_name: "回忆之蕾"
@@ -135,6 +137,7 @@
 
     - category_name: "拟造花萼（赤）"
       display_name: "行迹材料"
+      remark_in_game: "行迹材料"
       show_in_power_plan: true
       mission_list:
         - mission_name: "毁灭之蕾"
@@ -229,6 +232,7 @@
 
     - category_name: "凝滞虚影"
       display_name: "角色突破"
+      remark_in_game: "角色晋阶材料"
       show_in_power_plan: true
       mission_list:
         - mission_name: "职司之形"
@@ -365,6 +369,7 @@
 
     - category_name: "侵蚀隧洞"
       display_name: "遗器"
+      remark_in_game: "遗器"
       show_in_power_plan: true
       mission_list:
         - mission_name: "弦歌之径"
@@ -440,6 +445,7 @@
           power: 40
 
     - category_name: "历战余响"
+      remark_in_game: "行迹高级材料/光锥"
       show_in_power_plan: false
       mission_list:
         - mission_name: "心兽的战场·历战余响"
