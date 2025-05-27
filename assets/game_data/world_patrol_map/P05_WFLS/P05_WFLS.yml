@@ -13,6 +13,19 @@
   cn: "「神谕圣地」雅努萨波利斯"
   floors: [-3, -2, -1, 1]
 
+- num: 8
+  uid: "BSYYLMYY"
+  cn: "「半神议院」黎明云崖"
+
+- num: 9
+  uid: "QDGSCHZY"
+  cn: "「穹顶关塞」晨昏之眼"
+
+- num: 10
+  uid: "CLMCAHM"
+  cn: "「沉沦暮城」奥赫玛"
+  floors: [1, 2]
+
 - num: 3
   uid: "FZHXXFC"
   cn: "「纷争荒墟」悬锋城"
@@ -27,6 +40,18 @@
   uid: "YYMLSWST"
   cn: "「呓语密林」神悟树庭"
   floors: [-1, 1, 2, 3, 4]
+
+- num: 11
+  uid: "WHQTLMYY"
+  cn: "「无晖祈堂」黎明云崖"
+
+- num: 12
+  uid: "LHGCSTKXY"
+  cn: "「龙骸古城」斯缇科西亚"
+
+- num: 13
+  uid: "YDYBCHZY"
+  cn: "「云端遗堡」晨昏之眼"
 
 - num: 5
   uid: "CSWX"

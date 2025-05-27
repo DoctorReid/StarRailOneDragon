@@ -235,6 +235,12 @@
       remark_in_game: "角色晋阶材料"
       show_in_power_plan: true
       mission_list:
+        - mission_name: "溟簇之形"
+          show_in_power_plan: true
+          display_name: "物理-溟簇之形"
+          region_name: "「龙骸古城」斯缇科西亚"
+          power: 30
+
         - mission_name: "职司之形"
           show_in_power_plan: true
           display_name: "物理-职司之形"
@@ -372,6 +378,12 @@
       remark_in_game: "遗器"
       show_in_power_plan: true
       mission_list:
+        - mission_name: "霹涌之径"
+          show_in_power_plan: true
+          display_name: "烈阳惊雷的女武神 恶海逐波的船长"
+          region_name: "「云端遗堡」晨昏之眼"
+          power: 40
+
         - mission_name: "弦歌之径"
           show_in_power_plan: true
           display_name: "凯歌祝捷的英豪 哀歌覆国的诗人"
@@ -448,6 +460,12 @@
       remark_in_game: "行迹高级材料/光锥"
       show_in_power_plan: false
       mission_list:
+        - mission_name: "晨昏的回眸·历战余响"
+          show_in_power_plan: true
+          display_name: "晨昏的回眸"
+          region_name: "「穹顶关塞」晨昏之眼"
+          power: 30
+
         - mission_name: "心兽的战场·历战余响"
           show_in_power_plan: true
           display_name: "心兽的战场"
