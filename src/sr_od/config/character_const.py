@@ -236,6 +236,7 @@ THE_HERTA = Character(id='the_herta', cn='大黑塔', path=CHARACTER_PATH_ERUDIT
 AGLAEA = Character(id='aglaea', cn='阿格莱雅', path=CHARACTER_PATH_REMEMBRANCE, combat_type=LIGHTNING, level=5, technique_type=TECHNIQUE_ATTACK)
 TRIBBIE = Character(id='tribbie', cn='缇宝', path=CHARACTER_PATH_HARMONY, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF)
 CASORICE = Character(id='casorice', cn='遐蝶', path=CHARACTER_PATH_REMEMBRANCE, combat_type=QUANTUM, level=5, technique_type=TECHNIQUE_BUFF_ATTACK)
+HYACINE = Character(id='hyacine', cn='风堇', path=CHARACTER_PATH_REMEMBRANCE, combat_type=WIND, level=5, technique_type=TECHNIQUE_BUFF)
 
 
 CHARACTER_LIST: List[Character] = [
@@ -310,6 +311,7 @@ CHARACTER_LIST: List[Character] = [
     AGLAEA,
     TRIBBIE,
     CASORICE,
+    HYACINE,
 ]
 
 
