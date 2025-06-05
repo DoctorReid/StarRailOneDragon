@@ -18,6 +18,7 @@ from one_dragon.base.screen.screen_area import ScreenArea
 from one_dragon.base.screen.screen_utils import OcrClickResultEnum, FindAreaResultEnum
 from one_dragon.utils import debug_utils, cv2_utils, str_utils
 from one_dragon.utils.i18_utils import coalesce_gt, gt
+from sr_od.operations.reconnect_exception import ReconnectException
 from one_dragon.utils.log_utils import log
 
 
@@ -310,6 +311,12 @@ class Operation(OperationBase):
                         log.info('%s 节点 %s 返回状态 %s', self.display_name, node_name, round_result_status)
                 if self.ctx.is_context_pause:  # 有可能触发暂停的时候仍在执行指令 执行完成后 再次触发暂停回调 保证操作的暂停回调真正生效
                     self._on_pause()
+            except ReconnectException:
+                log.info("检测到断网异常，重新进入游戏")
+                if "打开并进入游戏" in self._node_map:
+                    self._current_node = self._node_map["打开并进入游戏"]
+                    self._reset_status_for_new_node()
+                    continue
             except Exception as e:
                 round_result: OperationRoundResult = self.round_retry('异常')
                 if self.last_screenshot is not None:

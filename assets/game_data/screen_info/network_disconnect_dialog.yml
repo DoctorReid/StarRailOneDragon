@@ -1,0 +1,30 @@
+screen_id: network_disconnect_dialog
+screen_name: 断网重连弹窗
+pc_alt: false
+area_list:
+- area_name: 文本-断网提示
+  id_mark: true
+  pc_rect:
+  - 780
+  - 480
+  - 1150
+  - 550
+  text: 与服务器断开连接，请重新登录
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
+- area_name: 按钮-确认
+  id_mark: false
+  pc_rect:
+  - 950
+  - 630
+  - 1020
+  - 660
+  text: 确认
+  lcs_percent: 0.5
+  template_sub_dir: ''
+  template_id: ''
+  template_match_threshold: 0.7
+  goto_list: []
