@@ -1,0 +1,102 @@
+- uid: "GCZM"
+  cn: "古城正门"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [838, 2359]
+  tp_pos: [822, 2347]
+
+- uid: "CLMCAHM"
+  cn: "「沉沦暮城」奥赫玛"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 1
+  template_id: "mm_sp_02"
+  lm_pos: [822, 2410]
+
+- uid: "SYSD"
+  cn: "岁月神殿"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [1590, 1447]
+  tp_pos: [1571, 1463]
+
+- uid: "BKMD"
+  cn: "宝库秘道"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [1841, 1647]
+  tp_pos: [1828, 1626]
+
+- uid: "WGFT"
+  cn: "王宫废庭"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [1255, 1728]
+  tp_pos: [1266, 1712]
+
+- uid: "LHGCDYSQSZ"
+  cn: "「龙骸古城」的衣匠前哨站"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 2
+  template_id: "mm_sp_20"
+  lm_pos: [1296, 1731]
+
+- uid: "DYSK"
+  cn: "祷言神龛"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 2
+  template_id: "mm_sp_21"
+  lm_pos: [1655, 1213]
+
+
+- uid: "SYGT"
+  cn: "双月高塔"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [1733, 867]
+  tp_pos: [1745, 853]
+
+- uid: "MCZXNZXY"
+  cn: "溟簇之形·凝滞虚影"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 3
+  template_id: "mm_tp_06"
+  lm_pos: [1765, 1343]
+  tp_pos: [1752, 1324]
+
+- uid: "JYZDHH"
+  cn: "记忆中的花海"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 3
+  template_id: "mm_sp_02"
+  lm_pos: [1744, 760]
+
+- uid: "QJXB1"
+  cn: "奇迹信标1"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 3
+  template_id: "mm_sp_24"
+  lm_pos: [1785, 913]
+
+- uid: "QJXB2"
+  cn: "奇迹信标2"
+  planet_name: "翁法罗斯"
+  region_name: "「龙骸古城」斯缇科西亚"
+  region_floor: 3
+  template_id: "mm_sp_24"
+  lm_pos: [1974, 1256]

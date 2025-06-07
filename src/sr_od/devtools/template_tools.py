@@ -498,11 +498,11 @@ def cut_template_with_mask(sub_dir: str, template_id: str) -> None:
 
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_18', noise_threshold=30)
-    # init_sp_with_background('mm_sp_23')
+    init_sp_with_background('mm_sp_24')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
-    init_boss_icon('mm_boss_07')
+    # init_boss_icon('mm_boss_07')
     # init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
     # init_ui_alert('ui_alert')
     # init_ui_ellipsis('ui_ellipsis')

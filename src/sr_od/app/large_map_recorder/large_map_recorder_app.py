@@ -1078,7 +1078,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     sc = special_conditions.get(key, {})
     sc['ctx'] = ctx
     sc['region'] = region
-    # sc['floor_list_to_record'] = [2]
+    sc['floor_list_to_record'] = [3]
     # sc['row_list_to_record'] = [5]
     # sc['col_list_to_record'] = [1, 2, 3]
     # sc['drag_times_to_left_top'] = 0  # 手动拖到左上会快一点
@@ -1126,4 +1126,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「无晖祈堂」黎明云崖', 'save')
+    __debug('翁法罗斯', '「龙骸古城」斯缇科西亚', 'save')

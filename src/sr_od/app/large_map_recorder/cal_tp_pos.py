@@ -35,24 +35,26 @@ if __name__ == '__main__':
     ctx.init_by_config()
 
     planet_name: str = '翁法罗斯'
-    region_name: str = '「无晖祈堂」黎明云崖'
+    region_name: str = '「龙骸古城」斯缇科西亚'
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
     region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet)
 
     sp_name_list = [
-        '末世祭坛',
-        '悼神断崖·入口',
-        '无晖祈堂',
-        '无晖祈堂·前庭',
-        '昏曦圣道',
+        '古城正门',
+        '岁月神殿',
+        '宝库秘道',
+        '王宫废庭',
+        '双月高塔',
+        '溟簇之形·凝滞虚影',
     ]
     img_list = [
-        '_1749310473966',
-        '_1749310483842',
-        '_1749310562663',
-        '_1749310568360',
-        '_1749310579678',
+        '_1749311886964',
+        '_1749311895463',
+        '_1749311900862',
+        '_1749311905946',
+        '_1749311912932',
+        '_1749311917665',
     ]
     for i in range(len(sp_name_list)):
         sp = ctx.map_data.best_match_sp_by_name(region, gt(sp_name_list[i]))
