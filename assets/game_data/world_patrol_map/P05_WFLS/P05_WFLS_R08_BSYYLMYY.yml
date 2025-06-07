@@ -1,0 +1,55 @@
+- uid: "FSJTJJC"
+  cn: "负世祭坛·觐见处"
+  planet_name: "翁法罗斯"
+  region_name: "「半神议院」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1107, 895]
+
+- uid: "TTDYRK"
+  cn: "泰坦断崖·入口"
+  planet_name: "翁法罗斯"
+  region_name: "「半神议院」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1117, 1884]
+
+- uid: "BSYY"
+  cn: "半神议院"
+  planet_name: "翁法罗斯"
+  region_name: "「半神议院」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1112, 3210]
+
+- uid: "BSYYQT"
+  cn: "半神议院·前庭"
+  planet_name: "翁法罗斯"
+  region_name: "「半神议院」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1121, 3828]
+
+- uid: "YYSD"
+  cn: "云崖圣道"
+  planet_name: "翁法罗斯"
+  region_name: "「半神议院」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1064, 5189]
+
+- uid: "BSYYDYSQSZ"
+  cn: "「半神议院」的衣匠前哨站"
+  planet_name: "翁法罗斯"
+  region_name: "「半神议院」黎明云崖"
+  region_floor: 0
+  template_id: "mm_sp_20"
+  lm_pos: [1205, 3737]
+
+- uid: "ZGLSZS"
+  cn: "扎格列斯之手"
+  planet_name: "翁法罗斯"
+  region_name: "「半神议院」黎明云崖"
+  region_floor: 0
+  template_id: "mm_sp_22"
+  lm_pos: [1102, 1362]
