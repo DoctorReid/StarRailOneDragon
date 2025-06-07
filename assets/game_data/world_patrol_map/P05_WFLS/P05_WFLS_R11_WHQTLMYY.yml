@@ -1,0 +1,76 @@
+- uid: "MSJT"
+  cn: "末世祭坛"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1130, 873]
+  tp_pos: [1091, 716]
+
+- uid: "DSDYRK"
+  cn: "悼神断崖·入口"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1106, 1869]
+  tp_pos: [1091, 1875]
+
+- uid: "WHQT"
+  cn: "无晖祈堂"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1112, 2927]
+  tp_pos: [1092, 2913]
+
+- uid: "WHQTQT"
+  cn: "无晖祈堂·前庭"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1135, 3586]
+  tp_pos: [1091, 3609]
+
+- uid: "HXSD"
+  cn: "昏曦圣道"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_tp_03"
+  lm_pos: [1063, 4977]
+  tp_pos: [1091, 4964]
+
+- uid: "YDYBCHZY"
+  cn: "「云端遗堡」晨昏之眼"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [1091, 683]
+
+- uid: "CLMCAHM"
+  cn: "「沉沦暮城」奥赫玛"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_sp_02"
+  lm_pos: [1090, 5247]
+
+- uid: "WHQTDYSQSZ"
+  cn: "「无晖祈堂」的衣匠前哨站"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_sp_20"
+  lm_pos: [1205, 3729]
+
+- uid: "ZGLSZS"
+  cn: "扎格列斯之手"
+  planet_name: "翁法罗斯"
+  region_name: "「无晖祈堂」黎明云崖"
+  region_floor: 0
+  template_id: "mm_sp_22"
+  lm_pos: [1103, 1362]

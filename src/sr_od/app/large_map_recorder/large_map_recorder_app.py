@@ -1126,4 +1126,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「穹顶关塞」晨昏之眼', 'save')
+    __debug('翁法罗斯', '「无晖祈堂」黎明云崖', 'save')
