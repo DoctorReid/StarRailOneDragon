@@ -20,6 +20,7 @@
 - num: 9
   uid: "QDGSCHZY"
   cn: "「穹顶关塞」晨昏之眼"
+  floors: [-2, -1, 1, 2, 3]
 
 - num: 10
   uid: "CLMCAHM"
@@ -48,10 +49,12 @@
 - num: 12
   uid: "LHGCSTKXY"
   cn: "「龙骸古城」斯缇科西亚"
+  floors: [1, 2, 3]
 
 - num: 13
   uid: "YDYBCHZY"
   cn: "「云端遗堡」晨昏之眼"
+  floors: [1, 2, 3, 4]
 
 - num: 5
   uid: "CSWX"

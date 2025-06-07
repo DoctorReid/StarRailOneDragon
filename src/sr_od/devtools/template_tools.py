@@ -224,10 +224,10 @@ def init_arrow_template(mm: MatLike):
     save_template_image(precise_template, 'arrow_precise', 'mask')
 
 
-def init_boss_icon(template_id):
-    raw = _read_template_raw_image(template_id)
-    lower_color = np.array([80, 80, 180], dtype=np.uint8)
-    upper_color = np.array([140, 140, 255], dtype=np.uint8)
+def init_boss_icon(template_id, sub_dir: str = 'mm_icon'):
+    raw = _read_template_raw_image(sub_dir, template_id)
+    lower_color = np.array([180, 80, 80], dtype=np.uint8)
+    upper_color = np.array([255, 140, 140], dtype=np.uint8)
     red_part = cv2.inRange(raw, lower_color, upper_color)
     # gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
     circles = cv2.HoughCircles(red_part, cv2.HOUGH_GRADIENT, 1, 10, param1=0.7, param2=0.7, minRadius=20, maxRadius=25)
@@ -247,8 +247,8 @@ def init_boss_icon(template_id):
     cv2.circle(mask, (tx, ty), tr, 255, -1)
     mask = cv2_utils.dilate(mask, 3)
 
-    origin, mask = cv2_utils.convert_to_standard(raw, mask, width=65, height=65, bg_color=const.COLOR_MAP_ROAD_BGR)
-    show_and_save(template_id, origin, mask)
+    origin, mask = cv2_utils.convert_to_standard(raw, mask, width=65, height=65, bg_color=game_const.COLOR_MAP_ROAD_BGR)
+    show_and_save(sub_dir, template_id, origin, mask)
 
 
 def init_phone_menu_icon(template_id: str):
@@ -498,11 +498,11 @@ def cut_template_with_mask(sub_dir: str, template_id: str) -> None:
 
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_18', noise_threshold=30)
-    # init_sp_with_background('mm_sp_22')
+    # init_sp_with_background('mm_sp_23')
     # init_ui_icon('ui_icon_10')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
-    # init_boss_icon('mm_boss_06')
+    init_boss_icon('mm_boss_07')
     # init_phone_menu_icon(phone_menu_const.ANNOUNCEMENT.template_id)
     # init_ui_alert('ui_alert')
     # init_ui_ellipsis('ui_ellipsis')
@@ -519,5 +519,5 @@ if __name__ == '__main__':
     # init_store_icon('store_money', sub_dir='sim_uni')
     # generate_sponsor_png()
     # remove_alpha('parcel', template_sub_dir='store')
-    cut_template_with_mask('mm_icon', 'mm_sp_20')
+    # cut_template_with_mask('mm_icon', 'mm_sp_23')
     cv2.destroyAllWindows()

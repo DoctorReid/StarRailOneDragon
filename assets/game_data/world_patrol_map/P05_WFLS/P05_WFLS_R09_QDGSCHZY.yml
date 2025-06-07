@@ -1,0 +1,110 @@
+- uid: "TXHB"
+  cn: "天象画壁"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1552, 1605]
+  tp_pos: [1517, 1584]
+
+- uid: "NHJC"
+  cn: "霓虹尽处"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [1508, 1936]
+  tp_pos: [1518, 1957]
+
+- uid: "DYSK1"
+  cn: "祷言神龛1"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 1
+  template_id: "mm_sp_21"
+  lm_pos: [2441, 994]
+
+- uid: "DYSK2"
+  cn: "祷言神龛2"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 1
+  template_id: "mm_sp_21"
+  lm_pos: [2318, 1177]
+
+- uid: "ZGLSZS"
+  cn: "扎格列斯之手"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 1
+  template_id: "mm_sp_22"
+  lm_pos: [2470, 1429]
+
+- uid: "GSCJ"
+  cn: "关塞垂井"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [2084, 997]
+  tp_pos: [2106, 965]
+
+- uid: "QKGX"
+  cn: "擎空骨械"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [1180, 1315]
+  tp_pos: [1191, 1304]
+
+- uid: "GSXL"
+  cn: "关塞悬廊"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [1767, 1320]
+  tp_pos: [1777, 1296]
+
+- uid: "QDGSDYSQSZ"
+  cn: "「穹顶关塞」的衣匠前哨站"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 2
+  template_id: "mm_sp_20"
+  lm_pos: [2119, 915]
+
+- uid: "DYSK3"
+  cn: "祷言神龛3"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 2
+  template_id: "mm_sp_21"
+  lm_pos: [734, 988]
+
+- uid: "DYSK4"
+  cn: "祷言神龛4"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 2
+  template_id: "mm_sp_21"
+  lm_pos: [709, 1187]
+
+- uid: "GSLD"
+  cn: "关塞颅顶"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [1457, 1049]
+  tp_pos: [1459, 1030]
+
+- uid: "CHDHMLZYX"
+  cn: "晨昏的回眸·历战余响"
+  planet_name: "翁法罗斯"
+  region_name: "「穹顶关塞」晨昏之眼"
+  region_floor: 3
+  template_id: "mm_boss_07"
+  lm_pos: [1419, 1009]
+  tp_pos: [1424, 1014]

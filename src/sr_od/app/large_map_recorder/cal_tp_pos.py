@@ -35,28 +35,28 @@ if __name__ == '__main__':
     ctx.init_by_config()
 
     planet_name: str = '翁法罗斯'
-    region_name: str = '「呓语密林」神悟树庭'
+    region_name: str = '「穹顶关塞」晨昏之眼'
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
     region = ctx.map_data.best_match_region_by_name(gt(region_name), planet=planet)
 
     sp_name_list = [
-        '友爱之馆',
-        '求知静庭',
-        '经纬小径',
-        '凛月之形·凝滞虚影',
-        '藏珍之蕾·拟造花萼（金）',
-        '献身拱心',
-        '启蒙王座',
+        '天象画壁',
+        '霓虹尽处',
+        '关塞垂井',
+        '擎空骨械',
+        '关塞悬廊',
+        '关塞颅顶',
+        '晨昏的回眸·历战余响',
     ]
     img_list = [
-        '_1742480121677',
-        '_1742480130885',
-        '_1742480137889',
-        '_1742480145020',
-        '_1742480153936',
-        '_1742480160454',
-        '_1742480165937',
+        '_1749308404675',
+        '_1749308763036',
+        '_1749308771385',
+        '_1749308776419',
+        '_1749308781019',
+        '_1749308787419',
+        '_1749308792302',
     ]
     for i in range(len(sp_name_list)):
         sp = ctx.map_data.best_match_sp_by_name(region, gt(sp_name_list[i]))

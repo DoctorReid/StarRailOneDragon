@@ -4,8 +4,11 @@ from concurrent.futures import Future, ThreadPoolExecutor
 import cv2
 import numpy as np
 import os
+from collections import Counter
+
+import pyautogui
 from cv2.typing import MatLike
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from one_dragon.base.geometry.point import Point
 from one_dragon.base.operation.operation_edge import node_from
@@ -42,6 +45,9 @@ class OverlapResultWrapper:
         self.col: int = col
 
 
+DRAG_NEXT_COL_START = Point(1350, 300)  # 大地图右方的空白区域 防止点击到地图的点 导致拖拽有问题
+
+
 
 class LargeMapRecorder(SrApplication):
     """
@@ -64,6 +70,7 @@ class LargeMapRecorder(SrApplication):
                  cols_to_cal_overlap_height: List[int] = None,
                  overlap_width_mode: list[int] = None,
                  overlap_height_mode: list[int] = None,
+                 fix_width_rows: list[int] = None,
                  debug: bool = False,
                  ):
         SrApplication.__init__(self, ctx, 'large_map_recorder', op_name='大地图录制 %s' % region.cn)
@@ -108,6 +115,7 @@ class LargeMapRecorder(SrApplication):
 
         self.overlap_width_mode: List[int] = overlap_width_mode  # 截图重叠的宽度
         self.overlap_height_mode: List[int] = overlap_height_mode  # 截图重叠的高度
+        self.fix_width_rows: list[int] = fix_width_rows  # 固定使用重叠众数宽度的行
 
         self.rows_to_cal_overlap_width: List[int] = rows_to_cal_overlap_width  # 计算每列的重叠宽度时 只考虑哪些行
         self.cols_to_cal_overlap_height: List[int] = cols_to_cal_overlap_height  # 计算每行的重叠高度时 只考虑哪些列
@@ -294,7 +302,7 @@ class LargeMapRecorder(SrApplication):
         for _ in range(self.drag_times_to_left_top):
             if not self.ctx.is_context_running:
                 break
-            self.ctx.controller.drag_to(end=rt, start=center, duration=1)  # 先拉到左上角
+            self.ctx.controller.drag_to(end=rt, start=center, duration=0.2)  # 先拉到左上角
             time.sleep(1.5)
         self.col = 1
         self.row = 1
@@ -333,7 +341,7 @@ class LargeMapRecorder(SrApplication):
         for _ in range(self.drag_times_to_left):
             if not self.ctx.is_context_running:
                 break
-            self.ctx.controller.drag_to(end=right, start=center, duration=1)  # 往左拉到尽头
+            self.ctx.controller.drag_to(end=right, start=center, duration=0.2)  # 往左拉到尽头
             time.sleep(1)
         self.col = 1
 
@@ -343,7 +351,7 @@ class LargeMapRecorder(SrApplication):
         """
         center = Point(1350, 800)  # 大地图右方的空白区域 防止点击到地图的点 导致拖拽有问题
         top = center + Point(0, -self.drag_distance_to_next_row)
-        self.ctx.controller.drag_to(end=top, start=center, duration=1)  # 往下拉一段
+        self.special_drag_to(start=center, end=top)  # 往下拉一段
         time.sleep(1)
         self.row += 1
 
@@ -351,10 +359,10 @@ class LargeMapRecorder(SrApplication):
         """
         往右拖到下一列
         """
-        center = Point(1350, 800)  # 大地图右方的空白区域 防止点击到地图的点 导致拖拽有问题
+        start = DRAG_NEXT_COL_START  # 大地图右方的空白区域 防止点击到地图的点 导致拖拽有问题
         # center = game_const.STANDARD_CENTER_POS
-        left = center + Point(-self.drag_distance_to_next_col, 0)
-        self.ctx.controller.drag_to(end=left, start=center, duration=1)  # 往右拉一段
+        end = start + Point(-self.drag_distance_to_next_col, 0)
+        self.special_drag_to(start=start, end=end)  # 往右拉一段
         time.sleep(1)
         self.col += 1
 
@@ -515,17 +523,17 @@ class LargeMapRecorder(SrApplication):
                 for col in range(2, max_col):
                     for width in overlap_width_list[col]:
                         all_col_width.append(width)
-                all_col_width_mode = int(cal_utils.get_mode_in_list(all_col_width, ignored_set={-1}, empty_return=0))
+                all_col_width_mode = int(get_mode_in_list(all_col_width, ignored_set={-1}, empty_return=0))
                 for col in range(2, max_col):
                     log.info('%02d列 与前重叠宽度众数 %d', col, all_col_width_mode)
                     overlap_width_mode.append(all_col_width_mode)
             for col in range(max_col, max_col + 1):
-                width_mode = int(cal_utils.get_mode_in_list(overlap_width_list[col], ignored_set={-1}, empty_return=0))
+                width_mode = int(get_mode_in_list(overlap_width_list[col], ignored_set={-1}, empty_return=0))
                 log.info('%02d列 与前重叠宽度众数 %d', col, width_mode)
                 overlap_width_mode.append(width_mode)
         else:
             for col in range(2, max_col + 1):
-                width_mode = int(cal_utils.get_mode_in_list(overlap_width_list[col], ignored_set={-1}, empty_return=0))
+                width_mode = int(get_mode_in_list(overlap_width_list[col], ignored_set={-1}, empty_return=0))
                 log.info('%02d列 与前重叠宽度众数 %d', col, width_mode)
                 overlap_width_mode.append(width_mode)
 
@@ -626,17 +634,17 @@ class LargeMapRecorder(SrApplication):
                 for row in range(2, max_row):
                     for height in overlap_height_list[row]:
                         all_row_height.append(height)
-                all_row_height_mode = int(cal_utils.get_mode_in_list(all_row_height, ignored_set={-1}, empty_return=0))
+                all_row_height_mode = int(get_mode_in_list(all_row_height, ignored_set={-1}, empty_return=0))
                 for row in range(2, max_row):
                     log.info('%02d行 与前重叠高度众数 %d', row, all_row_height_mode)
                     overlap_height_mode.append(all_row_height_mode)
             for row in range(max_row, max_row + 1):
-                height_mode = int(cal_utils.get_mode_in_list(overlap_height_list[row], ignored_set={-1}, empty_return=0))
+                height_mode = int(get_mode_in_list(overlap_height_list[row], ignored_set={-1}, empty_return=0))
                 log.info('%02d行 与前重叠高度众数 %d', row, height_mode)
                 overlap_height_mode.append(height_mode)
         else:
             for row in range(2, max_row + 1):
-                height_mode = int(cal_utils.get_mode_in_list(overlap_height_list[row], ignored_set={-1}, empty_return=0))
+                height_mode = int(get_mode_in_list(overlap_height_list[row], ignored_set={-1}, empty_return=0))
                 log.info('%02d行 与前重叠高度众数 %d', row, height_mode)
                 overlap_height_mode.append(height_mode)
 
@@ -654,21 +662,41 @@ class LargeMapRecorder(SrApplication):
                 img = LargeMapRecorder.get_part_image(region, row, col)
                 img_list[row].append(img)
 
+        # 根据重合宽度 先计算最终的宽度
+        image_width: int = img_list[1][1].shape[1]  # 每张图片的宽度
+        image_height: int = img_list[1][1].shape[0]  # 每张图片的高度
+        total_width: int = image_width  # 最终的总宽度
+        for col in range(2, max_col + 1):
+            total_width += (image_width - self.overlap_width_mode[col])
+
         # 按重叠宽度的众数对每行图片进行合并
         row_image_list: List[MatLike] = []
         for row in range(1, max_row + 1):
+            # 初始化一张完整的背景
+            row_image: MatLike = np.full((image_height, total_width, 3),
+                                              210,
+                                              dtype=np.uint8)
+            # 水平合并图片
             merge = img_list[row][1]
             for col in range(2, max_col + 1):
-                overlap_w = self.overlap_width_mode[col]
+                if self.fix_width_rows is not None and row not in self.fix_width_rows:
+                    overlap_w = self.get_overlap_width(img_list[row][col-1], img_list[row][col])
+                else:
+                    overlap_w = -1
+                if overlap_w == -1:
+                    overlap_w = self.overlap_width_mode[col]
                 extra_part = img_list[row][col][:, overlap_w + 1:]
                 # 水平拼接两张图像
                 merge = cv2.hconcat([merge, extra_part])
 
-            log.info('%d层 %02d行 合并后size为 %s', region.floor, row, merge.shape)
-            LargeMapRecorder.save_row_image(region, row, merge)
-            row_image_list.append(merge)
+            # 将合并后的图片赋值到背景上
+            row_image[:, :merge.shape[1], :] = merge[:, :, :]
+
+            log.info('%d层 %02d行 合并后size为 %s', region.floor, row, row_image.shape)
+            LargeMapRecorder.save_row_image(region, row, row_image)
+            row_image_list.append(row_image)
             if show:
-                cv2_utils.show_image(merge, win_name='row_%02d' % row)
+                cv2_utils.show_image(row_image, win_name='row_%02d' % row)
 
     def merge_screenshot_into_one(self, region: Region, max_row: int, show=False):
         """
@@ -957,6 +985,44 @@ class LargeMapRecorder(SrApplication):
         path = LargeMapRecorder.get_floor_image_path(region)
         cv2_utils.save_image(image, path)
 
+    def special_drag_to(self, start: Point, end: Point) -> None:
+        """
+        特殊实现的拖动 拖动前 先按下鼠标一段时间
+        """
+        start_pos = self.ctx.controller.game_win.game2win_pos(start)
+        end_pos = self.ctx.controller.game_win.game2win_pos(end)
+
+        pyautogui.moveTo(start_pos.x, start_pos.y)
+        time.sleep(0.2)
+        pyautogui.mouseDown()
+        time.sleep(0.2)
+        pyautogui.dragTo(end_pos.x, end_pos.y, duration=1)
+        time.sleep(0.2)
+        pyautogui.mouseUp()
+        time.sleep(0.2)
+
+
+def get_mode_in_list(arr: List[Any], ignored_set: set[Any] = None, empty_return: Any = None) -> Any:
+    """
+    获取一个数组中出现最多的元素
+    :param arr: 输入的数组
+    :return: 出现次数最多的元素
+    """
+    if arr is None:
+        return empty_return  # 如果数组为空，返回None
+
+    if ignored_set is not None:
+        arr = [item for item in arr if item not in ignored_set]
+
+    if len(arr) == 0:
+        return empty_return
+
+    # 使用Counter统计每个元素的出现次数
+    counter = Counter(arr)
+
+    # 返回出现次数最多的元素
+    return counter.most_common(1)[0][0]
+
 def __debug(planet_name, region_name, run_mode: str = 'all'):
     ctx = SrContext()
 
@@ -969,10 +1035,39 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         '翁法罗斯 「神谕圣地」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, 'drag_times_to_left_top': 6},
         '翁法罗斯 「纷争荒墟」悬锋城': { 'max_row': 13, 'max_column': 11, 'drag_times_to_left': 6, 'drag_times_to_left_top': 10,},
         '翁法罗斯 「命运重渊」雅努萨波利斯': { 'max_row': 8, 'max_column': 1, 'drag_times_to_left_top': 6},
-        '翁法罗斯 「呓语密林」神悟树庭': { 'max_row': 9, 'max_column': 3, 'drag_times_to_left_top': 6,
-                                         'overlap_height_mode': [0, 0, 426, 426, 426, 426, 426, 426, 426, 713],
-                                         'overlap_width_mode': [0, 0, 786, 983],
-                                         },
+        '翁法罗斯 「呓语密林」神悟树庭': {
+            'max_row': 9, 'max_column': 3, 'drag_times_to_left_top': 6,
+            'overlap_width_mode': [0, 0, 786, 983],
+            'overlap_height_mode': [0, 0, 426, 426, 426, 426, 426, 426, 426, 713],
+        },
+        '翁法罗斯 「半神议院」黎明云崖': {
+            'max_row': 17, 'max_column': 5,
+            'overlap_width_mode': [0, 0, 785, 785, 785, 991],
+            'overlap_height_mode': [0, 0, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 423]
+        },
+        '翁法罗斯 「穹顶关塞」晨昏之眼': {
+            'max_row': 6, 'max_column': 8,
+            'overlap_width_mode': [0, 0, 785, 785, 785, 785, 785, 785, 994],
+            'overlap_height_mode': [0, 0, 426, 426, 426, 426, 423],
+            'fix_width_rows': [6],
+        },
+        '翁法罗斯 「无晖祈堂」黎明云崖': {
+            'max_row': 17, 'max_column': 5,
+            'overlap_width_mode': [0, 0, 785, 785, 785, 991],
+            'overlap_height_mode': [0, 0, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 426, 423]
+        },
+        '翁法罗斯 「龙骸古城」斯缇科西亚': {
+            'max_row': 8, 'max_column': 7,
+            'overlap_width_mode': [0, 0, 786, 786, 786, 786, 786, 965],
+            'overlap_height_mode': [0, 0, 426, 426, 426, 426, 426, 426, 529],
+        },
+        '翁法罗斯 「云端遗堡」晨昏之眼': {
+            'drag_times_to_left': 5,
+            'max_row': 6, 'max_column': 9,
+            'overlap_width_mode': [0, 0, 786, 786, 786, 786, 786, 786, 786, 890],
+            'overlap_height_mode': [0, 0, 426, 426, 426, 426, 426],
+            # 'fix_width_rows': [4],
+        }
     }
 
     planet = ctx.map_data.best_match_planet_by_name(gt(planet_name))
@@ -983,8 +1078,8 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     sc = special_conditions.get(key, {})
     sc['ctx'] = ctx
     sc['region'] = region
-    # sc['floor_list_to_record'] = [4]
-    # sc['row_list_to_record'] = [2]
+    # sc['floor_list_to_record'] = [2]
+    # sc['row_list_to_record'] = [5]
     # sc['col_list_to_record'] = [1, 2, 3]
     # sc['drag_times_to_left_top'] = 0  # 手动拖到左上会快一点
     # sc['drag_times_to_left'] = 0  # 只录一行时可以使用
@@ -1004,6 +1099,7 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         app.current_region_idx = 0
         app.choose_region()
         app.do_screenshot()
+        app.merge_screenshot()
 
         ctx.stop_running()
     elif run_mode == 'merge':
@@ -1030,4 +1126,4 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
 
 
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「呓语密林」神悟树庭', 'save')
+    __debug('翁法罗斯', '「穹顶关塞」晨昏之眼', 'save')

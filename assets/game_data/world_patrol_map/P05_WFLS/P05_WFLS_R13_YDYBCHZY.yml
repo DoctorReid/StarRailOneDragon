@@ -1,0 +1,102 @@
+- uid: "RJDC"
+  cn: "熔金奠池"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 1
+  template_id: "mm_tp_03"
+  lm_pos: [2067, 1213]
+  tp_pos: [2037, 1209]
+
+- uid: "YBZD"
+  cn: "遗堡之底"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [2483, 1518]
+  tp_pos: [2466, 1536]
+
+- uid: "RJXT"
+  cn: "熔金悬台"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 2
+  template_id: "mm_tp_03"
+  lm_pos: [2026, 1570]
+  tp_pos: [2037, 1542]
+
+- uid: "QYCB"
+  cn: "泣夜残壁"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 3
+  template_id: "mm_tp_03"
+  lm_pos: [1923, 1944]
+  tp_pos: [1934, 1916]
+
+- uid: "PYZJQSSD"
+  cn: "雳涌之径·侵蚀隧洞"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 3
+  template_id: "mm_tp_09"
+  lm_pos: [1319, 1262]
+  tp_pos: [1316, 1264]
+
+- uid: "WHQTLMYY"
+  cn: "「无晖祈堂」黎明云崖"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 3
+  template_id: "mm_sp_02"
+  lm_pos: [1869, 1944]
+
+- uid: "DYSK1"
+  cn: "祷言神龛"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 3
+  template_id: "mm_sp_21"
+  lm_pos: [947, 1079]
+
+- uid: "QJBZ"
+  cn: "奇迹宝珠"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 3
+  template_id: "mm_sp_23"
+  lm_pos: [912, 1726]
+
+- uid: "YBCJ"
+  cn: "遗堡垂井"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 4
+  template_id: "mm_tp_03"
+  lm_pos: [2434, 1335]
+  tp_pos: [2457, 1303]
+
+- uid: "XYGC"
+  cn: "悬夜骨城"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 4
+  template_id: "mm_tp_03"
+  lm_pos: [1432, 1361]
+  tp_pos: [1421, 1376]
+
+- uid: "YDYBDYSQSZ"
+  cn: "「云端遗堡」的衣匠前哨站"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 4
+  template_id: "mm_sp_20"
+  lm_pos: [2467, 1253]
+
+- uid: "DYSK2"
+  cn: "祷言神龛"
+  planet_name: "翁法罗斯"
+  region_name: "「云端遗堡」晨昏之眼"
+  region_floor: 4
+  template_id: "mm_sp_21"
+  lm_pos: [933, 1626]
