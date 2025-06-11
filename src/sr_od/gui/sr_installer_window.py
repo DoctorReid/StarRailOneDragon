@@ -12,7 +12,7 @@ class SrInstallerWindow(InstallerWindowBase):
             ctx=ctx,
             win_title=win_title,
             parent=parent,
-            app_icon='installer_app.ico'
+            app_icon='installer_logo.ico'
         )
 
         # 隐藏左侧导航栏
