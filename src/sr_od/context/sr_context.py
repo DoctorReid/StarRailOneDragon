@@ -236,6 +236,11 @@ class SrContext(OneDragonContext):
 
         game_refresh_hour_offset = self.game_account_config.game_refresh_hour_offset
 
+        from sr_od.config.notify_config import NotifyConfig
+        self.notify_config: NotifyConfig = NotifyConfig(self.current_instance_idx)
+        from sr_od.app.notify.notify_run_record import NotifyRunRecord
+        self.notify_record: NotifyRunRecord = NotifyRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+
         self.world_patrol_config: WorldPatrolConfig = WorldPatrolConfig(self.current_instance_idx)
         self.world_patrol_record: WorldPatrolRunRecord = WorldPatrolRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 

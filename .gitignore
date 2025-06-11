@@ -19,8 +19,6 @@ update_by_temp_2.bat
 
 # 模型文件 依赖下载
 model/yolo
-assets/models/world_patrol
-assets/models/sim_uni
 
 # 用户配置文件
 config/world_patrol/record.yml
@@ -35,4 +33,5 @@ config/*[!_sample].yml
 config/app_run_record/
 config/[0-9]*/
 
-#
+# 需自行下载的模型文件
+models/

@@ -2,7 +2,7 @@ from qfluentwidgets import FluentIcon
 
 from one_dragon_qt.widgets.pivot_navi_interface import PivotNavigatorInterface
 from one_dragon_qt.view.setting.setting_env_interface import SettingEnvInterface
-from one_dragon_qt.view.setting.setting_instance_interface import SettingInstanceInterface
+from one_dragon_qt.view.setting.setting_push_interface import SettingPushInterface
 from sr_od.context.sr_context import SrContext
 from sr_od.gui.interface.setting.sr_setting_game_interface import SrSettingGameInterface
 from sr_od.gui.interface.setting.sr_setting_yolo_interface import SrSettingYoloInterface
@@ -23,4 +23,4 @@ class SrSettingInterface(PivotNavigatorInterface):
         self.add_sub_interface(SrSettingGameInterface(ctx=self.ctx))
         self.add_sub_interface(SrSettingYoloInterface(ctx=self.ctx))
         self.add_sub_interface(SettingEnvInterface(ctx=self.ctx))
-        self.add_sub_interface(SettingInstanceInterface(ctx=self.ctx))
+        self.add_sub_interface(SettingPushInterface(ctx=self.ctx))

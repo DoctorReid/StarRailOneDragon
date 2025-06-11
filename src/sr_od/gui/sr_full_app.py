@@ -12,6 +12,7 @@ try:
     from one_dragon.utils.i18_utils import gt
     from one_dragon_qt.services.styles_manager import OdQtStyleSheet
     from sr_od.context.sr_context import SrContext
+    from sr_od.gui.interface.accounts.app_accounts_interface import AccountsInterface
     from sr_od.gui.interface.devtools.sr_devtools_interface import SrDevtoolsInterface
     from sr_od.gui.interface.game_assistant.game_assistant_interface import GameAssistantInterface
     from sr_od.gui.interface.one_dragon.sr_one_dragon_interface import SrOneDragonInterface
@@ -103,6 +104,9 @@ try:
 
             # 代码同步
             self.add_sub_interface(CodeInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
+
+            # 多账号管理
+            self.add_sub_interface(AccountsInterface(self.ctx, parent=self),position=NavigationItemPosition.BOTTOM,)
 
             # 设置
             self.add_sub_interface(SrSettingInterface(self.ctx, parent=self), position=NavigationItemPosition.BOTTOM)
