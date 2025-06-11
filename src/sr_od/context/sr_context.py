@@ -27,8 +27,6 @@ from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, FEIXIAO, \
     TECHNIQUE_BUFF_ATTACK_DISAPPEAR
-from sr_od.config.game_config import GameConfig
-from sr_od.config.yolo_config import YoloConfig
 from sr_od.context.context_pos_info import ContextPosInfo
 from sr_od.context.preheat_context import SrPreheatContext
 from sr_od.context.sr_pc_controller import SrPcController
@@ -188,6 +186,7 @@ class SrContext(OneDragonContext):
         self.ban_technique: bool = False  # 禁用秘技 部分路线中途可能需要模拟按键 这时候不能有秘技影响移动速度
 
         # 共用配置
+        from sr_od.config.yolo_config import YoloConfig
         self.yolo_config: YoloConfig = YoloConfig()
         self.yolo_detector: YoloScreenDetector = YoloScreenDetector(
             standard_resolution_h=self.project_config.screen_standard_height,
