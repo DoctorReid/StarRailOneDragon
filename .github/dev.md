@@ -33,13 +33,13 @@ pip-compile --annotation-style=line --index-url=https://pypi.tuna.tsinghua.edu.c
 生成spec文件
 
 ```shell
-pyinstaller --onefile --windowed --uac-admin --icon="../assets/ui/installer_logo.ico" ../src/sr_od/gui/sr_installer_app.py -n "OneDragon Installer"
+pyinstaller --onefile --windowed --uac-admin --icon="../assets/ui/installer_logo.ico" ../src/sr_od/gui/sr_installer_app.py -n "OneDragon-Installer"
 ```
 
 spec打包
 
 ```shell
-pyinstaller "OneDragon Installer.spec"
+pyinstaller "OneDragon-Installer.spec"
 ```
 
 ## 2.2.完整运行器
@@ -47,12 +47,12 @@ pyinstaller "OneDragon Installer.spec"
 生成spec文件
 
 ```shell
-pyinstaller --onefile --uac-admin --icon="../assets/ui/full_app.ico" ../src/sr_od/gui/sr_full_launcher.py -n "OneDragon Launcher"
+pyinstaller --onefile --uac-admin --icon="../assets/ui/full_app.ico" ../src/sr_od/gui/sr_full_launcher.py -n "OneDragon-Launcher"
 ```
 
 spec打包
 ```shell
-pyinstaller "OneDragon Launcher.spec"
+pyinstaller "OneDragon-Launcher.spec"
 ```
 
 ## 2.3.一条龙运行器

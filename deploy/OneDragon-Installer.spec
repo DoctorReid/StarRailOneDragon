@@ -2,10 +2,14 @@
 
 
 a = Analysis(
-    ['..\\src\\sr_od\\gui\\sr_launcher.py'],
+    ['..\\src\\sr_od\\gui\\sr_installer_app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('../config/project.yml', 'resources/config'),
+        ('../assets/text', 'resources/assets/text'),
+        ('../assets/ui', 'resources/assets/ui')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -22,19 +26,19 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='OneDragon Launcher',
+    name='OneDragon-Installer',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
     uac_admin=True,
-    icon=['..\\assets\\ui\\full_app.ico'],
+    icon=['..\\assets\\ui\\installer_logo.ico'],
 )
