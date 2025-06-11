@@ -152,7 +152,7 @@ class PythonService:
         if progress_callback is not None:
             progress_callback(-1, msg)
         log.info(msg)
-        
+
         os.environ["UV_PYTHON_INSTALL_DIR"] = DEFAULT_PYTHON_DIR_PATH
         result = cmd_utils.run_command([self.env_config.uv_path, 'sync', '--check'])
 
@@ -328,11 +328,6 @@ class PythonService:
         )
 
     def install_launcher(self, progress_callback: Optional[Callable[[float, str], None]]) -> Tuple[bool, str]:
-        if self.check_launcher_exist():
-            msg = '已经安装了启动器'
-            log.info(msg)
-            return True, msg
-
         msg = '正在安装启动器...'
         if progress_callback is not None:
             progress_callback(-1, msg)
@@ -351,6 +346,10 @@ class PythonService:
             log.info(msg)
             if progress_callback is not None:
                 progress_callback(0, msg)
+
+            old_launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon-Launcher.exe')
+            if os.path.exists(old_launcher_path):
+                shutil.rmtree(old_launcher_path)
 
             success = file_utils.unzip_file(zip_file_path, os_utils.get_work_dir())
 
@@ -373,7 +372,7 @@ class PythonService:
         检查启动器是否存在
         :return: 是否存在
         """
-        launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon Launcher.exe')
+        launcher_path = os.path.join(os_utils.get_work_dir(), 'OneDragon-Launcher.exe')
         return os.path.exists(launcher_path)
 
 

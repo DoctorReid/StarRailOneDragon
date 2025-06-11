@@ -184,8 +184,8 @@ class SrContext(OneDragonContext):
         self.ban_technique: bool = False  # 禁用秘技 部分路线中途可能需要模拟按键 这时候不能有秘技影响移动速度
 
         # 共用配置
-        from sr_od.config.yolo_config import YoloConfig
-        self.yolo_config: YoloConfig = YoloConfig()
+        from sr_od.config.model_config import ModelConfig
+        self.model_config: ModelConfig = ModelConfig()
         self.yolo_detector: YoloScreenDetector = YoloScreenDetector(
             standard_resolution_h=self.project_config.screen_standard_height,
             standard_resolution_w=self.project_config.screen_standard_width
@@ -275,16 +275,16 @@ class SrContext(OneDragonContext):
         self.ocr.init_model()
         self.preheat_context.preheat_for_world_patrol_async()
         self.yolo_detector.init_world_patrol_model(
-            model_name=self.yolo_config.world_patrol,
-            gpu=self.yolo_config.world_patrol_gpu
+            model_name=self.model_config.world_patrol,
+            gpu=self.model_config.world_patrol_gpu
         )
 
     def init_for_sim_uni(self) -> None:
         self.ocr.init_model()
         self.preheat_context.preheat_for_world_patrol_async()  # 与锄大地共用大地图
         self.yolo_detector.init_sim_uni_model(
-            model_name=self.yolo_config.sim_uni,
-            gpu=self.yolo_config.sim_uni_gpu
+            model_name=self.model_config.sim_uni,
+            gpu=self.model_config.sim_uni_gpu
         )
 
     def check_and_update_speed(self, world_patrol: bool) -> None:
