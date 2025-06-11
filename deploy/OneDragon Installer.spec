@@ -5,7 +5,11 @@ a = Analysis(
     ['..\\src\\sr_od\\gui\\sr_installer_app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('../config/project.yml', 'resources/config'),
+        ('../assets/text', 'resources/assets/text'),
+        ('../assets/ui', 'resources/assets/ui')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
