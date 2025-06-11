@@ -37,7 +37,8 @@ class SimUniApp(SrApplication):
         """
         SrApplication.__init__(self, ctx, 'sim_universe',
                                op_name=gt('模拟宇宙', 'ui'),
-                               run_record=ctx.sim_uni_record)
+                               run_record=ctx.sim_uni_record,
+                               need_notify=True)
 
         self.current_uni_num: int = 0  # 当前运行的第几宇宙 启动时会先完成运行中的宇宙
 

@@ -12,7 +12,7 @@ class BuyXianzhouParcelApp(SrApplication):
         SrApplication.__init__(self, ctx, 'buy_xianzhou_parcel',
                                op_name=gt('仙舟过期邮包', 'ui'),
                                run_record=ctx.buy_xz_parcel_run_record,
-                               )
+                               need_notify=True)
 
     @operation_node(name='执行自定义指令', is_start_node=True)
     def run_op(self) -> OperationRoundResult:

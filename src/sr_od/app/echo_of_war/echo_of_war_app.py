@@ -20,7 +20,7 @@ class EchoOfWarApp(SrApplication):
 
     def __init__(self, ctx: SrContext):
         SrApplication.__init__(self, ctx, 'echo_of_war', op_name=gt('历战余响', 'ui'),
-                               run_record=ctx.echo_of_war_run_record)
+                               run_record=ctx.echo_of_war_run_record, need_notify=True)
         self.power: int = 0
 
     @operation_node(name='检查当前需要挑战的关卡', is_start_node=True)

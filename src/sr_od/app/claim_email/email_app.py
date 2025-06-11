@@ -24,7 +24,9 @@ class EmailApp(SrApplication):
         2023-11-12 中英文最高画质测试通过
         """
         SrApplication.__init__(self, ctx, 'email',
-                               op_name=gt('邮件', 'ui'), run_record=ctx.email_run_record)
+                               op_name=gt('邮件', 'ui'),
+                               run_record=ctx.email_run_record,
+                               need_notify=True)
 
     @operation_node(name='开始前返回', is_start_node=True)
     def back_at_first(self) -> OperationRoundResult:

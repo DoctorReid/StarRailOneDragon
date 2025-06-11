@@ -162,8 +162,6 @@ class DetectInfo:
 class SrContext(OneDragonContext):
 
     def __init__(self):
-        """
-        """
         OneDragonContext.__init__(self)
 
         self.controller: Optional[SrPcController] = None
