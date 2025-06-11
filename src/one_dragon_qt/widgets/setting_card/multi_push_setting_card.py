@@ -32,16 +32,16 @@ class MultiPushSettingCard(SettingCardBase):
         )
 
         # 初始化按钮布局
-        btn_layout = QHBoxLayout()
-        btn_layout.setSpacing(16)
-        btn_layout.addStretch(1)
+        self.btn_layout = QHBoxLayout()
+        self.btn_layout.setSpacing(16)
+        self.btn_layout.addStretch(1)
         for btn in btn_list:
-            btn_layout.addWidget(btn, alignment=Qt.AlignmentFlag.AlignRight)
-        btn_layout.addSpacing(16)
+            self.btn_layout.addWidget(btn, alignment=Qt.AlignmentFlag.AlignRight)
+        self.btn_layout.addSpacing(16)
 
         # 将按钮布局添加到卡片的主布局中
-        self.hBoxLayout.addLayout(btn_layout, 1)
-    
+        self.hBoxLayout.addLayout(self.btn_layout, 1)
+
 
 class MultiLineSettingCard(SettingCardBase):
     """带多行按钮的设置卡片类"""
@@ -76,6 +76,7 @@ class MultiLineSettingCard(SettingCardBase):
             h_layout.addStretch(1)
             for btn in line:
                 h_layout.addWidget(btn, alignment=Qt.AlignmentFlag.AlignRight)
+            h_layout.addSpacing(16)
 
         # 根据按钮行数调整卡片的高度
-        self.setFixedHeight(50 + (len(line_list) - 1) * 30)
+        self.setFixedHeight(60 + (len(line_list) - 1) * 30)
