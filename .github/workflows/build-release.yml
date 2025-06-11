@@ -134,8 +134,8 @@ jobs:
         # .install
         $envDir = "$rootDir/.install"
         New-Item -ItemType Directory -Path $envDir -Force
-        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/StarRailOneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
-        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/StarRailOneDragon/MinGit.zip" -OutFile "$envDir/MinGit.zip"
+        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/StarRail-OneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
+        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/StarRail-OneDragon/MinGit.zip" -OutFile "$envDir/MinGit.zip"
 
         # artifact
         Copy-Item "$distDir/OneDragon-Installer.exe" -Destination $rootDir -Force
@@ -182,21 +182,21 @@ jobs:
         $version = "${{ steps.get_version.outputs.version }}"
 
         # Pack Full
-        Compress-Archive -Path "$rootDir\*" -DestinationPath "$distDir/StarRailOneDragon-$version-Full.zip" -Force
+        Compress-Archive -Path "$rootDir\*" -DestinationPath "$distDir/StarRail-OneDragon-$version-Full.zip" -Force
 
         # Pack Update
         Compress-Archive -Path @(
           "$rootDir/OneDragon-Installer.exe",
           "$rootDir/OneDragon-Launcher.exe"
-        ) -DestinationPath "$distDir/StarRailOneDragon-$version-Update.zip" -Force
+        ) -DestinationPath "$distDir/StarRail-OneDragon-$version-Update.zip" -Force
 
         # Pack Launcher
         Compress-Archive -Path @(
           "$rootDir/OneDragon-Launcher.exe"
-        ) -DestinationPath "$distDir/StarRailOneDragon-Launcher.zip" -Force
+        ) -DestinationPath "$distDir/StarRail-OneDragon-Launcher.zip" -Force
 
         # Copy Installer
-        Copy-Item "$rootDir/OneDragon-Installer.exe" -Destination "$distDir/StarRailOneDragon-$version-Installer.exe" -Force
+        Copy-Item "$rootDir/OneDragon-Installer.exe" -Destination "$distDir/StarRail-OneDragon-$version-Installer.exe" -Force
 
     - name: Generate Changelog
       id: changelog
@@ -245,8 +245,8 @@ jobs:
         body: |
           # 安装方式
 
-          - 如果你是第一次安装，下载 `StarRailOneDragon-${{ steps.get_version.outputs.version }}-Full.zip` ，解压后运行 `OneDragon-Installer.exe`。
-          - 如果你已经安装过了，下载 `StarRailOneDragon-${{ steps.get_version.outputs.version }}-Update.zip` 解压后复制到你原来的文件夹中覆盖即可。
+          - 如果你是第一次安装，下载 `StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` ，解压后运行 `OneDragon-Installer.exe`。
+          - 如果你已经安装过了，下载 `StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip` 解压后复制到你原来的文件夹中覆盖即可。
           - __不要下载Source Code__
 
           安装前请查看 [安装指南](https://onedragon-anything.github.io/zzz/zh/quickstart.html)  
@@ -256,10 +256,10 @@ jobs:
 
           ${{ steps.changelog.outputs.clean_changelog }}
         files: |
-          deploy/dist/StarRailOneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
-          deploy/dist/StarRailOneDragon-${{ steps.get_version.outputs.version }}-Full.zip
-          deploy/dist/StarRailOneDragon-${{ steps.get_version.outputs.version }}-Update.zip
-          deploy/dist/StarRailOneDragon-Launcher.zip
+          deploy/dist/StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
+          deploy/dist/StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
+          deploy/dist/StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Update.zip
+          deploy/dist/StarRail-OneDragon-Launcher.zip
           deploy/dist/directory-structure.txt
         generate_release_notes: false
         prerelease: ${{ github.event_name == 'workflow_dispatch' }}
