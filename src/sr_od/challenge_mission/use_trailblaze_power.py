@@ -262,7 +262,7 @@ class UseTrailblazePower(SrOperation):
 def __debug_op():
     ctx = SrContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
 
     tab = ctx.guide_data.best_match_tab_by_name('生存索引')
