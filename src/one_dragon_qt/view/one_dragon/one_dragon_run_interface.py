@@ -176,7 +176,7 @@ class OneDragonRunInterface(VerticalScrollInterface):
     def on_interface_shown(self) -> None:
         VerticalScrollInterface.on_interface_shown(self)
         self._init_app_list()
-        self._init_notify_switch()
+        self.notify_switch.init_with_adapter(self.ctx.notify_config.get_prop_adapter('enable_notify'))
 
         self.ctx.listen_event(ContextKeyboardEventEnum.PRESS.value, self._on_key_press)
         self.ctx.listen_event(ApplicationEventId.APPLICATION_START.value, self._on_app_state_changed)
@@ -333,9 +333,6 @@ class OneDragonRunInterface(VerticalScrollInterface):
 
     def get_one_dragon_app_config(self) -> OneDragonAppConfig:
         return self.ctx.one_dragon_app_config
-
-    def _init_notify_switch(self) -> None:
-        pass
 
     def _on_notify_setting_clicked(self) -> None:
         self.show_notify_dialog()
