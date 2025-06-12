@@ -91,6 +91,7 @@ class EchoOfWarApp(SrApplication):
             on_battle_success=on_battle_success
         )
         if op.execute().success:
+            self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
             return self.round_wait()
         else:  # 挑战
             return self.round_retry('挑战失败')

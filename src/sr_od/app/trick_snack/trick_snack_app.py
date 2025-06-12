@@ -37,7 +37,9 @@ class TrickSnackApp(SrApplication):
             return self.round_success('合成功能未启用')
 
         op = CustomCombineOp(self.ctx, 'synthesize_trick_snack', no_battle=True)
-        return self.round_by_op_result(op.execute())
+        result = op.execute()
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
+        return self.round_by_op_result(result)
 
 
 def __debug():

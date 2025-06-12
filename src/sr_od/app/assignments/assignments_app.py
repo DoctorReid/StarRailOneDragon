@@ -98,5 +98,6 @@ class AssignmentsApp(SrApplication):
     @node_from(from_name='一键领取', status=STATUS_NO_ALL_CLAIM)
     @operation_node(name='完成后返回大世界')
     def back_at_last(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())
