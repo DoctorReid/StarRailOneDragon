@@ -212,7 +212,7 @@ class OnnxOcrMatcher(OcrMatcher, ZipDownloader):
     def match_words(
             self,
             image: MatLike, words: List[str],
-            threshold: float = None,
+            threshold: float = 0,
             same_word: bool = False,
             ignore_case: bool = True,
             lcs_percent: float = -1,
