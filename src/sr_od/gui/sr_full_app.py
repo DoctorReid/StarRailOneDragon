@@ -1,17 +1,22 @@
 try:
     import sys
-
+    from typing import Tuple
     from PySide6.QtCore import QThread, Signal
     from PySide6.QtWidgets import QApplication
     from qfluentwidgets import NavigationItemPosition, setTheme, Theme
+    from one_dragon_qt.view.like_interface import LikeInterface
     from one_dragon.base.operation.one_dragon_context import ContextInstanceEventEnum
+
+    from one_dragon_qt.services.styles_manager import OdQtStyleSheet
+
     from one_dragon_qt.view.code_interface import CodeInterface
     from one_dragon_qt.view.context_event_signal import ContextEventSignal
-    from one_dragon_qt.view.like_interface import LikeInterface
     from one_dragon_qt.windows.app_window_base import AppWindowBase
+    from one_dragon.utils import app_utils
     from one_dragon.utils.i18_utils import gt
-    from one_dragon_qt.services.styles_manager import OdQtStyleSheet
+
     from sr_od.context.sr_context import SrContext
+    from sr_od.gui.widget.sr_welcome_dialog import SrWelcomeDialog
     from sr_od.gui.interface.accounts.app_accounts_interface import AccountsInterface
     from sr_od.gui.interface.devtools.sr_devtools_interface import SrDevtoolsInterface
     from sr_od.gui.interface.game_assistant.game_assistant_interface import GameAssistantInterface
@@ -25,16 +30,17 @@ try:
 
     class CheckVersionRunner(QThread):
 
-        get = Signal(str)
+        get = Signal(tuple)
 
         def __init__(self, ctx: SrContext, parent=None):
             super().__init__(parent)
             self.ctx = ctx
 
         def run(self):
-            ver = self.ctx.git_service.get_current_version()
-            if ver is not None:
-                self.get.emit(ver)
+            launcher_version = app_utils.get_launcher_version()
+            code_version = self.ctx.git_service.get_current_version()
+            versions = (launcher_version, code_version)
+            self.get.emit(versions)
 
 
     # 定义应用程序的主窗口类
@@ -59,6 +65,8 @@ try:
             self._check_version_runner = CheckVersionRunner(self.ctx)
             self._check_version_runner.get.connect(self._update_version)
             self._check_version_runner.start()
+
+            self._check_first_run()
 
         # 继承初始化函数
         def init_window(self):
@@ -130,13 +138,20 @@ try:
                 )
             )
 
-        def _update_version(self, ver: str) -> None:
+        def _update_version(self, versions: Tuple[str, str]) -> None:
             """
             更新版本显示
             @param ver:
             @return:
             """
-            self.titleBar.setVersion(ver)
+            self.titleBar.setVersion(versions[0], versions[1])
+
+        def _check_first_run(self):
+            """首次运行时显示防倒卖弹窗"""
+            if self.ctx.env_config.is_first_run:
+                dialog = SrWelcomeDialog(self)
+                if dialog.exec():
+                    self.ctx.env_config.is_first_run = False
 
 # 调用Windows错误弹窗
 except Exception as e:
