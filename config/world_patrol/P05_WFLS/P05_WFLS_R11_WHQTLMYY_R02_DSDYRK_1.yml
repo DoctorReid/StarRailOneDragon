@@ -1,0 +1,26 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「无晖祈堂」黎明云崖'
+floor: 0
+tp: '悼神断崖·入口'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1100, 1814]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [1098, 1717]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [1105, 1678]
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
+    data: [1081, 1664]
+  - idx: 8
+    op: 'disposable'

@@ -1,0 +1,73 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「无晖祈堂」黎明云崖'
+floor: 0
+tp: '无晖祈堂·前庭'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1072, 3675]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [1111, 3719]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'move'
+    data: [1058, 3804]
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
+    data: [1013, 3768]
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
+    data: [972, 3691]
+  - idx: 10
+    op: 'move'
+    data: [980, 3628]
+  - idx: 11
+    op: 'move'
+    data: [1019, 3574]
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [980, 3625]
+  - idx: 14
+    op: 'move'
+    data: [971, 3692]
+  - idx: 15
+    op: 'move'
+    data: [1011, 3768]
+  - idx: 16
+    op: 'move'
+    data: [1056, 3789]
+  - idx: 17
+    op: 'move'
+    data: [1141, 3784]
+  - idx: 18
+    op: 'move'
+    data: [1192, 3738]
+  - idx: 19
+    op: 'disposable'
+  - idx: 20
+    op: 'disposable'
+  - idx: 21
+    op: 'disposable'
+  - idx: 22
+    op: 'disposable'
+  - idx: 23
+    op: 'disposable'
+  - idx: 24
+    op: 'move'
+    data: [1211, 3694]
+  - idx: 25
+    op: 'move'
+    data: [1174, 3578]
+  - idx: 26
+    op: 'patrol'
