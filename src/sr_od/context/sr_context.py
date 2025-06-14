@@ -27,8 +27,6 @@ from sr_od.app.world_patrol.world_patrol_route_data import WorldPatrolRouteData
 from sr_od.app.world_patrol.world_patrol_run_record import WorldPatrolRunRecord
 from sr_od.config.character_const import Character, TECHNIQUE_ATTACK, TECHNIQUE_BUFF, TECHNIQUE_BUFF_ATTACK, FEIXIAO, \
     TECHNIQUE_BUFF_ATTACK_DISAPPEAR
-from sr_od.config.game_config import GameConfig
-from sr_od.config.yolo_config import YoloConfig
 from sr_od.context.context_pos_info import ContextPosInfo
 from sr_od.context.preheat_context import SrPreheatContext
 from sr_od.context.sr_pc_controller import SrPcController
@@ -164,8 +162,6 @@ class DetectInfo:
 class SrContext(OneDragonContext):
 
     def __init__(self):
-        """
-        """
         OneDragonContext.__init__(self)
 
         self.controller: Optional[SrPcController] = None
@@ -188,7 +184,8 @@ class SrContext(OneDragonContext):
         self.ban_technique: bool = False  # 禁用秘技 部分路线中途可能需要模拟按键 这时候不能有秘技影响移动速度
 
         # 共用配置
-        self.yolo_config: YoloConfig = YoloConfig()
+        from sr_od.config.model_config import ModelConfig
+        self.model_config: ModelConfig = ModelConfig()
         self.yolo_detector: YoloScreenDetector = YoloScreenDetector(
             standard_resolution_h=self.project_config.screen_standard_height,
             standard_resolution_w=self.project_config.screen_standard_width
@@ -236,6 +233,11 @@ class SrContext(OneDragonContext):
 
         game_refresh_hour_offset = self.game_account_config.game_refresh_hour_offset
 
+        from sr_od.config.notify_config import NotifyConfig
+        self.notify_config: NotifyConfig = NotifyConfig(self.current_instance_idx)
+        from sr_od.app.notify.notify_run_record import NotifyRunRecord
+        self.notify_record: NotifyRunRecord = NotifyRunRecord(self.current_instance_idx, game_refresh_hour_offset)
+
         self.world_patrol_config: WorldPatrolConfig = WorldPatrolConfig(self.current_instance_idx)
         self.world_patrol_record: WorldPatrolRunRecord = WorldPatrolRunRecord(self.current_instance_idx, game_refresh_hour_offset)
 
@@ -273,16 +275,16 @@ class SrContext(OneDragonContext):
         self.ocr.init_model()
         self.preheat_context.preheat_for_world_patrol_async()
         self.yolo_detector.init_world_patrol_model(
-            model_name=self.yolo_config.world_patrol,
-            gpu=self.yolo_config.world_patrol_gpu
+            model_name=self.model_config.world_patrol,
+            gpu=self.model_config.world_patrol_gpu
         )
 
     def init_for_sim_uni(self) -> None:
         self.ocr.init_model()
         self.preheat_context.preheat_for_world_patrol_async()  # 与锄大地共用大地图
         self.yolo_detector.init_sim_uni_model(
-            model_name=self.yolo_config.sim_uni,
-            gpu=self.yolo_config.sim_uni_gpu
+            model_name=self.model_config.sim_uni,
+            gpu=self.model_config.sim_uni_gpu
         )
 
     def check_and_update_speed(self, world_patrol: bool) -> None:

@@ -163,8 +163,7 @@ class PcControllerBase(ControllerBase):
         win_pos = self.game_win.game2win_pos(pos)
         win_scroll(down, win_pos)
 
-    def drag_to(self, end: Point, start: Point = None,
-                duration: float = 0.5):
+    def drag_to(self, end: Point, start: Point = None, duration: float = 0.5):
         """
         按住拖拽
         :param end: 拖拽目的点

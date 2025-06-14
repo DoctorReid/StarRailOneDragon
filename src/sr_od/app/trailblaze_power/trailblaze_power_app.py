@@ -30,8 +30,9 @@ class TrailblazePowerApp(SrApplication):
     def __init__(self, ctx: SrContext):
         SrApplication.__init__(self, ctx, 'trailblaze_power',
                                op_name=gt('开拓力', 'ui'),
-                               run_record=ctx.power_record)
-        
+                               run_record=ctx.power_record,
+                               need_notify=True)
+
         self.last_mission: Optional[GuideMission] = None  # 上一个挑战副本
         self.power: int = 0  # 剩余开拓力
         self.qty: int = 0  # 沉浸器数量
@@ -168,5 +169,6 @@ class TrailblazePowerApp(SrApplication):
     @node_from(from_name='执行开拓力计划', status=STATUS_PLAN_FINISHED)
     @operation_node(name='完成后返回')
     def back_at_last(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())

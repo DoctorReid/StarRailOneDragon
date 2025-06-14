@@ -7,6 +7,8 @@ from one_dragon.base.config.custom_config import CustomConfig
 from one_dragon.base.config.game_account_config import GameAccountConfig
 from one_dragon.base.config.one_dragon_app_config import OneDragonAppConfig
 from one_dragon.base.config.one_dragon_config import OneDragonConfig
+from one_dragon.base.config.push_config import PushConfig
+from one_dragon.base.operation.context_lazy_signal import ContextLazySignal
 from one_dragon.base.controller.controller_base import ControllerBase
 from one_dragon.base.controller.pc_button.pc_button_listener import PcButtonListener
 from one_dragon.base.matcher.ocr.ocr_matcher import OcrMatcher
@@ -52,12 +54,13 @@ class ContextInstanceEventEnum(Enum):
 
 class OneDragonContext(ContextEventBus, OneDragonEnvContext):
 
-    def __init__(self, controller: Optional = None):
+    def __init__(self, controller: Optional[ControllerBase] = None):
         ContextEventBus.__init__(self)
         OneDragonEnvContext.__init__(self)
 
         self.one_dragon_config: OneDragonConfig = OneDragonConfig()
         self.custom_config: CustomConfig = CustomConfig()
+        self.signal: ContextLazySignal = ContextLazySignal()
 
         if self.one_dragon_config.current_active_instance is None:
             self.one_dragon_config.create_new_instance(True)
@@ -150,7 +153,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         elif key == self.key_stop_running:
             self.stop_running()
         elif key == self.key_screenshot:
-            self.screenshot_and_save_debug()
+            self.screenshot_and_save_debug(self.env_config.copy_screenshot)
 
         self.dispatch_event(ContextKeyboardEventEnum.PRESS.value, key)
 
@@ -178,7 +181,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
     def key_debug(self) -> str:
         return self.env_config.key_debug
 
-    def screenshot_and_save_debug(self) -> None:
+    def screenshot_and_save_debug(self, copy_screenshot: bool) -> None:
         """
         截图 保存到debug
         """
@@ -187,7 +190,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         if self.controller.game_win is not None:
             self.controller.game_win.active()
         img = self.controller.screenshot(independent=True)
-        debug_utils.save_debug_image(img)
+        debug_utils.save_debug_image(img, copy_screenshot=copy_screenshot)
 
     def switch_instance(self, instance_idx: int) -> None:
         """
@@ -204,14 +207,25 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         log.info('开始加载实例配置 %d' % self.current_instance_idx)
         self.one_dragon_app_config: OneDragonAppConfig = OneDragonAppConfig(self.current_instance_idx)
         self.game_account_config: GameAccountConfig = GameAccountConfig(self.current_instance_idx)
+        self.push_config: PushConfig = PushConfig(self.current_instance_idx)
 
     def async_init_ocr(self) -> None:
         """
         异步初始化OCR
         :return:
         """
-        f = ONE_DRAGON_CONTEXT_EXECUTOR.submit(self.ocr.init_model)
+        f = ONE_DRAGON_CONTEXT_EXECUTOR.submit(self.init_ocr)
         f.add_done_callback(thread_utils.handle_future_result)
+
+    def init_ocr(self) -> None:
+        """
+        初始化OCR
+        :return:
+        """
+        self.ocr.init_model(
+            ghproxy_url=self.env_config.gh_proxy_url if self.env_config.is_gh_proxy else None,
+            proxy_url=self.env_config.personal_proxy if self.env_config.is_personal_proxy else None,
+        )
 
     def after_app_shutdown(self) -> None:
         """
@@ -219,5 +233,7 @@ class OneDragonContext(ContextEventBus, OneDragonEnvContext):
         @return:
         """
         self.btn_listener.stop()
+        self.one_dragon_config.clear_temp_instance_indices()
+        self.one_dragon_app_config.clear_temp_app_run_list()
         ContextEventBus.after_app_shutdown(self)
         OneDragonEnvContext.after_app_shutdown(self)
