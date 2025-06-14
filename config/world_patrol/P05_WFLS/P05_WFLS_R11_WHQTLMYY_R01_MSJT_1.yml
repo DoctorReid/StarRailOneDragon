@@ -1,0 +1,60 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「无晖祈堂」黎明云崖'
+floor: 0
+tp: '末世祭坛'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1092, 862]
+  - idx: 2
+    op: 'slow_move'
+    data: [1081, 913]
+  - idx: 3
+    op: 'interact'
+    data: '操作浮台'
+  - idx: 4
+    op: 'wait'
+    data: ['seconds', '11']
+  - idx: 5
+    op: 'slow_move'
+    data: [1092, 930]
+  - idx: 6
+    op: 'interact'
+    data: '下降'
+  - idx: 7
+    op: 'wait'
+    data: ['seconds', '11']
+  - idx: 8
+    op: 'update_pos'
+    data: [1090, 1068]
+  - idx: 9
+    op: 'move'
+    data: [1078, 1107]
+  - idx: 10
+    op: 'disposable'
+  - idx: 11
+    op: 'move'
+    data: [1092, 1224]
+  - idx: 12
+    op: 'patrol'
+  - idx: 13
+    op: 'move'
+    data: [1153, 1213]
+  - idx: 14
+    op: 'disposable'
+  - idx: 15
+    op: 'move'
+    data: [1194, 1201]
+  - idx: 16
+    op: 'patrol'
+  - idx: 17
+    op: 'move'
+    data: [1203, 1236]
+  - idx: 18
+    op: 'disposable'
+  - idx: 19
+    op: 'move'
+    data: [1239, 1333]
+  - idx: 20
+    op: 'patrol'
