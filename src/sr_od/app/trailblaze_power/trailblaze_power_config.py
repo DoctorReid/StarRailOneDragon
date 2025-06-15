@@ -101,6 +101,19 @@ class TrailblazePowerConfig(YamlConfig):
 
         self.save()
 
+    def move_top(self, idx: int) -> None:
+        """
+        将一个计划移动到顶部
+        """
+        if idx >= len(self.plan_list) or idx <= 0:
+            return
+
+        tmp = self.plan_list[idx]
+        self.plan_list.pop(idx)
+        self.plan_list.insert(0, tmp)
+
+        self.save()
+
     def add_run_times(self, mission_id: str, run_times: int) -> None:
         """
         增加运行次数

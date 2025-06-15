@@ -386,7 +386,7 @@ class FastRecover(SrOperation):
 def __debug():
     ctx = SrContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     op = UseTechnique(ctx,
                       ctx.world_patrol_config.max_consumable_cnt,

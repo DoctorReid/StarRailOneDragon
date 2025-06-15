@@ -1,28 +1,21 @@
-# 开发过程的临时文件
-.idea
-__pycache__
+# 开发过程产生的临时文件
+build/
+dist/
+.idea/
+.vscode/
+__pycache__/
+deploy/build/
+deploy/dist/
+.env
+recording.jsonl
+update_by_temp_2.bat
 out/
-deploy/build
-deploy/dist
 
 # 测试文件
 sr-od-test/
 
-# 运行时产生的文件
-.env
-.log
-.temp
-.debug
-*.exe
-env.bat
-update_by_temp_2.bat
-
-# 模型文件 依赖下载
-model/yolo
-assets/models/world_patrol
-assets/models/sim_uni
-
 # 用户配置文件
+env.bat
 config/world_patrol/record.yml
 config/world_patrol/whitelist/*.yml
 config/world_patrol/personal/
@@ -34,5 +27,21 @@ config/sim_uni/challenge_config/*.yml
 config/*[!_sample].yml
 config/app_run_record/
 config/[0-9]*/
+config/model.yml
 
-#
+# 执行文件
+*.exe
+
+# 用户运行时产生的文件
+.temp
+.log/
+.install/
+.temp_clone/
+.temp_clone**/
+.debug/
+.conda/
+.venv/
+notice_cache/
+
+# 需自行下载的模型文件
+models/
