@@ -49,6 +49,18 @@ SUPPORT_PATH_LIST: List[CharacterPath] = [CHARACTER_PATH_NIHILITY, CHARACTER_PAT
 """辅助命途"""
 
 
+def is_valid_path_name(path_name: str) -> bool:
+    """
+    判断是否是正确的命途名称
+    :param path_name:
+    :return:
+    """
+    for path in CHARACTER_PATH_LIST:
+        if path.cn == path_name:
+            return True
+    return False
+
+
 class CharacterCombatType:
 
     def __init__(self, id: str, cn: str):

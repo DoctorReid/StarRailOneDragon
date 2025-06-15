@@ -9,6 +9,7 @@ from one_dragon.base.controller.pc_controller_base import PcControllerBase
 from one_dragon.base.geometry.point import Point
 from one_dragon.utils import cal_utils
 from one_dragon.utils.log_utils import log
+from sr_od.config import game_const
 from sr_od.config.game_config import GameConfig
 
 
@@ -223,3 +224,11 @@ class SrPcController(PcControllerBase):
             self.btn_controller.press(self.game_config.key_gameplay_interaction, press_time)
         else:
             self.btn_controller.tap(self.game_config.key_gameplay_interaction)
+
+    def move_to_uid(self, after_wait_seconds: float = 0) -> None:
+        """
+        将鼠标移动到uid的地方 然后等待一段时间
+        """
+        self.mouse_move(game_const.UID_RECT.center)
+        if after_wait_seconds is not None and after_wait_seconds > 0:
+            time.sleep(after_wait_seconds)

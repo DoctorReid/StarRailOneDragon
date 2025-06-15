@@ -1,4 +1,5 @@
 from one_dragon.base.geometry.point import Point
+from one_dragon.base.geometry.rectangle import Rect
 
 STANDARD_RESOLUTION_W = 1920
 STANDARD_RESOLUTION_H = 1080
@@ -17,3 +18,5 @@ COLOR_MAP_ROAD_BGR = (60, 60, 60)  # 地图上道路颜色
 COLOR_ARROW_BGR = (0, 200, 255)  # 小箭头颜色
 
 OPPOSITE_DIRECTION = {'w': 's', 'a': 'd', 's': 'w', 'd': 'a'}  # 反方向
+UID_RECT = Rect(30, 1030, 200, 1080)
+

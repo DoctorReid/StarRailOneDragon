@@ -90,7 +90,7 @@ class GuideChooseMission(SrOperation):
             for ocr_word, mrl in ocr_result_map.items():
                 mrl2 = MatchResultList(only_best=False)
                 for mr in mrl:
-                    if self.mission.mission_name == '模拟宇宙':
+                    if self.mission.cate.cn == '模拟宇宙':
                         # 取区域上方350距离内的 (模拟宇宙的标题) 和 下方全部内容 (传送)
                         if region_right_bottom_pos.y - mr.right_bottom.y < 350:
                             mrl2.append(mr)
@@ -118,6 +118,8 @@ class GuideChooseMission(SrOperation):
         log.info('匹配副本名称 %s', word_list[mission_idx])
 
         tp_idx = str_utils.find_best_match_by_difflib(gt('传送'), word_list, cutoff=0.5)  # 模拟宇宙
+        if tp_idx is None and self.mission.cate.cn == '差分宇宙':
+            tp_idx = str_utils.find_best_match_by_difflib(gt('前往参与'), word_list, cutoff=0.5)
         if tp_idx is None:
             tp_idx = str_utils.find_best_match_by_difflib(gt('进入'), word_list, cutoff=0.5)  # 普通副本
         if tp_idx is None:
@@ -133,8 +135,11 @@ class GuideChooseMission(SrOperation):
             if self.mission.mission_name == '模拟宇宙':
                 if abs(mr.center.y - region_right_bottom_pos.y) > 30:  # 模拟宇宙用下面的首通奖励来匹配 太远的就忽略
                     continue
+            elif self.mission.cate.cn == '差分宇宙':
+                if abs(mr.center.y - mission_pos.y) > 300:  # 差分宇宙 距离较远
+                    continue
             elif self.mission.cate.cn == '历战余响':
-                if abs(mr.center.y - mission_pos.y) > 150:  # 历战余响距离较远
+                if abs(mr.center.y - mission_pos.y) > 150:  # 历战余响 距离较远
                     continue
             else:
                 if abs(mr.center.y - mission_pos.y) > 30:  # 普通副本

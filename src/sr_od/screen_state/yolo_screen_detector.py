@@ -229,6 +229,21 @@ class YoloScreenDetector:
                                      category_list=['普通怪', '界面提示被锁定', '界面提示可攻击',
                                                     '模拟宇宙下层入口', '模拟宇宙下层入口未激活'])
 
+    def div_uni_combat_detect(self, screen: MatLike, screenshot_time: float) -> DetectFrameResult:
+        """
+        差分宇宙中战斗楼层使用的识别
+        :return:
+        """
+        return self.sim_uni_yolo.run(screen, run_time=screenshot_time,
+                                     category_list=['界面提示被锁定', '界面提示可攻击', '模拟宇宙下层入口',])
+
+    def div_uni_next_entry(self, screen: MatLike, screenshot_time: float) -> DetectFrameResult:
+        """
+        差分宇宙中 检测下层入口
+        :return:
+        """
+        return self.sim_uni_yolo.run(screen, run_time=screenshot_time, category_list=['模拟宇宙下层入口',])
+
 def __debug():
     from sr_od.context.sr_context import SrContext
     ctx = SrContext()

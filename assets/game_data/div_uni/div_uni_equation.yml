@@ -1,0 +1,792 @@
+- category: 方程
+  level: 3
+  name: 蛹衣匠人
+  path_list:
+  - 繁育
+  - 同谐
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 颂歌之家
+  path_list:
+  - 繁育
+  - 记忆
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 戏偶师
+  path_list:
+  - 智识
+  - 欢愉
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 山羊学派
+  path_list:
+  - 智识
+  - 繁育
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 灰河代理
+  path_list:
+  - 巡猎
+  - 虚无
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 百兽族亲
+  path_list:
+  - 巡猎
+  - 繁育
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 无泪花园
+  path_list:
+  - 欢愉
+  - 同谐
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 满溢之伤
+  path_list:
+  - 欢愉
+  - 巡猎
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 纷争剧作家
+  path_list:
+  - 毁灭
+  - 欢愉
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 天空祭司
+  path_list:
+  - 毁灭
+  - 智识
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 垂语森林
+  path_list:
+  - 虚无
+  - 智识
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 年轮刻工
+  path_list:
+  - 虚无
+  - 记忆
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 护誓者
+  path_list:
+  - 记忆
+  - 巡猎
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 哀歌祭祷
+  path_list:
+  - 记忆
+  - 毁灭
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 怠惰指节
+  path_list:
+  - 同谐
+  - 虚无
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 逐火同盟
+  path_list:
+  - 同谐
+  - 毁灭
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 欢笑神偷
+  path_list:
+  - 欢愉
+  - 繁育
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 翼之虎
+  path_list:
+  - 巡猎
+  - 智识
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 疯魔战士
+  path_list:
+  - 毁灭
+  - 记忆
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 3
+  name: 幽冥长船
+  path_list:
+  - 虚无
+  - 毁灭
+  path_cnt_list:
+  - 6
+  - 4
+- category: 方程
+  level: 2
+  name: 织书神机
+  path_list:
+  - 繁育
+  - 智识
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 忆种培育师
+  path_list:
+  - 繁育
+  - 记忆
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 遗孤抚养院
+  path_list:
+  - 繁育
+  - 同谐
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 兵戈学者
+  path_list:
+  - 智识
+  - 巡猎
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 禁识殉道者
+  path_list:
+  - 智识
+  - 毁灭
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 赤陶学派
+  path_list:
+  - 智识
+  - 记忆
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 巡游乐团
+  path_list:
+  - 巡猎
+  - 欢愉
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 猎冕金爪
+  path_list:
+  - 巡猎
+  - 繁育
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 追忆弓箭手
+  path_list:
+  - 巡猎
+  - 记忆
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 笑面刽子手
+  path_list:
+  - 欢愉
+  - 毁灭
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 酩酊导师
+  path_list:
+  - 欢愉
+  - 智识
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 阴谋论者
+  path_list:
+  - 欢愉
+  - 虚无
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 日冕不死鸟
+  path_list:
+  - 毁灭
+  - 繁育
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 悬锋伙友
+  path_list:
+  - 毁灭
+  - 同谐
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 噩兆火灵
+  path_list:
+  - 毁灭
+  - 虚无
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 焚书官
+  path_list:
+  - 虚无
+  - 智识
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 海葬者
+  path_list:
+  - 虚无
+  - 欢愉
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 处刑人
+  path_list:
+  - 虚无
+  - 巡猎
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 围炉氏族
+  path_list:
+  - 记忆
+  - 同谐
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 信史追查官
+  path_list:
+  - 记忆
+  - 巡猎
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 苦忆酿酒师
+  path_list:
+  - 记忆
+  - 欢愉
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 枯萎病人
+  path_list:
+  - 同谐
+  - 虚无
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 博爱会社
+  path_list:
+  - 同谐
+  - 繁育
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 共死者
+  path_list:
+  - 同谐
+  - 毁灭
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 旧忆茧
+  path_list:
+  - 记忆
+  - 繁育
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 失心疟疾
+  path_list:
+  - 毁灭
+  - 记忆
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 天慧巨树
+  path_list:
+  - 智识
+  - 虚无
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 行为艺术家
+  path_list:
+  - 欢愉
+  - 同协
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 北国狼母
+  path_list:
+  - 繁育
+  - 巡猎
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 2
+  name: 孤童稚刃
+  path_list:
+  - 巡猎
+  - 毁灭
+  path_cnt_list:
+  - 4
+  - 2
+- category: 方程
+  level: 1
+  name: 金实秘仪
+  path_list:
+  - 繁育
+  - 毁灭
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 贼乐师
+  path_list:
+  - 繁育
+  - 欢愉
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 磐岩居庭
+  path_list:
+  - 繁育
+  - 虚无
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 创生若虫
+  path_list:
+  - 繁育
+  - 记忆
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 沙粒记述官
+  path_list:
+  - 智识
+  - 记忆
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 螺旋之子
+  path_list:
+  - 智识
+  - 巡猎
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 莲食学派
+  path_list:
+  - 智识
+  - 欢愉
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 仙女木
+  path_list:
+  - 智识
+  - 繁育
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 巨兽猎手
+  path_list:
+  - 巡猎
+  - 智识
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 清洗者
+  path_list:
+  - 巡猎
+  - 同谐
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 律法裁断官
+  path_list:
+  - 巡猎
+  - 虚无
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 悬锋旅人
+  path_list:
+  - 巡猎
+  - 毁灭
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 逐浪海妖
+  path_list:
+  - 欢愉
+  - 繁育
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 沉醉之船
+  path_list:
+  - 欢愉
+  - 同谐
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 诸神诡辩家
+  path_list:
+  - 欢愉
+  - 智识
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 水漫琴师
+  path_list:
+  - 欢愉
+  - 毁灭
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 金血愚子
+  path_list:
+  - 毁灭
+  - 巡猎
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 红月使者
+  path_list:
+  - 毁灭
+  - 欢愉
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 天锋军团
+  path_list:
+  - 毁灭
+  - 同谐
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 残阳之牙
+  path_list:
+  - 毁灭
+  - 虚无
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 种骨者
+  path_list:
+  - 虚无
+  - 繁育
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 失意结社
+  path_list:
+  - 虚无
+  - 智识
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 冥河渡客
+  path_list:
+  - 虚无
+  - 记忆
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 灰黯朝圣者
+  path_list:
+  - 虚无
+  - 毁灭
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 吟游诗人
+  path_list:
+  - 记忆
+  - 智识
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 岁月祭司
+  path_list:
+  - 记忆
+  - 同谐
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 夜帷裁断官
+  path_list:
+  - 记忆
+  - 巡猎
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 赋生雕塑家
+  path_list:
+  - 记忆
+  - 繁育
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 追火讯使
+  path_list:
+  - 同谐
+  - 巡猎
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 迷途隐者
+  path_list:
+  - 同谐
+  - 虚无
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 回响庭
+  path_list:
+  - 同谐
+  - 记忆
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 黎明剧团
+  path_list:
+  - 同谐
+  - 欢愉
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 辉光水母
+  path_list:
+  - 繁育
+  - 同协
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 狂欢追悼会
+  path_list:
+  - 欢愉
+  - 虚无
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 战争记录官
+  path_list:
+  - 毁灭
+  - 记忆
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 黑潮朽弓
+  path_list:
+  - 虚无
+  - 巡猎
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 乐涌泉
+  path_list:
+  - 记忆
+  - 欢愉
+  path_cnt_list:
+  - 2
+  - 2
+- category: 方程
+  level: 1
+  name: 绳结学派
+  path_list:
+  - 智识
+  - 同协
+  path_cnt_list:
+  - 2
+  - 2

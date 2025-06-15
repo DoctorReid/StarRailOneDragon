@@ -505,6 +505,9 @@
 - tab_name: "模拟宇宙"
   category_list:
     - category_name: "差分宇宙"
+      show_in_power_plan: false
+      mission_list:
+        - mission_name: "奖励预览"
     - category_name: "模拟宇宙"
       show_in_power_plan: true
       mission_list:

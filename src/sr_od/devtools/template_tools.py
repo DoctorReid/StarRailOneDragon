@@ -136,13 +136,13 @@ def init_ui_icon(template_id: str, noise_threshold: int = 0):
     :param noise_threshold: 连通块小于多少时认为是噪点 视情况调整
     :return:
     """
-    raw = _read_template_raw_image(template_id)
+    raw = _read_template_raw_image('normal_world', template_id)
     gray = cv2.cvtColor(raw, cv2.COLOR_BGR2GRAY)
     _, mask = cv2.threshold(gray, np.mean(gray), 255, cv2.THRESH_BINARY)
     if noise_threshold > 0:
         mask = cv2_utils.connection_erase(mask, threshold=noise_threshold)
     final_origin, final_mask = cv2_utils.convert_to_standard(raw, mask, width=65, height=65, bg_color=(0, 0, 0))
-    show_and_save(template_id, final_origin, final_mask)
+    show_and_save('normal_world', template_id, final_origin, final_mask)
 
 
 def init_battle_ctrl_icon(template_id: str, noise_threshold: int = 0):
@@ -498,8 +498,8 @@ def cut_template_with_mask(sub_dir: str, template_id: str) -> None:
 
 if __name__ == '__main__':
     # init_tp_with_background('mm_tp_18', noise_threshold=30)
-    init_sp_with_background('mm_sp_24')
-    # init_ui_icon('ui_icon_10')
+    # init_sp_with_background('mm_sp_24')
+    init_ui_icon('ui_icon_11')
     # init_battle_ctrl_icon('battle_ctrl_02')
     # _test_init_arrow_template()
     # init_boss_icon('mm_boss_07')

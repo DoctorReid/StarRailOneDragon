@@ -195,6 +195,9 @@ class SrContext(OneDragonContext):
         )
         self.preheat_context = SrPreheatContext(self)
 
+        from sr_od.app.div_uni.div_uni_context import DivUniContext
+        self.div_uni_context: DivUniContext = DivUniContext(self)
+
         # 实例独有的配置
         self.load_instance_config()
 
@@ -284,6 +287,14 @@ class SrContext(OneDragonContext):
             model_name=self.yolo_config.sim_uni,
             gpu=self.yolo_config.sim_uni_gpu
         )
+
+    def init_for_div_uni(self) -> None:
+        self.ocr.init_model()
+        self.yolo_detector.init_sim_uni_model(
+            model_name=self.yolo_config.sim_uni,
+            gpu=self.yolo_config.sim_uni_gpu
+        )
+        self.div_uni_context.init_for_div_uni()
 
     def check_and_update_speed(self, world_patrol: bool) -> None:
         """
