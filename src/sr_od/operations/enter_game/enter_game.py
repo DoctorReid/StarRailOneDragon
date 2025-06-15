@@ -67,7 +67,7 @@ class EnterGame(SrOperation):
             result = self.round_by_find_and_click_area(screen, '进入游戏', '文本-点击进入')
             if result.is_success:
                 # 如果成功点击了“点击进入”，先等待一段时间的网络连接检测时间
-                time.sleep(5)
+                time.sleep(11)
 
                 # 再次截图，检查是否弹出“提示-确认”
                 screen2 = self.screenshot()
