@@ -1,8 +1,12 @@
 import time
+from typing import Optional
+
+from cv2.typing import MatLike
 
 from one_dragon.base.config.basic_game_config import TypeInputWay
 from one_dragon.base.config.one_dragon_config import InstanceRun
 from one_dragon.base.controller.pc_clipboard import PcClipboard
+from one_dragon.base.matcher.ocr import ocr_utils
 from one_dragon.base.operation.operation_edge import node_from
 from one_dragon.base.operation.operation_node import operation_node
 from one_dragon.base.operation.operation_round_result import OperationRoundResult
@@ -37,6 +41,26 @@ class EnterGame(SrOperation):
     def check_screen(self) -> OperationRoundResult:
         screen = self.screenshot()
 
+        login_result = self.check_login_related(screen)
+        if login_result is not None:
+            return login_result
+
+        interact_result = self.check_screen_to_interact(screen)
+        if interact_result is not None:
+            return interact_result
+
+        in_game_result = self.round_by_find_area(screen, '大世界', '角色图标')
+        if in_game_result.is_success:  # 右上角有角色图标
+            return self.round_success(status='大世界', wait=1)
+
+        return self.round_retry(wait=1)
+
+    def check_login_related(self, screen: MatLike) -> OperationRoundResult:
+        """
+        判断登陆相关的出现内容
+        :param screen: 游戏画面
+        :return: 是否有相关操作 有的话返回对应操作结果
+        """
         # 判断“错误提示-重新启动”
         result_restart = self.round_by_find_and_click_area(screen, '进入游戏', '错误提示-重新启动')
         if result_restart.is_success:
@@ -66,18 +90,12 @@ class EnterGame(SrOperation):
         else:
             result = self.round_by_find_and_click_area(screen, '进入游戏', '文本-点击进入')
             if result.is_success:
-                # 如果成功点击了“点击进入”，先等待一段时间的网络连接检测时间
-                time.sleep(5)
+                return self.round_wait(result.status, wait=1)
 
-                # 再次截图，检查是否弹出“提示-确认”
-                screen2 = self.screenshot()
-                result_confirm = self.round_by_find_and_click_area(screen2, '进入游戏', '提示-确认')
-                if result_confirm.is_success:
-                    # 如果检测到了“提示-确认”并点击
-                    return self.round_retry("检测到提示错误代码，点击确认，尝试重新登录")
-
-                # 若没有确认提示，就继续原先流程
-                return self.round_success(result.status, wait=5)
+            result = self.round_by_find_and_click_area(screen, '进入游戏', '提示-确认')
+            if result.is_success:
+                # 如果检测到了“提示-确认”并点击
+                return self.round_wait(status=result.status, wait=1)
 
         result = self.round_by_find_and_click_area(screen, '进入游戏', '国服-账号密码')
         if result.is_success:
@@ -87,7 +105,7 @@ class EnterGame(SrOperation):
         if result.is_success:
             return self.round_wait(result.status, wait=1)
 
-        return self.round_retry(wait=1)
+        return None
 
     @node_from(from_name='画面识别', status='国服-账号密码')
     @operation_node(name='国服-输入账号密码')
@@ -126,12 +144,6 @@ class EnterGame(SrOperation):
         return self.round_by_find_and_click_area(screen, '进入游戏', '国服-账号密码进入游戏',
                                                  success_wait=5, retry_wait=1)
 
-    @node_from(from_name='画面识别', status='文本-点击进入')
-    @operation_node(name='等待画面加载')
-    def wait_game(self) -> OperationRoundResult:
-        op = BackToNormalWorldPlus(self.ctx)
-        return self.round_by_op_result(op.execute())
-
     @node_from(from_name='画面识别', status='标题-退出登录')
     @operation_node(name='退出并保留登陆记录')
     def logout_with_account_kept(self) -> OperationRoundResult:
@@ -146,6 +158,45 @@ class EnterGame(SrOperation):
         screen = self.screenshot()
         return self.round_by_find_and_click_area(screen, '进入游戏-选择账号', '按钮-登陆其他账号',
                                                  success_wait=1, retry_wait=1)
+
+    def check_screen_to_interact(self, screen: MatLike) -> Optional[OperationRoundResult]:
+        """
+        判断画面 处理可能出现的需要交互的情况
+        :param screen: 游戏画面
+        :return: 是否有相关操作 有的话返回对应操作结果
+        """
+        ocr_result_map = self.ctx.ocr.run_ocr(screen)
+
+        target_word_list: list[str] = [
+            '确认',  # 登陆失败 issue #442
+            '点击领取今日补贴',  # 小月卡
+        ]
+        ignore_list: list[str] = [
+        ]
+        target_word_idx_map: dict[str, int] = {}
+        to_match_list: list[str] = []
+        for idx, target_word in enumerate(target_word_list):
+            target_word_idx_map[target_word] = idx
+            to_match_list.append(gt(target_word))
+
+        match_word, match_word_mrl = ocr_utils.match_word_list_by_priority(
+            ocr_result_map,
+            target_word_list,
+            ignore_list=ignore_list
+        )
+        if match_word is not None and match_word_mrl is not None and match_word_mrl.max is not None:
+            for mr in match_word_mrl:
+                self.ctx.controller.click(mr.center)
+                time.sleep(1)
+            return self.round_wait(status=match_word)
+
+        return None
+
+    @node_from(from_name='画面识别', status='大世界')
+    @operation_node(name='等待画面加载')
+    def wait_game(self) -> OperationRoundResult:
+        op = BackToNormalWorldPlus(self.ctx)
+        return self.round_by_op_result(op.execute())
 
 
 def __debug():
