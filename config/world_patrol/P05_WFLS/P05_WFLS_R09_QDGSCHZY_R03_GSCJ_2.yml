@@ -1,0 +1,167 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「穹顶关塞」晨昏之眼'
+floor: 2
+tp: '关塞垂井'
+route:
+  - idx: 1
+    op: 'move'
+    data: [2147, 966]
+  - idx: 2
+    op: 'wait'
+    data: ['seconds', '3']
+  - idx: 3
+    op: 'move'
+    data: [2293, 965]
+  - idx: 4
+    op: 'slow_move'
+    data: [2327, 965]
+  - idx: 5
+    op: 'interact'
+    data: '下降'
+  - idx: 6
+    op: 'wait'
+    data: ['seconds', '13']
+  - idx: 7
+    op: 'update_pos'
+    data: [2327, 965, 1]
+  - idx: 8
+    op: 'move'
+    data: [2395, 967]
+  - idx: 9
+    op: 'wait'
+    data: ['seconds', '3']
+  - idx: 10
+    op: 'move'
+    data: [2436, 966]
+  - idx: 11
+    op: 'slow_move'
+    data: [2442, 999]
+  - idx: 12
+    op: 'interact'
+    data: '激活'
+  - idx: 13
+    op: 'move'
+    data: [2445, 967]
+  - idx: 14
+    op: 'move'
+    data: [2582, 965]
+  - idx: 15
+    op: 'move'
+    data: [2563, 1004]
+  - idx: 16
+    op: 'patrol'
+  - idx: 17
+    op: 'move'
+    data: [2553, 994]
+  - idx: 18
+    op: 'disposable'
+  - idx: 19
+    op: 'disposable'
+  - idx: 20
+    op: 'disposable'
+  - idx: 21
+    op: 'move'
+    data: [2518, 967]
+  - idx: 22
+    op: 'move'
+    data: [2472, 967]
+  - idx: 23
+    op: 'move'
+    data: [2468, 1022]
+  - idx: 24
+    op: 'gameplay_interact'
+    data: ['0']
+  - idx: 25
+    op: 'move'
+    data: [2470, 1098]
+  - idx: 26
+    op: 'move'
+    data: [2486, 1102]
+  - idx: 27
+    op: 'disposable'
+  - idx: 28
+    op: 'move'
+    data: [2472, 1135]
+  - idx: 29
+    op: 'move'
+    data: [2562, 1136]
+  - idx: 30
+    op: 'move'
+    data: [2559, 1199, -1]
+  - idx: 31
+    op: 'move'
+    data: [2584, 1201]
+  - idx: 32
+    op: 'move'
+    data: [2585, 1246]
+  - idx: 33
+    op: 'move'
+    data: [2604, 1246]
+  - idx: 34
+    op: 'disposable'
+  - idx: 35
+    op: 'move'
+    data: [2621, 1245]
+  - idx: 36
+    op: 'move'
+    data: [2624, 1214]
+  - idx: 37
+    op: 'gameplay_interact'
+    data: ['0']
+  - idx: 38
+    op: 'move'
+    data: [2734, 1165]
+  - idx: 39
+    op: 'move'
+    data: [2738, 1111]
+  - idx: 40
+    op: 'patrol'
+  - idx: 41
+    op: 'move'
+    data: [2736, 1183]
+  - idx: 42
+    op: 'gameplay_interact'
+    data: ['0']
+  - idx: 43
+    op: 'move'
+    data: [2623, 1245]
+  - idx: 44
+    op: 'move'
+    data: [2585, 1244]
+  - idx: 45
+    op: 'move'
+    data: [2585, 1199]
+  - idx: 46
+    op: 'move'
+    data: [2556, 1199]
+  - idx: 47
+    op: 'move'
+    data: [2558, 1264]
+  - idx: 48
+    op: 'move'
+    data: [2456, 1262]
+  - idx: 49
+    op: 'move'
+    data: [2456, 1132, -2]
+  - idx: 50
+    op: 'move'
+    data: [2620, 1134]
+  - idx: 51
+    op: 'move'
+    data: [2624, 1186]
+  - idx: 52
+    op: 'gameplay_interact'
+    data: ['0']
+  - idx: 53
+    op: 'move'
+    data: [2689, 1132]
+  - idx: 54
+    op: 'patrol'
+  - idx: 55
+    op: 'move'
+    data: [2691, 1238]
+  - idx: 56
+    op: 'disposable'
+  - idx: 57
+    op: 'disposable'
