@@ -1,0 +1,38 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「龙骸古城」斯缇科西亚'
+floor: 2
+tp: '王宫废庭'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1350, 1704]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [1353, 1621]
+  - idx: 4
+    op: 'move'
+    data: [1414, 1616]
+  - idx: 5
+    op: 'move'
+    data: [1406, 1529]
+  - idx: 6
+    op: 'patrol'
+  - idx: 7
+    op: 'move'
+    data: [1434, 1478]
+  - idx: 8
+    op: 'patrol'
+  - idx: 9
+    op: 'move'
+    data: [1495, 1483]
+  - idx: 10
+    op: 'move'
+    data: [1497, 1507]
+  - idx: 11
+    op: 'move'
+    data: [1479, 1540]
+  - idx: 12
+    op: 'patrol'
