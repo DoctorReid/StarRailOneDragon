@@ -1,0 +1,29 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「云端遗堡」晨昏之眼'
+floor: 2
+tp: '熔金悬台'
+route:
+  - idx: 1
+    op: 'move'
+    data: [2056, 1535]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [2051, 1515]
+  - idx: 4
+    op: 'move'
+    data: [2102, 1427]
+  - idx: 5
+    op: 'patrol'
+  - idx: 6
+    op: 'move'
+    data: [2130, 1409]
+  - idx: 7
+    op: 'disposable'
+  - idx: 8
+    op: 'move'
+    data: [2110, 1473]
+  - idx: 9
+    op: 'disposable'

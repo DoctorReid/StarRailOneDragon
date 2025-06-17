@@ -1,0 +1,96 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「云端遗堡」晨昏之眼'
+floor: 4
+tp: '悬夜骨城'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1423, 1546]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [1422, 1525]
+  - idx: 4
+    op: 'move'
+    data: [1387, 1526]
+  - idx: 5
+    op: 'wait'
+    data: ['seconds', '3']
+  - idx: 6
+    op: 'move'
+    data: [1199, 1528]
+  - idx: 7
+    op: 'wait'
+    data: ['seconds', '3']
+  - idx: 8
+    op: 'move'
+    data: [1113, 1528]
+  - idx: 9
+    op: 'move'
+    data: [1113, 1512]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [1133, 1549]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [1086, 1549]
+  - idx: 14
+    op: 'disposable'
+  - idx: 15
+    op: 'move'
+    data: [1083, 1526]
+  - idx: 16
+    op: 'move'
+    data: [976, 1529]
+  - idx: 17
+    op: 'move'
+    data: [963, 1620]
+  - idx: 18
+    op: 'disposable'
+  - idx: 19
+    op: 'slow_move'
+    data: [910, 1603]
+  - idx: 20
+    op: 'interact'
+    data: '跨入密径'
+  - idx: 21
+    op: 'wait'
+    data: ['seconds', '7']
+  - idx: 22
+    op: 'gameplay_interact'
+    data: ['1']
+  - idx: 23
+    op: 'wait'
+    data: ['in_world', '4']
+  - idx: 24
+    op: 'update_pos'
+    data: [831, 1675, 3]
+  - idx: 25
+    op: 'move'
+    data: [816, 1746]
+  - idx: 26
+    op: 'disposable'
+  - idx: 27
+    op: 'disposable'
+  - idx: 28
+    op: 'move'
+    data: [826, 1709]
+  - idx: 29
+    op: 'move'
+    data: [935, 1707]
+  - idx: 30
+    op: 'move'
+    data: [977, 1657]
+  - idx: 31
+    op: 'patrol'
+  - idx: 32
+    op: 'move'
+    data: [970, 1603]
+  - idx: 33
+    op: 'patrol'
