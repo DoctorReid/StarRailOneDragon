@@ -1,0 +1,59 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「云端遗堡」晨昏之眼'
+floor: 4
+tp: '遗堡垂井'
+route:
+  - idx: 1
+    op: 'move'
+    data: [2449, 1360]
+  - idx: 2
+    op: 'interact'
+    data: '操作浮台'
+  - idx: 3
+    op: 'wait'
+    data: ['seconds', '12']
+  - idx: 4
+    op: 'slow_move'
+    data: [2470, 1362]
+  - idx: 5
+    op: 'move'
+    data: [2473, 1394]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'slow_move'
+    data: [2471, 1360]
+  - idx: 8
+    op: 'interact'
+    data: '下降'
+  - idx: 9
+    op: 'wait'
+    data: ['seconds', '12']
+  - idx: 10
+    op: 'update_pos'
+    data: [2471, 1360, 3]
+  - idx: 11
+    op: 'move'
+    data: [2471, 1388]
+  - idx: 12
+    op: 'move'
+    data: [2440, 1394]
+  - idx: 13
+    op: 'move'
+    data: [2429, 1456]
+  - idx: 14
+    op: 'disposable'
+  - idx: 15
+    op: 'move'
+    data: [2440, 1419]
+  - idx: 16
+    op: 'move'
+    data: [2435, 1336]
+  - idx: 17
+    op: 'patrol'
+  - idx: 18
+    op: 'move'
+    data: [2492, 1329]
+  - idx: 19
+    op: 'disposable'

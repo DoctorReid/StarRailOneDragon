@@ -1,0 +1,109 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「云端遗堡」晨昏之眼'
+floor: 4
+tp: '悬夜骨城'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1385, 1396]
+  - idx: 2
+    op: 'disposable'
+  - idx: 3
+    op: 'move'
+    data: [1323, 1354]
+  - idx: 4
+    op: 'slow_move'
+    data: [1323, 1322]
+  - idx: 5
+    op: 'move'
+    data: [1347, 1228]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [1348, 1263]
+  - idx: 8
+    op: 'move'
+    data: [1421, 1264]
+  - idx: 9
+    op: 'patrol'
+  - idx: 10
+    op: 'move'
+    data: [1292, 1265]
+  - idx: 11
+    op: 'wait'
+    data: ['seconds', '3']
+  - idx: 12
+    op: 'move'
+    data: [1222, 1266]
+  - idx: 13
+    op: 'disposable'
+  - idx: 14
+    op: 'move'
+    data: [1232, 1318]
+  - idx: 15
+    op: 'disposable'
+  - idx: 16
+    op: 'move'
+    data: [1186, 1368]
+  - idx: 17
+    op: 'disposable'
+  - idx: 18
+    op: 'move'
+    data: [1124, 1357]
+  - idx: 19
+    op: 'wait'
+    data: ['seconds', '3']
+  - idx: 20
+    op: 'move'
+    data: [1042, 1373]
+  - idx: 21
+    op: 'disposable'
+  - idx: 22
+    op: 'move'
+    data: [1060, 1311]
+  - idx: 23
+    op: 'disposable'
+  - idx: 24
+    op: 'move'
+    data: [1047, 1259]
+  - idx: 25
+    op: 'disposable'
+  - idx: 26
+    op: 'move'
+    data: [1061, 1172]
+  - idx: 27
+    op: 'disposable'
+  - idx: 28
+    op: 'move'
+    data: [972, 1177]
+  - idx: 29
+    op: 'move'
+    data: [828, 1174]
+  - idx: 30
+    op: 'move'
+    data: [823, 1102]
+  - idx: 31
+    op: 'patrol'
+  - idx: 32
+    op: 'move'
+    data: [843, 1082]
+  - idx: 33
+    op: 'disposable'
+  - idx: 34
+    op: 'move'
+    data: [828, 1171]
+  - idx: 35
+    op: 'move'
+    data: [911, 1175]
+  - idx: 36
+    op: 'move'
+    data: [908, 1265]
+  - idx: 37
+    op: 'disposable'
+  - idx: 38
+    op: 'move'
+    data: [992, 1271]
+  - idx: 39
+    op: 'patrol'
