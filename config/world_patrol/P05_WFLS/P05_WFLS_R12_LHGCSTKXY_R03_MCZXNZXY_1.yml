@@ -1,0 +1,65 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「龙骸古城」斯缇科西亚'
+floor: 3
+tp: '溟簇之形·凝滞虚影'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1794, 1334]
+  - idx: 2
+    op: 'move'
+    data: [1778, 1370]
+  - idx: 3
+    op: 'move'
+    data: [1825, 1454]
+  - idx: 4
+    op: 'slow_move'
+    data: [1839, 1482]
+  - idx: 5
+    op: 'slow_move'
+    data: [1827, 1482]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [1874, 1490]
+  - idx: 8
+    op: 'move'
+    data: [1887, 1515]
+  - idx: 9
+    op: 'move'
+    data: [1879, 1537]
+  - idx: 10
+    op: 'move'
+    data: [1853, 1544]
+  - idx: 11
+    op: 'move'
+    data: [1833, 1531]
+  - idx: 12
+    op: 'move'
+    data: [1830, 1505]
+  - idx: 13
+    op: 'move'
+    data: [1847, 1485]
+  - idx: 14
+    op: 'move'
+    data: [1835, 1476]
+  - idx: 15
+    op: 'move'
+    data: [1813, 1502]
+  - idx: 16
+    op: 'disposable'
+  - idx: 17
+    op: 'move'
+    data: [1811, 1530]
+  - idx: 18
+    op: 'move'
+    data: [1854, 1561]
+  - idx: 19
+    op: 'patrol'
+  - idx: 20
+    op: 'move'
+    data: [1885, 1549]
+  - idx: 21
+    op: 'patrol'

@@ -1,0 +1,42 @@
+author: ['DoctorReid']
+planet: '翁法罗斯'
+region: '「龙骸古城」斯缇科西亚'
+floor: 2
+tp: '岁月神殿'
+route:
+  - idx: 1
+    op: 'move'
+    data: [1634, 1435]
+  - idx: 2
+    op: 'patrol'
+  - idx: 3
+    op: 'move'
+    data: [1615, 1411]
+  - idx: 4
+    op: 'disposable'
+  - idx: 5
+    op: 'slow_move'
+    data: [1645, 1450]
+  - idx: 6
+    op: 'disposable'
+  - idx: 7
+    op: 'move'
+    data: [1687, 1490]
+  - idx: 8
+    op: 'move'
+    data: [1736, 1456]
+  - idx: 9
+    op: 'move'
+    data: [1735, 1432]
+  - idx: 10
+    op: 'patrol'
+  - idx: 11
+    op: 'move'
+    data: [1758, 1421]
+  - idx: 12
+    op: 'disposable'
+  - idx: 13
+    op: 'move'
+    data: [1762, 1458]
+  - idx: 14
+    op: 'patrol'
