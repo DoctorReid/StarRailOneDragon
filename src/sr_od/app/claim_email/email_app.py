@@ -24,7 +24,9 @@ class EmailApp(SrApplication):
         2023-11-12 中英文最高画质测试通过
         """
         SrApplication.__init__(self, ctx, 'email',
-                               op_name=gt('邮件', 'ui'), run_record=ctx.email_run_record)
+                               op_name=gt('邮件', 'ui'),
+                               run_record=ctx.email_run_record,
+                               need_notify=True)
 
     @operation_node(name='开始前返回', is_start_node=True)
     def back_at_first(self) -> OperationRoundResult:
@@ -60,5 +62,6 @@ class EmailApp(SrApplication):
     @node_from(from_name='全部领取', success=False)
     @operation_node(name='结束后返回')
     def back_at_last(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())

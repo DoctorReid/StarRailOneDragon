@@ -21,7 +21,8 @@ class DailyTrainingApp(SrApplication):
     def __init__(self, ctx: SrContext):
         SrApplication.__init__(self, ctx, 'daily_training',
                                op_name=gt('每日实训'),
-                               run_record=ctx.daily_training_run_record)
+                               run_record=ctx.daily_training_run_record,
+                               need_notify=True)
 
     @operation_node(name='开始前返回', is_start_node=True)
     def back_at_first(self) -> OperationRoundResult:
@@ -80,5 +81,6 @@ class DailyTrainingApp(SrApplication):
     @node_from(from_name='领取奖励')
     @operation_node(name='结束后返回')
     def back_at_last(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())

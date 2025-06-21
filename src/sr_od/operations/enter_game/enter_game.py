@@ -202,7 +202,7 @@ class EnterGame(SrOperation):
 def __debug():
     ctx = SrContext()
     ctx.init_by_config()
-    ctx.ocr.init_model()
+    ctx.init_ocr()
     ctx.start_running()
     app = EnterGame(ctx, switch=True)
     app.execute()

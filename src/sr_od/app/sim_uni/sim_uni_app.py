@@ -37,7 +37,8 @@ class SimUniApp(SrApplication):
         """
         SrApplication.__init__(self, ctx, 'sim_universe',
                                op_name=gt('模拟宇宙', 'ui'),
-                               run_record=ctx.sim_uni_record)
+                               run_record=ctx.sim_uni_record,
+                               need_notify=True)
 
         self.current_uni_num: int = 0  # 当前运行的第几宇宙 启动时会先完成运行中的宇宙
 
@@ -181,6 +182,7 @@ class SimUniApp(SrApplication):
     @node_from(from_name='领取每周奖励', success=False)
     @operation_node(name='完成后返回')
     def back_at_last(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())
 

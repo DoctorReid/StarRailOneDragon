@@ -32,6 +32,7 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
                               op_to_switch_account=op_to_switch_account)
 
     def get_app_list(self) -> List[SrApplication]:
+        from sr_od.app.notify.notify_app import NotifyApp
         return [
             AssignmentsApp(self.ctx),
             EchoOfWarApp(self.ctx),
@@ -45,6 +46,7 @@ class SrOneDragonApp(OneDragonApp, SrApplication):
             SupportCharacterApp(self.ctx),
             DailyTrainingApp(self.ctx),
             NamelessHonorApp(self.ctx),
+            NotifyApp(self.ctx)
         ]
 
 

@@ -31,13 +31,12 @@ class DataFetcher(QThread):
     CACHE_DIR = "notice_cache"
     CACHE_FILE = os.path.join(CACHE_DIR, "notice_cache.json")
     CACHE_DURATION = 259200  # 缓存时间为3天
-    TIMEOUTNUM = 3 # 超时时间
+    TIMEOUTNUM = 3  # 超时时间
 
     def run(self):
         try:
             response = requests.get(
                 f"{DataFetcher.BASE_URL}?launcher_id={DataFetcher.LAUNCHER_ID}&game_id={DataFetcher.GAME_ID}&language=zh-cn",
-                verify=False,
                 timeout=DataFetcher.TIMEOUTNUM,
             )
             response.raise_for_status()
@@ -70,7 +69,7 @@ class DataFetcher(QThread):
             file_name = os.path.basename(file_url)
             file_path = os.path.join(DataFetcher.CACHE_DIR, file_name)
             try:
-                response = requests.get(file_url, verify=False, timeout=DataFetcher.TIMEOUTNUM)
+                response = requests.get(file_url, timeout=DataFetcher.TIMEOUTNUM)
                 response.raise_for_status()
                 with open(file_path, "wb") as file:
                     file.write(response.content)

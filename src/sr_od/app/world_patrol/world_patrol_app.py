@@ -28,7 +28,8 @@ class WorldPatrolApp(SrApplication):
                  ignore_record: bool = False,
                  team_num: Optional[int] = None):
         SrApplication.__init__(self, ctx, 'world_patrol', op_name=gt('锄大地', 'ui'),
-                               run_record=ctx.world_patrol_record if not ignore_record else None)
+                               run_record=ctx.world_patrol_record if not ignore_record else None,
+                               need_notify=True)
         self.route_list: List[WorldPatrolRoute] = []
         self.current_route_idx: int = 0
         self.ignore_record: bool = ignore_record
@@ -116,6 +117,7 @@ class WorldPatrolApp(SrApplication):
     @node_from(from_name='运行路线', status=STATUS_ALL_ROUTE_FINISHED)
     @operation_node(name='完成')
     def finished(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         return self.round_success()
 
     def save_record(self, route_id: str, time_cost: float):
