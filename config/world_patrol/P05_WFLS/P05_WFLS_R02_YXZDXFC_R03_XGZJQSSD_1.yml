@@ -44,113 +44,99 @@ route:
   - idx: 15
     op: 'disposable'
   - idx: 16
-    op: 'wait'
-    data: ['seconds', '3']
-  - idx: 17
-    op: 'move'
-    data: [1428, 901]
-  - idx: 18
-    op: 'patrol'
-  - idx: 19
-    op: 'move'
-    data: [1320, 892]
-  - idx: 20
-    op: 'wait'
-    data: ['seconds', '4']
-  - idx: 21
     op: 'move'
     data: [1236, 886]
-  - idx: 22
+  - idx: 17
     op: 'move'
     data: [1245, 865]
-  - idx: 23
+  - idx: 18
     op: 'move'
     data: [1207, 784]
-  - idx: 24
+  - idx: 19
     op: 'patrol'
-  - idx: 25
+  - idx: 20
     op: 'move'
     data: [1172, 733]
-  - idx: 26
+  - idx: 21
     op: 'move'
     data: [1140, 721]
-  - idx: 27
+  - idx: 22
     op: 'disposable'
-  - idx: 28
+  - idx: 23
     op: 'move'
     data: [1189, 686]
-  - idx: 29
+  - idx: 24
     op: 'move'
     data: [1176, 625]
-  - idx: 30
+  - idx: 25
     op: 'disposable'
-  - idx: 31
+  - idx: 26
     op: 'move'
     data: [1213, 640]
-  - idx: 32
+  - idx: 27
     op: 'move'
     data: [1225, 616]
-  - idx: 33
+  - idx: 28
     op: 'move'
     data: [1217, 528]
-  - idx: 34
+  - idx: 29
     op: 'move'
     data: [1162, 520]
-  - idx: 35
+  - idx: 30
     op: 'move'
     data: [1187, 463]
-  - idx: 36
+  - idx: 31
     op: 'patrol'
-  - idx: 37
+  - idx: 32
     op: 'move'
     data: [1161, 520]
-  - idx: 38
+  - idx: 33
     op: 'move'
     data: [1100, 518]
-  - idx: 39
+  - idx: 34
     op: 'disposable'
-  - idx: 40
+  - idx: 35
     op: 'move'
     data: [1085, 593]
-  - idx: 41
+  - idx: 36
     op: 'disposable'
-  - idx: 42
+  - idx: 37
     op: 'move'
     data: [1122, 561]
-  - idx: 43
+  - idx: 38
     op: 'move'
     data: [1144, 583, 2]
-  - idx: 44
+  - idx: 39
     op: 'move'
     data: [1163, 596]
-  - idx: 45
+  - idx: 40
     op: 'disposable'
-  - idx: 46
+  - idx: 41
     op: 'move'
     data: [1194, 596]
-  - idx: 47
+  - idx: 42
     op: 'patrol'
-  - idx: 48
+  - idx: 43
     op: 'move'
     data: [1199, 564]
-  - idx: 49
+  - idx: 44
     op: 'move'
     data: [1219, 517]
-  - idx: 50
+  - idx: 45
     op: 'move'
     data: [1234, 464]
-  - idx: 51
+  - idx: 46
     op: 'patrol'
-  - idx: 52
+  - idx: 47
     op: 'move'
     data: [1213, 491]
-  - idx: 53
+  - idx: 48
     op: 'move'
     data: [1185, 469]
-  - idx: 54
+  - idx: 49
     op: 'disposable'
-  - idx: 55
+  - idx: 50
     op: 'move'
     data: [1129, 478]
-  - idx: 56
+  - idx: 51
     op: 'disposable'
