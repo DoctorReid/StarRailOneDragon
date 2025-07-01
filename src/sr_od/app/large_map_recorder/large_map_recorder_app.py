@@ -22,11 +22,12 @@ from sr_od.app.sr_application import SrApplication
 from sr_od.config import game_const, operation_const
 from sr_od.context.sr_context import SrContext
 from sr_od.sr_map import large_map_utils
+from sr_od.sr_map.mys import sr_request_utils
 from sr_od.sr_map.operations.choose_floor import ChooseFloor
 from sr_od.sr_map.operations.choose_planet import ChoosePlanet
 from sr_od.sr_map.operations.choose_region import ChooseRegion
 from sr_od.sr_map.operations.open_map import OpenMap
-from sr_od.sr_map.sr_map_def import Region
+from sr_od.sr_map.sr_map_def import Region, Planet
 
 _FLOOR_LIST = [-4, -3, -2, -1, 0, 1, 2, 3, 4]
 
@@ -166,13 +167,13 @@ class LargeMapRecorder(SrApplication):
         self._do_screenshot_1()
         if self.row_list_to_record is not None:
             while True:
-                img = LargeMapRecorder.get_part_image(self.current_region, self.row, 0)
+                img = get_part_image(self.current_region, self.row, 0)
                 if img is None:
                     break
                 else:
                     self.row += 1
             while True:
-                img = LargeMapRecorder.get_part_image(self.current_region, 0, self.col)
+                img = get_part_image(self.current_region, 0, self.col)
                 if img is None:
                     break
                 else:
@@ -268,28 +269,9 @@ class LargeMapRecorder(SrApplication):
     @node_from(from_name='合并')
     @operation_node(name='保存')
     def do_save(self) -> OperationRoundResult:
-        # 部分地图边缘较窄 与小地图做模板匹配会有问题 因此做一个边缘拓展
-        lp, rp, tp, bp = None, None, None, None
-        for region in self.region_list:
-            # 不同楼层需要拓展的大小可能不一致 保留一个最大的
-            screen_map_rect = large_map_utils.get_screen_map_rect(region)
-            raw = self.ctx.map_data.get_large_map_image(region, 'raw')
-            lp2, rp2, tp2, bp2 = large_map_utils.get_expand_arr(raw, self.ctx.game_config.mini_map_pos, screen_map_rect)
-            if lp is None or lp2 > lp:
-                lp = lp2
-            if rp is None or rp2 > rp:
-                rp = rp2
-            if tp is None or tp2 > tp:
-                tp = tp2
-            if bp is None or bp2 > bp:
-                bp = bp2
-
-        # cv2.waitKey(0)
-
         for region in self.region_list:
             raw = self.ctx.map_data.get_large_map_image(region, 'raw')
-            large_map_utils.init_large_map(self.ctx, region, raw,
-                                           expand_arr=[lp, rp, tp, bp], save=True)
+            large_map_utils.init_large_map(self.ctx, region, raw, save=True)
 
         return self.round_success()
 
@@ -485,7 +467,7 @@ class LargeMapRecorder(SrApplication):
                 cur_col_img = None
                 for col in range(1, max_col + 1):
                     last_col_img = cur_col_img
-                    cur_col_img = LargeMapRecorder.get_part_image(region, row, col)
+                    cur_col_img = get_part_image(region, row, col)
 
                     if last_col_img is not None:
                         f = _EXECUTOR.submit(LargeMapRecorder.get_overlap_width, last_col_img, cur_col_img, 200, False)
@@ -502,7 +484,7 @@ class LargeMapRecorder(SrApplication):
             region = result.region
             row = result.row
             col = result.col
-            cur_col_img = LargeMapRecorder.get_part_image(region, row, col)
+            cur_col_img = get_part_image(region, row, col)
             overlap_width = result.future.result()
             log.info('%d层 %02d行 %02d列 与前重叠宽度 %d', region.floor, row, col, overlap_width)
             if overlap_width == -1:
@@ -560,7 +542,7 @@ class LargeMapRecorder(SrApplication):
                 cur_row_img = None
                 for row in range(1, max_row + 1):
                     last_row_img = cur_row_img
-                    cur_row_img = LargeMapRecorder.get_part_image(region, row, col)
+                    cur_row_img = get_part_image(region, row, col)
 
                     if last_row_img is not None:
                         f = _EXECUTOR.submit(LargeMapRecorder.get_overlap_height, last_row_img, cur_row_img, 150, False)
@@ -577,7 +559,7 @@ class LargeMapRecorder(SrApplication):
             region = result.region
             row = result.row
             col = result.col
-            cur_row_img = LargeMapRecorder.get_part_image(region, row, col)
+            cur_row_img = get_part_image(region, row, col)
             overlap_height = result.future.result()
             log.info('%d层 %02d行 %02d列 与前重叠高度 %d', region.floor, row, col, overlap_height)
             if overlap_height == -1:
@@ -659,7 +641,7 @@ class LargeMapRecorder(SrApplication):
         for row in range(1, max_row + 1):
             img_list.append([None])  # 每一行的第0列 都置为空
             for col in range(1, max_col + 1):
-                img = LargeMapRecorder.get_part_image(region, row, col)
+                img = get_part_image(region, row, col)
                 img_list[row].append(img)
 
         # 根据重合宽度 先计算最终的宽度
@@ -733,8 +715,8 @@ class LargeMapRecorder(SrApplication):
         if row <= 1:
             return False
         for col in range(max_col):
-            prev_image = LargeMapRecorder.get_part_image(region, row - 1, col)
-            next_image = LargeMapRecorder.get_part_image(region, row, col)
+            prev_image = get_part_image(region, row - 1, col)
+            next_image = get_part_image(region, row, col)
             if prev_image is None or next_image is None:
                 return False
             if not cv2_utils.is_same_image(prev_image, next_image, threshold=10):
@@ -900,31 +882,6 @@ class LargeMapRecorder(SrApplication):
         self.row = 1
 
     @staticmethod
-    def get_part_image_path(region: Region, row: int, col: int) -> str:
-        """
-        地图格子的图片路径
-        """
-        return os.path.join(
-            os_utils.get_path_under_work_dir('.debug', 'world_patrol', region.pr_id, 'part'),
-            f'{region.pr_id}_part_{region.l_str}_{row:02d}_{col:02d}.png'
-        )
-
-    @staticmethod
-    def get_part_image(region: Region, row: int, col: int) -> MatLike:
-        """
-        地图格子的图片
-        """
-        return cv2_utils.read_image(LargeMapRecorder.get_part_image_path(region, row, col))
-
-    @staticmethod
-    def save_part_image(region: Region, row: int, col: int, image: MatLike) -> None:
-        """
-        地图格子的图片
-        """
-        path = LargeMapRecorder.get_part_image_path(region, row, col)
-        cv2_utils.save_image(image, path)
-
-    @staticmethod
     def get_row_image_path(region: Region, row: int) -> str:
         """
         地图某一行的图片路径
@@ -1078,8 +1035,8 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
     sc = special_conditions.get(key, {})
     sc['ctx'] = ctx
     sc['region'] = region
-    sc['floor_list_to_record'] = [3]
-    # sc['row_list_to_record'] = [5]
+    # sc['floor_list_to_record'] = [1]
+    # sc['row_list_to_record'] = [2]
     # sc['col_list_to_record'] = [1, 2, 3]
     # sc['drag_times_to_left_top'] = 0  # 手动拖到左上会快一点
     # sc['drag_times_to_left'] = 0  # 只录一行时可以使用
@@ -1125,5 +1082,141 @@ def __debug(planet_name, region_name, run_mode: str = 'all'):
         pass
 
 
+def get_part_image_path(region: Region, row: int, col: int) -> str:
+    """
+    地图格子的图片路径
+    """
+    return os.path.join(
+        os_utils.get_path_under_work_dir('.debug', 'world_patrol', region.pr_id, 'part'),
+        f'{region.pr_id}_part_{region.l_str}_{row:02d}_{col:02d}.png'
+    )
+
+
+def get_part_image(region: Region, row: int, col: int) -> MatLike:
+    """
+    地图格子的图片
+    """
+    return cv2_utils.read_image(get_part_image_path(region, row, col))
+
+
+def save_part_image(region: Region, row: int, col: int, image: MatLike) -> None:
+    """
+    地图格子的图片
+    """
+    path = get_part_image_path(region, row, col)
+    cv2_utils.save_image(image, path)
+
+
+def _get_mys_image(
+        ctx: SrContext,
+        planet_name: str,
+        region_name: str,
+        floor: int,
+) -> np.ndarray:
+    """
+    获取米游社的地图图片
+    Args:
+        ctx: 上下文
+        planet_name: 星球名称
+        region_name: 区域名称
+        floor: 楼层
+
+    Returns:
+        map_image: 地图图片
+    """
+    region = ctx.map_data.get_region_by_cn(
+        planet_name=planet_name,
+        region_name=region_name,
+        floor=floor,
+    )
+    if region is None:
+        raise ValueError('未找到对应的区域')
+
+    # 先看是否已经有缓存图片
+    save_dir = os_utils.get_path_under_work_dir('.debug', 'mys', 'map', region.planet.np_id)
+    save_image_name = f'{region.prl_id}.png'
+    save_image_path = os.path.join(save_dir, save_image_name)
+    if os.path.exists(save_image_path):
+        return cv2_utils.read_image(save_image_path)
+
+    # 下载米游社图片
+    floor_2_map = sr_request_utils.download_map_image(
+        planet_name=planet_name,
+        region_name=region_name,
+    )
+    for f, image in floor_2_map.items():
+        floor_region = ctx.map_data.region_with_another_floor(region, floor)
+        save_image_name = f'{floor_region.prl_id}.png'
+        save_image_path = os.path.join(save_dir, save_image_name)
+        cv2_utils.save_image(image, save_image_path)
+
+    return floor_2_map[floor]
+
+
+def _fill_into_mys_image(
+        ctx: SrContext,
+        planet_name: str,
+        region_name: str,
+        floor: int,
+        max_row: int,
+        max_col: int,
+        debug: bool = False,
+) -> np.ndarray:
+    """
+    将游戏中的截图，填充到米游社的地图图片上
+    Args:
+        ctx: 上下文
+        planet_name: 星球名称
+        region_name: 区域名称
+        floor: 区域楼层
+        max_row: 游戏里截图的最大行数
+        max_col: 游戏里截图的最大列数
+        debug: 开启调试模式
+
+    Returns:
+        map_image: 填充后的地图图片
+    """
+    region = ctx.map_data.get_region_by_cn(
+        planet_name=planet_name,
+        region_name=region_name,
+        floor=floor,
+    )
+    if region is None:
+        raise ValueError('未找到对应的区域')
+
+    mys_image: np.ndarray = _get_mys_image(
+        ctx=ctx,
+        planet_name=planet_name,
+        region_name=region_name,
+        floor=floor,
+    )
+
+    # 首先找到一个最匹配的区域
+    max_confidence: float = 0
+    start_pos: tuple[int, int] = (0, 0)
+    for row in range(1, max_row + 1):
+        for col in range(1, max_col + 1):
+            part_image = get_part_image(region, row, col)
+
+            # 需要有路的 才进行匹配
+
+            cv2_utils.match_template(
+                source=mys_image,
+                template=part_image,
+            )
+
+
+def is_image_with_road(map_image: np.ndarray) -> bool:
+    """
+    判断当前图片是否可以识别到路
+
+    Args:
+        map_image: 地图图片
+
+    Returns:
+
+    """
+
+
 if __name__ == '__main__':
-    __debug('翁法罗斯', '「龙骸古城」斯缇科西亚', 'save')
+    __debug('翁法罗斯', '「穹顶关塞」晨昏之眼', 'save')
