@@ -11,7 +11,7 @@ class RelicSalvageApp(SrApplication):
 
     def __init__(self, ctx: SrContext):
         SrApplication.__init__(self, ctx, 'relic_salvage', op_name=gt('遗器分解', 'ui'),
-                               run_record=ctx.relic_salvage_run_record)
+                               run_record=ctx.relic_salvage_run_record, need_notify=True)
 
     @operation_node(name='开始前返回', is_start_node=True)
     def back_at_first(self) -> OperationRoundResult:
@@ -76,6 +76,7 @@ class RelicSalvageApp(SrApplication):
     @node_from(from_name='点击分解确认', success=False)  # 可能没有需要分解的
     @operation_node(name='完成后返回')
     def back_at_last(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())
 

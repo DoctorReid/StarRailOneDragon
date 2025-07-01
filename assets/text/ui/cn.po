@@ -1,0 +1,21 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# SR-OD
+msgid "StarRail"
+msgstr "星穹铁道"
+
+# SR-OD UI
+msgid "StarRail-OneDragon"
+msgstr "星穹铁道 一条龙"
+
+msgid "StarRail-OneDragon-installer"
+msgstr "星穹铁道 一条龙 安装器"
+
+msgid "设置"
+msgstr "设置"
+
+msgid "语言"
+msgstr "语言"

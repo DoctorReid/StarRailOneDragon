@@ -11,7 +11,7 @@ class TrickSnackApp(SrApplication):
 
     def __init__(self, ctx: SrContext):
         SrApplication.__init__(self, ctx, 'trick_snack', op_name=gt('奇巧零食', 'ui'),
-                               run_record=ctx.trick_snack_run_record)
+                               run_record=ctx.trick_snack_run_record, need_notify=True)
 
     @operation_node(name='购买路线1', is_start_node=True)
     def buy_1(self) -> OperationRoundResult:
@@ -37,7 +37,9 @@ class TrickSnackApp(SrApplication):
             return self.round_success('合成功能未启用')
 
         op = CustomCombineOp(self.ctx, 'synthesize_trick_snack', no_battle=True)
-        return self.round_by_op_result(op.execute())
+        result = op.execute()
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
+        return self.round_by_op_result(result)
 
 
 def __debug():

@@ -101,7 +101,6 @@ class InstanceSettingCard(MultiPushSettingCard):
 class SettingInstanceInterface(VerticalScrollInterface):
 
     def __init__(self, ctx: OneDragonContext, show_login_btn: bool = False, parent=None):
-        self.ctx: OneDragonContext = ctx
         VerticalScrollInterface.__init__(
             self,
             object_name='setting_instance_interface',
@@ -109,6 +108,7 @@ class SettingInstanceInterface(VerticalScrollInterface):
             parent=parent,
             nav_text_cn='多账户管理'
         )
+        self.ctx: OneDragonContext = ctx
         self.show_login_btn: bool = show_login_btn
 
     def get_content_widget(self) -> QWidget:
