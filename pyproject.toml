@@ -1,6 +1,6 @@
 [project]
 name = "StarRail-OneDragon"
-version = "3.0.0"
+version = "3.4.0"
 description = "星穹铁道 一条龙 | 全自动 | 自动闪避 | 自动每日 | 自动空洞 | 支持手柄"
 requires-python = ">=3.11.9,<=3.11.12"
 dependencies = [
