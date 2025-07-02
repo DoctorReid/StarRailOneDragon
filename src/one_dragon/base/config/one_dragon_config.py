@@ -39,7 +39,7 @@ class InstanceRun(Enum):
 class OneDragonConfig(YamlConfig):
 
     def __init__(self):
-        YamlConfig.__init__(self, 'zzz_one_dragon', sample=False)
+        YamlConfig.__init__(self, 'one_dragon', sample=False)
         self.instance_list: List[OneDragonInstance] = []
         self._temp_instance_indices: Optional[List[int]] = None
         self._init_instance_list()
