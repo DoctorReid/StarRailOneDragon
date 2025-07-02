@@ -43,10 +43,10 @@ def get_level_type(ctx: SrContext, screen: MatLike) -> Optional[SimUniLevelType]
     part = cv2_utils.crop_image_only(screen, area.rect)
     region_name = ctx.ocr.run_ocr_single_line(part)
     level_type_list: List[SimUniLevelType] = [enum.value for enum in SimUniLevelTypeEnum]
-    target_list = [gt(level_type.type_name, 'ocr') for level_type in level_type_list]
-    target_idx = str_utils.find_best_match_by_lcs(region_name, target_list, lcs_percent_threshold=0.61)
+    target_list = [gt(level_type.type_name, 'game') for level_type in level_type_list]
+    target_idx = str_utils.find_best_match_by_difflib(region_name, target_list)
 
-    if target_idx is None:
+    if target_idx is None or target_idx < 0:
         return None
     else:
         return level_type_list[target_idx]

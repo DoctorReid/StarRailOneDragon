@@ -111,13 +111,13 @@ class SimUniLevelType:
 
 class SimUniLevelTypeEnum(Enum):
 
-    COMBAT = SimUniLevelType('combat', '战斗')
-    ENCOUNTER = SimUniLevelType('encounter', '遭遇', route_id='event')
-    ELITE = SimUniLevelType('elite', '精英')
-    BOSS = SimUniLevelType('boss', '首领', route_id='elite')
-    EVENT = SimUniLevelType('event', '事件')
-    TRANSACTION = SimUniLevelType('transaction', '交易', route_id='event')
-    RESPITE = SimUniLevelType('respite', '休整')
+    COMBAT = SimUniLevelType('combat', '区域-战斗')
+    ENCOUNTER = SimUniLevelType('encounter', '区域-遭遇', route_id='event')
+    ELITE = SimUniLevelType('elite', '区域-精英')
+    BOSS = SimUniLevelType('boss', '区域-首领', route_id='elite')
+    EVENT = SimUniLevelType('event', '区域-事件')
+    TRANSACTION = SimUniLevelType('transaction', '区域-交易', route_id='event')
+    RESPITE = SimUniLevelType('respite', '区域-休整')
 
 
 def level_type_from_id(level_type_id: str) -> Optional[SimUniLevelType]:
