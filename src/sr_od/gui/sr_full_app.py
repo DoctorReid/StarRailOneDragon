@@ -54,7 +54,7 @@ try:
                 win_title='%s %s' % (
                 gt(ctx.project_config.project_name, 'ui'), ctx.one_dragon_config.current_active_instance.name),
                 project_config=ctx.project_config,
-                app_icon='full_app.ico',
+                app_icon='app_logo.ico',
                 parent=parent
             )
 
