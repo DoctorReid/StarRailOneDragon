@@ -84,7 +84,7 @@ class SimUniChooseBless(SrOperation):
     def choose(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        bless_pos_list: List[MatchResult] = bless_utils.get_bless_pos(self.ctx, screen, self.before_level_start, self.bless_cnt_type)
+        bless_pos_list: List[MatchResult] = bless_utils.get_bless_pos(self.ctx, screen)
 
         if len(bless_pos_list) == 0:
             return self.round_retry('未识别到祝福', wait=1)

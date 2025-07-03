@@ -30,7 +30,11 @@ class SimUniDropBless(SrOperation):
         :param config: 挑战配置
         :param skip_first_screen_check: 是否跳过第一次的画面状态检查
         """
-        super().__init__(ctx, op_name='%s %s' % (gt('模拟宇宙', 'ui'), gt('丢弃祝福', 'ui')))
+        SrOperation.__init__(
+            self,
+            ctx,
+            op_name='%s %s' % (gt('模拟宇宙'), gt('丢弃祝福')),
+        )
 
         self.config: Optional[SimUniChallengeConfig] = config
         self.skip_first_screen_check: bool = skip_first_screen_check  # 是否跳过第一次的画面状态检查 用于提速
@@ -69,7 +73,7 @@ class SimUniDropBless(SrOperation):
     def choose_bless(self) -> OperationRoundResult:
         screen = self.screenshot()
 
-        bless_pos_list: List[MatchResult] = bless_utils.get_bless_pos(self.ctx, screen, False, self.bless_cnt_type)
+        bless_pos_list: List[MatchResult] = bless_utils.get_bless_pos(self.ctx, screen)
         if len(bless_pos_list) == 0:
             return self.round_retry('未识别到祝福', wait=1)
 
@@ -97,3 +101,18 @@ class SimUniDropBless(SrOperation):
                 return self.round_success(status=SimUniDropBless.STATUS_RETRY)
             else:
                 return self.round_fail(op_result.status)
+
+
+def __debug():
+    ctx = SrContext()
+    ctx.init_by_config()
+    ctx.init_ocr()
+    ctx.start_running()
+
+    op = SimUniDropBless(ctx)
+    op.execute()
+    ctx.stop_running()
+
+
+if __name__ == '__main__':
+    __debug()
