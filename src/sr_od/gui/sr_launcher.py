@@ -2,7 +2,7 @@ from one_dragon.devtools import python_launcher
 from one_dragon.launcher.exe_launcher import ExeLauncher
 
 # 版本号
-__version__ = "v3.1.0"
+__version__ = "v3.4.0"
 
 
 class SrLauncher(ExeLauncher):
