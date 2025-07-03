@@ -137,6 +137,24 @@ class SrMapData:
         else:
             return self.planet_list[idx]
 
+    def get_region_by_cn(self, planet_name: str, region_name: str, floor: int = 0) -> Region | None:
+        """
+        根据中文名称 获取对应的区域
+
+        Args:
+            planet_name: 星球名称-中文
+            region_name: 区域名称-中文
+            floor: 楼层
+
+        Returns:
+            region: 区域
+        """
+        region_list: list[Region] = self.planet_2_region.get(planet_name, [])
+        for region in region_list:
+            if region.cn == region_name and region.floor == floor:
+                return region
+        return None
+
     def best_match_region_by_name(self, ocr_word: Optional[str], planet: Optional[Planet] = None,
                                   target_floor: Optional[int] = None) -> Optional[Region]:
         """

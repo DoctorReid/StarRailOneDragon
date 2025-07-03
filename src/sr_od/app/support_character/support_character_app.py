@@ -25,7 +25,7 @@ class SupportCharacterApp(SrApplication):
         2023-11-12 中英文最高画质测试通过
         """
         SrApplication.__init__(self, ctx, 'support_character', op_name=gt('支援角色奖励', 'ui'),
-                               run_record=ctx.support_character_run_record)
+                               run_record=ctx.support_character_run_record, need_notify=True)
 
     @operation_node(name='打开菜单', is_start_node=True)
     def open_menu(self) -> OperationRoundResult:
@@ -65,5 +65,6 @@ class SupportCharacterApp(SrApplication):
     @node_from(from_name='点击漫游签证', status=STATUS_NO_ALERT)
     @operation_node(name='结束后返回')
     def back_at_last(self) -> OperationRoundResult:
+        self.notify_screenshot = self.save_screenshot_bytes()  # 结束后通知的截图
         op = BackToNormalWorldPlus(self.ctx)
         return self.round_by_op_result(op.execute())

@@ -96,7 +96,7 @@ class SimUniMoveToEnemyByDetect(SrOperation):
                 can_attack = True
 
         if self.ctx.env_config.is_debug:
-            cv2_utils.show_image(detect_utils.draw_detections(frame_result), win_name='SimUniMoveToEnemyByDetect')
+            # cv2_utils.show_image(detect_utils.draw_detections(frame_result), win_name='SimUniMoveToEnemyByDetect')
             if len(frame_result.results) > 3 and random.random() < 0.5:
                 self.save_screenshot()
 

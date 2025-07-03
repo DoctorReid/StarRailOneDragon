@@ -1,0 +1,393 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a release with current build'
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11.9'
+
+    - name: Install uv
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri https://astral.sh/uv/install.ps1 -OutFile install.ps1
+        .\install.ps1
+
+    - name: Create and activate virtual environment
+      shell: pwsh
+      run: |
+        uv venv .venv --python=3.11.12
+
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        .\.venv\Scripts\Activate.ps1
+        uv sync --all-groups
+
+    - name: Download and extract UPX into venv Scripts
+      shell: pwsh
+      run: |
+        $venvScripts = ".\.venv\Scripts"
+        $upxDir = Join-Path $venvScripts "upx"
+        $sourceUpxPath = Join-Path $upxDir "upx-4.2.3-win64" "upx.exe"
+        $destinationUpxPath = Join-Path $venvScripts "upx.exe"
+        $zipPath = "upx.zip"
+
+        Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v4.2.3/upx-4.2.3-win64.zip" -OutFile $zipPath
+        Expand-Archive -Path $zipPath -DestinationPath $upxDir -Force
+        Move-Item -Path $sourceUpxPath -Destination $destinationUpxPath -Force
+        Remove-Item -Path $upxDir -Recurse -Force
+
+    - name: Build executables
+      shell: pwsh
+      run: |
+        .\.venv\Scripts\Activate.ps1
+        cd deploy
+        pyinstaller "OneDragon-Installer.spec"
+        pyinstaller "OneDragon-Launcher.spec"
+
+    - name: Bundle dependencies into wheels
+      shell: pwsh
+      run: |
+        # 激活虚拟环境
+        .\.venv\Scripts\Activate.ps1
+
+        # 创建目标目录并生成 wheel 包
+        New-Item -ItemType Directory -Path deploy/dist/wheels -Force
+        uv export --no-hashes --no-dev --format requirements-txt > requirements-prod.txt
+        pip wheel --wheel-dir=deploy/dist/wheels -r requirements-prod.txt
+
+        # 压缩生成的 wheels 目录
+        Compress-Archive -Path deploy/dist/wheels/* -DestinationPath deploy/dist/StarRail-OneDragon-Environment.zip
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: artifacts
+        path: |
+          deploy/dist/OneDragon-Installer.exe
+          deploy/dist/OneDragon-Launcher.exe
+          deploy/dist/StarRail-OneDragon-Environment.zip
+
+  release:
+    needs: build
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.create_release == true) || startsWith(github.ref, 'refs/tags/') }}
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get version
+      id: get_version
+      shell: pwsh
+      run: |
+        if ($env:GITHUB_REF -like 'refs/tags/*') {
+          $version = $env:GITHUB_REF.Substring(10)
+          $tag = $version
+        } else {
+          $date = (Get-Date).ToUniversalTime().AddHours(8).ToString('yyyy.MMdd.HHmm')
+          $tag = "$date"
+          $version = $tag
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git tag $tag
+          git push origin $tag
+        }
+        echo "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: artifacts
+        path: deploy/dist
+
+    - name: Prepare release directory and models
+      shell: pwsh
+      run: |
+        function Expand-ZipIntoNamedFolder {
+            param (
+                [string]$url,
+                [string]$downloadPath,
+                [string]$destRoot,
+                [string]$folderName
+            )
+            Invoke-WebRequest -Uri $url -OutFile $downloadPath
+            $targetPath = Join-Path $destRoot $folderName
+            New-Item -ItemType Directory -Path $targetPath -Force
+            Expand-Archive -Path $downloadPath -DestinationPath $targetPath -Force
+        }
+
+        $distDir = "deploy/dist"
+        $rootDir = "$distDir/StarRail-OneDragon"
+        New-Item -ItemType Directory -Path $rootDir -Force
+
+        # .install
+        $envDir = "$rootDir/.install"
+        New-Item -ItemType Directory -Path $envDir -Force
+        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/StarRail-OneDragon/uv-x86_64-pc-windows-msvc.zip" -OutFile "$envDir/uv-x86_64-pc-windows-msvc.zip"
+        Invoke-WebRequest -Uri "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/StarRail-OneDragon/MinGit.zip" -OutFile "$envDir/MinGit.zip"
+
+        # 下载并提取Python
+        $pythonDir = "$envDir/python"
+        $pythonTargetDir = "$pythonDir/cpython-3.11.12-windows-x86_64-none"
+        New-Item -ItemType Directory -Path $pythonTargetDir -Force
+        $pythonTarGz = "$envDir/python.tar.gz"
+        Invoke-WebRequest -Uri "https://github.com/astral-sh/python-build-standalone/releases/download/20250517/cpython-3.11.12+20250517-x86_64-pc-windows-msvc-install_only_stripped.tar.gz" -OutFile $pythonTarGz
+
+        # 提取 tar.gz 文件
+        tar -xzf $pythonTarGz -C $pythonTargetDir --strip-components=1
+        Remove-Item -Path $pythonTarGz -Force
+
+        # 复制安装器
+        Copy-Item "$distDir/OneDragon-Installer.exe" -Destination $rootDir -Force
+
+        # 打包启动器
+        Compress-Archive -Path @(
+          "$distDir/OneDragon-Launcher.exe"
+        ) -DestinationPath "$envDir/StarRail-OneDragon-Launcher.zip" -Force
+
+        # 复制资源文件
+        Copy-Item "assets/text" -Destination "$rootDir/assets/text" -Recurse -Force
+        Copy-Item "assets/ui" -Destination "$rootDir/assets/ui" -Recurse -Force
+
+        # 创建模型目录
+        $modelBase = "$rootDir/assets/models"
+        New-Item -ItemType Directory -Path "$modelBase/onnx_ocr" -Force
+        New-Item -ItemType Directory -Path "$modelBase/sim_uni" -Force
+        New-Item -ItemType Directory -Path "$modelBase/world_patrol" -Force
+
+        # 临时模型目录
+        $tempDir = "temp_models"
+        New-Item -ItemType Directory -Path $tempDir -Force
+
+        # 从GitHub releases获取最新模型资源的函数
+        function Get-LatestModelAsset {
+            param (
+                [string]$repo,
+                [string]$pattern
+            )
+            $apiUrl = "https://api.github.com/repos/$repo/releases"
+            $releases = Invoke-RestMethod -Uri $apiUrl -Headers @{ "Accept" = "application/vnd.github.v3+json" }
+            foreach ($release in $releases) {
+                foreach ($asset in $release.assets) {
+                    if ($asset.name -match $pattern) {
+                        # 从资源名称中提取下载数量或找到下载数量最高的资源
+                        $downloadCount = $asset.download_count
+                        return @{
+                            url = $asset.browser_download_url
+                            name = $asset.name
+                            download_count = $downloadCount
+                        }
+                    }
+                }
+            }
+            return $null
+        }
+
+        # 通过文件末尾最高8位数字获取最新模型的函数
+        function Get-LatestModelByNumber {
+            param (
+                [string]$repo,
+                [string]$pattern
+            )
+            $apiUrl = "https://api.github.com/repos/$repo/releases"
+            $releases = Invoke-RestMethod -Uri $apiUrl -Headers @{ "Accept" = "application/vnd.github.v3+json" }
+
+            $bestAsset = $null
+            $maxNumber = -1
+
+            foreach ($release in $releases) {
+                foreach ($asset in $release.assets) {
+                    if ($asset.name -match $pattern) {
+                        # 从文件名末尾提取8位数字（在.zip之前）
+                        if ($asset.name -match '(\d{8})\.zip$') {
+                            $number = [int]$matches[1]
+                            if ($number -gt $maxNumber) {
+                                $maxNumber = $number
+                                $bestAsset = @{
+                                    url = $asset.browser_download_url
+                                    name = $asset.name
+                                    version_number = $number
+                                }
+                            }
+                        }
+                        # 对于ppocrv5和其他没有8位数字后缀的模型，作为备用选项
+                        elseif ($bestAsset -eq $null) {
+                            $bestAsset = @{
+                                url = $asset.browser_download_url
+                                name = $asset.name
+                                version_number = 0
+                            }
+                        }
+                    }
+                }
+            }
+            return $bestAsset
+        }
+
+        # 通过最高版本号获取最新模型
+        Write-Host "正在获取最新模型信息..."
+
+        # 获取 ppocrv5 模型 (onnx_ocr)
+        $ppocrModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-Env" -pattern "ppocrv5\.zip$"
+        if ($ppocrModel) {
+            $ppocrName = $ppocrModel.name -replace "\.zip$", ""
+            Write-Host "找到 ppocrv5 模型: $($ppocrModel.name) (版本: $($ppocrModel.version_number))"
+            Expand-ZipIntoNamedFolder `
+              -url $ppocrModel.url `
+              -downloadPath "$tempDir/ppocrv5.zip" `
+              -destRoot "$modelBase/onnx_ocr" `
+              -folderName $ppocrName
+        } else {
+            Write-Warning "无法找到 ppocrv5 模型，使用备用版本"
+            Expand-ZipIntoNamedFolder `
+              -url "https://github.com/OneDragon-Anything/OneDragon-Env/releases/download/ppocrv5/ppocrv5.zip" `
+              -downloadPath "$tempDir/ppocrv5.zip" `
+              -destRoot "$modelBase/onnx_ocr" `
+              -folderName "ppocrv5"
+        }
+
+        # 获取 sim uni 模型
+        $simUniModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-YOLO" -pattern "sim_uni.*\.zip$"
+        if ($simUniModel) {
+            $simUniName = $simUniModel.name -replace "\.zip$", ""
+            Write-Host "找到 sim uni 模型: $($simUniModel.name) (版本: $($simUniModel.version_number))"
+            Expand-ZipIntoNamedFolder `
+              -url $simUniModel.url `
+              -downloadPath "$tempDir/sim_uni.zip" `
+              -destRoot "$modelBase/sim_uni" `
+              -folderName $simUniName
+        } else {
+            Write-Warning "无法找到 sim_uni 模型，使用备用版本"
+            Expand-ZipIntoNamedFolder `
+              -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/sr_model/yolov8n-640-simuni-0601.zip" `
+              -downloadPath "$tempDir/sim_uni.zip" `
+              -destRoot "$modelBase/sim_uni" `
+              -folderName "yolov8n-640-simuni-0601"
+        }
+
+        # 获取 world_patrol 模型
+        $worldPatrolModel = Get-LatestModelByNumber -repo "OneDragon-Anything/OneDragon-YOLO" -pattern "world_patrol.*\.zip$"
+        if ($worldPatrolModel) {
+            $worldPatrolName = $worldPatrolModel.name -replace "\.zip$", ""
+            Write-Host "找到 world patrol 模型: $($worldPatrolModel.name) (版本: $($worldPatrolModel.version_number))"
+            Expand-ZipIntoNamedFolder `
+              -url $worldPatrolModel.url `
+              -downloadPath "$tempDir/world_patrol.zip" `
+              -destRoot "$modelBase/world_patrol" `
+              -folderName $worldPatrolName
+        } else {
+            Write-Warning "无法找到 world patrol 模型，使用备用版本"
+            Expand-ZipIntoNamedFolder `
+              -url "https://github.com/OneDragon-Anything/OneDragon-YOLO/releases/download/sr_model/yolov8n-640-simuni-0601.zip" `
+              -downloadPath "$tempDir/world_patrol.zip" `
+              -destRoot "$modelBase/world_patrol" `
+              -folderName "yolov8n-640-simuni-0601"
+        }
+
+        # 获取版本号
+        $version = "${{ steps.get_version.outputs.version }}"
+
+        # 打包完整版本
+        Compress-Archive -Path "$rootDir\*" -DestinationPath "$distDir/StarRail-OneDragon-$version-Full.zip" -Force
+
+        # 复制环境依赖到 .install 目录
+        Copy-Item "$distDir/StarRail-OneDragon-Environment.zip" -Destination "$rootDir/.install/StarRail-OneDragon-Environment.zip" -Force
+
+        # 打包带环境的完整版本
+        Compress-Archive -Path "$rootDir\*" -DestinationPath "$distDir/StarRail-OneDragon-$version-Full-Environment.zip" -Force
+
+        # 复制安装程序
+        Copy-Item "$rootDir/OneDragon-Installer.exe" -Destination "$distDir/StarRail-OneDragon-$version-Installer.exe" -Force
+
+    - name: Generate Changelog
+      id: changelog
+      shell: pwsh
+      run: |
+        $changelog_content = ""
+        $current_version_tag = "${{ steps.get_version.outputs.tag }}" # 从 get_version 步骤获取的标签
+
+        if ($env:GITHUB_REF -like 'refs/tags/*') {
+          # 这是由标签触发的发布
+          # 尝试查找当前标签提交的父提交上的最新标签
+          $previous_tag_candidate = $(git describe --tags --abbrev=0 "$current_version_tag^" 2>$null)
+          if ($previous_tag_candidate) {
+            Write-Host "正在生成从 $previous_tag_candidate 到 $current_version_tag 的更新日志"
+            $changelog_content = git log --pretty=format:"- %s (%h)" "$previous_tag_candidate..$current_version_tag"
+          } else {
+            Write-Host "未找到相对于 $current_version_tag^ 的上一个标签。列出 $current_version_tag 的最后10个提交。"
+            # 这可能是第一个标签。列出导致它的提交。
+            $changelog_content = git log --pretty=format:"- %s (%h)" -n 10 "$current_version_tag"
+          }
+        } else {
+          # 这是手动 workflow_dispatch 或分支推送
+          Write-Host "手动或分支构建。列出 HEAD 的最后5个提交。"
+          $changelog_content = git log --pretty=format:"- %s (%h)" -n 5 HEAD
+        }
+
+        # 将git log的数组转换为单个字符串，去除空白
+        $changelog_content = ($changelog_content | Out-String).Trim()
+
+        if ([string]::IsNullOrWhiteSpace($changelog_content)) {
+          $changelog_content = "没有新的更改或无法确定更新日志。"
+        }
+
+        $output_name = "clean_changelog"
+        $delimiter = "CHANGELOG_DELIMITER_$(New-Guid)"
+
+        echo "$output_name<<$delimiter" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo $changelog_content | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        echo $delimiter | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_version.outputs.tag }}
+        name: "Release ${{ steps.get_version.outputs.version }}"
+        body: |
+          # 安装方式
+
+          - `StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Full-Environment.zip` 为带环境的完整包，解压后选择解压目录为安装目录，不需要额外下载。
+          - `StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip` 为完整包，解压后选择解压目录为安装目录，只需要下载环境依赖。
+          - `StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe` 为精简安装程序，运行后会自动下载所需的资源。
+          - 如果你想更新启动器，前往主程序【设置】-【资源下载】页面更新，或者下载 `StarRail-OneDragon-Launcher.zip`，解压后替换。
+          - __不要下载Source Code__
+
+          安装前请查看 [安装指南](https://onedragon-anything.github.io/sr/zh/quickstart.html)
+          若运行出错请查看 [自助排障指南](https://www.kdocs.cn/l/cbSJUUNotJ3Z)
+
+          # 更新内容
+
+          ${{ steps.changelog.outputs.clean_changelog }}
+        files: |
+          deploy/dist/StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Full-Environment.zip
+          deploy/dist/StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Full.zip
+          deploy/dist/StarRail-OneDragon-${{ steps.get_version.outputs.version }}-Installer.exe
+          deploy/dist/StarRail-OneDragon-Environment.zip
+          deploy/dist/StarRail-OneDragon-Launcher.zip
+        generate_release_notes: false
+        prerelease: ${{ github.event_name == 'workflow_dispatch' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
